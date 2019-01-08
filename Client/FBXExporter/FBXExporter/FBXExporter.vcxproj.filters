@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="소스 파일\Converter">
+      <UniqueIdentifier>{002afb99-47af-4e30-b65d-7a1779eae045}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Exporter">
+      <UniqueIdentifier>{fb6aa95c-5a7c-4c4a-b4a9-de97bfdff7fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\DataStruct">
+      <UniqueIdentifier>{e3c2dfed-c863-48b4-8432-d876e3562808}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\GetPosition">
+      <UniqueIdentifier>{4f9fe671-2a3c-4d4b-a6e7-bf409da10c47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\헤더">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Converter.cpp">
+      <Filter>소스 파일\Converter</Filter>
+    </ClCompile>
+    <ClCompile Include="DataStruct.cpp">
+      <Filter>소스 파일\DataStruct</Filter>
+    </ClCompile>
+    <ClCompile Include="Exporter.cpp">
+      <Filter>소스 파일\Exporter</Filter>
+    </ClCompile>
+    <ClCompile Include="GetPosition.cxx">
+      <Filter>소스 파일\GetPosition</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="library.h">
+      <Filter>소스 파일\헤더</Filter>
+    </ClInclude>
+    <ClInclude Include="Converter.h">
+      <Filter>소스 파일\Converter</Filter>
+    </ClInclude>
+    <ClInclude Include="DataStruct.h">
+      <Filter>소스 파일\DataStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="Exporter.h">
+      <Filter>소스 파일\Exporter</Filter>
+    </ClInclude>
+    <ClInclude Include="GetPosition.h">
+      <Filter>소스 파일\GetPosition</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
