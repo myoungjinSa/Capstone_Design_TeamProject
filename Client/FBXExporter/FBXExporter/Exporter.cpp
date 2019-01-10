@@ -7,7 +7,7 @@
 Exporter::Exporter()
 : m_iMeshCount(0), mHasAnimationData(false)
 {
-	m_exSkinnedContainer.resize(2);	
+	m_exSkinnedContainer.resize(4);	
 }
 
 
@@ -64,9 +64,14 @@ bool Exporter::ExportMeshData(FbxMesh* pMesh)
 	FbxLayerElementArrayTemplate<int>* pMaterialIndices = NULL;
 	FbxGeometryElementNormal* vertexNormal = nullptr;
 	FbxGeometryElementUV* vertexUV = nullptr;
+
+	//FbxGeometryElementTangent* vertexTangent = nullptr;
+
 	FbxGeometryElement::EMappingMode eNormalMappingMode = FbxGeometryElement::eNone;
 	FbxGeometryElement::EMappingMode eUVMappingMode = FbxGeometryElement::eNone;
 	FbxGeometryElement::EReferenceMode eNormalReferenceMode;
+
+	FbxGeometryElement::EMappingMode eTangentMappingMode = FbxGeometryElement::eNone;
 
 	vMeshData.SetNormal(pMesh->GetElementNormalCount() > 0);
 	vMeshData.SetUV(pMesh->GetElementUVCount() > 0);
@@ -97,6 +102,15 @@ bool Exporter::ExportMeshData(FbxMesh* pMesh)
 			vMeshData.SetByControlPoint(false);
 		}
 	}
+	//if (vMeshData.GetTangent())
+	//{
+	//	vertexTangent = pMesh->GetElementTangent(0);
+	//	eTangentMappingMode = vertexTangent->GetMappingMode();
+	//	if (eTangentMappingMode == FbxGeometryElement::eNone)
+	//		vMeshData.SetTangent(false);
+	//	if (vMeshData.GetTangent() && eTangentMappingMode != FbxGeometryElement::eByControlPoint)
+	//		vMeshData.SetByControlPoint(false);
+	//}
 
 	const int polygonCount = pMesh->GetPolygonCount();
 	int polygonVertexCount = 0;
@@ -116,6 +130,8 @@ bool Exporter::ExportMeshData(FbxMesh* pMesh)
 	FbxVector4 currVertex;
 	FbxVector4 currNormal;
 	FbxVector2 currUV;
+
+	//FbxVector4 currTangent;
 
 	FbxStringList UVNames;
 	pMesh->GetUVSetNames(UVNames);
@@ -698,6 +714,76 @@ void Exporter::WriteAllData(const string& fileName)
 	}
 
 	fout.close();
+}
 
+void Exporter::WritePositionsData(ofstream& out, int meshID)
+{
+	for (auto vertex : m_exMeshContainer[meshID].GetMeshData())
+		out << vertex.pos.x << ' ' << vertex.pos.z << ' ' << vertex.pos.y << ' ';
+	out << endl;
+}
 
+void	Exporter::WriteTextureCoordsData(ofstream& out, int meshID)
+{
+	for (auto vertex : m_exMeshContainer[meshID].GetMeshData())
+		out << vertex.uv.x << ' ' << vertex.uv.y << ' ';
+	out << endl;
+}
+
+void Exporter::WriteNormalsData(ofstream& out, int meshID)
+{
+	for (auto vertex : m_exMeshContainer[meshID].GetMeshData())
+		out << vertex.normal.x << ' ' << vertex.normal.z << ' ' << vertex.normal.y << ' ';
+	out << endl;
+}
+
+void Exporter::WriteIndicesData(ofstream& out, int meshID)
+{
+	int cnt = 1;
+
+	int triangleCount = m_exMeshContainer[meshID].GetIndexCount() / 3;
+	for (int i = 0; i < triangleCount; ++i)
+	{
+		out << m_exMeshContainer[meshID].GetIndexData()[i * 3] << ' '
+			<< m_exMeshContainer[meshID].GetIndexData()[i * 3 + 2] << ' '
+			<< m_exMeshContainer[meshID].GetIndexData()[i * 3 + 1] << ' ';
+	}
+	out << endl;
+}
+
+void Exporter::WriteNewData(const string& fileName)
+{
+	ofstream out(fileName);
+
+	if (!out)
+	{
+		cerr << fileName << "File Load Error!" << endl;
+		exit(EXIT_FAILURE);
+	}
+
+	for (int i = 0; i < m_iMeshCount; ++i)
+	{
+		// Mesh Data Export
+		cout << "[" << i + 1 << "]-> " << " Mesh Data Recording ..." << endl;
+
+		// 정점 개수 출력
+		//out << "<Mesh>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << endl;
+		// 위치 개수 + 데이터 출력
+		//out << "<Positions>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
+		out << "<Vertices>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
+		WritePositionsData(out, i);
+		// Normal 개수 + 데이터 출력
+		out << "<Normals>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
+		WriteNormalsData(out, i);
+		// UV 개수 + 데이터 출력
+		out << "<TextureCoords>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
+		WriteTextureCoordsData(out, i);
+		// 인덱스 개수 + 데이터 출력
+		out << "<Indices>:" << ' ' << GetIndexMeshData(i).GetIndexCount() << ' ';
+		WriteIndicesData(out, i);
+		// 끝
+		//out << "</Mesh>";
+
+		cout << "[" << i + 1 << "]-> " << " Mesh Data Success !!" << endl;
+	}
 }

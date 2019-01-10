@@ -52,7 +52,12 @@ public:
 	void							WriteConvertTransformMatrix(ofstream& fout, KeyFrameData& mtx);
 
 	void							WriteAllData(const string& fileName);
-
+	
+	void WritePositionsData(ofstream& out, int meshID);
+	void	WriteTextureCoordsData(ofstream& out, int meshID);
+	void WriteNormalsData(ofstream& out, int meshID);
+	void WriteIndicesData(ofstream& out, int meshID);
+	void WriteNewData(const string& fileName);
 };
 
 

@@ -74,11 +74,10 @@ void Converter::LoadFile()
 
 	auto formatPoint = find(m_FileName.begin(), m_FileName.end(), '.');
 	m_FileName.erase(formatPoint, m_FileName.end());
-	string fName = m_FileName + ".data";
+	string fName = m_FileName + ".txt";
 
-
-	m_pExporter->WriteAllData(fName);
-
+	//m_pExporter->WriteAllData(fName);
+	m_pExporter->WriteNewData(fName);
 
 }
 void Converter::Destroy()
