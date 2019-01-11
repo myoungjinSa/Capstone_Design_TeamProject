@@ -81,5 +81,19 @@ protected:
 public:
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList);
 
-	void LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, TCHAR *pstrFileName);
+	virtual void LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, TCHAR *pstrFileName);
 };
+
+
+class CZombieMesh :public CMesh
+{
+public:
+	CZombieMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, TCHAR *pstrFileName = NULL);
+	virtual ~CZombieMesh();
+
+public:
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList);
+
+	virtual void LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, TCHAR *pstrFileName);
+};
+

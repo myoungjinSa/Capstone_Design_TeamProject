@@ -47,3 +47,34 @@ float4 PSLighting(VS_OUTPUT input) : SV_TARGET
 	return(color);
 }
 
+VS_OUTPUT VSZombie(VS_INPUT input)
+{
+	VS_OUTPUT output;
+
+	output.positionW = mul(float4(input.position, 1.0f), gmtxWorld).xyz;
+	output.positionH = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+	output.normalW = mul(float4(input.normal, 0.0f), gmtxWorld).xyz;
+	output.uv = input.uv;
+
+	return (output);
+
+}
+
+
+Texture2D gtxtAlbedoTexture : register(t0);
+Texture2D gtxtNormalTexture : register(t1);
+Texture2D gtxtSpecularTexture : register(t2);
+SamplerState gSamplerState : register(s0);
+
+
+float4 PSZombie(VS_OUTPUT input) : SV_TARGET
+{
+	float4 cAlbedoColor = gtxtAlbedoTexture.Sample(gSamplerState, input.uv);
+	float4 cNormalColor = gtxtNormalTexture.Sample(gSamplerState, input.uv);
+	float4 cSpecularColor = gtxtSpecularTexture.Sample(gSamplerState, input.uv);
+
+	float4 cFinalColor = cAlbedoColor; //+ cNormalColor + cSpecularColor;
+
+	return (cFinalColor);
+}
+

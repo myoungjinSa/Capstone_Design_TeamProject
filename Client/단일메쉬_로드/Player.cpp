@@ -237,7 +237,7 @@ CAirplanePlayer::CAirplanePlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 {
 #ifdef _WITH_TEXT_MESH
 	//CMesh *pAirplaneMesh = new CMesh(pd3dDevice, pd3dCommandList, L"FlyerPlayership.txt");
-	CMesh *pAirplaneMesh = new CMesh(pd3dDevice, pd3dCommandList, L"OBJ_Deer.txt");
+	CMesh *pAirplaneMesh = new CMesh(pd3dDevice, pd3dCommandList, L"UFO.txt");
 #else
 	CMesh *pAirplaneMesh = new CMesh(pd3dDevice, pd3dCommandList, L"FlyerPlayership.bin");
 #endif
