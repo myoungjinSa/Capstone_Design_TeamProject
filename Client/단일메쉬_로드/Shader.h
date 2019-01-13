@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Object.h"
+#include "GameObject.h"
 #include "Camera.h"
 
 struct CB_GAMEOBJECT_INFO

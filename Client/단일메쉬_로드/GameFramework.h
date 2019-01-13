@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Timer.h"
+#include "GameTimer.h"
 #include "Player.h"
 #include "Scene.h"
 

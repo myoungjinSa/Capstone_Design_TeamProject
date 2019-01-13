@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Object.h"
+#include "GameObject.h"
 #include "Camera.h"
 
 class CPlayer : public CGameObject

@@ -18,15 +18,15 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
 #ifdef _WITH_TEXT_MESH
-	//CMesh *pUfoMesh = new CMesh(pd3dDevice, pd3dCommandList, L"UFO.txt");
-	CMesh *pUfoMesh = new CMesh(pd3dDevice, pd3dCommandList, L"GrabRifle.txt");
+	CMesh *pUfoMesh = new CMesh(pd3dDevice, pd3dCommandList, L"UFO.txt");
+	//CMesh *pUfoMesh = new CMesh(pd3dDevice, pd3dCommandList, L"GrabRifle.txt");
 #else
 	CMesh *pUfoMesh = new CMesh(pd3dDevice, pd3dCommandList, L"UFO.bin");
 #endif
 
 #ifdef _WITH_TEXT_MESH
-	//CMesh *pFlyerMesh = new CMesh(pd3dDevice, pd3dCommandList, L"FlyerPlayership.txt");
-	CMesh *pFlyerMesh = new CMesh(pd3dDevice, pd3dCommandList, L"GrabRifle.txt");
+	CMesh *pFlyerMesh = new CMesh(pd3dDevice, pd3dCommandList, L"FlyerPlayership.txt");
+	//CMesh *pFlyerMesh = new CMesh(pd3dDevice, pd3dCommandList, L"GrabRifle.txt");
 	
 #else
 	CMesh *pFlyerMesh = new CMesh(pd3dDevice, pd3dCommandList, L"FlyerPlayership.bin");
