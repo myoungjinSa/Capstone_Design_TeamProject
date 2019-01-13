@@ -827,7 +827,7 @@ void Exporter::WriteNewData(const string& fileName)
 			//out << "<BlendWeights>:" << ' ' << GetIndexSkinnedData(i).GetSkeleton().size() << endl;
 			WriteBlendWeightsData(out, i);
 
-			out << "<BlendIndicies>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
+			out << "<BlendIndices>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
 			//out << "<BlendIndicies>:" << ' '<< Converter::Instance()->GetScene()->GetSrcObjectCount<FbxAnimStack>() << endl;
 			WriteBlendIndiciesData(out, i);
 
