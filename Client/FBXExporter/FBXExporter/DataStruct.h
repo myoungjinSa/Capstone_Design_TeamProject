@@ -21,7 +21,7 @@ public:
 	D3DXVECTOR3		pos;
 	D3DXVECTOR3		normal;
 	D3DXVECTOR2		uv;
-
+	//D3DXVECTOR3		tangent;
 	D3DXVECTOR4		Weight;
 	D3DXVECTOR4		Indices;
 };
@@ -36,7 +36,7 @@ private:
 	unsigned int		m_nIndices;
 	unsigned int		m_nVertices;
 
-	bool					m_hasTangent;
+	//bool				m_hasTangent;
 
 	vector<VertexData>	m_VertexContainer;
 	vector<UINT>		m_IndexContainer;
@@ -59,7 +59,7 @@ public:
 	bool						GetNormal() const{ return m_hasNormal; }
 	bool						GetUV() const { return m_hasUv; }
 	bool						GetByControlPoint() const { return m_ByControlPoint; }
-	bool						GetTangent()	const { return m_hasTangent; }
+	//bool						GetTangent()	const { return m_hasTangent; }
 
 
 	void						SetVertexCount(unsigned int count) { m_nVertices = count; }
@@ -68,7 +68,7 @@ public:
 	void						SetNormal(bool hasNormal) { m_hasNormal = hasNormal; }
 	void						SetUV(bool hasUV) { m_hasUv = hasUV; }
 	void						SetByControlPoint(bool byControlPoint) { m_ByControlPoint = byControlPoint; }
-	void						SetTangent(bool hasTangent)	{ m_hasTangent = hasTangent; }
+	//void						SetTangent(bool hasTangent)	{ m_hasTangent = hasTangent; }
 };
 
 class KeyFrameData

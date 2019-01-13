@@ -7,7 +7,7 @@
 Exporter::Exporter()
 : m_iMeshCount(0), mHasAnimationData(false)
 {
-	m_exSkinnedContainer.resize(4);	
+	m_exSkinnedContainer.resize(15);	
 }
 
 
@@ -718,6 +718,7 @@ void Exporter::WriteAllData(const string& fileName)
 
 void Exporter::WritePositionsData(ofstream& out, int meshID)
 {
+
 	for (auto vertex : m_exMeshContainer[meshID].GetMeshData())
 		out << vertex.pos.x << ' ' << vertex.pos.z << ' ' << vertex.pos.y << ' ';
 	out << endl;
@@ -734,6 +735,23 @@ void Exporter::WriteNormalsData(ofstream& out, int meshID)
 {
 	for (auto vertex : m_exMeshContainer[meshID].GetMeshData())
 		out << vertex.normal.x << ' ' << vertex.normal.z << ' ' << vertex.normal.y << ' ';
+	out << endl;
+}
+
+void Exporter::WriteBlendWeightsData(ofstream& out, int meshID)
+{
+	for (auto vertex : m_exMeshContainer[meshID].GetMeshData())
+	{
+		out << vertex.Weight.x << ' ' << vertex.Weight.y << ' ' << vertex.Weight.z << ' ' << vertex.Weight.w<< ' ';
+	}
+	out << endl;
+}
+void Exporter::WriteBlendIndiciesData(ofstream& out, int meshID)
+{
+	for (auto vertex : m_exMeshContainer[meshID].GetMeshData())
+	{
+		out << vertex.Indices.x << ' ' << vertex.Indices.y << ' ' << vertex.Indices.z << ' ';
+	}
 	out << endl;
 }
 
@@ -766,21 +784,91 @@ void Exporter::WriteNewData(const string& fileName)
 		// Mesh Data Export
 		cout << "[" << i + 1 << "]-> " << " Mesh Data Recording ..." << endl;
 
-		// 정점 개수 출력
-		//out << "<Mesh>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << endl;
-		// 위치 개수 + 데이터 출력
-		//out << "<Positions>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
-		out << "<Vertices>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
-		WritePositionsData(out, i);
-		// Normal 개수 + 데이터 출력
-		out << "<Normals>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
-		WriteNormalsData(out, i);
-		// UV 개수 + 데이터 출력
-		out << "<TextureCoords>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
-		WriteTextureCoordsData(out, i);
-		// 인덱스 개수 + 데이터 출력
-		out << "<Indices>:" << ' ' << GetIndexMeshData(i).GetIndexCount() << ' ';
-		WriteIndicesData(out, i);
+		out << "<MESH_DATA>" << endl;
+		out << GetIndexMeshData(i).GetMeshData().size() << endl;
+		out << GetIndexMeshData(i).GetIndexCount() << endl;
+		out << GetIndexSkinnedData(i).GetSkeleton().size() << endl;
+		out << Converter::Instance()->GetScene()->GetSrcObjectCount<FbxAnimStack>() << endl;
+		//// 정점 개수 출력
+		////out << "<Mesh>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << endl;
+		//// 위치 개수 + 데이터 출력
+		////out << "<Positions>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
+		//out << "<Vertices>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
+		////WritePositionsData(out, i);
+		//// Normal 개수 + 데이터 출력
+		//out << "<Normals>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
+		////WriteNormalsData(out, i);
+		//// UV 개수 + 데이터 출력
+		//out << "<TextureCoords>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
+		////WriteTextureCoordsData(out, i);
+
+
+		//out << "<Bones>:" << ' ' << GetIndexSkinnedData(i).GetSkeleton().size() << endl;
+		////
+
+
+		//// 인덱스 개수 + 데이터 출력
+		//out << "<Indices>:" << ' ' << GetIndexMeshData(i).GetIndexCount() << ' ';
+		////WriteIndicesData(out, i);
+
+
+		if (mHasAnimationData)
+		{
+			out << "<Vertices>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
+			WritePositionsData(out,i);
+
+			out << "<Normals>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
+			WriteNormalsData(out,i);
+
+			out << "<TextureCoords>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
+			WriteTextureCoordsData(out,i);
+
+			out << "<BlendWeights>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
+			//out << "<BlendWeights>:" << ' ' << GetIndexSkinnedData(i).GetSkeleton().size() << endl;
+			WriteBlendWeightsData(out, i);
+
+			out << "<BlendIndicies>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
+			//out << "<BlendIndicies>:" << ' '<< Converter::Instance()->GetScene()->GetSrcObjectCount<FbxAnimStack>() << endl;
+			WriteBlendIndiciesData(out, i);
+
+			out << "<Indices>:" << ' ' << GetIndexMeshData(i).GetIndexCount() << ' ';
+			WriteIndicesData(out, i);
+
+
+			// BoneHierarchy Data Export									
+			cout << "[" << i + 1 << "]-> " << " Bone Hierarchy Data Recording ..." << endl;
+			out << "[ BONE_HIERARCHY ]" << endl;
+			WriteBoneHierarchy(out, i);
+			cout << "[" << i + 1 << "]-> " << " Bone Hierarchy  Data Success !!" << endl;
+
+			// OffsetMatrix Data Export 
+			cout << "[" << i + 1 << "]-> " << " Offset Matrix Data Recording ..." << endl;
+			out << "[ OFFSET_MATRIX ]" << endl;
+			WriteOffsetMatrix(out, i);
+			cout << "[" << i + 1 << "]-> " << " Offset Matrix Data Success !!" << endl;
+
+
+			// Time t TransformMatrix Data Export 
+			cout << "[" << i + 1 << "]-> " << " Time t Transform Matrix Data Recording ..." << endl;
+			out << "[ ANIMATION_CLIPS ]" << endl;
+			WriteTimeTransformMatrix(out, i);
+			cout << "[" << i + 1 << "]-> " << " Time t Transform Matrix Data Success !!" << endl;
+		}
+		else 
+		{
+			out << "<Vertices>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
+			WritePositionsData(out, i);
+
+			out << "<Normals>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
+			WriteNormalsData(out, i);
+
+			out << "<TextureCoords>:" << ' ' << GetIndexMeshData(i).GetMeshData().size() << ' ';
+			WriteTextureCoordsData(out, i);
+
+			out << "<Indices>:" << ' ' << GetIndexMeshData(i).GetIndexCount() << ' ';
+			WriteIndicesData(out, i);
+		}
+
 		// 끝
 		//out << "</Mesh>";
 

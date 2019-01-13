@@ -46,6 +46,8 @@ public:
 
 	void							WriteSkinnedVertexData(ofstream& fout, int meshID);
 	void							WriteIndexData(ofstream& fout, int meshID);
+	void							WriteBlendWeightsData(ofstream& fout, int meshID);
+	void							WriteBlendIndiciesData(ofstream& fout, int meshID);
 	void							WriteBoneHierarchy(ofstream& fout, int meshID);
 	void							WriteOffsetMatrix(ofstream& fout, int meshID);
 	void							WriteTimeTransformMatrix(ofstream& fout, int meshID);
