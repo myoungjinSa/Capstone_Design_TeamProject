@@ -147,38 +147,74 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AngryBot.h" />
+    <ClInclude Include="AnimationCallbackHandler.h" />
+    <ClInclude Include="AnimationController.h" />
+    <ClInclude Include="AnimationSet.h" />
+    <ClInclude Include="AnimationTrack.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
     <ClInclude Include="GameFramework.h" />
+    <ClInclude Include="GunShip.h" />
+    <ClInclude Include="ObjectsShader.h" />
+    <ClInclude Include="PlayerShader.h" />
+    <ClInclude Include="SkinnedAnimationShader.h" />
+    <ClInclude Include="SkyBoxShader.h" />
+    <ClInclude Include="StandardShader.h" />
+    <ClInclude Include="Terrain.h" />
     <ClInclude Include="LabProject07-9-5(Animation).h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Object.h" />
+    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="Mi24.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="SkyBox.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="SuperCobra.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="Timer.h" />
+    <ClInclude Include="GameTimer.h" />
+    <ClInclude Include="TerrainShader.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="WICTextureLoader12.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AngryBot.cpp" />
+    <ClCompile Include="AnimationCallbackHandler.cpp" />
+    <ClCompile Include="AnimationController.cpp" />
+    <ClCompile Include="AnimationSet.cpp" />
+    <ClCompile Include="AnimationTrack.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DDSTextureLoader12.cpp" />
     <ClCompile Include="GameFramework.cpp" />
+    <ClCompile Include="GunShip.cpp" />
+    <ClCompile Include="ObjectsShader.cpp" />
+    <ClCompile Include="PlayerShader.cpp" />
+    <ClCompile Include="SkinnedAnimationShader.cpp" />
+    <ClCompile Include="SkyBoxShader.cpp" />
+    <ClCompile Include="StandardShader.cpp" />
+    <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="LabProject07-9-5(Animation).cpp" />
+    <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Object.cpp" />
+    <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="Mi24.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="GameTimer.cpp" />
+    <ClCompile Include="SuperCobra.cpp" />
+    <ClCompile Include="TerrainShader.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="WICTextureLoader12.cpp" />
   </ItemGroup>
   <ItemGroup>

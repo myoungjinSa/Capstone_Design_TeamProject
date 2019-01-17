@@ -7,7 +7,7 @@
 #define DIR_UP					0x10
 #define DIR_DOWN				0x20
 
-#include "Object.h"
+#include "GameObject.h"
 #include "Camera.h"
 
 class CPlayer : public CGameObject
@@ -117,5 +117,9 @@ public:
 
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed);
 	virtual void OnCameraUpdateCallback(float fTimeElapsed);
+
+	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void ReleaseShaderVariables();
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 };
 

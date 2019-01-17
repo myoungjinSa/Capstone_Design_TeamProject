@@ -3,7 +3,7 @@
 //-----------------------------------------------------------------------------
 
 #include "stdafx.h"
-#include "Timer.h"
+#include "GameTimer.h"
 
 CGameTimer::CGameTimer()
 {

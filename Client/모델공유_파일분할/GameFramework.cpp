@@ -1,9 +1,8 @@
-//-----------------------------------------------------------------------------
-// File: CGameFramework.cpp
-//-----------------------------------------------------------------------------
-
 #include "stdafx.h"
 #include "GameFramework.h"
+#include "Scene.h"
+#include "Player.h"
+#include "Terrain.h"
 
 CGameFramework::CGameFramework()
 {
@@ -169,6 +168,8 @@ void CGameFramework::CreateDirect3DDevice()
 	m_hFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
 
 	if (pd3dAdapter) pd3dAdapter->Release();
+
+	// IncrementSize ¼³Á¤ÇØÁÜ
 	::gnCbvSrvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
@@ -315,6 +316,12 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			switch (wParam)
 			{
 				case VK_ESCAPE:
+					//ID3D12DebugDevice * debugInterface;
+					//if (SUCCEEDED(m_pd3dDevice.Get()->QueryInterface(&debugInterface)))
+					//{
+					//	debugInterface->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
+					//	debugInterface->Release();
+					//}
 					::PostQuitMessage(0);
 					break;
 				case VK_RETURN:
@@ -413,7 +420,6 @@ void CGameFramework::BuildObjects()
 #ifdef _WITH_TERRAIN_PLAYER
 	CTerrainPlayer *pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), 
 		m_pScene->getTransforms(), m_pScene->m_pTerrain);
-	
 	pPlayer->SetPosition(XMFLOAT3(380.0f, m_pScene->m_pTerrain->GetHeight(380.0f, 680.0f), 680.0f));
 	pPlayer->SetScale(XMFLOAT3(2.0f, 2.0f, 2.0f));
 #else
@@ -556,7 +562,8 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
-	if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
+	if (m_pScene) 
+		m_pScene->Render(m_pd3dCommandList, m_pCamera);
 
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
