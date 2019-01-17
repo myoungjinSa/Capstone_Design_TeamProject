@@ -229,6 +229,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsComm
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+
 CAnimationSet::CAnimationSet()
 {
 }
@@ -259,6 +260,7 @@ float CAnimationSet::GetPosition(float fPosition)
 			break;
 		}
 		case ANIMATION_TYPE_ONCE:
+			
 			break;
 		case ANIMATION_TYPE_PINGPONG:
 			break;
@@ -340,6 +342,7 @@ void CAnimationSet::SetCallbackKey(int nKeyIndex, float fKeyTime, void *pData)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+
 CAnimationController::CAnimationController(int nAnimationTracks)
 {
 	m_nAnimationTracks = nAnimationTracks;
@@ -369,10 +372,14 @@ void CAnimationController::SetAnimationSet(int nAnimationSet)
 {
 	if (m_pAnimationSets && (nAnimationSet < m_nAnimationSets))
 	{
+		
 		m_nAnimationSet = nAnimationSet;
 		m_pAnimationTracks[m_nAnimationTrack].m_pAnimationSet = &m_pAnimationSets[m_nAnimationSet];
 	}
+
+
 }
+
 
 void CAnimationController::AdvanceTime(float fTimeElapsed, CAnimationCallbackHandler *pCallbackHandler) 
 {
@@ -387,18 +394,26 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CAnimationCallbackHan
 
 				CAnimationSet *pAnimationSet = m_pAnimationTracks[i].m_pAnimationSet;		//원하는 애니메이션을 선택하고
 				pAnimationSet->m_fPosition += (fTimeElapsed * pAnimationSet->m_fSpeed);		//해당 애니메이션의 프레임위치를 결정
+				pAnimationSet->m_fLength = pAnimationSet->m_fLength;
 
+
+			
+				
 				if (pCallbackHandler)
 				{
 					void *pCallbackData = pAnimationSet->GetCallback(pAnimationSet->m_fPosition);
-					if(pCallbackData) pCallbackHandler->HandleCallback(pCallbackData);
+					if (pCallbackData) pCallbackHandler->HandleCallback(pCallbackData);
 				}
 
 				float fPositon = pAnimationSet->GetPosition(pAnimationSet->m_fPosition);
+
+
 				for (int i = 0; i < m_nAnimationBoneFrames; i++)
 				{
+				//프레임 마다 그 시간대의 변환행렬이 있는지 확인후 있다면 변환
 					m_ppAnimationBoneFrameCaches[i]->m_xmf4x4ToParent = pAnimationSet->GetSRT(i, fPositon);
 				}
+				
 			}
 		}
 	}
@@ -406,6 +421,8 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CAnimationCallbackHan
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+
+int CGameObject::AttackCallCount = 0;
 CGameObject::CGameObject()
 {
 	m_xmf4x4ToParent = Matrix4x4::Identity();
@@ -853,7 +870,10 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 
 			nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile); // 문자열 개수
 			nReads = (UINT)::fread(pGameObject->m_pstrFrameName, sizeof(char), nStrLength, pInFile); //문자열 개수만큼 게임오브젝트의 이름을 읽어라
+			
 			pGameObject->m_pstrFrameName[nStrLength] = '\0';
+			
+
 		}
 		else if (!strcmp(pstrToken, "<Transform>:"))
 		{
@@ -868,6 +888,7 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 		{
 			// TransformMatrix를 읽어 toParent행렬로 set
 			nReads = (UINT)::fread(&pGameObject->m_xmf4x4ToParent, sizeof(float), 16, pInFile); 
+			
 		}
 		else if (!strcmp(pstrToken, "<Mesh>:"))
 		{
@@ -888,10 +909,12 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 			pSkinnedMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
 
 			pGameObject->SetMesh(pSkinnedMesh);
+			
 		}
 		else if (!strcmp(pstrToken, "<Materials>:"))
 		{
 			pGameObject->LoadMaterialsFromFile(pd3dDevice, pd3dCommandList, pParent, pInFile, pShader);
+			
 		}
 		else if (!strcmp(pstrToken, "<Children>:"))
 		{
@@ -905,7 +928,11 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 				{
 					//children 개수만큼 
 					CGameObject *pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInFile, pShader);
-					if (pChild) pGameObject->SetChild(pChild);
+					if (pChild)
+					{
+						pGameObject->SetChild(pChild);
+
+					}
 #ifdef _WITH_DEBUG_FRAME_HIERARCHY
 					TCHAR pstrDebug[256] = { 0 };
 					_stprintf_s(pstrDebug, 256, "(Frame: %p) (Parent: %p)\n"), pChild, pGameObject);
@@ -1055,6 +1082,7 @@ CGameObject *CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDev
 	::rewind(pInFile);
 
 	CGameObject *pGameObject = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, pInFile, pShader);
+
 
 	pGameObject->CacheSkinningBoneFrames(pGameObject);
 

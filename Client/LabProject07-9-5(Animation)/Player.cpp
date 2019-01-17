@@ -175,21 +175,25 @@ void CPlayer::Update(float fTimeElapsed)
 	float tLength = Vector3::Length(m_xmf3Velocity);
 
 
-	if (CTerrainPlayer::m_state == CTerrainPlayer::eState::RUNBACKWARD)
+
+
+	if (Vector3::IsZero(m_xmf3Velocity)&& CTerrainPlayer::m_state != CTerrainPlayer::eState::ATTACK)			//속도가 0일때는 IDLE상태
 	{
-		SetAnimationSet(3);
+		SetAnimationSet(CTerrainPlayer::eState::IDLE);
+		
 	}
-	
-	if (Vector3::IsZero(m_xmf3Velocity))
+
+	//속도가 어느정도 빠르고 캐릭터가 뒤로 후진하는 상태가 아닐때 빠르게 걷는다
+	if (tLength > 100.0f && CTerrainPlayer::m_state != CTerrainPlayer::eState::RUNBACKWARD )
 	{
-		SetAnimationSet(0);
+		SetAnimationSet(CTerrainPlayer::eState::RUNFAST);
+
 	}
-	else if (tLength < 100.0f && CTerrainPlayer::m_state != CTerrainPlayer::eState::RUNBACKWARD)
+	// 캐릭터가 때리는 상태일때 
+	if (CTerrainPlayer::m_state == CTerrainPlayer::eState::ATTACK)
 	{
-		SetAnimationSet(1);
-	}
-	else if(CTerrainPlayer::m_state != CTerrainPlayer::eState::RUNBACKWARD) {
-		SetAnimationSet(2);
+		SetAnimationSet(CTerrainPlayer::eState::ATTACK);
+
 	}
 		
 	
@@ -343,7 +347,7 @@ CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 			SetMaxVelocityY(20.0f);
 			m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
 			m_pCamera->SetTimeLag(0.25f);
-			m_pCamera->SetOffset(XMFLOAT3(0.0f, 15.0f, -30.0f));
+			m_pCamera->SetOffset(XMFLOAT3(0.0f, 15.0f, -15.0f));
 			m_pCamera->SetPosition(Vector3::Add(m_xmf3Position, m_pCamera->GetOffset()));
 			m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
 			m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
@@ -365,7 +369,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 {
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
-	CGameObject *pGameObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/EvilbearA.bin", NULL, true);
+	CGameObject *pGameObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/EvilBearA.bin", NULL, true);
 	SetChild(pGameObject);
 
 
@@ -550,10 +554,20 @@ void CTerrainPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera 
 
 void CTerrainPlayer::SetState(DWORD key)
 {
-	if (key == VK_DOWN) {
+	if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+	{
 		m_state = RUNBACKWARD;
 	}
-	else if (GetAsyncKeyState(VK_DOWN) & 0x8000 && (GetAsyncKeyState(VK_RIGHT)&0x8000 || GetAsyncKeyState(VK_LEFT) & 0x8000))
+	else if (GetAsyncKeyState(VK_UP) & 0x8000)
+	{
+		m_state = WALKFRONT;
+	}
+	else if (GetAsyncKeyState(VK_X) & 0x8000)
+	{
+		m_state = ATTACK;
+	}
+	//키 두가지 동시에 처리 가능하게 
+	else if ((GetAsyncKeyState(VK_DOWN) & 0x8000) && (GetAsyncKeyState(VK_RIGHT)&0x8000 || GetAsyncKeyState(VK_LEFT) & 0x8000))
 	{
 		m_state = RUNBACKWARD;
 	}

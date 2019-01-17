@@ -39,6 +39,8 @@ public:
 	CPlayer();
 	virtual ~CPlayer();
 
+	float AnimTimer = 0.0f;
+
 	void	SetDirection(DWORD direction) { m_dwDirection = direction; }
 	DWORD	GetDirection() { return m_dwDirection; }
 
@@ -132,7 +134,7 @@ public:
 public:
 	static int BackCallTime;
 
-	const enum eState { IDLE = 0, WALKFRONT, RUNFAST, RUNBACKWARD , NOTYET /*미정*/};
+	const enum eState { IDLE = 0, WALKFRONT, RUNFAST, RUNBACKWARD , ATTACK ,NOTYET /*미정*/};
 	static int m_state;
 };
 

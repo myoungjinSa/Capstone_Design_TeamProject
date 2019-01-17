@@ -5,6 +5,8 @@
 #include "stdafx.h"
 #include "GameFramework.h"
 
+
+
 CGameFramework::CGameFramework()
 {
 	m_pdxgiFactory = NULL;
@@ -17,7 +19,7 @@ CGameFramework::CGameFramework()
 	m_pd3dCommandAllocator = NULL;
 	m_pd3dCommandQueue = NULL;
 	m_pd3dCommandList = NULL;
-
+	
 	m_pd3dRtvDescriptorHeap = NULL;
 	m_pd3dDsvDescriptorHeap = NULL;
 
@@ -193,10 +195,12 @@ void CGameFramework::CreateCommandQueueAndList()
 	hResult = m_pd3dDevice->CreateCommandQueue(&d3dCommandQueueDesc, _uuidof(ID3D12CommandQueue), (void **)&m_pd3dCommandQueue);
 
 	hResult = m_pd3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), (void **)&m_pd3dCommandAllocator);
+	
 
 	hResult = m_pd3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pd3dCommandAllocator, NULL, __uuidof(ID3D12GraphicsCommandList), (void **)&m_pd3dCommandList);
+	
 	hResult = m_pd3dCommandList->Close();
-
+	
 
 }
 
@@ -396,6 +400,7 @@ void CGameFramework::OnDestroy()
 	if (m_pd3dCommandAllocator) m_pd3dCommandAllocator->Release();
 	if (m_pd3dCommandQueue) m_pd3dCommandQueue->Release();
 	if (m_pd3dCommandList) m_pd3dCommandList->Release();
+	
 
 	if (m_pd3dFence) m_pd3dFence->Release();
 
@@ -466,25 +471,39 @@ void CGameFramework::ProcessInput()
 			dwDirection |= DIR_FORWARD;
 			m_pPlayer->SetDirection(dwDirection);
 			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->SetState(VK_UP);
+			//키입력이 있을때만 애니메이션을 변경하기 위하여 여기에 SetAnimattionSet함수를 호출
+			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->SetAnimationSet(CTerrainPlayer::eState::WALKFRONT);
+
 		}
 		if (pKeysBuffer[VK_DOWN] & 0xF0)
 		{
 			dwDirection |= DIR_BACKWARD;
 			m_pPlayer->SetDirection(dwDirection);
 			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->SetState(VK_DOWN);
+			//키입력이 있을때만 애니메이션을 변경하기 위하여 여기에 SetAnimattionSet함수를 호출
+			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->SetAnimationSet(CTerrainPlayer::eState::RUNBACKWARD);//SetState(VK_DOWN);
+				
 		}
 		if (pKeysBuffer[VK_LEFT] & 0xF0)
 		{
 			dwDirection |= DIR_LEFT;
 			m_pPlayer->SetDirection(dwDirection);
-			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->SetState(VK_LEFT);
+		
 		}
 		if (pKeysBuffer[VK_RIGHT] & 0xF0)
 		{
 			dwDirection |= DIR_RIGHT;
 			m_pPlayer->SetDirection(dwDirection);
-			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->SetState(VK_RIGHT);
+		
+	
 		}
+		if (pKeysBuffer[VK_X] & 0xF0)
+		{
+			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->SetState(VK_X);
+			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->SetAnimationSet(CTerrainPlayer::eState::ATTACK);//SetState(VK_DOWN);
+
+		}
+
 		if (pKeysBuffer[VK_PRIOR] & 0xF0) dwDirection |= DIR_UP;
 		if (pKeysBuffer[VK_NEXT] & 0xF0) dwDirection |= DIR_DOWN;
 
@@ -570,6 +589,8 @@ void CGameFramework::FrameAdvance()
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
+	
+
 	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
 	::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
 	d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -580,35 +601,41 @@ void CGameFramework::FrameAdvance()
 	d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	m_pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);
 
+
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
 
 	float pfClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f };
 	m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor/*Colors::Azure*/, 0, NULL);
 
+
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 
+
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
-	if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
 
+	if (m_pScene) m_pScene->Render( m_pd3dCommandList, m_pCamera);
+	
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 #endif
 	if (m_pPlayer) m_pPlayer->Render(m_pd3dCommandList, m_pCamera);
+
 
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 	d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	m_pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);
 
+
 	hResult = m_pd3dCommandList->Close();
-	
+
 	ID3D12CommandList *ppd3dCommandLists[] = { m_pd3dCommandList };
 	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
-
 	WaitForGpuComplete();
+
 
 #ifdef _WITH_PRESENT_PARAMETERS
 	DXGI_PRESENT_PARAMETERS dxgiPresentParameters;

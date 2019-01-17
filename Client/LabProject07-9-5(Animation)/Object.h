@@ -189,6 +189,7 @@ public:
 	float 							m_fPosition = 0.0f;
     int 							m_nType = ANIMATION_TYPE_LOOP; //Once, Loop, PingPong
 
+
 	int								m_nCurrentKey = -1;
 
 	int 							m_nCallbackKeys = 0;
@@ -251,6 +252,7 @@ public:
 
 public:
 	void SetAnimationSet(int nAnimationSet);
+	CAnimationSet* GetAnimationSet();
 
 	void SetCallbackKeys(int nAnimationSet, int nCallbackKeys);
 	void SetCallbackKey(int nAnimationSet, int nKeyIndex, float fTime, void *pData);
@@ -342,6 +344,8 @@ public:
 public:
 	CAnimationController 			*m_pAnimationController = NULL;
 
+	static int AttackCallCount;
+
 	CGameObject *GetRootSkinnedGameObject();
 
 	void SetAnimationSet(int nAnimationSet);
@@ -383,6 +387,9 @@ public:
 	XMFLOAT3 GetScale() { return(m_xmf3Scale); }
 	float GetWidth() { return(m_nWidth * m_xmf3Scale.x); }
 	float GetLength() { return(m_nLength * m_xmf3Scale.z); }
+
+
+
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -67,8 +67,10 @@ private:
 	UINT						m_nDsvDescriptorIncrementSize;
 
 	ID3D12CommandAllocator		*m_pd3dCommandAllocator = NULL;
+
 	ID3D12CommandQueue			*m_pd3dCommandQueue = NULL;
 	ID3D12GraphicsCommandList	*m_pd3dCommandList = NULL;
+
 
 	ID3D12Fence					*m_pd3dFence = NULL;
 	UINT64						m_nFenceValues[m_nSwapChainBuffers];
