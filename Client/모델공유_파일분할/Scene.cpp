@@ -1,9 +1,13 @@
-//-----------------------------------------------------------------------------
-// File: CScene.cpp
-//-----------------------------------------------------------------------------
-
 #include "stdafx.h"
 #include "Scene.h"
+#include "Material.h"
+#include "Texture.h"
+#include "Player.h"
+#include "SkyBox.h"
+#include "Terrain.h"
+#include "AngryBot.h"
+#include "Shader.h"
+#include "ObjectsShader.h"
 
 ID3D12DescriptorHeap *CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -87,8 +91,8 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_pSkyBox = new CSkyBox(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	XMFLOAT3 xmf3Scale(8.0f, 2.0f, 8.0f);
 	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
-	m_pTerrain = new CHeightMapTerrain(
-		pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/HeightMap.raw"), 257, 257, xmf3Scale, xmf4Color);
+	m_pTerrain = new CTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 
+		_T("Terrain/HeightMap.raw"), 257, 257, xmf3Scale, xmf4Color);
 
 	m_nShaders = 1;
 	m_ppShaders = new CShader*[m_nShaders];
@@ -109,10 +113,10 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	m_ppGameObjects = new CGameObject*[m_nGameObjects];
 
-	m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	m_ppGameObjects[0] = new CAngryBot(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
 	m_ppGameObjects[0]->setTransforms(v_Transforms);
-	((CAngrybotObject*)m_ppGameObjects[0])->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	((CAngryBot*)m_ppGameObjects[0])->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	m_ppGameObjects[0]->SetChild(pAngrybotModel, true);
 	m_ppGameObjects[0]->SetPosition(400.0f, m_pTerrain->GetHeight(400.0f, 700.0f), 700.0f);
@@ -125,9 +129,9 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	// 셰이더에 넘기는 월드 transform 행렬을 각각의 오브젝트가 갖도록해서 넘겨야 한다.
 	// 본 오프셋행렬은 그대로 사용
 
-	m_ppGameObjects[1] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	m_ppGameObjects[1] = new CAngryBot(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
-	((CAngrybotObject*)m_ppGameObjects[1])->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	((CAngryBot*)m_ppGameObjects[1])->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	m_ppGameObjects[1]->setTransforms(v_Transforms);
 
 	m_ppGameObjects[1]->SetChild(pAngrybotModel, true);
@@ -135,9 +139,9 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppGameObjects[1]->SetScale(2.0f, 2.0f, 2.0f);
 
 
-	m_ppGameObjects[2] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	m_ppGameObjects[2] = new CAngryBot(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
-	((CAngrybotObject*)m_ppGameObjects[1])->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	((CAngryBot*)m_ppGameObjects[1])->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	m_ppGameObjects[2]->setTransforms(v_Transforms);
 
 	m_ppGameObjects[2]->SetChild(pAngrybotModel, true);
@@ -562,7 +566,7 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		{
 			m_ppGameObjects[i]->Animate(m_fElapsedTime);
 			m_ppGameObjects[i]->UpdateTransform(NULL);
-			((CAngrybotObject*)m_ppGameObjects[i])->UpdateShaderVariables(pd3dCommandList);
+			((CAngryBot*)m_ppGameObjects[i])->UpdateShaderVariables(pd3dCommandList);
 			m_ppGameObjects[i]->Render(pd3dCommandList, pCamera);
 		}
 	}

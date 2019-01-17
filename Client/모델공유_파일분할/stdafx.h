@@ -10,11 +10,15 @@
 #include <windows.h>
 
 // TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
-#include <iostream>
 
 // 콘솔창 추가
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+using namespace std;
 
 // C의 런타임 헤더 파일입니다.
 #include <stdlib.h>
@@ -22,15 +26,8 @@
 #include <memory.h>
 #include <tchar.h>
 #include <math.h>
-
-#include <string>
 #include <wrl.h>
 #include <shellapi.h>
-
-#include <fstream>
-#include <vector>
-
-using namespace std;
 
 #include <d3d12.h>
 #include <dxgi1_4.h>
