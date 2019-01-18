@@ -501,9 +501,15 @@ void CGameFramework::ProcessInput()
 		{
 			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->SetState(VK_X);
 			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->SetAnimationSet(CTerrainPlayer::eState::ATTACK);//SetState(VK_DOWN);
+			
+		}
+		if (pKeysBuffer[VK_RETURN] & 0xF0)
+		{
+			
+			bool bIce = dynamic_cast<CTerrainPlayer*>(m_pPlayer)->m_bIce;
+			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->m_bIce = !bIce;
 
 		}
-
 		if (pKeysBuffer[VK_PRIOR] & 0xF0) dwDirection |= DIR_UP;
 		if (pKeysBuffer[VK_NEXT] & 0xF0) dwDirection |= DIR_DOWN;
 
@@ -544,9 +550,10 @@ void CGameFramework::AnimateObjects()
 
 	if (m_pScene) m_pScene->AnimateObjects(fTimeElapsed);
 
-
+	
 	m_pPlayer->Animate(fTimeElapsed);
 	m_pPlayer->UpdateTransform(NULL);
+	
 }
 
 void CGameFramework::WaitForGpuComplete()

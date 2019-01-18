@@ -116,6 +116,7 @@ public:
 	CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext=NULL);
 	virtual ~CTerrainPlayer();
 
+	CGameObject *pIceObject = NULL;
 public:
 	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
 
@@ -134,7 +135,8 @@ public:
 public:
 	static int BackCallTime;
 
-	const enum eState { IDLE = 0, WALKFRONT, RUNFAST, RUNBACKWARD , ATTACK ,NOTYET /*미정*/};
+	bool		m_bIce=false;
+	const enum eState { IDLE = 0, WALKFRONT, RUNFAST, RUNBACKWARD , ATTACK ,ICE,NOTYET /*미정*/};
 	static int m_state;
 };
 

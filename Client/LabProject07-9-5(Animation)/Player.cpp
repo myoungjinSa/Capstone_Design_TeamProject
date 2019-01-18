@@ -177,25 +177,25 @@ void CPlayer::Update(float fTimeElapsed)
 
 
 
-	if (Vector3::IsZero(m_xmf3Velocity)&& CTerrainPlayer::m_state != CTerrainPlayer::eState::ATTACK)			//속도가 0일때는 IDLE상태
+	if (Vector3::IsZero(m_xmf3Velocity)&& CTerrainPlayer::m_state != CTerrainPlayer::eState::ATTACK && CTerrainPlayer::m_state != CTerrainPlayer::eState::ICE)			//속도가 0일때는 IDLE상태
 	{
-		SetAnimationSet(CTerrainPlayer::eState::IDLE);
+		SetAnimationSet(0);
 		
 	}
 
 	//속도가 어느정도 빠르고 캐릭터가 뒤로 후진하는 상태가 아닐때 빠르게 걷는다
-	if (tLength > 100.0f && CTerrainPlayer::m_state != CTerrainPlayer::eState::RUNBACKWARD )
+	if (tLength > 100.0f && CTerrainPlayer::m_state != CTerrainPlayer::eState::RUNBACKWARD &&CTerrainPlayer::m_state != CTerrainPlayer::eState::ICE)
 	{
 		SetAnimationSet(CTerrainPlayer::eState::RUNFAST);
 
 	}
 	// 캐릭터가 때리는 상태일때 
-	if (CTerrainPlayer::m_state == CTerrainPlayer::eState::ATTACK)
+	if (CTerrainPlayer::m_state == CTerrainPlayer::eState::ATTACK &&CTerrainPlayer::m_state != CTerrainPlayer::eState::ICE)
 	{
 		SetAnimationSet(CTerrainPlayer::eState::ATTACK);
 
 	}
-		
+
 	
 
 	//SetAnimationSet(Vector3::IsZero(m_xmf3Velocity) ? 0 : 1);
@@ -370,6 +370,11 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
 	CGameObject *pGameObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/EvilBearA.bin", NULL, true);
+
+
+	//pIceObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice,pd3dCommandList,pd3dGraphicsRootSignature, "Model/EvilBearA_ice.bin", NULL, false);
+
+
 	SetChild(pGameObject);
 
 
@@ -549,7 +554,61 @@ void CTerrainPlayer::UpdateTransform(XMFLOAT4X4* pxmf4x4Parent)
 void CTerrainPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
-	if (nCameraMode == THIRD_PERSON_CAMERA) CGameObject::Render(pd3dCommandList, pCamera);
+	if (nCameraMode == THIRD_PERSON_CAMERA)
+	{
+		
+		OnPrepareRender();
+
+		UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+
+
+		if (m_bIce) 
+		{
+			if (m_nMaterials > 0)
+			{
+				if (m_ppMaterials[1])
+				{
+					if (m_ppMaterials[1]->m_pShader)
+					{
+						m_ppMaterials[1]->m_pShader->Render(pd3dCommandList, pCamera);
+					}
+					m_ppMaterials[1]->UpdateShaderVariable(pd3dCommandList);
+
+
+				}
+				if (m_pMesh)
+				{
+					m_pMesh->Render(pd3dCommandList, 0);
+				}
+			}
+
+			if (m_pSibling) m_pSibling->Render(pd3dCommandList, m_bIce,pCamera);
+			if (m_pChild) m_pChild->Render(pd3dCommandList,m_bIce ,pCamera);
+		}
+		else
+		{
+			if (m_nMaterials > 0)
+			{
+				if (m_ppMaterials[0])
+				{
+					if (m_ppMaterials[0]->m_pShader)
+					{
+						m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
+					}
+					m_ppMaterials[0]->UpdateShaderVariable(pd3dCommandList);
+
+
+				}
+				if (m_pMesh)
+				{
+					m_pMesh->Render(pd3dCommandList, 0);
+				}
+			}
+
+			if (m_pSibling) m_pSibling->Render(pd3dCommandList, m_bIce, pCamera);
+			if (m_pChild) m_pChild->Render(pd3dCommandList, m_bIce, pCamera);
+		}
+	}
 }
 
 void CTerrainPlayer::SetState(DWORD key)

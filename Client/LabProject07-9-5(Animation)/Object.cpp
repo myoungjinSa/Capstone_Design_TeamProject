@@ -486,6 +486,19 @@ void CGameObject::SetChild(CGameObject *pChild, bool bReferenceUpdate)
 		m_pChild = pChild;
 	}
 }
+void CGameObject::ChangeChild(CGameObject *pChild,bool bReferenceUpdate)
+{
+	
+	if (m_pChild)
+	{
+		m_pChild->Release();
+			
+	}
+	if(pChild)
+	{
+		SetChild(pChild, true);
+	}
+}
 
 void CGameObject::SetMesh(CMesh *pMesh)
 {
@@ -583,6 +596,48 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 	if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
 	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
 }
+void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,  bool bIce,CCamera *pCamera)
+{
+	OnPrepareRender();
+
+	UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+
+	if(bIce)
+	{
+		if (m_nMaterials > 0)
+		{
+			if (m_ppMaterials[1])
+			{
+				if (m_ppMaterials[1]->m_pShader) m_ppMaterials[1]->m_pShader->Render(pd3dCommandList, pCamera);
+				m_ppMaterials[1]->UpdateShaderVariable(pd3dCommandList);
+			}
+
+			if (m_pMesh) m_pMesh->Render(pd3dCommandList, 0);
+		
+		}
+
+	
+		if (m_pSibling) m_pSibling->Render(pd3dCommandList,bIce ,pCamera);
+		if (m_pChild) m_pChild->Render(pd3dCommandList,bIce ,pCamera);
+	}
+	else {
+
+		if (m_nMaterials > 0)
+		{
+			if (m_ppMaterials[0])
+			{
+				if (m_ppMaterials[0]->m_pShader) m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
+				m_ppMaterials[0]->UpdateShaderVariable(pd3dCommandList);
+			}
+
+			if (m_pMesh) m_pMesh->Render(pd3dCommandList, 0);
+
+		}
+		if (m_pSibling) m_pSibling->Render(pd3dCommandList,bIce ,pCamera);
+		if (m_pChild) m_pChild->Render(pd3dCommandList, bIce,pCamera);
+	}
+}
+
 
 void CGameObject::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
