@@ -488,27 +488,23 @@ void CGameFramework::ProcessInput()
 		{
 			dwDirection |= DIR_LEFT;
 			m_pPlayer->SetDirection(dwDirection);
-		
 		}
 		if (pKeysBuffer[VK_RIGHT] & 0xF0)
 		{
 			dwDirection |= DIR_RIGHT;
 			m_pPlayer->SetDirection(dwDirection);
-		
-	
 		}
 		if (pKeysBuffer[VK_X] & 0xF0)
 		{
 			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->SetState(VK_X);
-			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->SetAnimationSet(CTerrainPlayer::eState::ATTACK);//SetState(VK_DOWN);
-			
+		}
+		if (pKeysBuffer[VK_Z] & 0xF0)
+		{
+			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->SetState(VK_Z);
 		}
 		if (pKeysBuffer[VK_RETURN] & 0xF0)
 		{
-			
-			bool bIce = dynamic_cast<CTerrainPlayer*>(m_pPlayer)->m_bIce;
-			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->m_bIce = !bIce;
-
+			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->SetState(VK_RETURN);
 		}
 		if (pKeysBuffer[VK_PRIOR] & 0xF0) dwDirection |= DIR_UP;
 		if (pKeysBuffer[VK_NEXT] & 0xF0) dwDirection |= DIR_DOWN;
@@ -535,8 +531,6 @@ void CGameFramework::ProcessInput()
 			}
 			if (dwDirection)
 			{
-				//m_pPlayer->
-				//m_pPlayer->Rotate(0.1f, 0.0f, -0.1f);
 				m_pPlayer->Move(dwDirection, 4.5f, true);
 			}
 		}

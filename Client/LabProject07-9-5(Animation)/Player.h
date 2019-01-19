@@ -136,7 +136,7 @@ public:
 	static int BackCallTime;
 
 	bool		m_bIce=false;
-	const enum eState { IDLE = 0, WALKFRONT, RUNFAST, RUNBACKWARD , ATTACK ,ICE,NOTYET /*미정*/};
+	const enum eState { IDLE = 0, WALKFRONT, RUNFAST, RUNBACKWARD , ATTACK ,DIGGING /*땅 파기*/,ICE,NOTYET /*미정*/};
 	static int m_state;
 };
 

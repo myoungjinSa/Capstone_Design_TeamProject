@@ -147,11 +147,11 @@ CShader *CMaterial::m_pStandardShader = NULL;
 void CMaterial::PrepareShaders(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
 	m_pStandardShader = new CStandardShader();
-	m_pStandardShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pStandardShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
 	m_pStandardShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	m_pSkinnedAnimationShader = new CSkinnedAnimationShader();
-	m_pSkinnedAnimationShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pSkinnedAnimationShader->CreateShader(pd3dDevice,  pd3dGraphicsRootSignature);
 	m_pSkinnedAnimationShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
@@ -243,6 +243,7 @@ CAnimationSet::~CAnimationSet()
 	if (m_pCallbackKeys) delete[] m_pCallbackKeys;
 }
 
+//정확하게 틀린 부분이 무엇일까
 float CAnimationSet::GetPosition(float fPosition)
 {
 	float fGetPosition = fPosition;
@@ -251,7 +252,9 @@ float CAnimationSet::GetPosition(float fPosition)
 		case ANIMATION_TYPE_LOOP:
 		{
 			fGetPosition = fPosition - int(fPosition / m_pfKeyFrameTransformTimes[m_nKeyFrameTransforms-1]) * m_pfKeyFrameTransformTimes[m_nKeyFrameTransforms-1];
+
 //			fGetPosition = fPosition - int(fPosition / m_fLength) * m_fLength;
+			
 #ifdef _WITH_ANIMATION_INTERPOLATION			
 #else
 			m_nCurrentKey++;
@@ -383,7 +386,7 @@ void CAnimationController::SetAnimationSet(int nAnimationSet)
 
 void CAnimationController::AdvanceTime(float fTimeElapsed, CAnimationCallbackHandler *pCallbackHandler) 
 {
-	m_fTime += fTimeElapsed; 
+	m_fTime += fTimeElapsed;										//시간을 더한다. 
 	if (m_pAnimationSets)
 	{
 		for (int i = 0; i < m_nAnimationTracks; i++)				//애니메이션 개수만큼 루프를 돌면서
@@ -396,8 +399,6 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CAnimationCallbackHan
 				pAnimationSet->m_fPosition += (fTimeElapsed * pAnimationSet->m_fSpeed);		//해당 애니메이션의 프레임위치를 결정
 				pAnimationSet->m_fLength = pAnimationSet->m_fLength;
 
-
-			
 				
 				if (pCallbackHandler)
 				{
@@ -422,7 +423,6 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CAnimationCallbackHan
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-int CGameObject::AttackCallCount = 0;
 CGameObject::CGameObject()
 {
 	m_xmf4x4ToParent = Matrix4x4::Identity();
@@ -486,19 +486,7 @@ void CGameObject::SetChild(CGameObject *pChild, bool bReferenceUpdate)
 		m_pChild = pChild;
 	}
 }
-void CGameObject::ChangeChild(CGameObject *pChild,bool bReferenceUpdate)
-{
-	
-	if (m_pChild)
-	{
-		m_pChild->Release();
-			
-	}
-	if(pChild)
-	{
-		SetChild(pChild, true);
-	}
-}
+
 
 void CGameObject::SetMesh(CMesh *pMesh)
 {
@@ -616,11 +604,11 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,  bool bIce,
 		
 		}
 
-	
 		if (m_pSibling) m_pSibling->Render(pd3dCommandList,bIce ,pCamera);
 		if (m_pChild) m_pChild->Render(pd3dCommandList,bIce ,pCamera);
 	}
-	else {
+	else 
+	{
 
 		if (m_nMaterials > 0)
 		{
@@ -1182,7 +1170,7 @@ CHeightMapTerrain::CHeightMapTerrain(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 	pTerrainDetailTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/Detail_Texture_7.dds", 0);
 
 	CTerrainShader *pTerrainShader = new CTerrainShader();
-	pTerrainShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pTerrainShader->CreateShader(pd3dDevice,  pd3dGraphicsRootSignature);
 	pTerrainShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainBaseTexture, 13, false);
@@ -1215,7 +1203,7 @@ CSkyBox::CSkyBox(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dComman
 //	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"SkyBox/SkyBox_1.dds", 0);
 
 	CSkyBoxShader *pSkyBoxShader = new CSkyBoxShader();
-	pSkyBoxShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pSkyBoxShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
 	pSkyBoxShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	CScene::CreateShaderResourceViews(pd3dDevice, pSkyBoxTexture, 10, false);

@@ -297,7 +297,6 @@ public:
 	void SetShader(int nMaterial, CShader *pShader);
 	void SetMaterial(int nMaterial, CMaterial *pMaterial);
 
-	void ChangeChild(CGameObject *pChild,bool bReferenceUpdate =false);
 	void SetChild(CGameObject *pChild, bool bReferenceUpdate=false);
 
 	virtual void BuildMaterials(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) { }
@@ -348,7 +347,7 @@ public:
 public:
 	CAnimationController 			*m_pAnimationController = NULL;
 
-	static int AttackCallCount;
+
 
 	CGameObject *GetRootSkinnedGameObject();
 
