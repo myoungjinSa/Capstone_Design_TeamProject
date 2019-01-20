@@ -176,10 +176,12 @@ void CPlayer::Update(float fTimeElapsed)
 	if (Vector3::IsZero(m_xmf3Velocity)&& CTerrainPlayer::m_state != CTerrainPlayer::eState::ATTACK)			//속도가 0일때는 IDLE상태
 	{
 		SetAnimationSet(CTerrainPlayer::eState::IDLE);	
+	int state = CTerrainPlayer::m_state;
+	if (state == CTerrainPlayer::eState::ICE)
+	{
+		SetAnimationSet(CTerrainPlayer::eState::ICE);
 	}
-
-	//속도가 어느정도 빠르고 캐릭터가 뒤로 후진하는 상태가 아닐때 빠르게 걷는다
-	if (tLength > 100.0f && CTerrainPlayer::m_state != CTerrainPlayer::eState::RUNBACKWARD )
+	else
 	{
 		SetAnimationSet(CTerrainPlayer::eState::RUNFAST);
 	}
@@ -189,6 +191,33 @@ void CPlayer::Update(float fTimeElapsed)
 		SetAnimationSet(CTerrainPlayer::eState::ATTACK);
 	}
 
+		
+		if (Vector3::IsZero(m_xmf3Velocity) && state != CTerrainPlayer::eState::ATTACK && state !=CTerrainPlayer::eState::DIGGING)			//속도가 0일때는 IDLE상태
+		{
+			SetAnimationSet(CTerrainPlayer::eState::IDLE);
+
+		}
+
+		//속도가 어느정도 빠르고 캐릭터가 뒤로 후진하는 상태가 아닐때 빠르게 걷는다
+		if (tLength > 100.0f && state != CTerrainPlayer::eState::RUNBACKWARD)
+		{
+			SetAnimationSet(CTerrainPlayer::eState::RUNFAST);
+
+		}
+		// 캐릭터가 때리는 상태일때 
+		if (state == CTerrainPlayer::eState::ATTACK)
+		{
+			SetAnimationSet(CTerrainPlayer::eState::ATTACK);
+
+		}
+		//땅 파기
+		if (state == CTerrainPlayer::eState::DIGGING)
+		{
+			SetAnimationSet(CTerrainPlayer::eState::DIGGING);
+
+		}
+
+	}
 	//SetAnimationSet(Vector3::IsZero(m_xmf3Velocity) ? 0 : 1);
 
 }
@@ -362,6 +391,8 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
 	CGameObject *pGameObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/EvilBearA.bin", NULL, true);
+
+
 	SetChild(pGameObject);
 
 
@@ -510,21 +541,7 @@ void CTerrainPlayer::RotateAxisY(float fTimeElapsed)
 
 		SetDirection(0x00);
 	}
-	//else if (m_dwDirection & DIR_BACKWARD)
-	//{
-	////	float fDotProduct = Vector3::DotProduct(xmf3Look, Vector3::ScalarProduct(m_pCamera->GetLookVector(),-1));
-	////	float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
-
-	//	
-	//	BackCallTime += 1;
-	//	if (BackCallTime <= 1) {
-	//		XMMATRIX xmmtxRotate = DirectX::XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(180.0f));
-	//		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-	//		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-
-	//	}
-	//	SetDirection(0x00);
-	//}
+	
 }
 
 
@@ -533,7 +550,6 @@ void CTerrainPlayer::UpdateTransform(XMFLOAT4X4* pxmf4x4Parent)
 	m_xmf4x4World = (pxmf4x4Parent) ? Matrix4x4::Multiply(m_xmf4x4ToParent, *pxmf4x4Parent) : m_xmf4x4ToParent;
 
 
-	
 	if (m_pSibling) m_pSibling->UpdateTransform(pxmf4x4Parent);
 	if (m_pChild) m_pChild->UpdateTransform(&m_xmf4x4World);
 }
@@ -541,25 +557,105 @@ void CTerrainPlayer::UpdateTransform(XMFLOAT4X4* pxmf4x4Parent)
 void CTerrainPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
-	if (nCameraMode == THIRD_PERSON_CAMERA) CGameObject::Render(pd3dCommandList, pCamera);
+	if (nCameraMode == THIRD_PERSON_CAMERA)
+	{
+		
+		OnPrepareRender();
+
+		UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+
+
+		if (m_bIce) 
+		{
+			if (m_nMaterials > 0)
+			{
+				if (m_ppMaterials[1])
+				{
+					if (m_ppMaterials[1]->m_pShader)
+					{
+						m_ppMaterials[1]->m_pShader->Render(pd3dCommandList, pCamera);
+					}
+					m_ppMaterials[1]->UpdateShaderVariable(pd3dCommandList);
+
+
+				}
+				if (m_pMesh)
+				{
+					m_pMesh->Render(pd3dCommandList, 0);
+				}
+			}
+
+			if (m_pSibling) m_pSibling->Render(pd3dCommandList, m_bIce,pCamera);
+			if (m_pChild) m_pChild->Render(pd3dCommandList,m_bIce ,pCamera);
+		}
+		else
+		{
+			if (m_nMaterials > 0)
+			{
+				if (m_ppMaterials[0])
+				{
+					if (m_ppMaterials[0]->m_pShader)
+					{
+						m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
+					}
+					m_ppMaterials[0]->UpdateShaderVariable(pd3dCommandList);
+
+
+				}
+				if (m_pMesh)
+				{
+					m_pMesh->Render(pd3dCommandList, 0);
+				}
+			}
+
+			if (m_pSibling) m_pSibling->Render(pd3dCommandList, m_bIce, pCamera);
+			if (m_pChild) m_pChild->Render(pd3dCommandList, m_bIce, pCamera);
+		}
+	}
 }
 
 void CTerrainPlayer::SetState(DWORD key)
 {
-	if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+
+	if (m_state != ICE)							//얼음 상태가 아닐때 
 	{
-		m_state = RUNBACKWARD;
+
+		if (key == VK_DOWN)
+		{
+			m_state = RUNBACKWARD;
+		}
+		else if (key == VK_UP)
+		{
+			m_state = WALKFRONT;
+		}
+		else if (key == VK_X)
+		{
+			m_state = ATTACK;
+		}
+		//키 두가지 동시에 처리 가능하게 
+		else if ((key == VK_DOWN) && (GetAsyncKeyState(VK_RIGHT) & 0x8000 || GetAsyncKeyState(VK_LEFT) & 0x8000))
+		{
+			m_state = RUNBACKWARD;
+		}
+		else if (GetAsyncKeyState(VK_RETURN) & 0x0001) //0x0001 - 이전에 누른적이 있고 호출시점에는 눌려있지 않은 상태
+		{
+			if (m_bIce == false)
+			{
+				m_state = ICE;
+				m_bIce = true;
+			}
+
+		}
+		else if (key == VK_Z)
+		{
+			m_state = DIGGING;
+		}
+		else
+		{
+			m_state = NOTYET;
+		}
 	}
-	else if (GetAsyncKeyState(VK_UP) & 0x8000)
-	{
-		m_state = WALKFRONT;
-	}
-	else if (GetAsyncKeyState(VK_X) & 0x8000)
-	{
-		m_state = ATTACK;
-	}
-	//키 두가지 동시에 처리 가능하게 
-	else if ((GetAsyncKeyState(VK_DOWN) & 0x8000) && (GetAsyncKeyState(VK_RIGHT)&0x8000 || GetAsyncKeyState(VK_LEFT) & 0x8000))
+	else if(m_state == ICE)							//얼음 상태일때
 	{
 		m_state = RUNBACKWARD;
 	}
@@ -567,5 +663,13 @@ void CTerrainPlayer::SetState(DWORD key)
 	{
 		m_state = IDLE;
 	}
-
+		if (GetAsyncKeyState(VK_RETURN) & 0x0001)		//0x0001 - 이전에 누른적이 있고 호출시점에는 눌려있지 않은 상태
+		{
+			if (m_bIce == true)
+			{
+				m_state = IDLE;
+				m_bIce = false;
+			}
+		}
+	}
 }
