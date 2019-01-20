@@ -171,34 +171,26 @@ void CPlayer::Update(float fTimeElapsed)
 	if (fDeceleration > fLength) fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 
-
 	float tLength = Vector3::Length(m_xmf3Velocity);
-
-
-
 
 	if (Vector3::IsZero(m_xmf3Velocity)&& CTerrainPlayer::m_state != CTerrainPlayer::eState::ATTACK)			//속도가 0일때는 IDLE상태
 	{
-		SetAnimationSet(CTerrainPlayer::eState::IDLE);
-		
+		SetAnimationSet(CTerrainPlayer::eState::IDLE);	
 	}
 
 	//속도가 어느정도 빠르고 캐릭터가 뒤로 후진하는 상태가 아닐때 빠르게 걷는다
 	if (tLength > 100.0f && CTerrainPlayer::m_state != CTerrainPlayer::eState::RUNBACKWARD )
 	{
 		SetAnimationSet(CTerrainPlayer::eState::RUNFAST);
-
 	}
 	// 캐릭터가 때리는 상태일때 
 	if (CTerrainPlayer::m_state == CTerrainPlayer::eState::ATTACK)
 	{
 		SetAnimationSet(CTerrainPlayer::eState::ATTACK);
-
 	}
-		
-	
 
 	//SetAnimationSet(Vector3::IsZero(m_xmf3Velocity) ? 0 : 1);
+
 }
 
 CCamera *CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
@@ -571,8 +563,9 @@ void CTerrainPlayer::SetState(DWORD key)
 	{
 		m_state = RUNBACKWARD;
 	}
-	else {
-		m_state = NOTYET;
+	else 
+	{
+		m_state = IDLE;
 	}
 
 }
