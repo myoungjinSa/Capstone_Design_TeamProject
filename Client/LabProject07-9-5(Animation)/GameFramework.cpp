@@ -176,12 +176,11 @@ void CGameFramework::CreateDirect3DDevice()
 
 	m_hFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
 
-
-	::gnCbvSrvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	if (pd3dAdapter)
 	{
 		pd3dAdapter->Release();
 	}
+	::gnCbvSrvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
 void CGameFramework::CreateCommandQueueAndList()
@@ -347,6 +346,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				case '2':
 					m_pPlayer->SetAnimationSet(int(wParam) - '1');
 					break;
+
 				default:
 					break;
 			}
@@ -462,7 +462,8 @@ void CGameFramework::ProcessInput()
 {
 	static UCHAR pKeysBuffer[256];
 	bool bProcessedByScene = false;
-	if (GetKeyboardState(pKeysBuffer) && m_pScene) bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
+	if (GetKeyboardState(pKeysBuffer) && m_pScene) 
+		bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
 	if (!bProcessedByScene)
 	{
 		DWORD dwDirection = 0;
@@ -481,9 +482,9 @@ void CGameFramework::ProcessInput()
 			m_pPlayer->SetDirection(dwDirection);
 			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->SetState(VK_DOWN);
 			//키입력이 있을때만 애니메이션을 변경하기 위하여 여기에 SetAnimattionSet함수를 호출
-			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->SetAnimationSet(CTerrainPlayer::eState::RUNBACKWARD);//SetState(VK_DOWN);
-				
+			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->SetAnimationSet(CTerrainPlayer::eState::RUNBACKWARD);//SetState(VK_DOWN);		
 		}
+
 		if (pKeysBuffer[VK_LEFT] & 0xF0)
 		{
 			dwDirection |= DIR_LEFT;
@@ -494,9 +495,16 @@ void CGameFramework::ProcessInput()
 			dwDirection |= DIR_RIGHT;
 			m_pPlayer->SetDirection(dwDirection);
 		}
+
+		if (GetAsyncKeyState(VK_X) & 0x0001 || GetAsyncKeyState(VK_X) & 0x0000)
+		{
+			//((CTerrainPlayer*)m_pPlayer)->m_state = CTerrainPlayer::IDLE;
+			//dynamic_cast<CTerrainPlayer*>(m_pPlayer)->SetAnimationSet(CTerrainPlayer::eState::IDLE);//SetState(VK_DOWN);
+		}
 		if (pKeysBuffer[VK_X] & 0xF0)
 		{
 			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->SetState(VK_X);
+			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->SetAnimationSet(CTerrainPlayer::eState::ATTACK);//SetState(VK_DOWN);
 		}
 		if (pKeysBuffer[VK_Z] & 0xF0)
 		{
