@@ -196,7 +196,7 @@ public:
 	CALLBACKKEY 					*m_pCallbackKeys = NULL;
 
 public:
-	float GetPosition(float fPosition);
+	float GetPosition(float& fPosition);
 	XMFLOAT4X4 GetSRT(int nFrame, float fPosition);
 
 	void SetCallbackKeys(int nCallbackKeys);
@@ -470,3 +470,14 @@ public:
 	virtual void Animate(float fTimeElapsed);
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
+class CSnowObject : public CGameObject
+{
+public:
+	CSnowObject(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList,ID3D12RootSignature *pd3dGraphicsrRoogSignature);
+	virtual ~CSnowObject();
+
+public:
+	virtual void Animate(float fTimeElapsed);
+};

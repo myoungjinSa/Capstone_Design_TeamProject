@@ -22,10 +22,8 @@
 
 #include <fstream>
 #include <vector>
-#include <iostream>
+
 using namespace std;
-// 콘솔창 추가
-#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 
 #include <d3d12.h>
 #include <dxgi1_4.h>

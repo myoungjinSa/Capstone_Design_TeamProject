@@ -1,7 +1,14 @@
-﻿  Camera.cpp
+﻿  stdafx.cpp
+  Camera.cpp
   DDSTextureLoader12.cpp
   GameFramework.cpp
   LabProject07-9-5(Animation).cpp
+  Mesh.cpp
+  Object.cpp
+  Player.cpp
+  Scene.cpp
+  Shader.cpp
+  Timer.cpp
+  WICTextureLoader12.cpp
   코드를 생성하고 있습니다...
-  LINK : D:\Github_CapstoneDesign\Capstone_Design_TeamProject\Client\LabProject07-9-5(Animation)\x64\Debug\LabProject07-9-5(Animation).exe을(를) 찾을 수 없거나 마지막 증분 링크에 의해 빌드되지 않았습니다. 전체 링크를 수행하고 있습니다.
   LabProject07-9-5(Animation).vcxproj -> D:\Github_CapstoneDesign\Capstone_Design_TeamProject\Client\LabProject07-9-5(Animation)\x64\Debug\LabProject07-9-5(Animation).exe

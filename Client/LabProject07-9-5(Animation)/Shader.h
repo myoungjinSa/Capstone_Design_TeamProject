@@ -7,6 +7,13 @@
 #include "Object.h"
 #include "Camera.h"
 
+
+struct CB_BILLBOARD_INFO
+{
+	XMFLOAT4X4		m_xmf4x4World;
+	UINT			m_nObjectID;
+};
+
 class CShader
 {
 public:
@@ -45,6 +52,7 @@ public:
 	virtual void ReleaseUploadBuffers() { }
 
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext = NULL) { }
+
 	virtual void AnimateObjects(float fTimeElapsed) { }
 	virtual void ReleaseObjects() { }
 
@@ -57,8 +65,71 @@ protected:
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC	m_d3dPipelineStateDesc;
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+class CTexturedShader : public CShader
+{
+public:
+	CTexturedShader();
+	virtual ~CTexturedShader();
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+
+	virtual void CreateShader(ID3D12Device *pd3dDevice, ID3D12RootSignature *pd3dGraphicsRootSignature);
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob **ppd3dShaderBlob);
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob **ppd3dShaderBlob);
+};
+
+class CGeometryBillboardShader : public CTexturedShader
+{
+public:
+	CGeometryBillboardShader();
+	virtual ~CGeometryBillboardShader();
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob **ppd3dShaderBlob);
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob **ppd3dShaderBlob);
+	virtual D3D12_SHADER_BYTECODE CreateGeometeryShader(ID3DBlob **ppd3dShaderBlob);
+
+	virtual void CreateShader(ID3D12Device *pd3dDevice, ID3D12RootSignature *pd3dGraphicsRootSignature);
+};
+class CGeometrySnowShader :public CGeometryBillboardShader
+{
+public:
+	CGeometrySnowShader();
+	virtual ~CGeometrySnowShader();
+
+	virtual D3D12_BLEND_DESC CreateBlendState();
+
+	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void ReleaseShaderVariables();
+	virtual void ReleaseUploadBuffers();
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext = NULL);
+	
+	virtual void AnimateObjects(float fTimeElapsed);
+
+	virtual void OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera);
+protected:
+
+	int						m_nStride = 0;
+	int						m_nVertices = 0;
+
+	CTexturedVertex*		m_pSnowVertices = NULL;
+
+	ID3D12Resource*			m_pd3dVertexBuffer;
+	ID3D12Resource*			m_pd3dVertexUploadBuffer;
 
 
+	D3D12_VERTEX_BUFFER_VIEW m_pd3dVertexBufferView;
+
+	CMaterial				*m_pMaterial = NULL;
+
+
+};
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 class CTerrainShader : public CShader

@@ -26,16 +26,15 @@ protected:
 
 	XMFLOAT3					m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3     				m_xmf3Gravity = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	float           					m_fMaxVelocityXZ = 0.0f;
-	float				      			m_fMaxVelocityY = 0.0f;
-	float		          				m_fFriction = 0.0f;
+	float           			m_fMaxVelocityXZ = 0.0f;
+	float           			m_fMaxVelocityY = 0.0f;
+	float           			m_fFriction = 0.0f;
 
 	LPVOID						m_pPlayerUpdatedContext = NULL;
 	LPVOID						m_pCameraUpdatedContext = NULL;
 
 	CCamera						*m_pCamera = NULL;
 	DWORD						m_dwDirection = 0x00;
-
 public:
 	CPlayer();
 	virtual ~CPlayer();
@@ -91,8 +90,6 @@ public:
 	virtual void OnPrepareRender(DWORD dwDirection){}
 	//virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList,DWORD dwDirection ,CCamera *pCamera = NULL){}
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL);
-
-	bool m_IDLE = true;
 };
 
 class CAirplanePlayer : public CPlayer

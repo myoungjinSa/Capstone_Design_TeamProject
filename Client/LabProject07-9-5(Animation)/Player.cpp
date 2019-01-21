@@ -171,11 +171,10 @@ void CPlayer::Update(float fTimeElapsed)
 	if (fDeceleration > fLength) fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 
+
 	float tLength = Vector3::Length(m_xmf3Velocity);
 
-	if (Vector3::IsZero(m_xmf3Velocity)&& CTerrainPlayer::m_state != CTerrainPlayer::eState::ATTACK)			//속도가 0일때는 IDLE상태
-	{
-		SetAnimationSet(CTerrainPlayer::eState::IDLE);	
+
 	int state = CTerrainPlayer::m_state;
 	if (state == CTerrainPlayer::eState::ICE)
 	{
@@ -183,14 +182,6 @@ void CPlayer::Update(float fTimeElapsed)
 	}
 	else
 	{
-		SetAnimationSet(CTerrainPlayer::eState::RUNFAST);
-	}
-	// 캐릭터가 때리는 상태일때 
-	if (CTerrainPlayer::m_state == CTerrainPlayer::eState::ATTACK)
-	{
-		SetAnimationSet(CTerrainPlayer::eState::ATTACK);
-	}
-
 		
 		if (Vector3::IsZero(m_xmf3Velocity) && state != CTerrainPlayer::eState::ATTACK && state !=CTerrainPlayer::eState::DIGGING)			//속도가 0일때는 IDLE상태
 		{
@@ -218,8 +209,9 @@ void CPlayer::Update(float fTimeElapsed)
 		}
 
 	}
-	//SetAnimationSet(Vector3::IsZero(m_xmf3Velocity) ? 0 : 1);
+	
 
+	//SetAnimationSet(Vector3::IsZero(m_xmf3Velocity) ? 0 : 1);
 }
 
 CCamera *CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
@@ -390,7 +382,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 {
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
-	CGameObject *pGameObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/EvilBearA.bin", NULL, true);
+	CGameObject *pGameObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/EvilbearA.bin", NULL, true);
 
 
 	SetChild(pGameObject);
@@ -657,12 +649,7 @@ void CTerrainPlayer::SetState(DWORD key)
 	}
 	else if(m_state == ICE)							//얼음 상태일때
 	{
-		m_state = RUNBACKWARD;
-	}
-	else 
-	{
-		m_state = IDLE;
-	}
+
 		if (GetAsyncKeyState(VK_RETURN) & 0x0001)		//0x0001 - 이전에 누른적이 있고 호출시점에는 눌려있지 않은 상태
 		{
 			if (m_bIce == true)
@@ -670,6 +657,7 @@ void CTerrainPlayer::SetState(DWORD key)
 				m_state = IDLE;
 				m_bIce = false;
 			}
+
 		}
 	}
 }

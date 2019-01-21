@@ -20,6 +20,7 @@ cbuffer cbGameObjectInfo : register(b2)
 	uint					gnTexturesMask : packoffset(c8);
 };
 
+
 #include "Light.hlsl"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -230,6 +231,146 @@ float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 	float4 cColor = gtxtSkyCubeTexture.Sample(gssClamp, input.positionL);
 
 	return(cColor);
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+//struct VS_TEXTURED_INPUT
+//{
+//	float3 position : POSITION;
+//	float2 uv : TEXCOORD;
+//};
+//
+//struct VS_TEXTURED_OUTPUT
+//{
+//	float4 position : SV_POSITION;
+//	float2 uv : TEXCOORD;
+//};
+//
+//VS_TEXTURED_OUTPUT VSTextured(VS_TEXTURED_INPUT input)
+//{
+//	VS_TEXTURED_OUTPUT output;
+//
+//	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+//	output.uv = input.uv;
+//
+//
+//	return(output);
+//}
+//
+//Texture2D gtxtSnowTexture : register(t13);
+//float4 PSTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
+//{
+//	float4 cColor = gtxtTexture.Sample(gSamplerState, input.uv);
+//
+//	if (cColor.a < 0.3f)
+//	{
+//		discard;
+//	}
+//	return(cColor);
+//}
+
+Texture2D gtxtSnowBillboard : register (t14);
+
+struct VS_IN
+{
+	float3 posW : POSITION;
+	float2 sizeW : SIZE;
+};
+
+struct VS_OUT
+{
+	float3 centerW : POSITION;
+	float2 sizeW : SIZE;
+};
+
+struct GS_OUT {
+	float4 posH : SV_POSITION;
+	float3 posW : POSITION;
+	float3 normalW : NORMAL;
+	float3 tangentW : TANGENT;
+	float2 uv : TEXCOORD;
+	float4 color : COLOR;
+	uint primID : SV_PrimitiveID;
+};
+
+
+VS_OUT VSBillboard(VS_IN input, uint nInstanceID :SV_InstanceID)
+{
+	VS_OUT output;
+
+	//float4 v = mul(float4(input.posW, 1.0f), gGameObjectInfos[nInstanceID].m_mtxGameObject)
+
+
+	//output.centerW = mul(input.posW, gmtxGameObject);
+	//input.posW = mul(input.posW, gmtxBillboardWorld);
+	output.centerW = input.posW;
+	output.sizeW = input.sizeW;
+
+	return (output);
+}
+
+[maxvertexcount(4)]
+void GSBillboard(point VS_OUT input[1], uint primID : SV_PrimitiveID, inout TriangleStream<GS_OUT> outstream)
+{
+	float3 vUp = float3(0.0f, 1.0f, 0.0f);
+	float3 vLook = gvCameraPosition.xyz - input[0].centerW;
+	vLook = normalize(vLook);
+
+	float3 vRight = cross(vUp, vLook);
+
+	float fHalfW = input[0].sizeW.x * 0.5f;
+	float fHalfH = input[0].sizeW.y * 0.5f;
+
+	float4 pVertices[4];
+
+	pVertices[0] = float4(input[0].centerW + fHalfW * vRight - fHalfH * vUp, 1.0f);
+	pVertices[1] = float4(input[0].centerW + fHalfW * vRight + fHalfH * vUp, 1.0f);
+	pVertices[2] = float4(input[0].centerW - fHalfW * vRight - fHalfH * vUp, 1.0f);
+	pVertices[3] = float4(input[0].centerW - fHalfW * vRight + fHalfH * vUp, 1.0f);
+
+	float2 pUVs[4] = { float2(0.0f,1.0f),float2(0.0f,0.0f),float2(1.0f,1.0f),float2(1.0f,0.0f) };
+	float4 pColors[4] = { float4(1.0f,0.0f,0.0f,1.0f),float4(0.0f,1.0f,0.0f,1.0f),float4(0.0f,0.0f,1.0f,1.0f),float4(1.0f,1.0f,1.0f,1.0f) };
+
+	GS_OUT output;
+	//[unroll]
+	for (int i = 0; i < 4; i++)
+	{
+		output.posW = pVertices[i].xyz;
+		output.posH = mul(mul(pVertices[i], gmtxView), gmtxProjection);
+		output.normalW = vLook;
+		output.tangentW = vRight;		//각 정점에서의 접선 월드변환
+		output.uv = pUVs[i];
+		output.color = pColors[i];
+		output.primID = primID;
+		outstream.Append(output);
+	}
+}
+float4 PSBillboard(GS_OUT input) :SV_Target
+{
+	float3 uvw = float3(input.uv,(input.primID % 3));
+	//float3 uvwNormal = float3(input.uv, (input.primID % 3));
+
+
+	float4 cColor = gtxtSnowBillboard.Sample(gssWrap, uvw);
+
+	float3 cNormal = (float3)1;						//빌보드는 항상 플레이어와 수직이므로
+
+	float3 vNormal = 2.0f * cNormal - 1.0f;			//[0,1] -> [-1,1]
+
+	float3 N = normalize(input.normalW);
+	float3 T = normalize(input.tangentW);
+	float3 B = cross(N, T);
+
+	float3x3 TBN = float3x3(T, B, N);
+
+	float3 normalW = mul(vNormal, TBN);
+
+	float4 cIllumination = Lighting(input.posW, normalW);
+
+	return(lerp(cColor,cIllumination,0.3f));
 }
 
 
