@@ -600,8 +600,8 @@ void CTerrainPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera 
 				}
 			}
 
-			if (m_pSibling) m_pSibling->Render(pd3dCommandList, m_bIce, pCamera);
-			if (m_pChild) m_pChild->Render(pd3dCommandList, m_bIce, pCamera);
+			if (m_pSibling) m_pSibling->Render(pd3dCommandList, m_bIce,m_bBomb, pCamera);
+			if (m_pChild) m_pChild->Render(pd3dCommandList, m_bIce,m_bBomb, pCamera);
 		}
 	}
 }
@@ -637,6 +637,16 @@ void CTerrainPlayer::SetState(DWORD key)
 				m_bIce = true;
 			}
 
+		}
+		else if (GetAsyncKeyState(VK_C) & 0x0001)
+		{
+			if (m_bBomb == false)
+			{
+				m_bBomb = true;
+			}
+			else {
+				m_bBomb = false;
+			}
 		}
 		else if (key == VK_Z)
 		{

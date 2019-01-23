@@ -591,7 +591,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 	if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
 	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
 }
-void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,  bool bIce,CCamera *pCamera)
+void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,  bool bIce,bool bBomb,CCamera *pCamera)
 {
 	OnPrepareRender();
 
@@ -611,8 +611,18 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,  bool bIce,
 		
 		}
 
-		if (m_pSibling) m_pSibling->Render(pd3dCommandList,bIce ,pCamera);
-		if (m_pChild) m_pChild->Render(pd3dCommandList,bIce ,pCamera);
+		if (m_pSibling) m_pSibling->Render(pd3dCommandList,bIce ,bBomb,pCamera);
+		if (m_pChild)
+		{
+
+			if (!strncmp(m_pChild->m_pstrFrameName, "black-handbomb",strlen(m_pChild->m_pstrFrameName))) {
+
+				//m_pChild->Render(pd3dCommandList, bIce, pCamera);
+			}
+			else {
+				m_pChild->Render(pd3dCommandList, bIce,bBomb ,pCamera);
+			}
+		}
 	}
 	else 
 	{
@@ -628,10 +638,26 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,  bool bIce,
 			if (m_pMesh) m_pMesh->Render(pd3dCommandList, 0);
 
 		}
-		if (m_pSibling) m_pSibling->Render(pd3dCommandList,bIce ,pCamera);
-		if (m_pChild) m_pChild->Render(pd3dCommandList, bIce,pCamera);
+		if (m_pSibling) m_pSibling->Render(pd3dCommandList,bIce,bBomb ,pCamera);
+		if (m_pChild)
+		{
+				if (!strncmp(m_pChild->m_pstrFrameName, "black-handbomb", strlen(m_pChild->m_pstrFrameName))) 
+				{
+					if (bBomb) 
+					{
+						m_pChild->Render(pd3dCommandList, bIce,bBomb, pCamera);
+					}
+				}
+				else
+				{
+					m_pChild->Render(pd3dCommandList, bIce, bBomb,pCamera);
+				}
+		}
 	}
+	
+		
 }
+
 
 
 void CGameObject::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
