@@ -26,9 +26,9 @@ protected:
 
 	XMFLOAT3					m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3     				m_xmf3Gravity = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	float           					m_fMaxVelocityXZ = 0.0f;
-	float				      			m_fMaxVelocityY = 0.0f;
-	float		          				m_fFriction = 0.0f;
+	float           			m_fMaxVelocityXZ = 0.0f;
+	float           			m_fMaxVelocityY = 0.0f;
+	float           			m_fFriction = 0.0f;
 
 	LPVOID						m_pPlayerUpdatedContext = NULL;
 	LPVOID						m_pCameraUpdatedContext = NULL;
@@ -36,6 +36,8 @@ protected:
 	CCamera						*m_pCamera = NULL;
 	DWORD						m_dwDirection = 0x00;
 
+
+	bool		m_bBomb = false;					//ÆøÅº ¼ÒÁö¿©ºÎ
 public:
 	CPlayer();
 	virtual ~CPlayer();
@@ -67,6 +69,8 @@ public:
 	CCamera *GetCamera() { return(m_pCamera); }
 	void SetCamera(CCamera *pCamera) { m_pCamera = pCamera; }
 
+	void SetBomb() { m_bBomb = !m_bBomb; }
+
 	void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
 	void Move(const XMFLOAT3& xmf3Shift, bool bVelocity = false);
 	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
@@ -91,8 +95,6 @@ public:
 	virtual void OnPrepareRender(DWORD dwDirection){}
 	//virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList,DWORD dwDirection ,CCamera *pCamera = NULL){}
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL);
-
-	bool m_IDLE = true;
 };
 
 class CAirplanePlayer : public CPlayer
@@ -129,6 +131,7 @@ public:
 
 	virtual void Animate(float fTimeElapsed);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL);
+	
 	
 	
 	void SetState(DWORD key);

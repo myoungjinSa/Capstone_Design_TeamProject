@@ -22,10 +22,8 @@
 
 #include <fstream>
 #include <vector>
-#include <iostream>
+
 using namespace std;
-// 콘솔창 추가
-#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 
 #include <d3d12.h>
 #include <dxgi1_4.h>
@@ -73,6 +71,7 @@ extern ID3D12Resource *CreateTextureResourceFromWICFile(ID3D12Device *pd3dDevice
 
 #define EPSILON					1.0e-10f
 
+#define VK_C					0x43
 #define VK_X					0x58
 #define VK_Z					0x5A
 

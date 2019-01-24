@@ -198,7 +198,7 @@ public:
 	CALLBACKKEY 					*m_pCallbackKeys = NULL;
 
 public:
-	float GetPosition(float fPosition);
+	float GetPosition(float& fPosition);
 	XMFLOAT4X4 GetSRT(int nFrame, float fPosition);
 
 	void SetCallbackKeys(int nCallbackKeys);
@@ -310,8 +310,7 @@ public:
 
 	virtual void OnPrepareRender() { }
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bIce, CCamera *pCamera = NULL);
-
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bIce,bool bBomb, CCamera *pCamera = NULL);
 
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
@@ -474,3 +473,14 @@ public:
 	virtual void Animate(float fTimeElapsed);
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
+class CSnowObject : public CGameObject
+{
+public:
+	CSnowObject(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList,ID3D12RootSignature *pd3dGraphicsrRoogSignature);
+	virtual ~CSnowObject();
+
+public:
+	virtual void Animate(float fTimeElapsed);
+};
