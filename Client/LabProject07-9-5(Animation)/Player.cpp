@@ -208,16 +208,15 @@ void CPlayer::Update(float fTimeElapsed)
 		if (state == CTerrainPlayer::eState::ATTACK)
 		{
 			SetAnimationSet(CTerrainPlayer::eState::ATTACK);
-
 		}
+
 		//¶¥ ÆÄ±â
 		if (state == CTerrainPlayer::eState::DIGGING)
 		{
 			SetAnimationSet(CTerrainPlayer::eState::DIGGING);
-
 		}
-
 	}
+
 	//SetAnimationSet(Vector3::IsZero(m_xmf3Velocity) ? 0 : 1);
 
 }
@@ -390,7 +389,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 {
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
-	CGameObject *pGameObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/EvilBearA.bin", NULL, true);
+	CGameObject *pGameObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/EvilbearA.bin", NULL, true);
 
 
 	SetChild(pGameObject);
@@ -671,5 +670,5 @@ void CTerrainPlayer::SetState(DWORD key)
 				m_bIce = false;
 			}
 		}
-	}
+	
 }

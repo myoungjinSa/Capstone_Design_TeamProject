@@ -376,6 +376,7 @@ void CAnimationController::SetAnimationSet(int nAnimationSet)
 	if (m_pAnimationSets && (nAnimationSet < m_nAnimationSets))
 	{
 		m_nAnimationSet = nAnimationSet;
+
 		m_pAnimationTracks[m_nAnimationTrack].m_pAnimationSet = &m_pAnimationSets[m_nAnimationSet];
 	}
 }
@@ -384,6 +385,33 @@ void CAnimationController::SetAnimationSet(int nAnimationSet)
 void CAnimationController::AdvanceTime(float fTimeElapsed, CAnimationCallbackHandler *pCallbackHandler) 
 {
 	m_fTime += fTimeElapsed;										//시간을 더한다. 
+
+	//if (m_nAnimationSet == CTerrainPlayer::ATTACK)
+	//{
+	//	static int cnt = 0;
+	//	elapsedTime += fTimeElapsed;
+	//	if (cnt == m_pAnimationTracks[m_nAnimationTrack].m_pAnimationSet->m_nFramesPerSecond)
+	//	//if(m_pAnimationTracks[m_nAnimationTrack].m_fPosition >= m_pAnimationTracks[m_nAnimationTrack].m_pAnimationSet->m_fLength)
+	//	{
+	//		cout << elapsedTime << endl;
+	//		//m_pAnimationTracks[m_nAnimationTrack].m_pAnimationSet->GetPosition(0);
+	//		m_pAnimationTracks[m_nAnimationTrack].m_bEnable = false;
+	//		SetAnimationSet(CTerrainPlayer::IDLE);
+	//		cnt = 0;
+	//	}
+
+	//	else
+	//	{
+	//		++cnt;
+	//	}
+
+	//	//if (elapsedTime >= ANIMATION_CALLBACK_EPSILON)
+	//	//{
+	//	//	SetAnimationSet(CTerrainPlayer::IDLE);
+	//	//	elapsedTime = 0.f;
+	//	//}
+	//}
+
 	if (m_pAnimationSets)
 	{
 		for (int i = 0; i < m_nAnimationTracks; i++)				//애니메이션 개수만큼 루프를 돌면서
@@ -395,12 +423,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CAnimationCallbackHan
 				CAnimationSet *pAnimationSet = m_pAnimationTracks[i].m_pAnimationSet;		//원하는 애니메이션을 선택하고
 				pAnimationSet->m_fPosition += (fTimeElapsed * pAnimationSet->m_fSpeed);		//해당 애니메이션의 프레임위치를 결정
 				pAnimationSet->m_fLength = pAnimationSet->m_fLength;
-<<<<<<< HEAD
-			
-=======
-
 				
->>>>>>> e4e751d08e946124a788d54a340cc9f4bb82e2fa
 				if (pCallbackHandler)
 				{
 					void *pCallbackData = pAnimationSet->GetCallback(pAnimationSet->m_fPosition);
@@ -408,7 +431,6 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CAnimationCallbackHan
 				}
 
 				float fPositon = pAnimationSet->GetPosition(pAnimationSet->m_fPosition);
-
 
 				for (int i = 0; i < m_nAnimationBoneFrames; i++)
 				{

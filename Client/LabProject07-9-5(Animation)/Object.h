@@ -146,6 +146,8 @@ public:
 #define ANIMATION_TYPE_LOOP			1
 #define ANIMATION_TYPE_PINGPONG		2
 
+#define ANIMATION_CALLBACK_EPSILON	1.f
+
 struct CALLBACKKEY
 {
    float  							m_fTime = 0.0f;
@@ -244,12 +246,13 @@ public:
 	CGameObject						**m_ppAnimationBoneFrameCaches = NULL;
 
     int 							m_nAnimationTracks = 0;
-    CAnimationTrack 				*m_pAnimationTracks = NULL;
+    CAnimationTrack 		*m_pAnimationTracks = NULL;
 
 	int  				 			m_nAnimationTrack = 0;
 
     CGameObject						*m_pRootFrame = NULL;
 
+	float elapsedTime = 0;
 public:
 	void SetAnimationSet(int nAnimationSet);
 	CAnimationSet* GetAnimationSet();
@@ -277,6 +280,7 @@ public:
     virtual ~CGameObject();
 
 public:
+
 	char							m_pstrFrameName[64];
 
 	CMesh							*m_pMesh = NULL;

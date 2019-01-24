@@ -99,9 +99,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	m_ppShaders[0] = pObjectsShader;
 
-	CGameObject *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Player.bin", NULL, true);
-
-
+	/*CGameObject *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Player.bin", NULL, true);
 	m_nGameObjects = 2;
 	m_ppGameObjects = new CGameObject*[m_nGameObjects];
 
@@ -113,7 +111,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppGameObjects[1] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	m_ppGameObjects[1]->SetChild(pAngrybotModel, true);
 	m_ppGameObjects[1]->SetPosition(450.0f, m_pTerrain->GetHeight(450.0f, 680.0f), 680.0f);
-	m_ppGameObjects[1]->SetScale(2.0f, 2.0f, 2.0f);
+	m_ppGameObjects[1]->SetScale(2.0f, 2.0f, 2.0f);*/
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
