@@ -51,6 +51,10 @@ extern HINSTANCE						ghAppInstance;
 #define FRAME_BUFFER_WIDTH		640
 #define FRAME_BUFFER_HEIGHT		480
 
+#define VK_C					0x43
+#define VK_X					0x58
+#define VK_Z					0x5A
+
 //#define _WITH_CB_GAMEOBJECT_32BIT_CONSTANTS
 //#define _WITH_CB_GAMEOBJECT_ROOT_DESCRIPTOR
 #define _WITH_CB_WORLD_MATRIX_DESCRIPTOR_TABLE

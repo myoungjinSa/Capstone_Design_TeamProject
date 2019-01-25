@@ -148,10 +148,8 @@ void CGameFramework::CreateDirect3DDevice()
 
 	if (!pd3dAdapter)
 	{
-		hResult = m_pdxgiFactory->EnumWarpAdapter(_uuidof(IDXGIFactory4), (void **)&pd3dAdapter);
-		//hResult = m_pdxgiFactory->EnumWarpAdapter(_uuidof(IDXGIAdapter1), (void **)&pd3dAdapter);
+		m_pdxgiFactory->EnumWarpAdapter(_uuidof(IDXGIFactory4), (void **)&pd3dAdapter);
 		hResult = D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), (void **)&m_pd3dDevice);
-		//hResult = D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), (void **)&m_pd3dDevice);
 	}
 
 	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS d3dMsaaQualityLevels;
@@ -166,12 +164,11 @@ void CGameFramework::CreateDirect3DDevice()
 	hResult = m_pd3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), (void **)&m_pd3dFence);
 	for (UINT i = 0; i < m_nSwapChainBuffers; i++) m_nFenceValues[i] = 0;
 
+	::gnCbvSrvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
 	m_hFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
 
 	if (pd3dAdapter) pd3dAdapter->Release();
-
-	// IncrementSize ¼³Á¤ÇØÁÜ
-	::gnCbvSrvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
 void CGameFramework::CreateCommandQueueAndList()
@@ -412,9 +409,9 @@ void CGameFramework::BuildObjects()
 	if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 
 #ifdef _WITH_TERRAIN_PLAYER
-	CTerrainPlayer *pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), m_pScene->m_pTerrain);
+	CTerrainPlayer *pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),CGameObject::eMaterials::PINK, m_pScene->m_pTerrain);
 	pPlayer->SetPosition(XMFLOAT3(380.0f, m_pScene->m_pTerrain->GetHeight(380.0f, 680.0f), 680.0f));
-	pPlayer->SetScale(XMFLOAT3(2.0f, 2.0f, 2.0f));
+	pPlayer->SetScale(XMFLOAT3(20.0f, 20.0f, 20.0f));
 #else
 	CAirplanePlayer *pPlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), NULL);
 	pPlayer->SetPosition(XMFLOAT3(425.0f, 240.0f, 640.0f));
@@ -451,10 +448,46 @@ void CGameFramework::ProcessInput()
 	if (!bProcessedByScene)
 	{
 		DWORD dwDirection = 0;
-		if (pKeysBuffer[VK_UP] & 0xF0) dwDirection |= DIR_FORWARD;
-		if (pKeysBuffer[VK_DOWN] & 0xF0) dwDirection |= DIR_BACKWARD;
-		if (pKeysBuffer[VK_LEFT] & 0xF0) dwDirection |= DIR_LEFT;
-		if (pKeysBuffer[VK_RIGHT] & 0xF0) dwDirection |= DIR_RIGHT;
+		if (pKeysBuffer[VK_UP] & 0xF0)
+		{
+			dwDirection |= DIR_FORWARD;
+			m_pPlayer->SetDirection(dwDirection);
+			m_pPlayer->SetTrackAnimationSet(0,CPlayer::eState::WALKFRONT);
+		}
+		if (pKeysBuffer[VK_DOWN] & 0xF0)
+		{
+			dwDirection |= DIR_BACKWARD;
+			m_pPlayer->SetDirection(dwDirection);
+			m_pPlayer->SetTrackAnimationSet(0, CPlayer::eState::RUNBACKWARD);
+		}
+		if (pKeysBuffer[VK_LEFT] & 0xF0)
+		{
+			dwDirection |= DIR_LEFT;
+			m_pPlayer->SetDirection(dwDirection);
+		}
+		if (pKeysBuffer[VK_RIGHT] & 0xF0)
+		{
+			dwDirection |= DIR_RIGHT;
+			m_pPlayer->SetDirection(dwDirection);
+		}
+		if (pKeysBuffer[VK_X] & 0xF0)
+		{
+			m_pPlayer->SetState(VK_X);
+			m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0);
+
+		}
+		if (pKeysBuffer[VK_Z] & 0xF0)
+		{
+			m_pPlayer->SetState(VK_Z);
+			m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0);
+
+		}
+		if (pKeysBuffer[VK_RETURN] & 0xF0)
+		{
+			m_pPlayer->SetState(VK_RETURN);
+		}
+
+
 		if (pKeysBuffer[VK_PRIOR] & 0xF0) dwDirection |= DIR_UP;
 		if (pKeysBuffer[VK_NEXT] & 0xF0) dwDirection |= DIR_DOWN;
 
@@ -478,7 +511,7 @@ void CGameFramework::ProcessInput()
 				else
 					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 			}
-			if (dwDirection) m_pPlayer->Move(dwDirection, 12.25f, true);
+			if (dwDirection) m_pPlayer->Move(dwDirection, 6.5f, true);
 		}
 	}
 	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());

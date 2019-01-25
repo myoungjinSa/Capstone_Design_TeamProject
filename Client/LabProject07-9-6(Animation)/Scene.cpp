@@ -78,7 +78,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 45); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 46); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature); 
 
@@ -90,16 +90,15 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/HeightMap.raw"), 257, 257, xmf3Scale, xmf4Color);
 
-	//m_nShaders = 2;
-	//m_nShaders = 1;
-	//m_ppShaders = new CShader*[m_nShaders];
+	m_nShaders = 1;
+	m_ppShaders = new CShader*[m_nShaders];
 
-	//CHellicopterObjectsShader *pHellicopterObjectsShader = new CHellicopterObjectsShader();
-	//pHellicopterObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	//pHellicopterObjectsShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	//pHellicopterObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
+	CHellicopterObjectsShader *pHellicopterObjectsShader = new CHellicopterObjectsShader();
+	pHellicopterObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	pHellicopterObjectsShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	pHellicopterObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
 
-	//m_ppShaders[0] = pHellicopterObjectsShader;
+	m_ppShaders[0] = pHellicopterObjectsShader;
 
 //	CAngrybotObjectsShader *pAngrybotObjectsShader = new CAngrybotObjectsShader();
 ////	pAngrybotObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
@@ -108,65 +107,75 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 //
 //	m_ppShaders[1] = pAngrybotObjectsShader;
 
-	//CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Player.bin", NULL, true);
-	CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 
-		"Model/EvilbearA.bin", NULL, true);
+	CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/EvilbearA.bin", NULL, true);
 
-	m_nGameObjects = 4;
+	m_nGameObjects = 6;
 	m_ppGameObjects = new CGameObject*[m_nGameObjects];
 
-	m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,CGameObject::eMaterials::WHITE);
 	m_ppGameObjects[0]->SetChild(pAngrybotModel->m_pModelRootObject, true);
-	m_ppGameObjects[0]->m_pAnimationController = new CAnimationController(2, pAngrybotModel->m_pAnimationSets);
-	// 0번 트랙에 0번 애니메이션을 Set
-	m_ppGameObjects[0]->m_pAnimationController->SetTrackAnimationSet(0, 0);
-	// 1번 트랙에 1번 애니메이션을 Set
-	m_ppGameObjects[0]->m_pAnimationController->SetTrackAnimationSet(1, 1);
-	// 0번 트랙에 가중치를 80%
-	m_ppGameObjects[0]->m_pAnimationController->SetTrackWeight(0, 0.8f);
-	// 1번 트랙에 가중치를 20% 
-	m_ppGameObjects[0]->m_pAnimationController->SetTrackWeight(1, 0.2f);
-	m_ppGameObjects[0]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
+	m_ppGameObjects[0]->m_pAnimationController = new CAnimationController(2, pAngrybotModel->m_pAnimationSets);				//애니메이션 트랙의 개수와 애니메이션이 저장된 행렬을 넘겨준다.
+	m_ppGameObjects[0]->m_pAnimationController->SetTrackAnimationSet(0, 2);													//0번 트랙에는 0번 애니메이션
+	m_ppGameObjects[0]->m_pAnimationController->SetTrackAnimationSet(1, 3);													//1번 트랙에는 1번 애니메이션
+	m_ppGameObjects[0]->m_pAnimationController->SetTrackWeight(0, 0.6f);													//0번 트랙에 애니메이션은 80퍼센트
+	m_ppGameObjects[0]->m_pAnimationController->SetTrackWeight(1, 0.4f);													//1번 트랙에 애니메이션은 20퍼센트
+	m_ppGameObjects[0]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);		//각 오브젝트마다 스킨메쉬 트랜스폼 행렬을 생성
 	m_ppGameObjects[0]->SetPosition(400.0f, m_pTerrain->GetHeight(400.0f, 700.0f), 700.0f);
-	//m_ppGameObjects[0]->SetScale(2.0f, 2.0f, 2.0f);
+	m_ppGameObjects[0]->SetScale(20.0f, 20.0f, 20.0f);
 
-	m_ppGameObjects[1] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	m_ppGameObjects[1] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,CGameObject::eMaterials::BLACK);
 	m_ppGameObjects[1]->SetChild(pAngrybotModel->m_pModelRootObject, true);
-	m_ppGameObjects[1]->m_pAnimationController = new CAnimationController(1, pAngrybotModel->m_pAnimationSets);
-	m_ppGameObjects[1]->m_pAnimationController->SetTrackAnimationSet(0, 1);
-	// 애니메이션의 속도를 0.25로 주어서 느리게 애니메이션 동작을 하도록 Set
-	m_ppGameObjects[1]->m_pAnimationController->SetTrackSpeed(0, 0.25f);
+	m_ppGameObjects[1]->m_pAnimationController = new CAnimationController(1, pAngrybotModel->m_pAnimationSets);				//1개의 애니메이션 트랙, 1개의 애니메이션 배열 
+	m_ppGameObjects[1]->m_pAnimationController->SetTrackAnimationSet(0, 1);													//0번 트랙을 1번 애니메이션으로 set
+	m_ppGameObjects[1]->m_pAnimationController->SetTrackSpeed(0, 0.25f);													//0번 트랙의 스피드를 0.25배
 	m_ppGameObjects[1]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
 	m_ppGameObjects[1]->SetPosition(450.0f, m_pTerrain->GetHeight(450.0f, 680.0f), 680.0f);
-	//m_ppGameObjects[1]->SetScale(2.0f, 2.0f, 2.0f);
+	m_ppGameObjects[1]->SetScale(20.0f, 20.0f, 20.0f);
 
-	m_ppGameObjects[2] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	m_ppGameObjects[2] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,CGameObject::eMaterials::BLUE);
 	m_ppGameObjects[2]->SetChild(pAngrybotModel->m_pModelRootObject, true);
 	m_ppGameObjects[2]->m_pAnimationController = new CAnimationController(1, pAngrybotModel->m_pAnimationSets);
 	m_ppGameObjects[2]->m_pAnimationController->SetTrackAnimationSet(0, 0);
-	// 애니메이션의 시작위치를 다르게 준다. 그러면 같은 동작이더라도 다르게 애니메이션함
 	m_ppGameObjects[2]->m_pAnimationController->SetTrackPosition(0, 0.95f);
 	m_ppGameObjects[2]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
 	m_ppGameObjects[2]->SetPosition(420.0f, m_pTerrain->GetHeight(420.0f, 750.0f), 750.0f);
-	//m_ppGameObjects[2]->SetScale(2.0f, 2.0f, 2.0f);
+	m_ppGameObjects[2]->SetScale(20.0f, 20.0f, 20.0f);
 
-	m_ppGameObjects[3] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	m_ppGameObjects[3] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,CGameObject::eMaterials::PANDA);
 	m_ppGameObjects[3]->SetChild(pAngrybotModel->m_pModelRootObject, true);
 	m_ppGameObjects[3]->m_pAnimationController = new CAnimationController(1, pAngrybotModel->m_pAnimationSets);
 	m_ppGameObjects[3]->m_pAnimationController->SetTrackAnimationSet(0, 0);
 	m_ppGameObjects[3]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
 	m_ppGameObjects[3]->SetPosition(410.0f, m_pTerrain->GetHeight(410.0f, 735.0f), 735.0f);
+	m_ppGameObjects[3]->SetScale(20.0f, 20.0f, 20.0f);
 
-	//m_ppGameObjects[3]->SetScale(2.0f, 2.0f, 2.0f);
 
-	for (int i = 0; i < 4; ++i)
-	{
-		m_ppGameObjects[i]->SetScale(20, 20, 20);
-	}
+	m_ppGameObjects[4] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, CGameObject::eMaterials::BROWN);
+	m_ppGameObjects[4]->SetChild(pAngrybotModel->m_pModelRootObject, true);
+	m_ppGameObjects[4]->m_pAnimationController = new CAnimationController(2, pAngrybotModel->m_pAnimationSets);
+	m_ppGameObjects[4]->m_pAnimationController->SetTrackAnimationSet(0, CTerrainPlayer::eState::RUNFAST);
+	m_ppGameObjects[4]->m_pAnimationController->SetTrackAnimationSet(1, CTerrainPlayer::eState::WALKFRONT);
+	m_ppGameObjects[4]->m_pAnimationController->SetTrackWeight(0, 0.5f);
+	m_ppGameObjects[4]->m_pAnimationController->SetTrackWeight(1, 0.5f);
+	m_ppGameObjects[4]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
+	m_ppGameObjects[4]->SetPosition(470.0f, m_pTerrain->GetHeight(470.0f, 700.0f), 700.0f);
+	m_ppGameObjects[4]->SetScale(20.0f, 20.0f, 20.0f);
+
+	m_ppGameObjects[5] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, CGameObject::eMaterials::ICE);
+	m_ppGameObjects[5]->SetChild(pAngrybotModel->m_pModelRootObject, true);
+	m_ppGameObjects[5]->m_pAnimationController = new CAnimationController(1, pAngrybotModel->m_pAnimationSets);
+	m_ppGameObjects[5]->m_pAnimationController->SetTrackAnimationSet(0, CTerrainPlayer::eState::RUNFAST);
+	m_ppGameObjects[5]->m_pAnimationController->SetTrackWeight(0, 0.5f);
+	m_ppGameObjects[5]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
+	m_ppGameObjects[5]->SetPosition(500.0f, m_pTerrain->GetHeight(500.0f, 740.0f), 740.0f);
+	m_ppGameObjects[5]->SetScale(20.0f, 20.0f, 20.0f);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	if (pAngrybotModel) delete pAngrybotModel;
+	if (pAngrybotModel)
+	{
+		delete pAngrybotModel;
+	}
 }
 
 void CScene::ReleaseObjects()
@@ -190,7 +199,13 @@ void CScene::ReleaseObjects()
 
 	if (m_ppGameObjects)
 	{
-		for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Release();
+		for (int i = 0; i < m_nGameObjects; i++)
+		{
+			if (m_ppGameObjects[i])
+			{
+				m_ppGameObjects[i]->Release();
+			}
+		}
 		delete[] m_ppGameObjects;
 	}
 
@@ -420,7 +435,13 @@ void CScene::ReleaseUploadBuffers()
 	if (m_pTerrain) m_pTerrain->ReleaseUploadBuffers();
 
 	for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
-	for (int i = 0; i < m_nGameObjects; i++) m_ppGameObjects[i]->ReleaseUploadBuffers();
+	for (int i = 0; i < m_nGameObjects; i++)
+	{
+		if (m_ppGameObjects[i]) 
+		{
+			m_ppGameObjects[i]->ReleaseUploadBuffers();
+		}
+	}
 }
 
 void CScene::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)
@@ -585,10 +606,13 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		{
 			m_ppGameObjects[i]->Animate(m_fElapsedTime);
 			m_ppGameObjects[i]->UpdateTransform(NULL);
-			m_ppGameObjects[i]->Render(pd3dCommandList, pCamera);
+			m_ppGameObjects[i]->Render(pd3dCommandList,false,m_ppGameObjects[i]->GetMatID(),pCamera);
 		}
 	}
 
-	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
+	for (int i = 0; i < m_nShaders; i++)
+	{
+		if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
+	}
 }
 

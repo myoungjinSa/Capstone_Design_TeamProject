@@ -34,16 +34,28 @@ protected:
 	LPVOID						m_pCameraUpdatedContext = NULL;
 
 	CCamera						*m_pCamera = NULL;
+	DWORD						m_dwDirection = 0x00;
 
+	bool		m_bIce = false;
+	
+	bool		m_bBomb = false;					//ÆøÅº ¼ÒÁö¿©ºÎ
+
+public:
+	const enum eState { IDLE = 0, WALKFRONT, RUNFAST, RUNBACKWARD, ATTACK, DIGGING /*¶¥ ÆÄ±â*/, ICE, NOTYET /*¹ÌÁ¤*/ };
+	static int m_state;
 public:
 	CPlayer();
 	virtual ~CPlayer();
 
+
+	void SetState(DWORD key);
 	XMFLOAT3 GetPosition() { return(m_xmf3Position); }
 	XMFLOAT3 GetLookVector() { return(m_xmf3Look); }
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 
+	void	SetDirection(DWORD direction) { m_dwDirection = direction; }
+	DWORD	GetDirection() { return m_dwDirection; }
 	void SetFriction(float fFriction) { m_fFriction = fFriction; }
 	void SetGravity(const XMFLOAT3& xmf3Gravity) { m_xmf3Gravity = xmf3Gravity; }
 	void SetMaxVelocityXZ(float fMaxVelocity) { m_fMaxVelocityXZ = fMaxVelocity; }
@@ -116,7 +128,7 @@ public:
 class CTerrainPlayer : public CPlayer
 {
 public:
-	CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext=NULL);
+	CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID ,void *pContext=NULL);
 	virtual ~CTerrainPlayer();
 
 public:
@@ -124,5 +136,14 @@ public:
 
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed);
 	virtual void OnCameraUpdateCallback(float fTimeElapsed);
+
+	virtual void Animate(float fTimeElapsed);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL);
+
+
+	void RotateAxisY(float fTimeElapsed);
+	void UpdateTransform(XMFLOAT4X4* pxmf4x4Parent);
+
+
 };
 

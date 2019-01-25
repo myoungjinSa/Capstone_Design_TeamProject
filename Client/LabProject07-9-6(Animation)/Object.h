@@ -1,3 +1,7 @@
+//------------------------------------------------------- ----------------------
+// File: Object.h
+//-----------------------------------------------------------------------------
+
 #pragma once
 
 #include "Mesh.h"
@@ -106,7 +110,7 @@ public:
 	void SetTexture(CTexture *pTexture, UINT nTexture = 0);
 
 	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList);
-
+	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList,int matID);
 	virtual void ReleaseUploadBuffers();
 
 public:
@@ -145,9 +149,7 @@ public:
 
 struct CALLBACKKEY
 {
-	// 시간
    float  							m_fTime = 0.0f;
-   // 효과음 같은 소리 => 발자국소리를 만드는 데이터
    void  							*m_pCallbackData = NULL;
 };
 
@@ -165,7 +167,7 @@ public:
 
 public:
    int  							m_nKeyFrames = 0;
-   KEYFRAME					*m_pKeyFrames = NULL;
+   KEYFRAME							*m_pKeyFrames = NULL;
 };
 
 //#define _WITH_ANIMATION_SRT
@@ -190,14 +192,13 @@ public:
 public:
 	char							m_pstrName[64];
 
-	// 애니메이션 행렬의 열의 개수를 결정한다.  => 시간
+	float							m_fSpeed = 1.0f;
 	float							m_fLength = 0.0f;
 	int								m_nFramesPerSecond = 0; //m_fTicksPerSecond
 
-	// 애니메이션의 행의 개수를 결정 => 애니메이션 행렬
 	int								m_nKeyFrameTransforms = 0;
 	float							*m_pfKeyFrameTransformTimes = NULL;
-	XMFLOAT4X4			**m_ppxmf4x4KeyFrameTransforms = NULL;
+	XMFLOAT4X4						**m_ppxmf4x4KeyFrameTransforms = NULL;
 
 #ifdef _WITH_ANIMATION_SRT
 	int								m_nKeyFrameScales = 0;
@@ -222,8 +223,8 @@ public:
 	CAnimationCallbackHandler 		*m_pAnimationCallbackHandler = NULL;
 
 public:
-	// AnimationTrack의 포지션값 => 애니메이션에서 읽어가야하는 위치 => 서로 다른동작을 하게함
-	void SetPosition(float fTrackPosition);
+	void SetPosition(float& fTrackPosition,float& oncePosition);
+	
 
 	XMFLOAT4X4 GetSRT(int nFrame);
 
@@ -249,10 +250,10 @@ public:
 
 public:
 	int								m_nAnimationFrames = 0; 
-	CGameObject			**m_ppAnimationFrameCaches = NULL;
+	CGameObject						**m_ppAnimationFrameCaches = NULL;
 
 	int								m_nAnimationSets = 0;
-	CAnimationSet			*m_pAnimationSets = NULL;
+	CAnimationSet					*m_pAnimationSets = NULL;
 
 public:
 	void SetCallbackKeys(int nAnimationSet, int nCallbackKeys);
@@ -267,16 +268,12 @@ public:
 	~CAnimationTrack() { }
 
 public:
-	// 애니메이션을 할지 안할지 결정하는 제어하는 정보
-    BOOL 						m_bEnable = true;
-	// 애니메이션 재생 속도
+    BOOL 							m_bEnable = true;
     float 							m_fSpeed = 1.0f;
-	// 애니메이션을 어느 위치에서 읽어야하는지 위한 정보
     float 							m_fPosition = 0.0f;
-	// 각각의 애니메이션을 제어하여, 새로운 애니메이션을 만들기 위한 데이터
     float 							m_fWeight = 1.0f;
-	// 어떤 애니메이션을 제어할지 포인터
-    CAnimationSet 		*m_pAnimationSet = NULL;
+
+    CAnimationSet 					*m_pAnimationSet = NULL;
 
 public:
 	void SetAnimationSet(CAnimationSet *pAnimationSet) { m_pAnimationSet = pAnimationSet; }
@@ -295,10 +292,10 @@ public:
 public:
     float 							m_fTime = 0.0f;
 
-	CAnimationSets		*m_pAnimationSets = NULL;
+	CAnimationSets					*m_pAnimationSets = NULL;
 
     int 							m_nAnimationTracks = 0;
-    CAnimationTrack 		*m_pAnimationTracks = NULL;
+    CAnimationTrack 				*m_pAnimationTracks = NULL;
 
 public:
 	void SetAnimationSets(CAnimationSets *pAnimationSets);
@@ -324,8 +321,8 @@ public:
 
 	int 							m_nSkinnedMeshes = 0;
 
-    CGameObject						*m_pModelRootObject = NULL;
-	CAnimationSets					*m_pAnimationSets = NULL;
+    CGameObject						*m_pModelRootObject = NULL;			//계층정보
+	CAnimationSets					*m_pAnimationSets = NULL;			//애니메이션 정보
 };
 
 class CSkinningBoneTransforms
@@ -358,6 +355,10 @@ class CGameObject
 private:
 	int								m_nReferences = 0;
 
+protected:
+
+
+	int m_matID = 0;
 public:
 	void AddRef();
 	void Release();
@@ -368,6 +369,19 @@ public:
     virtual ~CGameObject();
 
 public:
+
+	static enum eMaterials
+	{
+		PINK = 0,
+		BROWN,
+		WHITE,
+		BLACK,
+		BLUE,
+		PANDA,
+		ICE
+	};
+
+
 	char							m_pstrFrameName[64];
 
 	CMesh							*m_pMesh = NULL;
@@ -382,6 +396,8 @@ public:
 	CGameObject 					*m_pChild = NULL;
 	CGameObject 					*m_pSibling = NULL;
 
+
+	int	 GetMatID() { return m_matID; }
 	void SetMesh(CMesh *pMesh);
 	void SetShader(CShader *pShader);
 	void SetShader(int nMaterial, CShader *pShader);
@@ -396,6 +412,7 @@ public:
 
 	virtual void OnPrepareRender() { }
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bIce,int matID, CCamera *pCamera = NULL);
 
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
@@ -432,9 +449,7 @@ public:
 	UINT GetMeshType() { return((m_pMesh) ? m_pMesh->GetType() : 0x00); }
 
 public:
-	// 각각의 객체가 AnimationController를 가지고 있어서, 서로다른 동작을 할 수 있도록 하자.
 	CAnimationController 			*m_pAnimationController = NULL;
-	// 메쉬가 아닌 각각의 객체가 transform 행렬을 갖고 있기 위함 => 모델공유문제 해결
 	CSkinningBoneTransforms 		*m_pSkinningBoneTransforms = NULL;
 
 	CGameObject *GetRootSkinnedGameObject();
@@ -550,7 +565,7 @@ public:
 class CAngrybotObject : public CGameObject
 {
 public:
-	CAngrybotObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
+	CAngrybotObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID);
 	virtual ~CAngrybotObject();
 
 public:

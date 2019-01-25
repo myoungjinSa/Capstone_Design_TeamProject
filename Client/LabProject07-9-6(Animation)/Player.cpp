@@ -8,7 +8,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CPlayer
-
+int CPlayer::m_state = CTerrainPlayer::eState::IDLE;
 CPlayer::CPlayer()
 {
 	m_pCamera = NULL;
@@ -82,6 +82,60 @@ void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 	}
 }
 
+
+void CPlayer::SetState(DWORD key)
+{
+	if (m_state != ICE)
+	{
+		if (key == VK_DOWN)
+		{
+			m_state = RUNBACKWARD;
+		}
+		else if (key == VK_UP)
+		{
+			m_state = WALKFRONT;
+		}
+		else if (key == VK_X)
+		{
+			m_state = ATTACK;
+		}
+		//키 두가지 동시에 처리 가능하게 
+		else if ((key == VK_DOWN) && (GetAsyncKeyState(VK_RIGHT) & 0x8000 || GetAsyncKeyState(VK_LEFT) & 0x8000))
+		{
+			m_state = RUNBACKWARD;
+		}
+		else if (key == VK_Z)
+		{
+			m_state = DIGGING;
+		}
+		else if (GetAsyncKeyState(VK_RETURN) & 0x0001) //0x0001 - 이전에 누른적이 있고 호출시점에는 눌려있지 않은 상태
+		{
+			if (m_bIce == false)
+			{
+				m_state = ICE;
+				m_bIce = true;
+			}
+
+		}
+		else
+		{
+			m_state = NOTYET;
+		}
+
+	}
+	else {
+		if (GetAsyncKeyState(VK_RETURN) & 0x0001)		//0x0001 - 이전에 누른적이 있고 호출시점에는 눌려있지 않은 상태
+		{
+			if (m_bIce == true)
+			{
+				m_state = IDLE;
+				m_bIce = false;
+			}
+
+		}
+	}
+
+}
 void CPlayer::Rotate(float x, float y, float z)
 {
 	DWORD nCurrentCameraMode = m_pCamera->GetMode();
@@ -171,7 +225,41 @@ void CPlayer::Update(float fTimeElapsed)
 	if (fDeceleration > fLength) fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 
-	SetTrackAnimationSet(0, ::IsZero(fLength) ? 0 : 1);
+
+	float tLength = Vector3::Length(m_xmf3Velocity);
+
+	int state = m_state;
+	if (state == ICE)
+	{
+		SetTrackAnimationSet(0,ICE);
+	}
+	else 
+	{
+		if (Vector3::IsZero(m_xmf3Velocity) && state != ATTACK && state != DIGGING)
+		{
+			SetTrackAnimationSet(0,IDLE);
+		}
+
+
+		if (tLength > 100.0f && state != RUNBACKWARD)
+		{
+			SetTrackAnimationSet(0,RUNFAST);
+		}
+		//캐릭터가 때리는 상태일때
+		if (state == ATTACK)
+		{
+			SetTrackAnimationSet(0,ATTACK);
+		}
+
+		//땅파기
+		if (state == DIGGING)
+		{
+			SetTrackAnimationSet(0,DIGGING);
+		}
+	}
+
+
+	//SetTrackAnimationSet(0, ::IsZero(fLength) ? 0 : 1);
 }
 
 CCamera *CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
@@ -314,7 +402,7 @@ CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 			m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 			break;
 		case THIRD_PERSON_CAMERA:
-			SetFriction(20.5f);
+			SetFriction(250.0f);
 			SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
 			SetMaxVelocityXZ(25.5f);
 			SetMaxVelocityY(20.0f);
@@ -347,34 +435,39 @@ void CSoundCallbackHandler::HandleCallback(void *pCallbackData)
 	OutputDebugString(pstrDebug);
 #endif
 #ifdef _WITH_SOUND_RESOURCE
-   PlaySound(pWavName, ::ghAppInstance, SND_RESOURCE | SND_ASYNC);
+   PlaySound(pWavName, ::ghAppInstance, SND_RESOURCE | SND_ASYNC);				//성능을 위해서는 윈도우즈 제공 리소스를 읽는것이 좋다
 #else
    PlaySound(pWavName, NULL, SND_FILENAME | SND_ASYNC);
 #endif
 }
 
-CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+
+
+CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID ,void *pContext)
 {
+	m_matID = matID;
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
-	CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Player.bin", NULL, true);
-	//CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 
-	//	"Model/EvilbearA.bin", NULL, true);
+	CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/EvilbearA.bin", NULL, true);
+
+
+	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)pContext;
 	SetChild(pAngrybotModel->m_pModelRootObject, true);
 	m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
-
 	m_pAnimationController = new CAnimationController(1, pAngrybotModel->m_pAnimationSets);
 	m_pAnimationController->SetTrackAnimationSet(0, 0);
-
-	// 1번 애니메이션 동작에 사운드 3개를 Set해준다.
-	m_pAnimationController->SetCallbackKeys(1, 3);
-#ifdef _WITH_SOUND_RESOURCE
+	
+	SetScale(XMFLOAT3(20.0f, 20.0f, 20.0f));
+	m_pAnimationController->SetCallbackKeys(1, 3);			//1번이 걷기 동작: 1번 걷기 동작의 3개의 콜백 키를 만든다.
+#ifdef _WITH_SOUND_RESOURCE									//리소스로 재생할때는 리소스이름을 넘겨주고
 	m_pAnimationController->SetCallbackKey(1, 0, 0.1f, _T("Footstep01"));
 	m_pAnimationController->SetCallbackKey(1, 1, 0.5f, _T("Footstep02"));
 	m_pAnimationController->SetCallbackKey(1, 2, 0.9f, _T("Footstep03"));
-#else
-	// 애니메이션 1번동작 0.1초일때 Footstep01 소리를 재생, 1번동작 0.5초일때 Footstep02 소리를 재생, 1번동작 0.9초일때 Footstep03 소리를 재생
-	m_pAnimationController->SetCallbackKey(1, 0, 0.1f, _T("Sound/Footstep01.wav"));
+#else														//파일로 읽을때는 파일이름을 주어라 
+	m_pAnimationController->SetCallbackKey(1, 0, 0.1f, _T("Sound/Footstep01.wav"));	
 	m_pAnimationController->SetCallbackKey(1, 1, 0.5f, _T("Sound/Footstep02.wav"));
 	m_pAnimationController->SetCallbackKey(1, 2, 0.9f, _T("Sound/Footstep03.wav"));
 #endif
@@ -480,4 +573,133 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 			p3rdPersonCamera->SetLookAt(GetPosition());
 		}
 	}
+}
+
+
+
+void CTerrainPlayer::RotateAxisY(float fTimeElapsed)
+{
+	XMFLOAT3& xmf3Look = m_xmf3Look;
+	XMFLOAT3& xmf3Right = m_xmf3Right;
+	XMFLOAT3& xmf3Up = m_xmf3Up;
+	if (m_dwDirection & DIR_RIGHT)
+	{
+
+		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3Right);
+
+		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
+
+
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(fAngle*fTimeElapsed));
+		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
+		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
+
+
+		SetDirection(0x00);
+	}
+	else if (m_dwDirection & DIR_LEFT)
+	{
+		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3Right);
+
+		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
+
+
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(-(fAngle*fTimeElapsed)));
+		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
+		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
+
+
+
+		SetDirection(0x00);
+	}
+
+}
+
+
+void CTerrainPlayer::Animate(float fTimeElapsed)
+{
+
+	RotateAxisY(fTimeElapsed);
+
+	CGameObject::Animate(fTimeElapsed);
+}
+void CTerrainPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+{
+	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
+	if (nCameraMode == THIRD_PERSON_CAMERA) 
+	{
+		OnPrepareRender();
+
+		if (m_pSkinningBoneTransforms) m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
+
+		if (!m_pSkinningBoneTransforms) UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+		
+			
+		if (m_bIce)
+		{
+			if (m_nMaterials == 1)
+			{
+				if (m_ppMaterials[0])
+				{
+
+					if (m_ppMaterials[0]->m_pShader)
+					{
+						m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
+					}
+					m_ppMaterials[0]->UpdateShaderVariable(pd3dCommandList);
+
+				}
+				else if (m_nMaterials == 7)
+				{
+					if (m_ppMaterials[CGameObject::eMaterials::ICE])
+					{
+						if (m_ppMaterials[CGameObject::eMaterials::ICE]->m_pShader) m_ppMaterials[CGameObject::eMaterials::ICE]->m_pShader->Render(pd3dCommandList, pCamera);
+						m_ppMaterials[CGameObject::eMaterials::ICE]->UpdateShaderVariable(pd3dCommandList);
+					}
+				}
+
+				if (m_pMesh)
+				{
+					m_pMesh->Render(pd3dCommandList, 0);
+				}
+			}
+			
+		}
+		else
+		{
+			if (m_nMaterials == 1)
+			{
+				if (m_ppMaterials[0])
+				{
+					if (m_ppMaterials[0]->m_pShader)
+					{
+						m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
+					}
+					m_ppMaterials[0]->UpdateShaderVariable(pd3dCommandList);
+
+
+				}
+			}
+			else if (m_nMaterials == 7)
+			{
+				if (m_ppMaterials[m_matID])
+				{
+					if (m_ppMaterials[m_matID]->m_pShader) m_ppMaterials[m_matID]->m_pShader->Render(pd3dCommandList, pCamera);
+					m_ppMaterials[m_matID]->UpdateShaderVariable(pd3dCommandList);
+				}
+			}
+
+
+			if (m_pMesh)
+			{
+				m_pMesh->Render(pd3dCommandList, 0);
+			}
+			
+		}
+		if (m_pSibling) m_pSibling->Render(pd3dCommandList, m_bIce, m_matID, pCamera);
+		if (m_pChild) m_pChild->Render(pd3dCommandList, m_bIce, m_matID, pCamera);
+	
+	}
+
+	
 }
