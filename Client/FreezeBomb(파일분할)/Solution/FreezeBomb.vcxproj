@@ -20,9 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{156D8DA7-EA57-4221-93B3-516E1353E5FF}</ProjectGuid>
+    <ProjectGuid>{23CA9C0E-EABB-4942-AEE9-990D6E896DDE}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>LabProject0795Animation</RootNamespace>
+    <RootNamespace>FreezeBomb</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -70,35 +70,29 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>../Excutable/</OutDir>
+    <TargetName>$(ProjectName)_x86_Debug</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>../Excutable/</OutDir>
+    <TargetName>$(ProjectName)_x64_Debug</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>../Excutable/</OutDir>
+    <TargetName>$(ProjectName)_x86_Release</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>../Excutable/</OutDir>
+    <TargetName>$(ProjectName)_x64_Release</TargetName>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>false</ConformanceMode>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
@@ -110,16 +104,30 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -130,12 +138,12 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
     </ClCompile>
@@ -147,59 +155,56 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Command.h" />
-    <ClInclude Include="DDSTextureLoader12.h" />
-    <ClInclude Include="GameFramework.h" />
-    <ClInclude Include="LabProject07-9-5(Animation).h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Object.h" />
-    <ClInclude Include="Player.h" />
-    <ClInclude Include="Resource.h" />
-    <ClInclude Include="Scene.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
-    <ClInclude Include="Timer.h" />
-    <ClInclude Include="WICTextureLoader12.h" />
+    <ResourceCompile Include="FreezeBomb.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="DDSTextureLoader12.cpp" />
-    <ClCompile Include="GameFramework.cpp" />
-    <ClCompile Include="LabProject07-9-5(Animation).cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Object.cpp" />
-    <ClCompile Include="Player.cpp" />
-    <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Timer.cpp" />
-    <ClCompile Include="WICTextureLoader12.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="LabProject07-9-5(Animation).rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="LabProject07-9-5(Animation).ico" />
+    <Image Include="FreezeBomb.ico" />
     <Image Include="small.ico" />
   </ItemGroup>
-<<<<<<< HEAD
   <ItemGroup>
-    <FxCompile Include="Shaders.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    <ClInclude Include="..\Code\Camera\Camera.h" />
+    <ClInclude Include="..\Code\Default\Resource.h" />
+    <ClInclude Include="..\Code\Default\targetver.h" />
+    <ClInclude Include="..\Code\DirectX12\d3dx12.h" />
+    <ClInclude Include="..\Code\DirectX12\DDSTextureLoader\DDSTextureLoader12.h" />
+    <ClInclude Include="..\Code\DirectX12\WICTextureLoader\WICTextureLoader12.h" />
+    <ClInclude Include="..\Code\GameFramework\GameFramework.h" />
+    <ClInclude Include="..\Code\GameObject\GameObject.h" />
+    <ClInclude Include="..\Code\GameObject\Player\Player.h" />
+    <ClInclude Include="..\Code\GameTimer\GameTimer.h" />
+    <ClInclude Include="..\Code\Mesh\Mesh.h" />
+    <ClInclude Include="..\Code\Scene\Scene.h" />
+    <ClInclude Include="..\Code\Shader\Shader.h" />
+    <ClInclude Include="..\Code\Stdafx\Stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Code\Camera\Camera.cpp" />
+    <ClCompile Include="..\Code\DirectX12\DDSTextureLoader\DDSTextureLoader12.cpp" />
+    <ClCompile Include="..\Code\DirectX12\WICTextureLoader\WICTextureLoader12.cpp" />
+    <ClCompile Include="..\Code\FreezeBomb.cpp" />
+    <ClCompile Include="..\Code\GameFramework\GameFramework.cpp" />
+    <ClCompile Include="..\Code\GameObject\GameObject.cpp" />
+    <ClCompile Include="..\Code\GameObject\Player\Player.cpp" />
+    <ClCompile Include="..\Code\GameTimer\GameTimer.cpp" />
+    <ClCompile Include="..\Code\Mesh\Mesh.cpp" />
+    <ClCompile Include="..\Code\Scene\Scene.cpp" />
+    <ClCompile Include="..\Code\Shader\Shader.cpp" />
+    <ClCompile Include="..\Code\Stdafx\Stdafx.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Code\Shader\HLSL\Light.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Code\Shader\HLSL\Shaders.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>
-=======
->>>>>>> d8766dc21b86f231d78a5f4525fb999a93a35819
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

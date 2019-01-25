@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Code">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Code\Default">
+      <UniqueIdentifier>{ea70897d-d760-4c6b-a367-5bc553048a0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Stdafx">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Code\DirectX12">
+      <UniqueIdentifier>{cd2e1604-3caa-477c-bad9-665f24f61863}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\DirectX12\DDSTextureLoader">
+      <UniqueIdentifier>{d1a1e37e-79ba-4110-ae71-8f5b7ed8b1c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\DirectX12\WICTextureLoader">
+      <UniqueIdentifier>{5af988b5-67e9-4b1d-90ed-a9adc06dd0ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Code\GameFramework">
+      <UniqueIdentifier>{5d54ac3c-35c3-43a1-a52b-cf2d7ef5fd49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Scene">
+      <UniqueIdentifier>{d5e20df2-d7ef-4f6c-9f3f-ea1ec4d1617e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Mesh">
+      <UniqueIdentifier>{b3d08157-181f-4af2-9832-66524d8b618b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject">
+      <UniqueIdentifier>{2136602e-9bc9-43f1-b8ac-8284552ffff4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameTimer">
+      <UniqueIdentifier>{7e2d744b-ddd4-49ca-82de-961cc5702ea3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader">
+      <UniqueIdentifier>{6d42492e-b0bb-4681-9562-4b055611fc9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Camera">
+      <UniqueIdentifier>{c16f010c-94ec-4270-976b-eee029cfb9cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Player">
+      <UniqueIdentifier>{2538ede7-a2c4-429c-aa84-6fa40b6e16d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\HLSL">
+      <UniqueIdentifier>{a82442b1-2de3-4630-9597-af998021ba62}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="FreezeBomb.rc">
+      <Filter>Resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="small.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="FreezeBomb.ico">
+      <Filter>Resource</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Code\Default\targetver.h">
+      <Filter>Code\Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Default\Resource.h">
+      <Filter>Code\Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Stdafx\Stdafx.h">
+      <Filter>Code\Stdafx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\DirectX12\DDSTextureLoader\DDSTextureLoader12.h">
+      <Filter>Code\DirectX12\DDSTextureLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\DirectX12\WICTextureLoader\WICTextureLoader12.h">
+      <Filter>Code\DirectX12\WICTextureLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\DirectX12\d3dx12.h">
+      <Filter>Code\DirectX12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameFramework\GameFramework.h">
+      <Filter>Code\GameFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Mesh\Mesh.h">
+      <Filter>Code\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\GameObject.h">
+      <Filter>Code\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Player\Player.h">
+      <Filter>Code\GameObject\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameTimer\GameTimer.h">
+      <Filter>Code\GameTimer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Camera\Camera.h">
+      <Filter>Code\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\Shader.h">
+      <Filter>Code\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Scene\Scene.h">
+      <Filter>Code\Scene</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Code\FreezeBomb.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Stdafx\Stdafx.cpp">
+      <Filter>Code\Stdafx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\DirectX12\DDSTextureLoader\DDSTextureLoader12.cpp">
+      <Filter>Code\DirectX12\DDSTextureLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\DirectX12\WICTextureLoader\WICTextureLoader12.cpp">
+      <Filter>Code\DirectX12\WICTextureLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameFramework\GameFramework.cpp">
+      <Filter>Code\GameFramework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Mesh\Mesh.cpp">
+      <Filter>Code\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\GameObject.cpp">
+      <Filter>Code\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Player\Player.cpp">
+      <Filter>Code\GameObject\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameTimer\GameTimer.cpp">
+      <Filter>Code\GameTimer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Camera\Camera.cpp">
+      <Filter>Code\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\Shader.cpp">
+      <Filter>Code\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Scene\Scene.cpp">
+      <Filter>Code\Scene</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Code\Shader\HLSL\Light.hlsl">
+      <Filter>Code\Shader\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Code\Shader\HLSL\Shaders.hlsl">
+      <Filter>Code\Shader\HLSL</Filter>
+    </FxCompile>
+  </ItemGroup>
+</Project>

@@ -1,12 +1,7 @@
-//------------------------------------------------------- ----------------------
-// File: Object.h
-//-----------------------------------------------------------------------------
-
 #pragma once
 
 #include "Mesh.h"
 #include "Camera.h"
-
 
 #define DIR_FORWARD					0x01
 #define DIR_BACKWARD				0x02
@@ -146,16 +141,45 @@ public:
 #define ANIMATION_TYPE_LOOP			1
 #define ANIMATION_TYPE_PINGPONG		2
 
-#define ANIMATION_CALLBACK_EPSILON	1.f
+#define ANIMATION_CALLBACK_EPSILON	0.015f
 
 struct CALLBACKKEY
 {
+	// 시간
    float  							m_fTime = 0.0f;
+   // 효과음 같은 소리 => 발자국소리를 만드는 데이터
    void  							*m_pCallbackData = NULL;
+};
+
+struct KEYFRAME
+{
+   float  							m_fTime = 0.0f;
+   float  							m_fValue = 0.0f;
+};
+
+class CAnimationCurve
+{
+public:
+	CAnimationCurve() { }
+	~CAnimationCurve() { }
+
+public:
+   int  							m_nKeyFrames = 0;
+   KEYFRAME					*m_pKeyFrames = NULL;
 };
 
 //#define _WITH_ANIMATION_SRT
 #define _WITH_ANIMATION_INTERPOLATION
+
+class CAnimationCallbackHandler
+{
+public:
+	CAnimationCallbackHandler() { }
+	~CAnimationCallbackHandler() { }
+
+public:
+   virtual void HandleCallback(void *pCallbackData) { }
+};
 
 class CAnimationSet
 {
@@ -166,14 +190,14 @@ public:
 public:
 	char							m_pstrName[64];
 
+	// 애니메이션 행렬의 열의 개수를 결정한다.  => 시간
 	float							m_fLength = 0.0f;
 	int								m_nFramesPerSecond = 0; //m_fTicksPerSecond
 
-	int								m_nAnimationBoneFrames = 0; 
-
+	// 애니메이션의 행의 개수를 결정 => 애니메이션 행렬
 	int								m_nKeyFrameTransforms = 0;
 	float							*m_pfKeyFrameTransformTimes = NULL;
-	XMFLOAT4X4						**m_ppxmf4x4KeyFrameTransforms = NULL;
+	XMFLOAT4X4			**m_ppxmf4x4KeyFrameTransforms = NULL;
 
 #ifdef _WITH_ANIMATION_SRT
 	int								m_nKeyFrameScales = 0;
@@ -187,24 +211,53 @@ public:
 	XMFLOAT3						**m_ppxmf3KeyFrameTranslations = NULL;
 #endif
 
-	float 							m_fSpeed = 1.0f;
 	float 							m_fPosition = 0.0f;
     int 							m_nType = ANIMATION_TYPE_LOOP; //Once, Loop, PingPong
-
 
 	int								m_nCurrentKey = -1;
 
 	int 							m_nCallbackKeys = 0;
 	CALLBACKKEY 					*m_pCallbackKeys = NULL;
 
+	CAnimationCallbackHandler 		*m_pAnimationCallbackHandler = NULL;
+
 public:
-	float GetPosition(float& fPosition);
-	XMFLOAT4X4 GetSRT(int nFrame, float fPosition);
+	// AnimationTrack의 포지션값 => 애니메이션에서 읽어가야하는 위치 => 서로 다른동작을 하게함
+	void SetPosition(float fTrackPosition);
+
+	XMFLOAT4X4 GetSRT(int nFrame);
 
 	void SetCallbackKeys(int nCallbackKeys);
 	void SetCallbackKey(int nKeyIndex, float fTime, void *pData);
+	void SetAnimationCallbackHandler(CAnimationCallbackHandler *pCallbackHandler);
 
-	void *GetCallback(float fPosition) { return(NULL); }
+	void *GetCallbackData();
+};
+
+class CAnimationSets
+{
+private:
+	int								m_nReferences = 0;
+
+public:
+	void AddRef() { m_nReferences++; }
+	void Release() { if (--m_nReferences <= 0) delete this; }
+
+public:
+	CAnimationSets();
+	~CAnimationSets();
+
+public:
+	int								m_nAnimationFrames = 0; 
+	CGameObject			**m_ppAnimationFrameCaches = NULL;
+
+	int								m_nAnimationSets = 0;
+	CAnimationSet			*m_pAnimationSets = NULL;
+
+public:
+	void SetCallbackKeys(int nAnimationSet, int nCallbackKeys);
+	void SetCallbackKey(int nAnimationSet, int nKeyIndex, float fTime, void *pData);
+	void SetAnimationCallbackHandler(int nAnimationSet, CAnimationCallbackHandler *pCallbackHandler);
 };
 
 class CAnimationTrack
@@ -214,53 +267,88 @@ public:
 	~CAnimationTrack() { }
 
 public:
-    BOOL 							m_bEnable = true;
+	// 애니메이션을 할지 안할지 결정하는 제어하는 정보
+    BOOL 						m_bEnable = true;
+	// 애니메이션 재생 속도
     float 							m_fSpeed = 1.0f;
+	// 애니메이션을 어느 위치에서 읽어야하는지 위한 정보
     float 							m_fPosition = 0.0f;
+	// 각각의 애니메이션을 제어하여, 새로운 애니메이션을 만들기 위한 데이터
     float 							m_fWeight = 1.0f;
+	// 어떤 애니메이션을 제어할지 포인터
+    CAnimationSet 		*m_pAnimationSet = NULL;
 
-    CAnimationSet 					*m_pAnimationSet = NULL;
-};
-
-class CAnimationCallbackHandler
-{
 public:
-   virtual void HandleCallback(void *pCallbackData) { }
+	void SetAnimationSet(CAnimationSet *pAnimationSet) { m_pAnimationSet = pAnimationSet; }
+	void SetEnable(bool bEnable) { m_bEnable = bEnable; }
+	void SetSpeed(float fSpeed) { m_fSpeed = fSpeed; }
+	void SetWeight(float fWeight) { m_fWeight = fWeight; }
+	void SetPosition(float fPosition) { m_fPosition = fPosition; }
 };
 
 class CAnimationController 
 {
 public:
-	CAnimationController(int nAnimationTracks=1);
+	CAnimationController(int nAnimationTracks, CAnimationSets *pAnimationSets);
 	~CAnimationController();
 
 public:
     float 							m_fTime = 0.0f;
 
-	int								m_nAnimationSets = 0;
-	CAnimationSet					*m_pAnimationSets = NULL;
-
-	int								m_nAnimationSet = 0;
-
-	int								m_nAnimationBoneFrames = 0; 
-	CGameObject						**m_ppAnimationBoneFrameCaches = NULL;
+	CAnimationSets		*m_pAnimationSets = NULL;
 
     int 							m_nAnimationTracks = 0;
     CAnimationTrack 		*m_pAnimationTracks = NULL;
 
-	int  				 			m_nAnimationTrack = 0;
-
-    CGameObject						*m_pRootFrame = NULL;
-
-	float elapsedTime = 0;
 public:
-	void SetAnimationSet(int nAnimationSet);
-	CAnimationSet* GetAnimationSet();
+	void SetAnimationSets(CAnimationSets *pAnimationSets);
+
+	void SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet);
+	void SetTrackEnable(int nAnimationTrack, bool bEnable);
+	void SetTrackPosition(int nAnimationTrack, float fPosition);
+	void SetTrackSpeed(int nAnimationTrack, float fSpeed);
+	void SetTrackWeight(int nAnimationTrack, float fWeight);
 
 	void SetCallbackKeys(int nAnimationSet, int nCallbackKeys);
 	void SetCallbackKey(int nAnimationSet, int nKeyIndex, float fTime, void *pData);
+	void SetAnimationCallbackHandler(int nAnimationSet, CAnimationCallbackHandler *pCallbackHandler);
 
-	void AdvanceTime(float fElapsedTime, CAnimationCallbackHandler *pCallbackHandler);
+	void AdvanceTime(float fElapsedTime);
+};
+
+class CLoadedModelInfo
+{
+public:
+	CLoadedModelInfo() { }
+	~CLoadedModelInfo() { }
+
+	int 							m_nSkinnedMeshes = 0;
+
+    CGameObject						*m_pModelRootObject = NULL;
+	CAnimationSets					*m_pAnimationSets = NULL;
+};
+
+class CSkinningBoneTransforms
+{
+public:
+	CSkinningBoneTransforms(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CLoadedModelInfo *pModel);
+	~CSkinningBoneTransforms();
+
+public:
+	int 							m_nSkinnedMeshes = 0;
+
+	CSkinnedMesh					**m_ppSkinnedMeshes = NULL;
+
+	ID3D12Resource					**m_ppd3dcbBoneTransforms = NULL;
+	XMFLOAT4X4						**m_ppcbxmf4x4BoneTransforms = NULL;
+
+public:
+	void SetSkinnedMesh(int nIndex, CSkinnedMesh *pSkinnedMesh) { m_ppSkinnedMeshes[nIndex] = pSkinnedMesh; }
+
+	void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	void ReleaseShaderVariables();
+
+	void SetSkinnedMeshBoneTransformConstantBuffer();
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -280,7 +368,6 @@ public:
     virtual ~CGameObject();
 
 public:
-
 	char							m_pstrFrameName[64];
 
 	CMesh							*m_pMesh = NULL;
@@ -295,7 +382,6 @@ public:
 	CGameObject 					*m_pChild = NULL;
 	CGameObject 					*m_pSibling = NULL;
 
-	
 	void SetMesh(CMesh *pMesh);
 	void SetShader(CShader *pShader);
 	void SetShader(int nMaterial, CShader *pShader);
@@ -310,7 +396,6 @@ public:
 
 	virtual void OnPrepareRender() { }
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bIce,bool bBomb, CCamera *pCamera = NULL);
 
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
@@ -343,26 +428,29 @@ public:
 	CGameObject *FindFrame(char *pstrFrameName);
 
 	CTexture *FindReplicatedTexture(_TCHAR *pstrTextureName);
-	CTexture *FindRootAndReplicatedTexture(_TCHAR *pstrTextureName, CGameObject *pParent);
 
 	UINT GetMeshType() { return((m_pMesh) ? m_pMesh->GetType() : 0x00); }
 
 public:
+	// 각각의 객체가 AnimationController를 가지고 있어서, 서로다른 동작을 할 수 있도록 하자.
 	CAnimationController 			*m_pAnimationController = NULL;
-
-
+	// 메쉬가 아닌 각각의 객체가 transform 행렬을 갖고 있기 위함 => 모델공유문제 해결
+	CSkinningBoneTransforms 		*m_pSkinningBoneTransforms = NULL;
 
 	CGameObject *GetRootSkinnedGameObject();
 
-	void SetAnimationSet(int nAnimationSet);
+	void SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet);
+	void SetTrackAnimationPosition(int nAnimationTrack, float fPosition);
 
 	void CacheSkinningBoneFrames(CGameObject *pRootFrame);
+	void FindAndSetSkinnedMesh(int *pnSkinMesh, CSkinningBoneTransforms *pSkinningBoneTransforms);
 
 	void LoadMaterialsFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CGameObject *pParent, FILE *pInFile, CShader *pShader);
-	void LoadAnimationFromFile(FILE *pInFile);
 
-	static CGameObject *LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CGameObject *pParent, FILE *pInFile, CShader *pShader);
-	static CGameObject *LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char *pstrFileName, CShader *pShader, bool bHasAnimation);
+	static CAnimationSets *LoadAnimationFromFile(FILE *pInFile, CGameObject *pRootFrame);
+	static CGameObject *LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes);
+
+	static CLoadedModelInfo *LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char *pstrFileName, CShader *pShader, bool bHasAnimation);
 
 	static void PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent);
 };
@@ -393,9 +481,6 @@ public:
 	XMFLOAT3 GetScale() { return(m_xmf3Scale); }
 	float GetWidth() { return(m_nWidth * m_xmf3Scale.x); }
 	float GetLength() { return(m_nLength * m_xmf3Scale.z); }
-
-
-
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -473,14 +558,3 @@ public:
 	virtual void Animate(float fTimeElapsed);
 };
 
-///////////////////////////////////////////////////////////////////////////////
-
-class CSnowObject : public CGameObject
-{
-public:
-	CSnowObject(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList,ID3D12RootSignature *pd3dGraphicsrRoogSignature);
-	virtual ~CSnowObject();
-
-public:
-	virtual void Animate(float fTimeElapsed);
-};

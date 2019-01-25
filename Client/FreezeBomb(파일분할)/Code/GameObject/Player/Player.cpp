@@ -1,13 +1,7 @@
-//-----------------------------------------------------------------------------
-// File: CPlayer.cpp
-//-----------------------------------------------------------------------------
-
-#include "stdafx.h"
+#include "../../Stdafx/Stdafx.h"
 #include "Player.h"
-#include "Shader.h"
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CPlayer
+#include "../GameObject.h"
+#include "../../Shader/Shader.h"
 
 CPlayer::CPlayer()
 {
@@ -171,44 +165,7 @@ void CPlayer::Update(float fTimeElapsed)
 	if (fDeceleration > fLength) fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 
-
-	float tLength = Vector3::Length(m_xmf3Velocity);
-
-
-	int state = CTerrainPlayer::m_state;
-	if (state == CTerrainPlayer::eState::ICE)
-	{
-		SetAnimationSet(CTerrainPlayer::eState::ICE);
-	}
-	else
-	{
-		
-		if (Vector3::IsZero(m_xmf3Velocity) && state != CTerrainPlayer::eState::ATTACK && state !=CTerrainPlayer::eState::DIGGING)			//속도가 0일때는 IDLE상태
-		{
-			SetAnimationSet(CTerrainPlayer::eState::IDLE);
-
-		}
-
-		//속도가 어느정도 빠르고 캐릭터가 뒤로 후진하는 상태가 아닐때 빠르게 걷는다
-		if (tLength > 100.0f && state != CTerrainPlayer::eState::RUNBACKWARD)
-		{
-			SetAnimationSet(CTerrainPlayer::eState::RUNFAST);
-
-		}
-		// 캐릭터가 때리는 상태일때 
-		if (state == CTerrainPlayer::eState::ATTACK)
-		{
-			SetAnimationSet(CTerrainPlayer::eState::ATTACK);
-		}
-
-		//땅 파기
-		if (state == CTerrainPlayer::eState::DIGGING)
-		{
-			SetAnimationSet(CTerrainPlayer::eState::DIGGING);
-		}
-	}
-
-	//SetAnimationSet(Vector3::IsZero(m_xmf3Velocity) ? 0 : 1);
+	SetTrackAnimationSet(0, ::IsZero(fLength) ? 0 : 1);
 }
 
 CCamera *CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
@@ -264,8 +221,6 @@ void CPlayer::OnPrepareRender()
 
 	m_xmf4x4ToParent = Matrix4x4::Multiply(XMMatrixScaling(m_xmf3Scale.x, m_xmf3Scale.y, m_xmf3Scale.z), m_xmf4x4ToParent);
 
-
-
 	UpdateTransform(NULL);
 }
 
@@ -281,12 +236,14 @@ CAirplanePlayer::CAirplanePlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 {
 	m_pCamera = ChangeCamera(/*SPACESHIP_CAMERA*/THIRD_PERSON_CAMERA, 0.0f);
 
-	CGameObject *pGameObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Mi24.bin", NULL, false);
-	SetChild(pGameObject);
+	CLoadedModelInfo *pModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Mi24.bin", NULL, false);
+	SetChild(pModel->m_pModelRootObject);
 
 	OnPrepareAnimate();
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	if (pModel) delete pModel;
 }
 
 CAirplanePlayer::~CAirplanePlayer()
@@ -351,13 +308,13 @@ CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 			m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 			break;
 		case THIRD_PERSON_CAMERA:
-			SetFriction(250.0f);
+			SetFriction(20.5f);
 			SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
 			SetMaxVelocityXZ(25.5f);
 			SetMaxVelocityY(20.0f);
 			m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
 			m_pCamera->SetTimeLag(0.25f);
-			m_pCamera->SetOffset(XMFLOAT3(0.0f, 15.0f, -15.0f));
+			m_pCamera->SetOffset(XMFLOAT3(0.0f, 15.0f, -30.0f));
 			m_pCamera->SetPosition(Vector3::Add(m_xmf3Position, m_pCamera->GetOffset()));
 			m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
 			m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
@@ -373,24 +330,60 @@ CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
+#define _WITH_DEBUG_CALLBACK_DATA
 
-int CTerrainPlayer::m_state = IDLE;
+void CSoundCallbackHandler::HandleCallback(void *pCallbackData)
+{
+   _TCHAR *pWavName = (_TCHAR *)pCallbackData; 
+#ifdef _WITH_DEBUG_CALLBACK_DATA
+	TCHAR pstrDebug[256] = { 0 };
+	_stprintf_s(pstrDebug, 256, _T("%s\n"), pWavName);
+	OutputDebugString(pstrDebug);
+#endif
+#ifdef _WITH_SOUND_RESOURCE
+   PlaySound(pWavName, ::ghAppInstance, SND_RESOURCE | SND_ASYNC);
+#else
+   PlaySound(pWavName, NULL, SND_FILENAME | SND_ASYNC);
+#endif
+}
+
 CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
 {
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
-	CGameObject *pGameObject = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/EvilbearA.bin", NULL, true);
+	CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 
+		"../Resource/Model/Player.bin", NULL, true);
 
+	//CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
+	//	"../Resource/Model/EvilbearA.bin", NULL, true);
 
-	SetChild(pGameObject);
+	SetChild(pAngrybotModel->m_pModelRootObject, true);
+	m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
 
+	m_pAnimationController = new CAnimationController(1, pAngrybotModel->m_pAnimationSets);
+	m_pAnimationController->SetTrackAnimationSet(0, 0);
 
-	//카메라의 상수버퍼 뷰 생성
+	// 1번 애니메이션 동작에 사운드 3개를 Set해준다.
+	m_pAnimationController->SetCallbackKeys(1, 3);
+#ifdef _WITH_SOUND_RESOURCE
+	m_pAnimationController->SetCallbackKey(1, 0, 0.1f, _T("Footstep01"));
+	m_pAnimationController->SetCallbackKey(1, 1, 0.5f, _T("Footstep02"));
+	m_pAnimationController->SetCallbackKey(1, 2, 0.9f, _T("Footstep03"));
+#else
+	// 애니메이션 1번동작 0.1초일때 Footstep01 소리를 재생, 1번동작 0.5초일때 Footstep02 소리를 재생, 1번동작 0.9초일때 Footstep03 소리를 재생
+	m_pAnimationController->SetCallbackKey(1, 0, 0.1f, _T("../Resource/Sound/Footstep01.wav"));
+	m_pAnimationController->SetCallbackKey(1, 1, 0.5f, _T("../Resource/Sound/Footstep02.wav"));
+	m_pAnimationController->SetCallbackKey(1, 2, 0.9f, _T("../Resource/Sound/Footstep03.wav"));
+#endif
+	CAnimationCallbackHandler* pAnimationCallbackHandler = new CSoundCallbackHandler();
+	m_pAnimationController->SetAnimationCallbackHandler(1, pAnimationCallbackHandler);
+
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-
-	//터레인에대한 정보 Player에게 set
+	
 	SetPlayerUpdatedContext(pContext);
 	SetCameraUpdatedContext(pContext);
+
+	if (pAngrybotModel) delete pAngrybotModel;
 }
 
 CTerrainPlayer::~CTerrainPlayer()
@@ -484,187 +477,4 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 			p3rdPersonCamera->SetLookAt(GetPosition());
 		}
 	}
-}
-
-void CTerrainPlayer::Animate(float fTimeElapsed)
-{
-
-	RotateAxisY(fTimeElapsed);
-
-	CGameObject::Animate(fTimeElapsed);
-}
-
-int CTerrainPlayer::BackCallTime = 0;
-void CTerrainPlayer::RotateAxisY(float fTimeElapsed)
-{
-	XMFLOAT3& xmf3Look = m_xmf3Look;
-	XMFLOAT3& xmf3Right = m_xmf3Right;
-	XMFLOAT3& xmf3Up = m_xmf3Up;
-	if (m_dwDirection & DIR_RIGHT)
-	{
-
-		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3Right);
-
-		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
-
-
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(fAngle*fTimeElapsed));
-		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-
-		
-		SetDirection(0x00);
-	}
-	else if (m_dwDirection & DIR_LEFT)
-	{
-		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3Right);
-
-		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
-
-
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(-(fAngle*fTimeElapsed)));
-		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-
-		
-
-		SetDirection(0x00);
-	}
-	
-}
-
-
-void CTerrainPlayer::UpdateTransform(XMFLOAT4X4* pxmf4x4Parent)
-{
-	m_xmf4x4World = (pxmf4x4Parent) ? Matrix4x4::Multiply(m_xmf4x4ToParent, *pxmf4x4Parent) : m_xmf4x4ToParent;
-
-
-	if (m_pSibling) m_pSibling->UpdateTransform(pxmf4x4Parent);
-	if (m_pChild) m_pChild->UpdateTransform(&m_xmf4x4World);
-}
-
-void CTerrainPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
-{
-	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
-	if (nCameraMode == THIRD_PERSON_CAMERA)
-	{
-		
-		OnPrepareRender();
-
-		UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
-
-
-		if (m_bIce) 
-		{
-			if (m_nMaterials > 0)
-			{
-				if (m_ppMaterials[1])
-				{
-					if (m_ppMaterials[1]->m_pShader)
-					{
-						m_ppMaterials[1]->m_pShader->Render(pd3dCommandList, pCamera);
-					}
-					m_ppMaterials[1]->UpdateShaderVariable(pd3dCommandList);
-
-
-				}
-				if (m_pMesh)
-				{
-					m_pMesh->Render(pd3dCommandList, 0);
-				}
-			}
-
-			if (m_pSibling) m_pSibling->Render(pd3dCommandList, m_bIce,pCamera);
-			if (m_pChild) m_pChild->Render(pd3dCommandList,m_bIce ,pCamera);
-		}
-		else
-		{
-			if (m_nMaterials > 0)
-			{
-				if (m_ppMaterials[0])
-				{
-					if (m_ppMaterials[0]->m_pShader)
-					{
-						m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
-					}
-					m_ppMaterials[0]->UpdateShaderVariable(pd3dCommandList);
-
-
-				}
-				if (m_pMesh)
-				{
-					m_pMesh->Render(pd3dCommandList, 0);
-				}
-			}
-
-			if (m_pSibling) m_pSibling->Render(pd3dCommandList, m_bIce,m_bBomb, pCamera);
-			if (m_pChild) m_pChild->Render(pd3dCommandList, m_bIce,m_bBomb, pCamera);
-		}
-	}
-}
-
-void CTerrainPlayer::SetState(DWORD key)
-{
-
-	if (m_state != ICE)							//얼음 상태가 아닐때 
-	{
-
-		if (key == VK_DOWN)
-		{
-			m_state = RUNBACKWARD;
-		}
-		else if (key == VK_UP)
-		{
-			m_state = WALKFRONT;
-		}
-		else if (key == VK_X)
-		{
-			m_state = ATTACK;
-		}
-		//키 두가지 동시에 처리 가능하게 
-		else if ((key == VK_DOWN) && (GetAsyncKeyState(VK_RIGHT) & 0x8000 || GetAsyncKeyState(VK_LEFT) & 0x8000))
-		{
-			m_state = RUNBACKWARD;
-		}
-		else if (GetAsyncKeyState(VK_RETURN) & 0x0001) //0x0001 - 이전에 누른적이 있고 호출시점에는 눌려있지 않은 상태
-		{
-			if (m_bIce == false)
-			{
-				m_state = ICE;
-				m_bIce = true;
-			}
-
-		}
-		else if (GetAsyncKeyState(VK_C) & 0x0001)
-		{
-			if (m_bBomb == false)
-			{
-				m_bBomb = true;
-			}
-			else {
-				m_bBomb = false;
-			}
-		}
-		else if (key == VK_Z)
-		{
-			m_state = DIGGING;
-		}
-		else
-		{
-			m_state = NOTYET;
-		}
-	}
-	else if(m_state == ICE)							//얼음 상태일때
-	{
-
-		if (GetAsyncKeyState(VK_RETURN) & 0x0001)		//0x0001 - 이전에 누른적이 있고 호출시점에는 눌려있지 않은 상태
-		{
-			if (m_bIce == true)
-			{
-				m_state = IDLE;
-				m_bIce = false;
-			}
-
-		}
-	
 }
