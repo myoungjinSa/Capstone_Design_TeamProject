@@ -99,57 +99,37 @@ public:
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
+
 class CStandardObjectsShader : public CStandardShader
 {
 public:
 	CStandardObjectsShader();
 	virtual ~CStandardObjectsShader();
 
+	float Random(float fMin, float fMax);
+	float Random();
+	XMFLOAT3 RandomPositionInSphere(XMFLOAT3 xmf3Center, float fRadius, int nColumn, int nColumnSpace);
+
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext = NULL);
 	virtual void AnimateObjects(float fTimeElapsed);
 	virtual void ReleaseObjects();
-
 	virtual void ReleaseUploadBuffers();
-
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera);
 
-protected:
-	CGameObject						**m_ppObjects = 0;
-	int								m_nObjects = 0;
+private:
+	CGameObject**	m_ppObjects = 0;
+	int							m_nObjects = 0;
 };
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-class CHellicopterObjectsShader : public CStandardObjectsShader
-{
-public:
-	CHellicopterObjectsShader();
-	virtual ~CHellicopterObjectsShader();
-
-	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext = NULL);
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-class CSkinnedAnimationShader : public CStandardShader
-{
-public:
-	CSkinnedAnimationShader();
-	virtual ~CSkinnedAnimationShader();
-
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-class CSkinnedAnimationObjectsShader : public CSkinnedAnimationShader
+class CSkinnedAnimationObjectsShader : public CStandardShader
 {
 public:
 	CSkinnedAnimationObjectsShader();
 	virtual ~CSkinnedAnimationObjectsShader();
 
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
+
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext = NULL);
 	virtual void AnimateObjects(float fTimeElapsed);
 	virtual void ReleaseObjects();
@@ -159,18 +139,7 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera);
 
 protected:
-	CGameObject						**m_ppObjects = 0;
-	int								m_nObjects = 0;
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-class CAngrybotObjectsShader : public CSkinnedAnimationObjectsShader
-{
-public:
-	CAngrybotObjectsShader();
-	virtual ~CAngrybotObjectsShader();
-
-	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext = NULL);
+	CGameObject**	m_ppObjects = 0;
+	int							m_nObjects = 0;
 };
 
