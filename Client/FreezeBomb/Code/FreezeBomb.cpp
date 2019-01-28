@@ -2,15 +2,13 @@
 #include "Default/Resource.h"
 #include "GameFramework/GameFramework.h"
 
-//#include "GameFramework.h"
-
 #define MAX_LOADSTRING 100
 
-HINSTANCE						ghAppInstance;
+HINSTANCE					ghAppInstance;
 TCHAR							szTitle[MAX_LOADSTRING];
 TCHAR							szWindowClass[MAX_LOADSTRING];
 
-CGameFramework					gGameFramework;
+CGameFramework		gGameFramework;
 
 ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);

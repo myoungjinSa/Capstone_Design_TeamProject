@@ -1,8 +1,5 @@
 #pragma once
 
-#define FRAME_BUFFER_WIDTH		640
-#define FRAME_BUFFER_HEIGHT		480
-
 #include "../GameTimer/GameTimer.h"
 #include "../GameObject/Player/Player.h"
 #include "../Scene/Scene.h"
