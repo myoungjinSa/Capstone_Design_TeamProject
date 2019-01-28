@@ -58,8 +58,8 @@ public:
 	void LoadTextureFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, UINT nType, UINT nRootParameter, _TCHAR *pwstrTextureName, CTexture **ppTexture, CGameObject *pParent, FILE *pInFile, CShader *pShader);
 
 public:
-	static CShader					*m_pStandardShader;
-	static CShader					*m_pSkinnedAnimationShader;
+	static CShader* m_pStandardShader;
+	static CShader* m_pSkinnedAnimationShader;
 
 	static void PrepareShaders(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
 

@@ -58,6 +58,27 @@
     <Filter Include="Code\Material">
       <UniqueIdentifier>{780111ed-b01f-4770-849c-cebb7b52d765}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Shader\StandardShader">
+      <UniqueIdentifier>{552a07a7-8068-472f-851e-32a215d7e9d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader\StandardObjectsShader">
+      <UniqueIdentifier>{af9bcc31-dabf-4fd0-9c8c-51a43546d117}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader\SkinnedAnimationObjectsShader">
+      <UniqueIdentifier>{2d1d1a82-4d7d-405d-bf55-822a1d34ca1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Terrain">
+      <UniqueIdentifier>{08f37b41-38a3-454e-a125-a2b708716bcc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\SkyBox">
+      <UniqueIdentifier>{81cd757c-70b2-4eb7-b85d-18641748dc25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\SkyBoxShader">
+      <UniqueIdentifier>{ef58e593-2858-47a7-ac93-cead33696394}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\TerrainShader">
+      <UniqueIdentifier>{899a2058-b3f6-44a6-a8e1-2fea488120e9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FreezeBomb.rc">
@@ -121,6 +142,27 @@
     <ClInclude Include="..\Code\Material\Material.h">
       <Filter>Code\Material</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\Shader\StandardShader\SkinnedAnimationObjectsShader\SkinnedAnimationObjectsShader.h">
+      <Filter>Code\Shader\StandardShader\SkinnedAnimationObjectsShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\StandardShader\StandardObjectsShader\StandardObjectsShader.h">
+      <Filter>Code\Shader\StandardShader\StandardObjectsShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\StandardShader\StandardShader.h">
+      <Filter>Code\Shader\StandardShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Terrain\Terrain.h">
+      <Filter>Code\GameObject\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\SkyBox\SkyBox.h">
+      <Filter>Code\GameObject\SkyBox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.h">
+      <Filter>Code\Shader\SkyBoxShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\TerrainShader\TerrainShader.h">
+      <Filter>Code\Shader\TerrainShader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Code\FreezeBomb.cpp">
@@ -164,6 +206,27 @@
     </ClCompile>
     <ClCompile Include="..\Code\Material\Material.cpp">
       <Filter>Code\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\StandardShader\SkinnedAnimationObjectsShader\SkinnedAnimationObjectsShader.cpp">
+      <Filter>Code\Shader\StandardShader\SkinnedAnimationObjectsShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\StandardShader\StandardObjectsShader\StandardObjectsShader.cpp">
+      <Filter>Code\Shader\StandardShader\StandardObjectsShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\StandardShader\StandardShader.cpp">
+      <Filter>Code\Shader\StandardShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Terrain\Terrain.cpp">
+      <Filter>Code\GameObject\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\SkyBox\SkyBox.cpp">
+      <Filter>Code\GameObject\SkyBox</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.cpp">
+      <Filter>Code\Shader\SkyBoxShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\TerrainShader\TerrainShader.cpp">
+      <Filter>Code\Shader\TerrainShader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

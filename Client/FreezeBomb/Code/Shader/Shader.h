@@ -1,6 +1,4 @@
 #pragma once
-
-#include "../GameObject/GameObject.h"
 #include "../Camera/Camera.h"
 
 class CShader
@@ -45,101 +43,12 @@ public:
 	virtual void ReleaseObjects() { }
 
 protected:
-	ID3DBlob							*m_pd3dVertexShaderBlob = NULL;
-	ID3DBlob							*m_pd3dPixelShaderBlob = NULL;
+	float								m_fElapsedTime = 0.0f;
 
-	ID3D12PipelineState					*m_pd3dPipelineState = NULL;
+	ID3DBlob*					m_pd3dVertexShaderBlob = NULL;
+	ID3DBlob*					m_pd3dPixelShaderBlob = NULL;
+
+	ID3D12PipelineState*	m_pd3dPipelineState = NULL;
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC	m_d3dPipelineStateDesc;
-
-	float								m_fElapsedTime = 0.0f;
 };
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-class CTerrainShader : public CShader
-{
-public:
-	CTerrainShader();
-	virtual ~CTerrainShader();
-
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
-
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-class CSkyBoxShader : public CShader
-{
-public:
-	CSkyBoxShader();
-	virtual ~CSkyBoxShader();
-
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
-	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
-
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-class CStandardShader : public CShader
-{
-public:
-	CStandardShader();
-	virtual ~CStandardShader();
-
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
-
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class CStandardObjectsShader : public CStandardShader
-{
-public:
-	CStandardObjectsShader();
-	virtual ~CStandardObjectsShader();
-
-	float Random(float fMin, float fMax);
-	float Random();
-	XMFLOAT3 RandomPositionInSphere(XMFLOAT3 xmf3Center, float fRadius, int nColumn, int nColumnSpace);
-
-	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext = NULL);
-	virtual void AnimateObjects(float fTimeElapsed);
-	virtual void ReleaseObjects();
-	virtual void ReleaseUploadBuffers();
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera);
-
-private:
-	CGameObject**	m_ppObjects = 0;
-	int							m_nObjects = 0;
-};
-
-class CSkinnedAnimationObjectsShader : public CStandardShader
-{
-public:
-	CSkinnedAnimationObjectsShader();
-	virtual ~CSkinnedAnimationObjectsShader();
-
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-
-	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext = NULL);
-	virtual void AnimateObjects(float fTimeElapsed);
-	virtual void ReleaseObjects();
-
-	virtual void ReleaseUploadBuffers();
-
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera);
-
-protected:
-	CGameObject**	m_ppObjects = 0;
-	int							m_nObjects = 0;
-};
-

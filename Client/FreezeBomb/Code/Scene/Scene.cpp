@@ -2,7 +2,14 @@
 #include "Scene.h"
 #include "../Texture/Texture.h"
 #include "../Material/Material.h"
+
 #include "../GameObject/Player/Player.h"
+#include "../GameObject/SkyBox/SkyBox.h"
+#include "../GameObject/Terrain/Terrain.h"
+
+#include "../Shader/Shader.h"
+#include "../Shader/StandardShader/StandardObjectsShader/StandardObjectsShader.h"
+#include "../Shader/StandardShader/SkinnedAnimationObjectsShader/SkinnedAnimationObjectsShader.h"
 
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -87,27 +94,25 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	XMFLOAT3 xmf3Scale(8.0f, 2.0f, 8.0f);
 	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
-	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("../Resource/Terrain/HeightMap.raw"), 257, 257, xmf3Scale, xmf4Color);
+	m_pTerrain = new CTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("../Resource/Terrain/HeightMap.raw"), 257, 257, xmf3Scale, xmf4Color);
 
-	m_nShaders = 1;
-	m_ppShaders = new CShader*[m_nShaders];
+	//m_nShaders = 2;
+	//m_ppShaders = new CShader*[m_nShaders];
 
-	CStandardObjectsShader* pHellicopterObjectsShader = new CStandardObjectsShader;
-	pHellicopterObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	pHellicopterObjectsShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	pHellicopterObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
-	m_ppShaders[0] = pHellicopterObjectsShader;
+	//CStandardObjectsShader* pHellicopterObjectsShader = new CStandardObjectsShader;
+	//pHellicopterObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	//pHellicopterObjectsShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	//pHellicopterObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
+	//m_ppShaders[0] = pHellicopterObjectsShader;
 
-	CSkinnedAnimationObjectsShader* pAngrybotObjectsShader = new CSkinnedAnimationObjectsShader;
-	pAngrybotObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	pAngrybotObjectsShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	pAngrybotObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
-	m_ppShaders[1] = pAngrybotObjectsShader;
+	//CSkinnedAnimationObjectsShader* pAngrybotObjectsShader = new CSkinnedAnimationObjectsShader;
+	//pAngrybotObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	//pAngrybotObjectsShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	//pAngrybotObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
+	//m_ppShaders[1] = pAngrybotObjectsShader;
 
-	CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 
-		"../Resource/Model/Player.bin", NULL, true);
-	//CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,
-	//	"../Resource/Model/EvilbearA.bin", NULL, true);
+	CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,
+		"../Resource/Model/EvilbearA.bin", NULL, true);
 	//CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,
 	//	"../Resource/Model/JJ.bin", NULL, true);
 
@@ -155,8 +160,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppGameObjects[3]->SetPosition(410.0f, m_pTerrain->GetHeight(410.0f, 735.0f), 735.0f);
 
 	for (int i = 0; i < 4; ++i)
-		m_ppGameObjects[i]->SetScale(2.f, 2.f, 2.f);
-
+		m_ppGameObjects[i]->SetScale(20.f, 20.f, 20.f);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
@@ -585,6 +589,7 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	}
 
 	for (int i = 0; i < m_nShaders; i++) 
-		if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
+		if (m_ppShaders[i]) 
+			m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 }
 

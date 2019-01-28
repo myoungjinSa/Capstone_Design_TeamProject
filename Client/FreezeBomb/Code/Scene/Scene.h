@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Shader/Shader.h"
+#include "../GameObject/GameObject.h"
 
 #define MAX_LIGHTS						16 
 
@@ -31,6 +31,11 @@ struct LIGHTS
 	XMFLOAT4	m_xmf4GlobalAmbient;
 	int					m_nLights;
 };
+
+class CPlayer;
+class CSkyBox;
+class CTerrain;
+class CShader;
 
 class CScene
 {
@@ -91,24 +96,24 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvDescriptorNextHandle() { return(m_d3dSrvCPUDescriptorNextHandle); }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorNextHandle() { return(m_d3dSrvGPUDescriptorNextHandle); }
 
-	int									m_nGameObjects = 0;
-	CGameObject**			m_ppGameObjects = NULL;
+	CPlayer*					m_pPlayer = NULL;
 
-	float								m_fElapsedTime = 0.0f;
+	CSkyBox*					m_pSkyBox = NULL;
+	CTerrain*					m_pTerrain = NULL;
 
-	int									m_nShaders = 0;
-	CShader**					m_ppShaders = NULL;
+	int								m_nGameObjects = 0;
+	CGameObject**		m_ppGameObjects = NULL;
 
-	CSkyBox*						m_pSkyBox = NULL;
-	CHeightMapTerrain*		m_pTerrain = NULL;
+	int								m_nShaders = 0;
+	CShader**				m_ppShaders = NULL;
 
-	LIGHT*							m_pLights = NULL;
-	int									m_nLights = 0;
+	LIGHT*						m_pLights = NULL;
+	int								m_nLights = 0;
 
-	XMFLOAT4					m_xmf4GlobalAmbient;
+	XMFLOAT4				m_xmf4GlobalAmbient;
 
-	ID3D12Resource*			m_pd3dcbLights = NULL;
-	LIGHTS*						m_pcbMappedLights = NULL;
+	ID3D12Resource*		m_pd3dcbLights = NULL;
+	LIGHTS*					m_pcbMappedLights = NULL;
 
-	CPlayer*						m_pPlayer = NULL;
+	float							m_fElapsedTime = 0.0f;
 };

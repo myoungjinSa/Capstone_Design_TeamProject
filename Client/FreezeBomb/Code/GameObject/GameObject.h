@@ -3,36 +3,24 @@
 #include "../Mesh/Mesh.h"
 #include "../Camera/Camera.h"
 
-#define DIR_FORWARD			0x01
-#define DIR_BACKWARD			0x02
-#define DIR_LEFT						0x04
-#define DIR_RIGHT					0x08
-#define DIR_UP						0x10
-#define DIR_DOWN					0x20
-
-class CTexture;
-class CMaterial;
-class CGameObject;
-class CShader;
-
 #define ANIMATION_TYPE_ONCE			0
 #define ANIMATION_TYPE_LOOP			1
-#define ANIMATION_TYPE_PINGPONG		2
+#define ANIMATION_TYPE_PINGPONG	2
 
 #define ANIMATION_CALLBACK_EPSILON	0.015f
 
 struct CALLBACKKEY
 {
 	// 시간
-   float  							m_fTime = 0.0f;
+   float  				m_fTime = 0.0f;
    // 효과음 같은 소리 => 발자국소리를 만드는 데이터
-   void  							*m_pCallbackData = NULL;
+   void*				m_pCallbackData = NULL;
 };
 
 struct KEYFRAME
 {
-   float  							m_fTime = 0.0f;
-   float  							m_fValue = 0.0f;
+   float  				m_fTime = 0.0f;
+   float  				m_fValue = 0.0f;
 };
 
 class CAnimationCurve
@@ -42,8 +30,8 @@ public:
 	~CAnimationCurve() { }
 
 public:
-   int  							m_nKeyFrames = 0;
-   KEYFRAME					*m_pKeyFrames = NULL;
+   int  				m_nKeyFrames = 0;
+   KEYFRAME	*	m_pKeyFrames = NULL;
 };
 
 //#define _WITH_ANIMATION_SRT
@@ -66,38 +54,38 @@ public:
 	~CAnimationSet();
 
 public:
-	char							m_pstrName[64];
+	char											m_pstrName[64];
 
 	// 애니메이션 행렬의 열의 개수를 결정한다.  => 시간
-	float							m_fLength = 0.0f;
-	int								m_nFramesPerSecond = 0; //m_fTicksPerSecond
+	float											m_fLength = 0.0f;
+	int												m_nFramesPerSecond = 0; //m_fTicksPerSecond
 
 	// 애니메이션의 행의 개수를 결정 => 애니메이션 행렬
-	int								m_nKeyFrameTransforms = 0;
-	float							*m_pfKeyFrameTransformTimes = NULL;
-	XMFLOAT4X4			**m_ppxmf4x4KeyFrameTransforms = NULL;
+	int												m_nKeyFrameTransforms = 0;
+	float*										m_pfKeyFrameTransformTimes = NULL;
+	XMFLOAT4X4**						m_ppxmf4x4KeyFrameTransforms = NULL;
 
 #ifdef _WITH_ANIMATION_SRT
-	int								m_nKeyFrameScales = 0;
-	float							*m_pfKeyFrameScaleTimes = NULL;
-	XMFLOAT3						**m_ppxmf3KeyFrameScales = NULL;
-	int								m_nKeyFrameRotations = 0;
-	float							*m_pfKeyFrameRotationTimes = NULL;
-	XMFLOAT4						**m_ppxmf4KeyFrameRotations = NULL;
-	int								m_nKeyFrameTranslations = 0;
-	float							*m_pfKeyFrameTranslationTimes = NULL;
-	XMFLOAT3						**m_ppxmf3KeyFrameTranslations = NULL;
+	int												m_nKeyFrameScales = 0;
+	float*										m_pfKeyFrameScaleTimes = NULL;
+	XMFLOAT3**							m_ppxmf3KeyFrameScales = NULL;
+	int												m_nKeyFrameRotations = 0;
+	float*										m_pfKeyFrameRotationTimes = NULL;
+	XMFLOAT4**							m_ppxmf4KeyFrameRotations = NULL;
+	int												m_nKeyFrameTranslations = 0;
+	float*										m_pfKeyFrameTranslationTimes = NULL;
+	XMFLOAT3**							m_ppxmf3KeyFrameTranslations = NULL;
 #endif
 
-	float 							m_fPosition = 0.0f;
-    int 							m_nType = ANIMATION_TYPE_LOOP; //Once, Loop, PingPong
+	float 											m_fPosition = 0.0f;
+    int 											m_nType = ANIMATION_TYPE_LOOP; //Once, Loop, PingPong
 
-	int								m_nCurrentKey = -1;
+	int												m_nCurrentKey = -1;
 
-	int 							m_nCallbackKeys = 0;
-	CALLBACKKEY 					*m_pCallbackKeys = NULL;
+	int 											m_nCallbackKeys = 0;
+	CALLBACKKEY*							m_pCallbackKeys = NULL;
 
-	CAnimationCallbackHandler 		*m_pAnimationCallbackHandler = NULL;
+	CAnimationCallbackHandler*	m_pAnimationCallbackHandler = NULL;
 
 public:
 	// AnimationTrack의 포지션값 => 애니메이션에서 읽어가야하는 위치 => 서로 다른동작을 하게함
@@ -111,6 +99,8 @@ public:
 
 	void *GetCallbackData();
 };
+
+class CGameObject;
 
 class CAnimationSets
 {
@@ -126,11 +116,11 @@ public:
 	~CAnimationSets();
 
 public:
-	int								m_nAnimationFrames = 0; 
-	CGameObject			**m_ppAnimationFrameCaches = NULL;
+	int							m_nAnimationFrames = 0; 
+	CGameObject**	m_ppAnimationFrameCaches = NULL;
 
-	int								m_nAnimationSets = 0;
-	CAnimationSet			*m_pAnimationSets = NULL;
+	int							m_nAnimationSets = 0;
+	CAnimationSet*	m_pAnimationSets = NULL;
 
 public:
 	void SetCallbackKeys(int nAnimationSet, int nCallbackKeys);
@@ -154,7 +144,7 @@ public:
 	// 각각의 애니메이션을 제어하여, 새로운 애니메이션을 만들기 위한 데이터
     float 							m_fWeight = 1.0f;
 	// 어떤 애니메이션을 제어할지 포인터
-    CAnimationSet 		*m_pAnimationSet = NULL;
+    CAnimationSet*		m_pAnimationSet = NULL;
 
 public:
 	void SetAnimationSet(CAnimationSet *pAnimationSet) { m_pAnimationSet = pAnimationSet; }
@@ -173,10 +163,10 @@ public:
 public:
     float 							m_fTime = 0.0f;
 
-	CAnimationSets		*m_pAnimationSets = NULL;
+	CAnimationSets*		m_pAnimationSets = NULL;
 
     int 							m_nAnimationTracks = 0;
-    CAnimationTrack 		*m_pAnimationTracks = NULL;
+    CAnimationTrack*	m_pAnimationTracks = NULL;
 
 public:
 	void SetAnimationSets(CAnimationSets *pAnimationSets);
@@ -200,10 +190,10 @@ public:
 	CLoadedModelInfo() { }
 	~CLoadedModelInfo() { }
 
-	int 							m_nSkinnedMeshes = 0;
+	int 						m_nSkinnedMeshes = 0;
 
-    CGameObject						*m_pModelRootObject = NULL;
-	CAnimationSets					*m_pAnimationSets = NULL;
+    CGameObject*		m_pModelRootObject = NULL;
+	CAnimationSets*	m_pAnimationSets = NULL;
 };
 
 class CSkinningBoneTransforms
@@ -215,10 +205,10 @@ public:
 public:
 	int 							m_nSkinnedMeshes = 0;
 
-	CSkinnedMesh					**m_ppSkinnedMeshes = NULL;
+	CSkinnedMesh**		m_ppSkinnedMeshes = NULL;
 
-	ID3D12Resource					**m_ppd3dcbBoneTransforms = NULL;
-	XMFLOAT4X4						**m_ppcbxmf4x4BoneTransforms = NULL;
+	ID3D12Resource**	m_ppd3dcbBoneTransforms = NULL;
+	XMFLOAT4X4**		m_ppcbxmf4x4BoneTransforms = NULL;
 
 public:
 	void SetSkinnedMesh(int nIndex, CSkinnedMesh *pSkinnedMesh) { m_ppSkinnedMeshes[nIndex] = pSkinnedMesh; }
@@ -229,8 +219,19 @@ public:
 	void SetSkinnedMeshBoneTransformConstantBuffer();
 };
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#define DIR_FORWARD			0x01
+#define DIR_BACKWARD			0x02
+#define DIR_LEFT						0x04
+#define DIR_RIGHT					0x08
+#define DIR_UP						0x10
+#define DIR_DOWN					0x20
+
+class CTexture;
+class CMaterial;
+class CShader;
+
 class CGameObject
 {
 private:
@@ -246,19 +247,19 @@ public:
     virtual ~CGameObject();
 
 public:
-	char							m_pstrFrameName[64];
+	char					m_pstrFrameName[64];
 
-	CMesh							*m_pMesh = NULL;
+	CMesh*			m_pMesh = NULL;
 
-	int								m_nMaterials = 0;
-	CMaterial						**m_ppMaterials = NULL;
+	int						m_nMaterials = 0;
+	CMaterial**		m_ppMaterials = NULL;
 
-	XMFLOAT4X4						m_xmf4x4ToParent;
-	XMFLOAT4X4						m_xmf4x4World;
+	XMFLOAT4X4	m_xmf4x4ToParent;
+	XMFLOAT4X4	m_xmf4x4World;
 
-	CGameObject 					*m_pParent = NULL;
-	CGameObject 					*m_pChild = NULL;
-	CGameObject 					*m_pSibling = NULL;
+	CGameObject*	m_pParent = NULL;
+	CGameObject*	m_pChild = NULL;
+	CGameObject*	m_pSibling = NULL;
 
 	void SetMesh(CMesh *pMesh);
 	void SetShader(CShader *pShader);
@@ -301,21 +302,21 @@ public:
 	void Rotate(XMFLOAT3 *pxmf3Axis, float fAngle);
 	void Rotate(XMFLOAT4 *pxmf4Quaternion);
 
-	CGameObject *GetParent() { return(m_pParent); }
+	CGameObject* GetParent() { return(m_pParent); }
 	void UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent=NULL);
-	CGameObject *FindFrame(char *pstrFrameName);
+	CGameObject* FindFrame(char *pstrFrameName);
 
-	CTexture *FindReplicatedTexture(_TCHAR *pstrTextureName);
+	CTexture* FindReplicatedTexture(_TCHAR *pstrTextureName);
 
 	UINT GetMeshType() { return((m_pMesh) ? m_pMesh->GetType() : 0x00); }
 
 public:
 	// 각각의 객체가 AnimationController를 가지고 있어서, 서로다른 동작을 할 수 있도록 하자.
-	CAnimationController 			*m_pAnimationController = NULL;
+	CAnimationController*			m_pAnimationController = NULL;
 	// 메쉬가 아닌 각각의 객체가 transform 행렬을 갖고 있기 위함 => 모델공유문제 해결
-	CSkinningBoneTransforms 		*m_pSkinningBoneTransforms = NULL;
+	CSkinningBoneTransforms*	m_pSkinningBoneTransforms = NULL;
 
-	CGameObject *GetRootSkinnedGameObject();
+	CGameObject* GetRootSkinnedGameObject();
 
 	void SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet);
 	void SetTrackAnimationPosition(int nAnimationTrack, float fPosition);
@@ -334,43 +335,6 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-class CHeightMapTerrain : public CGameObject
-{
-public:
-	CHeightMapTerrain(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color);
-	virtual ~CHeightMapTerrain();
-
-private:
-	CHeightMapImage				*m_pHeightMapImage;
-
-	int							m_nWidth;
-	int							m_nLength;
-
-	XMFLOAT3					m_xmf3Scale;
-
-public:
-	float GetHeight(float x, float z, bool bReverseQuad = false) { return(m_pHeightMapImage->GetHeight(x, z, bReverseQuad) * m_xmf3Scale.y); } //World
-	XMFLOAT3 GetNormal(float x, float z) { return(m_pHeightMapImage->GetHeightMapNormal(int(x / m_xmf3Scale.x), int(z / m_xmf3Scale.z))); }
-
-	int GetHeightMapWidth() { return(m_pHeightMapImage->GetHeightMapWidth()); }
-	int GetHeightMapLength() { return(m_pHeightMapImage->GetHeightMapLength()); }
-
-	XMFLOAT3 GetScale() { return(m_xmf3Scale); }
-	float GetWidth() { return(m_nWidth * m_xmf3Scale.x); }
-	float GetLength() { return(m_nLength * m_xmf3Scale.z); }
-};
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-class CSkyBox : public CGameObject
-{
-public:
-	CSkyBox(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
-	virtual ~CSkyBox();
-
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL);
-};
 
 class CSuperCobraObject : public CGameObject
 {
@@ -379,8 +343,8 @@ public:
 	virtual ~CSuperCobraObject();
 
 private:
-	CGameObject					*m_pMainRotorFrame = NULL;
-	CGameObject					*m_pTailRotorFrame = NULL;
+	CGameObject* m_pMainRotorFrame = NULL;
+	CGameObject* m_pTailRotorFrame = NULL;
 
 public:
 	virtual void OnPrepareAnimate();
@@ -388,7 +352,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
+
 class CGunshipObject : public CGameObject
 {
 public:
@@ -396,8 +360,8 @@ public:
 	virtual ~CGunshipObject();
 
 private:
-	CGameObject					*m_pMainRotorFrame = NULL;
-	CGameObject					*m_pTailRotorFrame = NULL;
+	CGameObject* m_pMainRotorFrame = NULL;
+	CGameObject* m_pTailRotorFrame = NULL;
 
 public:
 	virtual void OnPrepareAnimate();
@@ -405,7 +369,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
+
 class CMi24Object : public CGameObject
 {
 public:
@@ -413,8 +377,8 @@ public:
 	virtual ~CMi24Object();
 
 private:
-	CGameObject					*m_pMainRotorFrame = NULL;
-	CGameObject					*m_pTailRotorFrame = NULL;
+	CGameObject* m_pMainRotorFrame = NULL;
+	CGameObject* m_pTailRotorFrame = NULL;
 
 public:
 	virtual void OnPrepareAnimate();

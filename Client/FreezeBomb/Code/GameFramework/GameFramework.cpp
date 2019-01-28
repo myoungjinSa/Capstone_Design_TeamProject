@@ -2,6 +2,7 @@
 #include "GameFramework.h"
 #include "../Scene/Scene.h"
 #include "../GameObject/Player/Player.h"
+#include "../GameObject/Terrain/Terrain.h"
 
 CGameFramework::CGameFramework()
 {
