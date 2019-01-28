@@ -86,21 +86,20 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("../Resource/Terrain/HeightMap.raw"), 257, 257, xmf3Scale, xmf4Color);
 
-	//m_nShaders = 2;
-	//m_ppShaders = new CShader*[m_nShaders];
+	m_nShaders = 1;
+	m_ppShaders = new CShader*[m_nShaders];
 
-	//CHellicopterObjectsShader* pHellicopterObjectsShader = new CHellicopterObjectsShader();
-	//pHellicopterObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	//pHellicopterObjectsShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	//pHellicopterObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
+	CStandardObjectsShader* pHellicopterObjectsShader = new CStandardObjectsShader;
+	pHellicopterObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	pHellicopterObjectsShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	pHellicopterObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
+	m_ppShaders[0] = pHellicopterObjectsShader;
 
-	//CAngrybotObjectsShader *pAngrybotObjectsShader = new CAngrybotObjectsShader();
-	//pAngrybotObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	//pAngrybotObjectsShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	//pAngrybotObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
-
-	//m_ppShaders[0] = pHellicopterObjectsShader;
-	//m_ppShaders[1] = pAngrybotObjectsShader;
+	CSkinnedAnimationObjectsShader* pAngrybotObjectsShader = new CSkinnedAnimationObjectsShader;
+	pAngrybotObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	pAngrybotObjectsShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	pAngrybotObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
+	m_ppShaders[1] = pAngrybotObjectsShader;
 
 	CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 
 		"../Resource/Model/Player.bin", NULL, true);
