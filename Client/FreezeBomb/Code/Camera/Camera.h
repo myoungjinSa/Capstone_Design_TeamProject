@@ -1,16 +1,16 @@
 #pragma once
 
-#define ASPECT_RATIO				(float(FRAME_BUFFER_WIDTH) / float(FRAME_BUFFER_HEIGHT))
+#define ASPECT_RATIO					(float(FRAME_BUFFER_WIDTH) / float(FRAME_BUFFER_HEIGHT))
 
-#define FIRST_PERSON_CAMERA			0x01
+#define FIRST_PERSON_CAMERA		0x01
 #define SPACESHIP_CAMERA			0x02
-#define THIRD_PERSON_CAMERA			0x03
+#define THIRD_PERSON_CAMERA	0x03
 
 struct VS_CB_CAMERA_INFO
 {
-	XMFLOAT4X4						m_xmf4x4View;
-	XMFLOAT4X4						m_xmf4x4Projection;
-	XMFLOAT3						m_xmf3Position;
+	XMFLOAT4X4	m_xmf4x4View;
+	XMFLOAT4X4	m_xmf4x4Projection;
+	XMFLOAT3		m_xmf3Position;
 };
 
 class CPlayer;
@@ -18,31 +18,31 @@ class CPlayer;
 class CCamera
 {
 protected:
-	XMFLOAT3						m_xmf3Position;
-	XMFLOAT3						m_xmf3Right;
-	XMFLOAT3						m_xmf3Up;
-	XMFLOAT3						m_xmf3Look;
+	XMFLOAT3				m_xmf3Position;
+	XMFLOAT3				m_xmf3Right;
+	XMFLOAT3				m_xmf3Up;
+	XMFLOAT3				m_xmf3Look;
 
-	float           				m_fPitch;
+	float							m_fPitch;
 	float           				m_fRoll;
 	float           				m_fYaw;
 
-	DWORD							m_nMode;
+	DWORD					m_nMode;
 
-	XMFLOAT3						m_xmf3LookAtWorld;
-	XMFLOAT3						m_xmf3Offset;
+	XMFLOAT3				m_xmf3LookAtWorld;
+	XMFLOAT3				m_xmf3Offset;
 	float           				m_fTimeLag;
 
-	XMFLOAT4X4						m_xmf4x4View;
-	XMFLOAT4X4						m_xmf4x4Projection;
+	XMFLOAT4X4			m_xmf4x4View;
+	XMFLOAT4X4			m_xmf4x4Projection;
 
-	D3D12_VIEWPORT					m_d3dViewport;
-	D3D12_RECT						m_d3dScissorRect;
+	D3D12_VIEWPORT	m_d3dViewport;
+	D3D12_RECT				m_d3dScissorRect;
 
-	CPlayer							*m_pPlayer = NULL;
+	CPlayer*					m_pPlayer = NULL;
 
-	ID3D12Resource					*m_pd3dcbCamera = NULL;
-	VS_CB_CAMERA_INFO				*m_pcbMappedCamera = NULL;
+	ID3D12Resource*				m_pd3dcbCamera = NULL;
+	VS_CB_CAMERA_INFO*	m_pcbMappedCamera = NULL;
 
 public:
 	CCamera();

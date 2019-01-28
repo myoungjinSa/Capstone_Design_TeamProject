@@ -1,36 +1,35 @@
 #pragma once
 
 #include "../Shader/Shader.h"
-#include "../GameObject/Player/Player.h"
 
 #define MAX_LIGHTS						16 
 
 #define POINT_LIGHT						1
 #define SPOT_LIGHT						2
-#define DIRECTIONAL_LIGHT				3
+#define DIRECTIONAL_LIGHT			3
 
 struct LIGHT
 {
-	XMFLOAT4							m_xmf4Ambient;
-	XMFLOAT4							m_xmf4Diffuse;
-	XMFLOAT4							m_xmf4Specular;
-	XMFLOAT3							m_xmf3Position;
-	float 								m_fFalloff;
-	XMFLOAT3							m_xmf3Direction;
-	float 								m_fTheta; //cos(m_fTheta)
-	XMFLOAT3							m_xmf3Attenuation;
-	float								m_fPhi; //cos(m_fPhi)
-	bool								m_bEnable;
-	int									m_nType;
-	float								m_fRange;
-	float								padding;
+	XMFLOAT4	m_xmf4Ambient;
+	XMFLOAT4	m_xmf4Diffuse;
+	XMFLOAT4	m_xmf4Specular;
+	XMFLOAT3	m_xmf3Position;
+	float 				m_fFalloff;
+	XMFLOAT3	m_xmf3Direction;
+	float 				m_fTheta; //cos(m_fTheta)
+	XMFLOAT3	m_xmf3Attenuation;
+	float				m_fPhi;		//cos(m_fPhi)
+	bool				m_bEnable;
+	int					m_nType;
+	float				m_fRange;
+	float				padding;
 };										
 										
 struct LIGHTS							
 {										
-	LIGHT								m_pLights[MAX_LIGHTS];
-	XMFLOAT4							m_xmf4GlobalAmbient;
-	int									m_nLights;
+	LIGHT			m_pLights[MAX_LIGHTS];
+	XMFLOAT4	m_xmf4GlobalAmbient;
+	int					m_nLights;
 };
 
 class CScene
@@ -59,12 +58,12 @@ public:
 
 	void ReleaseUploadBuffers();
 
-	CPlayer								*m_pPlayer = NULL;
+	void SetPlayer(CPlayer* p) { m_pPlayer = p; }
 
 protected:
-	ID3D12RootSignature					*m_pd3dGraphicsRootSignature = NULL;
+	ID3D12RootSignature*						m_pd3dGraphicsRootSignature = NULL;
 
-	static ID3D12DescriptorHeap			*m_pd3dCbvSrvDescriptorHeap;
+	static ID3D12DescriptorHeap*			m_pd3dCbvSrvDescriptorHeap;
 
 	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dCbvCPUDescriptorStartHandle;
 	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dCbvGPUDescriptorStartHandle;
@@ -93,21 +92,23 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorNextHandle() { return(m_d3dSrvGPUDescriptorNextHandle); }
 
 	int									m_nGameObjects = 0;
-	CGameObject							**m_ppGameObjects = NULL;
+	CGameObject**			m_ppGameObjects = NULL;
 
 	float								m_fElapsedTime = 0.0f;
 
 	int									m_nShaders = 0;
-	CShader								**m_ppShaders = NULL;
+	CShader**					m_ppShaders = NULL;
 
-	CSkyBox								*m_pSkyBox = NULL;
-	CHeightMapTerrain					*m_pTerrain = NULL;
+	CSkyBox*						m_pSkyBox = NULL;
+	CHeightMapTerrain*		m_pTerrain = NULL;
 
-	LIGHT								*m_pLights = NULL;
+	LIGHT*							m_pLights = NULL;
 	int									m_nLights = 0;
 
-	XMFLOAT4							m_xmf4GlobalAmbient;
+	XMFLOAT4					m_xmf4GlobalAmbient;
 
-	ID3D12Resource						*m_pd3dcbLights = NULL;
-	LIGHTS								*m_pcbMappedLights = NULL;
+	ID3D12Resource*			m_pd3dcbLights = NULL;
+	LIGHTS*						m_pcbMappedLights = NULL;
+
+	CPlayer*						m_pPlayer = NULL;
 };

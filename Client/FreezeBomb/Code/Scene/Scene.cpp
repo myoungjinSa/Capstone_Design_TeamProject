@@ -1,7 +1,10 @@
 #include "../Stdafx/Stdafx.h"
 #include "Scene.h"
+#include "../Texture/Texture.h"
+#include "../Material/Material.h"
+#include "../GameObject/Player/Player.h"
 
-ID3D12DescriptorHeap *CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
+ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
 D3D12_CPU_DESCRIPTOR_HANDLE	CScene::m_d3dCbvCPUDescriptorStartHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dCbvGPUDescriptorStartHandle;

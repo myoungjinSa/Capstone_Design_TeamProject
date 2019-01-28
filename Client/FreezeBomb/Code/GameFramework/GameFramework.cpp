@@ -1,5 +1,7 @@
 #include "../Stdafx/Stdafx.h"
 #include "GameFramework.h"
+#include "../Scene/Scene.h"
+#include "../GameObject/Player/Player.h"
 
 CGameFramework::CGameFramework()
 {
@@ -405,18 +407,19 @@ void CGameFramework::BuildObjects()
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
 	m_pScene = new CScene();
-	if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
+	if (m_pScene) 
+		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 
 #ifdef _WITH_TERRAIN_PLAYER
-	CTerrainPlayer *pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), m_pScene->m_pTerrain);
+	CTerrainPlayer* pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), m_pScene->m_pTerrain);
 	pPlayer->SetPosition(XMFLOAT3(380.0f, m_pScene->m_pTerrain->GetHeight(380.0f, 680.0f), 680.0f));
 	pPlayer->SetScale(XMFLOAT3(2.0f, 2.0f, 2.0f));
 #else
 	CAirplanePlayer *pPlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), NULL);
 	pPlayer->SetPosition(XMFLOAT3(425.0f, 240.0f, 640.0f));
 #endif
-
-	m_pScene->m_pPlayer = m_pPlayer = pPlayer;
+	m_pPlayer = pPlayer;
+	m_pScene->SetPlayer(m_pPlayer);
 	m_pCamera = m_pPlayer->GetCamera();
 
 	m_pd3dCommandList->Close();

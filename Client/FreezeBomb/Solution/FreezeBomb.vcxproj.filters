@@ -52,6 +52,12 @@
     <Filter Include="Code\Shader\HLSL">
       <UniqueIdentifier>{a82442b1-2de3-4630-9597-af998021ba62}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Texture">
+      <UniqueIdentifier>{4b40fb51-e0c6-4a5b-94e5-7c2b822a5977}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Material">
+      <UniqueIdentifier>{780111ed-b01f-4770-849c-cebb7b52d765}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FreezeBomb.rc">
@@ -109,6 +115,12 @@
     <ClInclude Include="..\Code\Scene\Scene.h">
       <Filter>Code\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\Texture\Texture.h">
+      <Filter>Code\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Material\Material.h">
+      <Filter>Code\Material</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Code\FreezeBomb.cpp">
@@ -146,6 +158,12 @@
     </ClCompile>
     <ClCompile Include="..\Code\Scene\Scene.cpp">
       <Filter>Code\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Texture\Texture.cpp">
+      <Filter>Code\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Material\Material.cpp">
+      <Filter>Code\Material</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
