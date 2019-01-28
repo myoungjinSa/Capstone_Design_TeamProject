@@ -1,8 +1,14 @@
+//-----------------------------------------------------------------------------
+// File: CGameObject.cpp
+//-----------------------------------------------------------------------------
+
 #include "stdafx.h"
 #include "Object.h"
 #include "Shader.h"
 #include "Scene.h"
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers)
 {
 	m_nTextureType = nTextureType;
@@ -163,6 +169,22 @@ void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList)
 		if (m_ppTextures[i]) m_ppTextures[i]->UpdateShaderVariable(pd3dCommandList, 0);
 	}
 }
+void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList,int matID)
+{
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AmbientColor, 16);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AlbedoColor, 20);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4SpecularColor, 24);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4EmissiveColor, 28);
+
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_nType, 32);
+
+	
+	if (m_ppTextures[matID])
+	{
+		m_ppTextures[matID]->UpdateShaderVariable(pd3dCommandList, matID);
+	}
+}
+
 
 void CMaterial::LoadTextureFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, UINT nType, UINT nRootParameter, _TCHAR *pwstrTextureName, CTexture **ppTexture, CGameObject *pParent, FILE *pInFile, CShader *pShader)
 {
@@ -225,18 +247,17 @@ void CMaterial::LoadTextureFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsComm
 //
 CSkinningBoneTransforms::CSkinningBoneTransforms(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CLoadedModelInfo *pModel)
 {
-	m_nSkinnedMeshes = pModel->m_nSkinnedMeshes;
+	m_nSkinnedMeshes = pModel->m_nSkinnedMeshes;								//스킨 메쉬의 개수
 
-	// SkinnedMesh가 여러개 일 경우
-	m_ppSkinnedMeshes = new CSkinnedMesh*[m_nSkinnedMeshes];
+	m_ppSkinnedMeshes = new CSkinnedMesh*[m_nSkinnedMeshes];					//스킨 메쉬의 개수 만큼 스킨 메쉬 포인터 배열 생성
 
-	m_ppd3dcbBoneTransforms = new ID3D12Resource*[m_nSkinnedMeshes];
-	m_ppcbxmf4x4BoneTransforms = new XMFLOAT4X4*[m_nSkinnedMeshes];
+	m_ppd3dcbBoneTransforms = new ID3D12Resource*[m_nSkinnedMeshes];			//본 트랜스폼 행렬 상수 버퍼 생성
+	m_ppcbxmf4x4BoneTransforms = new XMFLOAT4X4*[m_nSkinnedMeshes];			
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	int nSkinnedMesh = 0;
-	pModel->m_pModelRootObject->FindAndSetSkinnedMesh(&nSkinnedMesh, this);
+	int nSkinnedMesh = 0;														//각 프레임들 마다 스킨 메쉬를 따로 갖고 있을 경우가 있기 때문에 
+	pModel->m_pModelRootObject->FindAndSetSkinnedMesh(&nSkinnedMesh, this);		//스킨메쉬가 있는 프레임을 찾고 스킨 메쉬를 set해준다.
 }
 
 CSkinningBoneTransforms::~CSkinningBoneTransforms()
@@ -250,6 +271,8 @@ CSkinningBoneTransforms::~CSkinningBoneTransforms()
 
 void CSkinningBoneTransforms::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
+
+	//여기서 상수 버퍼 생성
 	UINT ncbElementBytes = (((sizeof(XMFLOAT4X4) * SKINNED_ANIMATION_BONES) + 255) & ~255); //256의 배수
 	for (int i = 0; i < m_nSkinnedMeshes; i++)
 	{
@@ -294,9 +317,6 @@ CAnimationSet::~CAnimationSet()
 
 void *CAnimationSet::GetCallbackData()
 {
-	// 애니메이션이 동작하는 시간과 읽어가는 위치를 비교하여, 소리를 재생하게 만듬.
-	// 근사값으로 비교하여 CallbackKey를 만든다. => ANIMATION_CALLBACK_EPSILON : 근사값
-	// 근사값이 작을수록 소리의 재생이 정확하지만, 프레임레이트의 영향에따라 달라짐.
 	for (int i = 0; i < m_nCallbackKeys; i++)
 	{
 		if (::IsEqual(m_pCallbackKeys[i].m_fTime, m_fPosition, ANIMATION_CALLBACK_EPSILON)) return(m_pCallbackKeys[i].m_pCallbackData);
@@ -304,17 +324,22 @@ void *CAnimationSet::GetCallbackData()
 	return(NULL);
 }
 
-void CAnimationSet::SetPosition(float fTrackPosition)
+void CAnimationSet::SetPosition(float& fTrackPosition,float& oncePosition)
 {
+	float maxLength = m_fLength - 0.18f;
+	float fPosition = 0.0f;
 	m_fPosition = fTrackPosition;
 	switch (m_nType)
 	{
 		case ANIMATION_TYPE_LOOP:
 		{
 #ifdef _WITH_ANIMATION_INTERPOLATION			
+			//fmod 
+			//0~1사이의 값이 됨
 			m_fPosition = fmod(fTrackPosition, m_pfKeyFrameTransformTimes[m_nKeyFrameTransforms-1]); // m_fPosition = fTrackPosition - int(fTrackPosition / m_pfKeyFrameTransformTimes[m_nKeyFrameTransforms-1]) * m_pfKeyFrameTransformTimes[m_nKeyFrameTransforms-1];
 //			m_fPosition = fmod(fTrackPosition, m_fLength); //if (m_fPosition < 0) m_fPosition += m_fLength;
 //			m_fPosition = fTrackPosition - int(fTrackPosition / m_fLength) * m_fLength;
+
 #else
 			m_nCurrentKey++;
 			if (m_nCurrentKey >= m_nKeyFrameTransforms) m_nCurrentKey = 0;
@@ -322,6 +347,18 @@ void CAnimationSet::SetPosition(float fTrackPosition)
 			break;
 		}
 		case ANIMATION_TYPE_ONCE:
+
+			m_fPosition = fminf(oncePosition, maxLength);
+			if (m_fPosition >= maxLength)
+			{
+				CPlayer::m_state = CPlayer::eState::IDLE;
+				m_fPosition = 0.0f;
+				oncePosition = 0.0f;					//oncePosition을 0으로 세팅해주는 이유는 Digging 과 Attack을 번갈아 
+														//동시에 실행할때 위치값이 0부터 시작되지 않고 그 전 애니메이션 위치에서부터 시작되는 현상이
+														//있었기 때문에 값을 0으로 만들어 줘야한다.
+								
+			}
+
 			break;
 		case ANIMATION_TYPE_PINGPONG:
 			break;
@@ -329,9 +366,8 @@ void CAnimationSet::SetPosition(float fTrackPosition)
 
 	if (m_pAnimationCallbackHandler)
 	{
-		void* pCallbackData = GetCallbackData();
-		if (pCallbackData) 
-			m_pAnimationCallbackHandler->HandleCallback(pCallbackData);
+		void *pCallbackData = GetCallbackData();
+		if (pCallbackData) m_pAnimationCallbackHandler->HandleCallback(pCallbackData);
 	}
 }
 
@@ -490,7 +526,10 @@ void CAnimationController::SetTrackSpeed(int nAnimationTrack, float fSpeed)
 
 void CAnimationController::SetTrackWeight(int nAnimationTrack, float fWeight)
 {
-	if (m_pAnimationTracks) m_pAnimationTracks[nAnimationTrack].SetWeight(fWeight);
+	if (m_pAnimationTracks)
+	{
+		m_pAnimationTracks[nAnimationTrack].SetWeight(fWeight);
+	}
 }
 
 void CAnimationController::SetAnimationSets(CAnimationSets *pAnimationSets)
@@ -504,18 +543,24 @@ void CAnimationController::AdvanceTime(float fTimeElapsed)
 	m_fTime += fTimeElapsed; 
 	if (m_pAnimationSets && m_pAnimationTracks)
 	{
-		for (int i = 0; i < m_pAnimationSets->m_nAnimationFrames; i++) 
-			m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent = Matrix4x4::Zero();
-		for (int j = 0; j < m_nAnimationTracks; j++)
+		for (int i = 0; i < m_pAnimationSets->m_nAnimationFrames; i++)
 		{
-			m_pAnimationTracks[j].m_fPosition += (fTimeElapsed * m_pAnimationTracks[j].m_fSpeed);
-			m_pAnimationTracks[j].m_pAnimationSet->SetPosition(m_pAnimationTracks[j].m_fPosition);
+			m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent = Matrix4x4::Zero();
+		}
+		for (int j = 0; j < m_nAnimationTracks; j++)											//애니메이션 트랙만큼 루프
+		{
+
+			m_pAnimationTracks[j].m_fPosition += (fTimeElapsed * m_pAnimationTracks[j].m_fSpeed);		//각 애니메이션 트랙의 속도와 게임 경과시간을 곱해서 해당 애니메이션이 어느 시간대를 가리키는지 정해야한다.
+			
+			CAnimationSet *pAnimationSet = m_pAnimationTracks[j].m_pAnimationSet;
+			pAnimationSet->m_fPosition += (fTimeElapsed * m_pAnimationTracks[j].m_fSpeed);
+			m_pAnimationTracks[j].m_pAnimationSet->SetPosition(m_pAnimationTracks[j].m_fPosition,pAnimationSet->m_fPosition);
+			//m_pAnimationTracks[j].m_pAnimationSet->m_fLength;
 			if (m_pAnimationTracks[j].m_bEnable)
 			{
 				for (int i = 0; i < m_pAnimationSets->m_nAnimationFrames; i++)
 				{
-					//m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent = Matrix4x4::Add(m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent, Matrix4x4::Scale(m_pAnimationTracks[j].m_pAnimationSet->GetSRT(i), m_pAnimationTracks[j].m_fWeight));
-					m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent = m_pAnimationTracks[j].m_pAnimationSet->GetSRT(i);
+					m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent = m_pAnimationTracks[j].m_pAnimationSet->GetSRT(i);//Matrix4x4::Add(m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent, Matrix4x4::Scale(m_pAnimationTracks[j].m_pAnimationSet->GetSRT(i), m_pAnimationTracks[j].m_fWeight));
 				}
 			}
 		}
@@ -524,6 +569,8 @@ void CAnimationController::AdvanceTime(float fTimeElapsed)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+ 
+
 CGameObject::CGameObject()
 {
 	m_xmf4x4ToParent = Matrix4x4::Identity();
@@ -573,6 +620,7 @@ void CGameObject::Release()
 	if (--m_nReferences <= 0) delete this; 
 }
 
+//SetChild ,true이면 레퍼런스 카운트 1씩 증가시킨다 
 void CGameObject::SetChild(CGameObject *pChild, bool bReferenceUpdate)
 {
 	if (pChild)
@@ -660,9 +708,7 @@ void CGameObject::SetTrackAnimationPosition(int nAnimationTrack, float fPosition
 
 void CGameObject::Animate(float fTimeElapsed)
 {
-	// 루트 오브젝트를 제외한 나머지는 모두 nullptr이다. 왜냐하면, 루트 오브젝트를 제어하기 위함이므로
-	if (m_pAnimationController) 
-		m_pAnimationController->AdvanceTime(fTimeElapsed);
+	if (m_pAnimationController) m_pAnimationController->AdvanceTime(fTimeElapsed);
 
 	if (m_pSibling) m_pSibling->Animate(fTimeElapsed);
 	if (m_pChild) m_pChild->Animate(fTimeElapsed);
@@ -695,6 +741,70 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 
 	if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
 	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
+}
+
+
+void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bIce,int matID ,CCamera *pCamera)
+{
+	
+	OnPrepareRender();
+
+	if (m_pSkinningBoneTransforms) m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
+
+	
+	
+	if (bIce)
+	{
+		if (m_pMesh) {
+			if (!m_pSkinningBoneTransforms) UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+
+			if (m_nMaterials == 1)
+			{
+				if (m_ppMaterials[0])
+				{
+					if (m_ppMaterials[0]->m_pShader) m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
+					m_ppMaterials[0]->UpdateShaderVariable(pd3dCommandList);
+				}
+			}
+			else if (m_nMaterials == 7)
+			{
+				if (m_ppMaterials[CGameObject::eMaterials::ICE])
+				{
+					if (m_ppMaterials[CGameObject::eMaterials::ICE]->m_pShader) m_ppMaterials[CGameObject::eMaterials::ICE]->m_pShader->Render(pd3dCommandList, pCamera);
+					m_ppMaterials[CGameObject::eMaterials::ICE]->UpdateShaderVariable(pd3dCommandList);
+				}
+			}
+			m_pMesh->Render(pd3dCommandList, 0);
+		}
+	}
+	else
+	{
+
+		if (m_pMesh) 
+		{
+			if (!m_pSkinningBoneTransforms) UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+			if (m_nMaterials == 1)			//게임 오브젝트는 재질 개수가 0, 1 , 7개를 갖고 있는 오브젝트로 나뉜다.
+			{
+				if (m_ppMaterials[0])
+				{
+					if (m_ppMaterials[0]->m_pShader) m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
+					m_ppMaterials[0]->UpdateShaderVariable(pd3dCommandList);
+				}
+			}
+			else if (m_nMaterials == 7)
+			{
+				if (m_ppMaterials[matID])
+				{
+					if (m_ppMaterials[matID]->m_pShader) m_ppMaterials[matID]->m_pShader->Render(pd3dCommandList, pCamera);
+					m_ppMaterials[matID]->UpdateShaderVariable(pd3dCommandList);
+				}
+			}
+			m_pMesh->Render(pd3dCommandList, 0);
+		}
+	}
+	if (m_pSibling) m_pSibling->Render(pd3dCommandList, bIce,matID, pCamera);
+	if (m_pChild) m_pChild->Render(pd3dCommandList, bIce,matID ,pCamera);
+	
 }
 
 void CGameObject::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
@@ -983,7 +1093,9 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 
 			nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
 			nReads = (UINT)::fread(pGameObject->m_pstrFrameName, sizeof(char), nStrLength, pInFile);
+			
 			pGameObject->m_pstrFrameName[nStrLength] = '\0';
+		
 		}
 		else if (!strcmp(pstrToken, "<Transform>:"))
 		{
@@ -1116,6 +1228,11 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 			nReads = (UINT)::fread(pAnimationSet->m_pstrName, sizeof(char), nStrLength, pInFile);
 			pAnimationSet->m_pstrName[nStrLength] = '\0';
 
+			if (!strcmp(pAnimationSet->m_pstrName, "ATK3") || !strcmp(pAnimationSet->m_pstrName, "Digging"))
+			{
+				pAnimationSet->m_nType = ANIMATION_TYPE_ONCE;
+			}
+
 			nReads = (UINT)::fread(&pAnimationSet->m_fLength, sizeof(float), 1, pInFile);
 			nReads = (UINT)::fread(&pAnimationSet->m_nFramesPerSecond, sizeof(int), 1, pInFile);
 
@@ -1157,6 +1274,7 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 
 void CGameObject::CacheSkinningBoneFrames(CGameObject *pRootFrame)
 {
+	//해당 프레임(뼈)의 스킨메쉬가 있을경우
 	if (m_pMesh && (m_pMesh->GetType() & VERTEXT_BONE_INDEX_WEIGHT))
 	{
 		CSkinnedMesh *pSkinnedMesh = (CSkinnedMesh *)m_pMesh;
@@ -1197,8 +1315,12 @@ CLoadedModelInfo *CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device *pd
 	::rewind(pInFile);
 
 	CLoadedModelInfo *pLoadedModel = new CLoadedModelInfo();
+	//모델 계층정보 로드
 	pLoadedModel->m_pModelRootObject = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, pInFile, pShader, &pLoadedModel->m_nSkinnedMeshes);
-	if (bHasAnimation) pLoadedModel->m_pAnimationSets = CGameObject::LoadAnimationFromFile(pInFile, pLoadedModel->m_pModelRootObject);
+	if (bHasAnimation)
+	{
+		pLoadedModel->m_pAnimationSets = CGameObject::LoadAnimationFromFile(pInFile, pLoadedModel->m_pModelRootObject);
+	}
 	
 	pLoadedModel->m_pModelRootObject->CacheSkinningBoneFrames(pLoadedModel->m_pModelRootObject);
 
@@ -1390,8 +1512,9 @@ void CMi24Object::Animate(float fTimeElapsed)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-CAngrybotObject::CAngrybotObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
+CAngrybotObject::CAngrybotObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID)
 {
+	m_matID = matID;
 }
 
 CAngrybotObject::~CAngrybotObject()

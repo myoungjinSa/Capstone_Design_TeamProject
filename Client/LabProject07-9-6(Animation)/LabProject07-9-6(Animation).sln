@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.28307.168
+VisualStudioVersion = 15.0.28307.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LabProject07-9-6(Animation)", "LabProject07-9-6(Animation).vcxproj", "{06AE5AE9-BE31-400B-BF96-45910DB51942}"
 EndProject
@@ -26,6 +26,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {D68948A5-B344-4548-A333-A030C3443E51}
+		SolutionGuid = {E7A41E18-7662-4EEE-A2FB-9EC4EED866BC}
 	EndGlobalSection
 EndGlobal
