@@ -68,6 +68,7 @@ void CSkinnedAnimationObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D
 			XMFLOAT3 xmf3Position = XMFLOAT3(fxPitch*x + 390.0f, 0.0f, 730.0f + fzPitch * z);
 			xmf3Position.y = pTerrain->GetHeight(xmf3Position.x, xmf3Position.z);
 			m_ppObjects[nObjects]->SetPosition(xmf3Position);
+			//m_ppObjects[nObjects++]->SetScale(2.0f, 2.0f, 2.0f);
 			m_ppObjects[nObjects++]->SetScale(20.0f, 20.0f, 20.0f);
 		}
 	}

@@ -135,7 +135,7 @@ void CGameFramework::CreateDirect3DDevice()
 
 	hResult = ::CreateDXGIFactory2(nDXGIFactoryFlags, __uuidof(IDXGIFactory4), (void **)&m_pdxgiFactory);
 
-	IDXGIAdapter1 *pd3dAdapter = NULL;
+	IDXGIAdapter1* pd3dAdapter = NULL;
 
 	for (UINT i = 0; DXGI_ERROR_NOT_FOUND != m_pdxgiFactory->EnumAdapters1(i, &pd3dAdapter); i++)
 	{
@@ -168,7 +168,7 @@ void CGameFramework::CreateDirect3DDevice()
 
 	if (pd3dAdapter) pd3dAdapter->Release();
 
-	// IncrementSize 설정해줌
+	// IncrementSize를 컴퓨터에 맞게 설정해줌
 	::gnCbvSrvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 

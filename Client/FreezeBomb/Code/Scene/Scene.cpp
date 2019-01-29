@@ -96,20 +96,20 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
 	m_pTerrain = new CTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("../Resource/Terrain/HeightMap.raw"), 257, 257, xmf3Scale, xmf4Color);
 
-	//m_nShaders = 2;
-	//m_ppShaders = new CShader*[m_nShaders];
+	m_nShaders = 1;
+	m_ppShaders = new CShader*[m_nShaders];
 
-	//CStandardObjectsShader* pHellicopterObjectsShader = new CStandardObjectsShader;
-	//pHellicopterObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	//pHellicopterObjectsShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	//pHellicopterObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
-	//m_ppShaders[0] = pHellicopterObjectsShader;
+	CStandardObjectsShader* pHellicopterObjectsShader = new CStandardObjectsShader;
+	pHellicopterObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	pHellicopterObjectsShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	pHellicopterObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
+	m_ppShaders[0] = pHellicopterObjectsShader;
 
 	//CSkinnedAnimationObjectsShader* pAngrybotObjectsShader = new CSkinnedAnimationObjectsShader;
 	//pAngrybotObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	//pAngrybotObjectsShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	//pAngrybotObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
-	//m_ppShaders[1] = pAngrybotObjectsShader;
+	//m_ppShaders[0] = pAngrybotObjectsShader;
 
 	CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,
 		"../Resource/Model/EvilbearA.bin", NULL, true);
@@ -159,8 +159,11 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppGameObjects[3]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
 	m_ppGameObjects[3]->SetPosition(410.0f, m_pTerrain->GetHeight(410.0f, 735.0f), 735.0f);
 
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < m_nGameObjects; ++i)
+	{
+		//m_ppGameObjects[i]->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 		m_ppGameObjects[i]->SetScale(20.f, 20.f, 20.f);
+	}
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
@@ -206,68 +209,68 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[0].NumDescriptors = 1;
-	pd3dDescriptorRanges[0].BaseShaderRegister = 6; //t6: gtxtAlbedoTexture
+	pd3dDescriptorRanges[0].BaseShaderRegister = 6; // t6: gtxtAlbedoTexture
 	pd3dDescriptorRanges[0].RegisterSpace = 0;
 	pd3dDescriptorRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	pd3dDescriptorRanges[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[1].NumDescriptors = 1;
-	pd3dDescriptorRanges[1].BaseShaderRegister = 7; //t7: gtxtSpecularTexture
+	pd3dDescriptorRanges[1].BaseShaderRegister = 7; // t7: gtxtSpecularTexture
 	pd3dDescriptorRanges[1].RegisterSpace = 0;
 	pd3dDescriptorRanges[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	pd3dDescriptorRanges[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[2].NumDescriptors = 1;
-	pd3dDescriptorRanges[2].BaseShaderRegister = 8; //t8: gtxtNormalTexture
+	pd3dDescriptorRanges[2].BaseShaderRegister = 8; // t8: gtxtNormalTexture
 	pd3dDescriptorRanges[2].RegisterSpace = 0;
 	pd3dDescriptorRanges[2].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	pd3dDescriptorRanges[3].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[3].NumDescriptors = 1;
-	pd3dDescriptorRanges[3].BaseShaderRegister = 9; //t9: gtxtMetallicTexture
+	pd3dDescriptorRanges[3].BaseShaderRegister = 9; // t9: gtxtMetallicTexture
 	pd3dDescriptorRanges[3].RegisterSpace = 0;
 	pd3dDescriptorRanges[3].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	pd3dDescriptorRanges[4].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[4].NumDescriptors = 1;
-	pd3dDescriptorRanges[4].BaseShaderRegister = 10; //t10: gtxtEmissionTexture
+	pd3dDescriptorRanges[4].BaseShaderRegister = 10; // t10: gtxtEmissionTexture
 	pd3dDescriptorRanges[4].RegisterSpace = 0;
 	pd3dDescriptorRanges[4].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	pd3dDescriptorRanges[5].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[5].NumDescriptors = 1;
-	pd3dDescriptorRanges[5].BaseShaderRegister = 11; //t11: gtxtEmissionTexture
+	pd3dDescriptorRanges[5].BaseShaderRegister = 11; // t11: gtxtEmissionTexture
 	pd3dDescriptorRanges[5].RegisterSpace = 0;
 	pd3dDescriptorRanges[5].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	pd3dDescriptorRanges[6].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[6].NumDescriptors = 1;
-	pd3dDescriptorRanges[6].BaseShaderRegister = 12; //t12: gtxtEmissionTexture
+	pd3dDescriptorRanges[6].BaseShaderRegister = 12; // t12: gtxtEmissionTexture
 	pd3dDescriptorRanges[6].RegisterSpace = 0;
 	pd3dDescriptorRanges[6].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	pd3dDescriptorRanges[7].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[7].NumDescriptors = 1;
-	pd3dDescriptorRanges[7].BaseShaderRegister = 13; //t13: gtxtSkyBoxTexture
+	pd3dDescriptorRanges[7].BaseShaderRegister = 13; // t13: gtxtSkyBoxTexture
 	pd3dDescriptorRanges[7].RegisterSpace = 0;
 	pd3dDescriptorRanges[7].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	pd3dDescriptorRanges[8].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[8].NumDescriptors = 1;
-	pd3dDescriptorRanges[8].BaseShaderRegister = 1; //t1: gtxtTerrainBaseTexture
+	pd3dDescriptorRanges[8].BaseShaderRegister = 1; // t1: gtxtTerrainBaseTexture
 	pd3dDescriptorRanges[8].RegisterSpace = 0;
 	pd3dDescriptorRanges[8].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	pd3dDescriptorRanges[9].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[9].NumDescriptors = 1;
-	pd3dDescriptorRanges[9].BaseShaderRegister = 2; //t2: gtxtTerrainDetailTexture
+	pd3dDescriptorRanges[9].BaseShaderRegister = 2; // t2: gtxtTerrainDetailTexture
 	pd3dDescriptorRanges[9].RegisterSpace = 0;
 	pd3dDescriptorRanges[9].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	D3D12_ROOT_PARAMETER pd3dRootParameters[15];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[0].Descriptor.ShaderRegister = 1; //Camera
+	pd3dRootParameters[0].Descriptor.ShaderRegister = 1;	// b1 : Camera
 	pd3dRootParameters[0].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
@@ -277,8 +280,13 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[1].Constants.RegisterSpace = 0;
 	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
+	//pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	//pd3dRootParameters[1].Descriptor.ShaderRegister = 2;	// b2 : GameObject
+	//pd3dRootParameters[1].Descriptor.RegisterSpace = 0;
+	//pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
 	pd3dRootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[2].Descriptor.ShaderRegister = 4; //Lights
+	pd3dRootParameters[2].Descriptor.ShaderRegister = 4;	// b4 : Lights
 	pd3dRootParameters[2].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
@@ -588,8 +596,12 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		}
 	}
 
-	for (int i = 0; i < m_nShaders; i++) 
-		if (m_ppShaders[i]) 
+	for (int i = 0; i < m_nShaders; i++)
+	{
+		if (m_ppShaders[i])
+		{
 			m_ppShaders[i]->Render(pd3dCommandList, pCamera);
+		}
+	}
 }
 

@@ -8,6 +8,7 @@
 #define MATERIAL_DETAIL_ALBEDO_MAP	0x20
 #define MATERIAL_DETAIL_NORMAL_MAP	0x40
 
+struct CB_GAMEOBJECT_INFO;
 class CTexture;
 class CShader;
 class CGameObject;
@@ -26,23 +27,25 @@ public:
 	void Release() { if (--m_nReferences <= 0) delete this; }
 
 public:
-	CShader							*m_pShader = NULL;
+	CShader*					m_pShader = NULL;
 
-	XMFLOAT4						m_xmf4AlbedoColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	XMFLOAT4						m_xmf4EmissiveColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-	XMFLOAT4						m_xmf4SpecularColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-	XMFLOAT4						m_xmf4AmbientColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	XMFLOAT4				m_xmf4AmbientColor	= XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	XMFLOAT4				m_xmf4AlbedoColor		= XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	XMFLOAT4				m_xmf4SpecularColor	= XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	XMFLOAT4				m_xmf4EmissiveColor	= XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+
+	UINT							m_nType = 0x00;
 
 	void SetShader(CShader *pShader);
 	void SetMaterialType(UINT nType) { m_nType |= nType; }
 	void SetTexture(CTexture *pTexture, UINT nTexture = 0);
 
 	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList, CB_GAMEOBJECT_INFO* pMappedGameObject);
 
 	virtual void ReleaseUploadBuffers();
 
 public:
-	UINT							m_nType = 0x00;
 
 	float							m_fGlossiness = 0.0f;
 	float							m_fSmoothness = 0.0f;
@@ -53,7 +56,7 @@ public:
 public:
 	int 							m_nTextures = 0;
 	_TCHAR(*m_ppstrTextureNames)[64] = NULL;
-	CTexture						**m_ppTextures = NULL; //0:Albedo, 1:Specular, 2:Metallic, 3:Normal, 4:Emission, 5:DetailAlbedo, 6:DetailNormal
+	CTexture**				m_ppTextures = NULL;		//0:Albedo, 1:Specular, 2:Metallic, 3:Normal, 4:Emission, 5:DetailAlbedo, 6:DetailNormal
 
 	void LoadTextureFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, UINT nType, UINT nRootParameter, _TCHAR *pwstrTextureName, CTexture **ppTexture, CGameObject *pParent, FILE *pInFile, CShader *pShader);
 

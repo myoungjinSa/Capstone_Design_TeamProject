@@ -21,7 +21,9 @@ CMaterial::~CMaterial()
 
 	if (m_nTextures > 0)
 	{
-		for (int i = 0; i < m_nTextures; i++) if (m_ppTextures[i]) m_ppTextures[i]->Release();
+		for (int i = 0; i < m_nTextures; i++) 
+			if (m_ppTextures[i]) 
+				m_ppTextures[i]->Release();
 		delete[] m_ppTextures;
 
 		if (m_ppstrTextureNames) delete[] m_ppstrTextureNames;
@@ -46,7 +48,8 @@ void CMaterial::ReleaseUploadBuffers()
 {
 	for (int i = 0; i < m_nTextures; i++)
 	{
-		if (m_ppTextures[i]) m_ppTextures[i]->ReleaseUploadBuffers();
+		if (m_ppTextures[i]) 
+			m_ppTextures[i]->ReleaseUploadBuffers();
 	}
 }
 
@@ -66,16 +69,41 @@ void CMaterial::PrepareShaders(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList)
 {
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AmbientColor, 16);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AlbedoColor, 20);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4SpecularColor, 24);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4EmissiveColor, 28);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AmbientColor, 16);	// Ambient
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AlbedoColor, 20);	// Diffuse
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4SpecularColor, 24);	// Specular
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4EmissiveColor, 28);	// Emissive
 
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_nType, 32);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_nType, 32);						//	TexturesMask
 
 	for (int i = 0; i < m_nTextures; i++)
 	{
-		if (m_ppTextures[i]) m_ppTextures[i]->UpdateShaderVariable(pd3dCommandList, 0);
+		if (m_ppTextures[i]) 
+			m_ppTextures[i]->UpdateShaderVariable(pd3dCommandList, 0);
+	}
+}
+
+void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList, CB_GAMEOBJECT_INFO* pMappedGameObject)
+{
+	if (pMappedGameObject != nullptr)
+	{
+		// AmbientColor 복사
+		::memcpy(&pMappedGameObject->m_xmf4AmbientColor, &m_xmf4AmbientColor, sizeof(XMFLOAT4));
+		// AlbedoColor 복사
+		::memcpy(&pMappedGameObject->m_xmf4AlbedoColor, &m_xmf4AlbedoColor, sizeof(XMFLOAT4));
+		// SpecularColor 복사
+		::memcpy(&pMappedGameObject->m_xmf4SpecularColor, &m_xmf4SpecularColor, sizeof(XMFLOAT4));
+		// EmissiveColor 복사
+		::memcpy(&pMappedGameObject->m_xmf4EmissiveColor, &m_xmf4EmissiveColor, sizeof(XMFLOAT4));
+
+		// nType 복사;
+		::memcpy(&pMappedGameObject->m_nType, &m_nType, sizeof(UINT));
+	}
+
+	for (int i = 0; i < m_nTextures; i++)
+	{
+		if (m_ppTextures[i])
+			m_ppTextures[i]->UpdateShaderVariable(pd3dCommandList, 0);
 	}
 }
 

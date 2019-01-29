@@ -19,7 +19,7 @@ public:
 
 private:
 	double							m_fTimeScale;						
-	float							m_fTimeElapsed;		
+	float								m_fTimeElapsed;		
 
 	__int64							m_nBasePerformanceCounter;
 	__int64							m_nPausedPerformanceCounter;
@@ -29,12 +29,12 @@ private:
 
 	__int64							m_nPerformanceFrequencyPerSec;				
 
-    float							m_fFrameTime[MAX_SAMPLE_COUNT];
+    float								m_fFrameTime[MAX_SAMPLE_COUNT];
     ULONG							m_nSampleCount;
 
-    unsigned long					m_nCurrentFrameRate;				
-	unsigned long					m_nFramesPerSecond;					
-	float							m_fFPSTimeElapsed;		
+    unsigned long				m_nCurrentFrameRate;				
+	unsigned long				m_nFramesPerSecond;					
+	float								m_fFPSTimeElapsed;		
 
-	bool							m_bStopped;
+	bool								m_bStopped;
 };

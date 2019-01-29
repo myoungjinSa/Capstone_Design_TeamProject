@@ -14,14 +14,17 @@ CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers)
 	}
 
 	m_nSamplers = nSamplers;
-	if (m_nSamplers > 0) m_pd3dSamplerGpuDescriptorHandles = new D3D12_GPU_DESCRIPTOR_HANDLE[m_nSamplers];
+	if (m_nSamplers > 0) 
+		m_pd3dSamplerGpuDescriptorHandles = new D3D12_GPU_DESCRIPTOR_HANDLE[m_nSamplers];
 }
 
 CTexture::~CTexture()
 {
 	if (m_ppd3dTextures)
 	{
-		for (int i = 0; i < m_nTextures; i++) if (m_ppd3dTextures[i]) m_ppd3dTextures[i]->Release();
+		for (int i = 0; i < m_nTextures; i++) 
+			if (m_ppd3dTextures[i]) 
+				m_ppd3dTextures[i]->Release();
 		delete[] m_ppd3dTextures;
 	}
 
@@ -68,9 +71,11 @@ void CTexture::ReleaseUploadBuffers()
 {
 	if (m_ppd3dTextureUploadBuffers)
 	{
-		for (int i = 0; i < m_nTextures; i++) if (m_ppd3dTextureUploadBuffers[i]) m_ppd3dTextureUploadBuffers[i]->Release();
+		for (int i = 0; i < m_nTextures; ++i) 
+			if (m_ppd3dTextureUploadBuffers[i]) 
+				m_ppd3dTextureUploadBuffers[i]->Release();
 		delete[] m_ppd3dTextureUploadBuffers;
-		m_ppd3dTextureUploadBuffers = NULL;
+		m_ppd3dTextureUploadBuffers = nullptr;
 	}
 }
 

@@ -228,6 +228,21 @@ public:
 #define DIR_UP						0x10
 #define DIR_DOWN					0x20
 
+struct CB_GAMEOBJECT_INFO
+{
+	// gmtxGameObject
+	XMFLOAT4X4	m_xmf4x4World;
+
+	// gMaterial
+	XMFLOAT4		m_xmf4AmbientColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	XMFLOAT4		m_xmf4AlbedoColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	XMFLOAT4		m_xmf4SpecularColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	XMFLOAT4		m_xmf4EmissiveColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+
+	// gnTexturesMask
+	UINT					m_nType = 0x00;
+};
+
 class CTexture;
 class CMaterial;
 class CShader;
@@ -332,6 +347,11 @@ public:
 	static CLoadedModelInfo *LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char *pstrFileName, CShader *pShader, bool bHasAnimation);
 
 	static void PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent);
+
+private:
+	// »ó¼ö¹öÆÛºä
+	ID3D12Resource*									m_pd3dcbGameObject{ nullptr };
+	CB_GAMEOBJECT_INFO*						m_pcbMappedGameObject{ nullptr };
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
