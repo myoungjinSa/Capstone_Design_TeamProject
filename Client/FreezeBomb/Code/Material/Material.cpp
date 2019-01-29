@@ -65,6 +65,7 @@ void CMaterial::PrepareShaders(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pSkinnedAnimationShader = new CSkinnedAnimationObjectsShader;
 	m_pSkinnedAnimationShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pSkinnedAnimationShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
 }
 
 void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList)
@@ -83,28 +84,43 @@ void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList)
 	}
 }
 
-void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList, CB_GAMEOBJECT_INFO* pMappedGameObject)
+void CMaterial::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
-	if (pMappedGameObject != nullptr)
+	UINT ncbElementBytes = ((sizeof(CB_MATERIAL_INFO) + 255) & ~255); //256의 배수
+	m_pd3dcbMaterial = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pd3dcbMaterial->Map(0, NULL, (void**)&m_pcbMappedMaterial);
+}
+
+void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	if (m_pcbMappedMaterial != nullptr)
 	{
 		// AmbientColor 복사
-		::memcpy(&pMappedGameObject->m_xmf4AmbientColor, &m_xmf4AmbientColor, sizeof(XMFLOAT4));
+		::memcpy(&m_pcbMappedMaterial->m_xmf4AmbientColor, &m_xmf4AmbientColor, sizeof(XMFLOAT4));
 		// AlbedoColor 복사
-		::memcpy(&pMappedGameObject->m_xmf4AlbedoColor, &m_xmf4AlbedoColor, sizeof(XMFLOAT4));
+		::memcpy(&m_pcbMappedMaterial->m_xmf4AlbedoColor, &m_xmf4AlbedoColor, sizeof(XMFLOAT4));
 		// SpecularColor 복사
-		::memcpy(&pMappedGameObject->m_xmf4SpecularColor, &m_xmf4SpecularColor, sizeof(XMFLOAT4));
+		::memcpy(&m_pcbMappedMaterial->m_xmf4SpecularColor, &m_xmf4SpecularColor, sizeof(XMFLOAT4));
 		// EmissiveColor 복사
-		::memcpy(&pMappedGameObject->m_xmf4EmissiveColor, &m_xmf4EmissiveColor, sizeof(XMFLOAT4));
+		::memcpy(&m_pcbMappedMaterial->m_xmf4EmissiveColor, &m_xmf4EmissiveColor, sizeof(XMFLOAT4));
 
 		// nType 복사;
-		::memcpy(&pMappedGameObject->m_nType, &m_nType, sizeof(UINT));
-	}
+		::memcpy(&m_pcbMappedMaterial->m_nType, &m_nType, sizeof(UINT));
 
-	for (int i = 0; i < m_nTextures; i++)
-	{
-		if (m_ppTextures[i])
-			m_ppTextures[i]->UpdateShaderVariable(pd3dCommandList, 0);
+		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbMaterial->GetGPUVirtualAddress();
+		pd3dCommandList->SetGraphicsRootConstantBufferView(15, d3dGpuVirtualAddress);
+
+		for (int i = 0; i < m_nTextures; i++)
+		{
+			if (m_ppTextures[i])
+				m_ppTextures[i]->UpdateShaderVariable(pd3dCommandList, 0);
+		}
 	}
+}
+
+void CMaterial::ReleaseShaderVariables()
+{
+
 }
 
 void CMaterial::LoadTextureFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, UINT nType, UINT nRootParameter, _TCHAR *pwstrTextureName, CTexture **ppTexture, CGameObject *pParent, FILE *pInFile, CShader *pShader)

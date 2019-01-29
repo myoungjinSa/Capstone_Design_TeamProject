@@ -8,6 +8,17 @@
 #define MATERIAL_DETAIL_ALBEDO_MAP	0x20
 #define MATERIAL_DETAIL_NORMAL_MAP	0x40
 
+struct CB_MATERIAL_INFO
+{
+	// g_Material
+	XMFLOAT4	m_xmf4AmbientColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	XMFLOAT4	m_xmf4AlbedoColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	XMFLOAT4	m_xmf4SpecularColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	XMFLOAT4	m_xmf4EmissiveColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	// gnTexturesMask
+	UINT				m_nType = 0x00;
+};
+
 struct CB_GAMEOBJECT_INFO;
 class CTexture;
 class CShader;
@@ -41,7 +52,10 @@ public:
 	void SetTexture(CTexture *pTexture, UINT nTexture = 0);
 
 	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList);
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList, CB_GAMEOBJECT_INFO* pMappedGameObject);
+
+	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void ReleaseShaderVariables();
 
 	virtual void ReleaseUploadBuffers();
 
@@ -68,4 +82,9 @@ public:
 
 	void SetStandardShader() { CMaterial::SetShader(m_pStandardShader); }
 	void SetSkinnedAnimationShader() { CMaterial::SetShader(m_pSkinnedAnimationShader); }
+
+private:
+	// »ó¼ö¹öÆÛºä
+	ID3D12Resource*			m_pd3dcbMaterial { nullptr };
+	CB_MATERIAL_INFO*	m_pcbMappedMaterial { nullptr };
 };

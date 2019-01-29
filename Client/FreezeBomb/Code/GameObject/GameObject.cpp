@@ -317,8 +317,10 @@ CGameObject::CGameObject(int nMaterials) : CGameObject()
 	if (m_nMaterials > 0)
 	{
 		m_ppMaterials = new CMaterial*[m_nMaterials];
-		for(int i = 0; i < m_nMaterials; i++) 
+		for (int i = 0; i < m_nMaterials; i++)
+		{
 			m_ppMaterials[i] = NULL;
+		}
 	}
 }
 
@@ -504,7 +506,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 					if (m_ppMaterials[i]->m_pShader) 
 						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
 					m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
-					//m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList, m_pcbMappedGameObject);
+					//m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
 				}
 				m_pMesh->Render(pd3dCommandList, i);
 			}
@@ -546,17 +548,6 @@ void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandLis
 
 void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, CMaterial* pMaterial)
 {
-	if (m_pcbMappedGameObject != nullptr)
-	{
-		XMFLOAT4X4 xmf4x4World;
-		XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
-		::memcpy(&m_pcbMappedGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
-
-		pMaterial->UpdateShaderVariables(pd3dCommandList, m_pcbMappedGameObject);
-
-		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObject->GetGPUVirtualAddress();
-		pd3dCommandList->SetGraphicsRootConstantBufferView(1, d3dGpuVirtualAddress);
-	}
 }
 
 void CGameObject::ReleaseShaderVariables()
@@ -733,7 +724,7 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device *pd3dDevice, ID3D12Graphics
 	m_ppMaterials = new CMaterial*[m_nMaterials];
 	for (int i = 0; i < m_nMaterials; i++) m_ppMaterials[i] = NULL;
 
-	CMaterial *pMaterial = NULL;
+	CMaterial* pMaterial = NULL;
 
 	for ( ; ; )
 	{
@@ -920,6 +911,7 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 			break;
 		}
 	}
+
 	return(pGameObject);
 }
 
