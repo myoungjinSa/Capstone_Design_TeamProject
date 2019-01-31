@@ -97,14 +97,14 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
 	m_pTerrain = new CTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("../Resource/Terrain/HeightMap.raw"), 257, 257, xmf3Scale, xmf4Color);
 
-	m_nShaders = 1;
-	m_ppShaders = new CShader*[m_nShaders];
+	//m_nShaders = 1;
+	//m_ppShaders = new CShader*[m_nShaders];
 
-	CStandardObjectsShader* pHellicopterObjectsShader = new CStandardObjectsShader;
-	pHellicopterObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	pHellicopterObjectsShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	pHellicopterObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
-	m_ppShaders[0] = pHellicopterObjectsShader;
+	//CStandardObjectsShader* pHellicopterObjectsShader = new CStandardObjectsShader;
+	//pHellicopterObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	//pHellicopterObjectsShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	//pHellicopterObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
+	//m_ppShaders[0] = pHellicopterObjectsShader;
 
 	//CSkinnedAnimationObjectsShader* pAngrybotObjectsShader = new CSkinnedAnimationObjectsShader;
 	//pAngrybotObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
@@ -276,16 +276,16 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[0].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	pd3dRootParameters[1].Constants.Num32BitValues = 33;
-	pd3dRootParameters[1].Constants.ShaderRegister = 2; //GameObject
-	pd3dRootParameters[1].Constants.RegisterSpace = 0;
-	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-
-	//pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	//pd3dRootParameters[1].Descriptor.ShaderRegister = 2;	// b2 : GameObject
-	//pd3dRootParameters[1].Descriptor.RegisterSpace = 0;
+	//pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+	//pd3dRootParameters[1].Constants.Num32BitValues = 33;
+	//pd3dRootParameters[1].Constants.ShaderRegister = 2; //GameObject
+	//pd3dRootParameters[1].Constants.RegisterSpace = 0;
 	//pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	pd3dRootParameters[1].Descriptor.ShaderRegister = 2;	// b2 : GameObject
+	pd3dRootParameters[1].Descriptor.RegisterSpace = 0;
+	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[2].Descriptor.ShaderRegister = 4;	// b4 : Lights

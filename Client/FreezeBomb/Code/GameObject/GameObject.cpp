@@ -494,8 +494,8 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 	{
 		if (!m_pSkinningBoneTransforms)
 		{
-			UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
-			//UpdateShaderVariables(pd3dCommandList);
+			//UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+			UpdateShaderVariables(pd3dCommandList);
 		}
 		if (m_nMaterials > 0)
 		{
@@ -505,8 +505,8 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 				{
 					if (m_ppMaterials[i]->m_pShader) 
 						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
-					m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
-					//m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
+					//m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
+					m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
 				}
 				m_pMesh->Render(pd3dCommandList, i);
 			}
@@ -722,8 +722,9 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device *pd3dDevice, ID3D12Graphics
 	UINT nReads = (UINT)::fread(&m_nMaterials, sizeof(int), 1, pInFile);
 
 	m_ppMaterials = new CMaterial*[m_nMaterials];
-	for (int i = 0; i < m_nMaterials; i++) m_ppMaterials[i] = NULL;
-
+	for (int i = 0; i < m_nMaterials; i++)
+		m_ppMaterials[i] = NULL;
+		
 	CMaterial* pMaterial = NULL;
 
 	for ( ; ; )
@@ -820,9 +821,12 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device *pd3dDevice, ID3D12Graphics
 			break;
 		}
 	}
+
+	for (int i = 0; i < m_nMaterials; ++i)
+		m_ppMaterials[i]->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
-CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes)
+CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes)
 {
 	char pstrToken[64] = { '\0' };
 
