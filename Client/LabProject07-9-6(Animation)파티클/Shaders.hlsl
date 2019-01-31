@@ -275,3 +275,34 @@ float4 PSParticle(VS_PARTICLE_OUTPUT input) : SV_TARGET
 
 	return (cColor);
 }
+
+struct VS_SNOW_INPUT
+{
+	float3 position : POSITION;
+	float2 uv		: TEXCOORD;
+};
+
+struct VS_SNOW_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float2 uv		: TEXCOORD;
+};
+
+Texture2D gtxtSnowBillboard : register (t15);
+
+VS_SNOW_OUTPUT VSSnowBillboard(VS_SNOW_INPUT input)
+{
+	VS_SNOW_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.uv = input.uv;
+
+	return(output);
+}
+
+float4 PSSnowBillboard(VS_SNOW_OUTPUT input) : SV_TARGET
+{
+	float4 cColor = gtxtSnowBillboard.Sample(gssWrap,input.uv);
+
+	return(cColor);
+}

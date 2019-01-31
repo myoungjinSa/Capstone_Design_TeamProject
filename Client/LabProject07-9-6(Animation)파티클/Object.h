@@ -353,6 +353,39 @@ public:
 
 	void SetSkinnedMeshBoneTransformConstantBuffer();
 };
+/////////////////////////////////////////////////////////////////////////////////////
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//가상의 네모 박스
+class CCubeObject
+{
+public:
+	CCubeObject(){}
+	CCubeObject(float fWidth, float fHeight, float fDepth);
+	
+
+	virtual ~CCubeObject();
+
+
+	XMFLOAT3 GetPosition() { return m_CenterPos; }
+	void UpdatePosition(const XMFLOAT3 pos,float fTimeLag);
+	CCubeObject& GetCubeObject() { return *this; }
+
+	float GetDepth(){ return m_fDepth; }
+	float GetWidth(){ return m_fWidth; }
+	float GetHeight() { return m_fHeight; }
+	
+private:
+
+	XMFLOAT3	*m_pVertex = NULL;
+	int			m_nVertex ;
+
+	XMFLOAT3	m_CenterPos;
+	float		m_fWidth, m_fHeight, m_fDepth;
+
+};
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -480,6 +513,8 @@ public:
 	static void PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent);
 };
 
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 class CHeightMapTerrain : public CGameObject
@@ -583,25 +618,46 @@ public:
 	virtual void Animate(float fTimeElapsed,CCamera *pCamera = NULL);
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
 class CBillboardObject : public CGameObject
 {
 public:
-	CBillboardObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
+	CBillboardObject();
 	virtual ~CBillboardObject();
 public:
 	virtual void Animate(float fTimeElapsed, CCamera *pCamera =NULL);
 	//virtual void UpdateTransform( CCamera *pCamera = NULL, XMFLOAT4X4 *pxmf4x4Parent = NULL);
+	void SetOffsetX(float offset) { m_offsetX = offset; }
+	void SetOffsetZ(float offset) { m_offsetZ = offset; }
 
+
+	void SetPositionXZ(float x, float z);
 	void SetLookAt(XMFLOAT3& xmfTarget);
+
+	float GetOffsetX() { return m_offsetX; }
+	float GetOffsetZ() { return m_offsetZ; }
+private:
+	float						m_offsetX = 0.0f;
+	float						m_offsetZ = 0.0f;
 };
 
-//미완성 클래스
-////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 class CSnowBillboardObject : public CBillboardObject
 {
 public:
-	//CSnowBill
+	CSnowBillboardObject();
+	virtual ~CSnowBillboardObject();
+
+public:
+	virtual void Animate(float fTimeElapsed, CCamera *pCamera = NULL);
+	
+			//플레이어 중심으로부터 얼마나 떨어져 있는지 변수
 };
+
 //////////////////////////////////////////////////////////////////////////////////
 
 class CParticleBillboardObject : public CBillboardObject

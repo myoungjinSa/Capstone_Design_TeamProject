@@ -5,6 +5,24 @@
 #include "stdafx.h"
 #include "Shader.h"
 #include "Scene.h"
+#include <random>
+
+std::default_random_engine;
+
+int getRandomNumber(int min, int max)
+{
+	//1단계 시드 설정
+	std::random_device rn;
+	mt19937_64 rnd(rn());
+
+
+	//2단계 분포 설정(실수)
+	std::uniform_int_distribution<int> range(min, max);
+
+	return range(rnd);
+}
+
+float Random(float, float);
 
 CShader::CShader()
 {
@@ -373,10 +391,11 @@ D3D12_BLEND_DESC CBillboardShader::CreateBlendState()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-//CSnowBillboardShader는 미완성
-CSnowBillboardShader::CSnowBillboardShader()
-{
 
+CSnowBillboardShader::CSnowBillboardShader()
+	
+{
+	
 }
 
 CSnowBillboardShader::~CSnowBillboardShader()
@@ -396,12 +415,10 @@ D3D12_SHADER_BYTECODE CSnowBillboardShader::CreatePixelShader()
 
 void CSnowBillboardShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
 {
+	//SnowBillboard는 지형의 높이정보를 알고있어야함. 그래야 지형의 밑으로 내려갔을때 다시 하늘에서 떨어지게 할 수 있다.
 	m_pTerrain = (CHeightMapTerrain*)pContext;
 
-	//float fxPitch = 50.0f;
-	//float fyPitch = 3.0f;
-	//float fzPitch = 60.0f;
-
+	
 	CTexture *pSnowTexture = new CTexture(1,RESOURCE_TEXTURE2D,0);
 	pSnowTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/SnowFlake.dds", 0);
 
@@ -412,14 +429,90 @@ void CSnowBillboardShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12Graphics
 	m_pMaterial->SetTexture(pSnowTexture);
 
 
-	CTexturedRectMesh* pSnowBillboardMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 15.0f, 15.0f, 0.0f, 0.0f, 0.0f, -1.0f);
+	CTexturedRectMesh* pSnowBillboardMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 3.0f, 3.0f, 0.0f, 0.0f, 0.0f, -1.0f);
+	
+	
+	//가상의 박스 -> 렌더링 하지는 않음
+	CCubeObject *pCubeObject = new CCubeObject(50.0f, 50.0f, 50.0f);
 
+	m_refCubeObject = pCubeObject->GetCubeObject();
 
 	m_nObjects = 80;
 	m_ppObjects = new CBillboardObject*[m_nObjects];
+	XMFLOAT3 xmf3RoatationAxis = XMFLOAT3(0.0f,0.0,1.0f);
+
+	int minX = -m_refCubeObject.GetWidth();
+	int maxX =  m_refCubeObject.GetWidth();
+	int minZ = -m_refCubeObject.GetDepth();
+	int maxZ =  m_refCubeObject.GetDepth();
+
+	for (UINT i = 0; i < m_nObjects; i++)
+	{
+		m_ppObjects[i] = new CSnowBillboardObject();
+		m_ppObjects[i]->SetMesh(pSnowBillboardMesh);
+		m_ppObjects[i]->SetMaterial(0, m_pMaterial);
+		m_ppObjects[i]->SetOffsetX(getRandomNumber(minX, maxX));
+		m_ppObjects[i]->SetOffsetZ(getRandomNumber(minZ, maxZ));
+		m_ppObjects[i]->SetPosition(0.0f,getRandomNumber(300.0f,400.0f),0.0f);
+		//m_ppObjects[i]->Rotate(&xmf3RoatationAxis, Random(0.0f, 89.0f));
+		
+	}
+}
+
+void CSnowBillboardShader::AnimateObjects(float fTimeElapsed,CCamera *pCamera,CPlayer *pPlayer)
+{
+	m_refCubeObject.UpdatePosition(pPlayer->GetPosition(),m_fTimeLagScale);
 
 	
+	if (m_ppObjects)
+	{
+		for (int i = 0; i < m_nObjects; i++)
+		{
+			if (m_ppObjects[i])
+			{
+				//
+				m_ppObjects[i]->SetPositionXZ(m_refCubeObject.GetPosition().x + m_ppObjects[i]->GetOffsetX(),
+					m_refCubeObject.GetPosition().z + m_ppObjects[i]->GetOffsetZ());
+				m_ppObjects[i]->Animate(fTimeElapsed, pCamera);
+
+				// 눈이 지형 아래로 내려가면 다시 위에서 생성되서 다시 내려오게 함
+				if (m_ppObjects[i]->GetPosition().y < m_pTerrain->GetHeight(m_ppObjects[i]->GetPosition().x, m_ppObjects[i]->GetPosition().z, false))
+				{
+					m_ppObjects[i]->SetPosition(m_refCubeObject.GetPosition().x + m_ppObjects[i]->GetOffsetX(), getRandomNumber(300.0f, 400.0f),
+						m_refCubeObject.GetPosition().z + m_ppObjects[i]->GetOffsetZ());
+				}
+				
+			}
+		}
+	}
 }
+
+
+void CSnowBillboardShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+{
+	OnPrepareRender(pd3dCommandList);
+
+	if (m_ppObjects)
+	{
+		for (int i = 0; i < m_nObjects; i++)
+		{
+			if (m_ppObjects[i])
+			{
+				m_ppObjects[i]->Render(pd3dCommandList, pCamera);
+
+			}
+		}
+	}
+}
+void CSnowBillboardShader::ReleaseObjects()
+{
+
+	if (m_pMaterial)
+	{
+		delete m_pMaterial;
+	}
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //

@@ -567,6 +567,75 @@ void CAnimationController::AdvanceTime(float fTimeElapsed)
 	}
 } 
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+CCubeObject::CCubeObject(float fWidth, float fHeight, float fDepth)
+{
+	m_nVertex = 8;
+
+
+	m_pVertex = new XMFLOAT3[m_nVertex];
+
+	m_CenterPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+	float fx = fWidth * 0.5f;
+	float fy = fHeight * 0.5f;
+	float fz = fDepth * 0.5f;
+	
+	m_fWidth  = fWidth;
+	m_fHeight = fHeight;
+	m_fDepth  = fDepth;
+
+	m_pVertex[0] = XMFLOAT3(-fx, +fy, +fz);			//left-top
+	m_pVertex[1] = XMFLOAT3(+fx, +fy, +fz);			//right-top
+	m_pVertex[2] = XMFLOAT3(-fx, -fy, +fz);			//left-Bottom
+	m_pVertex[3] = XMFLOAT3(+fx, -fy, +fz);			//right-Bottom
+	m_pVertex[4] = XMFLOAT3(-fx, +fy, -fz);			
+	m_pVertex[5] = XMFLOAT3(+fx, +fy, -fz);			//right-top
+	m_pVertex[6] = XMFLOAT3(-fx, -fy, -fz);			//left-Bottom
+	m_pVertex[7] = XMFLOAT3(+fx, -fy, -fz);			//right-Bottom
+
+}
+
+void CCubeObject::UpdatePosition(const XMFLOAT3 position,float fTimeLag)
+{
+	float fx = m_fWidth * 0.5f;
+	float fy = m_fHeight * 0.5f;
+	float fz = m_fDepth * 0.5f;
+
+	m_CenterPos = position;
+
+	m_pVertex[0] = Vector3::Add(m_CenterPos, XMFLOAT3(-fx, +fy, +fz));
+	m_pVertex[1] = Vector3::Add(m_CenterPos, XMFLOAT3(+fx, +fy, +fz));
+	m_pVertex[2] = Vector3::Add(m_CenterPos, XMFLOAT3(-fx, -fx, +fz));
+	m_pVertex[3] = Vector3::Add(m_CenterPos, XMFLOAT3(+fx, -fy, +fz));
+	m_pVertex[4] = Vector3::Add(m_CenterPos, XMFLOAT3(-fx, +fy, -fz));
+	m_pVertex[5] = Vector3::Add(m_CenterPos, XMFLOAT3(+fx, +fy, -fz));
+	m_pVertex[6] = Vector3::Add(m_CenterPos, XMFLOAT3(-fx, -fy, -fz));
+	m_pVertex[7] = Vector3::Add(m_CenterPos, XMFLOAT3(+fx, -fy, -fz));
+
+
+	//m_CenterPos.x = position.x * fTimeLag;
+	//m_CenterPos.z = position.z * fTimeLag;
+
+}
+
+
+
+
+CCubeObject::~CCubeObject()
+{
+	
+	if (m_pVertex)
+	{
+		delete m_pVertex;
+	}
+
+}
+
+
+
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
  
@@ -1344,6 +1413,7 @@ CLoadedModelInfo *CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device *pd
 	return(pLoadedModel);
 }
 
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 CHeightMapTerrain::CHeightMapTerrain(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color) : CGameObject(1)
@@ -1542,7 +1612,7 @@ void CAngrybotObject::Animate(float fTimeElapsed,CCamera *pCamera)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-CBillboardObject::CBillboardObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
+CBillboardObject::CBillboardObject()
 	: CGameObject(1)
 {
 
@@ -1575,6 +1645,17 @@ void CBillboardObject::SetLookAt(XMFLOAT3& xmfTarget)
 
 }
 
+void CBillboardObject::SetPositionXZ(float x, float z)
+{
+	//m_xmf4x4ToParent._41 = x;
+	//m_xmf4x4ToParent._42 = z;
+
+	m_xmf4x4World._41 = x;
+	m_xmf4x4World._43 = z;
+
+	//UpdateTransform(NULL);
+}
+
 void CBillboardObject::Animate(float fTimeElapsed,CCamera *pCamera )
 {
 	XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
@@ -1582,12 +1663,35 @@ void CBillboardObject::Animate(float fTimeElapsed,CCamera *pCamera )
 	
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+CSnowBillboardObject::CSnowBillboardObject()
+{
+
+}
+
+CSnowBillboardObject::~CSnowBillboardObject(){}
+
+
+
+void CSnowBillboardObject::Animate(float fTimeElapsed, CCamera *pCamera)
+{
+	this->SetPosition(this->GetPosition().x - (fTimeElapsed * 100.0f), this->GetPosition().y - (fTimeElapsed * 30.0f), this->GetPosition().z);
+
+
+	CBillboardObject::Animate(fTimeElapsed, pCamera);
+
+
+	//경과 시간 만큼 위치 아래로 
+	
+	
+
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 CParticleBillboardObject::CParticleBillboardObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
-	:CBillboardObject(pd3dDevice,pd3dCommandList,pd3dGraphicsRootSignature)
+	:CBillboardObject()
 {
 	CTexturedRectMesh *pBillboardMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 5.0f, 5.0f, 0.0f,0.0f,0.0f,0.0f);
 	SetMesh(pBillboardMesh);

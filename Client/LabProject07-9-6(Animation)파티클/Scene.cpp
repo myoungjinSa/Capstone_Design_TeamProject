@@ -93,12 +93,16 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_nShaders = 1;
 	m_ppShaders = new CShader*[m_nShaders];
 
-	CHellicopterObjectsShader *pHellicopterObjectsShader = new CHellicopterObjectsShader();
-	pHellicopterObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	pHellicopterObjectsShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	pHellicopterObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
+	CSnowBillboardShader *pSnowShader = new CSnowBillboardShader();
+	pSnowShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	pSnowShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
+	m_ppShaders[0] = pSnowShader;
+	//CHellicopterObjectsShader *pHellicopterObjectsShader = new CHellicopterObjectsShader();
+	//pHellicopterObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	//pHellicopterObjectsShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	//pHellicopterObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
 
-	m_ppShaders[0] = pHellicopterObjectsShader;
+	//m_ppShaders[0] = pHellicopterObjectsShader;
 
 //	CAngrybotObjectsShader *pAngrybotObjectsShader = new CAngrybotObjectsShader();
 ////	pAngrybotObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
@@ -606,8 +610,13 @@ void CScene::AnimateObjects(float fTimeElapsed)
 {
 	m_fElapsedTime = fTimeElapsed;
 
-	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->AnimateObjects(fTimeElapsed);
-	
+	for (int i = 0; i < m_nShaders; i++)
+	{
+		if (m_ppShaders[i])
+		{
+			m_ppShaders[i]->AnimateObjects(fTimeElapsed,m_pPlayer->GetCamera(),m_pPlayer);
+		}
+	}
 
 	if (m_pLights)
 	{
@@ -615,6 +624,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 		m_pLights[1].m_xmf3Direction = m_pPlayer->GetLookVector();
 	}
 }
+
 
 void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {

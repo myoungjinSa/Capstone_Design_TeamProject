@@ -46,6 +46,7 @@ public:
 
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext = NULL) { }
 	virtual void AnimateObjects(float fTimeElapsed) { }
+	virtual void AnimateObjects(float fTimeElapsed ,CCamera *pcamera, CPlayer* pPlayer = NULL){}
 	virtual void ReleaseObjects() { }
 
 protected:
@@ -110,23 +111,30 @@ public:
 	CSnowBillboardShader();
 	virtual ~CSnowBillboardShader();
 
+
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
 
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext = NULL);
-	//virtual void AnimateObjects(float fTimeElapsed);
-	//virtual void ReleaseObjects();
+	virtual void AnimateObjects(float fTimeElapsed,CCamera *pCamera,  CPlayer* pPlayer =NULL);
+	virtual void ReleaseObjects();
 
-	
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera);
 	//virtual void ReleaseUploadBuffers();
 
 protected:
-	CBillboardObject **m_ppObjects = 0;
-	int								m_nObjects = 0;
+	CBillboardObject			**m_ppObjects = 0;
+	int							m_nObjects = 0;
 
-	CHeightMapTerrain *m_pTerrain = NULL;			//눈 오브젝트가 터레인과 충돌하면 다시 위에서부터 떨어진다.
+	float						m_fTimeLagScale = 0.05f;
+	
+	CCubeObject					m_refCubeObject;
 
-	CMaterial						*m_pMaterial = NULL;
+
+	CHeightMapTerrain			*m_pTerrain = NULL;			//눈 오브젝트가 터레인과 충돌하면 다시 위에서부터 떨어진다.
+	CPlayer						*m_pPlayerInfo = NULL;					//플레이어 위치 근처에서 계속 떨어져야 하기 때문에 
+
+	CMaterial					*m_pMaterial = NULL;
 
 };
 
