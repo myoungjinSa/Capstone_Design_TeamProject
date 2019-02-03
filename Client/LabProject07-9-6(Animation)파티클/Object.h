@@ -437,6 +437,8 @@ public:
 
 	CParticleBillboardObject        *m_pParticleObject = NULL;
 
+
+
 	int	 GetMatID() { return m_matID; }
 	
 	void SetMesh(CMesh *pMesh);
@@ -456,6 +458,7 @@ public:
 	virtual void OnPrepareRender() { }
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bIce,int matID, CCamera *pCamera = NULL);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lodlevel ,CCamera *pCamera =NULL){}
 
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
@@ -505,13 +508,20 @@ public:
 
 	void LoadMaterialsFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CGameObject *pParent, FILE *pInFile, CShader *pShader);
 
+
 	static CAnimationSets *LoadAnimationFromFile(FILE *pInFile, CGameObject *pRootFrame);
 	static CGameObject *LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes);
 
 	static CLoadedModelInfo *LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char *pstrFileName, CShader *pShader, bool bHasAnimation);
+	static CGameObject *LoadGeometryFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char *pstrFileName, CShader *pShader);
+
 
 	static void PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent);
+
+protected:
+		static UINT m_lodLevel;
 };
+
 
 
 
@@ -616,7 +626,56 @@ public:
 public:
 	virtual void OnPrepareAnimate();
 	virtual void Animate(float fTimeElapsed,CCamera *pCamera = NULL);
+
+
+
 };
+
+class CDeadTreeObject : public CGameObject
+{
+public:
+	CDeadTreeObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
+	virtual ~CDeadTreeObject();
+
+
+};
+
+
+
+class CPineTreeObject : public CGameObject
+{
+public:
+	CPineTreeObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
+	virtual ~CPineTreeObject();
+
+
+};
+
+class CDeerObject : public CGameObject
+{
+public:
+	CDeerObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
+	virtual ~CDeerObject();
+
+
+};
+
+
+class CFoliageObject : public CGameObject
+{
+public:
+	CFoliageObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
+	virtual ~CFoliageObject();
+	
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lodlevel,CCamera *pCamera = NULL);
+
+public:
+	static CGameObject *LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes);
+	static CLoadedModelInfo *LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char *pstrFileName, CShader *pShader, bool bHasAnimation);
+
+	
+};
+
 
 /////////////////////////////////////////////////////////////////////////////////////////
 

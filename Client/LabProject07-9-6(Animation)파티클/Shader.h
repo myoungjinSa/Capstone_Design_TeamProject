@@ -185,6 +185,40 @@ public:
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext = NULL);
 };
 
+
+class CPineTreesObjectsShader : public CStandardObjectsShader
+{
+public :
+	CPineTreesObjectsShader();
+	virtual ~CPineTreesObjectsShader();
+
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext = NULL);
+};
+
+class CDeerObjectsShader : public CStandardObjectsShader
+{
+public:
+	CDeerObjectsShader();
+	virtual ~CDeerObjectsShader();
+
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext = NULL);
+};
+
+
+class CFoliageShader : public CStandardObjectsShader
+{
+public:
+	CFoliageShader();
+	virtual ~CFoliageShader();
+
+	virtual D3D12_BLEND_DESC CreateBlendState();
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext = NULL);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera);
+
+
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 class CSkinnedAnimationShader : public CStandardShader
