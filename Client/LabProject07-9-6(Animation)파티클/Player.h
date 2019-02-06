@@ -39,6 +39,7 @@ protected:
 	bool						m_bIce = false;
 	
 	bool						m_bBomb = false;					//ÆøÅº ¼ÒÁö¿©ºÎ
+	
 
 public:
 	const enum eState { IDLE = 0, WALKFRONT, RUNFAST, RUNBACKWARD, ATTACK, DIGGING /*¶¥ ÆÄ±â*/, ICE, NOTYET /*¹ÌÁ¤*/ };

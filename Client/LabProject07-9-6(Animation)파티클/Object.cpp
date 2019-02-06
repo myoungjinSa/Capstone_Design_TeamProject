@@ -639,7 +639,7 @@ CCubeObject::~CCubeObject()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
  
-UINT CGameObject::m_lodLevel = 0;
+
 CGameObject::CGameObject()
 {
 	m_xmf4x4ToParent = Matrix4x4::Identity();
@@ -814,6 +814,32 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
 }
 
+void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lodLevel, CCamera *pCamera)
+{
+	OnPrepareRender();
+
+	if (m_pMesh)
+	{
+		if (!m_pSkinningBoneTransforms) UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+
+		if (m_nMaterials > 0)
+		{
+			for (int i = 0; i < m_nMaterials; i++)
+			{
+				if (m_ppMaterials[i])
+				{
+					if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+					m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
+				}
+
+				m_pMesh->Render(pd3dCommandList, i,lodLevel);
+			}
+		}
+	}
+
+	if (m_pSibling) m_pSibling->Render(pd3dCommandList, lodLevel,pCamera);
+	if (m_pChild) m_pChild->Render(pd3dCommandList, lodLevel,pCamera);
+}
 
 void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bIce,int matID ,CCamera *pCamera)
 {
@@ -1689,15 +1715,17 @@ void CFoliageObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,UINT lodl
 					m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
 				}
 				if (m_pMesh->GetLodLevel() == lodlevel) {
-					m_pMesh->Render(pd3dCommandList, i);
+					m_pMesh->Render(pd3dCommandList, i, lodlevel);
 				}
 			}
 		}
 	}
 
-	if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
-	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
+	if (m_pSibling) m_pSibling->Render(pd3dCommandList,lodlevel ,pCamera);
+	if (m_pChild) m_pChild->Render(pd3dCommandList, lodlevel,pCamera);
 }
+
+
 
 CGameObject* CFoliageObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CGameObject* pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes)
 {
@@ -1732,12 +1760,17 @@ CGameObject* CFoliageObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice
 			//LOD레벨 설정
 			if (strstr(pGameObject->m_pstrFrameName, "LOD0"))
 			{
-				pGameObject->m_lodLevel = 0;
+				pGameObject->SetLODlevel(0);
 			}
 			else if (strstr(pGameObject->m_pstrFrameName, "LOD1"))
 			{
-				pGameObject->m_lodLevel = 1;
+				pGameObject->SetLODlevel(1);
 			}
+			else if (strstr(pGameObject->m_pstrFrameName, "LOD2"))
+			{
+				pGameObject->SetLODlevel(2);
+			}
+
 
 		}
 		else if (!strcmp(pstrToken, "<Transform>:"))
@@ -1755,21 +1788,33 @@ CGameObject* CFoliageObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice
 		}
 		else if (!strcmp(pstrToken, "<Mesh>:"))
 		{
-			if (pGameObject->m_lodLevel == 0)
+			if (pGameObject->GetLodLevel() == LODLEVEL::LOD_LEVEL0)
 			{
 				CLodMesh *pMesh = new CLodMesh(pd3dDevice, pd3dCommandList);
 				pMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
 				pGameObject->SetMesh(pMesh);
-				pMesh->SetLodLevel(pGameObject->m_lodLevel);
+				pMesh->SetLodLevel(LODLEVEL::LOD_LEVEL0);
 			}
-			else if (pGameObject->m_lodLevel == 1)
+			else if (pGameObject->GetLodLevel() == LODLEVEL::LOD_LEVEL1)
 			{
 				CLodMesh *pMesh = new CLodMesh(pd3dDevice, pd3dCommandList);
 				pMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
 				pGameObject->SetMesh(pMesh);
-				pMesh->SetLodLevel(pGameObject->m_lodLevel);
+				pMesh->SetLodLevel(LODLEVEL::LOD_LEVEL1);
 			}
-
+			else if (pGameObject->GetLodLevel() == LODLEVEL::LOD_LEVEL2)
+			{
+				CLodMesh *pMesh = new CLodMesh(pd3dDevice, pd3dCommandList);
+				pMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
+				pGameObject->SetMesh(pMesh);
+				pMesh->SetLodLevel(LODLEVEL::LOD_LEVEL2);
+			}
+			else {
+				CBillboardObject* pBillboardObject = new CGrassFoliageBillboardObject(pd3dDevice,pd3dCommandList,pd3dGraphicsRootSignature);
+				pGameObject->SetChild(pBillboardObject,true);
+				//pMesh->SetLodLevel(LODLEVEL::LOD_LEVEL2);			//빌보드 
+				pGameObject->m_pMesh->SetLodLevel(LODLEVEL::LOD_BILLBOARD);
+			}
 
 		}
 		else if (!strcmp(pstrToken, "<SkinningInfo>:"))
@@ -1799,7 +1844,7 @@ CGameObject* CFoliageObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice
 			{
 				for (int i = 0; i < nChilds; i++)
 				{
-					CGameObject *pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInFile, pShader, pnSkinnedMeshes);
+					CGameObject *pChild = CFoliageObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInFile, pShader, pnSkinnedMeshes);
 					if (pChild) pGameObject->SetChild(pChild);
 #ifdef _WITH_DEBUG_FRAME_HIERARCHY
 					TCHAR pstrDebug[256] = { 0 };
@@ -1920,6 +1965,41 @@ void CSnowBillboardObject::Animate(float fTimeElapsed, CCamera *pCamera)
 	
 	
 
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+CGrassFoliageBillboardObject::CGrassFoliageBillboardObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
+{
+	CTexturedRectMesh *pBillboardMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 15.0f, 15.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	SetMesh(pBillboardMesh);
+
+
+	CTexture *pGrassTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pGrassTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/grass01.dds",0);
+
+
+	CGrassBillboardShader *pGrassShader = new CGrassBillboardShader();
+	pGrassShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	
+	CScene::CreateShaderResourceViews(pd3dDevice, pGrassTexture, 16, false);
+
+	CMaterial *pGrassMaterial = new CMaterial(1);
+	pGrassMaterial->SetTexture(pGrassTexture);
+	pGrassMaterial->SetShader(pGrassShader);
+
+	SetMaterial(0, pGrassMaterial);
+}
+
+CGrassFoliageBillboardObject::~CGrassFoliageBillboardObject()
+{
+
+}
+
+void CGrassFoliageBillboardObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera)
+{
+	CGameObject::Render(pd3dCommandList, pCamera);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////

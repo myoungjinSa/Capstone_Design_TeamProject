@@ -30,6 +30,7 @@ CPlayer::CPlayer()
 
 	m_pPlayerUpdatedContext = NULL;
 	m_pCameraUpdatedContext = NULL;
+
 }
 
 CPlayer::~CPlayer()

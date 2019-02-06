@@ -23,6 +23,8 @@ protected:
 	XMFLOAT3						m_xmf3Up;
 	XMFLOAT3						m_xmf3Look;
 
+	BoundingFrustum					m_xmFrustum;
+
 	float           				m_fPitch;
 	float           				m_fRoll;
 	float           				m_fYaw;
@@ -49,10 +51,18 @@ public:
 	CCamera(CCamera *pCamera);
 	virtual ~CCamera();
 
+
+
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void ReleaseShaderVariables();
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 
+
+	bool IsInFrustum(BoundingOrientedBox &xmBoudingBox)
+	{
+		return (m_xmFrustum.Intersects(xmBoudingBox));
+	}
+	void GenerateFrustum();
 	void GenerateViewMatrix();
 	void GenerateViewMatrix(XMFLOAT3 xmf3Position, XMFLOAT3 xmf3LookAt, XMFLOAT3 xmf3Up);
 	void RegenerateViewMatrix();

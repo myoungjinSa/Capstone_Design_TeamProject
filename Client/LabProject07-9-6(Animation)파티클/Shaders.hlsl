@@ -97,6 +97,41 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 	if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uv);
 
 	float3 normalW;
+	
+	float4 cColor = cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor;
+	if (gnTexturesMask & MATERIAL_NORMAL_MAP)
+	{
+		float3x3 TBN = float3x3(normalize(input.tangentW), normalize(input.bitangentW), normalize(input.normalW));
+		float3 vNormal = normalize(cNormalColor.rgb * 2.0f - 1.0f); //[0, 1] ¡æ [-1, 1]
+		normalW = normalize(mul(vNormal, TBN));
+	}
+	else
+	{
+		normalW = normalize(input.normalW);
+	}
+	float4 cIllumination = Lighting(input.positionW, normalW);
+	return(lerp(cColor, cIllumination, 0.5f));
+}
+
+
+//GrassFoliage-PixelShader
+float4 PSGrssStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
+{
+	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
+	float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_SPECULAR_MAP) cSpecularColor = gtxtSpecularTexture.Sample(gssWrap, input.uv);
+	float4 cNormalColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_NORMAL_MAP) cNormalColor = gtxtNormalTexture.Sample(gssWrap, input.uv);
+	float4 cMetallicColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_METALLIC_MAP) cMetallicColor = gtxtMetallicTexture.Sample(gssWrap, input.uv);
+	float4 cEmissionColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uv);
+
+	float3 normalW;
+
+	cSpecularColor = cSpecularColor + float4(0.1f, 0.3f, 0.1f, 1.0f);
+	cEmissionColor = cEmissionColor + float4(0.05f, 0.6f, 0.1f, 1.0f);
 	float4 cColor = cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor;
 	if (gnTexturesMask & MATERIAL_NORMAL_MAP)
 	{
@@ -305,4 +340,36 @@ float4 PSSnowBillboard(VS_SNOW_OUTPUT input) : SV_TARGET
 	float4 cColor = gtxtSnowBillboard.Sample(gssWrap,input.uv);
 
 	return(cColor);
+}
+
+
+
+struct VS_GRASS_INPUT
+{
+	float3 position : POSITION;
+	float2 uv		: TEXCOORD;
+};
+
+struct VS_GRASS_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float2 uv		: TEXCOORD;
+};
+Texture2D gtxtGrassBillboard : register (t16);
+
+VS_GRASS_OUTPUT VSGrassBillboard(VS_GRASS_INPUT input)
+{
+	VS_GRASS_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.uv = input.uv;
+
+	return(output);
+}
+
+float4 PSGrassBillboard(VS_GRASS_OUTPUT input)
+{
+	float4 cColor = gtxtGrassBillboard.Sample(gssWrap, input.uv);
+
+	return (cColor);
 }

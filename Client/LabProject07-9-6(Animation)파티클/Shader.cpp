@@ -388,6 +388,11 @@ D3D12_BLEND_DESC CBillboardShader::CreateBlendState()
 }
 
 
+void CBillboardShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+{
+	CShader::Render(pd3dCommandList, pCamera);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
@@ -511,6 +516,23 @@ void CSnowBillboardShader::ReleaseObjects()
 	{
 		delete m_pMaterial;
 	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+CGrassBillboardShader::CGrassBillboardShader() {
+
+}
+CGrassBillboardShader::~CGrassBillboardShader(){}
+
+D3D12_SHADER_BYTECODE CGrassBillboardShader::CreateVertexShader()
+{
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSGrassBillboard", "vs_5_1", &m_pd3dVertexShaderBlob));
+}
+
+D3D12_SHADER_BYTECODE CGrassBillboardShader::CreatePixelShader()
+{
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSGrassBillboard", "ps_5_1", &m_pd3dVertexShaderBlob));
 }
 
 
@@ -1038,48 +1060,124 @@ CFoliageShader::~CFoliageShader()
 
 }
 
+D3D12_SHADER_BYTECODE CFoliageShader::CreatePixelShader()
+{
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSGrssStandard", "ps_5_1", &m_pd3dPixelShaderBlob));
+}
+
 void CFoliageShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
 {
 	
 
-	CLoadedModelInfo* pFoliageModel = CFoliageObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Grass_d_01.bin", this, false);
+	
+	CLoadedModelInfo* pFoliageModel01 = CFoliageObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Grass_C_01.bin", this, false);
+	CLoadedModelInfo* pFoliageModel02 = CFoliageObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Grass_D_01.bin", this, false);
+	CLoadedModelInfo* pFoliageModel03 = CFoliageObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Plant_c_01.bin", this, false);
+
 
 	CHeightMapTerrain *pTerrain = (CHeightMapTerrain *)pContext;
 
 
-	float fxPitch = 120.0f;
-	float fzPitch = 120.0f;
+	float fxPitch = 3.0f;
+	float fzPitch = 3.0f;
 
 	float fTerrainWidth = pTerrain->GetWidth();
 	float fTerrainLength = pTerrain->GetLength();
 
-	int xObjects = int(fTerrainWidth / fxPitch);
-	int zObjects = int(fTerrainLength / fzPitch);
+	int xObjects = int(fTerrainWidth* 0.05f /fxPitch);
+	int zObjects = int(fTerrainLength * 0.25f / fzPitch);
 
 	m_nObjects = xObjects * zObjects;
 	m_ppObjects = new CGameObject*[m_nObjects];
 
-	for (int z = 0,i=0; z < zObjects; z++)
+	int xStart = 0.0f;
+	int zStart = 0.0f;
+
+	for (int z = zStart,i=0; z < zStart+zObjects; z++)
 	{
-		for (int x =0 ; x < xObjects; x++)
+		for (int x = xStart ; x < xStart+xObjects; x++)
 		{
 			m_ppObjects[i] = new CFoliageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-			m_ppObjects[i]->SetChild(pFoliageModel->m_pModelRootObject, true);
-			
+	
 			float xPosition = x * fxPitch;
 			float zPosition = z * fzPitch;
 
 			float fHeight = pTerrain->GetHeight(xPosition, zPosition);
-			m_ppObjects[i++]->SetPosition(xPosition, fHeight,zPosition);
+			
+			m_ppObjects[i]->SetPosition(xPosition, fHeight,zPosition);
+
+			if (i % 3 == 0) {
+				m_ppObjects[i++]->SetChild(pFoliageModel01->m_pModelRootObject, true);
+			}
+			else if(i %3 ==1){
+				m_ppObjects[i++]->SetChild(pFoliageModel02->m_pModelRootObject, true);
+			}
+			else
+			{
+				m_ppObjects[i++]->SetChild(pFoliageModel03->m_pModelRootObject, true);
+			}
+
 		}
 	}
 	
-	if (pFoliageModel)
+	if (pFoliageModel01)
 	{
-		delete pFoliageModel;
+		delete pFoliageModel01;
+	}
+	if (pFoliageModel02)
+	{
+		delete pFoliageModel02;
+	}
+	if (pFoliageModel03)
+	{
+		delete pFoliageModel03;
 	}
 }
 
+float CFoliageShader::GetDistanceToCamera(CGameObject* pObject,CCamera *pCamera)
+{
+	float dist = 0.0;
+
+	XMFLOAT3 cameraPosition = pCamera->GetPosition();
+	XMFLOAT3 objectPosition = pObject->GetPosition();
+
+
+	dist =Vector3::Length(Vector3::Subtract(cameraPosition, objectPosition));
+
+	return dist;
+}
+void CFoliageShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer *pPlayer)
+{
+	float distance = 0.0f;
+	UINT lodlevel = CGameObject::LOD_LEVEL0;
+	for (int i = 0; i < m_nObjects; i++)
+	{
+		distance = GetDistanceToCamera(m_ppObjects[i],pCamera);
+	
+		
+		//lodlevel= (distance < 20.0f) ? CGameObject::LOD_LEVEL0 : CGameObject::LOD_LEVEL1;
+
+		if (distance < 50.0f)
+		{
+			lodlevel = CGameObject::LOD_LEVEL0;
+		}
+		else if (distance >= 50.0f && distance < 200.0f)
+		{
+			lodlevel = CGameObject::LOD_LEVEL1;
+		}
+		else if( distance >200 && distance < 300.0f)
+		{
+			lodlevel = CGameObject::LOD_LEVEL2;
+		}
+		else
+		{
+			lodlevel = CGameObject::LOD_BILLBOARD;
+		}
+
+		//여기서 자신의 LOD레벨을 구하면 될듯하다.
+		m_ppObjects[i]->SetLODlevel(lodlevel);
+	}
+}
 
 D3D12_BLEND_DESC CFoliageShader::CreateBlendState()
 {
@@ -1103,16 +1201,19 @@ D3D12_BLEND_DESC CFoliageShader::CreateBlendState()
 
 void CFoliageShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {
+	
 	CStandardShader::Render(pd3dCommandList, pCamera);
-
 	for (int j = 0; j < m_nObjects; j++)
 	{
+
 		if (m_ppObjects[j])
 		{
 			m_ppObjects[j]->Animate(m_fElapsedTime);
 			m_ppObjects[j]->UpdateTransform(NULL);
-			m_ppObjects[j]->Render(pd3dCommandList, 2,pCamera);
+			m_ppObjects[j]->Render(pd3dCommandList, m_ppObjects[j]->GetLodLevel(), pCamera);
+
 		}
+			
 	}
 }
 
@@ -1134,7 +1235,10 @@ void CSkinnedAnimationObjectsShader::ReleaseObjects()
 {
 	if (m_ppObjects)
 	{
-		for (int j = 0; j < m_nObjects; j++) if (m_ppObjects[j]) m_ppObjects[j]->Release();
+		for (int j = 0; j < m_nObjects; j++)
+		{
+			if (m_ppObjects[j]) m_ppObjects[j]->Release();
+		}
 		delete[] m_ppObjects;
 	}
 }
