@@ -159,7 +159,7 @@ void CStandardObjectsShader::ReleaseObjects()
 	}
 }
 
-void CStandardObjectsShader::AnimateObjects(float fTimeElapsed)
+void CStandardObjectsShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer* pPlayer)
 {
 }
 
@@ -178,8 +178,6 @@ void CStandardObjectsShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, 
 	{
 		if (m_ppObjects[i])
 		{
-			//m_ppObjects[i]->Animate(m_fElapsedTime);
-			//m_ppObjects[i]->UpdateTransform(NULL);
 			m_ppObjects[i]->Render(pd3dCommandList, pCamera);
 		}
 	}

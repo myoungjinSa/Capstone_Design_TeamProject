@@ -2,6 +2,8 @@
 #include "GameFramework.h"
 #include "../Scene/Scene.h"
 #include "../GameObject/Player/Player.h"
+#include "../ShaderManager/ShaderManager.h"
+#include "../Shader/TerrainShader/TerrainShader.h"
 #include "../GameObject/Terrain/Terrain.h"
 
 CGameFramework::CGameFramework()
@@ -411,16 +413,31 @@ void CGameFramework::BuildObjects()
 		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 
 #ifdef _WITH_TERRAIN_PLAYER
-	CTerrainPlayer* pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), m_pScene->m_pTerrain);
-	pPlayer->SetPosition(XMFLOAT3(0.f, m_pScene->m_pTerrain->GetHeight(0.f, 0.f), 0.f));
-	pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
+	CTerrainPlayer* pPlayer{ nullptr };
+
+	if (m_pScene->getShaderManager())
+	{
+		int size = m_pScene->getShaderManager()->getShaderSize();
+		CShader** pShader = m_pScene->getShaderManager()->getShader();
+		for (int i = 0; i < size; ++i)
+		{
+			if (dynamic_cast<CTerrainShader*>(pShader[i]) != nullptr)
+			{
+				CTerrain* pTerrain = ((CTerrainShader*)pShader[i])->getTerrain();
+				pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), pTerrain);
+				pPlayer->SetPosition(XMFLOAT3(0.f, pTerrain->GetHeight(0.f, 0.f), 0.f));
+				pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
+				break;
+			}
+		}
+	}
 
 #else
 	CAirplanePlayer *pPlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), NULL);
 	pPlayer->SetPosition(XMFLOAT3(425.0f, 240.0f, 640.0f));
 #endif
 	m_pPlayer = pPlayer;
-	m_pScene->SetPlayer(m_pPlayer);
+	m_pScene->setPlayer(m_pPlayer);
 	m_pCamera = m_pPlayer->GetCamera();
 
 	m_pd3dCommandList->Close();
@@ -488,7 +505,8 @@ void CGameFramework::AnimateObjects()
 {
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 
-	if (m_pScene) m_pScene->AnimateObjects(fTimeElapsed);
+	if (m_pScene) 
+		m_pScene->AnimateObjects(fTimeElapsed);
 
 	m_pPlayer->Animate(fTimeElapsed);
 	m_pPlayer->UpdateTransform(NULL);
@@ -555,7 +573,8 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
-	if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
+	if (m_pScene) 
+		m_pScene->Render(m_pd3dCommandList, m_pCamera);
 
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);

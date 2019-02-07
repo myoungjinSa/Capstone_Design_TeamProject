@@ -33,10 +33,7 @@ struct LIGHTS
 };
 
 class CPlayer;
-class CSkyBox;
-class CTerrain;
-class CShader;
-
+class CShaderManager;
 class CScene
 {
 public:
@@ -63,7 +60,9 @@ public:
 
 	void ReleaseUploadBuffers();
 
-	void SetPlayer(CPlayer* p) { m_pPlayer = p; }
+	void setPlayer(CPlayer* pPlayer) { m_pPlayer = pPlayer; }
+
+	CShaderManager* getShaderManager()	const { return m_pShaderManager; }
 
 protected:
 	ID3D12RootSignature*						m_pd3dGraphicsRootSignature = NULL;
@@ -96,14 +95,6 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvDescriptorNextHandle() { return(m_d3dSrvCPUDescriptorNextHandle); }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorNextHandle() { return(m_d3dSrvGPUDescriptorNextHandle); }
 
-	CPlayer*					m_pPlayer = NULL;
-
-	CSkyBox*					m_pSkyBox = NULL;
-	CTerrain*					m_pTerrain = NULL;
-
-	int								m_nShaders = 0;
-	CShader**				m_ppShaders = NULL;
-
 	LIGHT*						m_pLights = NULL;
 	int								m_nLights = 0;
 
@@ -112,5 +103,8 @@ public:
 	ID3D12Resource*		m_pd3dcbLights = NULL;
 	LIGHTS*					m_pcbMappedLights = NULL;
 
-	float							m_fElapsedTime = 0.0f;
+private:
+	CPlayer*					m_pPlayer = NULL;
+
+	CShaderManager*	m_pShaderManager{ nullptr };
 };

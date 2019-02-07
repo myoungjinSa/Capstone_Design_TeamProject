@@ -9,7 +9,7 @@ public:
 	virtual ~CTerrain();
 
 private:
-	CHeightMapImage*	m_pHeightMapImage;
+	CHeightMapImage*	m_pHeightMapImage{ nullptr };
 
 	int								m_nWidth;
 	int								m_nLength;
@@ -28,4 +28,6 @@ public:
 	XMFLOAT3 GetScale() { return(m_xmf3Scale); }
 	float GetWidth() { return(m_nWidth * m_xmf3Scale.x); }
 	float GetLength() { return(m_nLength * m_xmf3Scale.z); }
+
+	CHeightMapImage* getHeightMapImage()	const { return m_pHeightMapImage; }
 };

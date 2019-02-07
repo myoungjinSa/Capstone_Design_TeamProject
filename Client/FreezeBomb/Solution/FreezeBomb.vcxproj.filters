@@ -28,9 +28,6 @@
     <Filter Include="Code\GameFramework">
       <UniqueIdentifier>{5d54ac3c-35c3-43a1-a52b-cf2d7ef5fd49}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Scene">
-      <UniqueIdentifier>{d5e20df2-d7ef-4f6c-9f3f-ea1ec4d1617e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\Mesh">
       <UniqueIdentifier>{b3d08157-181f-4af2-9832-66524d8b618b}</UniqueIdentifier>
     </Filter>
@@ -99,6 +96,12 @@
     </Filter>
     <Filter Include="Code\GameObject\Billboard\Snow">
       <UniqueIdentifier>{06c62c32-e366-4a50-859d-d6de5db395da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\ShaderManager">
+      <UniqueIdentifier>{e697804c-e5dc-4482-ba7c-c55e25c6af64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Scene">
+      <UniqueIdentifier>{d5e20df2-d7ef-4f6c-9f3f-ea1ec4d1617e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -205,6 +208,9 @@
     <ClInclude Include="..\Code\GameObject\Billboard\Snow\Snow.h">
       <Filter>Code\GameObject\Billboard\Snow</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\ShaderManager\ShaderManager.h">
+      <Filter>Code\ShaderManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Code\FreezeBomb.cpp">
@@ -290,6 +296,9 @@
     </ClCompile>
     <ClCompile Include="..\Code\GameObject\Billboard\Snow\Snow.cpp">
       <Filter>Code\GameObject\Billboard\Snow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\ShaderManager\ShaderManager.cpp">
+      <Filter>Code\ShaderManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

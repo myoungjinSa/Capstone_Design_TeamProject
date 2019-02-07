@@ -182,6 +182,7 @@
     <ClInclude Include="..\Code\Mesh\BillboardMesh\BillboardMesh.h" />
     <ClInclude Include="..\Code\Mesh\Mesh.h" />
     <ClInclude Include="..\Code\Scene\Scene.h" />
+    <ClInclude Include="..\Code\ShaderManager\ShaderManager.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\BillboardShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\SnowShader\SnowShader.h" />
     <ClInclude Include="..\Code\Shader\Shader.h" />
@@ -212,6 +213,7 @@
     <ClCompile Include="..\Code\Mesh\BillboardMesh\BillboardMesh.cpp" />
     <ClCompile Include="..\Code\Mesh\Mesh.cpp" />
     <ClCompile Include="..\Code\Scene\Scene.cpp" />
+    <ClCompile Include="..\Code\ShaderManager\ShaderManager.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\BillboardShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\SnowShader\SnowShader.cpp" />
     <ClCompile Include="..\Code\Shader\Shader.cpp" />

@@ -110,7 +110,7 @@ void CSkinnedAnimationObjectsShader::ReleaseObjects()
 	}
 }
 
-void CSkinnedAnimationObjectsShader::AnimateObjects(float fTimeElapsed)
+void CSkinnedAnimationObjectsShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer* pPlayer)
 {
 	m_fElapsedTime = fTimeElapsed;
 }

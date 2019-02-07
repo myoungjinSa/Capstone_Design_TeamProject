@@ -2,15 +2,8 @@
 #include "Scene.h"
 #include "../Texture/Texture.h"
 #include "../Material/Material.h"
-
+#include "../ShaderManager/ShaderManager.h"
 #include "../GameObject/Player/Player.h"
-#include "../GameObject/SkyBox/SkyBox.h"
-#include "../GameObject/Terrain/Terrain.h"
-
-#include "../Shader/Shader.h"
-#include "../Shader/StandardShader/StandardObjectsShader/StandardObjectsShader.h"
-#include "../Shader/BillboardShader/SnowShader/SnowShader.h"
-#include "../Shader/StandardShader/SkinnedAnimationObjectsShader/SkinnedAnimationObjectsShader.h"
 
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -95,55 +88,27 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	BuildDefaultLightsAndMaterials();
 
-	m_pSkyBox = new CSkyBox(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-
-	XMFLOAT3 xmf3Scale(2.f, 1.0f, 1.2f);
-	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
-	m_pTerrain = new CTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("../Resource/Terrain/Plane/Plane.raw"), 256, 256, xmf3Scale, xmf4Color);
-	
-	m_nShaders = 3;
-	m_ppShaders = new CShader*[m_nShaders];
-
-	CStandardObjectsShader* pSurroundingShader = new CStandardObjectsShader;
-	pSurroundingShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	pSurroundingShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
-	m_ppShaders[0] = pSurroundingShader;
-
-	CSnowShader* pSnowShader = new CSnowShader;
-	pSnowShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	pSnowShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
-	m_ppShaders[1] = pSnowShader;
-
-	CSkinnedAnimationObjectsShader* pAnimationObjectShader = new CSkinnedAnimationObjectsShader;
-	pAnimationObjectShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	pAnimationObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
-	m_ppShaders[2] = pAnimationObjectShader;
+	m_pShaderManager = new CShaderManager;
+	m_pShaderManager->Initialize(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void CScene::ReleaseObjects()
 {
-	if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
-	if (m_pd3dCbvSrvDescriptorHeap) m_pd3dCbvSrvDescriptorHeap->Release();
+	if (m_pd3dGraphicsRootSignature) 
+		m_pd3dGraphicsRootSignature->Release();
 
-	if (m_ppShaders)
-	{
-		for (int i = 0; i < m_nShaders; i++)
-		{
-			m_ppShaders[i]->ReleaseShaderVariables();
-			m_ppShaders[i]->ReleaseObjects();
-			m_ppShaders[i]->Release();
-		}
-		delete[] m_ppShaders;
-	}
+	if (m_pd3dCbvSrvDescriptorHeap) 
+		m_pd3dCbvSrvDescriptorHeap->Release();
 
-	if (m_pTerrain) delete m_pTerrain;
-	if (m_pSkyBox) delete m_pSkyBox;
+	if (m_pShaderManager)
+		m_pShaderManager->ReleaseObjects();
 
 	ReleaseShaderVariables();
 
-	if (m_pLights) delete[] m_pLights;
+	if (m_pLights) 
+		delete[] m_pLights;
 }
 
 ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevice)
@@ -379,13 +344,8 @@ void CScene::ReleaseShaderVariables()
 
 void CScene::ReleaseUploadBuffers()
 {
-	if (m_pSkyBox) 
-		m_pSkyBox->ReleaseUploadBuffers();
-	if (m_pTerrain) 
-		m_pTerrain->ReleaseUploadBuffers();
-
-	for (int i = 0; i < m_nShaders; i++) 
-		m_ppShaders[i]->ReleaseUploadBuffers();
+	if (m_pShaderManager)
+		m_pShaderManager->ReleaseUploadBuffers();
 }
 
 void CScene::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)
@@ -484,48 +444,23 @@ D3D12_GPU_DESCRIPTOR_HANDLE CScene::CreateShaderResourceViews(ID3D12Device *pd3d
 
 bool CScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	return(false);
+	return false;
 }
 
 bool CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	switch (nMessageID)
-	{
-	case WM_KEYDOWN:
-		switch (wParam)
-		{
-	/*	case 'W': m_ppGameObjects[0]->MoveForward(+3.0f); break;
-		case 'S': m_ppGameObjects[0]->MoveForward(-3.0f); break;
-		case 'A': m_ppGameObjects[0]->MoveStrafe(-3.0f); break;
-		case 'D': m_ppGameObjects[0]->MoveStrafe(+3.0f); break;
-		case 'Q': m_ppGameObjects[0]->MoveUp(+3.0f); break;
-		case 'R': m_ppGameObjects[0]->MoveUp(-3.0f); break;*/
-		default:
-			break;
-		}
-		break;
-	default:
-		break;
-	}
-	return(false);
+	return false;
 }
 
 bool CScene::ProcessInput(UCHAR *pKeysBuffer)
 {
-	return(false);
+	return false;
 }
 
 void CScene::AnimateObjects(float fTimeElapsed)
 {
-	m_fElapsedTime = fTimeElapsed;
-
-	for (int i = 0; i < m_nShaders; i++)
-	{
-		if (dynamic_cast<CSnowShader*>(m_ppShaders[i]) != nullptr)
-			((CSnowShader*)m_ppShaders[i])->AnimateObjects(fTimeElapsed, m_pPlayer->GetCamera(), m_pPlayer);
-		else if(m_ppShaders[i])
-			m_ppShaders[i]->AnimateObjects(fTimeElapsed);
-	}
+	if (m_pShaderManager)
+		m_pShaderManager->AnimateObjects(fTimeElapsed, m_pPlayer->GetCamera(), m_pPlayer);
 	
 	if (m_pLights)
 	{
@@ -547,17 +482,7 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
 
-	if (m_pSkyBox) 
-		m_pSkyBox->Render(pd3dCommandList, pCamera);
-	if (m_pTerrain) 
-		m_pTerrain->Render(pd3dCommandList, pCamera);
-
-	for (int i = 0; i < m_nShaders; i++)
-	{
-		if (m_ppShaders[i])
-		{
-			m_ppShaders[i]->Render(pd3dCommandList, pCamera);
-		}
-	}
+	if (m_pShaderManager)
+		m_pShaderManager->Render(pd3dCommandList, pCamera);
 }
 
