@@ -367,7 +367,7 @@ void CGameObject::Release()
 		delete this; 
 }
 
-void CGameObject::SetChild(CGameObject *pChild, bool bReferenceUpdate)
+void CGameObject::SetChild(CGameObject* pChild, bool bReferenceUpdate)
 {
 	if (pChild)
 	{
@@ -387,7 +387,7 @@ void CGameObject::SetChild(CGameObject *pChild, bool bReferenceUpdate)
 	}
 }
 
-void CGameObject::SetMesh(CMesh *pMesh)
+void CGameObject::SetMesh(CMesh* pMesh)
 {
 	if (m_pMesh) 
 		m_pMesh->Release();
@@ -417,6 +417,7 @@ void CGameObject::SetMaterial(int nMaterial, CMaterial *pMaterial)
 	if (m_ppMaterials[nMaterial]) m_ppMaterials[nMaterial]->Release();
 	m_ppMaterials[nMaterial] = pMaterial;
 	if (m_ppMaterials[nMaterial]) m_ppMaterials[nMaterial]->AddRef();
+
 }
 
 CGameObject *CGameObject::FindFrame(char *pstrFrameName)
@@ -487,16 +488,14 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 {
 	OnPrepareRender();
 
-	if (m_pSkinningBoneTransforms) 
+	if (m_pSkinningBoneTransforms)
 		m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
 
 	if (m_pMesh)
 	{
 		if (!m_pSkinningBoneTransforms)
-		{
-			//UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
-			UpdateShaderVariables(pd3dCommandList);
-		}
+			UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+
 		if (m_nMaterials > 0)
 		{
 			for (int i = 0; i < m_nMaterials; i++)
@@ -505,7 +504,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 				{
 					if (m_ppMaterials[i]->m_pShader) 
 						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
-					//m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
+
 					m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
 				}
 				m_pMesh->Render(pd3dCommandList, i);
@@ -518,24 +517,58 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 	if (m_pChild) 
 		m_pChild->Render(pd3dCommandList, pCamera);
 }
+#define SIZE 1
 
 void CGameObject::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
-	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
-	m_pd3dcbGameObject = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-	m_pd3dcbGameObject->Map(0, NULL, (void**)&m_pcbMappedGameObject);
+	//if (m_pMesh)
+	//{
+	//	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+	//	m_pd3dcbGameObject = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	//	m_pd3dcbGameObject->Map(0, NULL, (void**)&m_pcbMappedGameObject);
+	//}
+	if (m_pMesh)
+	{
+		UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+		m_pd3dcbGameObject = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes * SIZE, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+		m_pd3dcbGameObject->Map(0, NULL, (void**)&m_pcbMappedGameObject);
+	}
+
+	if (m_pSibling)
+		m_pSibling->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	if (m_pChild)
+		m_pChild->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
-void CGameObject::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
+void CGameObject::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4& pxmf4x4World)
 {	
-	if (m_pcbMappedGameObject != nullptr)
-	{
-		XMFLOAT4X4 xmf4x4World;
-		XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
-		::memcpy(&m_pcbMappedGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
+	//if (m_pcbMappedGameObject != nullptr)
+	//{
+	//	XMFLOAT4X4 xmf4x4World;
+	//	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&pxmf4x4World)));
+	//	::memcpy(&m_pcbMappedGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
 
-		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObject->GetGPUVirtualAddress();
-		pd3dCommandList->SetGraphicsRootConstantBufferView(1, d3dGpuVirtualAddress);
+	//	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObject->GetGPUVirtualAddress();
+	//	pd3dCommandList->SetGraphicsRootConstantBufferView(1, d3dGpuVirtualAddress);
+	//}
+	if (m_pMesh)
+	{
+		UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+
+		if (m_pcbMappedGameObject != nullptr)
+		{
+			for (int i = 0; i < SIZE; ++i)
+			{
+				XMFLOAT4X4 xmf4x4World;
+				XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&pxmf4x4World)));
+				CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)(m_pcbMappedGameObject + (i * ncbElementBytes));
+				::memcpy(&pbMappedcbGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
+
+				D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObject->GetGPUVirtualAddress();
+				pd3dCommandList->SetGraphicsRootConstantBufferView(1, d3dGpuVirtualAddress + (i * ncbElementBytes));
+			}
+		}
 	}
 }
 
@@ -826,7 +859,8 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device *pd3dDevice, ID3D12Graphics
 		m_ppMaterials[i]->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
-CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes)
+CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
+	CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes, int* pnFrameMeshes)
 {
 	char pstrToken[64] = { '\0' };
 
@@ -835,7 +869,7 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 
 	int nFrame = 0, nTextures = 0;
 
-	CGameObject *pGameObject = NULL;
+	CGameObject* pGameObject = NULL;
 
 	for ( ; ; )
 	{
@@ -869,13 +903,20 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 		}
 		else if (!strcmp(pstrToken, "<Mesh>:"))
 		{
-			CStandardMesh *pMesh = new CStandardMesh(pd3dDevice, pd3dCommandList);
+			CStandardMesh* pMesh = new CStandardMesh(pd3dDevice, pd3dCommandList);
 			pMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
+
 			pGameObject->SetMesh(pMesh);
+
+			if (pnFrameMeshes)
+				(*pnFrameMeshes)++;
+
+			//pGameObject->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 		}
 		else if (!strcmp(pstrToken, "<SkinningInfo>:"))
 		{
-			if (pnSkinnedMeshes) (*pnSkinnedMeshes)++;
+			if (pnSkinnedMeshes) 
+				(*pnSkinnedMeshes)++;
 
 			CSkinnedMesh *pSkinnedMesh = new CSkinnedMesh(pd3dDevice, pd3dCommandList);
 			pSkinnedMesh->CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -900,7 +941,8 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 			{
 				for (int i = 0; i < nChilds; i++)
 				{
-					CGameObject *pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInFile, pShader, pnSkinnedMeshes);
+					CGameObject *pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 
+						pGameObject, pInFile, pShader, pnSkinnedMeshes, pnFrameMeshes);
 					if (pChild) pGameObject->SetChild(pChild);
 #ifdef _WITH_DEBUG_FRAME_HIERARCHY
 					TCHAR pstrDebug[256] = { 0 };
@@ -1035,6 +1077,7 @@ void CGameObject::CacheSkinningBoneFrames(CGameObject *pRootFrame)
 		for (int i = 0; i < pSkinnedMesh->m_nSkinningBones; i++)
 		{
 			pSkinnedMesh->m_ppSkinningBoneFrameCaches[i] = pRootFrame->FindFrame(pSkinnedMesh->m_ppstrSkinningBoneNames[i]);
+			
 #ifdef _WITH_DEBUG_SKINNING_BONE
 			TCHAR pstrDebug[256] = { 0 };
 			TCHAR pwstrBoneCacheName[64] = { 0 };
@@ -1066,7 +1109,7 @@ void CGameObject::FindAndSetSkinnedMesh(int *pnSkinMesh, CSkinningBoneTransforms
 		m_pChild->FindAndSetSkinnedMesh(pnSkinMesh, pSkinningBoneTransforms);
 }
 
-CLoadedModelInfo *CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char *pstrFileName, CShader *pShader, bool bHasAnimation)
+CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char *pstrFileName, CShader *pShader, bool bHasAnimation)
 {
 	FILE *pInFile = NULL;
 	::fopen_s(&pInFile, pstrFileName, "rb");
@@ -1074,7 +1117,10 @@ CLoadedModelInfo *CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device *pd
 	::rewind(pInFile);
 
 	CLoadedModelInfo *pLoadedModel = new CLoadedModelInfo();
-	pLoadedModel->m_pModelRootObject = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, pInFile, pShader, &pLoadedModel->m_nSkinnedMeshes);
+	// 메쉬 개수 저장
+	pLoadedModel->m_pModelRootObject = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 
+		NULL, pInFile, pShader, &pLoadedModel->m_nSkinnedMeshes, &pLoadedModel->m_nFrameMeshes);
+
 	if (bHasAnimation) 
 		pLoadedModel->m_pAnimationSets = CGameObject::LoadAnimationFromFile(pInFile, pLoadedModel->m_pModelRootObject);
 	
@@ -1122,6 +1168,84 @@ void CSuperCobraObject::Animate(float fTimeElapsed)
 	CGameObject::Animate(fTimeElapsed);
 }
 
+void CSuperCobraObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+{
+	OnPrepareRender();
+
+	if (m_pMesh)
+	{
+		if (!m_pSkinningBoneTransforms)
+			UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+		
+		if (m_nMaterials > 0)
+		{
+			for (int i = 0; i < m_nMaterials; i++)
+			{
+				if (m_ppMaterials[i])
+				{
+					if (m_ppMaterials[i]->m_pShader)
+						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+
+					m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
+				}
+				m_pMesh->Render(pd3dCommandList, i);
+			}
+		}
+	}
+
+	if (m_pSibling)
+		((CSuperCobraObject*)m_pSibling)->CSuperCobraObject::Render(pd3dCommandList, pCamera);
+	if (m_pChild)
+		((CSuperCobraObject*)m_pChild)->CSuperCobraObject::Render(pd3dCommandList, pCamera);
+}
+
+void CSuperCobraObject::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+{
+	if (m_pMesh)
+	{
+		UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+		m_pd3dcbGameObject = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes * SIZE, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+		m_pd3dcbGameObject->Map(0, NULL, (void**)&m_pcbMappedGameObject);
+	}
+
+	if (m_pSibling)
+		((CSuperCobraObject*)m_pSibling)->CSuperCobraObject::CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	if (m_pChild)
+		((CSuperCobraObject*)m_pChild)->CSuperCobraObject::CreateShaderVariables(pd3dDevice, pd3dCommandList);
+}
+
+void CSuperCobraObject::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4& pxmf4x4World)
+{
+	if (m_pMesh)
+	{
+		UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+
+		if (m_pcbMappedGameObject != nullptr)
+		{
+			for (int i = 0; i < SIZE; ++i)
+			{
+				XMFLOAT4X4 xmf4x4World;
+				XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&pxmf4x4World)));
+				CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)(m_pcbMappedGameObject + (i * ncbElementBytes));
+				::memcpy(&pbMappedcbGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
+
+				D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObject->GetGPUVirtualAddress();
+				pd3dCommandList->SetGraphicsRootConstantBufferView(1, d3dGpuVirtualAddress + (i * ncbElementBytes));
+			}
+		}
+	}
+}
+
+void CSuperCobraObject::ReleaseShaderVariables()
+{
+	if (m_pd3dcbGameObject)
+	{
+		m_pd3dcbGameObject->Unmap(0, NULL);
+		m_pd3dcbGameObject->Release();
+	}
+
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 CGunshipObject::CGunshipObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
@@ -1188,6 +1312,7 @@ void CMi24Object::Animate(float fTimeElapsed)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define CNT 1
 CAngrybotObject::CAngrybotObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
 }
@@ -1205,4 +1330,102 @@ void CAngrybotObject::Animate(float fTimeElapsed)
 	CGameObject::Animate(fTimeElapsed);
 }
 
+void CAngrybotObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+{
+	OnPrepareRender();
 
+	if (m_pSkinningBoneTransforms)
+		m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
+
+	if (m_pMesh)
+	{
+		if (m_nMaterials > 0)
+		{
+			if (!m_pSkinningBoneTransforms)
+			{
+				UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+				//CAngrybotObject::UpdateShaderVariables(pd3dCommandList, m_xmf4x4World);
+			}
+
+			for (int i = 0; i < m_nMaterials; i++)
+			{
+				if (m_ppMaterials[i])
+				{
+					if (m_ppMaterials[i]->m_pShader)
+						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+
+					m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
+				}
+				m_pMesh->Render(pd3dCommandList, i);
+			}
+		}
+	}
+
+	if (m_pSibling)
+		((CAngrybotObject*)m_pSibling)->CAngrybotObject::Render(pd3dCommandList, pCamera);
+	if (m_pChild)
+		((CAngrybotObject*)m_pChild)->CAngrybotObject::Render(pd3dCommandList, pCamera);
+}
+
+void CAngrybotObject::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+{
+	if (m_pMesh)
+	{
+		UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+		//m_pd3dcbGameObject = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes * CNT, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+		m_pd3dcbGameObject = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+		m_pd3dcbGameObject->Map(0, NULL, (void**)&m_pcbMappedGameObject);
+	}
+
+	if (m_pSibling)
+		((CAngrybotObject*)m_pSibling)->CAngrybotObject::CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	if (m_pChild)
+		((CAngrybotObject*)m_pChild)->CAngrybotObject::CreateShaderVariables(pd3dDevice, pd3dCommandList);
+}
+
+void CAngrybotObject::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4& pxmf4x4World)
+{
+	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+
+	if (m_pcbMappedGameObject != nullptr)
+	{
+		for (int i = 0; i < CNT; ++i)
+		{
+			XMFLOAT4X4 xmf4x4World;
+			XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&pxmf4x4World)));
+			CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)(m_pcbMappedGameObject + (i * ncbElementBytes));
+			::memcpy(&pbMappedcbGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
+
+			D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObject->GetGPUVirtualAddress();
+			pd3dCommandList->SetGraphicsRootConstantBufferView(1, d3dGpuVirtualAddress + (i * ncbElementBytes));
+
+		}
+	}
+}
+
+void CAngrybotObject::ReleaseShaderVariables()
+{
+	if (m_pd3dcbGameObject)
+	{
+		m_pd3dcbGameObject->Unmap(0, NULL);
+		m_pd3dcbGameObject->Release();
+	}
+
+	if (m_pSibling)
+	{
+		if (m_pd3dcbGameObject)
+		{
+			m_pd3dcbGameObject->Unmap(0, NULL);
+			m_pd3dcbGameObject->Release();
+		}
+	}
+	if (m_pChild)
+	{
+		if (m_pd3dcbGameObject)
+		{
+			m_pd3dcbGameObject->Unmap(0, NULL);
+			m_pd3dcbGameObject->Release();
+		}
+	}
+}

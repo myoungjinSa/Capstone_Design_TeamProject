@@ -84,8 +84,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	//CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 45); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 2, 45); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 45); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature); 
 
@@ -93,10 +92,13 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	m_pSkyBox = new CSkyBox(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
-	XMFLOAT3 xmf3Scale(8.0f, 2.0f, 8.0f);
-	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
-	m_pTerrain = new CTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("../Resource/Terrain/HeightMap.raw"), 257, 257, xmf3Scale, xmf4Color);
+	//XMFLOAT3 xmf3Scale(8.0f, 2.0f, 8.0f);
 
+	XMFLOAT3 xmf3Scale(2.f, 1.0f, 1.2f);
+	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
+	//m_pTerrain = new CTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("../Resource/Terrain/HeightMap.raw"), 257, 257, xmf3Scale, xmf4Color);
+	m_pTerrain = new CTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("../Resource/Terrain/Plane/Plane.raw"), 256, 256, xmf3Scale, xmf4Color);
+	
 	//m_nShaders = 1;
 	//m_ppShaders = new CShader*[m_nShaders];
 
@@ -112,19 +114,20 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	//pAngrybotObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
 	//m_ppShaders[0] = pAngrybotObjectsShader;
 
-	CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,
+	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,
 		"../Resource/Model/EvilbearA.bin", NULL, true);
-	//CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,
-	//	"../Resource/Model/JJ.bin", NULL, true);
 
-	m_nGameObjects = 4;
+	default_random_engine dre;
+	uniform_real_distribution<double> urd_x(0.f, 500.f);
+	uniform_real_distribution<double> urd_z(0.f, 300.f);
+	XMFLOAT3 Position;
 
+	m_nGameObjects = 6;
 	m_ppGameObjects = new CGameObject*[m_nGameObjects];
 
 	m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	m_ppGameObjects[0]->SetChild(pAngrybotModel->m_pModelRootObject, true);
 	m_ppGameObjects[0]->m_pAnimationController = new CAnimationController(2, pAngrybotModel->m_pAnimationSets);
-
 	// 0번 트랙에 0번 애니메이션을 Set
 	m_ppGameObjects[0]->m_pAnimationController->SetTrackAnimationSet(0, 0);
 	// 1번 트랙에 1번 애니메이션을 Set
@@ -134,7 +137,6 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	// 1번 트랙에 가중치를 20% 
 	m_ppGameObjects[0]->m_pAnimationController->SetTrackWeight(1, 0.2f);
 	m_ppGameObjects[0]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
-	m_ppGameObjects[0]->SetPosition(400.0f, m_pTerrain->GetHeight(400.0f, 700.0f), 700.0f);
 
 	m_ppGameObjects[1] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	m_ppGameObjects[1]->SetChild(pAngrybotModel->m_pModelRootObject, true);
@@ -143,7 +145,6 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	// 애니메이션의 속도를 0.25로 주어서 느리게 애니메이션 동작을 하도록 Set
 	m_ppGameObjects[1]->m_pAnimationController->SetTrackSpeed(0, 0.25f);
 	m_ppGameObjects[1]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
-	m_ppGameObjects[1]->SetPosition(450.0f, m_pTerrain->GetHeight(450.0f, 680.0f), 680.0f);
 
 	m_ppGameObjects[2] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	m_ppGameObjects[2]->SetChild(pAngrybotModel->m_pModelRootObject, true);
@@ -152,18 +153,40 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	// 애니메이션의 시작위치를 다르게 준다. 그러면 같은 동작이더라도 다르게 애니메이션함
 	m_ppGameObjects[2]->m_pAnimationController->SetTrackPosition(0, 0.95f);
 	m_ppGameObjects[2]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
-	m_ppGameObjects[2]->SetPosition(420.0f, m_pTerrain->GetHeight(420.0f, 750.0f), 750.0f);
 
 	m_ppGameObjects[3] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	m_ppGameObjects[3]->SetChild(pAngrybotModel->m_pModelRootObject, true);
 	m_ppGameObjects[3]->m_pAnimationController = new CAnimationController(1, pAngrybotModel->m_pAnimationSets);
 	m_ppGameObjects[3]->m_pAnimationController->SetTrackAnimationSet(0, 0);
 	m_ppGameObjects[3]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
-	m_ppGameObjects[3]->SetPosition(410.0f, m_pTerrain->GetHeight(410.0f, 735.0f), 735.0f);
 
-	for (int i = 0; i < m_nGameObjects; ++i)
+	CLoadedModelInfo* pSuperCobraModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,
+		"../Resource/Model/SuperCobra.bin", NULL, false);
+	CLoadedModelInfo* pGunshipModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,
+		"../Resource/Model/Gunship.bin", NULL, false);
+
+	CSuperCobraObject* pSuperCobraObject = new CSuperCobraObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	pSuperCobraModel->m_pModelRootObject->AddRef();
+	pSuperCobraObject->SetChild(pSuperCobraModel->m_pModelRootObject);
+	pSuperCobraObject->Rotate(0, 90, 0);
+	pSuperCobraObject->OnPrepareAnimate();
+	pSuperCobraObject->SetPosition(0.f, 50, 0.f);
+	m_ppGameObjects[4] = pSuperCobraObject;
+
+	CGunshipObject* pGunshipObject = new CGunshipObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	pGunshipModel->m_pModelRootObject->AddRef();
+	pGunshipObject->SetChild(pGunshipModel->m_pModelRootObject);
+	pGunshipObject->Rotate(0, 90, 0);
+	pGunshipObject->OnPrepareAnimate();
+	pGunshipObject->SetPosition(20, 50, 20);
+	m_ppGameObjects[5] = pGunshipObject;
+
+	for (int i = 0; i < 4; ++i)
 	{
-		m_ppGameObjects[i]->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+		float x = urd_x(dre);
+		float z = urd_z(dre);
+		XMFLOAT3 Position = XMFLOAT3(x, m_pTerrain->GetHeight(x, z), z);
+		m_ppGameObjects[i]->SetPosition(Position);
 		m_ppGameObjects[i]->SetScale(20.f, 20.f, 20.f);
 	}
 
@@ -171,6 +194,12 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	if (pAngrybotModel) 
 		delete pAngrybotModel;
+
+	if (pSuperCobraModel)
+		delete pSuperCobraModel;
+
+	if (pGunshipModel)
+		delete pGunshipModel;
 }
 
 void CScene::ReleaseObjects()
@@ -276,15 +305,10 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[0].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-	//pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	//pd3dRootParameters[1].Constants.Num32BitValues = 33;
-	//pd3dRootParameters[1].Constants.ShaderRegister = 2; //GameObject
-	//pd3dRootParameters[1].Constants.RegisterSpace = 0;
-	//pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-
-	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[1].Descriptor.ShaderRegister = 2;	// b2 : GameObject
-	pd3dRootParameters[1].Descriptor.RegisterSpace = 0;
+	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+	pd3dRootParameters[1].Constants.Num32BitValues = 17;
+	pd3dRootParameters[1].Constants.ShaderRegister = 2; //GameObject
+	pd3dRootParameters[1].Constants.RegisterSpace = 0;
 	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -543,12 +567,12 @@ bool CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
-		case 'W': m_ppGameObjects[0]->MoveForward(+3.0f); break;
+	/*	case 'W': m_ppGameObjects[0]->MoveForward(+3.0f); break;
 		case 'S': m_ppGameObjects[0]->MoveForward(-3.0f); break;
 		case 'A': m_ppGameObjects[0]->MoveStrafe(-3.0f); break;
 		case 'D': m_ppGameObjects[0]->MoveStrafe(+3.0f); break;
 		case 'Q': m_ppGameObjects[0]->MoveUp(+3.0f); break;
-		case 'R': m_ppGameObjects[0]->MoveUp(-3.0f); break;
+		case 'R': m_ppGameObjects[0]->MoveUp(-3.0f); break;*/
 		default:
 			break;
 		}
@@ -568,7 +592,8 @@ void CScene::AnimateObjects(float fTimeElapsed)
 {
 	m_fElapsedTime = fTimeElapsed;
 
-	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->AnimateObjects(fTimeElapsed);
+	for (int i = 0; i < m_nShaders; i++) 
+		if (m_ppShaders[i]) m_ppShaders[i]->AnimateObjects(fTimeElapsed);
 	
 	if (m_pLights)
 	{

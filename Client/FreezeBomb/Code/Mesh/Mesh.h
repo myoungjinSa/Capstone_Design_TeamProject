@@ -1,13 +1,14 @@
 #pragma once
 
+struct CB_GAMEOBJECT_INFO;
 class CGameObject;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-#define VERTEXT_POSITION				0x0001
-#define VERTEXT_COLOR					0x0002
-#define VERTEXT_NORMAL					0x0004
-#define VERTEXT_TANGENT					0x0008
+#define VERTEXT_POSITION							0x0001
+#define VERTEXT_COLOR								0x0002
+#define VERTEXT_NORMAL							0x0004
+#define VERTEXT_TANGENT							0x0008
 #define VERTEXT_TEXTURE_COORD0			0x0010
 #define VERTEXT_TEXTURE_COORD1			0x0020
 
@@ -224,7 +225,7 @@ protected:
 public:
 	int								m_nSkinningBones = 0; 
 
-	char							(*m_ppstrSkinningBoneNames)[64];
+	char										(*m_ppstrSkinningBoneNames)[64];
 	XMFLOAT4X4						*m_pxmf4x4BindPoseBoneOffsets = NULL; 
 
 	CGameObject						**m_ppSkinningBoneFrameCaches = NULL;
