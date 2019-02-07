@@ -5,15 +5,13 @@
 #include "stdafx.h"
 #include "Shader.h"
 #include "Scene.h"
-#include <random>
 
-std::default_random_engine;
 
 int getRandomNumber(int min, int max)
 {
 	//1단계 시드 설정
 	std::random_device rn;
-	mt19937_64 rnd(rn());
+	default_random_engine rnd(rn());
 
 
 	//2단계 분포 설정(실수)
@@ -330,6 +328,118 @@ D3D12_SHADER_BYTECODE CSkyBoxShader::CreatePixelShader()
 	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSSkyBox", "ps_5_1", &m_pd3dPixelShaderBlob));
 }
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+CIceShader::CIceShader()
+{
+
+}
+
+CIceShader::~CIceShader()
+{
+
+}
+
+void CIceShader::SetExplode(bool bBlowing)
+{
+	if (m_pIceParticleObjects) {
+	
+		if (bBlowing) {
+			m_pIceParticleObjects->SetExplode(bBlowing);
+		}
+	}
+	
+}
+
+D3D12_INPUT_LAYOUT_DESC CIceShader::CreateInputLayout()
+{
+	
+	UINT nInputElementDescs = 2;
+	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
+	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
+	d3dInputLayoutDesc.NumElements = nInputElementDescs;
+
+	return(d3dInputLayoutDesc);
+}
+
+
+D3D12_SHADER_BYTECODE CIceShader::CreateVertexShader()
+{
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSIceCube", "vs_5_1", &m_pd3dVertexShaderBlob));
+}
+
+D3D12_SHADER_BYTECODE CIceShader::CreatePixelShader()
+{
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSIceCube", "ps_5_1", &m_pd3dPixelShaderBlob));
+}
+
+
+void CIceShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,void *pContext)
+{
+
+	CTexture *pParticleTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/texture2.dds", 0);
+
+	CScene::CreateShaderResourceViews(pd3dDevice, pParticleTexture, 19, false);
+
+	m_pMaterial = new CMaterial(1);
+	m_pMaterial->SetTexture(pParticleTexture);
+
+	
+
+	//CCubeMeshDiffused *pExplosionMesh = new CCubeMeshDiffused(pd3dDevice, pd3dCommandList, 0.5f, 0.5f, 0.5f);
+	CCubeMeshTextured *pExplosionMesh = new CCubeMeshTextured(pd3dDevice, pd3dCommandList, 10.0f, 10.0f, 10.0f);
+
+
+	m_pIceParticleObjects = new CIceCubeObject(1);
+	m_pIceParticleObjects->SetMesh(pExplosionMesh);
+	m_pIceParticleObjects->SetMaterial(0, m_pMaterial);
+	m_pIceParticleObjects->SetPosition(200.0f, 300.0f, 300.0f);
+
+	m_pIceParticleObjects->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
+	m_pIceParticleObjects->SetRotationSpeed(90.f);
+	m_pIceParticleObjects->SetMovingSpeed(1.0f);
+		//SetMesh(pExplosionMesh);
+
+
+	CIceCubeObject::PrepareExplosion(pd3dDevice, pd3dCommandList);
+}
+
+void CIceShader::AnimateObjects(float fTimeElapsed, CCamera *pCamera, CPlayer* pPlayer)
+{
+	
+	m_pIceParticleObjects->Animate(fTimeElapsed, pCamera);
+	
+}
+
+void CIceShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+{
+	CShader::Render(pd3dCommandList, pCamera);
+
+
+	if (m_pIceParticleObjects)
+	{
+		m_pIceParticleObjects->Render(pd3dCommandList, pCamera);
+	}
+	
+}
+
+
+
+void CIceShader::ReleaseObjects()
+{
+
+	if (m_pMaterial)
+	{
+		delete m_pMaterial;
+	}
+}
 /////////////////////////////////////////////////////////////////////////
 
 CBillboardShader::CBillboardShader()

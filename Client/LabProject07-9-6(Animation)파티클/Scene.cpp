@@ -78,7 +78,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 112); 
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 113); 
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature); 
 
@@ -90,7 +90,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/HeightMap.raw"), 257, 257, xmf3Scale, xmf4Color);
 
-	m_nShaders = 4;
+	m_nShaders = 5;
 	m_ppShaders = new CShader*[m_nShaders];
 
 	CSnowBillboardShader *pSnowShader = new CSnowBillboardShader();
@@ -108,10 +108,15 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	pDeerShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,m_pTerrain);
 	m_ppShaders[2] = pDeerShader;
 
+	CIceShader *pIceParticleShader = new CIceShader();
+	pIceParticleShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	pIceParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, NULL);
+	m_ppShaders[3] = pIceParticleShader;
+
 	CFoliageShader *pFoliageShader = new CFoliageShader();
 	pFoliageShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	pFoliageShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
-	m_ppShaders[3] = pFoliageShader;
+	m_ppShaders[4] = pFoliageShader;
 
 	//CHellicopterObjectsShader *pHellicopterObjectsShader = new CHellicopterObjectsShader();
 	//pHellicopterObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
@@ -241,7 +246,7 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 {
 	ID3D12RootSignature *pd3dGraphicsRootSignature = NULL;
 
-	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[13];
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[14];
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[0].NumDescriptors = 1;
@@ -324,10 +329,16 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dDescriptorRanges[12].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 
+	pd3dDescriptorRanges[13].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	pd3dDescriptorRanges[13].NumDescriptors = 1;
+	pd3dDescriptorRanges[13].BaseShaderRegister = 17; //t17: gtxtIceTexture
+	pd3dDescriptorRanges[13].RegisterSpace = 0;
+	pd3dDescriptorRanges[13].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[19];
+
+	D3D12_ROOT_PARAMETER pd3dRootParameters[20];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 1; //Camera
@@ -424,7 +435,11 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[18].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[18].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[12]);
 	pd3dRootParameters[18].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
+	
+	pd3dRootParameters[19].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[19].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[19].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[13]);
+	pd3dRootParameters[19].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 
 
@@ -674,8 +689,14 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
 
-	if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
-	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
+	if (m_pSkyBox)
+	{
+		m_pSkyBox->Render(pd3dCommandList, pCamera);
+	}
+	if (m_pTerrain)
+	{
+		m_pTerrain->Render(pd3dCommandList, pCamera);
+	}
 
 	for (int i = 0; i < m_nGameObjects; i++)
 	{

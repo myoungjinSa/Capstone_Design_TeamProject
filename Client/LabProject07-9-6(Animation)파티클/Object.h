@@ -534,7 +534,53 @@ protected:
 	UINT m_lodLevel;
 };
 
+//////////////////////////////////////////////////////////////////////////////////////////
+//얼음 파편
+class CIceCubeObject : public CGameObject
+{
+public:
+	CIceCubeObject(int nMaterials);
+	virtual ~CIceCubeObject();
 
+protected:
+	XMFLOAT3 m_xmf3RotationAxis;
+	float m_fRotationSpeed;
+
+	bool  m_bBlowingUp = true;
+
+	XMFLOAT4X4 m_pxmf4x4Transforms[EXPLOSION_DEBRISES];
+
+	float m_fMovingSpeed = 0.0f;
+
+	float m_fElapsedTimes = 0.0f;
+	float m_fDuration = 5.0f;
+	float m_fExplosionSpeed = 10.0f;
+	float m_fExplosionRotation = 720.0f;
+
+	const int maxParticleCount = 60;
+public:
+	void SetRotationSpeed(float fRotationSpeed) { m_fRotationSpeed = fRotationSpeed; }
+	void SetRotationAxis(XMFLOAT3 xmf3RotationAxis) {
+		m_xmf3RotationAxis = xmf3RotationAxis;
+	}
+
+	void SetMovingSpeed(float fSpeed) { m_fMovingSpeed = fSpeed; }
+	void SetExplode(bool bBlowing);
+
+	float GetRotationSpeed() { return m_fRotationSpeed; }
+	virtual void Animate(float fTimeElapsed,CCamera *pCamera =NULL);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera);
+
+
+
+public:
+	static CMesh *m_pExplosionMesh;
+	static XMFLOAT3 m_pxmf3SphereVectors[EXPLOSION_DEBRISES];
+	
+	static void PrepareExplosion(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	static XMVECTOR RandomUintVectorOnSphere();
+	static int GetRandom(int min, int max);
+};
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -634,6 +680,8 @@ class CAngrybotObject : public CGameObject
 public:
 	CAngrybotObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID);
 	virtual ~CAngrybotObject();
+
+	bool m_bBloiwingUp = false;
 
 public:
 	virtual void OnPrepareAnimate();
