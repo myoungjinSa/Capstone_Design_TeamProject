@@ -9,6 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+
+
 CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers)
 {
 	m_nTextureType = nTextureType;
@@ -1458,6 +1460,126 @@ CGameObject *CGameObject::LoadGeometryFromFile(ID3D12Device *pd3dDevice, ID3D12G
 
 	return (pGameObject);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+XMFLOAT3 CIceCubeObject::m_pxmf3SphereVectors[EXPLOSION_DEBRISES];
+CMesh *CIceCubeObject::m_pExplosionMesh = NULL;
+
+CIceCubeObject::CIceCubeObject(int nMaterials) : CGameObject(nMaterials)
+{
+	
+}
+
+CIceCubeObject::~CIceCubeObject() {
+
+}
+
+int CIceCubeObject::GetRandom(int min, int max)
+{
+	//시드 설정
+	std::random_device rn;
+
+	default_random_engine rnd(rn());
+
+	//분포 설정
+	
+	std::uniform_real_distribution<double> urd(min, max);
+
+	return urd(rnd);
+}
+XMVECTOR CIceCubeObject::RandomUintVectorOnSphere()
+{
+	XMVECTOR xmvOne = XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
+	XMVECTOR xmvZero = XMVectorZero();
+
+	while (true)
+	{
+		XMVECTOR v = XMVectorSet(RandF(-1.0f,1.0f), RandF(-1.0f,1.0f), RandF(-1.0f,1.0f),0.0f);
+
+		if (!XMVector3Greater(XMVector3LengthSq(v), xmvOne))
+		{
+			return(XMVector3Normalize(v));
+		}
+	}
+
+}
+
+void CIceCubeObject::PrepareExplosion(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+{
+	for (int i = 0; i < EXPLOSION_DEBRISES; i++)
+	{
+		XMStoreFloat3(&m_pxmf3SphereVectors[i], CIceCubeObject::RandomUintVectorOnSphere());
+	}
+	
+}
+
+
+void CIceCubeObject::SetExplode(bool bBlowing)
+{
+	if (m_bBlowingUp == false)
+	{
+
+		m_bBlowingUp = bBlowing;
+
+	}
+}
+void CIceCubeObject::Animate(float fTimeElapsed, CCamera *pCamera)
+{
+	m_fElapsedTimes += fTimeElapsed;
+
+	if (m_fElapsedTimes <= m_fDuration)
+	{
+		XMFLOAT3 xmf3Position = GetPosition();
+		for (int i = 0; i < EXPLOSION_DEBRISES; i++)
+		{
+			m_pxmf4x4Transforms[i] = Matrix4x4::Identity();
+			m_pxmf4x4Transforms[i]._41 = xmf3Position.x + m_pxmf3SphereVectors[i].x * m_fExplosionSpeed * m_fElapsedTimes;
+			m_pxmf4x4Transforms[i]._42 = xmf3Position.y + m_pxmf3SphereVectors[i].y * m_fExplosionSpeed * m_fElapsedTimes;
+			m_pxmf4x4Transforms[i]._43 = xmf3Position.z + m_pxmf3SphereVectors[i].z * m_fExplosionSpeed * m_fElapsedTimes;
+			m_pxmf4x4Transforms[i] = Matrix4x4::Multiply(Matrix4x4::RotationAxis(m_pxmf3SphereVectors[i], m_fExplosionRotation * m_fElapsedTimes), m_pxmf4x4Transforms[i]);
+		}
+	}
+	else
+	{
+		m_fElapsedTimes = 0.0f;
+	}
+	
+}
+
+void CIceCubeObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+{
+	if (m_bBlowingUp)
+	{
+		for (int i = 0; i <EXPLOSION_DEBRISES; i++)
+		{
+	
+			if (m_pMesh)
+			{
+				
+				XMFLOAT4X4 xmf4x4World;
+				XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_pxmf4x4Transforms[i])));
+
+				//객체의 월드 변환 행렬을 루트 상수(32-비트 값)를 통하여 셰이더 변수(상수 버퍼)로 복사한다.
+				pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World, 0);
+				if (m_nMaterials > 0)
+				{
+					for (int i = 0; i < m_nMaterials; i++)
+					{
+						if (m_ppMaterials[i])
+						{
+							if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+							m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
+						}
+
+						m_pMesh->Render(pd3dCommandList, i);
+					}
+				}
+			}
+		}
+	}
+}
+
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -213,6 +213,30 @@ public:
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+class CCubeMeshDiffused : public CMesh
+{
+public:
+	CCubeMeshDiffused(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth, float fHeight, float fDepth);
+	virtual ~CCubeMeshDiffused();
+
+protected:
+	
+	XMFLOAT4						*m_pxmf4Colors = NULL;
+
+	
+
+	ID3D12Resource					*m_pd3dColorBuffer = NULL;
+	ID3D12Resource					*m_pd3dColorUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dColorBufferView;
+public:
+	virtual void ReleaseUploadBuffers();
+	virtual void OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);
+
+};
+
 class CCubeMeshTextured : public CMesh
 {
 public:

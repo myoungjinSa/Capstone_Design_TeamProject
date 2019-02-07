@@ -34,10 +34,13 @@ using namespace std;
 #include <DirectXCollision.h>
 
 #include <Mmsystem.h>
+#include <random>
 
 #ifdef _DEBUG
 #include <dxgidebug.h>
 #endif
+
+std::default_random_engine;
 
 using namespace DirectX;
 using namespace DirectX::PackedVector;
@@ -50,6 +53,9 @@ extern HINSTANCE						ghAppInstance;
 
 #define FRAME_BUFFER_WIDTH		640
 #define FRAME_BUFFER_HEIGHT		480
+
+#define EXPLOSION_DEBRISES		30
+
 
 #define VK_C					0x43
 #define VK_X					0x58
@@ -76,6 +82,11 @@ extern ID3D12Resource *CreateTextureResourceFromWICFile(ID3D12Device *pd3dDevice
 #define RANDOM_COLOR			XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
 
 #define EPSILON					1.0e-10f
+
+inline float RandF(float fMin, float fMax)
+{
+	return(fMin + ((float)rand() / (float)RAND_MAX) * (fMax - fMin));
+}
 
 inline bool IsZero(float fValue) { return((fabsf(fValue) < EPSILON)); }
 inline bool IsEqual(float fA, float fB) { return(::IsZero(fA - fB)); }
@@ -329,6 +340,14 @@ namespace Matrix4x4
 		XMStoreFloat4x4(&xmf4x4Result, XMMatrixLookAtLH(XMLoadFloat3(&xmf3EyePosition), XMLoadFloat3(&xmf3LookAtPosition), XMLoadFloat3(&xmf3UpDirection)));
 		return(xmf4x4Result);
 	}
+
+	inline XMFLOAT4X4 RotationAxis(XMFLOAT3& xmf3Axis, float fAngle)
+	{
+		XMFLOAT4X4 xmmtx4x4Result;
+		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixRotationAxis(XMLoadFloat3(&xmf3Axis), XMConvertToRadians(fAngle)));
+		return(xmmtx4x4Result);
+	}
+
 }
 
 namespace Triangle
