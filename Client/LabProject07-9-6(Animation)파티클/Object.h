@@ -420,6 +420,15 @@ public:
 		ICE
 	};
 
+	static enum LODLEVEL 
+	{ 
+		LOD_LEVEL0 = 0, 
+		LOD_LEVEL1, 
+		LOD_LEVEL2,
+		LOD_BILLBOARD
+	};
+
+
 
 	char							m_pstrFrameName[64];
 
@@ -437,8 +446,11 @@ public:
 
 	CParticleBillboardObject        *m_pParticleObject = NULL;
 
+
+
 	int	 GetMatID() { return m_matID; }
 	
+	void SetLODlevel(UINT lod_level) { m_lodLevel = lod_level; }
 	void SetMesh(CMesh *pMesh);
 	void SetShader(CShader *pShader);
 	void SetShader(int nMaterial, CShader *pShader);
@@ -456,6 +468,9 @@ public:
 	virtual void OnPrepareRender() { }
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bIce,int matID, CCamera *pCamera = NULL);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lodlevel, CCamera *pCamera = NULL);
+
+
 
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
@@ -490,7 +505,7 @@ public:
 	CTexture *FindReplicatedTexture(_TCHAR *pstrTextureName);
 
 	UINT GetMeshType() { return((m_pMesh) ? m_pMesh->GetType() : 0x00); }
-
+	UINT GetLodLevel() { return m_lodLevel; }
 public:
 	CAnimationController 			*m_pAnimationController = NULL;
 	CSkinningBoneTransforms 		*m_pSkinningBoneTransforms = NULL;
@@ -505,13 +520,20 @@ public:
 
 	void LoadMaterialsFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CGameObject *pParent, FILE *pInFile, CShader *pShader);
 
+
 	static CAnimationSets *LoadAnimationFromFile(FILE *pInFile, CGameObject *pRootFrame);
 	static CGameObject *LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes);
 
 	static CLoadedModelInfo *LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char *pstrFileName, CShader *pShader, bool bHasAnimation);
+	static CGameObject *LoadGeometryFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char *pstrFileName, CShader *pShader);
+
 
 	static void PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent);
+
+protected:
+	UINT m_lodLevel;
 };
+
 
 
 
@@ -616,7 +638,58 @@ public:
 public:
 	virtual void OnPrepareAnimate();
 	virtual void Animate(float fTimeElapsed,CCamera *pCamera = NULL);
+
+
+
 };
+
+class CDeadTreeObject : public CGameObject
+{
+public:
+	CDeadTreeObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
+	virtual ~CDeadTreeObject();
+
+
+};
+
+
+
+class CPineTreeObject : public CGameObject
+{
+public:
+	CPineTreeObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
+	virtual ~CPineTreeObject();
+
+
+};
+
+class CDeerObject : public CGameObject
+{
+public:
+	CDeerObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
+	virtual ~CDeerObject();
+
+
+};
+
+
+class CFoliageObject : public CGameObject
+{
+public:
+	CFoliageObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
+	virtual ~CFoliageObject();
+	
+
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lodlevel,CCamera *pCamera = NULL);
+	
+public:
+	static CGameObject *LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes);
+	static CLoadedModelInfo *LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char *pstrFileName, CShader *pShader, bool bHasAnimation);
+
+	
+
+};
+
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -657,6 +730,17 @@ public:
 	
 			//플레이어 중심으로부터 얼마나 떨어져 있는지 변수
 };
+
+///////////////////////////////////////////////////////////////////////////////////
+class CGrassFoliageBillboardObject : public CBillboardObject
+{
+public:
+	CGrassFoliageBillboardObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphcisRoogSignature);
+	virtual ~CGrassFoliageBillboardObject();
+
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL);
+};
+
 
 //////////////////////////////////////////////////////////////////////////////////
 
