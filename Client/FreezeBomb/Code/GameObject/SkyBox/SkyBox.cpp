@@ -10,8 +10,6 @@ CSkyBox::CSkyBox(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dComman
 	CSkyBoxMesh *pSkyBoxMesh = new CSkyBoxMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 2.0f);
 	SetMesh(pSkyBoxMesh);
 
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-
 	CTexture* pSkyBoxTexture = new CTexture(1, RESOURCE_TEXTURE_CUBE, 0);
 	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/SkyBox/SkyBox_2.dds", 0);
 

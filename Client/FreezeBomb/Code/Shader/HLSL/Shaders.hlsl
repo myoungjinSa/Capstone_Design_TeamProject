@@ -239,3 +239,34 @@ float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 
 	return(cColor);
 }
+
+struct VS_SNOW_INPUT
+{
+	float3 position	: POSITION;
+	float2 uv			: TEXCOORD;
+};
+
+struct VS_SNOW_OUTPUT
+{
+	float4 position	: SV_POSITION;
+	float2 uv			: TEXCOORD;
+};
+
+Texture2D gtxtSnowTexture : register (t15);
+
+VS_SNOW_OUTPUT VSSnow(VS_SNOW_INPUT input)
+{
+	VS_SNOW_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.uv = input.uv;
+
+	return(output);
+}
+
+float4 PSSnow(VS_SNOW_OUTPUT input) : SV_TARGET
+{
+	float4 cColor = gtxtSnowTexture.Sample(gssWrap,input.uv);
+
+	return(cColor);
+}

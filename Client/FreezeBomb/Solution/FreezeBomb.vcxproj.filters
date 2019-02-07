@@ -79,6 +79,27 @@
     <Filter Include="Code\Shader\TerrainShader">
       <UniqueIdentifier>{899a2058-b3f6-44a6-a8e1-2fea488120e9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\GameObject\Surrounding">
+      <UniqueIdentifier>{fdb30079-f58d-49cf-9b17-129dfe3c2ed7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader">
+      <UniqueIdentifier>{ea94da94-50a1-4121-8eb3-4de44124c5b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\SnowShader">
+      <UniqueIdentifier>{a53dc252-b7df-4798-a7f3-77617a374b5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Cube">
+      <UniqueIdentifier>{03ff91e0-dd90-4445-8c5d-c3123e376903}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Mesh\BillboardMesh">
+      <UniqueIdentifier>{1b3c989e-171a-45d0-a8e2-f89337dcdd1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Billboard">
+      <UniqueIdentifier>{ed1937db-8ee1-433e-994d-430133b86144}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Billboard\Snow">
+      <UniqueIdentifier>{06c62c32-e366-4a50-859d-d6de5db395da}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FreezeBomb.rc">
@@ -163,6 +184,27 @@
     <ClInclude Include="..\Code\Shader\TerrainShader\TerrainShader.h">
       <Filter>Code\Shader\TerrainShader</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Surrounding\Surrounding.h">
+      <Filter>Code\GameObject\Surrounding</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\BillboardShader.h">
+      <Filter>Code\Shader\BillboardShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\SnowShader\SnowShader.h">
+      <Filter>Code\Shader\BillboardShader\SnowShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Cube\Cube.h">
+      <Filter>Code\Cube</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Mesh\BillboardMesh\BillboardMesh.h">
+      <Filter>Code\Mesh\BillboardMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Billboard\Billboard.h">
+      <Filter>Code\GameObject\Billboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Billboard\Snow\Snow.h">
+      <Filter>Code\GameObject\Billboard\Snow</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Code\FreezeBomb.cpp">
@@ -227,6 +269,27 @@
     </ClCompile>
     <ClCompile Include="..\Code\Shader\TerrainShader\TerrainShader.cpp">
       <Filter>Code\Shader\TerrainShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Surrounding\Surrounding.cpp">
+      <Filter>Code\GameObject\Surrounding</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\BillboardShader.cpp">
+      <Filter>Code\Shader\BillboardShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\SnowShader\SnowShader.cpp">
+      <Filter>Code\Shader\BillboardShader\SnowShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Cube\Cube.cpp">
+      <Filter>Code\Cube</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Mesh\BillboardMesh\BillboardMesh.cpp">
+      <Filter>Code\Mesh\BillboardMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Billboard\Billboard.cpp">
+      <Filter>Code\GameObject\Billboard</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Billboard\Snow\Snow.cpp">
+      <Filter>Code\GameObject\Billboard\Snow</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

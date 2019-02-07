@@ -36,8 +36,6 @@ void CPlayer::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsComm
 {
 	if (m_pCamera) 
 		m_pCamera->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-
-	CGameObject::CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void CPlayer::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
@@ -355,7 +353,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
 	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
-		"../Resource/Model/EvilbearA.bin", NULL, true);
+		"../Resource/Model/Evilbear.bin", NULL, true);
 
 	SetChild(pAngrybotModel->m_pModelRootObject, true);
 	m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);

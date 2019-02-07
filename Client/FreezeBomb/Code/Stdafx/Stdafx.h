@@ -122,6 +122,18 @@ namespace Vector3
 		return(xmf3Result);
 	}
 
+	inline XMFLOAT3 SubtractNormalize(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2, bool bNormalize = false)
+	{
+		XMFLOAT3 xmf3Result;
+		if (bNormalize) {
+			XMStoreFloat3(&xmf3Result, XMVector3Normalize(XMLoadFloat3(&xmf3Vector1) - XMLoadFloat3(&xmf3Vector2)));
+		}
+		else {
+			XMStoreFloat3(&xmf3Result, XMLoadFloat3(&xmf3Vector1) - XMLoadFloat3(&xmf3Vector2));
+		}
+		return(xmf3Result);
+	}
+
 	inline float DotProduct(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
 	{
 		XMFLOAT3 xmf3Result;

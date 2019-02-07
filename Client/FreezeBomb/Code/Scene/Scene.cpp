@@ -9,6 +9,7 @@
 
 #include "../Shader/Shader.h"
 #include "../Shader/StandardShader/StandardObjectsShader/StandardObjectsShader.h"
+#include "../Shader/BillboardShader/SnowShader/SnowShader.h"
 #include "../Shader/StandardShader/SkinnedAnimationObjectsShader/SkinnedAnimationObjectsShader.h"
 
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
@@ -84,7 +85,11 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 45); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()
+	// ShaderResourceView ÃÑ °³¼ö
+	// SkyBox : 1, Terrain : 2, Player : 10, AngrybotModel : 10 => 23
+	// DeadTrees : 25, PineTrees : 35, Rocks : 25, Deer : 2 =>
+	// Snow : 1
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 23 + 87 + 1);
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature); 
 
@@ -92,37 +97,32 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	m_pSkyBox = new CSkyBox(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
-	//XMFLOAT3 xmf3Scale(8.0f, 2.0f, 8.0f);
-
 	XMFLOAT3 xmf3Scale(2.f, 1.0f, 1.2f);
 	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
-	//m_pTerrain = new CTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("../Resource/Terrain/HeightMap.raw"), 257, 257, xmf3Scale, xmf4Color);
 	m_pTerrain = new CTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("../Resource/Terrain/Plane/Plane.raw"), 256, 256, xmf3Scale, xmf4Color);
 	
-	//m_nShaders = 1;
-	//m_ppShaders = new CShader*[m_nShaders];
+	m_nShaders = 2;
+	m_ppShaders = new CShader*[m_nShaders];
 
-	//CStandardObjectsShader* pHellicopterObjectsShader = new CStandardObjectsShader;
-	//pHellicopterObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	//pHellicopterObjectsShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	//pHellicopterObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
-	//m_ppShaders[0] = pHellicopterObjectsShader;
+	CStandardObjectsShader* pSurroundingShader = new CStandardObjectsShader;
+	pSurroundingShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	pSurroundingShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
+	m_ppShaders[0] = pSurroundingShader;
 
-	//CSkinnedAnimationObjectsShader* pAngrybotObjectsShader = new CSkinnedAnimationObjectsShader;
-	//pAngrybotObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	//pAngrybotObjectsShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	//pAngrybotObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
-	//m_ppShaders[0] = pAngrybotObjectsShader;
+	CSnowShader* pSnowShader = new CSnowShader;
+	pSnowShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	pSnowShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
+	m_ppShaders[1] = pSnowShader;
 
 	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,
-		"../Resource/Model/EvilbearA.bin", NULL, true);
+		"../Resource/Model/Evilbear.bin", NULL, true);
 
 	default_random_engine dre;
 	uniform_real_distribution<double> urd_x(0.f, 500.f);
 	uniform_real_distribution<double> urd_z(0.f, 300.f);
 	XMFLOAT3 Position;
 
-	m_nGameObjects = 6;
+	m_nGameObjects = 4;
 	m_ppGameObjects = new CGameObject*[m_nGameObjects];
 
 	m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
@@ -160,46 +160,19 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppGameObjects[3]->m_pAnimationController->SetTrackAnimationSet(0, 0);
 	m_ppGameObjects[3]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
 
-	CLoadedModelInfo* pSuperCobraModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,
-		"../Resource/Model/SuperCobra.bin", NULL, false);
-	CLoadedModelInfo* pGunshipModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,
-		"../Resource/Model/Gunship.bin", NULL, false);
-
-	CSuperCobraObject* pSuperCobraObject = new CSuperCobraObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	pSuperCobraModel->m_pModelRootObject->AddRef();
-	pSuperCobraObject->SetChild(pSuperCobraModel->m_pModelRootObject);
-	pSuperCobraObject->Rotate(0, 90, 0);
-	pSuperCobraObject->OnPrepareAnimate();
-	pSuperCobraObject->SetPosition(0.f, 50, 0.f);
-	m_ppGameObjects[4] = pSuperCobraObject;
-
-	CGunshipObject* pGunshipObject = new CGunshipObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	pGunshipModel->m_pModelRootObject->AddRef();
-	pGunshipObject->SetChild(pGunshipModel->m_pModelRootObject);
-	pGunshipObject->Rotate(0, 90, 0);
-	pGunshipObject->OnPrepareAnimate();
-	pGunshipObject->SetPosition(20, 50, 20);
-	m_ppGameObjects[5] = pGunshipObject;
-
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < m_nGameObjects; ++i)
 	{
 		float x = urd_x(dre);
 		float z = urd_z(dre);
 		XMFLOAT3 Position = XMFLOAT3(x, m_pTerrain->GetHeight(x, z), z);
 		m_ppGameObjects[i]->SetPosition(Position);
-		m_ppGameObjects[i]->SetScale(20.f, 20.f, 20.f);
+		m_ppGameObjects[i]->SetScale(10.f, 10.f, 10.f);
 	}
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	if (pAngrybotModel) 
 		delete pAngrybotModel;
-
-	if (pSuperCobraModel)
-		delete pSuperCobraModel;
-
-	if (pGunshipModel)
-		delete pGunshipModel;
 }
 
 void CScene::ReleaseObjects()
@@ -236,7 +209,7 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 {
 	ID3D12RootSignature *pd3dGraphicsRootSignature = NULL;
 
-	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[10];
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[11];
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[0].NumDescriptors = 1;
@@ -298,7 +271,13 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dDescriptorRanges[9].RegisterSpace = 0;
 	pd3dDescriptorRanges[9].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[16];
+	pd3dDescriptorRanges[10].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	pd3dDescriptorRanges[10].NumDescriptors = 1;
+	pd3dDescriptorRanges[10].BaseShaderRegister = 15; // t15: gtxtSnowTexture
+	pd3dDescriptorRanges[10].RegisterSpace = 0;
+	pd3dDescriptorRanges[10].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_ROOT_PARAMETER pd3dRootParameters[17];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 1;	// b1 : Camera
@@ -380,6 +359,11 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[15].Descriptor.ShaderRegister = 3;	// b3 : Material
 	pd3dRootParameters[15].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[15].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	pd3dRootParameters[16].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[16].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[16].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[10]);
+	pd3dRootParameters[16].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
 
@@ -592,8 +576,13 @@ void CScene::AnimateObjects(float fTimeElapsed)
 {
 	m_fElapsedTime = fTimeElapsed;
 
-	for (int i = 0; i < m_nShaders; i++) 
-		if (m_ppShaders[i]) m_ppShaders[i]->AnimateObjects(fTimeElapsed);
+	for (int i = 0; i < m_nShaders; i++)
+	{
+		if (dynamic_cast<CSnowShader*>(m_ppShaders[i]) != nullptr)
+			((CSnowShader*)m_ppShaders[i])->AnimateObjects(fTimeElapsed, m_pPlayer->GetCamera(), m_pPlayer);
+		else if(m_ppShaders[i])
+			m_ppShaders[i]->AnimateObjects(fTimeElapsed);
+	}
 	
 	if (m_pLights)
 	{

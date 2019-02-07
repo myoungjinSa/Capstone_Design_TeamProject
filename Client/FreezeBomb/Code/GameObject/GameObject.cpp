@@ -517,60 +517,6 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 	if (m_pChild) 
 		m_pChild->Render(pd3dCommandList, pCamera);
 }
-#define SIZE 1
-
-void CGameObject::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
-{
-	//if (m_pMesh)
-	//{
-	//	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
-	//	m_pd3dcbGameObject = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-	//	m_pd3dcbGameObject->Map(0, NULL, (void**)&m_pcbMappedGameObject);
-	//}
-	if (m_pMesh)
-	{
-		UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
-		m_pd3dcbGameObject = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes * SIZE, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-		m_pd3dcbGameObject->Map(0, NULL, (void**)&m_pcbMappedGameObject);
-	}
-
-	if (m_pSibling)
-		m_pSibling->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-
-	if (m_pChild)
-		m_pChild->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-}
-
-void CGameObject::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4& pxmf4x4World)
-{	
-	//if (m_pcbMappedGameObject != nullptr)
-	//{
-	//	XMFLOAT4X4 xmf4x4World;
-	//	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&pxmf4x4World)));
-	//	::memcpy(&m_pcbMappedGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
-
-	//	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObject->GetGPUVirtualAddress();
-	//	pd3dCommandList->SetGraphicsRootConstantBufferView(1, d3dGpuVirtualAddress);
-	//}
-	if (m_pMesh)
-	{
-		UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
-
-		if (m_pcbMappedGameObject != nullptr)
-		{
-			for (int i = 0; i < SIZE; ++i)
-			{
-				XMFLOAT4X4 xmf4x4World;
-				XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&pxmf4x4World)));
-				CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)(m_pcbMappedGameObject + (i * ncbElementBytes));
-				::memcpy(&pbMappedcbGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
-
-				D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObject->GetGPUVirtualAddress();
-				pd3dCommandList->SetGraphicsRootConstantBufferView(1, d3dGpuVirtualAddress + (i * ncbElementBytes));
-			}
-		}
-	}
-}
 
 void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4* pxmf4x4World)
 {
@@ -1197,44 +1143,6 @@ void CSuperCobraObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCame
 		((CSuperCobraObject*)m_pSibling)->CSuperCobraObject::Render(pd3dCommandList, pCamera);
 	if (m_pChild)
 		((CSuperCobraObject*)m_pChild)->CSuperCobraObject::Render(pd3dCommandList, pCamera);
-}
-
-void CSuperCobraObject::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
-{
-	if (m_pMesh)
-	{
-		UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
-		m_pd3dcbGameObject = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes * SIZE, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-		m_pd3dcbGameObject->Map(0, NULL, (void**)&m_pcbMappedGameObject);
-	}
-
-	if (m_pSibling)
-		((CSuperCobraObject*)m_pSibling)->CSuperCobraObject::CreateShaderVariables(pd3dDevice, pd3dCommandList);
-
-	if (m_pChild)
-		((CSuperCobraObject*)m_pChild)->CSuperCobraObject::CreateShaderVariables(pd3dDevice, pd3dCommandList);
-}
-
-void CSuperCobraObject::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4& pxmf4x4World)
-{
-	if (m_pMesh)
-	{
-		UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
-
-		if (m_pcbMappedGameObject != nullptr)
-		{
-			for (int i = 0; i < SIZE; ++i)
-			{
-				XMFLOAT4X4 xmf4x4World;
-				XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&pxmf4x4World)));
-				CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)(m_pcbMappedGameObject + (i * ncbElementBytes));
-				::memcpy(&pbMappedcbGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
-
-				D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObject->GetGPUVirtualAddress();
-				pd3dCommandList->SetGraphicsRootConstantBufferView(1, d3dGpuVirtualAddress + (i * ncbElementBytes));
-			}
-		}
-	}
 }
 
 void CSuperCobraObject::ReleaseShaderVariables()
