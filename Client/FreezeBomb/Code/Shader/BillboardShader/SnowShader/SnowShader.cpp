@@ -119,12 +119,3 @@ void CSnowShader::ReleaseObjects()
 		delete m_pMaterial;
 	}
 }
-
-double CSnowShader::Random(double min, double max)
-{
-	random_device rd;
-	default_random_engine dre(rd());
-	uniform_real_distribution<double> urd(min, max);
-
-	return urd(dre);
-}

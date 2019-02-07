@@ -37,46 +37,66 @@ D3D12_SHADER_BYTECODE CSkinnedAnimationObjectsShader::CreateVertexShader()
 
 void CSkinnedAnimationObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
 {
-	int xObjects = 7, zObjects = 7, i = 0;
-
-	m_nObjects = (xObjects * 2 + 1) * (zObjects * 2 + 1);
+	m_nObjects = 4;
 
 	m_ppObjects = new CGameObject*[m_nObjects];
 
-	float fxPitch = 7.0f * 2.5f;
-	float fzPitch = 7.0f * 2.5f;
-
-	CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 
-		"../Resource/Model/Player.bin", NULL, true);
-	//CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
-	//	"../Resource/Model/EvilbearA.bin", NULL, true);
+	CLoadedModelInfo* pBear = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
+		"../Resource/Model/Evilbear.bin", NULL, true);
 
 	CTerrain* pTerrain = (CTerrain *)pContext;
 
-	int nObjects = 0;
-	for (int x = -xObjects; x <= xObjects; x++)
+	m_nObjects = 4;
+	m_ppObjects = new CGameObject*[m_nObjects];
+
+	m_ppObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[0]->SetChild(pBear->m_pModelRootObject, true);
+	m_ppObjects[0]->m_pAnimationController = new CAnimationController(2, pBear->m_pAnimationSets);
+	// 0번 트랙에 0번 애니메이션을 Set
+	m_ppObjects[0]->m_pAnimationController->SetTrackAnimationSet(0, 0);
+	// 1번 트랙에 1번 애니메이션을 Set
+	m_ppObjects[0]->m_pAnimationController->SetTrackAnimationSet(1, 1);
+	// 0번 트랙에 가중치를 80%
+	m_ppObjects[0]->m_pAnimationController->SetTrackWeight(0, 0.8f);
+	// 1번 트랙에 가중치를 20% 
+	m_ppObjects[0]->m_pAnimationController->SetTrackWeight(1, 0.2f);
+	m_ppObjects[0]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pBear);
+
+	m_ppObjects[1] = new CAngrybotObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[1]->SetChild(pBear->m_pModelRootObject, true);
+	m_ppObjects[1]->m_pAnimationController = new CAnimationController(1, pBear->m_pAnimationSets);
+	m_ppObjects[1]->m_pAnimationController->SetTrackAnimationSet(0, 1);
+	// 애니메이션의 속도를 0.25로 주어서 느리게 애니메이션 동작을 하도록 Set
+	m_ppObjects[1]->m_pAnimationController->SetTrackSpeed(0, 0.25f);
+	m_ppObjects[1]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pBear);
+
+	m_ppObjects[2] = new CAngrybotObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[2]->SetChild(pBear->m_pModelRootObject, true);
+	m_ppObjects[2]->m_pAnimationController = new CAnimationController(1, pBear->m_pAnimationSets);
+	m_ppObjects[2]->m_pAnimationController->SetTrackAnimationSet(0, 0);
+	// 애니메이션의 시작위치를 다르게 준다. 그러면 같은 동작이더라도 다르게 애니메이션함
+	m_ppObjects[2]->m_pAnimationController->SetTrackPosition(0, 0.95f);
+	m_ppObjects[2]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pBear);
+
+	m_ppObjects[3] = new CAngrybotObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[3]->SetChild(pBear->m_pModelRootObject, true);
+	m_ppObjects[3]->m_pAnimationController = new CAnimationController(1, pBear->m_pAnimationSets);
+	m_ppObjects[3]->m_pAnimationController->SetTrackAnimationSet(0, 0);
+	m_ppObjects[3]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pBear);
+
+	XMFLOAT3 Position;
+	for (int i = 0; i < m_nObjects; ++i)
 	{
-		for (int z = -zObjects; z <= zObjects; z++)
-		{
-			m_ppObjects[nObjects] = new CAngrybotObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-			m_ppObjects[nObjects]->SetChild(pAngrybotModel->m_pModelRootObject, true);
-			m_ppObjects[nObjects]->m_pAnimationController = new CAnimationController(1, pAngrybotModel->m_pAnimationSets);
-			m_ppObjects[nObjects]->m_pAnimationController->SetTrackAnimationSet(0, (nObjects % 2));
-			m_ppObjects[nObjects]->m_pAnimationController->SetTrackSpeed(0, (nObjects % 2) ? 0.25f : 1.0f);
-			m_ppObjects[nObjects]->m_pAnimationController->SetTrackPosition(0, (nObjects % 3) ? 0.85f : 0.0f);
-			m_ppObjects[nObjects]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
-			XMFLOAT3 xmf3Position = XMFLOAT3(fxPitch*x + 390.0f, 0.0f, 730.0f + fzPitch * z);
-			xmf3Position.y = pTerrain->GetHeight(xmf3Position.x, xmf3Position.z);
-			m_ppObjects[nObjects]->SetPosition(xmf3Position);
-			m_ppObjects[nObjects++]->SetScale(2.0f, 2.0f, 2.0f);
-			//m_ppObjects[nObjects++]->SetScale(20.0f, 20.0f, 20.0f);
-		}
+		Position.x = Random(0.f, 500.f);
+		Position.z = Random(0.f, 300.f);
+		m_ppObjects[i]->SetPosition(Position.x, pTerrain->GetHeight(Position.x, Position.z), Position.z);
+		m_ppObjects[i]->SetScale(10.f, 10.f, 10.f);
 	}
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	if (pAngrybotModel)
-		delete pAngrybotModel;
+	if (pBear)
+		delete pBear;
 }
 
 void CSkinnedAnimationObjectsShader::ReleaseObjects()

@@ -352,13 +352,13 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 {
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
-	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
+	CLoadedModelInfo* pBear = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
 		"../Resource/Model/Evilbear.bin", NULL, true);
 
-	SetChild(pAngrybotModel->m_pModelRootObject, true);
-	m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
+	SetChild(pBear->m_pModelRootObject, true);
+	m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pBear);
 
-	m_pAnimationController = new CAnimationController(1, pAngrybotModel->m_pAnimationSets);
+	m_pAnimationController = new CAnimationController(1, pBear->m_pAnimationSets);
 	m_pAnimationController->SetTrackAnimationSet(0, 0);
 
 	// 1번 애니메이션 동작에 사운드 3개를 Set해준다.
@@ -381,8 +381,8 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	SetPlayerUpdatedContext(pContext);
 	SetCameraUpdatedContext(pContext);
 
-	if (pAngrybotModel) 
-		delete pAngrybotModel;
+	if (pBear) 
+		delete pBear;
 }
 
 CTerrainPlayer::~CTerrainPlayer()

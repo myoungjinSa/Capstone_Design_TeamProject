@@ -42,6 +42,10 @@ public:
 	virtual void AnimateObjects(float fTimeElapsed) { }
 	virtual void ReleaseObjects() { }
 
+	float Random(float min, float max);
+	float Random();
+	XMFLOAT3 RandomPositionInSphere(XMFLOAT3 xmf3Center, float fRadius, int nColumn, int nColumnSpace);
+
 protected:
 	float								m_fElapsedTime = 0.0f;
 

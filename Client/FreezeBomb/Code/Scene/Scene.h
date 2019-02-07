@@ -101,9 +101,6 @@ public:
 	CSkyBox*					m_pSkyBox = NULL;
 	CTerrain*					m_pTerrain = NULL;
 
-	int								m_nGameObjects = 0;
-	CGameObject**		m_ppGameObjects = NULL;
-
 	int								m_nShaders = 0;
 	CShader**				m_ppShaders = NULL;
 

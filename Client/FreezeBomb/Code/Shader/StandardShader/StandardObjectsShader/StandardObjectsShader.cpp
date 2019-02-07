@@ -12,37 +12,8 @@ CStandardObjectsShader::~CStandardObjectsShader()
 {
 }
 
-float CStandardObjectsShader::Random(float fMin, float fMax)
-{
-	float fRandomValue = (float)rand();
-	if (fRandomValue < fMin) fRandomValue = fMin;
-	if (fRandomValue > fMax) fRandomValue = fMax;
-	return(fRandomValue);
-}
-
-float CStandardObjectsShader::Random()
-{
-	return(rand() / float(RAND_MAX));
-}
-
-XMFLOAT3 CStandardObjectsShader::RandomPositionInSphere(XMFLOAT3 xmf3Center, float fRadius, int nColumn, int nColumnSpace)
-{
-	float fAngle = Random() * 360.0f * (2.0f * 3.14159f / 360.0f);
-
-	XMFLOAT3 xmf3Position;
-	xmf3Position.x = xmf3Center.x + fRadius * sin(fAngle);
-	xmf3Position.y = xmf3Center.y - (nColumn * float(nColumnSpace) / 2.0f) + (nColumn * nColumnSpace) + Random();
-	xmf3Position.z = xmf3Center.z + fRadius * cos(fAngle);
-
-	return(xmf3Position);
-}
-
 void CStandardObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
 {
-	default_random_engine dre;
-	uniform_real_distribution<double> urd_x(0.f, 500.f);
-	uniform_real_distribution<double> urd_z(0.f, 300.f);
-
 	m_nObjects = 19;
 	m_ppObjects = new CGameObject*[m_nObjects];
 
@@ -148,13 +119,11 @@ void CStandardObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12Graphi
 	pDeer01->m_pModelRootObject->AddRef();
 
 	XMFLOAT3 Position;
-	float x = 0.f, z = 0.f;
 	for (int i = 0; i < m_nObjects; ++i)
 	{
-		x = urd_x(dre);
-		z = urd_z(dre);
-		Position = XMFLOAT3(x, pTerrain->GetHeight(x, z), z);
-		m_ppObjects[i]->SetPosition(Position);
+		Position.x = Random(0.f, 500.f);
+		Position.z = Random(0.f, 300.f);
+		m_ppObjects[i]->SetPosition(Position.x, pTerrain->GetHeight(Position.x, Position.z), Position.z);
 	}
 
 	if (pDeadTreesModel01) delete pDeadTreesModel01;

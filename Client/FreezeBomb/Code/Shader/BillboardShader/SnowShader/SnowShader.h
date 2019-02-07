@@ -23,8 +23,6 @@ public:
 
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera);
 
-	double Random(double min, double max);
-
 private:
 	CBillboard**		m_ppObjects = 0;
 	int						m_nObjects = 0;
