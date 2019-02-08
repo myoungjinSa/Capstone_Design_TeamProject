@@ -15,10 +15,11 @@ public:
 	void ReleaseUploadBuffers();
 	void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = nullptr);
 
-	size_t getShaderSize()	const { return m_nShaders; }
-	CShader** getShader()	const { return m_ppShaders; }
+	const map<string, CShader*>& getShaderMap()	const { return m_ShaderMap; }
 
 private:
 	size_t						m_nShaders = 0;
 	CShader**				m_ppShaders{ nullptr };
+
+	map<string, CShader*> m_ShaderMap;
 };

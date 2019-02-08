@@ -46,15 +46,15 @@ void CTerrainShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 	XMFLOAT3 xmf3Scale(2.f, 1.0f, 1.2f);
 	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
 
-	m_pTerrain = new CTerrain(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, _T("../Resource/Terrain/Plane/Plane.raw"), nWidth, nLength, xmf3Scale, xmf4Color);
+	m_pTerrain = new CTerrain(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, _T("../Resource/Textures/Terrain/Terrain.raw"), nWidth, nLength, xmf3Scale, xmf4Color);
 
 	CHeightMapGridMesh* pMesh = new CHeightMapGridMesh(pd3dDevice, pd3dCommandList, 0, 0, nWidth, nLength, xmf3Scale, xmf4Color, m_pTerrain->getHeightMapImage());
 	m_pTerrain->SetMesh(pMesh);
 
 	CTexture* pTerrainBaseTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pTerrainBaseTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Terrain/Plane/Sand.dds", 0);
+	pTerrainBaseTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Terrain/Sand.dds", 0);
 	CTexture* pTerrainDetailTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pTerrainDetailTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Terrain/Plane/Detail_Texture_7.dds", 0);
+	pTerrainDetailTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Terrain/Detail_Texture.dds", 0);
 
 	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainBaseTexture, 13, false);
 	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainDetailTexture, 14, false);

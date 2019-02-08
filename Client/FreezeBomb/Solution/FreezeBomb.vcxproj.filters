@@ -37,17 +37,11 @@
     <Filter Include="Code\GameTimer">
       <UniqueIdentifier>{7e2d744b-ddd4-49ca-82de-961cc5702ea3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Shader">
-      <UniqueIdentifier>{6d42492e-b0bb-4681-9562-4b055611fc9a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\Camera">
       <UniqueIdentifier>{c16f010c-94ec-4270-976b-eee029cfb9cd}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\GameObject\Player">
       <UniqueIdentifier>{2538ede7-a2c4-429c-aa84-6fa40b6e16d0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\HLSL">
-      <UniqueIdentifier>{a82442b1-2de3-4630-9597-af998021ba62}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\Texture">
       <UniqueIdentifier>{4b40fb51-e0c6-4a5b-94e5-7c2b822a5977}</UniqueIdentifier>
@@ -55,35 +49,14 @@
     <Filter Include="Code\Material">
       <UniqueIdentifier>{780111ed-b01f-4770-849c-cebb7b52d765}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Shader\StandardShader">
-      <UniqueIdentifier>{552a07a7-8068-472f-851e-32a215d7e9d3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\StandardShader\StandardObjectsShader">
-      <UniqueIdentifier>{af9bcc31-dabf-4fd0-9c8c-51a43546d117}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\StandardShader\SkinnedAnimationObjectsShader">
-      <UniqueIdentifier>{2d1d1a82-4d7d-405d-bf55-822a1d34ca1e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\GameObject\Terrain">
       <UniqueIdentifier>{08f37b41-38a3-454e-a125-a2b708716bcc}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\GameObject\SkyBox">
       <UniqueIdentifier>{81cd757c-70b2-4eb7-b85d-18641748dc25}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Shader\SkyBoxShader">
-      <UniqueIdentifier>{ef58e593-2858-47a7-ac93-cead33696394}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\TerrainShader">
-      <UniqueIdentifier>{899a2058-b3f6-44a6-a8e1-2fea488120e9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\GameObject\Surrounding">
       <UniqueIdentifier>{fdb30079-f58d-49cf-9b17-129dfe3c2ed7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\BillboardShader">
-      <UniqueIdentifier>{ea94da94-50a1-4121-8eb3-4de44124c5b6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\BillboardShader\SnowShader">
-      <UniqueIdentifier>{a53dc252-b7df-4798-a7f3-77617a374b5b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\Cube">
       <UniqueIdentifier>{03ff91e0-dd90-4445-8c5d-c3123e376903}</UniqueIdentifier>
@@ -102,6 +75,45 @@
     </Filter>
     <Filter Include="Code\Scene">
       <UniqueIdentifier>{d5e20df2-d7ef-4f6c-9f3f-ea1ec4d1617e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Billboard\LampParticle">
+      <UniqueIdentifier>{09ffd209-0e05-4daa-819a-f42c33f9c6e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\EvilBear">
+      <UniqueIdentifier>{b337803a-61e8-410f-b57c-c97638269476}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader">
+      <UniqueIdentifier>{6d42492e-b0bb-4681-9562-4b055611fc9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\HLSL">
+      <UniqueIdentifier>{a82442b1-2de3-4630-9597-af998021ba62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader">
+      <UniqueIdentifier>{552a07a7-8068-472f-851e-32a215d7e9d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader\StandardObjectsShader">
+      <UniqueIdentifier>{af9bcc31-dabf-4fd0-9c8c-51a43546d117}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader\SkinnedAnimationObjectsShader">
+      <UniqueIdentifier>{2d1d1a82-4d7d-405d-bf55-822a1d34ca1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\SkyBoxShader">
+      <UniqueIdentifier>{ef58e593-2858-47a7-ac93-cead33696394}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\TerrainShader">
+      <UniqueIdentifier>{899a2058-b3f6-44a6-a8e1-2fea488120e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader">
+      <UniqueIdentifier>{ea94da94-50a1-4121-8eb3-4de44124c5b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\SnowShader">
+      <UniqueIdentifier>{a53dc252-b7df-4798-a7f3-77617a374b5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\LampParticleShader">
+      <UniqueIdentifier>{3339cfbd-b5a2-401c-8284-67bbe1fb0210}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Carry">
+      <UniqueIdentifier>{afa19505-418b-49d7-9286-ad85a24fc625}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -211,6 +223,18 @@
     <ClInclude Include="..\Code\ShaderManager\ShaderManager.h">
       <Filter>Code\ShaderManager</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Billboard\LampParticle\LampParticle.h">
+      <Filter>Code\GameObject\Billboard\LampParticle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\LampParticleShader\LampParticleShader.h">
+      <Filter>Code\Shader\BillboardShader\LampParticleShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\EvilBear\EvilBear.h">
+      <Filter>Code\GameObject\EvilBear</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Carry\Carry.h">
+      <Filter>Code\GameObject\Carry</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Code\FreezeBomb.cpp">
@@ -299,6 +323,18 @@
     </ClCompile>
     <ClCompile Include="..\Code\ShaderManager\ShaderManager.cpp">
       <Filter>Code\ShaderManager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Billboard\LampParticle\LampParticle.cpp">
+      <Filter>Code\GameObject\Billboard\LampParticle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\LampParticleShader\LampParticleShader.cpp">
+      <Filter>Code\Shader\BillboardShader\LampParticleShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\EvilBear\EvilBear.cpp">
+      <Filter>Code\GameObject\EvilBear</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Carry\Carry.cpp">
+      <Filter>Code\GameObject\Carry</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

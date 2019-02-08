@@ -402,8 +402,6 @@ void CGameFramework::OnDestroy()
 #endif
 }
 
-#define _WITH_TERRAIN_PLAYER
-
 void CGameFramework::BuildObjects()
 {
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
@@ -412,30 +410,21 @@ void CGameFramework::BuildObjects()
 	if (m_pScene) 
 		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 
-#ifdef _WITH_TERRAIN_PLAYER
 	CTerrainPlayer* pPlayer{ nullptr };
 
 	if (m_pScene->getShaderManager())
 	{
-		int size = m_pScene->getShaderManager()->getShaderSize();
-		CShader** pShader = m_pScene->getShaderManager()->getShader();
-		for (int i = 0; i < size; ++i)
+		map<string, CShader*> m = m_pScene->getShaderManager()->getShaderMap();
+		auto iter = m.find("Terrain");
+		if(iter != m.end())
 		{
-			if (dynamic_cast<CTerrainShader*>(pShader[i]) != nullptr)
-			{
-				CTerrain* pTerrain = ((CTerrainShader*)pShader[i])->getTerrain();
-				pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), pTerrain);
-				pPlayer->SetPosition(XMFLOAT3(0.f, pTerrain->GetHeight(0.f, 0.f), 0.f));
-				pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
-				break;
-			}
+			CTerrain* pTerrain = dynamic_cast<CTerrainShader*>((*iter).second)->getTerrain();
+			pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), pTerrain);
+			pPlayer->SetPosition(XMFLOAT3(0.f, pTerrain->GetHeight(0.f, 0.f), 0.f));
+			pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));		
 		}
 	}
 
-#else
-	CAirplanePlayer *pPlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), NULL);
-	pPlayer->SetPosition(XMFLOAT3(425.0f, 240.0f, 640.0f));
-#endif
 	m_pPlayer = pPlayer;
 	m_pScene->setPlayer(m_pPlayer);
 	m_pCamera = m_pPlayer->GetCamera();

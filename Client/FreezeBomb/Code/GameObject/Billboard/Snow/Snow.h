@@ -17,9 +17,13 @@ public:
 	float GetOffsetZ()	const { return m_offsetZ; }
 
 	void SetPositionXZ(float x, float z);
+	
+	void setSpeed(float speed) { m_speed = speed; }
+
 	void SetLookAt(XMFLOAT3& xmfTarget);
 
 private:
 	float						m_offsetX = 0.0f;
 	float						m_offsetZ = 0.0f;
+	float						m_speed = 0.f;
 };

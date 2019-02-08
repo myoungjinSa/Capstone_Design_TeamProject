@@ -27,26 +27,31 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	pSkyBoxShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pSkyBoxShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL);
 	m_ppShaders[0] = pSkyBoxShader;
+	m_ShaderMap.emplace("SkyBox", pSkyBoxShader);
 
 	CTerrainShader* pTerrainShader = new CTerrainShader;
 	pTerrainShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pTerrainShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL);
 	m_ppShaders[1] = pTerrainShader;
+	m_ShaderMap.emplace("Terrain", pTerrainShader);
 
 	CStandardObjectsShader* pSurroundingShader = new CStandardObjectsShader;
 	pSurroundingShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pSurroundingShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pTerrainShader->getTerrain());
 	m_ppShaders[2] = pSurroundingShader;
+	m_ShaderMap.emplace("Surrounding", pSurroundingShader);
 
 	CSnowShader* pSnowShader = new CSnowShader;
 	pSnowShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pSnowShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pTerrainShader->getTerrain());
 	m_ppShaders[3] = pSnowShader;
+	m_ShaderMap.emplace("Snow", pSnowShader);
 
 	CSkinnedAnimationObjectsShader* pAnimationObjectShader = new CSkinnedAnimationObjectsShader;
 	pAnimationObjectShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pAnimationObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pTerrainShader->getTerrain());
 	m_ppShaders[4] = pAnimationObjectShader;
+	m_ShaderMap.emplace("Animation", pAnimationObjectShader);
 }
 
 void CShaderManager::ReleaseObjects()

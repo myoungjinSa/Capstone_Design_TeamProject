@@ -36,21 +36,21 @@ void CSnowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pTerrain = (CTerrain*)pContext;
 
 	CTexture *pSnowTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pSnowTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Model/Textures/SnowFlake.dds", 0);
+	pSnowTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Effect/Snow.dds", 0);
 
 	CScene::CreateShaderResourceViews(pd3dDevice, pSnowTexture, 16, false);
 
 	m_pMaterial = new CMaterial(1);
 	m_pMaterial->SetTexture(pSnowTexture);
 
-	CBillboardMesh* pSnowBillboardMesh = new CBillboardMesh(pd3dDevice, pd3dCommandList, 3.0f, 3.0f, 0.0f, 0.0f, 0.0f, -1.0f);
+	CBillboardMesh* pSnowBillboardMesh = new CBillboardMesh(pd3dDevice, pd3dCommandList, 1.5f, 1.5f, 0.0f, 0.0f, 0.0f, -1.0f);
 
 	//가상의 박스 -> 렌더링 하지는 않음
 	CCube* pCubeObject = new CCube(50.0f, 50.0f, 50.0f);
 
 	m_refCubeObject = pCubeObject->GetCubeObject();
 
-	m_nObjects = 100;
+	m_nObjects = 1000;
 	m_ppObjects = new CBillboard*[m_nObjects];
 	XMFLOAT3 xmf3RoatationAxis = XMFLOAT3(0.0f, 0.0, 1.0f);
 
@@ -67,6 +67,7 @@ void CSnowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 		pSnow->SetOffsetX(Random(minX, maxX));
 		pSnow->SetOffsetZ(Random(minZ, maxZ));
 		pSnow->SetPosition(0.0f, Random(300.0f, 400.0f), 0.0f);
+		pSnow->setSpeed(Random(1.0f, 5.0f));
 		m_ppObjects[i] = pSnow;
 	}
 }
@@ -86,7 +87,7 @@ void CSnowShader::AnimateObjects(float fTimeElapsed, CCamera *pCamera, CPlayer *
 				((CSnow*)m_ppObjects[i])->Animate(fTimeElapsed, pCamera);
 
 				// 눈이 지형 아래로 내려가면 다시 위에서 생성되서 다시 내려오게 함
-				if (m_ppObjects[i]->GetPosition().y < m_pTerrain->GetHeight(m_ppObjects[i]->GetPosition().x, m_ppObjects[i]->GetPosition().z, false))
+				if (m_ppObjects[i]->GetPosition().y < m_pTerrain->GetHeight(m_ppObjects[i]->GetPosition().x, m_ppObjects[i]->GetPosition().z))
 				{
 					m_ppObjects[i]->SetPosition(m_refCubeObject.GetPosition().x + ((CSnow*)m_ppObjects[i])->GetOffsetX(), Random(300.0f, 400.0f),
 						m_refCubeObject.GetPosition().z + ((CSnow*)m_ppObjects[i])->GetOffsetZ());

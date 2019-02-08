@@ -3,6 +3,8 @@
 #include "../Texture/Texture.h"
 #include "../Material/Material.h"
 #include "../Shader/Shader.h"
+#include "Carry/Carry.h"
+#include "Billboard/LampParticle/LampParticle.h"
 
 CAnimationSet::CAnimationSet()
 {
@@ -531,28 +533,6 @@ void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandLis
 
 void CGameObject::ReleaseShaderVariables()
 {
-	if (m_pd3dcbGameObject)
-	{
-		m_pd3dcbGameObject->Unmap(0, NULL);
-		m_pd3dcbGameObject->Release();
-	}
-
-	if (m_pSibling)
-	{
-		if (m_pd3dcbGameObject)
-		{
-			m_pd3dcbGameObject->Unmap(0, NULL);
-			m_pd3dcbGameObject->Release();
-		}
-	}
-	if (m_pChild)
-	{
-		if (m_pd3dcbGameObject)
-		{
-			m_pd3dcbGameObject->Unmap(0, NULL);
-			m_pd3dcbGameObject->Release();
-		}
-	}
 }
 
 void CGameObject::ReleaseUploadBuffers()
@@ -833,6 +813,15 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 			nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
 			nReads = (UINT)::fread(pGameObject->m_pstrFrameName, sizeof(char), nStrLength, pInFile);
 			pGameObject->m_pstrFrameName[nStrLength] = '\0';
+
+			if (!strcmp(pGameObject->m_pstrFrameName, "Lamp"))
+			{
+				//pGameObject->m_pCarry = new CCarry(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+				//pGameObject->SetChild(pGameObject->m_pCarry);
+
+				pGameObject->m_pLampParticle = new CLampParticle(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+				pGameObject->SetChild(pGameObject->m_pLampParticle, true);
+			}
 		}
 		else if (!strcmp(pstrToken, "<Transform>:"))
 		{
@@ -1062,7 +1051,7 @@ CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device *pd
 
 	::rewind(pInFile);
 
-	CLoadedModelInfo* pLoadedModel = new CLoadedModelInfo();
+	CLoadedModelInfo* pLoadedModel = new CLoadedModelInfo;
 	// 메쉬 개수 저장
 	pLoadedModel->m_pModelRootObject = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 
 		NULL, pInFile, pShader, &pLoadedModel->m_nSkinnedMeshes, &pLoadedModel->m_nFrameMeshes);
@@ -1081,259 +1070,4 @@ CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device *pd
 #endif
 
 	return(pLoadedModel);
-}
-
-
-CSuperCobraObject::CSuperCobraObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
-{
-}
-
-CSuperCobraObject::~CSuperCobraObject()
-{
-}
-
-void CSuperCobraObject::OnPrepareAnimate()
-{
-	m_pMainRotorFrame = FindFrame("MainRotor");
-	m_pTailRotorFrame = FindFrame("TailRotor");
-}
-
-void CSuperCobraObject::Animate(float fTimeElapsed)
-{
-	if (m_pMainRotorFrame)
-	{
-		XMMATRIX xmmtxRotate = XMMatrixRotationY(XMConvertToRadians(360.0f * 4.0f) * fTimeElapsed);
-		m_pMainRotorFrame->m_xmf4x4ToParent = Matrix4x4::Multiply(xmmtxRotate, m_pMainRotorFrame->m_xmf4x4ToParent);
-	}
-	if (m_pTailRotorFrame)
-	{
-		XMMATRIX xmmtxRotate = XMMatrixRotationX(XMConvertToRadians(360.0f * 4.0f) * fTimeElapsed);
-		m_pTailRotorFrame->m_xmf4x4ToParent = Matrix4x4::Multiply(xmmtxRotate, m_pTailRotorFrame->m_xmf4x4ToParent);
-	}
-
-	CGameObject::Animate(fTimeElapsed);
-}
-
-void CSuperCobraObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
-{
-	OnPrepareRender();
-
-	if (m_pMesh)
-	{
-		if (!m_pSkinningBoneTransforms)
-			UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
-		
-		if (m_nMaterials > 0)
-		{
-			for (int i = 0; i < m_nMaterials; i++)
-			{
-				if (m_ppMaterials[i])
-				{
-					if (m_ppMaterials[i]->m_pShader)
-						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
-
-					m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
-				}
-				m_pMesh->Render(pd3dCommandList, i);
-			}
-		}
-	}
-
-	if (m_pSibling)
-		((CSuperCobraObject*)m_pSibling)->CSuperCobraObject::Render(pd3dCommandList, pCamera);
-	if (m_pChild)
-		((CSuperCobraObject*)m_pChild)->CSuperCobraObject::Render(pd3dCommandList, pCamera);
-}
-
-void CSuperCobraObject::ReleaseShaderVariables()
-{
-	if (m_pd3dcbGameObject)
-	{
-		m_pd3dcbGameObject->Unmap(0, NULL);
-		m_pd3dcbGameObject->Release();
-	}
-
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-CGunshipObject::CGunshipObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
-{
-}
-
-CGunshipObject::~CGunshipObject()
-{
-}
-
-void CGunshipObject::OnPrepareAnimate()
-{
-	m_pMainRotorFrame = FindFrame("Rotor");
-	m_pTailRotorFrame = FindFrame("Back_Rotor");
-}
-
-void CGunshipObject::Animate(float fTimeElapsed)
-{
-	if (m_pMainRotorFrame)
-	{
-		XMMATRIX xmmtxRotate = XMMatrixRotationY(XMConvertToRadians(360.0f * 2.0f) * fTimeElapsed);
-		m_pMainRotorFrame->m_xmf4x4ToParent = Matrix4x4::Multiply(xmmtxRotate, m_pMainRotorFrame->m_xmf4x4ToParent);
-	}
-	if (m_pTailRotorFrame)
-	{
-		XMMATRIX xmmtxRotate = XMMatrixRotationX(XMConvertToRadians(360.0f * 4.0f) * fTimeElapsed);
-		m_pTailRotorFrame->m_xmf4x4ToParent = Matrix4x4::Multiply(xmmtxRotate, m_pTailRotorFrame->m_xmf4x4ToParent);
-	}
-
-	CGameObject::Animate(fTimeElapsed);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-CMi24Object::CMi24Object(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
-{
-}
-
-CMi24Object::~CMi24Object()
-{
-}
-
-void CMi24Object::OnPrepareAnimate()
-{
-	m_pMainRotorFrame = FindFrame("Top_Rotor");
-	m_pTailRotorFrame = FindFrame("Tail_Rotor");
-}
-
-void CMi24Object::Animate(float fTimeElapsed)
-{
-	if (m_pMainRotorFrame)
-	{
-		XMMATRIX xmmtxRotate = XMMatrixRotationY(XMConvertToRadians(360.0f * 2.0f) * fTimeElapsed);
-		m_pMainRotorFrame->m_xmf4x4ToParent = Matrix4x4::Multiply(xmmtxRotate, m_pMainRotorFrame->m_xmf4x4ToParent);
-	}
-	if (m_pTailRotorFrame)
-	{
-		XMMATRIX xmmtxRotate = XMMatrixRotationX(XMConvertToRadians(360.0f * 4.0f) * fTimeElapsed);
-		m_pTailRotorFrame->m_xmf4x4ToParent = Matrix4x4::Multiply(xmmtxRotate, m_pTailRotorFrame->m_xmf4x4ToParent);
-	}
-
-	CGameObject::Animate(fTimeElapsed);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#define CNT 1
-CAngrybotObject::CAngrybotObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
-{
-}
-
-CAngrybotObject::~CAngrybotObject()
-{
-}
-
-void CAngrybotObject::OnPrepareAnimate()
-{
-}
-
-void CAngrybotObject::Animate(float fTimeElapsed)
-{
-	CGameObject::Animate(fTimeElapsed);
-}
-
-void CAngrybotObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
-{
-	OnPrepareRender();
-
-	if (m_pSkinningBoneTransforms)
-		m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
-
-	if (m_pMesh)
-	{
-		if (m_nMaterials > 0)
-		{
-			if (!m_pSkinningBoneTransforms)
-			{
-				UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
-				//CAngrybotObject::UpdateShaderVariables(pd3dCommandList, m_xmf4x4World);
-			}
-
-			for (int i = 0; i < m_nMaterials; i++)
-			{
-				if (m_ppMaterials[i])
-				{
-					if (m_ppMaterials[i]->m_pShader)
-						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
-
-					m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
-				}
-				m_pMesh->Render(pd3dCommandList, i);
-			}
-		}
-	}
-
-	if (m_pSibling)
-		((CAngrybotObject*)m_pSibling)->CAngrybotObject::Render(pd3dCommandList, pCamera);
-	if (m_pChild)
-		((CAngrybotObject*)m_pChild)->CAngrybotObject::Render(pd3dCommandList, pCamera);
-}
-
-void CAngrybotObject::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
-{
-	if (m_pMesh)
-	{
-		UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
-		//m_pd3dcbGameObject = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes * CNT, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-		m_pd3dcbGameObject = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-		m_pd3dcbGameObject->Map(0, NULL, (void**)&m_pcbMappedGameObject);
-	}
-
-	if (m_pSibling)
-		((CAngrybotObject*)m_pSibling)->CAngrybotObject::CreateShaderVariables(pd3dDevice, pd3dCommandList);
-
-	if (m_pChild)
-		((CAngrybotObject*)m_pChild)->CAngrybotObject::CreateShaderVariables(pd3dDevice, pd3dCommandList);
-}
-
-void CAngrybotObject::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4& pxmf4x4World)
-{
-	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
-
-	if (m_pcbMappedGameObject != nullptr)
-	{
-		for (int i = 0; i < CNT; ++i)
-		{
-			XMFLOAT4X4 xmf4x4World;
-			XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&pxmf4x4World)));
-			CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)(m_pcbMappedGameObject + (i * ncbElementBytes));
-			::memcpy(&pbMappedcbGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
-
-			D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObject->GetGPUVirtualAddress();
-			pd3dCommandList->SetGraphicsRootConstantBufferView(1, d3dGpuVirtualAddress + (i * ncbElementBytes));
-
-		}
-	}
-}
-
-void CAngrybotObject::ReleaseShaderVariables()
-{
-	if (m_pd3dcbGameObject)
-	{
-		m_pd3dcbGameObject->Unmap(0, NULL);
-		m_pd3dcbGameObject->Release();
-	}
-
-	if (m_pSibling)
-	{
-		if (m_pd3dcbGameObject)
-		{
-			m_pd3dcbGameObject->Unmap(0, NULL);
-			m_pd3dcbGameObject->Release();
-		}
-	}
-	if (m_pChild)
-	{
-		if (m_pd3dcbGameObject)
-		{
-			m_pd3dcbGameObject->Unmap(0, NULL);
-			m_pd3dcbGameObject->Release();
-		}
-	}
 }

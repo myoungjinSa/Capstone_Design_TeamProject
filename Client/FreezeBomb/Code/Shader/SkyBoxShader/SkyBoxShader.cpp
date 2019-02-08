@@ -69,7 +69,7 @@ void CSkyBoxShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	pSkyBox->SetMesh(pSkyBoxMesh);
 
 	CTexture* pSkyBoxTexture = new CTexture(1, RESOURCE_TEXTURE_CUBE, 0);
-	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/SkyBox/SkyBox_2.dds", 0);
+	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/SkyBox/SkyBox_1.dds", 0);
 	CScene::CreateShaderResourceViews(pd3dDevice, pSkyBoxTexture, 10, false);
 
 	CMaterial *pSkyBoxMaterial = new CMaterial(1);

@@ -138,18 +138,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsComm
 #define SIZE 64
 		char pstrFilePath[SIZE] = { '\0' };
 
-		//wstring s = L"../Resource/Model/Textures/";
-		//wchar_t* wchar_TextureName;
-		////멀티 바이트 크기 계산 길이 반환
-		//int strSize = MultiByteToWideChar(CP_ACP, 0, pstrTextureName, -1, NULL, NULL);
-		////wchar_t 메모리 할당
-		//wchar_TextureName = new WCHAR[strSize];
-		////형 변환
-		//MultiByteToWideChar(CP_ACP, 0, pstrTextureName, strlen(pstrTextureName) + 1, wchar_TextureName, strSize);
-		//s = s + wchar_TextureName + L".dds";
-		//delete[] wchar_TextureName;
-
-		strcpy_s(pstrFilePath, SIZE, "../Resource/Model/Textures/");
+		strcpy_s(pstrFilePath, SIZE, "../Resource/Textures/Model/");
 
 		bDuplicated = (pstrTextureName[0] == '@');
 

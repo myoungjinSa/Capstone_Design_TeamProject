@@ -117,7 +117,12 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 #define MAX_VERTEX_INFLUENCES			4
-#define SKINNED_ANIMATION_BONES			128
+#define SKINNED_ANIMATION_BONES	128
+
+cbuffer cbCarry : register(b6)
+{
+	bool gCarry : packoffset(c0);
+};
 
 cbuffer cbBoneOffsets : register(b7)
 {
@@ -269,4 +274,42 @@ float4 PSSnow(VS_SNOW_OUTPUT input) : SV_TARGET
 	float4 cColor = gtxtSnowTexture.Sample(gssWrap,input.uv);
 
 	return(cColor);
+}
+
+struct VS_LAMPPARTICLE_INPUT
+{
+	float3 position	: POSITION;
+	float2 uv			: TEXCOORD;
+};
+
+struct VS_LAMPPARTICLE_OUTPUT
+{
+	float4 position	: SV_POSITION;
+	float2 uv			: TEXCOORD;
+};
+
+cbuffer cbAnimationClip	: register(b5)
+{
+	uint	gAnimationClip	: packoffset(c0);
+};
+
+Texture2D gtxtLampParticleTexture : register(t16);
+
+VS_LAMPPARTICLE_OUTPUT VSLampParticle(VS_LAMPPARTICLE_INPUT input)
+{
+	VS_LAMPPARTICLE_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.uv = input.uv;
+
+	return (output);
+}
+
+float4 PSLampParticle(VS_LAMPPARTICLE_OUTPUT input) : SV_TARGET
+{
+	float2 texcoord = input.uv;
+	texcoord.x = texcoord.x / 6.0f + (1.0f / 6.0f) * gAnimationClip;
+	float4 cColor = gtxtLampParticleTexture.Sample(gssWrap,texcoord);
+
+	return (cColor);
 }

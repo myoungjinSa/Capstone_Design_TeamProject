@@ -2060,8 +2060,7 @@ void CBillboardObject::SetPositionXZ(float x, float z)
 void CBillboardObject::Animate(float fTimeElapsed,CCamera *pCamera )
 {
 	XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
-	SetLookAt(xmf3CameraPosition);
-	
+	SetLookAt(xmf3CameraPosition);	
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
