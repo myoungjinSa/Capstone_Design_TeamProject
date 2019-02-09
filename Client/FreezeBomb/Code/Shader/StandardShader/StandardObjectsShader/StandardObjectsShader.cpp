@@ -147,26 +147,8 @@ void CStandardObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12Graphi
 	if (pRocks05) delete pRocks05;
 }
 
-void CStandardObjectsShader::ReleaseObjects()
-{
-	if (m_ppObjects)
-	{
-		for (int i = 0; i < m_nObjects; ++i)
-			if (m_ppObjects[i])
-				m_ppObjects[i]->Release();
-		delete[] m_ppObjects;
-	}
-}
-
 void CStandardObjectsShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer* pPlayer)
 {
-}
-
-void CStandardObjectsShader::ReleaseUploadBuffers()
-{
-	for (int i = 0; i < m_nObjects; ++i)
-		if (m_ppObjects[i])
-			m_ppObjects[i]->ReleaseUploadBuffers();
 }
 
 void CStandardObjectsShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)

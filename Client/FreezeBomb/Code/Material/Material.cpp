@@ -5,6 +5,15 @@
 #include "../Shader/StandardShader/SkinnedAnimationObjectsShader/SkinnedAnimationObjectsShader.h"
 #include "../Scene/Scene.h"
 
+CMaterial::CMaterial()
+{
+	m_nTextures = 1;
+	m_ppTextures = new CTexture*[m_nTextures];
+	m_ppstrTextureNames = new _TCHAR[m_nTextures][64];
+	for (int i = 0; i < m_nTextures; i++) m_ppTextures[i] = NULL;
+	for (int i = 0; i < m_nTextures; i++) m_ppstrTextureNames[i][0] = '\0';
+}
+
 CMaterial::CMaterial(int nTextures)
 {
 	m_nTextures = nTextures;
@@ -17,7 +26,8 @@ CMaterial::CMaterial(int nTextures)
 
 CMaterial::~CMaterial()
 {
-	if (m_pShader) m_pShader->Release();
+	if (m_pShader) 
+		m_pShader->Release();
 
 	if (m_nTextures > 0)
 	{
@@ -26,7 +36,8 @@ CMaterial::~CMaterial()
 				m_ppTextures[i]->Release();
 		delete[] m_ppTextures;
 
-		if (m_ppstrTextureNames) delete[] m_ppstrTextureNames;
+		if (m_ppstrTextureNames) 
+			delete[] m_ppstrTextureNames;
 	}
 }
 

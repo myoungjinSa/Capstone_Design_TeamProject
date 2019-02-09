@@ -119,4 +119,6 @@ void CSnowShader::ReleaseObjects()
 	{
 		delete m_pMaterial;
 	}
+
+	CShader::ReleaseObjects();
 }

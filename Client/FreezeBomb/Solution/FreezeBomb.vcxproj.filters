@@ -115,6 +115,27 @@
     <Filter Include="Code\GameObject\Carry">
       <UniqueIdentifier>{afa19505-418b-49d7-9286-ad85a24fc625}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader">
+      <UniqueIdentifier>{21467991-3181-4b32-be0f-1f85bc89a832}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Billboard\UI">
+      <UniqueIdentifier>{9e4339c7-5c37-4b6b-8cc4-07111476e813}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Mesh\UIMesh">
+      <UniqueIdentifier>{eae6be0a-1851-4aa3-bb3d-67ceb143d45d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\TenNumberUIShader">
+      <UniqueIdentifier>{3cd03100-2a50-434c-80dd-18feb640edaf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\NumberUIShader">
+      <UniqueIdentifier>{b545703f-15c0-4c57-8664-aea30f9d81c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\TextureManager">
+      <UniqueIdentifier>{4b480ed9-e675-4509-9ff0-eb94db598914}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\HundredNumberUIShader">
+      <UniqueIdentifier>{c984a138-1dfc-41dd-8d5f-7bc1e4a00fec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FreezeBomb.rc">
@@ -235,6 +256,24 @@
     <ClInclude Include="..\Code\GameObject\Carry\Carry.h">
       <Filter>Code\GameObject\Carry</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\UIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Billboard\UI\UI.h">
+      <Filter>Code\GameObject\Billboard\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\NumberUIShader\NumberUIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\NumberUIShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TenNumberUIShader\TenNumberUIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\TenNumberUIShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\TextureManager\TextureManager.h">
+      <Filter>Code\TextureManager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\HundredNumberUIShader\HundredNumberUIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\HundredNumberUIShader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Code\FreezeBomb.cpp">
@@ -336,12 +375,33 @@
     <ClCompile Include="..\Code\GameObject\Carry\Carry.cpp">
       <Filter>Code\GameObject\Carry</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\UIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Billboard\UI\UI.cpp">
+      <Filter>Code\GameObject\Billboard\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\NumberUIShader\NumberUIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\NumberUIShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TenNumberUIShader\TenNumberUIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\TenNumberUIShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\TextureManager\TextureManager.cpp">
+      <Filter>Code\TextureManager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\HundredNumberUIShader\HundredNumberUIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\HundredNumberUIShader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Code\Shader\HLSL\Light.hlsl">
       <Filter>Code\Shader\HLSL</Filter>
     </FxCompile>
     <FxCompile Include="..\Code\Shader\HLSL\Shaders.hlsl">
+      <Filter>Code\Shader\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Code\Shader\HLSL\UI.hlsl">
       <Filter>Code\Shader\HLSL</Filter>
     </FxCompile>
   </ItemGroup>

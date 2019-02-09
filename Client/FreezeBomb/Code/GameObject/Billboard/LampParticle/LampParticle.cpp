@@ -16,7 +16,7 @@ CLampParticle::CLampParticle(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList
 	CTexture *pParticleTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Effect/LampParticle.dds", 0);
 
-	CScene::CreateShaderResourceViews(pd3dDevice, pParticleTexture, 17, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pParticleTexture, 18, false);
 
 	CLampParticleShader* pWickParticleShader = new CLampParticleShader;
 	pWickParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -83,7 +83,7 @@ void CLampParticle::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandL
 	m_pcbMappedAnimationClip->m_AnimationClip = m_AnimationClip;
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dParticleGPUVirtualAddress = m_pd3dcbAnimationClip->GetGPUVirtualAddress();
-	pd3dCommandList->SetGraphicsRootConstantBufferView(18, d3dParticleGPUVirtualAddress);
+	pd3dCommandList->SetGraphicsRootConstantBufferView(19, d3dParticleGPUVirtualAddress);
 }
 
 void CLampParticle::SetLookAt(XMFLOAT3& xmfTarget)

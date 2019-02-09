@@ -1,5 +1,6 @@
 #include "../Stdafx/Stdafx.h"
 #include "Shader.h"
+#include "../GameObject/GameObject.h"
 
 CShader::CShader()
 {
@@ -205,6 +206,24 @@ void CShader::OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int nP
 void CShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {
 	OnPrepareRender(pd3dCommandList);
+}
+
+void CShader::ReleaseObjects()
+{
+	if (m_ppObjects)
+	{
+		for (int i = 0; i < m_nObjects; ++i)
+			if (m_ppObjects[i])
+				m_ppObjects[i]->Release();
+		delete[] m_ppObjects;
+	}
+}
+
+void CShader::ReleaseUploadBuffers()
+{
+	for (int i = 0; i < m_nObjects; ++i)
+		if (m_ppObjects[i])
+			m_ppObjects[i]->ReleaseUploadBuffers();
 }
 
 float CShader::Random(float min, float max)

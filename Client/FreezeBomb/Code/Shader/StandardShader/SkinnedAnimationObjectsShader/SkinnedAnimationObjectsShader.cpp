@@ -101,27 +101,9 @@ void CSkinnedAnimationObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D
 		delete pEvilBearModel;
 }
 
-void CSkinnedAnimationObjectsShader::ReleaseObjects()
-{
-	if (m_ppObjects)
-	{
-		for (int i = 0; i < m_nObjects; ++i)
-			if (m_ppObjects[i])
-				m_ppObjects[i]->Release();
-		delete[] m_ppObjects;
-	}
-}
-
 void CSkinnedAnimationObjectsShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer* pPlayer)
 {
 	m_fElapsedTime = fTimeElapsed;
-}
-
-void CSkinnedAnimationObjectsShader::ReleaseUploadBuffers()
-{
-	for (int i = 0; i < m_nObjects; ++i)
-		if (m_ppObjects[i])
-			m_ppObjects[i]->ReleaseUploadBuffers();
 }
 
 void CSkinnedAnimationObjectsShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)

@@ -59,7 +59,7 @@ void CTerrainShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainBaseTexture, 13, false);
 	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainDetailTexture, 14, false);
 
-	CMaterial *pTerrainMaterial = new CMaterial(3);
+	CMaterial* pTerrainMaterial = new CMaterial(2);
 	pTerrainMaterial->SetTexture(pTerrainBaseTexture, 0);
 	pTerrainMaterial->SetTexture(pTerrainDetailTexture, 1);
 	

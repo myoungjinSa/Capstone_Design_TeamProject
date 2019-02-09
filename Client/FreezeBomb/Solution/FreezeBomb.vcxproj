@@ -173,6 +173,7 @@
     <ClInclude Include="..\Code\GameObject\Billboard\Billboard.h" />
     <ClInclude Include="..\Code\GameObject\Billboard\LampParticle\LampParticle.h" />
     <ClInclude Include="..\Code\GameObject\Billboard\Snow\Snow.h" />
+    <ClInclude Include="..\Code\GameObject\Billboard\UI\UI.h" />
     <ClInclude Include="..\Code\GameObject\Carry\Carry.h" />
     <ClInclude Include="..\Code\GameObject\EvilBear\EvilBear.h" />
     <ClInclude Include="..\Code\GameObject\GameObject.h" />
@@ -189,6 +190,10 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\BillboardShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\LampParticleShader\LampParticleShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\SnowShader\SnowShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\HundredNumberUIShader\HundredNumberUIShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\NumberUIShader\NumberUIShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TenNumberUIShader\TenNumberUIShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\UIShader.h" />
     <ClInclude Include="..\Code\Shader\Shader.h" />
     <ClInclude Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.h" />
     <ClInclude Include="..\Code\Shader\StandardShader\SkinnedAnimationObjectsShader\SkinnedAnimationObjectsShader.h" />
@@ -196,6 +201,7 @@
     <ClInclude Include="..\Code\Shader\StandardShader\StandardShader.h" />
     <ClInclude Include="..\Code\Shader\TerrainShader\TerrainShader.h" />
     <ClInclude Include="..\Code\Stdafx\Stdafx.h" />
+    <ClInclude Include="..\Code\TextureManager\TextureManager.h" />
     <ClInclude Include="..\Code\Texture\Texture.h" />
   </ItemGroup>
   <ItemGroup>
@@ -208,6 +214,7 @@
     <ClCompile Include="..\Code\GameObject\Billboard\Billboard.cpp" />
     <ClCompile Include="..\Code\GameObject\Billboard\LampParticle\LampParticle.cpp" />
     <ClCompile Include="..\Code\GameObject\Billboard\Snow\Snow.cpp" />
+    <ClCompile Include="..\Code\GameObject\Billboard\UI\UI.cpp" />
     <ClCompile Include="..\Code\GameObject\Carry\Carry.cpp" />
     <ClCompile Include="..\Code\GameObject\EvilBear\EvilBear.cpp" />
     <ClCompile Include="..\Code\GameObject\GameObject.cpp" />
@@ -224,6 +231,10 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\BillboardShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\LampParticleShader\LampParticleShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\SnowShader\SnowShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\HundredNumberUIShader\HundredNumberUIShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\NumberUIShader\NumberUIShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TenNumberUIShader\TenNumberUIShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\UIShader.cpp" />
     <ClCompile Include="..\Code\Shader\Shader.cpp" />
     <ClCompile Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.cpp" />
     <ClCompile Include="..\Code\Shader\StandardShader\SkinnedAnimationObjectsShader\SkinnedAnimationObjectsShader.cpp" />
@@ -231,6 +242,7 @@
     <ClCompile Include="..\Code\Shader\StandardShader\StandardShader.cpp" />
     <ClCompile Include="..\Code\Shader\TerrainShader\TerrainShader.cpp" />
     <ClCompile Include="..\Code\Stdafx\Stdafx.cpp" />
+    <ClCompile Include="..\Code\TextureManager\TextureManager.cpp" />
     <ClCompile Include="..\Code\Texture\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -241,6 +253,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="..\Code\Shader\HLSL\Shaders.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Code\Shader\HLSL\UI.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

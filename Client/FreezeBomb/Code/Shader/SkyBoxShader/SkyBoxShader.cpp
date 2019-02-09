@@ -79,24 +79,6 @@ void CSkyBoxShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	m_ppObjects[0] = pSkyBox;
 }
 
-void CSkyBoxShader::ReleaseObjects()
-{
-	if (m_ppObjects)
-	{
-		for (int i = 0; i < m_nObjects; ++i)
-			if (m_ppObjects[i])
-				m_ppObjects[i]->Release();
-		delete[] m_ppObjects;
-	}
-}
-
-void CSkyBoxShader::ReleaseUploadBuffers()
-{
-	for (int i = 0; i < m_nObjects; ++i)
-		if (m_ppObjects[i])
-			m_ppObjects[i]->ReleaseUploadBuffers();
-}
-
 void CSkyBoxShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {
 	CShader::Render(pd3dCommandList, pCamera);

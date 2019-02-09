@@ -25,6 +25,8 @@ using namespace std;
 
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 
+enum NUMBER { ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE };
+
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <D3Dcompiler.h>

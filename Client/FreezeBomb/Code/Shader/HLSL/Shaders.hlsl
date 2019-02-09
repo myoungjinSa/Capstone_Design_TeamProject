@@ -257,7 +257,7 @@ struct VS_SNOW_OUTPUT
 	float2 uv			: TEXCOORD;
 };
 
-Texture2D gtxtSnowTexture : register (t15);
+Texture2D gtxtBillboardTexture : register (t15);
 
 VS_SNOW_OUTPUT VSSnow(VS_SNOW_INPUT input)
 {
@@ -271,7 +271,7 @@ VS_SNOW_OUTPUT VSSnow(VS_SNOW_INPUT input)
 
 float4 PSSnow(VS_SNOW_OUTPUT input) : SV_TARGET
 {
-	float4 cColor = gtxtSnowTexture.Sample(gssWrap,input.uv);
+	float4 cColor = gtxtBillboardTexture.Sample(gssWrap, input.uv);
 
 	return(cColor);
 }
@@ -293,7 +293,7 @@ cbuffer cbAnimationClip	: register(b5)
 	uint	gAnimationClip	: packoffset(c0);
 };
 
-Texture2D gtxtLampParticleTexture : register(t16);
+Texture2D gtxtLampParticleTexture : register (t16);
 
 VS_LAMPPARTICLE_OUTPUT VSLampParticle(VS_LAMPPARTICLE_INPUT input)
 {
@@ -309,7 +309,8 @@ float4 PSLampParticle(VS_LAMPPARTICLE_OUTPUT input) : SV_TARGET
 {
 	float2 texcoord = input.uv;
 	texcoord.x = texcoord.x / 6.0f + (1.0f / 6.0f) * gAnimationClip;
-	float4 cColor = gtxtLampParticleTexture.Sample(gssWrap,texcoord);
+	float4 cColor = gtxtLampParticleTexture.Sample(gssWrap, texcoord);
 
 	return (cColor);
 }
+
