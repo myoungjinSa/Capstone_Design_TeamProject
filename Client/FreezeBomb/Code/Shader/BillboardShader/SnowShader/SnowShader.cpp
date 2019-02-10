@@ -1,13 +1,9 @@
 #include "../../../Stdafx/Stdafx.h"
 #include "SnowShader.h"
-
 #include "../../../Mesh/BillboardMesh/BillboardMesh.h"
 #include "../../../Texture/Texture.h"
 #include "../../../Material/Material.h"
-
-#include "../../../GameObject/Billboard/Billboard.h"
 #include "../../../GameObject/Billboard/Snow/Snow.h"
-
 #include "../../../GameObject/Terrain/Terrain.h"
 #include "../../../GameObject/Player/Player.h"
 #include "../../../Scene/Scene.h"
@@ -51,7 +47,7 @@ void CSnowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_refCubeObject = pCubeObject->GetCubeObject();
 
 	m_nObjects = 1000;
-	m_ppObjects = new CBillboard*[m_nObjects];
+	m_ppObjects = new CGameObject*[m_nObjects];
 	XMFLOAT3 xmf3RoatationAxis = XMFLOAT3(0.0f, 0.0, 1.0f);
 
 	int minX = -m_refCubeObject.GetWidth();
@@ -111,14 +107,4 @@ void CSnowShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 			}
 		}
 	}
-}
-
-void CSnowShader::ReleaseObjects()
-{
-	if (m_pMaterial)
-	{
-		delete m_pMaterial;
-	}
-
-	CShader::ReleaseObjects();
 }

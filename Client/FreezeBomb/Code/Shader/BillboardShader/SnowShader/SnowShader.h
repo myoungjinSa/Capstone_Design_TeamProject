@@ -3,7 +3,7 @@
 #include "../BillboardShader.h"
 #include "../../../Cube/Cube.h"
 
-class CBillboard;
+
 class CMaterial;
 class CPlayer;
 class CTerrain;
@@ -20,12 +20,8 @@ public:
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext = NULL);
 	virtual void AnimateObjects(float fTimeElapsed, CCamera *pCamera, CPlayer* pPlayer = NULL);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera);
-	virtual void ReleaseObjects();
 
 private:
-	CBillboard**		m_ppObjects = 0;
-	int						m_nObjects = 0;
-
 	float					m_fTimeLagScale = 0.05f;
 
 	CMaterial*		m_pMaterial{ nullptr };
