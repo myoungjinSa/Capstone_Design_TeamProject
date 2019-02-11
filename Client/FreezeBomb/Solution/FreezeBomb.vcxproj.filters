@@ -136,6 +136,9 @@
     <Filter Include="Code\Shader\BillboardShader\UIShader\HundredNumberUIShader">
       <UniqueIdentifier>{c984a138-1dfc-41dd-8d5f-7bc1e4a00fec}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\ColonUIShader">
+      <UniqueIdentifier>{f74fc5d2-8e41-4df7-866e-1228848d4306}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FreezeBomb.rc">
@@ -274,6 +277,9 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\HundredNumberUIShader\HundredNumberUIShader.h">
       <Filter>Code\Shader\BillboardShader\UIShader\HundredNumberUIShader</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\ColonUIShader\ColonUIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\ColonUIShader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Code\FreezeBomb.cpp">
@@ -392,6 +398,9 @@
     </ClCompile>
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\HundredNumberUIShader\HundredNumberUIShader.cpp">
       <Filter>Code\Shader\BillboardShader\UIShader\HundredNumberUIShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\ColonUIShader\ColonUIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\ColonUIShader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

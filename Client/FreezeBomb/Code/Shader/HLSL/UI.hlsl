@@ -96,6 +96,44 @@ VS_UI_OUTPUT VSHundredNumberUI(uint nVertexID : SV_VertexID)
 
 	if (nVertexID == 0)
 	{
+		output.position = float4(-0.5f, 1.f, 0.f, 1.f);
+		output.uv = float2(0.f, 0.f);
+	}
+	else if (nVertexID == 1)
+	{
+		output.position = float4(-0.5f, 0.75f, 0.f, 1.f);
+		output.uv = float2(0.f, 1.f);
+	}
+	else if (nVertexID == 2)
+	{
+		output.position = float4(-0.25f, 0.75f, 0.f, 1.f);
+		output.uv = float2(1.f, 1.f);
+	}
+	else if (nVertexID == 3)
+	{
+		output.position = float4(-0.25f, 0.75f, 0.f, 1.f);
+		output.uv = float2(1.f, 1.f);
+	}
+	else if (nVertexID == 4)
+	{
+		output.position = float4(-0.25f, 1.f, 0.f, 1.f);
+		output.uv = float2(1.f, 0.f);
+	}
+	else if (nVertexID == 5)
+	{
+		output.position = float4(-0.5f, 1.f, 0.f, 1.f);
+		output.uv = float2(0.f, 0.f);
+	}
+
+	return(output);
+}
+
+VS_UI_OUTPUT VSColonUI(uint nVertexID : SV_VertexID)
+{
+	VS_UI_OUTPUT output;
+
+	if (nVertexID == 0)
+	{
 		output.position = float4(-0.25f, 1.f, 0.f, 1.f);
 		output.uv = float2(0.f, 0.f);
 	}

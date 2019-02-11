@@ -58,7 +58,8 @@ D3D12_SHADER_BYTECODE CSkyBoxShader::CreatePixelShader()
 	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSSkyBox", "ps_5_1", &m_pd3dPixelShaderBlob));
 }
 
-void CSkyBoxShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
+void CSkyBoxShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
+	const map<string, CTexture*>& Context, void* pContext)
 {
 	m_nObjects = 1;
 	m_ppObjects = new CGameObject*[m_nObjects];
@@ -68,12 +69,10 @@ void CSkyBoxShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	CSkyBoxMesh *pSkyBoxMesh = new CSkyBoxMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 2.0f);
 	pSkyBox->SetMesh(pSkyBoxMesh);
 
-	CTexture* pSkyBoxTexture = new CTexture(1, RESOURCE_TEXTURE_CUBE, 0);
-	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/SkyBox/SkyBox_1.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pSkyBoxTexture, 10, false);
-
 	CMaterial *pSkyBoxMaterial = new CMaterial(1);
-	pSkyBoxMaterial->SetTexture(pSkyBoxTexture);
+	auto iter = Context.find("SkyBox");
+	if(iter != Context.end())
+		pSkyBoxMaterial->SetTexture((*iter).second);
 	pSkyBox->SetMaterial(0, pSkyBoxMaterial);
 
 	m_ppObjects[0] = pSkyBox;

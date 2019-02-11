@@ -13,6 +13,20 @@ CTextureManager::~CTextureManager()
 
 void CTextureManager::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
+	CTexture* pSkyBoxTexture = new CTexture(1, RESOURCE_TEXTURE_CUBE, 0);
+	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/SkyBox/SkyBox_1.dds", 0);
+	CScene::CreateShaderResourceViews(pd3dDevice, pSkyBoxTexture, 10, false);
+	m_TextureMap.emplace("SkyBox", pSkyBoxTexture);
+
+	CTexture* pTerrainBaseTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pTerrainBaseTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Terrain/BaseTerrain.dds", 0);
+	CTexture* pTerrainSpecularTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pTerrainSpecularTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Terrain/SpecularTerrain.dds", 0);
+	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainBaseTexture, 13, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainSpecularTexture, 14, false);
+	m_TextureMap.emplace("BaseTerrain", pTerrainBaseTexture);
+	m_TextureMap.emplace("SpecularTerrain", pTerrainSpecularTexture);
+
 	CTexture* pNumber0Texture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pNumber0Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Number/Blue_0.dds", 0);
 	CTexture* pNumber1Texture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
@@ -45,16 +59,22 @@ void CTextureManager::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	CScene::CreateShaderResourceViews(pd3dDevice, pNumber8Texture, 17, false);
 	CScene::CreateShaderResourceViews(pd3dDevice, pNumber9Texture, 17, false);
 
-	m_TextureMap.emplace(0, pNumber0Texture);
-	m_TextureMap.emplace(1, pNumber1Texture);
-	m_TextureMap.emplace(2, pNumber2Texture);
-	m_TextureMap.emplace(3, pNumber3Texture);
-	m_TextureMap.emplace(4, pNumber4Texture);
-	m_TextureMap.emplace(5, pNumber5Texture);
-	m_TextureMap.emplace(6, pNumber6Texture);
-	m_TextureMap.emplace(7, pNumber7Texture);
-	m_TextureMap.emplace(8, pNumber8Texture);
-	m_TextureMap.emplace(9, pNumber9Texture);
+	int i = 0;
+	m_TextureMap.emplace(to_string(i++), pNumber0Texture);
+	m_TextureMap.emplace(to_string(i++), pNumber1Texture);
+	m_TextureMap.emplace(to_string(i++), pNumber2Texture);
+	m_TextureMap.emplace(to_string(i++), pNumber3Texture);
+	m_TextureMap.emplace(to_string(i++), pNumber4Texture);
+	m_TextureMap.emplace(to_string(i++), pNumber5Texture);
+	m_TextureMap.emplace(to_string(i++), pNumber6Texture);
+	m_TextureMap.emplace(to_string(i++), pNumber7Texture);
+	m_TextureMap.emplace(to_string(i++), pNumber8Texture);
+	m_TextureMap.emplace(to_string(i++), pNumber9Texture);
+
+	CTexture* pColonTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pColonTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Number/Blue_Colon.dds", 0);
+	CScene::CreateShaderResourceViews(pd3dDevice, pColonTexture, 17, false);
+	m_TextureMap.emplace("Colon", pColonTexture);
 }
 
 void CTextureManager::Release()

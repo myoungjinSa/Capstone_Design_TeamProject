@@ -26,12 +26,13 @@ D3D12_SHADER_BYTECODE CSnowShader::CreatePixelShader()
 	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSSnow", "ps_5_1", &m_pd3dVertexShaderBlob));
 }
 
-void CSnowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
+void CSnowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
+	const map<string, CTexture*>& Context, void *pContext)
 {
 	//SnowBillboard는 지형의 높이정보를 알고있어야함. 그래야 지형의 밑으로 내려갔을때 다시 하늘에서 떨어지게 할 수 있다.
 	m_pTerrain = (CTerrain*)pContext;
 
-	CTexture *pSnowTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	CTexture* pSnowTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pSnowTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Effect/Snow.dds", 0);
 
 	CScene::CreateShaderResourceViews(pd3dDevice, pSnowTexture, 16, false);

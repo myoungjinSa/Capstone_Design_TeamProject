@@ -25,7 +25,8 @@ D3D12_SHADER_BYTECODE CLampParticleShader::CreatePixelShader()
 	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSLampParticle", "ps_5_1", &m_pd3dVertexShaderBlob));
 }
 
-void CLampParticleShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
+void CLampParticleShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
+	const map<string, CTexture*>& Context, void *pContext)
 {
 	//m_nObjects = 1;
 	//m_ppObjects = new CGameObject*[m_nObjects];

@@ -40,7 +40,8 @@ D3D12_SHADER_BYTECODE CTerrainShader::CreatePixelShader()
 	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSTerrain", "ps_5_1", &m_pd3dPixelShaderBlob));
 }
 
-void CTerrainShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
+void CTerrainShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
+	const map<string, CTexture*>& Context, void* pContext)
 {
 	int nWidth = 256, nLength = 256;
 	XMFLOAT3 xmf3Scale(2.f, 1.0f, 1.2f);
@@ -51,17 +52,13 @@ void CTerrainShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 	CHeightMapGridMesh* pMesh = new CHeightMapGridMesh(pd3dDevice, pd3dCommandList, 0, 0, nWidth, nLength, xmf3Scale, xmf4Color, m_pTerrain->getHeightMapImage());
 	m_pTerrain->SetMesh(pMesh);
 
-	CTexture* pTerrainBaseTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pTerrainBaseTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Terrain/Sand.dds", 0);
-	CTexture* pTerrainDetailTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pTerrainDetailTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Terrain/Detail_Texture.dds", 0);
-
-	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainBaseTexture, 13, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainDetailTexture, 14, false);
-
 	CMaterial* pTerrainMaterial = new CMaterial(2);
-	pTerrainMaterial->SetTexture(pTerrainBaseTexture, 0);
-	pTerrainMaterial->SetTexture(pTerrainDetailTexture, 1);
+	auto iter = Context.find("BaseTerrain");
+	if(iter != Context.end())
+		pTerrainMaterial->SetTexture((*iter).second, 0);
+	iter = Context.find("SpecularTerrain");
+	if(iter != Context.end())
+		pTerrainMaterial->SetTexture((*iter).second, 1);
 	
 	m_pTerrain->SetMaterial(0, pTerrainMaterial);
 }

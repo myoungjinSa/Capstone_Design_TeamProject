@@ -82,8 +82,8 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	// SkyBox : 1, Terrain : 2, Player : 10, EvilBear : 10 => 23
 	// DeadTrees : 25, PineTrees : 35, Rocks : 25, Deer : 2 => 87
 	// Snow : 1, LampParticle : 1 => 2
-	// Number : 10
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 23 + 87 + 2 + 10);
+	// Number : 10, Colon : 1 => 11
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 23 + 87 + 2 + 11);
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature); 
 
