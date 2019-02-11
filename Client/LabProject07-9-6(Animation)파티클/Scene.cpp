@@ -78,7 +78,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 113); 
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 117); 
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature); 
 
@@ -90,7 +90,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/HeightMap.raw"), 257, 257, xmf3Scale, xmf4Color);
 
-	m_nShaders = 5;
+	m_nShaders = 6;
 	m_ppShaders = new CShader*[m_nShaders];
 
 	CSnowBillboardShader *pSnowShader = new CSnowBillboardShader();
@@ -117,6 +117,11 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	pFoliageShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	pFoliageShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
 	m_ppShaders[4] = pFoliageShader;
+
+	CFenceShader *pFenceShader = new CFenceShader();
+	pFenceShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	pFenceShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
+	m_ppShaders[5] = pFenceShader;
 
 	//CHellicopterObjectsShader *pHellicopterObjectsShader = new CHellicopterObjectsShader();
 	//pHellicopterObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
@@ -145,8 +150,10 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppGameObjects[0]->m_pAnimationController->SetTrackWeight(0, 0.6f);													//0번 트랙에 애니메이션은 80퍼센트
 	m_ppGameObjects[0]->m_pAnimationController->SetTrackWeight(1, 0.4f);													//1번 트랙에 애니메이션은 20퍼센트
 	m_ppGameObjects[0]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);		//각 오브젝트마다 스킨메쉬 트랜스폼 행렬을 생성
-	m_ppGameObjects[0]->SetPosition(400.0f, m_pTerrain->GetHeight(400.0f, 700.0f), 700.0f);
-	m_ppGameObjects[0]->SetScale(20.0f, 20.0f, 20.0f);
+	m_ppGameObjects[0]->SetPosition(450.0f, m_pTerrain->GetHeight(450.0f, 700.0f), 700.0f);
+	//m_ppGameObjects[0]->SetScale(20.0f, 20.0f, 20.0f);
+	//m_ppGameObjects[0]->SetOOBB(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+
 
 	m_ppGameObjects[1] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,CGameObject::eMaterials::BLACK);
 	m_ppGameObjects[1]->SetChild(pAngrybotModel->m_pModelRootObject, true);
@@ -155,7 +162,9 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppGameObjects[1]->m_pAnimationController->SetTrackSpeed(0, 1.0f);													//0번 트랙의 스피드를 0.25배
 	m_ppGameObjects[1]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
 	m_ppGameObjects[1]->SetPosition(450.0f, m_pTerrain->GetHeight(450.0f, 680.0f), 680.0f);
-	m_ppGameObjects[1]->SetScale(20.0f, 20.0f, 20.0f);
+	//m_ppGameObjects[1]->SetScale(20.0f, 20.0f, 20.0f);
+	//m_ppGameObjects[1]->SetOOBB(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(20.0f, 20.0f, 20.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+
 
 	m_ppGameObjects[2] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,CGameObject::eMaterials::BLUE);
 	m_ppGameObjects[2]->SetChild(pAngrybotModel->m_pModelRootObject, true);
@@ -164,7 +173,9 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppGameObjects[2]->m_pAnimationController->SetTrackPosition(0, 0.95f);
 	m_ppGameObjects[2]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
 	m_ppGameObjects[2]->SetPosition(420.0f, m_pTerrain->GetHeight(420.0f, 750.0f), 750.0f);
-	m_ppGameObjects[2]->SetScale(20.0f, 20.0f, 20.0f);
+	//m_ppGameObjects[2]->SetScale(20.0f, 20.0f, 20.0f);
+	//m_ppGameObjects[2]->SetOOBB(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(20.0f, 20.0f, 20.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+
 
 	m_ppGameObjects[3] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,CGameObject::eMaterials::PANDA);
 	m_ppGameObjects[3]->SetChild(pAngrybotModel->m_pModelRootObject, true);
@@ -172,7 +183,8 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppGameObjects[3]->m_pAnimationController->SetTrackAnimationSet(0, 0);
 	m_ppGameObjects[3]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
 	m_ppGameObjects[3]->SetPosition(410.0f, m_pTerrain->GetHeight(410.0f, 735.0f), 735.0f);
-	m_ppGameObjects[3]->SetScale(20.0f, 20.0f, 20.0f);
+	//m_ppGameObjects[3]->SetScale(20.0f, 20.0f, 20.0f);
+	//m_ppGameObjects[3]->SetOOBB(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(20.0f, 20.0f, 20.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 
 
 	m_ppGameObjects[4] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, CGameObject::eMaterials::BROWN);
@@ -184,7 +196,9 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppGameObjects[4]->m_pAnimationController->SetTrackWeight(1, 0.5f);
 	m_ppGameObjects[4]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
 	m_ppGameObjects[4]->SetPosition(470.0f, m_pTerrain->GetHeight(470.0f, 700.0f), 700.0f);
-	m_ppGameObjects[4]->SetScale(20.0f, 20.0f, 20.0f);
+	//m_ppGameObjects[4]->SetScale(20.0f, 20.0f, 20.0f);
+	//m_ppGameObjects[4]->SetOOBB(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(20.0f, 20.0f, 20.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+
 
 	m_ppGameObjects[5] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, CGameObject::eMaterials::ICE);
 	m_ppGameObjects[5]->SetChild(pAngrybotModel->m_pModelRootObject, true);
@@ -193,10 +207,10 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppGameObjects[5]->m_pAnimationController->SetTrackWeight(0, 0.5f);
 	m_ppGameObjects[5]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
 	m_ppGameObjects[5]->SetPosition(500.0f, m_pTerrain->GetHeight(500.0f, 740.0f), 740.0f);
-	m_ppGameObjects[5]->SetScale(20.0f, 20.0f, 20.0f);
+	//m_ppGameObjects[5]->SetScale(20.0f, 20.0f, 20.0f);
+	//m_ppGameObjects[5]->SetOOBB(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(20.0f, 20.0f, 20.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 
-	
-	
+
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
@@ -660,6 +674,8 @@ void CScene::AnimateObjects(float fTimeElapsed)
 {
 	m_fElapsedTime = fTimeElapsed;
 
+
+	Collision(m_pPlayer);
 	for (int i = 0; i < m_nShaders; i++)
 	{
 		if (m_ppShaders[i])
@@ -702,8 +718,10 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	{
 		if (m_ppGameObjects[i])
 		{
-			m_ppGameObjects[i]->UpdateTransform(NULL);				//animateObject와 UpdateTransform의 순서가 바뀌면 애니메이션을 하는 캐릭터가 바뀐다.
+			m_ppGameObjects[i]->UpdateTransform(NULL);				//animateObject와 UpdateTransform의 순서가 바뀌면 애니메이션을 하는 캐릭터가 바뀐다.	
 			m_ppGameObjects[i]->Animate(m_fElapsedTime, m_pPlayer->GetCamera());
+			//Collision함수 여기에? 
+			
 			m_ppGameObjects[i]->Render(pd3dCommandList,false,m_ppGameObjects[i]->GetMatID(),pCamera);
 		}
 	}
@@ -717,3 +735,28 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	}
 }
 
+void CScene::Collision(CGameObject *pGameObject01)
+{
+	ContainmentType containType;
+
+	CGameObject *pModel = nullptr;
+	CGameObject *pHammer=nullptr;
+	pHammer = pGameObject01->FindFrame("hammer");
+
+
+	for (UINT i = 0; i < m_nGameObjects; i++)
+	{
+		//m_ppGameObjects[i]->GetOOBB().Intersects(pHammer->GetOOBB());
+			//pHammer->GetOOBB().Contains()
+
+		//pModel = m_ppGameObjects[i]->FindFrame("Evilbear");
+		//pModel = m_ppGameObjects[i]->CacheSkinningBoneFrames;
+		containType = m_ppGameObjects[i]->GetOOBB().Contains(pHammer->GetOOBB());
+		if (containType == INTERSECTS)
+		{
+			printf("충돌\n");
+		}
+	
+	}
+	
+}

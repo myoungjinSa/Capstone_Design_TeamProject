@@ -105,6 +105,10 @@ public:
 
 	UINT GetLodLevel() { return m_LodLevel; }
 	
+
+	XMFLOAT3& GetAABBCenter() { return m_xmf3AABBCenter; }
+	XMFLOAT3& GetAABBExtent() { return m_xmf3AABBExtents; }
+
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) { }
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList) { }
 	virtual void ReleaseShaderVariables() { }
@@ -298,12 +302,12 @@ protected:
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dBiTangentBufferView;
 
 
+	
 
 public:
 	
-
 	void LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, FILE *pInFile);
-
+	
 	virtual void ReleaseUploadBuffers();
 
 	virtual void OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);

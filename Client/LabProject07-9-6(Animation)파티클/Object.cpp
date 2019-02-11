@@ -289,6 +289,8 @@ void CSkinningBoneTransforms::SetSkinnedMeshBoneTransformConstantBuffer()
 	{
 		m_ppSkinnedMeshes[i]->m_pd3dcbBoneTransforms = m_ppd3dcbBoneTransforms[i];
 		m_ppSkinnedMeshes[i]->m_pcbxmf4x4BoneTransforms = m_ppcbxmf4x4BoneTransforms[i];
+
+		
 	}
 }
 
@@ -357,8 +359,7 @@ void CAnimationSet::SetPosition(float& fTrackPosition,float& oncePosition)
 				m_fPosition = 0.0f;
 				oncePosition = 0.0f;					//oncePosition을 0으로 세팅해주는 이유는 Digging 과 Attack을 번갈아 
 														//동시에 실행할때 위치값이 0부터 시작되지 않고 그 전 애니메이션 위치에서부터 시작되는 현상이
-														//있었기 때문에 값을 0으로 만들어 줘야한다.
-								
+														//있었기 때문에 값을 0으로 만들어 줘야한다.		
 			}
 
 			break;
@@ -646,6 +647,7 @@ CGameObject::CGameObject()
 {
 	m_xmf4x4ToParent = Matrix4x4::Identity();
 	m_xmf4x4World = Matrix4x4::Identity();
+
 }
 
 CGameObject::CGameObject(int nMaterials) : CGameObject()
@@ -741,7 +743,9 @@ void CGameObject::SetMaterial(int nMaterial, CMaterial *pMaterial)
 CGameObject *CGameObject::FindFrame(char *pstrFrameName)
 {
 	CGameObject *pFrameObject = NULL;
-	if (!strncmp(m_pstrFrameName, pstrFrameName, strlen(pstrFrameName))) return(this);
+	//if (!strncmp(m_pstrFrameName, pstrFrameName, strlen(pstrFrameName))) return(this);
+
+	if (!strcmp(m_pstrFrameName, pstrFrameName)) return(this);
 
 	if (m_pSibling) if (pFrameObject = m_pSibling->FindFrame(pstrFrameName)) return(pFrameObject);
 	if (m_pChild) if (pFrameObject = m_pChild->FindFrame(pstrFrameName)) return(pFrameObject);
@@ -764,6 +768,19 @@ void CGameObject::UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent)
 {
 	m_xmf4x4World = (pxmf4x4Parent) ? Matrix4x4::Multiply(m_xmf4x4ToParent, *pxmf4x4Parent) : m_xmf4x4ToParent;
 
+
+	//if (m_pSkinningBoneTransforms)
+	//{
+	//	for (int i = 0; i < m_pSkinningBoneTransforms->m_nSkinnedMeshes; i++) {
+	//		m_xmOOBBTransformed.Transform(m_xmOOBB, XMLoadFloat4x4(m_pSkinningBoneTransforms->m_ppcbxmf4x4BoneTransforms[i]));
+	//		XMStoreFloat4(&m_xmOOBBTransformed.Orientation, XMQuaternionNormalize(XMLoadFloat4(&m_xmOOBBTransformed.Orientation)));
+	//	}
+	//}
+
+	//m_xmOOBB.Center.x = m_xmf4x4World._41;
+	//m_xmOOBB.Center.y = m_xmf4x4World._42;
+	//m_xmOOBB.Center.z = m_xmf4x4World._43;
+
 	if (m_pSibling) m_pSibling->UpdateTransform(pxmf4x4Parent);
 	if (m_pChild) m_pChild->UpdateTransform(&m_xmf4x4World);
 
@@ -785,6 +802,12 @@ void CGameObject::Animate(float fTimeElapsed, CCamera *pCamera)
 
 	if (m_pSibling) m_pSibling->Animate(fTimeElapsed, pCamera);
 	if (m_pChild) m_pChild->Animate(fTimeElapsed, pCamera);
+
+	//if (m_pMesh)
+	//{
+	//	m_xmOOBBTransformed.Transform(m_xmOOBB, XMLoadFloat4x4(&m_xmf4x4World));
+	//	XMStoreFloat4(&m_xmOOBBTransformed.Orientation, XMQuaternionNormalize(XMLoadFloat4(&m_xmOOBBTransformed.Orientation)));
+	//}
 }
 
 void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
@@ -848,8 +871,12 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bIce,i
 	
 	OnPrepareRender();
 
-	if (m_pSkinningBoneTransforms) m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
 
+	if (m_pSkinningBoneTransforms)
+	{
+		m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
+
+	}
 	
 	if (bIce)
 	{
@@ -943,11 +970,19 @@ void CGameObject::ReleaseUploadBuffers()
 	if (m_pChild) m_pChild->ReleaseUploadBuffers();
 }
 
+
+void CGameObject::SetOOBB(XMFLOAT3& xmCenter, XMFLOAT3& xmExtents, XMFLOAT4& xmOrientation)
+{
+	m_xmOOBB = m_xmOOBBTransformed = BoundingOrientedBox(xmCenter, xmExtents, xmOrientation);
+}
+
 void CGameObject::SetPosition(float x, float y, float z)
 {
 	m_xmf4x4ToParent._41 = x;
 	m_xmf4x4ToParent._42 = y;
 	m_xmf4x4ToParent._43 = z;
+
+
 
 	UpdateTransform(NULL);
 }
@@ -1186,6 +1221,7 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 
 		if (!strcmp(pstrToken, "<Frame>:"))
 		{
+			
 			pGameObject = new CGameObject();
 
 			nReads = (UINT)::fread(&nFrame, sizeof(int), 1, pInFile);
@@ -1196,12 +1232,14 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 
 			pGameObject->m_pstrFrameName[nStrLength] = '\0';
 			
+
+
 			if (!strcmp(pGameObject->m_pstrFrameName, "Lamp"))
 			{
 				pGameObject->m_pParticleObject = new CParticleBillboardObject(pd3dDevice,pd3dCommandList,pd3dGraphicsRootSignature);
-				pGameObject->SetChild(pGameObject->m_pParticleObject,true);
-				
+				pGameObject->SetChild(pGameObject->m_pParticleObject,true);	
 			}
+
 		}
 		else if (!strcmp(pstrToken, "<Transform>:"))
 		{ 
@@ -1221,6 +1259,10 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 			CStandardMesh *pMesh = new CStandardMesh(pd3dDevice, pd3dCommandList);
 			pMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
 			pGameObject->SetMesh(pMesh);
+		
+			if (!strcmp(pGameObject->m_pstrFrameName, "hammer")) {
+				pGameObject->SetOOBB(pMesh->GetAABBCenter(), pMesh->GetAABBExtent(), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+			}
 		}
 		else if (!strcmp(pstrToken, "<SkinningInfo>:"))
 		{
@@ -1236,6 +1278,10 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 			pSkinnedMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
 
 			pGameObject->SetMesh(pSkinnedMesh);
+			if (!strcmp(pGameObject->m_pstrFrameName, "Evilbear"))
+			{
+				pGameObject->SetOOBB(pSkinnedMesh->GetAABBCenter(), pSkinnedMesh->GetAABBExtent(), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+			}
 		}
 		else if (!strcmp(pstrToken, "<Materials>:"))
 		{
@@ -1762,10 +1808,18 @@ void CMi24Object::Animate(float fTimeElapsed,CCamera *pCamera)
 CAngrybotObject::CAngrybotObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID)
 {
 	m_matID = matID;
+	
+	
+	//m_pWeapon = new CWeaponObject();
+	//m_pWeapon = dynamic_cast<CWeaponObject*>(FindFrame("hammer"));
 }
 
 CAngrybotObject::~CAngrybotObject()
 {
+	//if (m_pWeapon)
+	//{
+	//	delete m_pWeapon;
+	//}
 }
 
 void CAngrybotObject::OnPrepareAnimate()
@@ -1774,8 +1828,14 @@ void CAngrybotObject::OnPrepareAnimate()
 
 void CAngrybotObject::Animate(float fTimeElapsed,CCamera *pCamera)
 {
+	
+
+
+
 	CGameObject::Animate(fTimeElapsed,pCamera);
+
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1809,6 +1869,16 @@ CDeerObject::~CDeerObject() {
 }
 
 
+CFenceObject::CFenceObject()
+{
+
+}
+
+CFenceObject::~CFenceObject()
+{
+
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 CFoliageObject::CFoliageObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
@@ -2060,7 +2130,8 @@ void CBillboardObject::SetPositionXZ(float x, float z)
 void CBillboardObject::Animate(float fTimeElapsed,CCamera *pCamera )
 {
 	XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
-	SetLookAt(xmf3CameraPosition);	
+	SetLookAt(xmf3CameraPosition);
+	
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2215,18 +2286,7 @@ void CParticleBillboardObject::UpdateShaderVariable(ID3D12GraphicsCommandList *p
 	pd3dCommandList->SetGraphicsRootConstantBufferView(16, d3dParticleGPUVirtualAddress);
 
 	m_pcbMappedParticlObjects->m_iParticleTime = m_fParticleTime;
-//
-//#ifdef _WITH_DEBUG_DATA
-//	TCHAR pstrDebug[256] = { 0 };
-//	_stprintf_s(pstrDebug, 256, _T("%d\n"), m_pcbMappedParticlObjects->m_iParticleTime);
-//	OutputDebugString(pstrDebug);
-//#endif
-//	
-	//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_fParticleTime, 33);
-//#ifdef _WITH_DEBUG_DATA
-//	TCHAR pstrDebug[256] = { 0 };
-//	_stprintf_s(pstrDebug, 256, _T("%d\n"), m_fParticleTime);
-//	OutputDebugString(pstrDebug);
-//#endif
-//
+
 }
+
+

@@ -61,6 +61,8 @@ public:
     void AnimateObjects(float fTimeElapsed);
     void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
 
+	void Collision(CGameObject* pGameObeject);
+
 	void ReleaseUploadBuffers();
 
 	CPlayer								*m_pPlayer = NULL;

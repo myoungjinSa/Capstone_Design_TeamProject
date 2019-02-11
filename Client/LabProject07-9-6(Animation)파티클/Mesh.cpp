@@ -923,6 +923,7 @@ CStandardMesh::~CStandardMesh()
 	if (m_pxmf3BiTangents) delete[] m_pxmf3BiTangents;
 	if (m_pxmf2TextureCoords0) delete[] m_pxmf2TextureCoords0;
 	if (m_pxmf2TextureCoords1) delete[] m_pxmf2TextureCoords1;
+
 }
 
 void CStandardMesh::ReleaseUploadBuffers()
@@ -940,7 +941,9 @@ void CStandardMesh::ReleaseUploadBuffers()
 
 	if (m_pd3dBiTangentUploadBuffer) m_pd3dBiTangentUploadBuffer->Release();
 	m_pd3dBiTangentUploadBuffer = NULL;
+
 }
+
 
 void CStandardMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, FILE *pInFile)
 {
@@ -953,7 +956,7 @@ void CStandardMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 	nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
 	nReads = (UINT)::fread(m_pstrMeshName, sizeof(char), nStrLength, pInFile);
 	m_pstrMeshName[nStrLength] = '\0';
-
+	
 	for ( ; ; )
 	{
 		nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
@@ -964,6 +967,7 @@ void CStandardMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 		{
 			nReads = (UINT)::fread(&m_xmf3AABBCenter, sizeof(XMFLOAT3), 1, pInFile);
 			nReads = (UINT)::fread(&m_xmf3AABBExtents, sizeof(XMFLOAT3), 1, pInFile);
+
 		}
 		else if (!strcmp(pstrToken, "<Positions>:"))
 		{
@@ -1244,6 +1248,7 @@ void CSkinnedMesh::LoadSkinInfoFromFile(ID3D12Device *pd3dDevice, ID3D12Graphics
 		{
 			nReads = (UINT)::fread(&m_xmf3AABBCenter, sizeof(XMFLOAT3), 1, pInFile);
 			nReads = (UINT)::fread(&m_xmf3AABBExtents, sizeof(XMFLOAT3), 1, pInFile);
+
 		}
 		else if (!strcmp(pstrToken, "<BoneNames>:"))
 		{

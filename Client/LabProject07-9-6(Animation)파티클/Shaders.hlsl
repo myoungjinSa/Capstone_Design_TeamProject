@@ -344,6 +344,8 @@ float4 PSParticle(VS_PARTICLE_OUTPUT input) : SV_TARGET
 	texcoord.x = texcoord.x / 6.0f + (1.0f / 6.0f) *gnTimeElapsed;
 	float4 cColor = gtxtParticle.Sample(gssWrap,texcoord);
 
+
+
 	return (cColor);
 }
 
