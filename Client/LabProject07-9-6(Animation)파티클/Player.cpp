@@ -42,7 +42,10 @@ CPlayer::~CPlayer()
 
 void CPlayer::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
-	if (m_pCamera) m_pCamera->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	if (m_pCamera)
+	{
+		m_pCamera->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	}
 }
 
 void CPlayer::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
@@ -470,7 +473,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pAnimationController = new CAnimationController(1, pAngrybotModel->m_pAnimationSets);
 	m_pAnimationController->SetTrackAnimationSet(0, 0);
 	
-	SetScale(XMFLOAT3(20.0f, 20.0f, 20.0f));
+	//SetScale(XMFLOAT3(20.0f, 20.0f, 20.0f));
 	m_pAnimationController->SetCallbackKeys(1, 3);			//1번이 걷기 동작: 1번 걷기 동작의 3개의 콜백 키를 만든다.
 #ifdef _WITH_SOUND_RESOURCE									//리소스로 재생할때는 리소스이름을 넘겨주고
 	m_pAnimationController->SetCallbackKey(1, 0, 0.1f, _T("Footstep01"));

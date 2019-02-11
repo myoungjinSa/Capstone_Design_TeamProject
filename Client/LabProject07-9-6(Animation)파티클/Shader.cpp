@@ -544,7 +544,7 @@ void CSnowBillboardShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12Graphics
 	m_pMaterial->SetTexture(pSnowTexture);
 
 
-	CTexturedRectMesh* pSnowBillboardMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 3.0f, 3.0f, 0.0f, 0.0f, 0.0f, -1.0f);
+	CTexturedRectMesh* pSnowBillboardMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f);
 	
 	
 	//가상의 박스 -> 렌더링 하지는 않음
@@ -569,8 +569,7 @@ void CSnowBillboardShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12Graphics
 		m_ppObjects[i]->SetOffsetX(getRandomNumber(minX, maxX));
 		m_ppObjects[i]->SetOffsetZ(getRandomNumber(minZ, maxZ));
 		m_ppObjects[i]->SetPosition(0.0f,getRandomNumber(300.0f,400.0f),0.0f);
-		//m_ppObjects[i]->Rotate(&xmf3RoatationAxis, Random(0.0f, 89.0f));
-		
+		//m_ppObjects[i]->Rotate(&xmf3RoatationAxis, Random(0.0f, 89.0f));	
 	}
 }
 
@@ -737,7 +736,10 @@ void CStandardObjectsShader::ReleaseObjects()
 {
 	if (m_ppObjects)
 	{
-		for (int j = 0; j < m_nObjects; j++) if (m_ppObjects[j]) m_ppObjects[j]->Release();
+		for (int j = 0; j < m_nObjects; j++)
+		{
+			if (m_ppObjects[j]) m_ppObjects[j]->Release();
+		}
 		delete[] m_ppObjects;
 	}
 }
@@ -1152,6 +1154,9 @@ void CDeerObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCo
 	m_ppObjects[0]->SetPosition(120.0f, pTerrain->GetHeight(120.0f, 620.0f), 620.0f);
 
 
+
+
+
 	if (pDeerObjectModel)
 	{
 		delete pDeerObjectModel;
@@ -1326,6 +1331,59 @@ void CFoliageShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera 
 			
 	}
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+CFenceShader::CFenceShader()
+{
+
+}
+
+CFenceShader::~CFenceShader()
+{
+
+}
+
+void CFenceShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
+{
+	CLoadedModelInfo *pFenceModel01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/LowPoly_Fence_B.bin", this, false);
+	CLoadedModelInfo *pFenceModel02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/LowPoly_Fence_A.bin", this, false);
+
+
+	CHeightMapTerrain *pTerrain = (CHeightMapTerrain *)pContext;
+
+
+	
+	m_nObjects = 20;
+
+	m_ppObjects = new CGameObject*[m_nObjects];
+
+
+	for (UINT i = 0; i < m_nObjects; i++)
+	{
+		m_ppObjects[i] = new CFenceObject();
+		m_ppObjects[i]->SetPosition(0.0f, pTerrain->GetHeight(0.0f,0.0f+(i*40)), 0.0f+(i*40));
+		m_ppObjects[i]->Rotate(0.0f, -90.0f, 0.0f);
+		if (i % 2 == 0) {
+			m_ppObjects[i]->SetChild(pFenceModel01->m_pModelRootObject, true);
+		}
+		else {
+			m_ppObjects[i]->SetChild(pFenceModel02->m_pModelRootObject, true);
+		}
+
+	}
+	
+
+	if (pFenceModel01)
+	{
+		delete pFenceModel01;
+	}
+
+	if (pFenceModel02)
+	{
+		delete pFenceModel02;
+	}
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //

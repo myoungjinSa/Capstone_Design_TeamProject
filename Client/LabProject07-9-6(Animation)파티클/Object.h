@@ -89,6 +89,7 @@ public:
 
 class CGameObject;
 class CParticleBillboardObject;
+class CWeaponObject;
 
 class CMaterial
 {
@@ -447,9 +448,11 @@ public:
 	CParticleBillboardObject        *m_pParticleObject = NULL;
 
 
-
 	int	 GetMatID() { return m_matID; }
 	
+	
+	BoundingOrientedBox& GetOOBB() { return m_xmOOBB; }
+	void	SetOOBB(XMFLOAT3& xmCenter, XMFLOAT3& xmExtents, XMFLOAT4& xmOrientation);
 	void SetLODlevel(UINT lod_level) { m_lodLevel = lod_level; }
 	void SetMesh(CMesh *pMesh);
 	void SetShader(CShader *pShader);
@@ -504,6 +507,8 @@ public:
 
 	CTexture *FindReplicatedTexture(_TCHAR *pstrTextureName);
 
+
+
 	UINT GetMeshType() { return((m_pMesh) ? m_pMesh->GetType() : 0x00); }
 	UINT GetLodLevel() { return m_lodLevel; }
 public:
@@ -532,6 +537,9 @@ public:
 
 protected:
 	UINT m_lodLevel;
+
+	BoundingOrientedBox			m_xmOOBB;
+	BoundingOrientedBox			m_xmOOBBTransformed;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -688,7 +696,6 @@ public:
 	virtual void Animate(float fTimeElapsed,CCamera *pCamera = NULL);
 
 
-
 };
 
 class CDeadTreeObject : public CGameObject
@@ -720,6 +727,15 @@ public:
 
 };
 
+class CFenceObject : public CGameObject
+{
+public:
+	CFenceObject();
+	virtual ~CFenceObject();
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 class CFoliageObject : public CGameObject
 {
@@ -737,6 +753,8 @@ public:
 	
 
 };
+
+
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -819,3 +837,5 @@ protected:
 	CB_PARTICLE_INFO				*m_pcbMappedParticlObjects = NULL;
 	ID3D12Resource					*m_pd3dcbParticleObjects = NULL;
 };
+
+
