@@ -92,7 +92,7 @@ void CSkinnedAnimationObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D
 		Position.x = Random(0.f, 500.f);
 		Position.z = Random(0.f, 300.f);
 		m_ppObjects[i]->SetPosition(Position.x, pTerrain->GetHeight(Position.x, Position.z), Position.z);
-		//m_ppObjects[i]->SetScale(10.f, 10.f, 10.f);
+		m_ppObjects[i]->SetScale(10, 10, 10);
 	}
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -104,6 +104,13 @@ void CSkinnedAnimationObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D
 void CSkinnedAnimationObjectsShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer* pPlayer)
 {
 	m_fElapsedTime = fTimeElapsed;
+	for (int i = 0; i < m_nObjects; ++i)
+	{
+		if (m_ppObjects[i])
+		{
+			m_ppObjects[i]->Animate(m_fElapsedTime);
+		}
+	}
 }
 
 void CSkinnedAnimationObjectsShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
@@ -114,9 +121,8 @@ void CSkinnedAnimationObjectsShader::Render(ID3D12GraphicsCommandList *pd3dComma
 	{
 		if (m_ppObjects[i])
 		{
-			m_ppObjects[i]->UpdateTransform(NULL);
 			m_ppObjects[i]->Animate(m_fElapsedTime);
-			//m_ppObjects[i]->UpdateTransform(NULL);
+			m_ppObjects[i]->UpdateTransform(NULL);
 			m_ppObjects[i]->Render(pd3dCommandList, pCamera);
 		}
 	}

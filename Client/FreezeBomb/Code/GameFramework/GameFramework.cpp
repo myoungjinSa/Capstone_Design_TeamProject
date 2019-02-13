@@ -5,6 +5,7 @@
 #include "../ShaderManager/ShaderManager.h"
 #include "../Shader/TerrainShader/TerrainShader.h"
 #include "../GameObject/Terrain/Terrain.h"
+#include "../ResourceManager/ResourceManager.h"
 
 CGameFramework::CGameFramework()
 {
@@ -421,10 +422,16 @@ void CGameFramework::BuildObjects()
 			CTerrain* pTerrain = dynamic_cast<CTerrainShader*>((*iter).second)->getTerrain();
 			pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), pTerrain);
 			pPlayer->SetPosition(XMFLOAT3(0.f, pTerrain->GetHeight(0.f, 0.f), 0.f));
-			pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));		
+			pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));	
+			map<string, Bounds*> BoundMap = m_pScene->getShaderManager()->getResourceManager()->getBoundMap();
+			auto iter2 = BoundMap.find("<Deer01>");
+			if (iter2 != BoundMap.end())
+			{
+				pPlayer->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
+			}
 		}
 	}
-
+	
 	m_pPlayer = pPlayer;
 	m_pScene->setPlayer(m_pPlayer);
 	m_pCamera = m_pPlayer->GetCamera();

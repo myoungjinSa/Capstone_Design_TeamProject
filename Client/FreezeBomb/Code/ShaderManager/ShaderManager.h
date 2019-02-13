@@ -3,7 +3,7 @@
 class CShader;
 class CPlayer;
 class CCamera;
-class CTextureManager;
+class CResourceManager;
 class CShaderManager
 {
 public:
@@ -17,6 +17,7 @@ public:
 	void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = nullptr);
 
 	const map<string, CShader*>& getShaderMap()	const { return m_ShaderMap; }
+	CResourceManager* getResourceManager()	const { return m_pResourceManager; }
 
 private:
 	size_t						m_nShaders = 0;
@@ -24,5 +25,5 @@ private:
 
 	map<string, CShader*>	m_ShaderMap;
 
-	CTextureManager*			m_pTextureManager{ nullptr };
+	CResourceManager*			m_pResourceManager{ nullptr };
 };

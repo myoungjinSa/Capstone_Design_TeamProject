@@ -6,6 +6,8 @@
 #include "Carry/Carry.h"
 #include "Billboard/LampParticle/LampParticle.h"
 
+int CGameObject::m_AnimationType = CGameObject::ANIMATIONTYPE::IDLE;
+
 CAnimationSet::CAnimationSet()
 {
 }
@@ -60,6 +62,52 @@ void CAnimationSet::SetPosition(float fTrackPosition)
 		void* pCallbackData = GetCallbackData();
 		if (pCallbackData) 
 			m_pAnimationCallbackHandler->HandleCallback(pCallbackData);
+	}
+}
+
+void CAnimationSet::SetPosition(float& fTrackPosition, float& oncePosition)
+{
+	float maxLength = m_fLength - 0.18f;
+	float fPosition = 0.0f;
+	m_fPosition = fTrackPosition;
+	switch (m_nType)
+	{
+	case ANIMATION_TYPE_LOOP:
+	{
+#ifdef _WITH_ANIMATION_INTERPOLATION			
+		//fmod 
+		//0~1사이의 값이 됨
+		m_fPosition = fmod(fTrackPosition, m_pfKeyFrameTransformTimes[m_nKeyFrameTransforms - 1]); // m_fPosition = fTrackPosition - int(fTrackPosition / m_pfKeyFrameTransformTimes[m_nKeyFrameTransforms-1]) * m_pfKeyFrameTransformTimes[m_nKeyFrameTransforms-1];
+//			m_fPosition = fmod(fTrackPosition, m_fLength); //if (m_fPosition < 0) m_fPosition += m_fLength;
+//			m_fPosition = fTrackPosition - int(fTrackPosition / m_fLength) * m_fLength;
+
+#else
+		m_nCurrentKey++;
+		if (m_nCurrentKey >= m_nKeyFrameTransforms) m_nCurrentKey = 0;
+#endif
+		break;
+	}
+	case ANIMATION_TYPE_ONCE:
+
+		m_fPosition = fminf(oncePosition, maxLength);
+		if (m_fPosition >= maxLength)
+		{
+			CGameObject::m_AnimationType = CGameObject::IDLE;
+			m_fPosition = 0.0f;
+			oncePosition = 0.0f;					//oncePosition을 0으로 세팅해주는 이유는 Digging 과 Attack을 번갈아 
+													//동시에 실행할때 위치값이 0부터 시작되지 않고 그 전 애니메이션 위치에서부터 시작되는 현상이
+													//있었기 때문에 값을 0으로 만들어 줘야한다.		
+		}
+
+		break;
+	case ANIMATION_TYPE_PINGPONG:
+		break;
+}
+
+	if (m_pAnimationCallbackHandler)
+	{
+		void *pCallbackData = GetCallbackData();
+		if (pCallbackData) m_pAnimationCallbackHandler->HandleCallback(pCallbackData);
 	}
 }
 
@@ -232,12 +280,19 @@ void CAnimationController::AdvanceTime(float fTimeElapsed)
 	m_fTime += fTimeElapsed; 
 	if (m_pAnimationSets && m_pAnimationTracks)
 	{
-		for (int i = 0; i < m_pAnimationSets->m_nAnimationFrames; i++) 
+		for (int i = 0; i < m_pAnimationSets->m_nAnimationFrames; i++)
+		{
 			m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent = Matrix4x4::Zero();
+		}
 		for (int j = 0; j < m_nAnimationTracks; j++)
 		{
 			m_pAnimationTracks[j].m_fPosition += (fTimeElapsed * m_pAnimationTracks[j].m_fSpeed);
-			m_pAnimationTracks[j].m_pAnimationSet->SetPosition(m_pAnimationTracks[j].m_fPosition);
+			//m_pAnimationTracks[j].m_pAnimationSet->SetPosition(m_pAnimationTracks[j].m_fPosition);
+			
+			CAnimationSet *pAnimationSet = m_pAnimationTracks[j].m_pAnimationSet;
+			pAnimationSet->m_fPosition += (fTimeElapsed * m_pAnimationTracks[j].m_fSpeed);
+			m_pAnimationTracks[j].m_pAnimationSet->SetPosition(m_pAnimationTracks[j].m_fPosition, pAnimationSet->m_fPosition);
+			
 			if (m_pAnimationTracks[j].m_bEnable)
 			{
 				for (int i = 0; i < m_pAnimationSets->m_nAnimationFrames; i++)
@@ -245,7 +300,6 @@ void CAnimationController::AdvanceTime(float fTimeElapsed)
 					//m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent = Matrix4x4::Add(m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent, Matrix4x4::Scale(m_pAnimationTracks[j].m_pAnimationSet->GetSRT(i), m_pAnimationTracks[j].m_fWeight));
 					//프레임 마다 그 시간대의 변환행렬이 있는지 확인후 있다면 변환
 					m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent = m_pAnimationTracks[j].m_pAnimationSet->GetSRT(i);
-
 				}
 			}
 		}
@@ -484,6 +538,9 @@ void CGameObject::Animate(float fTimeElapsed)
 		m_pSibling->Animate(fTimeElapsed);
 	if (m_pChild) 
 		m_pChild->Animate(fTimeElapsed);
+
+	m_xmOOBBTransformed.Transform(m_xmOOBB, XMLoadFloat4x4(&m_xmf4x4World));
+	XMStoreFloat4(&m_xmOOBBTransformed.Orientation, XMQuaternionNormalize(XMLoadFloat4(&m_xmOOBBTransformed.Orientation)));
 }
 
 void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
@@ -816,9 +873,6 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 
 			if (!strcmp(pGameObject->m_pstrFrameName, "Lamp"))
 			{
-				//pGameObject->m_pCarry = new CCarry(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-				//pGameObject->SetChild(pGameObject->m_pCarry);
-
 				pGameObject->m_pLampParticle = new CLampParticle(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 				pGameObject->SetChild(pGameObject->m_pLampParticle, true);
 			}
@@ -965,6 +1019,9 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 			nReads = (UINT)::fread(pAnimationSet->m_pstrName, sizeof(char), nStrLength, pInFile);
 			pAnimationSet->m_pstrName[nStrLength] = '\0';
 
+			if (!strcmp(pAnimationSet->m_pstrName, "ATK3") || !strcmp(pAnimationSet->m_pstrName, "Digging"))
+				pAnimationSet->m_nType = ANIMATION_TYPE_ONCE;
+			
 			nReads = (UINT)::fread(&pAnimationSet->m_fLength, sizeof(float), 1, pInFile);
 			nReads = (UINT)::fread(&pAnimationSet->m_nFramesPerSecond, sizeof(int), 1, pInFile);
 

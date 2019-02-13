@@ -137,7 +137,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 //
 //	m_ppShaders[1] = pAngrybotObjectsShader;
 
-	CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/EvilbearA.bin", NULL, true);
+	CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Evilbear.bin", NULL, true);
 
 	m_nGameObjects =6;
 	m_ppGameObjects = new CGameObject*[m_nGameObjects];
@@ -209,8 +209,6 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppGameObjects[5]->SetPosition(500.0f, m_pTerrain->GetHeight(500.0f, 740.0f), 740.0f);
 	//m_ppGameObjects[5]->SetScale(20.0f, 20.0f, 20.0f);
 	//m_ppGameObjects[5]->SetOOBB(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(20.0f, 20.0f, 20.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
-
-
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
@@ -722,6 +720,10 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 			m_ppGameObjects[i]->Animate(m_fElapsedTime, m_pPlayer->GetCamera());
 			//Collision함수 여기에? 
 			
+			m_ppGameObjects[i]->m_xmf4x4ToParent._11;
+			m_ppGameObjects[i]->m_xmf4x4ToParent._22;
+			m_ppGameObjects[i]->m_xmf4x4ToParent._33;
+
 			m_ppGameObjects[i]->Render(pd3dCommandList,false,m_ppGameObjects[i]->GetMatID(),pCamera);
 		}
 	}

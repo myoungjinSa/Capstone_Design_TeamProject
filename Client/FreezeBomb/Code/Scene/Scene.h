@@ -63,6 +63,7 @@ public:
 	void setPlayer(CPlayer* pPlayer) { m_pPlayer = pPlayer; }
 
 	CShaderManager* getShaderManager()	const { return m_pShaderManager; }
+	void CheckObjectByObjectCollisions();
 
 protected:
 	ID3D12RootSignature*						m_pd3dGraphicsRootSignature = NULL;

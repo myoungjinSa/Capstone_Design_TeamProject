@@ -90,6 +90,7 @@ public:
 public:
 	// AnimationTrack의 포지션값 => 애니메이션에서 읽어가야하는 위치 => 서로 다른동작을 하게함
 	void SetPosition(float fTrackPosition);
+	void SetPosition(float& fTrackPosition, float& oncePosition);
 
 	XMFLOAT4X4 GetSRT(int nFrame);
 
@@ -263,6 +264,8 @@ public:
 	CGameObject*	m_pChild = NULL;
 	CGameObject*	m_pSibling = NULL;
 
+	static int m_AnimationType;
+
 	void SetMesh(CMesh *pMesh);
 	void SetShader(CShader *pShader);
 	void SetShader(int nMaterial, CShader *pShader);
@@ -311,6 +314,8 @@ public:
 	UINT GetMeshType() { return((m_pMesh) ? m_pMesh->GetType() : 0x00); }
 
 public:
+	const enum ANIMATIONTYPE { IDLE, WALKFRONT, RUNFAST, RUNBACKWARD, ATTACK, DIGGING /*땅 파기*/, ICE, NOTYET /*미정*/ };
+
 	// 각각의 객체가 AnimationController를 가지고 있어서, 서로다른 동작을 할 수 있도록 하자.
 	CAnimationController*			m_pAnimationController = NULL;
 	// 메쉬가 아닌 각각의 객체가 transform 행렬을 갖고 있기 위함 => 모델공유문제 해결
@@ -334,8 +339,22 @@ public:
 	static CLoadedModelInfo* LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char *pstrFileName, CShader *pShader, bool bHasAnimation);
 
 	static void PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent);
-
 protected:
 	CCarry*					m_pCarry{ nullptr };
 	CLampParticle*		m_pLampParticle{ nullptr };	
+
+	string m_ID;
+	CGameObject*		m_pObjectCollided{ nullptr };
+
+public:
+	BoundingOrientedBox m_xmOOBB;
+	BoundingOrientedBox m_xmOOBBTransformed;
+	BoundingOrientedBox GetBoundingBox() { return m_xmOOBB; }
+	void SetOOBB(XMFLOAT3& xmCenter, XMFLOAT3& xmExtents, XMFLOAT4& xmOrientation)
+	{ m_xmOOBBTransformed = m_xmOOBB = BoundingOrientedBox(xmCenter, xmExtents, xmOrientation); }
+	void setID(const string id) { m_ID = id; }
+	const string getID()	const { return m_ID; }
+
+	CGameObject* GetObjectCollided() { return m_pObjectCollided; }
+	void SetObjectCollided(CGameObject* value) { m_pObjectCollided = value; }
 };

@@ -4,6 +4,7 @@
 #include "../Material/Material.h"
 #include "../ShaderManager/ShaderManager.h"
 #include "../GameObject/Player/Player.h"
+#include "../Shader/Shader.h"
 
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -83,7 +84,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	// DeadTrees : 25, PineTrees : 35, Rocks : 25, Deer : 2 => 87
 	// Snow : 1, LampParticle : 1 => 2
 	// Number : 10, Colon : 1 => 11
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 29 + 87 + 2 + 11);
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 29 + 87 + 2 + 11 + 5);
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature); 
 
@@ -495,6 +496,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 		m_pLights[1].m_xmf3Position = m_pPlayer->GetPosition();
 		m_pLights[1].m_xmf3Direction = m_pPlayer->GetLookVector();
 	}
+	CheckObjectByObjectCollisions();
 }
 
 void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
@@ -511,6 +513,30 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
 
 	if (m_pShaderManager)
+	{
 		m_pShaderManager->Render(pd3dCommandList, pCamera);
+	}
+
 }
 
+void CScene::CheckObjectByObjectCollisions()
+{
+	if (m_pPlayer)
+	{
+		// 총알과 몬스터와의 충돌체크
+		map<string, CShader*> m = m_pShaderManager->getShaderMap();
+		auto iter = m.find("Surrounding");
+		if (iter != m.end())
+		{
+			for (int i = 0; i < (*iter).second->m_nObjects; ++i)
+			{
+				if ((*iter).second->m_ppObjects[i]->m_xmOOBB.Intersects(m_pPlayer->m_xmOOBB))
+				{
+					(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
+					m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
+					cout << i << "번째 오브젝트랑 충돌" << endl;
+				}
+			}
+		}
+	}
+}

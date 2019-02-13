@@ -1,6 +1,6 @@
 #include "../Stdafx/Stdafx.h"
 #include "ShaderManager.h"
-#include "../TextureManager/TextureManager.h"
+#include "../ResourceManager/ResourceManager.h"
 
 #include "../Shader/Shader.h"
 #include "../Shader/SkyBoxShader/SkyBoxShader.h"
@@ -25,27 +25,27 @@ CShaderManager::~CShaderManager()
 
 void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	m_pTextureManager = new CTextureManager;
-	m_pTextureManager->Initialize(pd3dDevice, pd3dCommandList);
+	m_pResourceManager = new CResourceManager;
+	m_pResourceManager->Initialize(pd3dDevice, pd3dCommandList);
 
 	m_nShaders = 9;
 	m_ppShaders = new CShader*[m_nShaders];
 
 	CSkyBoxShader* pSkyBoxShader = new CSkyBoxShader;
 	pSkyBoxShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pSkyBoxShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pTextureManager->getTextureMap(), nullptr);
+	pSkyBoxShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
 	m_ppShaders[0] = pSkyBoxShader;
 	m_ShaderMap.emplace("SkyBox", pSkyBoxShader);
 
 	CTerrainShader* pTerrainShader = new CTerrainShader;
 	pTerrainShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pTerrainShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pTextureManager->getTextureMap(), nullptr);
+	pTerrainShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
 	m_ppShaders[1] = pTerrainShader;
 	m_ShaderMap.emplace("Terrain", pTerrainShader);
 
 	CStandardObjectsShader* pSurroundingShader = new CStandardObjectsShader;
 	pSurroundingShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pSurroundingShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pTerrainShader->getTerrain());
+	pSurroundingShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
 	m_ppShaders[2] = pSurroundingShader;
 	m_ShaderMap.emplace("Surrounding", pSurroundingShader);
 
@@ -57,31 +57,31 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 
 	CSnowShader* pSnowShader = new CSnowShader;
 	pSnowShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pSnowShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pTextureManager->getTextureMap(), pTerrainShader->getTerrain());
+	pSnowShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), pTerrainShader->getTerrain());
 	m_ppShaders[4] = pSnowShader;
 	m_ShaderMap.emplace("Snow", pSnowShader);
 
 	CNumberUIShader* pNumberUIShader = new CNumberUIShader;
 	pNumberUIShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pNumberUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pTextureManager->getTextureMap(), nullptr);
+	pNumberUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
 	m_ppShaders[5] = pNumberUIShader;
 	m_ShaderMap.emplace("NumberUI", pNumberUIShader);
 
 	CTenNumberUIShader* pTenNumberUIShader = new CTenNumberUIShader;
 	pTenNumberUIShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pTenNumberUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pTextureManager->getTextureMap(), nullptr);
+	pTenNumberUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
 	m_ppShaders[6] = pTenNumberUIShader;
 	m_ShaderMap.emplace("TenNumberUI", pTenNumberUIShader);
 
 	CHundredNumberUIShader* pHundredNumberUIShader = new CHundredNumberUIShader;
 	pHundredNumberUIShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pHundredNumberUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pTextureManager->getTextureMap(), nullptr);
+	pHundredNumberUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
 	m_ppShaders[7] = pHundredNumberUIShader;
 	m_ShaderMap.emplace("HundredNumberUI", pHundredNumberUIShader);
 
 	CColonUIShader* pColonUIShader = new CColonUIShader;
 	pColonUIShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pColonUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pTextureManager->getTextureMap(), nullptr);
+	pColonUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
 	m_ppShaders[8] = pColonUIShader;
 	m_ShaderMap.emplace("ColonUI", pColonUIShader);
 }
@@ -99,10 +99,10 @@ void CShaderManager::ReleaseObjects()
 		delete[] m_ppShaders;
 	}
 
-	if (m_pTextureManager)
+	if (m_pResourceManager)
 	{
-		m_pTextureManager->Release();
-		delete m_pTextureManager;
+		m_pResourceManager->Release();
+		delete m_pResourceManager;
 	}
 }
 

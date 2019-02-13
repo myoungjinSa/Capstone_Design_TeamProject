@@ -56,6 +56,7 @@ protected:
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC	m_d3dPipelineStateDesc;
 
+public:
 	CGameObject**			m_ppObjects = 0;
 	int									m_nObjects = 0;
 };

@@ -130,14 +130,14 @@
     <Filter Include="Code\Shader\BillboardShader\UIShader\NumberUIShader">
       <UniqueIdentifier>{b545703f-15c0-4c57-8664-aea30f9d81c0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\TextureManager">
-      <UniqueIdentifier>{4b480ed9-e675-4509-9ff0-eb94db598914}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\Shader\BillboardShader\UIShader\HundredNumberUIShader">
       <UniqueIdentifier>{c984a138-1dfc-41dd-8d5f-7bc1e4a00fec}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\Shader\BillboardShader\UIShader\ColonUIShader">
       <UniqueIdentifier>{f74fc5d2-8e41-4df7-866e-1228848d4306}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\ResourceManager">
+      <UniqueIdentifier>{4b480ed9-e675-4509-9ff0-eb94db598914}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -271,14 +271,14 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TenNumberUIShader\TenNumberUIShader.h">
       <Filter>Code\Shader\BillboardShader\UIShader\TenNumberUIShader</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\TextureManager\TextureManager.h">
-      <Filter>Code\TextureManager</Filter>
-    </ClInclude>
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\HundredNumberUIShader\HundredNumberUIShader.h">
       <Filter>Code\Shader\BillboardShader\UIShader\HundredNumberUIShader</Filter>
     </ClInclude>
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\ColonUIShader\ColonUIShader.h">
       <Filter>Code\Shader\BillboardShader\UIShader\ColonUIShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\ResourceManager\ResourceManager.h">
+      <Filter>Code\ResourceManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -393,14 +393,14 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TenNumberUIShader\TenNumberUIShader.cpp">
       <Filter>Code\Shader\BillboardShader\UIShader\TenNumberUIShader</Filter>
     </ClCompile>
-    <ClCompile Include="..\Code\TextureManager\TextureManager.cpp">
-      <Filter>Code\TextureManager</Filter>
-    </ClCompile>
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\HundredNumberUIShader\HundredNumberUIShader.cpp">
       <Filter>Code\Shader\BillboardShader\UIShader\HundredNumberUIShader</Filter>
     </ClCompile>
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\ColonUIShader\ColonUIShader.cpp">
       <Filter>Code\Shader\BillboardShader\UIShader\ColonUIShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\ResourceManager\ResourceManager.cpp">
+      <Filter>Code\ResourceManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -185,6 +185,7 @@
     <ClInclude Include="..\Code\Material\Material.h" />
     <ClInclude Include="..\Code\Mesh\BillboardMesh\BillboardMesh.h" />
     <ClInclude Include="..\Code\Mesh\Mesh.h" />
+    <ClInclude Include="..\Code\ResourceManager\ResourceManager.h" />
     <ClInclude Include="..\Code\Scene\Scene.h" />
     <ClInclude Include="..\Code\ShaderManager\ShaderManager.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\BillboardShader.h" />
@@ -202,7 +203,6 @@
     <ClInclude Include="..\Code\Shader\StandardShader\StandardShader.h" />
     <ClInclude Include="..\Code\Shader\TerrainShader\TerrainShader.h" />
     <ClInclude Include="..\Code\Stdafx\Stdafx.h" />
-    <ClInclude Include="..\Code\TextureManager\TextureManager.h" />
     <ClInclude Include="..\Code\Texture\Texture.h" />
   </ItemGroup>
   <ItemGroup>
@@ -227,6 +227,7 @@
     <ClCompile Include="..\Code\Material\Material.cpp" />
     <ClCompile Include="..\Code\Mesh\BillboardMesh\BillboardMesh.cpp" />
     <ClCompile Include="..\Code\Mesh\Mesh.cpp" />
+    <ClCompile Include="..\Code\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="..\Code\Scene\Scene.cpp" />
     <ClCompile Include="..\Code\ShaderManager\ShaderManager.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\BillboardShader.cpp" />
@@ -244,7 +245,6 @@
     <ClCompile Include="..\Code\Shader\StandardShader\StandardShader.cpp" />
     <ClCompile Include="..\Code\Shader\TerrainShader\TerrainShader.cpp" />
     <ClCompile Include="..\Code\Stdafx\Stdafx.cpp" />
-    <ClCompile Include="..\Code\TextureManager\TextureManager.cpp" />
     <ClCompile Include="..\Code\Texture\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
