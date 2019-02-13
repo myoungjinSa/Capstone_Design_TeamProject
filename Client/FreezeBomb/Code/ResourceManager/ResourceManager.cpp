@@ -83,10 +83,10 @@ void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_TextureMap.emplace("Colon", pColonTexture);
 }
 
-#define SIZE 19
+#define SIZE 20
 void CResourceManager::LoadBound(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	string filename = "../Resource/ModelBounds.bin";
+	string filename = "../Resource/Bounds/ModelBounds.bin";
 	ifstream in(filename, ios::binary);
 	if (!in)
 	{

@@ -5,7 +5,7 @@
 using namespace std;
 using namespace DirectX;
 
-#define SIZE 19
+#define SIZE 20
 struct Bound
 {
 	string m_Name;
@@ -23,6 +23,9 @@ int main()
 
 	Bound bounds[SIZE] =
 	{
+		// EvilBear
+		"<EvilBear>", XMFLOAT3(-0.1304445, 0.003544204, - 7.450581E-09), XMFLOAT3(0.2756854, 0.1529771, 0.2030513),
+
 		// DeadTree
 		"<DeadTree01>", XMFLOAT3(0, 0.135704, 0), XMFLOAT3(0.4260397, 0.1520242, 0.5093679),
 		"<DeadTree02>", XMFLOAT3(0, 0.1853436, 0), XMFLOAT3(0.3149319, 0.204001, 0.2920995),

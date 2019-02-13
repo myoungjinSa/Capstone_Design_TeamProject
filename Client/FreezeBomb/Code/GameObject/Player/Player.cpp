@@ -346,7 +346,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	if (pEvilBearModel)
 		delete pEvilBearModel;
 
-	m_ID = "<Deer01>";
+	m_ID = "<EvilBear>";
 
 }
 
