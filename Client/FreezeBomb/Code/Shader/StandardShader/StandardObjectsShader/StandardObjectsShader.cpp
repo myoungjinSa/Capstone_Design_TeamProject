@@ -207,6 +207,14 @@ void CStandardObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12Graphi
 void CStandardObjectsShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer* pPlayer)
 {
 	m_fElapsedTime += fTimeElapsed;
+
+	for (int i = 0; i < m_nObjects; ++i)
+	{
+		if (m_ppObjects[i])
+		{
+			m_ppObjects[i]->Animate(m_fElapsedTime);
+		}
+	}
 }
 
 void CStandardObjectsShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
@@ -216,7 +224,7 @@ void CStandardObjectsShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, 
 	{
 		if (m_ppObjects[i])
 		{
-			m_ppObjects[i]->Animate(m_fElapsedTime);
+			//m_ppObjects[i]->Animate(m_fElapsedTime);
 			m_ppObjects[i]->UpdateTransform(nullptr);
 			m_ppObjects[i]->Render(pd3dCommandList, pCamera);
 		}

@@ -506,6 +506,9 @@ void CGameFramework::AnimateObjects()
 
 	m_pPlayer->Animate(fTimeElapsed);
 	m_pPlayer->UpdateTransform(NULL);
+
+	if(m_pScene)
+		m_pScene->CheckObjectByObjectCollisions();
 }
 
 void CGameFramework::WaitForGpuComplete()
