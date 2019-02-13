@@ -41,6 +41,7 @@ void CStandardObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12Graphi
 
 	CTerrain* pTerrain = (CTerrain*)pContext;
 
+
 	m_ppObjects[0] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_ppObjects[0]->SetChild(pDeadTreesModel01->m_pModelRootObject);
 	pDeadTreesModel01->m_pModelRootObject->AddRef();

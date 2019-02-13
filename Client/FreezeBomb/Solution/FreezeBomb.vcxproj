@@ -195,6 +195,7 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\NumberUIShader\NumberUIShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TenNumberUIShader\TenNumberUIShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\UIShader.h" />
+    <ClInclude Include="..\Code\Shader\MapToolShader\MapTool.h" />
     <ClInclude Include="..\Code\Shader\Shader.h" />
     <ClInclude Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.h" />
     <ClInclude Include="..\Code\Shader\StandardShader\SkinnedAnimationObjectsShader\SkinnedAnimationObjectsShader.h" />
@@ -237,6 +238,7 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\NumberUIShader\NumberUIShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TenNumberUIShader\TenNumberUIShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\UIShader.cpp" />
+    <ClCompile Include="..\Code\Shader\MapToolShader\MapTool.cpp" />
     <ClCompile Include="..\Code\Shader\Shader.cpp" />
     <ClCompile Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.cpp" />
     <ClCompile Include="..\Code\Shader\StandardShader\SkinnedAnimationObjectsShader\SkinnedAnimationObjectsShader.cpp" />

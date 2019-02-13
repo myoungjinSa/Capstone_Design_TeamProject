@@ -236,16 +236,29 @@ void CAnimationController::AdvanceTime(float fTimeElapsed)
 			m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent = Matrix4x4::Zero();
 		for (int j = 0; j < m_nAnimationTracks; j++)
 		{
-			m_pAnimationTracks[j].m_fPosition += (fTimeElapsed * m_pAnimationTracks[j].m_fSpeed);
+			//m_pAnimationTracks[j].m_fPosition += (fTimeElapsed * m_pAnimationTracks[j].m_fSpeed);
+			//m_pAnimationTracks[j].m_pAnimationSet->SetPosition(m_pAnimationTracks[j].m_fPosition);
+			//if (m_pAnimationTracks[j].m_bEnable)
+			//{
+			//	for (int i = 0; i < m_pAnimationSets->m_nAnimationFrames; i++)
+			//	{
+			//		//m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent = Matrix4x4::Add(m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent, Matrix4x4::Scale(m_pAnimationTracks[j].m_pAnimationSet->GetSRT(i), m_pAnimationTracks[j].m_fWeight));
+			//		//프레임 마다 그 시간대의 변환행렬이 있는지 확인후 있다면 변환
+			//		m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent = m_pAnimationTracks[j].m_pAnimationSet->GetSRT(i);
+
+			//	}
+			//}
+			m_pAnimationTracks[j].m_fPosition += (fTimeElapsed * m_pAnimationTracks[j].m_fSpeed);		//각 애니메이션 트랙의 속도와 게임 경과시간을 곱해서 해당 애니메이션이 어느 시간대를 가리키는지 정해야한다.
+
+			CAnimationSet *pAnimationSet = m_pAnimationTracks[j].m_pAnimationSet;
+			pAnimationSet->m_fPosition += (fTimeElapsed * m_pAnimationTracks[j].m_fSpeed);
 			m_pAnimationTracks[j].m_pAnimationSet->SetPosition(m_pAnimationTracks[j].m_fPosition);
+			//m_pAnimationTracks[j].m_pAnimationSet->m_fLength;
 			if (m_pAnimationTracks[j].m_bEnable)
 			{
 				for (int i = 0; i < m_pAnimationSets->m_nAnimationFrames; i++)
 				{
-					//m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent = Matrix4x4::Add(m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent, Matrix4x4::Scale(m_pAnimationTracks[j].m_pAnimationSet->GetSRT(i), m_pAnimationTracks[j].m_fWeight));
-					//프레임 마다 그 시간대의 변환행렬이 있는지 확인후 있다면 변환
-					m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent = m_pAnimationTracks[j].m_pAnimationSet->GetSRT(i);
-
+					m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent = m_pAnimationTracks[j].m_pAnimationSet->GetSRT(i);//Matrix4x4::Add(m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent, Matrix4x4::Scale(m_pAnimationTracks[j].m_pAnimationSet->GetSRT(i), m_pAnimationTracks[j].m_fWeight));
 				}
 			}
 		}
@@ -594,6 +607,30 @@ XMFLOAT3 CGameObject::GetRight()
 	return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._11, m_xmf4x4World._12, m_xmf4x4World._13)));
 }
 
+void CGameObject::SetLookVector(XMFLOAT3& xmf3Look)
+{
+	m_xmf4x4World._31 = xmf3Look.x;
+	m_xmf4x4World._32 = xmf3Look.y;
+	m_xmf4x4World._33 = xmf3Look.z;
+
+	//UpdateTransform(NULL);
+}
+
+void CGameObject::SetRightVector(XMFLOAT3& xmf3Right)
+{
+	m_xmf4x4World._11 = xmf3Right.x;
+	m_xmf4x4World._12 = xmf3Right.y;
+	m_xmf4x4World._13 = xmf3Right.z;
+
+}
+
+void CGameObject::SetUpVector(XMFLOAT3& xmf3Up)
+{
+	m_xmf4x4World._21 = xmf3Up.x;
+	m_xmf4x4World._22 = xmf3Up.y;
+	m_xmf4x4World._23 = xmf3Up.z;
+}
+
 void CGameObject::MoveStrafe(float fDistance)
 {
 	XMFLOAT3 xmf3Position = GetPosition();
@@ -785,6 +822,7 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device *pd3dDevice, ID3D12Graphics
 		m_ppMaterials[i]->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
+XMFLOAT3 CGameObject::m_xmf3Scale = XMFLOAT3(1.0f,1.0f,1.0f);
 CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
 	CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes, int* pnFrameMeshes)
 {
@@ -831,6 +869,8 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 			nReads = (UINT)::fread(&xmf3Rotation, sizeof(float), 3, pInFile); //Euler Angle
 			nReads = (UINT)::fread(&xmf3Scale, sizeof(float), 3, pInFile);
 			nReads = (UINT)::fread(&xmf4Rotation, sizeof(float), 4, pInFile); //Quaternion
+
+			m_xmf3Scale = xmf3Scale;
 		}
 		else if (!strcmp(pstrToken, "<TransformMatrix>:"))
 		{

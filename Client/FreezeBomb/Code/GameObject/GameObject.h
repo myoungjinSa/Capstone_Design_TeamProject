@@ -259,6 +259,8 @@ public:
 	XMFLOAT4X4	m_xmf4x4ToParent;
 	XMFLOAT4X4	m_xmf4x4World;
 
+	
+
 	CGameObject*	m_pParent = NULL;
 	CGameObject*	m_pChild = NULL;
 	CGameObject*	m_pSibling = NULL;
@@ -289,6 +291,11 @@ public:
 	XMFLOAT3 GetLook();
 	XMFLOAT3 GetUp();
 	XMFLOAT3 GetRight();
+
+	void SetLookVector(XMFLOAT3& xmf3Look);
+	void SetUpVector(XMFLOAT3& xmf3Up);
+	void SetRightVector(XMFLOAT3& xmf3Right);
+
 
 	void SetPosition(float x, float y, float z);
 	void SetPosition(XMFLOAT3 xmf3Position);
@@ -335,6 +342,8 @@ public:
 
 	static void PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent);
 
+	//Transform만 지금 스케일 된값을 갖고 있기 때문에 멤버변수의 스케일 값을 갖게 하기 위해
+	static XMFLOAT3	m_xmf3Scale;
 protected:
 	CCarry*					m_pCarry{ nullptr };
 	CLampParticle*		m_pLampParticle{ nullptr };	

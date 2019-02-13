@@ -5,6 +5,74 @@
 #include "../ShaderManager/ShaderManager.h"
 #include "../Shader/TerrainShader/TerrainShader.h"
 #include "../GameObject/Terrain/Terrain.h"
+#include "../Shader/MapToolShader/MapTool.h"
+
+//void AddFileData(CPlayer *pPlayer,WPARAM wParam)
+//{
+//	
+//	ofstream fout;
+//	string none(" ");
+//
+//	string str;
+//	//파일을 새로 만들어서 마지막 데이터의 추가 
+//	switch (wParam)
+//	{
+//	case VK_RETURN:
+//	{
+//		fout.open("PineTree.txt", ios::app | ios::out);
+//		str = "<Position>:";
+//		fout.write(str.c_str(), str.size() + 1);
+//		fout << "\n";
+//		fout << pPlayer->GetPosition().x << " " << pPlayer->GetPosition().y << " " << pPlayer->GetPosition().z << "\n";
+//
+//		///////////////////////////////////////
+//		fout << "\n";
+//		///////////////////////////////////////
+//		str = "<Rotation>:";
+//		fout.write(str.c_str(), str.size() + 1);
+//		fout << "\n";
+//		fout << none << none;
+//		fout << pPlayer->GetLookVector().x << " " << pPlayer->GetLookVector().y << " " << pPlayer->GetLookVector().z << "\n";
+//		fout << pPlayer->GetUpVector().x << " " << pPlayer->GetUpVector().y << " " << pPlayer->GetUpVector().z << "\n";
+//		fout << pPlayer->GetRightVector().x << " " << pPlayer->GetRightVector().y << " " << pPlayer->GetRightVector().z << "\n";
+//
+//		/////////////////////////////////////////////////
+//		fout << "\n";
+//		//////////////////////////////////////////////////
+//
+//
+//
+//		fout.close();
+//	}
+//	case '1':
+//	{
+//		fout.open("DeadTree.txt", ios::app | ios::out);
+//
+//		str = "<Position>:";
+//		fout.write(str.c_str(), str.size() + 1);
+//		fout << "\n";
+//		fout << pPlayer->GetPosition().x << " " << pPlayer->GetPosition().y << " " << pPlayer->GetPosition().z << "\n";
+//
+//		///////////////////////////////////////
+//		fout << "\n";
+//		///////////////////////////////////////
+//		str = "<Rotation>:";
+//		fout.write(str.c_str(), str.size() + 1);
+//		fout << "\n";
+//		fout << none << none;
+//		fout << pPlayer->GetLookVector().x << " " << pPlayer->GetLookVector().y << " " << pPlayer->GetLookVector().z << "\n";
+//		fout << pPlayer->GetUpVector().x << " " << pPlayer->GetUpVector().y << " " << pPlayer->GetUpVector().z << "\n";
+//		fout << pPlayer->GetRightVector().x << " " << pPlayer->GetRightVector().y << " " << pPlayer->GetRightVector().z << "\n";
+//
+//		/////////////////////////////////////////////////
+//		fout << "\n";
+//		//////////////////////////////////////////////////
+//	}
+//	}
+//
+//
+//}
+
 
 CGameFramework::CGameFramework()
 {
@@ -46,6 +114,8 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 {
 	m_hInstance = hInstance;
 	m_hWnd = hMainWnd;
+
+
 
 	CreateDirect3DDevice();
 	CreateCommandQueueAndList();
@@ -308,8 +378,10 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	}
 }
 
+
 void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
+
 	if (m_pScene) m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 	switch (nMessageID)
 	{
@@ -319,8 +391,9 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				case VK_ESCAPE:
 					::PostQuitMessage(0);
 					break;
-				case VK_RETURN:
-					break;
+			//	case VK_RETURN:
+
+				//	break;
 				case VK_F1:
 				case VK_F2:
 				case VK_F3:
@@ -329,10 +402,15 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				case VK_F9:
 					ChangeSwapChainState();
 					break;
-				case '1':
-				case '2':
-					m_pPlayer->SetTrackAnimationSet(0, int(wParam) - '1');
-					break;
+				//case '1':
+				//	//AddFileData(m_pPlayer, wParam);
+				//	
+				//	break;
+				//case '2':
+				//	//AddFileData(m_pPlayer, wParam);
+				//	break;
+				//case '3':
+				//	break;
 				default:
 					break;
 			}
@@ -341,6 +419,31 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			break;
 	}
 }
+#ifdef _MAPTOOL_MODE_
+void CGameFramework::OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+{
+	switch (nMessageID)
+	{
+	case WM_KEYUP:
+		switch (wParam)
+		{
+		case '1':
+			if (m_pMapToolShader)
+			{
+				if (m_pPlayer) {
+					m_pMapToolShader->InsertObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, string("SM_PineTree_Snow_01"));
+				}
+			}
+			break;
+		default:
+			break;
+		}
+		break;
+	default:
+		break;
+	}
+}
+#endif
 
 LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
@@ -366,6 +469,10 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
         case WM_KEYDOWN:
         case WM_KEYUP:
 			OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
+
+#ifdef _MAPTOOL_MODE_
+			OnMapToolInputMesseage(hWnd, nMessageID, wParam, lParam);
+#endif
 			break;
 	}
 	return(0);
@@ -421,9 +528,15 @@ void CGameFramework::BuildObjects()
 			CTerrain* pTerrain = dynamic_cast<CTerrainShader*>((*iter).second)->getTerrain();
 			pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), pTerrain);
 			pPlayer->SetPosition(XMFLOAT3(0.f, pTerrain->GetHeight(0.f, 0.f), 0.f));
-			pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));		
+			//pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));		
+#ifdef _MAPTOOL_MODE_
+			m_pMapToolShader = new CMapToolShader();
+			m_pMapToolShader->CreateShader(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
+			m_pMapToolShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), pTerrain);
+#endif
 		}
 	}
+
 
 	m_pPlayer = pPlayer;
 	m_pScene->setPlayer(m_pPlayer);
@@ -445,6 +558,9 @@ void CGameFramework::ReleaseObjects()
 {
 	if (m_pPlayer) m_pPlayer->Release();
 
+#ifdef _MAPTOOL_MODE_
+	if (m_pMapToolShader) m_pMapToolShader->ReleaseObjects();
+#endif
 	if (m_pScene) m_pScene->ReleaseObjects();
 	if (m_pScene) delete m_pScene;
 }
@@ -497,6 +613,7 @@ void CGameFramework::AnimateObjects()
 	if (m_pScene) 
 		m_pScene->AnimateObjects(fTimeElapsed);
 
+	
 	m_pPlayer->Animate(fTimeElapsed);
 	m_pPlayer->UpdateTransform(NULL);
 }
@@ -564,6 +681,14 @@ void CGameFramework::FrameAdvance()
 
 	if (m_pScene) 
 		m_pScene->Render(m_pd3dCommandList, m_pCamera);
+
+#ifdef _MAPTOOL_MODE_
+	if (m_pMapToolShader)
+	{
+		m_pMapToolShader->Render(m_pd3dCommandList, m_pCamera);
+	}
+		
+#endif
 
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);

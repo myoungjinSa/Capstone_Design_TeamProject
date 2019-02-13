@@ -139,6 +139,9 @@
     <Filter Include="Code\Shader\BillboardShader\UIShader\ColonUIShader">
       <UniqueIdentifier>{f74fc5d2-8e41-4df7-866e-1228848d4306}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Shader\MapToolShader">
+      <UniqueIdentifier>{6fcdafe5-f4ad-4c2c-a390-54109cafe4a9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FreezeBomb.rc">
@@ -280,6 +283,9 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\ColonUIShader\ColonUIShader.h">
       <Filter>Code\Shader\BillboardShader\UIShader\ColonUIShader</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\Shader\MapToolShader\MapTool.h">
+      <Filter>Code\Shader\MapToolShader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Code\FreezeBomb.cpp">
@@ -401,6 +407,9 @@
     </ClCompile>
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\ColonUIShader\ColonUIShader.cpp">
       <Filter>Code\Shader\BillboardShader\UIShader\ColonUIShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\MapToolShader\MapTool.cpp">
+      <Filter>Code\Shader\MapToolShader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
