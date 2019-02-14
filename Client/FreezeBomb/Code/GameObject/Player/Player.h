@@ -10,31 +10,9 @@
 #include "../GameObject.h"
 #include "../../Camera/Camera.h"
 
+class CItem;
 class CPlayer : public CGameObject
 {
-protected:
-	XMFLOAT3					m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	XMFLOAT3					m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	XMFLOAT3					m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	XMFLOAT3					m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
-
-	XMFLOAT3					m_xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
-
-	float           			m_fPitch = 0.0f;
-	float           			m_fYaw = 0.0f;
-	float           			m_fRoll = 0.0f;
-
-	XMFLOAT3					m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	XMFLOAT3     				m_xmf3Gravity = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	float           			m_fMaxVelocityXZ = 0.0f;
-	float           			m_fMaxVelocityY = 0.0f;
-	float           			m_fFriction = 0.0f;
-
-	LPVOID						m_pPlayerUpdatedContext = NULL;
-	LPVOID						m_pCameraUpdatedContext = NULL;
-
-	CCamera						*m_pCamera = NULL;
-
 public:
 	CPlayer();
 	virtual ~CPlayer();
@@ -74,33 +52,42 @@ public:
 	virtual void OnCameraUpdateCallback(float fTimeElapsed) { }
 	void SetCameraUpdatedContext(LPVOID pContext) { m_pCameraUpdatedContext = pContext; }
 
-	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseShaderVariables();
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 
 	CCamera *OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode);
 
-	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed) { return(NULL); }
+	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed) { return nullptr; }
 	virtual void OnPrepareRender();
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL);
-};
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = nullptr);
 
-class CAirplanePlayer : public CPlayer
-{
-public:
-	CAirplanePlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext=NULL);
-	virtual ~CAirplanePlayer();
+	enum ITEM_TYPE {Hammer, GoldHammer, GoldTimer};
+	CItem* getItem()	const { return m_pItem; }
 
-	CGameObject					*m_pMainRotorFrame = NULL;
-	CGameObject					*m_pTailRotorFrame = NULL;
+protected:
+	XMFLOAT3			m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMFLOAT3			m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	XMFLOAT3			m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	XMFLOAT3			m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
 
-private:
-	virtual void OnPrepareAnimate();
-	virtual void Animate(float fTimeElapsed);
+	XMFLOAT3			m_xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
-public:
-	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
-	virtual void OnPrepareRender();
+	float           			m_fPitch = 0.0f;
+	float           			m_fYaw = 0.0f;
+	float           			m_fRoll = 0.0f;
+
+	XMFLOAT3			m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMFLOAT3     		m_xmf3Gravity = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	float           			m_fMaxVelocityXZ = 0.0f;
+	float           			m_fMaxVelocityY = 0.0f;
+	float           			m_fFriction = 0.0f;
+
+	LPVOID				m_pPlayerUpdatedContext{ nullptr };
+	LPVOID				m_pCameraUpdatedContext{ nullptr };
+
+	CCamera*				m_pCamera{ nullptr };
+	CItem*					m_pItem{ nullptr };
 };
 
 class CSoundCallbackHandler : public CAnimationCallbackHandler
@@ -109,7 +96,6 @@ public:
 	CSoundCallbackHandler() { }
 	~CSoundCallbackHandler() { }
 
-public:
 	virtual void HandleCallback(void *pCallbackData); 
 };
 
@@ -119,9 +105,7 @@ public:
 	CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext=NULL);
 	virtual ~CTerrainPlayer();
 
-public:
 	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
-
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed);
 	virtual void OnCameraUpdateCallback(float fTimeElapsed);
 };

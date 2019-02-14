@@ -19,10 +19,13 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-
+#include <map>
+#include <random>
 using namespace std;
 
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
+
+enum NUMBER { ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE };
 
 #include <d3d12.h>
 #include <dxgi1_4.h>
@@ -47,8 +50,8 @@ extern HINSTANCE						ghAppInstance;
 
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 
-#define FRAME_BUFFER_WIDTH		640
-#define FRAME_BUFFER_HEIGHT		480
+#define FRAME_BUFFER_WIDTH		800
+#define FRAME_BUFFER_HEIGHT		600
 
 //#define _WITH_CB_GAMEOBJECT_32BIT_CONSTANTS
 //#define _WITH_CB_GAMEOBJECT_ROOT_DESCRIPTOR
@@ -118,6 +121,18 @@ namespace Vector3
 	{
 		XMFLOAT3 xmf3Result;
 		XMStoreFloat3(&xmf3Result, XMLoadFloat3(&xmf3Vector1) - XMLoadFloat3(&xmf3Vector2));
+		return(xmf3Result);
+	}
+
+	inline XMFLOAT3 SubtractNormalize(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2, bool bNormalize = false)
+	{
+		XMFLOAT3 xmf3Result;
+		if (bNormalize) {
+			XMStoreFloat3(&xmf3Result, XMVector3Normalize(XMLoadFloat3(&xmf3Vector1) - XMLoadFloat3(&xmf3Vector2)));
+		}
+		else {
+			XMStoreFloat3(&xmf3Result, XMLoadFloat3(&xmf3Vector1) - XMLoadFloat3(&xmf3Vector2));
+		}
 		return(xmf3Result);
 	}
 

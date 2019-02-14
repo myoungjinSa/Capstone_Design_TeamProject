@@ -1,6 +1,7 @@
 #pragma once
 #include "../Camera/Camera.h"
 
+class CGameObject;
 class CShader
 {
 public:
@@ -36,11 +37,14 @@ public:
 	virtual void OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int nPipelineState=0);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera);
 
-	virtual void ReleaseUploadBuffers() { }
-
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext = NULL) { }
-	virtual void AnimateObjects(float fTimeElapsed) { }
-	virtual void ReleaseObjects() { }
+	virtual void AnimateObjects(float fTimeElapsed, CCamera *pCamera, CPlayer* pPlayer = NULL) { }
+	virtual void ReleaseObjects();
+	virtual void ReleaseUploadBuffers();
+
+	float Random(float min, float max);
+	float Random();
+	XMFLOAT3 RandomPositionInSphere(XMFLOAT3 xmf3Center, float fRadius, int nColumn, int nColumnSpace);
 
 protected:
 	float								m_fElapsedTime = 0.0f;
@@ -51,4 +55,8 @@ protected:
 	ID3D12PipelineState*	m_pd3dPipelineState = NULL;
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC	m_d3dPipelineStateDesc;
+
+public:
+	CGameObject**			m_ppObjects = 0;
+	int									m_nObjects = 0;
 };

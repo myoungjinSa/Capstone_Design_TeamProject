@@ -1,5 +1,9 @@
 #include "../../Stdafx/Stdafx.h"
 #include "SkyBoxShader.h"
+#include "../../GameObject/SkyBox/SkyBox.h"
+#include "../../Material/Material.h"
+#include "../../Texture/Texture.h"
+#include "../../Scene/Scene.h"
 
 CSkyBoxShader::CSkyBoxShader()
 {
@@ -52,4 +56,37 @@ D3D12_SHADER_BYTECODE CSkyBoxShader::CreateVertexShader()
 D3D12_SHADER_BYTECODE CSkyBoxShader::CreatePixelShader()
 {
 	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSSkyBox", "ps_5_1", &m_pd3dPixelShaderBlob));
+}
+
+void CSkyBoxShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
+	const map<string, CTexture*>& Context, void* pContext)
+{
+	m_nObjects = 1;
+	m_ppObjects = new CGameObject*[m_nObjects];
+
+	CSkyBox* pSkyBox = new CSkyBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	CSkyBoxMesh *pSkyBoxMesh = new CSkyBoxMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 2.0f);
+	pSkyBox->SetMesh(pSkyBoxMesh);
+
+	CMaterial *pSkyBoxMaterial = new CMaterial(1);
+	auto iter = Context.find("SkyBox");
+	if(iter != Context.end())
+		pSkyBoxMaterial->SetTexture((*iter).second);
+	pSkyBox->SetMaterial(0, pSkyBoxMaterial);
+
+	m_ppObjects[0] = pSkyBox;
+}
+
+void CSkyBoxShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+{
+	CShader::Render(pd3dCommandList, pCamera);
+
+	for (int i = 0; i < m_nObjects; ++i)
+	{
+		if (m_ppObjects[i])
+		{
+			m_ppObjects[i]->Render(pd3dCommandList, pCamera);
+		}
+	}
 }

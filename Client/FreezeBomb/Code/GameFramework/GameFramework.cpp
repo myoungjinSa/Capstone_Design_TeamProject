@@ -2,7 +2,10 @@
 #include "GameFramework.h"
 #include "../Scene/Scene.h"
 #include "../GameObject/Player/Player.h"
+#include "../ShaderManager/ShaderManager.h"
+#include "../Shader/TerrainShader/TerrainShader.h"
 #include "../GameObject/Terrain/Terrain.h"
+#include "../ResourceManager/ResourceManager.h"
 
 CGameFramework::CGameFramework()
 {
@@ -400,8 +403,6 @@ void CGameFramework::OnDestroy()
 #endif
 }
 
-#define _WITH_TERRAIN_PLAYER
-
 void CGameFramework::BuildObjects()
 {
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
@@ -410,16 +411,27 @@ void CGameFramework::BuildObjects()
 	if (m_pScene) 
 		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 
-#ifdef _WITH_TERRAIN_PLAYER
-	CTerrainPlayer* pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), m_pScene->m_pTerrain);
-	pPlayer->SetPosition(XMFLOAT3(380.0f, m_pScene->m_pTerrain->GetHeight(380.0f, 680.0f), 680.0f));
-	pPlayer->SetScale(XMFLOAT3(2.0f, 2.0f, 2.0f));
-#else
-	CAirplanePlayer *pPlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), NULL);
-	pPlayer->SetPosition(XMFLOAT3(425.0f, 240.0f, 640.0f));
-#endif
+	CTerrainPlayer* pPlayer{ nullptr };
+
+	if (m_pScene->getShaderManager())
+	{
+		map<string, CShader*> m = m_pScene->getShaderManager()->getShaderMap();
+		auto iter = m.find("Terrain");
+		if(iter != m.end())
+		{
+			CTerrain* pTerrain = dynamic_cast<CTerrainShader*>((*iter).second)->getTerrain();
+			pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), pTerrain);
+			pPlayer->SetPosition(XMFLOAT3(0.f, pTerrain->GetHeight(0.f, 0.f), 0.f));
+			pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));	
+			map<string, Bounds*> BoundMap = m_pScene->getShaderManager()->getResourceManager()->getBoundMap();
+			auto iter2 = BoundMap.find(pPlayer->getID());
+			if (iter2 != BoundMap.end())
+				pPlayer->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
+		}
+	}
+	
 	m_pPlayer = pPlayer;
-	m_pScene->SetPlayer(m_pPlayer);
+	m_pScene->setPlayer(m_pPlayer);
 	m_pCamera = m_pPlayer->GetCamera();
 
 	m_pd3dCommandList->Close();
@@ -487,10 +499,14 @@ void CGameFramework::AnimateObjects()
 {
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 
-	if (m_pScene) m_pScene->AnimateObjects(fTimeElapsed);
+	if (m_pScene) 
+		m_pScene->AnimateObjects(fTimeElapsed);
 
 	m_pPlayer->Animate(fTimeElapsed);
 	m_pPlayer->UpdateTransform(NULL);
+
+	if(m_pScene)
+		m_pScene->CheckObjectByObjectCollisions();
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -554,12 +570,14 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
-	if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
+	if (m_pScene) 
+		m_pScene->Render(m_pd3dCommandList, m_pCamera);
 
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 #endif
-	if (m_pPlayer) m_pPlayer->Render(m_pd3dCommandList, m_pCamera);
+	if (m_pPlayer) 
+		m_pPlayer->Render(m_pd3dCommandList, m_pCamera);
 
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;

@@ -90,6 +90,7 @@ public:
 public:
 	// AnimationTrack의 포지션값 => 애니메이션에서 읽어가야하는 위치 => 서로 다른동작을 하게함
 	void SetPosition(float fTrackPosition);
+	void SetPosition(float& fTrackPosition, float& oncePosition);
 
 	XMFLOAT4X4 GetSRT(int nFrame);
 
@@ -191,6 +192,7 @@ public:
 	~CLoadedModelInfo() { }
 
 	int 						m_nSkinnedMeshes = 0;
+	int							m_nFrameMeshes = 0;
 
     CGameObject*		m_pModelRootObject = NULL;
 	CAnimationSets*	m_pAnimationSets = NULL;
@@ -228,29 +230,15 @@ public:
 #define DIR_UP						0x10
 #define DIR_DOWN					0x20
 
-struct CB_GAMEOBJECT_INFO
-{
-	// gmtxGameObject
-	XMFLOAT4X4	m_xmf4x4World;
-
-	// gMaterial
-	XMFLOAT4		m_xmf4AmbientColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-	XMFLOAT4		m_xmf4AlbedoColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	XMFLOAT4		m_xmf4SpecularColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-	XMFLOAT4		m_xmf4EmissiveColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-
-	// gnTexturesMask
-	UINT					m_nType = 0x00;
-};
-
 class CTexture;
 class CMaterial;
 class CShader;
-
+class CCarry;
+class CLampParticle;
 class CGameObject
 {
 private:
-	int								m_nReferences = 0;
+	int						m_nReferences = 0;
 
 public:
 	void AddRef();
@@ -276,6 +264,8 @@ public:
 	CGameObject*	m_pChild = NULL;
 	CGameObject*	m_pSibling = NULL;
 
+	static int m_AnimationType;
+
 	void SetMesh(CMesh *pMesh);
 	void SetShader(CShader *pShader);
 	void SetShader(int nMaterial, CShader *pShader);
@@ -291,8 +281,6 @@ public:
 	virtual void OnPrepareRender() { }
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
 
-	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void ReleaseShaderVariables();
 
 	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4 *pxmf4x4World);
@@ -326,6 +314,8 @@ public:
 	UINT GetMeshType() { return((m_pMesh) ? m_pMesh->GetType() : 0x00); }
 
 public:
+	const enum ANIMATIONTYPE { IDLE, WALKFRONT, RUNFAST, RUNBACKWARD, ATTACK, DIGGING /*땅 파기*/, ICE, NOTYET /*미정*/ };
+
 	// 각각의 객체가 AnimationController를 가지고 있어서, 서로다른 동작을 할 수 있도록 하자.
 	CAnimationController*			m_pAnimationController = NULL;
 	// 메쉬가 아닌 각각의 객체가 transform 행렬을 갖고 있기 위함 => 모델공유문제 해결
@@ -337,84 +327,34 @@ public:
 	void SetTrackAnimationPosition(int nAnimationTrack, float fPosition);
 
 	void CacheSkinningBoneFrames(CGameObject *pRootFrame);
+
 	void FindAndSetSkinnedMesh(int *pnSkinMesh, CSkinningBoneTransforms *pSkinningBoneTransforms);
 
 	void LoadMaterialsFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CGameObject *pParent, FILE *pInFile, CShader *pShader);
 
 	static CAnimationSets *LoadAnimationFromFile(FILE *pInFile, CGameObject *pRootFrame);
-	static CGameObject *LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes);
+	static CGameObject *LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
+		CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes, int* pnFrameMeshes);
 
-	static CLoadedModelInfo *LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char *pstrFileName, CShader *pShader, bool bHasAnimation);
+	static CLoadedModelInfo* LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char *pstrFileName, CShader *pShader, bool bHasAnimation);
 
 	static void PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent);
+protected:
+	CCarry*					m_pCarry{ nullptr };
+	CLampParticle*		m_pLampParticle{ nullptr };	
 
-private:
-	// 상수버퍼뷰
-	ID3D12Resource*									m_pd3dcbGameObject{ nullptr };
-	CB_GAMEOBJECT_INFO*						m_pcbMappedGameObject{ nullptr };
+	string m_ID;
+	CGameObject*		m_pObjectCollided{ nullptr };
+
+public:
+	BoundingOrientedBox m_xmOOBB;
+	BoundingOrientedBox m_xmOOBBTransformed;
+	BoundingOrientedBox GetBoundingBox() { return m_xmOOBB; }
+	void SetOOBB(XMFLOAT3& xmCenter, XMFLOAT3& xmExtents, XMFLOAT4& xmOrientation)
+	{ m_xmOOBBTransformed = m_xmOOBB = BoundingOrientedBox(xmCenter, xmExtents, xmOrientation); }
+	void setID(const string id) { m_ID = id; }
+	const string getID()	const { return m_ID; }
+
+	CGameObject* GetObjectCollided() { return m_pObjectCollided; }
+	void SetObjectCollided(CGameObject* value) { m_pObjectCollided = value; }
 };
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class CSuperCobraObject : public CGameObject
-{
-public:
-	CSuperCobraObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
-	virtual ~CSuperCobraObject();
-
-private:
-	CGameObject* m_pMainRotorFrame = NULL;
-	CGameObject* m_pTailRotorFrame = NULL;
-
-public:
-	virtual void OnPrepareAnimate();
-	virtual void Animate(float fTimeElapsed);
-};
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class CGunshipObject : public CGameObject
-{
-public:
-	CGunshipObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
-	virtual ~CGunshipObject();
-
-private:
-	CGameObject* m_pMainRotorFrame = NULL;
-	CGameObject* m_pTailRotorFrame = NULL;
-
-public:
-	virtual void OnPrepareAnimate();
-	virtual void Animate(float fTimeElapsed);
-};
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class CMi24Object : public CGameObject
-{
-public:
-	CMi24Object(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
-	virtual ~CMi24Object();
-
-private:
-	CGameObject* m_pMainRotorFrame = NULL;
-	CGameObject* m_pTailRotorFrame = NULL;
-
-public:
-	virtual void OnPrepareAnimate();
-	virtual void Animate(float fTimeElapsed);
-};
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-class CAngrybotObject : public CGameObject
-{
-public:
-	CAngrybotObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
-	virtual ~CAngrybotObject();
-
-public:
-	virtual void OnPrepareAnimate();
-	virtual void Animate(float fTimeElapsed);
-};
-

@@ -5,6 +5,15 @@
 #include "../Shader/StandardShader/SkinnedAnimationObjectsShader/SkinnedAnimationObjectsShader.h"
 #include "../Scene/Scene.h"
 
+CMaterial::CMaterial()
+{
+	m_nTextures = 1;
+	m_ppTextures = new CTexture*[m_nTextures];
+	m_ppstrTextureNames = new _TCHAR[m_nTextures][64];
+	for (int i = 0; i < m_nTextures; i++) m_ppTextures[i] = NULL;
+	for (int i = 0; i < m_nTextures; i++) m_ppstrTextureNames[i][0] = '\0';
+}
+
 CMaterial::CMaterial(int nTextures)
 {
 	m_nTextures = nTextures;
@@ -17,7 +26,8 @@ CMaterial::CMaterial(int nTextures)
 
 CMaterial::~CMaterial()
 {
-	if (m_pShader) m_pShader->Release();
+	if (m_pShader) 
+		m_pShader->Release();
 
 	if (m_nTextures > 0)
 	{
@@ -26,7 +36,8 @@ CMaterial::~CMaterial()
 				m_ppTextures[i]->Release();
 		delete[] m_ppTextures;
 
-		if (m_ppstrTextureNames) delete[] m_ppstrTextureNames;
+		if (m_ppstrTextureNames) 
+			delete[] m_ppstrTextureNames;
 	}
 }
 
@@ -109,12 +120,11 @@ void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 
 		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbMaterial->GetGPUVirtualAddress();
 		pd3dCommandList->SetGraphicsRootConstantBufferView(15, d3dGpuVirtualAddress);
-
-		for (int i = 0; i < m_nTextures; i++)
-		{
-			if (m_ppTextures[i])
-				m_ppTextures[i]->UpdateShaderVariable(pd3dCommandList, 0);
-		}
+	}
+	for (int i = 0; i < m_nTextures; i++)
+	{
+		if (m_ppTextures[i])
+			m_ppTextures[i]->UpdateShaderVariable(pd3dCommandList, 0);
 	}
 }
 
@@ -139,18 +149,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsComm
 #define SIZE 64
 		char pstrFilePath[SIZE] = { '\0' };
 
-		//wstring s = L"../Resource/Model/Textures/";
-		//wchar_t* wchar_TextureName;
-		////멀티 바이트 크기 계산 길이 반환
-		//int strSize = MultiByteToWideChar(CP_ACP, 0, pstrTextureName, -1, NULL, NULL);
-		////wchar_t 메모리 할당
-		//wchar_TextureName = new WCHAR[strSize];
-		////형 변환
-		//MultiByteToWideChar(CP_ACP, 0, pstrTextureName, strlen(pstrTextureName) + 1, wchar_TextureName, strSize);
-		//s = s + wchar_TextureName + L".dds";
-		//delete[] wchar_TextureName;
-
-		strcpy_s(pstrFilePath, SIZE, "../Resource/Model/Textures/");
+		strcpy_s(pstrFilePath, SIZE, "../Resource/Textures/Model/");
 
 		bDuplicated = (pstrTextureName[0] == '@');
 
@@ -173,8 +172,8 @@ void CMaterial::LoadTextureFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsComm
 		{
 			*ppTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 			(*ppTexture)->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pwstrTextureName, 0, true);
-			//(*ppTexture)->LoadTextureFromFile(pd3dDevice, pd3dCommandList, (wchar_t*)s.c_str(), 0, true);
-			if (*ppTexture) (*ppTexture)->AddRef();
+			if (*ppTexture) 
+				(*ppTexture)->AddRef();
 
 			CScene::CreateShaderResourceViews(pd3dDevice, *ppTexture, nRootParameter, false);
 		}

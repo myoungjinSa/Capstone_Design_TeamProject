@@ -1,7 +1,8 @@
 #include "../../../Stdafx/Stdafx.h"
 #include "StandardObjectsShader.h"
-#include "../../../GameObject/GameObject.h"
+#include "../../../GameObject/Surrounding/Surrounding.h"
 #include "../../../GameObject/Terrain/Terrain.h"
+#include "../../../ResourceManager/ResourceManager.h"
 
 CStandardObjectsShader::CStandardObjectsShader()
 {
@@ -9,138 +10,157 @@ CStandardObjectsShader::CStandardObjectsShader()
 
 CStandardObjectsShader::~CStandardObjectsShader()
 {
+	if (m_ppDeadTreeModel)
+		delete[] m_ppDeadTreeModel;
+	if (m_ppPineTreeModel)
+		delete[] m_ppPineTreeModel;
+	if (m_ppRockModel)
+		delete[] m_ppRockModel;
 }
 
-float CStandardObjectsShader::Random(float fMin, float fMax)
+void CStandardObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
+	const map<string, Bounds*>& Context, void* pContext)
 {
-	float fRandomValue = (float)rand();
-	if (fRandomValue < fMin) fRandomValue = fMin;
-	if (fRandomValue > fMax) fRandomValue = fMax;
-	return(fRandomValue);
-}
+	int nDeadTrees = 5, nPineTrees = 8, nRocks = 5, nDeers = 1;
+	
+	int i = 0;
+	m_ppDeadTreeModel = new CLoadedModelInfo*[nDeadTrees];
+	CLoadedModelInfo* pDeadTreeModel01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_01.bin", this, false);
+	m_ppDeadTreeModel[i++] = pDeadTreeModel01;
+	CLoadedModelInfo* pDeadTreeModel02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_02.bin", this, false);
+	m_ppDeadTreeModel[i++] = pDeadTreeModel02;
+	CLoadedModelInfo* pDeadTreeModel03 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_03.bin", this, false);
+	m_ppDeadTreeModel[i++] = pDeadTreeModel03;
+	CLoadedModelInfo* pDeadTreeModel04 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_04.bin", this, false);
+	m_ppDeadTreeModel[i++] = pDeadTreeModel04;
+	CLoadedModelInfo* pDeadTreeModel05 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_05.bin", this, false);
+	m_ppDeadTreeModel[i++] = pDeadTreeModel05;
 
-float CStandardObjectsShader::Random()
-{
-	return(rand() / float(RAND_MAX));
-}
+	i = 0;
+	m_ppPineTreeModel = new CLoadedModelInfo*[nPineTrees];
+	CLoadedModelInfo* pPineTreeModel01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_01.bin", this, false);
+	m_ppPineTreeModel[i++] = pPineTreeModel01;
+	CLoadedModelInfo* pPineTreeModel02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_02.bin", this, false);
+	m_ppPineTreeModel[i++] = pPineTreeModel02;
+	CLoadedModelInfo* pPineTreeModel03 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_03.bin", this, false);
+	m_ppPineTreeModel[i++] = pPineTreeModel03;
+	CLoadedModelInfo* pPineTreeModel04 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_04.bin", this, false);
+	m_ppPineTreeModel[i++] = pPineTreeModel04;
+	CLoadedModelInfo* pPineTreeModel05 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_05.bin", this, false);
+	m_ppPineTreeModel[i++] = pPineTreeModel05;
+	CLoadedModelInfo* pPineTreeModel06 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_06.bin", this, false);
+	m_ppPineTreeModel[i++] = pPineTreeModel06;
+	CLoadedModelInfo* pPineTreeModel07 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_07.bin", this, false);
+	m_ppPineTreeModel[i++] = pPineTreeModel07;
+	CLoadedModelInfo* pPineTreeModel08 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_08.bin", this, false);
+	m_ppPineTreeModel[i++] = pPineTreeModel08;
 
-XMFLOAT3 CStandardObjectsShader::RandomPositionInSphere(XMFLOAT3 xmf3Center, float fRadius, int nColumn, int nColumnSpace)
-{
-	float fAngle = Random() * 360.0f * (2.0f * 3.14159f / 360.0f);
+	i = 0;
+	m_ppRockModel = new CLoadedModelInfo*[nRocks];
+	CLoadedModelInfo* pRock01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_01.bin", this, false);
+	m_ppRockModel[i++] = pRock01;
+	CLoadedModelInfo* pRock02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_02.bin", this, false);
+	m_ppRockModel[i++] = pRock02;
+	CLoadedModelInfo* pRock03 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_03.bin", this, false);
+	m_ppRockModel[i++] = pRock03;
+	CLoadedModelInfo* pRock04 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_04.bin", this, false);
+	m_ppRockModel[i++] = pRock04;
+	CLoadedModelInfo* pRock05 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PlainSmall_Snow_01.bin", this, false);
+	m_ppRockModel[i++] = pRock05;
 
-	XMFLOAT3 xmf3Position;
-	xmf3Position.x = xmf3Center.x + fRadius * sin(fAngle);
-	xmf3Position.y = xmf3Center.y - (nColumn * float(nColumnSpace) / 2.0f) + (nColumn * nColumnSpace) + Random();
-	xmf3Position.z = xmf3Center.z + fRadius * cos(fAngle);
+	CLoadedModelInfo* pDeer01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_Deer.bin", this, false);
 
-	return(xmf3Position);
-}
+	CTerrain* pTerrain = (CTerrain*)pContext;
 
-void CStandardObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
-{
-	m_nObjects = 40;
+	enum OBJECT_TYPE { DeadTree, PineTree, Rock, Deer };
+	
+	m_nObjects = nDeadTrees + nPineTrees + nRocks + nDeers;
 	m_ppObjects = new CGameObject*[m_nObjects];
-
-	CLoadedModelInfo* pSuperCobraModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
-		"../Resource/Model/SuperCobra.bin", this, false);
-
-	CLoadedModelInfo* pGunshipModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
-		"../Resource/Model/Gunship.bin", this, false);
-
-	int nColumnSpace = 5, nColumnSize = 30;
-	int nFirstPassColumnSize = (m_nObjects % nColumnSize) > 0 ? (nColumnSize - 1) : nColumnSize;
-
-	CTerrain *pTerrain = (CTerrain *)pContext;
-
-	int nObjects = 0;
-	for (int h = 0; h < nFirstPassColumnSize; h++)
-	{
-		for (int i = 0; i < floor(float(m_nObjects) / float(nColumnSize)); i++)
-		{
-			if (nObjects % 2)
-			{
-				m_ppObjects[nObjects] = new CSuperCobraObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-				m_ppObjects[nObjects]->SetChild(pSuperCobraModel->m_pModelRootObject);
-				pSuperCobraModel->m_pModelRootObject->AddRef();
-			}
-			else
-			{
-				m_ppObjects[nObjects] = new CGunshipObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-				m_ppObjects[nObjects]->SetChild(pGunshipModel->m_pModelRootObject);
-				pGunshipModel->m_pModelRootObject->AddRef();
-			}
-			float fHeight = pTerrain->GetHeight(390.0f, 670.0f);
-			XMFLOAT3 xmf3Position = RandomPositionInSphere(XMFLOAT3(390.0f, fHeight + 35.0f, 670.0f), Random(20.0f, 100.0f), h - int(floor(nColumnSize / 2.0f)), nColumnSpace);
-			xmf3Position.y = pTerrain->GetHeight(xmf3Position.x, xmf3Position.z) + Random(0.0f, 25.0f);
-			m_ppObjects[nObjects]->SetPosition(xmf3Position);
-			m_ppObjects[nObjects]->Rotate(0.0f, 90.0f, 0.0f);
-			m_ppObjects[nObjects++]->OnPrepareAnimate();
-		}
-	}
-
-	if (nFirstPassColumnSize != nColumnSize)
-	{
-		for (int i = 0; i < m_nObjects - int(floor(float(m_nObjects) / float(nColumnSize)) * nFirstPassColumnSize); i++)
-		{
-			if (nObjects % 2)
-			{
-				m_ppObjects[nObjects] = new CSuperCobraObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-				m_ppObjects[nObjects]->SetChild(pSuperCobraModel->m_pModelRootObject);
-				pSuperCobraModel->m_pModelRootObject->AddRef();
-			}
-			else
-			{
-				m_ppObjects[nObjects] = new CGunshipObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-				m_ppObjects[nObjects]->SetChild(pGunshipModel->m_pModelRootObject);
-				pGunshipModel->m_pModelRootObject->AddRef();
-			}
-			m_ppObjects[nObjects]->SetPosition(RandomPositionInSphere(XMFLOAT3(0.0f, 0.0f, 0.0f), Random(20.0f, 100.0f), nColumnSize - int(floor(nColumnSize / 2.0f)), nColumnSpace));
-			m_ppObjects[nObjects]->Rotate(0.0f, 90.0f, 0.0f);
-			m_ppObjects[nObjects++]->OnPrepareAnimate();
-		}
-	}
-
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-
-	if (pSuperCobraModel)
-		delete pSuperCobraModel;
-	if (pGunshipModel)
-		delete pGunshipModel;
-}
-
-void CStandardObjectsShader::ReleaseObjects()
-{
-	if (m_ppObjects)
-	{
-		for (int i = 0; i < m_nObjects; ++i)
-			if (m_ppObjects[i])
-				m_ppObjects[i]->Release();
-		delete[] m_ppObjects;
-	}
-}
-
-void CStandardObjectsShader::AnimateObjects(float fTimeElapsed)
-{
-	m_fElapsedTime = fTimeElapsed;
-}
-
-void CStandardObjectsShader::ReleaseUploadBuffers()
-{
+	
+	XMFLOAT3 Position;
+	
 	for (int i = 0; i < m_nObjects; ++i)
-		if (m_ppObjects[i])
-			m_ppObjects[i]->ReleaseUploadBuffers();
+	{
+		m_ppObjects[i] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		Position.x = Random(10.f, 490.f);
+		Position.z = Random(10.f, 290.f);
+		m_ppObjects[i]->SetPosition(Position.x, pTerrain->GetHeight(Position.x, Position.z), Position.z);
+		
+		int random = Random(0, 3);
+		switch (random)
+		{
+		case DeadTree:
+			random = Random(0, nDeadTrees - 1);
+			m_ppObjects[i]->SetChild(m_ppDeadTreeModel[random]->m_pModelRootObject, true);
+			m_ppObjects[i]->setID("<DeadTree0" + to_string(random) + ">");
+			break;
+		case PineTree:
+			random = Random(0, nPineTrees - 1);
+			m_ppObjects[i]->SetChild(m_ppPineTreeModel[random]->m_pModelRootObject, true);
+			m_ppObjects[i]->setID("<PineTree0" + to_string(random) + ">");
+			break;
+		case Rock:
+			random = Random(0, nRocks - 1);
+			m_ppObjects[i]->SetChild(m_ppRockModel[random]->m_pModelRootObject, true);
+			m_ppObjects[i]->setID("<Rock0" + to_string(random) + ">");
+			break;
+		case Deer:
+			m_ppObjects[i]->SetChild(pDeer01->m_pModelRootObject, true);
+			m_ppObjects[i]->setID("<Deer01>");
+			break;
+		}
+		auto iter = Context.find(m_ppObjects[i]->getID());
+		if (iter != Context.end())
+			m_ppObjects[i]->SetOOBB((*iter).second->m_xmf3Center, (*iter).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
+	}
+
+	
+	if (pDeadTreeModel01) delete pDeadTreeModel01;
+	if (pDeadTreeModel02) delete pDeadTreeModel02;
+	if (pDeadTreeModel03) delete pDeadTreeModel03;
+	if (pDeadTreeModel04) delete pDeadTreeModel04;
+	if (pDeadTreeModel05) delete pDeadTreeModel05;
+
+	if (pPineTreeModel01) delete pPineTreeModel01;
+	if (pPineTreeModel02) delete pPineTreeModel02;
+	if (pPineTreeModel03) delete pPineTreeModel03;
+	if (pPineTreeModel04) delete pPineTreeModel04;
+	if (pPineTreeModel05) delete pPineTreeModel05;
+	if (pPineTreeModel06) delete pPineTreeModel06;
+	if (pPineTreeModel07) delete pPineTreeModel07;
+	if (pPineTreeModel08) delete pPineTreeModel08;
+
+	if (pRock01) delete pRock01;
+	if (pRock02) delete pRock02;
+	if (pRock03) delete pRock03;
+	if (pRock04) delete pRock04;
+	if (pRock05) delete pRock05;
+
+	if (pDeer01) delete pDeer01;
 }
 
-void CStandardObjectsShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CStandardObjectsShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer* pPlayer)
 {
-	CShader::Render(pd3dCommandList, pCamera);
+	m_fElapsedTime += fTimeElapsed;
 
 	for (int i = 0; i < m_nObjects; ++i)
 	{
 		if (m_ppObjects[i])
 		{
 			m_ppObjects[i]->Animate(m_fElapsedTime);
-			m_ppObjects[i]->UpdateTransform(NULL);
+		}
+	}
+}
+
+void CStandardObjectsShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+{
+	CShader::Render(pd3dCommandList, pCamera);
+	for (int i = 0; i < m_nObjects; ++i)
+	{
+		if (m_ppObjects[i])
+		{
+			//m_ppObjects[i]->Animate(m_fElapsedTime);
+			m_ppObjects[i]->UpdateTransform(nullptr);
 			m_ppObjects[i]->Render(pd3dCommandList, pCamera);
 		}
 	}

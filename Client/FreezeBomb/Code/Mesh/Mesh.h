@@ -1,27 +1,28 @@
 #pragma once
 
+struct CB_GAMEOBJECT_INFO;
 class CGameObject;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-#define VERTEXT_POSITION				0x0001
-#define VERTEXT_COLOR					0x0002
-#define VERTEXT_NORMAL					0x0004
-#define VERTEXT_TANGENT					0x0008
+#define VERTEXT_POSITION							0x0001
+#define VERTEXT_COLOR								0x0002
+#define VERTEXT_NORMAL							0x0004
+#define VERTEXT_TANGENT							0x0008
 #define VERTEXT_TEXTURE_COORD0			0x0010
 #define VERTEXT_TEXTURE_COORD1			0x0020
 
 #define VERTEXT_BONE_INDEX_WEIGHT		0x1000
 
-#define VERTEXT_TEXTURE					(VERTEXT_POSITION | VERTEXT_TEXTURE_COORD0)
-#define VERTEXT_DETAIL					(VERTEXT_POSITION | VERTEXT_TEXTURE_COORD0 | VERTEXT_TEXTURE_COORD1)
-#define VERTEXT_NORMAL_TEXTURE			(VERTEXT_POSITION | VERTEXT_NORMAL | VERTEXT_TEXTURE_COORD0)
+#define VERTEXT_TEXTURE									(VERTEXT_POSITION | VERTEXT_TEXTURE_COORD0)
+#define VERTEXT_DETAIL										(VERTEXT_POSITION | VERTEXT_TEXTURE_COORD0 | VERTEXT_TEXTURE_COORD1)
+#define VERTEXT_NORMAL_TEXTURE					(VERTEXT_POSITION | VERTEXT_NORMAL | VERTEXT_TEXTURE_COORD0)
 #define VERTEXT_NORMAL_TANGENT_TEXTURE	(VERTEXT_POSITION | VERTEXT_NORMAL | VERTEXT_TANGENT | VERTEXT_TEXTURE_COORD0)
-#define VERTEXT_NORMAL_DETAIL			(VERTEXT_POSITION | VERTEXT_NORMAL | VERTEXT_TEXTURE_COORD0 | VERTEXT_TEXTURE_COORD1)
+#define VERTEXT_NORMAL_DETAIL						(VERTEXT_POSITION | VERTEXT_NORMAL | VERTEXT_TEXTURE_COORD0 | VERTEXT_TEXTURE_COORD1)
 #define VERTEXT_NORMAL_TANGENT__DETAIL	(VERTEXT_POSITION | VERTEXT_NORMAL | VERTEXT_TANGENT | VERTEXT_TEXTURE_COORD0 | VERTEXT_TEXTURE_COORD1)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
+
 class CMesh
 {
 public:
@@ -79,7 +80,7 @@ public:
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
+
 class CHeightMapImage
 {
 private:
@@ -143,7 +144,7 @@ public:
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
+
 class CSkyBoxMesh : public CMesh
 {
 public:
@@ -152,7 +153,7 @@ public:
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
+
 class CStandardMesh : public CMesh
 {
 public:
@@ -224,7 +225,7 @@ protected:
 public:
 	int								m_nSkinningBones = 0; 
 
-	char							(*m_ppstrSkinningBoneNames)[64];
+	char										(*m_ppstrSkinningBoneNames)[64];
 	XMFLOAT4X4						*m_pxmf4x4BindPoseBoneOffsets = NULL; 
 
 	CGameObject						**m_ppSkinningBoneFrameCaches = NULL;

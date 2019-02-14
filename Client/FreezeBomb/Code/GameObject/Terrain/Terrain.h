@@ -9,12 +9,14 @@ public:
 	virtual ~CTerrain();
 
 private:
-	CHeightMapImage*	m_pHeightMapImage;
+	CHeightMapImage*	m_pHeightMapImage{ nullptr };
 
 	int								m_nWidth;
 	int								m_nLength;
 
 	XMFLOAT3				m_xmf3Scale;
+
+	UINT							m_terrainID;
 
 public:
 	float GetHeight(float x, float z, bool bReverseQuad = false) { return(m_pHeightMapImage->GetHeight(x, z, bReverseQuad) * m_xmf3Scale.y); } //World
@@ -26,4 +28,6 @@ public:
 	XMFLOAT3 GetScale() { return(m_xmf3Scale); }
 	float GetWidth() { return(m_nWidth * m_xmf3Scale.x); }
 	float GetLength() { return(m_nLength * m_xmf3Scale.z); }
+
+	CHeightMapImage* getHeightMapImage()	const { return m_pHeightMapImage; }
 };

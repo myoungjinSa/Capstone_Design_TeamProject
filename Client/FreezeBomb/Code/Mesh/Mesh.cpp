@@ -598,7 +598,6 @@ void CStandardMesh::OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void
 
 	pd3dCommandList->IASetVertexBuffers(m_nSlot, 5, pVertexBufferViews);
 }
-
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 CSkinnedMesh::CSkinnedMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) : CStandardMesh(pd3dDevice, pd3dCommandList)

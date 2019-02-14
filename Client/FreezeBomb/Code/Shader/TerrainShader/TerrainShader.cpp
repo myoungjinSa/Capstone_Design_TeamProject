@@ -1,5 +1,9 @@
 #include "../../Stdafx/Stdafx.h"
 #include "TerrainShader.h"
+#include "../../GameObject/Terrain/Terrain.h"
+#include "../../Material/Material.h"
+#include "../../Texture/Texture.h"
+#include "../../Scene/Scene.h"
 
 CTerrainShader::CTerrainShader()
 {
@@ -34,4 +38,47 @@ D3D12_SHADER_BYTECODE CTerrainShader::CreateVertexShader()
 D3D12_SHADER_BYTECODE CTerrainShader::CreatePixelShader()
 {
 	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSTerrain", "ps_5_1", &m_pd3dPixelShaderBlob));
+}
+
+void CTerrainShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
+	const map<string, CTexture*>& Context, void* pContext)
+{
+	int nWidth = 256, nLength = 256;
+	XMFLOAT3 xmf3Scale(2.f, 1.0f, 1.2f);
+	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
+
+	m_pTerrain = new CTerrain(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, _T("../Resource/Textures/Terrain/Terrain.raw"), nWidth, nLength, xmf3Scale, xmf4Color);
+
+	CHeightMapGridMesh* pMesh = new CHeightMapGridMesh(pd3dDevice, pd3dCommandList, 0, 0, nWidth, nLength, xmf3Scale, xmf4Color, m_pTerrain->getHeightMapImage());
+	m_pTerrain->SetMesh(pMesh);
+
+	CMaterial* pTerrainMaterial = new CMaterial(2);
+	auto iter = Context.find("BaseTerrain");
+	if(iter != Context.end())
+		pTerrainMaterial->SetTexture((*iter).second, 0);
+	iter = Context.find("SpecularTerrain");
+	if(iter != Context.end())
+		pTerrainMaterial->SetTexture((*iter).second, 1);
+	
+	m_pTerrain->SetMaterial(0, pTerrainMaterial);
+}
+
+void CTerrainShader::ReleaseObjects()
+{
+	if (m_pTerrain)
+		delete m_pTerrain;
+}
+
+void CTerrainShader::ReleaseUploadBuffers()
+{
+	if (m_pTerrain)
+		m_pTerrain->ReleaseUploadBuffers();
+}
+
+void CTerrainShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+{
+	CShader::Render(pd3dCommandList, pCamera);
+
+	if (m_pTerrain)
+		m_pTerrain->Render(pd3dCommandList, pCamera);
 }

@@ -27,6 +27,7 @@ class CGameObject;
 class CMaterial
 {
 public:
+	CMaterial();
 	CMaterial(int nTextures);
 	virtual ~CMaterial();
 
