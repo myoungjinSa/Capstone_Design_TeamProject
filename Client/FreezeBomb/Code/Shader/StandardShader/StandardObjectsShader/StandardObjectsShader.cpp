@@ -19,10 +19,12 @@ CStandardObjectsShader::~CStandardObjectsShader()
 }
 
 void CStandardObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
-	const map<string, Bounds*>& Context, void *pContext)
+	const map<string, Bounds*>& Context, void* pContext)
 {
+	int nDeadTrees = 5, nPineTrees = 8, nRocks = 5, nDeers = 1;
+	
 	int i = 0;
-	m_ppDeadTreeModel = new CLoadedModelInfo*[5];
+	m_ppDeadTreeModel = new CLoadedModelInfo*[nDeadTrees];
 	CLoadedModelInfo* pDeadTreeModel01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_01.bin", this, false);
 	m_ppDeadTreeModel[i++] = pDeadTreeModel01;
 	CLoadedModelInfo* pDeadTreeModel02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_02.bin", this, false);
@@ -35,7 +37,7 @@ void CStandardObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12Graphi
 	m_ppDeadTreeModel[i++] = pDeadTreeModel05;
 
 	i = 0;
-	m_ppPineTreeModel = new CLoadedModelInfo*[8];
+	m_ppPineTreeModel = new CLoadedModelInfo*[nPineTrees];
 	CLoadedModelInfo* pPineTreeModel01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_01.bin", this, false);
 	m_ppPineTreeModel[i++] = pPineTreeModel01;
 	CLoadedModelInfo* pPineTreeModel02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_02.bin", this, false);
@@ -54,7 +56,7 @@ void CStandardObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12Graphi
 	m_ppPineTreeModel[i++] = pPineTreeModel08;
 
 	i = 0;
-	m_ppRockModel = new CLoadedModelInfo*[5];
+	m_ppRockModel = new CLoadedModelInfo*[nRocks];
 	CLoadedModelInfo* pRock01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_01.bin", this, false);
 	m_ppRockModel[i++] = pRock01;
 	CLoadedModelInfo* pRock02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_02.bin", this, false);
@@ -72,87 +74,12 @@ void CStandardObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12Graphi
 
 	enum OBJECT_TYPE { DeadTree, PineTree, Rock, Deer };
 	
-	int nDeadTrees = 5, nPineTrees = 8, nRocks = 5, nDeers = 1;
-
 	m_nObjects = nDeadTrees + nPineTrees + nRocks + nDeers;
-	m_nObjects = 83;
 	m_ppObjects = new CGameObject*[m_nObjects];
+	
 	XMFLOAT3 Position;
-
-	ifstream in("../Resource/SurroundingPosition/PineTree.bin", ios::binary);
-	if (!in)
-	{
-		cout << "파일못읽음" << endl;
-		return;
-	}
 	
-	int x = 0, z = 0;
-	for (int i = 0; i < m_nObjects - 2; ++i)
-	{
-		m_ppObjects[i] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		int random = Random(0, nPineTrees - 1);
-		m_ppObjects[i]->setID("<PineTree0" + to_string(random) + ">");
-		m_ppObjects[i]->SetChild(m_ppPineTreeModel[random]->m_pModelRootObject, true);
-
-		in.read((char*)&x, sizeof(int));
-		in.read((char*)&z, sizeof(int));
-		Position.x = x;
-		Position.z = z;
-		m_ppObjects[i]->SetPosition(Position.x, pTerrain->GetHeight(Position.x, Position.z), Position.z);
-
-		auto iter = Context.find(m_ppObjects[i]->getID());
-		if (iter != Context.end())
-			m_ppObjects[i]->SetOOBB((*iter).second->m_xmf3Center, (*iter).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
-	}
-	
-	m_ppObjects[81] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppObjects[81]->SetChild(pDeer01->m_pModelRootObject, true);
-	Position.x = 25;
-	Position.z = 25;
-	m_ppObjects[81]->SetPosition(Position.x, pTerrain->GetHeight(Position.x, Position.z), Position.z);
-
-	m_ppObjects[82] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_ppObjects[82]->SetChild(pDeer01->m_pModelRootObject, true);
-	XMFLOAT3 Axis = XMFLOAT3(0, 1, 0);
-	m_ppObjects[82]->Rotate(&Axis, 90.f);
-	Position.x = 45;
-	Position.z = 45;
-	m_ppObjects[82]->SetPosition(Position.x, pTerrain->GetHeight(Position.x, Position.z), Position.z);
-
-	//int cnt = 0;
-	//float width = 10, length = 10;
-
-	//for (int x = 0; x < width; ++x)
-	//{
-	//	for (int z = 0; z < length; ++z)
-	//	{
-	//		m_ppObjects[cnt] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//		int random = Random(0, 3);
-	//		switch (random)
-	//		{
-	//		case DeadTree:
-	//			random = Random(0, nDeadTrees - 1);
-	//			m_ppObjects[cnt]->SetChild(m_ppDeadTreeModel[random]->m_pModelRootObject, true);
-	//			break;
-	//		case PineTree:
-	//			random = Random(0, nPineTrees - 1);
-	//			m_ppObjects[cnt]->SetChild(m_ppPineTreeModel[random]->m_pModelRootObject, true);
-	//			break;
-	//		case Rock:
-	//			random = Random(0, nRocks - 1);
-	//			m_ppObjects[cnt]->SetChild(m_ppRockModel[random]->m_pModelRootObject, true);
-	//			break;
-	//		case Deer:
-	//			m_ppObjects[cnt]->SetChild(pDeer01->m_pModelRootObject, true);
-	//			break;
-	//		}
-	//		Position.x = width * x;
-	//		Position.z = length * z;
-	//		m_ppObjects[cnt++]->SetPosition(Position.x + 200, pTerrain->GetHeight(Position.x, Position.z), Position.z + 100);
-	//	}
-	//}
-
-	/*for (int i = 0; i < m_nObjects; ++i)
+	for (int i = 0; i < m_nObjects; ++i)
 	{
 		m_ppObjects[i] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		Position.x = Random(10.f, 490.f);
@@ -165,21 +92,29 @@ void CStandardObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12Graphi
 		case DeadTree:
 			random = Random(0, nDeadTrees - 1);
 			m_ppObjects[i]->SetChild(m_ppDeadTreeModel[random]->m_pModelRootObject, true);
+			m_ppObjects[i]->setID("<DeadTree0" + to_string(random) + ">");
 			break;
 		case PineTree:
 			random = Random(0, nPineTrees - 1);
 			m_ppObjects[i]->SetChild(m_ppPineTreeModel[random]->m_pModelRootObject, true);
+			m_ppObjects[i]->setID("<PineTree0" + to_string(random) + ">");
 			break;
 		case Rock:
 			random = Random(0, nRocks - 1);
 			m_ppObjects[i]->SetChild(m_ppRockModel[random]->m_pModelRootObject, true);
+			m_ppObjects[i]->setID("<Rock0" + to_string(random) + ">");
 			break;
 		case Deer:
 			m_ppObjects[i]->SetChild(pDeer01->m_pModelRootObject, true);
+			m_ppObjects[i]->setID("<Deer01>");
 			break;
 		}
-	}*/
+		auto iter = Context.find(m_ppObjects[i]->getID());
+		if (iter != Context.end())
+			m_ppObjects[i]->SetOOBB((*iter).second->m_xmf3Center, (*iter).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
+	}
 
+	
 	if (pDeadTreeModel01) delete pDeadTreeModel01;
 	if (pDeadTreeModel02) delete pDeadTreeModel02;
 	if (pDeadTreeModel03) delete pDeadTreeModel03;

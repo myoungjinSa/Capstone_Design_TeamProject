@@ -19,11 +19,6 @@ D3D12_SHADER_BYTECODE CTenNumberUIShader::CreateVertexShader()
 	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "VSTenNumberUI", "vs_5_1", &m_pd3dVertexShaderBlob));
 }
 
-D3D12_SHADER_BYTECODE CTenNumberUIShader::CreatePixelShader()
-{
-	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "PSNumberUI", "ps_5_1", &m_pd3dVertexShaderBlob));
-}
-
 void CTenNumberUIShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, 
 	const map<string, CTexture*>& Context, void* pContext)
 {

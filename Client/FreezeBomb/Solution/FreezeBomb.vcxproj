@@ -177,6 +177,7 @@
     <ClInclude Include="..\Code\GameObject\Carry\Carry.h" />
     <ClInclude Include="..\Code\GameObject\EvilBear\EvilBear.h" />
     <ClInclude Include="..\Code\GameObject\GameObject.h" />
+    <ClInclude Include="..\Code\GameObject\Item\Item.h" />
     <ClInclude Include="..\Code\GameObject\Player\Player.h" />
     <ClInclude Include="..\Code\GameObject\SkyBox\SkyBox.h" />
     <ClInclude Include="..\Code\GameObject\Surrounding\Surrounding.h" />
@@ -193,7 +194,10 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\SnowShader\SnowShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\ColonUIShader\ColonUIShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\HundredNumberUIShader\HundredNumberUIShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\ItemBoxUIShader\ItemBoxUIShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\NormalItemUIShader\NormalItemUIShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\NumberUIShader\NumberUIShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\SpecialItemUIShader\SpecialItemUIShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TenNumberUIShader\TenNumberUIShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\UIShader.h" />
     <ClInclude Include="..\Code\Shader\Shader.h" />
@@ -219,6 +223,7 @@
     <ClCompile Include="..\Code\GameObject\Carry\Carry.cpp" />
     <ClCompile Include="..\Code\GameObject\EvilBear\EvilBear.cpp" />
     <ClCompile Include="..\Code\GameObject\GameObject.cpp" />
+    <ClCompile Include="..\Code\GameObject\Item\Item.cpp" />
     <ClCompile Include="..\Code\GameObject\Player\Player.cpp" />
     <ClCompile Include="..\Code\GameObject\SkyBox\SkyBox.cpp" />
     <ClCompile Include="..\Code\GameObject\Surrounding\Surrounding.cpp" />
@@ -235,7 +240,10 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\SnowShader\SnowShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\ColonUIShader\ColonUIShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\HundredNumberUIShader\HundredNumberUIShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\ItemBoxUIShader\ItemBoxUIShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\NormalItemUIShader\NormalItemUIShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\NumberUIShader\NumberUIShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\SpecialItemUIShader\SpecialItemUIShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TenNumberUIShader\TenNumberUIShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\UIShader.cpp" />
     <ClCompile Include="..\Code\Shader\Shader.cpp" />

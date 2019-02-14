@@ -424,11 +424,9 @@ void CGameFramework::BuildObjects()
 			pPlayer->SetPosition(XMFLOAT3(0.f, pTerrain->GetHeight(0.f, 0.f), 0.f));
 			pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));	
 			map<string, Bounds*> BoundMap = m_pScene->getShaderManager()->getResourceManager()->getBoundMap();
-			auto iter2 = BoundMap.find("<Deer01>");
+			auto iter2 = BoundMap.find(pPlayer->getID());
 			if (iter2 != BoundMap.end())
-			{
 				pPlayer->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
-			}
 		}
 	}
 	

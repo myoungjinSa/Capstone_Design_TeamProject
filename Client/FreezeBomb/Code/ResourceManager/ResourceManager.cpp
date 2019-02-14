@@ -81,16 +81,35 @@ void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	pColonTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Number/Blue_Colon.dds", 0);
 	CScene::CreateShaderResourceViews(pd3dDevice, pColonTexture, 17, false);
 	m_TextureMap.emplace("Colon", pColonTexture);
+
+	CTexture* pItemBoxTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pItemBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Item/Item_Box.dds", 0);
+	CScene::CreateShaderResourceViews(pd3dDevice, pItemBoxTexture, 17, false);
+	m_TextureMap.emplace("ItemBox", pItemBoxTexture);
+
+	CTexture* pHammer_ItemTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pHammer_ItemTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Item/Hammer_Item.dds", 0);
+	CScene::CreateShaderResourceViews(pd3dDevice, pHammer_ItemTexture, 17, false);
+	m_TextureMap.emplace("Hammer_Item", pHammer_ItemTexture);
+
+	CTexture* pGoldHammer_ItemTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pGoldHammer_ItemTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Item/GoldHammer_Item.dds", 0);
+	CScene::CreateShaderResourceViews(pd3dDevice, pGoldHammer_ItemTexture, 17, false);
+	m_TextureMap.emplace("GoldHammer_Item", pGoldHammer_ItemTexture);
+	CTexture* pGoldTimer_ItemTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pGoldTimer_ItemTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Item/GoldTimer_Item.dds", 0);
+	CScene::CreateShaderResourceViews(pd3dDevice, pGoldTimer_ItemTexture, 17, false);
+	m_TextureMap.emplace("GoldTimer_Item", pGoldTimer_ItemTexture);
 }
 
-#define SIZE 20
+#define SIZE 22
 void CResourceManager::LoadBound(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	string filename = "../Resource/Bounds/ModelBounds.bin";
 	ifstream in(filename, ios::binary);
 	if (!in)
 	{
-		cout << filename + ".bin" << " - 바이너리 파일 없음" << endl;
+		cout << filename << " - 바이너리 파일 없음" << endl;
 		return;
 	}
 
@@ -123,16 +142,8 @@ void CResourceManager::LoadBound(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 		in.read(reinterpret_cast<char*>(&pBound->m_xmf3Extent.y), sizeof(float));
 		in.read(reinterpret_cast<char*>(&pBound->m_xmf3Extent.z), sizeof(float));
 
-		//cout << "바이너리 파일 : "
-		//	<< FrameNameSize << ", " << pBound->m_Name << ", "
-		//	<< BoundNameSize << ", " << BoundName << ", "
-		//	<< pBound->m_xmf3Center.x << ", " << pBound->m_xmf3Center.y << ", " << pBound->m_xmf3Center.z << ", "
-		//	<< pBound->m_xmf3Extent.x << ", " << pBound->m_xmf3Extent.y << ", " << pBound->m_xmf3Extent.z << endl;
-
 		m_BoundMap.emplace(pBound->m_Name, pBound);
 	}
-	cout << m_BoundMap.size() << endl;
-
 	in.close();
 }
 
@@ -143,7 +154,7 @@ void CResourceManager::Release()
 
 	m_TextureMap.clear();
 
-	for (auto iter = m_BoundMap.begin(); iter != m_BoundMap.end();)
+	for (auto iter = m_BoundMap.begin(); iter != m_BoundMap.end(); )
 	{
 		delete(*iter).second;
 		iter = m_BoundMap.erase(iter);

@@ -83,8 +83,9 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	// SkyBox : 1, Terrain : 2, Player : 13, EvilBear : 13 => 29
 	// DeadTrees : 25, PineTrees : 35, Rocks : 25, Deer : 2 => 87
 	// Snow : 1, LampParticle : 1 => 2
-	// Number : 10, Colon : 1 => 11
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 29 + 87 + 2 + 11 + 5);
+	// Number : 10, Colon : 1 => 11 
+	// ItemBox : 1, Hammer_Item : 1, GoldHammer_Item : 1, GoldTimer_Item : 1=> 4
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 29 + 87 + 2 + 11 + 4);
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature); 
 
@@ -522,7 +523,7 @@ void CScene::CheckObjectByObjectCollisions()
 {
 	if (m_pPlayer)
 	{
-		// 총알과 몬스터와의 충돌체크
+		// 플레이어와 정적인 오브젝트 충돌검사
 		map<string, CShader*> m = m_pShaderManager->getShaderMap();
 		auto iter = m.find("Surrounding");
 		if (iter != m.end())
@@ -533,7 +534,22 @@ void CScene::CheckObjectByObjectCollisions()
 				{
 					(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
 					m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
-					cout << i << "번째 오브젝트랑 충돌" << endl;
+					cout << i << "번째 정적인 오브젝트와 충돌" << endl;
+				}
+			}
+		}
+
+		// 플레이어와 스킨드 오브젝트 충돌검사
+		iter = m.find("곰돌이");
+		if (iter != m.end())
+		{
+			for (int i = 0; i < (*iter).second->m_nObjects; ++i)
+			{
+				if ((*iter).second->m_ppObjects[i]->m_xmOOBB.Intersects(m_pPlayer->m_xmOOBB))
+				{
+					(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
+					m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
+					cout << i << "번째 애니메이션 오브젝트와 충돌" << endl;
 				}
 			}
 		}

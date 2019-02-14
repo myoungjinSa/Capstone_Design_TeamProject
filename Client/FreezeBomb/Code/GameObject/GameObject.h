@@ -238,7 +238,7 @@ class CLampParticle;
 class CGameObject
 {
 private:
-	int								m_nReferences = 0;
+	int						m_nReferences = 0;
 
 public:
 	void AddRef();

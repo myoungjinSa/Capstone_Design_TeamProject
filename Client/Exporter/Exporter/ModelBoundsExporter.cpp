@@ -5,7 +5,7 @@
 using namespace std;
 using namespace DirectX;
 
-#define SIZE 20
+#define Model_Size 22
 struct Bound
 {
 	string m_Name;
@@ -21,11 +21,14 @@ int main()
 {
 	const string filename = "ModelBounds";
 
-	Bound bounds[SIZE] =
+	Bound bounds[Model_Size] =
 	{
 		// EvilBear
-		"<EvilBear>", XMFLOAT3(-0.1304445, 0.003544204, - 7.450581E-09), XMFLOAT3(0.2756854, 0.1529771, 0.2030513),
-
+		"<EvilBear>", XMFLOAT3(-7.450581E-09, 0.2553082, 0), XMFLOAT3(0.2006836, 0.256561, 0.1354234),
+		// Bomb
+		"<Bomb>", XMFLOAT3(0, 1.396984E-09, 0.00459197), XMFLOAT3(0.01163526, 0.01163526, 0.01459197),
+		// Hammer
+		"<Hammer>", XMFLOAT3(0, 0, - 1.862645E-08), XMFLOAT3(0.1721757, 0.01733484, 0.07766247),
 		// DeadTree
 		"<DeadTree01>", XMFLOAT3(0, 0.135704, 0), XMFLOAT3(0.4260397, 0.1520242, 0.5093679),
 		"<DeadTree02>", XMFLOAT3(0, 0.1853436, 0), XMFLOAT3(0.3149319, 0.204001, 0.2920995),
@@ -60,7 +63,7 @@ int main()
 void WriteToText(const string& filename, Bound* pBounds)
 {
 	ofstream out(filename + ".txt");
-	for (int i = 0; i < SIZE; ++i)
+	for (int i = 0; i < Model_Size; ++i)
 	{
 		size_t FrameNameSize = pBounds[i].m_Name.size();
 
@@ -85,9 +88,9 @@ void ReadToText(const string& filename)
 		cout << filename + ".txt" << "- 텍스트 파일 없음" << endl;
 		return;
 	}
-	Bound bound[SIZE];
+	Bound bound[Model_Size];
 
-	for (int i = 0; i < SIZE; ++i)
+	for (int i = 0; i < Model_Size; ++i)
 	{
 		size_t FrameNameSize = 0;
 		in >> FrameNameSize;
@@ -127,7 +130,7 @@ void WriteToBinary(const string& filename, Bound* pBound)
 {
 	ofstream out(filename + ".bin", ios::binary);
 
-	for (int i = 0; i < SIZE; ++i)
+	for (int i = 0; i < Model_Size; ++i)
 	{;
 		size_t FrameNameSize = pBound[i].m_Name.size();
 		out.write(reinterpret_cast<const char*>(&FrameNameSize), sizeof(size_t));
@@ -157,9 +160,9 @@ void ReadToBinary(const string& filename)
 		return;
 	}
 
-	Bound bound[SIZE];
+	Bound bound[Model_Size];
 
-	for (int i = 0; i < SIZE; ++i)
+	for (int i = 0; i < Model_Size; ++i)
 	{
 		size_t FrameNameSize = 0;
 		in.read(reinterpret_cast<char*>(&FrameNameSize), sizeof(size_t));

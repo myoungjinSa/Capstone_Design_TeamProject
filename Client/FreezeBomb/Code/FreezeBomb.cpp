@@ -104,6 +104,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_RBUTTONDOWN:
 	case WM_RBUTTONUP:
 	case WM_MOUSEMOVE:
+		// Alt키 눌렀을 때, 멈추는 현상을 해결하기위해
+	case WM_SYSKEYDOWN:
+	case WM_SYSKEYUP:
+
 	case WM_KEYDOWN:
 	case WM_KEYUP:
 		gGameFramework.OnProcessingWindowMessage(hWnd, message, wParam, lParam);

@@ -12,8 +12,12 @@
 #include "../Shader/BillboardShader/UIShader/TenNumberUIShader/TenNumberUIShader.h"
 #include "../Shader/BillboardShader/UIShader/HundredNumberUIShader/HundredNumberUIShader.h"
 #include "../Shader/BillboardShader/UIShader/ColonUIShader/ColonUIShader.h"
+#include "../Shader/BillboardShader/UIShader/ItemBoxUIShader/ItemBoxUIShader.h"
+#include "../Shader/BillboardShader/UIShader/NormalItemUIShader/NormalItemUIShader.h"
+#include "../Shader/BillboardShader/UIShader/SpecialItemUIShader/SpecialItemUIShader.h"
 
 #include "../GameObject/Player/Player.h"
+#include "../GameObject/Item/Item.h"
 
 CShaderManager::CShaderManager()
 {
@@ -28,7 +32,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_pResourceManager = new CResourceManager;
 	m_pResourceManager->Initialize(pd3dDevice, pd3dCommandList);
 
-	m_nShaders = 9;
+	m_nShaders = 12;
 	m_ppShaders = new CShader*[m_nShaders];
 
 	CSkyBoxShader* pSkyBoxShader = new CSkyBoxShader;
@@ -51,9 +55,9 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 
 	CSkinnedAnimationObjectsShader* pAnimationObjectShader = new CSkinnedAnimationObjectsShader;
 	pAnimationObjectShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pAnimationObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pTerrainShader->getTerrain());
+	pAnimationObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
 	m_ppShaders[3] = pAnimationObjectShader;
-	m_ShaderMap.emplace("Animation", pAnimationObjectShader);
+	m_ShaderMap.emplace("°õµ¹ÀÌ", pAnimationObjectShader);
 
 	CSnowShader* pSnowShader = new CSnowShader;
 	pSnowShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -84,6 +88,24 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	pColonUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
 	m_ppShaders[8] = pColonUIShader;
 	m_ShaderMap.emplace("ColonUI", pColonUIShader);
+
+	CItemBoxUIShader* pItemBoxUIShader = new CItemBoxUIShader;
+	pItemBoxUIShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pItemBoxUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
+	m_ppShaders[9] = pItemBoxUIShader;
+	m_ShaderMap.emplace("ItemBoxUI", pColonUIShader);
+
+	CNoramlItemUIShader* pNormalItemUIShader = new CNoramlItemUIShader;
+	pNormalItemUIShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pNormalItemUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
+	m_ppShaders[10] = pNormalItemUIShader;
+	m_ShaderMap.emplace("Normal_ItemUI", pNormalItemUIShader);
+
+	CSpecialItemUIShader* pSpecialItemUIShader = new CSpecialItemUIShader;
+	pSpecialItemUIShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pSpecialItemUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
+	m_ppShaders[11] = pSpecialItemUIShader;
+	m_ShaderMap.emplace("Special_ItemUI", pSpecialItemUIShader);
 }
 
 void CShaderManager::ReleaseObjects()
@@ -116,6 +138,35 @@ void CShaderManager::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer
 {
 	for (int i = 0; i < m_nShaders; i++)
 		m_ppShaders[i]->AnimateObjects(elapsedTime, pCamera, pPlayer);
+
+	if (pPlayer->getItem() != nullptr)
+	{
+		if (pPlayer->getItem()->getNormalItem() == false)
+		{
+			auto iter = m_ShaderMap.find("Normal_ItemUI");
+			if (iter != m_ShaderMap.end())
+				dynamic_cast<CNoramlItemUIShader*>((*iter).second)->setRender(false);
+		}
+		else
+		{
+			auto iter = m_ShaderMap.find("Normal_ItemUI");
+			if (iter != m_ShaderMap.end())
+				dynamic_cast<CNoramlItemUIShader*>((*iter).second)->setRender(true);
+		}
+
+		if (pPlayer->getItem()->getSpecialItem() == false)
+		{
+			auto iter = m_ShaderMap.find("Special_ItemUI");
+			if (iter != m_ShaderMap.end())
+				dynamic_cast<CSpecialItemUIShader*>((*iter).second)->setRender(false);
+		}
+		else
+		{
+			auto iter = m_ShaderMap.find("Special_ItemUI");
+			if (iter != m_ShaderMap.end())
+				dynamic_cast<CSpecialItemUIShader*>((*iter).second)->setRender(true);
+		}
+	}
 }
 
 void CShaderManager::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)

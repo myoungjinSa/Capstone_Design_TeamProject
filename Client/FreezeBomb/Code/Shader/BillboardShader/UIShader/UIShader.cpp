@@ -9,6 +9,11 @@ CUIShader::~CUIShader()
 {
 }
 
+D3D12_SHADER_BYTECODE CUIShader::CreatePixelShader()
+{
+	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "PSUI", "ps_5_1", &m_pd3dVertexShaderBlob));
+}
+
 D3D12_DEPTH_STENCIL_DESC CUIShader::CreateDepthStencilState()
 {
 	D3D12_DEPTH_STENCIL_DESC d3dDepthStencilDesc;

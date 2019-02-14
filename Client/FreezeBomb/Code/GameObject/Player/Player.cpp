@@ -3,8 +3,7 @@
 #include "../Terrain/Terrain.h"
 #include "../../Material/Material.h"
 #include "../../Shader/Shader.h"
-
-bool CPlayer::carryBomb = false;
+#include "../Item/Item.h"
 
 CPlayer::CPlayer()
 {
@@ -25,15 +24,22 @@ CPlayer::CPlayer()
 	m_fRoll = 0.0f;
 	m_fYaw = 0.0f;
 
-	m_pPlayerUpdatedContext = NULL;
-	m_pCameraUpdatedContext = NULL;
+	m_pPlayerUpdatedContext = nullptr;
+	m_pCameraUpdatedContext = nullptr;
+
+	m_pItem = new CItem;
 }
 
 CPlayer::~CPlayer()
 {
 	ReleaseShaderVariables();
 
-	if (m_pCamera) delete m_pCamera;
+	if (m_pItem)
+		delete m_pItem;
+
+	if (m_pCamera) 
+		delete m_pCamera;
+
 }
 
 void CPlayer::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
@@ -48,7 +54,8 @@ void CPlayer::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
 
 void CPlayer::ReleaseShaderVariables()
 {
-	if (m_pCamera) m_pCamera->ReleaseShaderVariables();
+	if (m_pCamera) 
+		m_pCamera->ReleaseShaderVariables();
 }
 
 void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
@@ -171,11 +178,25 @@ void CPlayer::Update(float fTimeElapsed)
 
 	SetTrackAnimationSet(0, ::IsZero(fLength) ? 0 : 1);
 
-	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
-		carryBomb = true;
-	else
-		carryBomb = false;
-
+	if (m_pItem)
+	{
+		// Ctrl 키
+		if (GetAsyncKeyState(VK_CONTROL) & 0x8000)
+		{
+			m_pItem->setNormalItem(false);
+		}
+		// Alt 키
+		if (GetAsyncKeyState(VK_MENU) & 0x8000)
+		{
+			m_pItem->setSpecialItem(false);
+		}
+		// i 키
+		if (GetAsyncKeyState(0x49) & 0x8000)
+		{
+			m_pItem->setNormalItem(true);
+			m_pItem->setSpecialItem(true);
+		}
+	}
 }
 
 CCamera *CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
@@ -325,16 +346,16 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 	// 1번 애니메이션 동작에 사운드 3개를 Set해준다.
 	m_pAnimationController->SetCallbackKeys(1, 3);
-#ifdef _WITH_SOUND_RESOURCE
-	m_pAnimationController->SetCallbackKey(1, 0, 0.1f, _T("Footstep01"));
-	m_pAnimationController->SetCallbackKey(1, 1, 0.5f, _T("Footstep02"));
-	m_pAnimationController->SetCallbackKey(1, 2, 0.9f, _T("Footstep03"));
-#else
+
 	// 애니메이션 1번동작 0.1초일때 Footstep01 소리를 재생, 1번동작 0.5초일때 Footstep02 소리를 재생, 1번동작 0.9초일때 Footstep03 소리를 재생
-	m_pAnimationController->SetCallbackKey(1, 0, 0.1f, _T("../Resource/Sound/Footstep01.wav"));
-	m_pAnimationController->SetCallbackKey(1, 1, 0.5f, _T("../Resource/Sound/Footstep02.wav"));
-	m_pAnimationController->SetCallbackKey(1, 2, 0.9f, _T("../Resource/Sound/Footstep03.wav"));
-#endif
+	m_pAnimationController->SetCallbackKey(1, 0, 0.1f, _T("../Resource/Sound/BtnDown03.wav"));
+	m_pAnimationController->SetCallbackKey(1, 1, 0.5f, _T("../Resource/Sound/BtnDown03.wav"));
+	m_pAnimationController->SetCallbackKey(1, 2, 0.9f, _T("../Resource/Sound/BtnDown03.wav"));
+
+	//m_pAnimationController->SetCallbackKey(1, 0, 0.1f, _T("../Resource/Sound/FootStep01.wav"));
+	//m_pAnimationController->SetCallbackKey(1, 1, 0.5f, _T("../Resource/Sound/FootStep02.wav"));
+	//m_pAnimationController->SetCallbackKey(1, 2, 0.9f, _T("../Resource/Sound/FootStep03.wav"));
+
 	CAnimationCallbackHandler* pAnimationCallbackHandler = new CSoundCallbackHandler();
 	m_pAnimationController->SetAnimationCallbackHandler(1, pAnimationCallbackHandler);
 

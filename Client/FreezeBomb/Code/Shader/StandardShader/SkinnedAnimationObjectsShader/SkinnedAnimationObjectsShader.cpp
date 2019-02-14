@@ -2,6 +2,7 @@
 #include "SkinnedAnimationObjectsShader.h"
 #include "../../../GameObject/Terrain/Terrain.h"
 #include "../../../GameObject/EvilBear/EvilBear.h"
+#include "../../../ResourceManager/ResourceManager.h"
 
 CSkinnedAnimationObjectsShader::CSkinnedAnimationObjectsShader()
 {
@@ -35,7 +36,8 @@ D3D12_SHADER_BYTECODE CSkinnedAnimationObjectsShader::CreateVertexShader()
 	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSSkinnedAnimationStandard", "vs_5_1", &m_pd3dVertexShaderBlob));
 }
 
-void CSkinnedAnimationObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
+void CSkinnedAnimationObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
+	const map<string, Bounds*>& Context, void *pContext)
 {
 	CLoadedModelInfo* pEvilBearModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
 		"../Resource/Models/EvilBear.bin", NULL, true);
@@ -93,6 +95,11 @@ void CSkinnedAnimationObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D
 		Position.z = Random(0.f, 300.f);
 		m_ppObjects[i]->SetPosition(Position.x, pTerrain->GetHeight(Position.x, Position.z), Position.z);
 		m_ppObjects[i]->SetScale(10, 10, 10);
+
+		m_ppObjects[i]->setID("<EvilBear>");
+		auto iter = Context.find(m_ppObjects[i]->getID());
+		if (iter != Context.end())
+			m_ppObjects[i]->SetOOBB((*iter).second->m_xmf3Center, (*iter).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
 	}
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -121,7 +128,7 @@ void CSkinnedAnimationObjectsShader::Render(ID3D12GraphicsCommandList *pd3dComma
 	{
 		if (m_ppObjects[i])
 		{
-			m_ppObjects[i]->Animate(m_fElapsedTime);
+			//m_ppObjects[i]->Animate(m_fElapsedTime);
 			m_ppObjects[i]->UpdateTransform(NULL);
 			m_ppObjects[i]->Render(pd3dCommandList, pCamera);
 		}
