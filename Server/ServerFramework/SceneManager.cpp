@@ -18,7 +18,7 @@ void SceneManager::AddScene(int index, Scene* scene)
 	pSceneList[index] = scene;
 }
 
-void SceneManager::StartScene(int index)
+void SceneManager::MoveScene(int index)
 {
 	pSceneList[preIndex]->Destroy();
 	preIndex = index;

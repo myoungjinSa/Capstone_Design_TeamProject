@@ -12,8 +12,13 @@ public:
 	~SceneManager();
 public:
 	void AddScene(int index, Scene* scene);
-	void StartScene(int index);
+	void MoveScene(int index);
 public:
 	Scene * GetScene(){return pSceneList[preIndex];}
+
+private:
+	// 복사생성과 복사대입이 되지 않도록 방지.
+	SceneManager(const SceneManager&);
+	SceneManager& operator=(const SceneManager&);
 };
 
