@@ -5,6 +5,9 @@
 class CScene;
 class CPlayer;
 class CCamera;
+class CMapToolShader;
+
+
 
 class CGameFramework
 {
@@ -38,11 +41,18 @@ public:
 
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+
+#ifdef _MAPTOOL_MODE_
+	void OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+#endif	
+
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 private:
-	HINSTANCE				m_hInstance;
-	HWND						m_hWnd; 
+
+	
+	HINSTANCE						m_hInstance;
+	HWND							m_hWnd; 
 
 	int								m_nWndClientWidth;
 	int								m_nWndClientHeight;
@@ -86,5 +96,8 @@ private:
 	POINT						m_ptOldCursorPos;
 
 	_TCHAR						m_pszFrameRate[70];
+#ifdef _MAPTOOL_MODE_
+	CMapToolShader*  m_pMapToolShader = NULL;
+#endif
 };
 

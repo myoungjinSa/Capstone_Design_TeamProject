@@ -72,13 +72,89 @@ void CStandardObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12Graphi
 
 	CTerrain* pTerrain = (CTerrain*)pContext;
 
+
 	enum OBJECT_TYPE { DeadTree, PineTree, Rock, Deer };
 	
 	m_nObjects = nDeadTrees + nPineTrees + nRocks + nDeers;
 	m_ppObjects = new CGameObject*[m_nObjects];
-	
-	XMFLOAT3 Position;
-	
+
+	m_ppObjects[0] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[0]->SetChild(pDeadTreesModel01->m_pModelRootObject);
+	pDeadTreesModel01->m_pModelRootObject->AddRef();
+
+	m_ppObjects[1] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[1]->SetChild(pDeadTreesModel02->m_pModelRootObject);
+	pDeadTreesModel02->m_pModelRootObject->AddRef();
+
+	m_ppObjects[2] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[2]->SetChild(pDeadTreesModel03->m_pModelRootObject);
+	pDeadTreesModel03->m_pModelRootObject->AddRef();
+
+	m_ppObjects[3] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[3]->SetChild(pDeadTreesModel04->m_pModelRootObject);
+	pDeadTreesModel04->m_pModelRootObject->AddRef();
+
+	m_ppObjects[4] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[4]->SetChild(pDeadTreesModel05->m_pModelRootObject);
+	pDeadTreesModel05->m_pModelRootObject->AddRef();
+
+	m_ppObjects[5] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[5]->SetChild(pPineTreesModel01->m_pModelRootObject);
+	pPineTreesModel01->m_pModelRootObject->AddRef();
+
+	m_ppObjects[6] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[6]->SetChild(pPineTreesModel02->m_pModelRootObject);
+	pPineTreesModel02->m_pModelRootObject->AddRef();
+
+	m_ppObjects[7] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[7]->SetChild(pPineTreesModel03->m_pModelRootObject);
+	pPineTreesModel03->m_pModelRootObject->AddRef();
+
+	m_ppObjects[8] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[8]->SetChild(pPineTreesModel04->m_pModelRootObject);
+	pPineTreesModel04->m_pModelRootObject->AddRef();
+
+	m_ppObjects[9] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[9]->SetChild(pPineTreesModel05->m_pModelRootObject);
+	pPineTreesModel05->m_pModelRootObject->AddRef();
+
+	m_ppObjects[10] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[10]->SetChild(pPineTreesModel06->m_pModelRootObject);
+	pPineTreesModel06->m_pModelRootObject->AddRef();
+
+	m_ppObjects[11] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[11]->SetChild(pPineTreesModel07->m_pModelRootObject);
+	pPineTreesModel06->m_pModelRootObject->AddRef();
+
+	m_ppObjects[12] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[12]->SetChild(pPineTreesModel08->m_pModelRootObject);
+	pPineTreesModel07->m_pModelRootObject->AddRef();
+
+	m_ppObjects[13] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[13]->SetChild(pRocks01->m_pModelRootObject);
+	pRocks01->m_pModelRootObject->AddRef();
+
+	m_ppObjects[14] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[14]->SetChild(pRocks02->m_pModelRootObject);
+	pRocks02->m_pModelRootObject->AddRef();
+
+	m_ppObjects[15] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[15]->SetChild(pRocks03->m_pModelRootObject);
+	pRocks03->m_pModelRootObject->AddRef();
+
+	m_ppObjects[16] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[16]->SetChild(pRocks04->m_pModelRootObject);
+	pRocks04->m_pModelRootObject->AddRef();
+
+	m_ppObjects[17] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[17]->SetChild(pRocks05->m_pModelRootObject);
+	pRocks05->m_pModelRootObject->AddRef();
+
+	m_ppObjects[18] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[18]->SetChild(pDeer01->m_pModelRootObject);
+	pDeer01->m_pModelRootObject->AddRef();
+
+
 	for (int i = 0; i < m_nObjects; ++i)
 	{
 		m_ppObjects[i] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);

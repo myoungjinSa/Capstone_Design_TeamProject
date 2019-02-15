@@ -4,6 +4,9 @@ class CShader;
 class CPlayer;
 class CCamera;
 class CResourceManager;
+
+class CTextureManager;
+
 class CShaderManager
 {
 public:
@@ -21,9 +24,9 @@ public:
 
 private:
 	size_t						m_nShaders = 0;
-	CShader**				m_ppShaders{ nullptr };
+	CShader**					m_ppShaders{ nullptr };
 
-	map<string, CShader*>	m_ShaderMap;
+	map<string, CShader*>		m_ShaderMap;
 
 	CResourceManager*			m_pResourceManager{ nullptr };
 };
