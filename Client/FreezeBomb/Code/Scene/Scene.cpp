@@ -3,8 +3,10 @@
 #include "../Texture/Texture.h"
 #include "../Material/Material.h"
 #include "../ShaderManager/ShaderManager.h"
-#include "../GameObject/Player/Player.h"
 #include "../Shader/Shader.h"
+#include "../GameObject/Player/Player.h"
+#include "../GameObject/Item/Item.h"
+#include "../Shader/StandardShader/ItemShader/ItemShader.h"
 
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -85,9 +87,10 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	// Snow : 1, LampParticle : 1 => 2
 	// Number : 10, Colon : 1 => 11 
 	// ItemBox : 1, Hammer_Item : 1, GoldHammer_Item : 1, GoldTimer_Item : 1=> 4
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 29 + 87 + 2 + 11 + 4);
+	// Hammer : 2
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 29 + 87 + 2 + 11 + 4 + 2);
 
-	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature); 
+	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
 	BuildDefaultLightsAndMaterials();
 
@@ -99,10 +102,10 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 void CScene::ReleaseObjects()
 {
-	if (m_pd3dGraphicsRootSignature) 
+	if (m_pd3dGraphicsRootSignature)
 		m_pd3dGraphicsRootSignature->Release();
 
-	if (m_pd3dCbvSrvDescriptorHeap) 
+	if (m_pd3dCbvSrvDescriptorHeap)
 		m_pd3dCbvSrvDescriptorHeap->Release();
 
 	if (m_pShaderManager)
@@ -110,7 +113,7 @@ void CScene::ReleaseObjects()
 
 	ReleaseShaderVariables();
 
-	if (m_pLights) 
+	if (m_pLights)
 		delete[] m_pLights;
 }
 
@@ -416,36 +419,36 @@ D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3
 	d3dShaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	switch (nTextureType)
 	{
-		case RESOURCE_TEXTURE2D: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize == 1)
-		case RESOURCE_TEXTURE2D_ARRAY:
-			d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-			d3dShaderResourceViewDesc.Texture2D.MipLevels = -1;
-			d3dShaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-			d3dShaderResourceViewDesc.Texture2D.PlaneSlice = 0;
-			d3dShaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-			break;
-		case RESOURCE_TEXTURE2DARRAY: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize != 1)
-			d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
-			d3dShaderResourceViewDesc.Texture2DArray.MipLevels = -1;
-			d3dShaderResourceViewDesc.Texture2DArray.MostDetailedMip = 0;
-			d3dShaderResourceViewDesc.Texture2DArray.PlaneSlice = 0;
-			d3dShaderResourceViewDesc.Texture2DArray.ResourceMinLODClamp = 0.0f;
-			d3dShaderResourceViewDesc.Texture2DArray.FirstArraySlice = 0;
-			d3dShaderResourceViewDesc.Texture2DArray.ArraySize = d3dResourceDesc.DepthOrArraySize;
-			break;
-		case RESOURCE_TEXTURE_CUBE: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize == 6)
-			d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-			d3dShaderResourceViewDesc.TextureCube.MipLevels = -1;
-			d3dShaderResourceViewDesc.TextureCube.MostDetailedMip = 0;
-			d3dShaderResourceViewDesc.TextureCube.ResourceMinLODClamp = 0.0f;
-			break;
-		case RESOURCE_BUFFER: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
-			d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-			d3dShaderResourceViewDesc.Buffer.FirstElement = 0;
-			d3dShaderResourceViewDesc.Buffer.NumElements = 0;
-			d3dShaderResourceViewDesc.Buffer.StructureByteStride = 0;
-			d3dShaderResourceViewDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-			break;
+	case RESOURCE_TEXTURE2D: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize == 1)
+	case RESOURCE_TEXTURE2D_ARRAY:
+		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		d3dShaderResourceViewDesc.Texture2D.MipLevels = -1;
+		d3dShaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+		d3dShaderResourceViewDesc.Texture2D.PlaneSlice = 0;
+		d3dShaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+		break;
+	case RESOURCE_TEXTURE2DARRAY: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize != 1)
+		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+		d3dShaderResourceViewDesc.Texture2DArray.MipLevels = -1;
+		d3dShaderResourceViewDesc.Texture2DArray.MostDetailedMip = 0;
+		d3dShaderResourceViewDesc.Texture2DArray.PlaneSlice = 0;
+		d3dShaderResourceViewDesc.Texture2DArray.ResourceMinLODClamp = 0.0f;
+		d3dShaderResourceViewDesc.Texture2DArray.FirstArraySlice = 0;
+		d3dShaderResourceViewDesc.Texture2DArray.ArraySize = d3dResourceDesc.DepthOrArraySize;
+		break;
+	case RESOURCE_TEXTURE_CUBE: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize == 6)
+		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+		d3dShaderResourceViewDesc.TextureCube.MipLevels = -1;
+		d3dShaderResourceViewDesc.TextureCube.MostDetailedMip = 0;
+		d3dShaderResourceViewDesc.TextureCube.ResourceMinLODClamp = 0.0f;
+		break;
+	case RESOURCE_BUFFER: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
+		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		d3dShaderResourceViewDesc.Buffer.FirstElement = 0;
+		d3dShaderResourceViewDesc.Buffer.NumElements = 0;
+		d3dShaderResourceViewDesc.Buffer.StructureByteStride = 0;
+		d3dShaderResourceViewDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+		break;
 	}
 	return(d3dShaderResourceViewDesc);
 }
@@ -491,7 +494,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 {
 	if (m_pShaderManager)
 		m_pShaderManager->AnimateObjects(fTimeElapsed, m_pPlayer->GetCamera(), m_pPlayer);
-	
+
 	if (m_pLights)
 	{
 		m_pLights[1].m_xmf3Position = m_pPlayer->GetPosition();
@@ -539,7 +542,7 @@ void CScene::CheckObjectByObjectCollisions()
 			}
 		}
 
-		// 플레이어와 스킨드 오브젝트 충돌검사
+		// 플레이어와 다른 곰돌이 오브젝트 충돌검사
 		iter = m.find("곰돌이");
 		if (iter != m.end())
 		{
@@ -550,6 +553,27 @@ void CScene::CheckObjectByObjectCollisions()
 					(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
 					m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
 					cout << i << "번째 애니메이션 오브젝트와 충돌" << endl;
+				}
+			}
+		}
+
+		// 플레이어와 아이템 오브젝트 충돌검사
+		iter = m.find("Item");
+		if (iter != m.end())
+		{
+			CItemShader* pItemShader = dynamic_cast<CItemShader*>((*iter).second);
+			for (auto iter2 = pItemShader->getItemMap().begin(); iter2 != pItemShader->getItemMap().end(); ++iter2)
+			{
+				if ((*iter2).second->m_xmOOBB.Intersects(m_pPlayer->m_xmOOBB))
+				{
+					(*iter2).second->SetObjectCollided(m_pPlayer);
+					m_pPlayer->SetObjectCollided((*iter2).second);
+
+					// 충돌 된 Normal 망치 아이템을 플레이어 인벤토리에 추가한다.
+					m_pPlayer->Add_Inventory((*iter2).first, CPlayer::Normal);
+					// 맵에 있는 아이템 삭제
+					pItemShader->ItemDelete((*iter2).first);
+					break;
 				}
 			}
 		}

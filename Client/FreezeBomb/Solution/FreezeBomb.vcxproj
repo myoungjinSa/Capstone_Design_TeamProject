@@ -202,6 +202,7 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\UIShader.h" />
     <ClInclude Include="..\Code\Shader\Shader.h" />
     <ClInclude Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.h" />
+    <ClInclude Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.h" />
     <ClInclude Include="..\Code\Shader\StandardShader\SkinnedAnimationObjectsShader\SkinnedAnimationObjectsShader.h" />
     <ClInclude Include="..\Code\Shader\StandardShader\StandardObjectsShader\StandardObjectsShader.h" />
     <ClInclude Include="..\Code\Shader\StandardShader\StandardShader.h" />
@@ -248,6 +249,7 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\UIShader.cpp" />
     <ClCompile Include="..\Code\Shader\Shader.cpp" />
     <ClCompile Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.cpp" />
+    <ClCompile Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.cpp" />
     <ClCompile Include="..\Code\Shader\StandardShader\SkinnedAnimationObjectsShader\SkinnedAnimationObjectsShader.cpp" />
     <ClCompile Include="..\Code\Shader\StandardShader\StandardObjectsShader\StandardObjectsShader.cpp" />
     <ClCompile Include="..\Code\Shader\StandardShader\StandardShader.cpp" />
