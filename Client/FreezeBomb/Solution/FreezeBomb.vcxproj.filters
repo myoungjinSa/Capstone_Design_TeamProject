@@ -21,10 +21,6 @@
     <Filter Include="Code\DirectX12\WICTextureLoader">
       <UniqueIdentifier>{5af988b5-67e9-4b1d-90ed-a9adc06dd0ee}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Code\GameFramework">
       <UniqueIdentifier>{5d54ac3c-35c3-43a1-a52b-cf2d7ef5fd49}</UniqueIdentifier>
     </Filter>
@@ -151,18 +147,25 @@
     <Filter Include="Code\GameObject\Item">
       <UniqueIdentifier>{84471e11-c629-4f65-a697-74b0681ae097}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Default\Resource">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader\ItemShader">
+      <UniqueIdentifier>{b83f75d2-02dd-4a50-81c1-e163ebc9dde5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FreezeBomb.rc">
-      <Filter>Resource</Filter>
+      <Filter>Code\Default\Resource</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
-      <Filter>Resource</Filter>
+      <Filter>Code\Default\Resource</Filter>
     </Image>
     <Image Include="FreezeBomb.ico">
-      <Filter>Resource</Filter>
+      <Filter>Code\Default\Resource</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
@@ -304,6 +307,9 @@
     <ClInclude Include="..\Code\GameObject\Item\Item.h">
       <Filter>Code\GameObject\Item</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.h">
+      <Filter>Code\Shader\StandardShader\ItemShader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Code\FreezeBomb.cpp">
@@ -437,6 +443,9 @@
     </ClCompile>
     <ClCompile Include="..\Code\GameObject\Item\Item.cpp">
       <Filter>Code\GameObject\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.cpp">
+      <Filter>Code\Shader\StandardShader\ItemShader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
