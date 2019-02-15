@@ -83,20 +83,18 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
 	// ShaderResourceView ÃÑ °³¼ö
-	// SkyBox : 1, Terrain : 2, Player : 13, EvilBear : 13 => 29
+	// SkyBox : 1, Terrain : 2, Player : 15, EvilBear : 15 => 33
 	// DeadTrees : 25, PineTrees : 35, Rocks : 25, Deer : 2 => 87
 	// Snow : 1, LampParticle : 1 => 2
 	// Number : 10, Colon : 1 => 11
 	// ItemBox : 1, Hammer_Item : 1, GoldHammer_Item : 1, GoldTimer_Item : 1=> 4
-	// Hammer : 2
-	// Gold : 4 + 1 
-	//CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 29 + 87 + 2 + 11 + 4 + 2);
+	// Hammer : 4
 
 	int nObjects = 0;
 #ifdef _MAPTOOL_MODE_
 	nObjects = 87;		//DeadTrees(25),PineTrees(35),Rocks(25),Deer(2)
 #endif
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 29 + 87 + 2 + 11 + nObjects + 4 + 1 );
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 33 + 87 + 2 + 11 + 4 + 4 + nObjects);
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 

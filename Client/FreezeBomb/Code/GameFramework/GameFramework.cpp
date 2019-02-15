@@ -492,7 +492,6 @@ void CGameFramework::BuildObjects()
 			if (iter2 != BoundMap.end())
 				pPlayer->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
 
-			//pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));		
 #ifdef _MAPTOOL_MODE_
 			m_pMapToolShader = new CMapToolShader();
 			m_pMapToolShader->CreateShader(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
