@@ -5,6 +5,13 @@
 #include "MapTool.h"
 
 
+bool operator<(pair<string, CGameObject*> &p1, pair< string, CGameObject> &p2)
+{
+	return p1.first < p2.first;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+
 CMapToolShader::CMapToolShader()
 	:m_nObjects(0),
 	m_pTerrain(nullptr)
@@ -40,7 +47,10 @@ void CMapToolShader::InsertObject(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 
 		
 		CGameObject* pGameObject = new CSurrounding(pd3dDevice, pd3dCommandList,NULL);
+		//Object 위치 설정
 		pGameObject->SetPosition(position);
+
+		//Object 방향 설정
 		pGameObject->SetLookVector(lookVec);
 		pGameObject->SetUpVector(upVec);
 		pGameObject->SetRightVector(rightVec);
@@ -58,8 +68,55 @@ void CMapToolShader::DeleteObject()
 }
 
 
+void CMapToolShader::SortDescByName()
+{
+	if (!m_Objects.empty()) 
+	{
+		sort(m_Objects.begin(), m_Objects.end());
+	}
+}
+
 void CMapToolShader::MakeMapFile()
 {
+	ofstream fout;
+
+	string str;
+
+
+	SortDescByName();		//파일에 출력하기전에 이름의 내림차순으로 정렬
+	
+	fout.open("MapVer_1.txt"/*ios::out -> automatically Set*/);
+	fout <<"Objects Count:"<< m_Objects.size()<<"\n";
+	
+	for (auto iter = m_Objects.begin(); iter != m_Objects.end();iter++)
+	{
+		
+		str = "<" + iter->first + ">\n";			//write Objects Name
+		fout.write(str.c_str(), str.size());
+		str = "<Position>: ";
+		fout.write(str.c_str(), str.size());
+		fout << iter->second->GetPosition().x << " " << iter->second->GetPosition().y << " " << iter->second->GetPosition().z << "\n";
+		//fout << "\n";
+
+		str = "<Look>: ";
+		fout.write(str.c_str(), str.size());
+		fout << iter->second->GetLook().x << " " << iter->second->GetLook().y << " " << iter->second->GetLook().z << "\n";
+
+		str = "<Up>: ";
+		fout.write(str.c_str(), str.size());
+		fout << iter->second->GetUp().x << " " << iter->second->GetUp().y << " " << iter->second->GetUp().z << "\n";
+
+		str = "<Right>: ";
+		fout.write(str.c_str(), str.size());
+		fout << iter->second->GetRight().x << " " << iter->second->GetRight().y << " " << iter->second->GetRight().z << "\n";
+		fout << "\n";
+
+	}
+	
+	fout.close();
+
+
+
 
 }
 
@@ -89,6 +146,7 @@ void CMapToolShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 	CLoadedModelInfo* pRocks05 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PlainSmall_Snow_01.bin", this, false);
 
 	CLoadedModelInfo* pDeer01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_Deer.bin", this, false);
+
 
 	m_pTerrain = (CTerrain*)pContext;
 
@@ -138,29 +196,6 @@ void CMapToolShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 
 
 
-
-
-
-	//if (pDeadTreesModel01) delete pDeadTreesModel01;
-	//if (pDeadTreesModel02) delete pDeadTreesModel02;
-	//if (pDeadTreesModel03) delete pDeadTreesModel03;
-	//if (pDeadTreesModel04) delete pDeadTreesModel04;
-	//if (pDeadTreesModel05) delete pDeadTreesModel05;
-
-	//if (pPineTreesModel01) delete pPineTreesModel01;
-	//if (pPineTreesModel02) delete pPineTreesModel02;
-	//if (pPineTreesModel03) delete pPineTreesModel03;
-	//if (pPineTreesModel04) delete pPineTreesModel04;
-	//if (pPineTreesModel05) delete pPineTreesModel05;
-	//if (pPineTreesModel06) delete pPineTreesModel06;
-	//if (pPineTreesModel07) delete pPineTreesModel07;
-	//if (pPineTreesModel08) delete pPineTreesModel08;
-
-	//if (pRocks01) delete pRocks01;
-	//if (pRocks02) delete pRocks02;
-	//if (pRocks03) delete pRocks03;
-	//if (pRocks04) delete pRocks04;
-	//if (pRocks05) delete pRocks05;
 }
 
 void CMapToolShader::ReleaseObjects()

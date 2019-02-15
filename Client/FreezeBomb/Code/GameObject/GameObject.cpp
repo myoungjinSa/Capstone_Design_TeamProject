@@ -609,26 +609,33 @@ XMFLOAT3 CGameObject::GetRight()
 
 void CGameObject::SetLookVector(XMFLOAT3& xmf3Look)
 {
-	m_xmf4x4World._31 = xmf3Look.x;
-	m_xmf4x4World._32 = xmf3Look.y;
-	m_xmf4x4World._33 = xmf3Look.z;
 
-	//UpdateTransform(NULL);
+	m_xmf4x4ToParent._31 = xmf3Look.x;
+	m_xmf4x4ToParent._32 = xmf3Look.y;
+	m_xmf4x4ToParent._33 = xmf3Look.z;
+
+
+	
+	UpdateTransform(NULL);
 }
 
 void CGameObject::SetRightVector(XMFLOAT3& xmf3Right)
 {
-	m_xmf4x4World._11 = xmf3Right.x;
-	m_xmf4x4World._12 = xmf3Right.y;
-	m_xmf4x4World._13 = xmf3Right.z;
+	m_xmf4x4ToParent._11 = xmf3Right.x;
+	m_xmf4x4ToParent._12 = xmf3Right.y;
+	m_xmf4x4ToParent._13 = xmf3Right.z;
+
+	UpdateTransform(NULL);
 
 }
 
 void CGameObject::SetUpVector(XMFLOAT3& xmf3Up)
 {
-	m_xmf4x4World._21 = xmf3Up.x;
-	m_xmf4x4World._22 = xmf3Up.y;
-	m_xmf4x4World._23 = xmf3Up.z;
+	m_xmf4x4ToParent._21 = xmf3Up.x;
+	m_xmf4x4ToParent._22 = xmf3Up.y;
+	m_xmf4x4ToParent._23 = xmf3Up.z;
+
+	UpdateTransform(NULL);
 }
 
 void CGameObject::MoveStrafe(float fDistance)

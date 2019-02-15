@@ -435,6 +435,28 @@ void CGameFramework::OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM w
 				}
 			}
 			break;
+		case '2':
+			if (m_pMapToolShader)
+			{
+				if (m_pPlayer) {
+					m_pMapToolShader->InsertObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, string("SM_DeadTrunk_01"));
+				}
+			}
+			break;
+		case '3':
+			if (m_pMapToolShader)
+			{
+				if (m_pPlayer) {
+					m_pMapToolShader->InsertObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, string("SM_BigPlainRock_Snow_01"));
+				}
+			}
+			break;
+		case 'S':
+			if (m_pMapToolShader)
+			{
+				m_pMapToolShader->MakeMapFile();
+			}
+			break;
 		default:
 			break;
 		}
