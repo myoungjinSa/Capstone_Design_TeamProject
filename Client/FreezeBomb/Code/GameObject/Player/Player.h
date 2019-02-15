@@ -21,7 +21,9 @@ public:
 	XMFLOAT3 GetLookVector() { return(m_xmf3Look); }
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
+	DWORD    GetDirection() { return m_dwDirection; }
 
+	void SetDirection(DWORD direction) { m_dwDirection = direction; }
 	void SetFriction(float fFriction) { m_fFriction = fFriction; }
 	void SetGravity(const XMFLOAT3& xmf3Gravity) { m_xmf3Gravity = xmf3Gravity; }
 	void SetMaxVelocityXZ(float fMaxVelocity) { m_fMaxVelocityXZ = fMaxVelocity; }
@@ -70,6 +72,7 @@ public:
 	size_t get_Normal_InventorySize() const { return m_Normal_Inventory.size(); }
 	size_t get_Special_InventorySize() const { return m_Special_Inventory.size(); }
 
+	DWORD				m_dwDirection = 0x00;
 protected:
 	XMFLOAT3			m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3			m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
@@ -106,9 +109,14 @@ public:
 	CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext=NULL);
 	virtual ~CTerrainPlayer();
 
+	virtual void Animate(float fTimeElapsed);
+
 	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed);
 	virtual void OnCameraUpdateCallback(float fTimeElapsed);
+
+	void RotateAxisY(float fTimeElapsed);
+
 };
 
 class CSoundCallbackHandler : public CAnimationCallbackHandler
