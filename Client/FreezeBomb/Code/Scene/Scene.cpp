@@ -84,11 +84,12 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	// DeadTrees : 25, PineTrees : 35, Rocks : 25, Deer : 2 => 87
 	// Snow : 1, LampParticle : 1 => 2
 	// Number : 10, Colon : 1 => 11
+	// Gold : 4
 	int nObjects = 0;
 #ifdef _MAPTOOL_MODE_
 	nObjects = 87;		//DeadTrees(5),PineTrees(8),Rocks(5),Deer(1)
 #endif
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 29 + 87 + 2 + 11 + nObjects );
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 29 + 87 + 2 + 11 + nObjects +4 );
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature); 
 
