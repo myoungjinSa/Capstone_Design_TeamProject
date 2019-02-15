@@ -260,6 +260,8 @@ public:
 	XMFLOAT4X4	m_xmf4x4ToParent;
 	XMFLOAT4X4	m_xmf4x4World;
 
+	
+
 	CGameObject*	m_pParent = NULL;
 	CGameObject*	m_pChild = NULL;
 	CGameObject*	m_pSibling = NULL;
@@ -292,6 +294,11 @@ public:
 	XMFLOAT3 GetLook();
 	XMFLOAT3 GetUp();
 	XMFLOAT3 GetRight();
+
+	void SetLookVector(XMFLOAT3& xmf3Look);
+	void SetUpVector(XMFLOAT3& xmf3Up);
+	void SetRightVector(XMFLOAT3& xmf3Right);
+
 
 	void SetPosition(float x, float y, float z);
 	void SetPosition(XMFLOAT3 xmf3Position);
@@ -339,6 +346,7 @@ public:
 	static CLoadedModelInfo* LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char *pstrFileName, CShader *pShader, bool bHasAnimation);
 
 	static void PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent);
+
 protected:
 	CCarry*					m_pCarry{ nullptr };
 	CLampParticle*		m_pLampParticle{ nullptr };	

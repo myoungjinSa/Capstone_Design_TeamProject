@@ -128,7 +128,8 @@ void CSkinnedAnimationObjectsShader::Render(ID3D12GraphicsCommandList *pd3dComma
 	{
 		if (m_ppObjects[i])
 		{
-			//m_ppObjects[i]->Animate(m_fElapsedTime);
+	
+			m_ppObjects[i]->Animate(m_fElapsedTime);
 			m_ppObjects[i]->UpdateTransform(NULL);
 			m_ppObjects[i]->Render(pd3dCommandList, pCamera);
 		}
