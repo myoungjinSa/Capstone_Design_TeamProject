@@ -875,7 +875,6 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device *pd3dDevice, ID3D12Graphics
 		m_ppMaterials[i]->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
-XMFLOAT3 CGameObject::m_xmf3Scale = XMFLOAT3(1.0f,1.0f,1.0f);
 CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
 	CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes, int* pnFrameMeshes)
 {
@@ -920,7 +919,6 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 			nReads = (UINT)::fread(&xmf3Scale, sizeof(float), 3, pInFile);
 			nReads = (UINT)::fread(&xmf4Rotation, sizeof(float), 4, pInFile); //Quaternion
 
-			m_xmf3Scale = xmf3Scale;
 		}
 		else if (!strcmp(pstrToken, "<TransformMatrix>:"))
 		{
