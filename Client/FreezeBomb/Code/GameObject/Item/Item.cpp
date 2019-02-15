@@ -3,10 +3,8 @@
 
 CItem::CItem()
 {
-
 }
 
 CItem::~CItem()
 {
-
 }

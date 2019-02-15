@@ -190,7 +190,6 @@ void CStandardObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12Graphi
 			m_ppObjects[i]->SetOOBB((*iter).second->m_xmf3Center, (*iter).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
 	}
 
-	
 	if (pDeadTreeModel01) delete pDeadTreeModel01;
 	if (pDeadTreeModel02) delete pDeadTreeModel02;
 	if (pDeadTreeModel03) delete pDeadTreeModel03;

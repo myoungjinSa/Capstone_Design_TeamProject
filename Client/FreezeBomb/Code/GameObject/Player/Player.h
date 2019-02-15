@@ -62,8 +62,13 @@ public:
 	virtual void OnPrepareRender();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = nullptr);
 
-	enum ITEM_TYPE {Hammer, GoldHammer, GoldTimer};
+	enum ITEM_TYPE {Normal, Special};
 	CItem* getItem()	const { return m_pItem; }
+
+	void Add_Inventory(string key, int ItemType);
+	void Refresh_Inventory(int ItemType);
+	size_t get_Normal_InventorySize() const { return m_Normal_Inventory.size(); }
+	size_t get_Special_InventorySize() const { return m_Special_Inventory.size(); }
 
 protected:
 	XMFLOAT3			m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -87,16 +92,12 @@ protected:
 	LPVOID				m_pCameraUpdatedContext{ nullptr };
 
 	CCamera*				m_pCamera{ nullptr };
+
+
 	CItem*					m_pItem{ nullptr };
-};
 
-class CSoundCallbackHandler : public CAnimationCallbackHandler
-{
-public:
-	CSoundCallbackHandler() { }
-	~CSoundCallbackHandler() { }
-
-	virtual void HandleCallback(void *pCallbackData); 
+	map<string, CItem*> m_Normal_Inventory;
+	map<string, CItem*> m_Special_Inventory;
 };
 
 class CTerrainPlayer : public CPlayer
@@ -108,4 +109,13 @@ public:
 	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed);
 	virtual void OnCameraUpdateCallback(float fTimeElapsed);
+};
+
+class CSoundCallbackHandler : public CAnimationCallbackHandler
+{
+public:
+	CSoundCallbackHandler() { }
+	~CSoundCallbackHandler() { }
+
+	virtual void HandleCallback(void *pCallbackData);
 };

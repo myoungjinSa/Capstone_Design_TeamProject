@@ -26,8 +26,6 @@ CPlayer::CPlayer()
 
 	m_pPlayerUpdatedContext = nullptr;
 	m_pCameraUpdatedContext = nullptr;
-
-	m_pItem = new CItem;
 }
 
 CPlayer::~CPlayer()
@@ -40,6 +38,19 @@ CPlayer::~CPlayer()
 	if (m_pCamera) 
 		delete m_pCamera;
 
+	for (auto iter = m_Normal_Inventory.begin(); iter != m_Normal_Inventory.end();)
+	{
+		delete (*iter).second;
+		iter = m_Normal_Inventory.erase(iter);
+	}
+	m_Normal_Inventory.clear();
+
+	for (auto iter = m_Special_Inventory.begin(); iter != m_Special_Inventory.end();)
+	{
+		delete (*iter).second;
+		iter = m_Special_Inventory.erase(iter);
+	}
+	m_Special_Inventory.clear();
 }
 
 void CPlayer::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
@@ -178,24 +189,14 @@ void CPlayer::Update(float fTimeElapsed)
 
 	SetTrackAnimationSet(0, ::IsZero(fLength) ? 0 : 1);
 
-	if (m_pItem)
+	if (m_Normal_Inventory.size() > 0)
 	{
 		// Ctrl Ű
 		if (GetAsyncKeyState(VK_CONTROL) & 0x8000)
-		{
-			m_pItem->setNormalItem(false);
-		}
+			Refresh_Inventory(Normal);
 		// Alt Ű
 		if (GetAsyncKeyState(VK_MENU) & 0x8000)
-		{
-			m_pItem->setSpecialItem(false);
-		}
-		// i Ű
-		if (GetAsyncKeyState(0x49) & 0x8000)
-		{
-			m_pItem->setNormalItem(true);
-			m_pItem->setSpecialItem(true);
-		}
+			Refresh_Inventory(Special);
 	}
 }
 
@@ -312,23 +313,42 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void CPlayer::Add_Inventory(string key, int ItemType) 
+{ 
+	if (ItemType == Normal)
+	{
+		if (m_Normal_Inventory.size() > 0)
+			Refresh_Inventory(ItemType);
+		CItem* pItem = new CItem;
+		m_Normal_Inventory.emplace(key, pItem);
+	}
+	else
+	{
+		if (m_Special_Inventory.size() > 0)
+			Refresh_Inventory(ItemType);
+		CItem* pItem = new CItem;
+		m_Special_Inventory.emplace(key, pItem);
+	}
+}
 
-#define _WITH_DEBUG_CALLBACK_DATA
-
-void CSoundCallbackHandler::HandleCallback(void *pCallbackData)
+void CPlayer::Refresh_Inventory(int ItemType)
 {
-	_TCHAR *pWavName = (_TCHAR *)pCallbackData;
-#ifdef _WITH_DEBUG_CALLBACK_DATA
-	TCHAR pstrDebug[256] = { 0 };
-	_stprintf_s(pstrDebug, 256, _T("%s\n"), pWavName);
-	OutputDebugString(pstrDebug);
-#endif
-#ifdef _WITH_SOUND_RESOURCE
-	PlaySound(pWavName, ::ghAppInstance, SND_RESOURCE | SND_ASYNC);
-#else
-	PlaySound(pWavName, NULL, SND_FILENAME | SND_ASYNC);
-#endif
+	if (ItemType == Normal)
+	{
+		for (auto iter = m_Normal_Inventory.begin(); iter != m_Normal_Inventory.end();)
+		{
+			delete (*iter).second;
+			iter = m_Normal_Inventory.erase(iter);
+		}
+	}
+	else
+	{
+		for (auto iter = m_Special_Inventory.begin(); iter != m_Special_Inventory.end();)
+		{
+			delete (*iter).second;
+			iter = m_Special_Inventory.erase(iter);
+		}
+	}
 }
 
 CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
@@ -463,4 +483,21 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 			p3rdPersonCamera->SetLookAt(GetPosition());
 		}
 	}
+}
+
+#define _WITH_DEBUG_CALLBACK_DATA
+
+void CSoundCallbackHandler::HandleCallback(void *pCallbackData)
+{
+	_TCHAR *pWavName = (_TCHAR *)pCallbackData;
+#ifdef _WITH_DEBUG_CALLBACK_DATA
+	TCHAR pstrDebug[256] = { 0 };
+	_stprintf_s(pstrDebug, 256, _T("%s\n"), pWavName);
+	OutputDebugString(pstrDebug);
+#endif
+#ifdef _WITH_SOUND_RESOURCE
+	PlaySound(pWavName, ::ghAppInstance, SND_RESOURCE | SND_ASYNC);
+#else
+	PlaySound(pWavName, NULL, SND_FILENAME | SND_ASYNC);
+#endif
 }
