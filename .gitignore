@@ -28,3 +28,5 @@ Client/FreezeBomb/Excutable/FreezeBomb_x64_Release.ipdb
 *.filters
 *.filters
 *.filters
+*.vcxproj.filters
+*.vcxproj
