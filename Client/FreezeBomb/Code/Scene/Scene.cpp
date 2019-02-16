@@ -94,7 +94,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 #ifdef _MAPTOOL_MODE_
 	nObjects = 87;		//DeadTrees(25),PineTrees(35),Rocks(25),Deer(2)
 #endif
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 33 + 87 + 2 + 11 + 4 + 4 + nObjects);
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 33 + 87 + 2 + 11 + 4 + 4 + nObjects + 2);
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 

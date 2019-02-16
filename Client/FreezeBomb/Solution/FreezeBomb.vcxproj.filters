@@ -154,6 +154,12 @@
     <Filter Include="Code\Shader\StandardShader\ItemShader">
       <UniqueIdentifier>{b83f75d2-02dd-4a50-81c1-e163ebc9dde5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Shader\MapToolShader">
+      <UniqueIdentifier>{59074a89-8af3-4604-836f-9460578317df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\ShadowShader">
+      <UniqueIdentifier>{9b3ff65a-a5ab-413c-8f0e-1ef73f9c69ae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FreezeBomb.rc">
@@ -310,6 +316,12 @@
     <ClInclude Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.h">
       <Filter>Code\Shader\StandardShader\ItemShader</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\Shader\MapToolShader\MapTool.h">
+      <Filter>Code\Shader\MapToolShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\ShadowShader\ShadowShader.h">
+      <Filter>Code\Shader\ShadowShader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Code\FreezeBomb.cpp">
@@ -446,6 +458,12 @@
     </ClCompile>
     <ClCompile Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.cpp">
       <Filter>Code\Shader\StandardShader\ItemShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\MapToolShader\MapTool.cpp">
+      <Filter>Code\Shader\MapToolShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\ShadowShader\ShadowShader.cpp">
+      <Filter>Code\Shader\ShadowShader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

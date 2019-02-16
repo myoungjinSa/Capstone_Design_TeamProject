@@ -18,6 +18,7 @@
 #include "../Shader/BillboardShader/UIShader/SpecialItemUIShader/SpecialItemUIShader.h"
 
 #include "../Shader/StandardShader/ItemShader/ItemShader.h"
+#include "../Shader/ShadowShader/ShadowShader.h"
 
 #include "../GameObject/Player/Player.h"
 #include "../GameObject/Item/Item.h"
@@ -35,7 +36,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_pResourceManager = new CResourceManager;
 	m_pResourceManager->Initialize(pd3dDevice, pd3dCommandList);
 
-	m_nShaders = 13;
+	m_nShaders = 3;
 	m_ppShaders = new CShader*[m_nShaders];
 
 	CSkyBoxShader* pSkyBoxShader = new CSkyBoxShader;
@@ -50,7 +51,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ppShaders[1] = pTerrainShader;
 	m_ShaderMap.emplace("Terrain", pTerrainShader);
 
-	CStandardObjectsShader* pSurroundingShader = new CStandardObjectsShader;
+	/*CStandardObjectsShader* pSurroundingShader = new CStandardObjectsShader;
 	pSurroundingShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pSurroundingShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
 	m_ppShaders[2] = pSurroundingShader;
@@ -114,7 +115,13 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	pItemShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pItemShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
 	m_ppShaders[12] = pItemShader;
-	m_ShaderMap.emplace("Item", pItemShader);
+	m_ShaderMap.emplace("Item", pItemShader);*/
+
+	CShadowShader* pShadowShader = new CShadowShader;
+	pShadowShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pShadowShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pTerrainShader->getTerrain());
+	m_ppShaders[2] = pShadowShader;
+	m_ShaderMap.emplace("Shadow", pShadowShader);
 }
 
 void CShaderManager::ReleaseObjects()
@@ -178,16 +185,16 @@ void CShaderManager::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer
 
 void CShaderManager::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
-	static int sec = 0, min = 0;
-	if (((CUIShader*)m_ppShaders[5])->getTime() >= 10)
-		((CUIShader*)m_ppShaders[6])->setTime(++sec);
-	if (((CUIShader*)m_ppShaders[6])->getTime() >= 6)
-	{
-		sec = 0;
-		((CUIShader*)m_ppShaders[7])->setTime(++min);
-	}
-	if (((CUIShader*)m_ppShaders[7])->getTime() >= 10)
-		min = 0;
+	//static int sec = 0, min = 0;
+	//if (((CUIShader*)m_ppShaders[5])->getTime() >= 10)
+	//	((CUIShader*)m_ppShaders[6])->setTime(++sec);
+	//if (((CUIShader*)m_ppShaders[6])->getTime() >= 6)
+	//{
+	//	sec = 0;
+	//	((CUIShader*)m_ppShaders[7])->setTime(++min);
+	//}
+	//if (((CUIShader*)m_ppShaders[7])->getTime() >= 10)
+	//	min = 0;
 
 	for (int i = 0; i < m_nShaders; i++)
 	{

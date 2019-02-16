@@ -122,11 +122,6 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 #define MAX_VERTEX_INFLUENCES			4
 #define SKINNED_ANIMATION_BONES	128
 
-cbuffer cbCarry : register(b6)
-{
-	bool gCarry : packoffset(c0);
-};
-
 cbuffer cbBoneOffsets : register(b7)
 {
 	float4x4 gpmtxBoneOffsets[SKINNED_ANIMATION_BONES];
@@ -318,3 +313,26 @@ float4 PSLampParticle(VS_LAMPPARTICLE_OUTPUT input) : SV_TARGET
 	return (cColor);
 }
 
+struct VS_SHADOW_INPUT
+{
+	float3 position : POSITION;
+};
+
+struct VS_SHADOW_OUTPUT
+{
+	float4 position	: SV_POSITION;
+};
+
+VS_SHADOW_OUTPUT VSShadow(VS_SHADOW_INPUT input)
+{
+	VS_SHADOW_OUTPUT output = (VS_SHADOW_OUTPUT)0;
+	//output.position = mul(float4(input.position, 1.f), mul(mul(gmtxGameObject, gmtxView), gmtxProjection));
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	return output;
+}
+
+float4 PSShadow(VS_SHADOW_OUTPUT input) : SV_TARGET
+{
+	float4 Color = float4(0.6f, 0.6f, 0.6f, 1.f);
+	return Color;
+}
