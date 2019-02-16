@@ -580,6 +580,84 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 		m_pChild->Render(pd3dCommandList, pCamera);
 }
 
+
+//플레이어 Render로 부터 호출되서 플레이어의 프레임들을 호출하며 Render할때 호출되는 함수
+// 플레이어가 들고있는 폭탄이나 , 망치가 이 함수 Render로 호출된다.
+void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bIce, int matID, CCamera* pCamera)
+{
+	OnPrepareRender();
+	if (m_pSkinningBoneTransforms)
+	{
+		m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
+	}
+
+
+	if (m_pMesh)
+	{
+		if (!m_pSkinningBoneTransforms)
+					UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+				
+		if (m_nMaterials == 1)			//폭탄과 같은 재질이 하나 있는 오브젝트 렌더
+		{
+			if (m_ppMaterials[0])
+			{
+				if (m_ppMaterials[0]->m_pShader)
+				{
+					m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
+				}
+				m_ppMaterials[0]->UpdateShaderVariables(pd3dCommandList);
+			}
+		}
+		else if (m_nMaterials == 2)		//망치의 재질 개수 2개 , 일반 망치, 황금 망치
+		{
+			if (m_ppMaterials[1])
+			{
+				if (m_ppMaterials[1]->m_pShader) m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
+				m_ppMaterials[1]->UpdateShaderVariables(pd3dCommandList);
+			}
+		}
+		else if (m_nMaterials == 7)		
+		{
+			if (bIce)							//얼음 상태일때
+			{
+				if (m_ppMaterials[ANIMATIONTYPE::ICE])
+				{
+					if (m_ppMaterials[MATERIALTYPE::ICEMAT]->m_pShader)
+					{
+						m_ppMaterials[MATERIALTYPE::ICEMAT]->m_pShader->Render(pd3dCommandList, pCamera);
+					}
+					m_ppMaterials[MATERIALTYPE::ICEMAT ]->UpdateShaderVariables(pd3dCommandList);
+				}
+			}
+			else
+			{
+				if (m_ppMaterials[matID])		//얼음상태가 아닐때 
+				{
+					if (m_ppMaterials[matID]->m_pShader)
+					{
+						m_ppMaterials[matID]->m_pShader->Render(pd3dCommandList, pCamera);
+					}
+						m_ppMaterials[matID]->UpdateShaderVariables(pd3dCommandList);
+				}
+			}
+		}
+		m_pMesh->Render(pd3dCommandList, 0);
+	}
+
+	if (!strcmp(this->m_pstrFrameName, "Lamp"))		//불꽅 파티클은 일반 GameObject Rener하는 방식을 해야한다. 
+	{
+		if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
+		if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
+	}
+	else
+	{
+		if (m_pSibling) m_pSibling->Render(pd3dCommandList, bIce, matID, pCamera);
+		if (m_pChild) m_pChild->Render(pd3dCommandList, bIce, matID, pCamera);
+	}
+	
+	
+}
+
 void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4* pxmf4x4World)
 {
 	XMFLOAT4X4 xmf4x4World;

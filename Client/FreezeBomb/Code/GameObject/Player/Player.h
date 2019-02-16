@@ -73,6 +73,8 @@ public:
 	size_t get_Special_InventorySize() const { return m_Special_Inventory.size(); }
 
 	DWORD				m_dwDirection = 0x00;
+
+
 protected:
 	XMFLOAT3			m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3			m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
@@ -106,7 +108,7 @@ protected:
 class CTerrainPlayer : public CPlayer
 {
 public:
-	CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext=NULL);
+	CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID, void *pContext=NULL);
 	virtual ~CTerrainPlayer();
 
 	virtual void Animate(float fTimeElapsed);

@@ -3,17 +3,18 @@
 #include "../../Material/Material.h"
 #include "../../Shader/Shader.h"
 
-CEvilBear::CEvilBear(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
+CEvilBear::CEvilBear(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID)
 {
+	m_matID = matID;
 }
 
 CEvilBear::~CEvilBear()
 {
 }
 
-void CEvilBear::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+void CEvilBear::Render(ID3D12GraphicsCommandList* pd3dCommandList,bool bIce,int matID, CCamera* pCamera)
 {
-	CGameObject::Render(pd3dCommandList, pCamera);
+	CGameObject::Render(pd3dCommandList,bIce,matID, pCamera);
 	//OnPrepareRender();
 
 	//if (m_pSkinningBoneTransforms)

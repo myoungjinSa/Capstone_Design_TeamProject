@@ -26,6 +26,8 @@ CPlayer::CPlayer()
 
 	m_pPlayerUpdatedContext = nullptr;
 	m_pCameraUpdatedContext = nullptr;
+
+	
 }
 
 CPlayer::~CPlayer()
@@ -262,7 +264,9 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 
 	if (nCameraMode == THIRD_PERSON_CAMERA)
 	{
-		CGameObject::Render(pd3dCommandList, pCamera);
+		CGameObject::Render(pd3dCommandList,m_bIce,m_matID,pCamera);		//ÀçÁúº°·Î ·»´õ 
+		//CGameObject::Render(pd3dCommandList,pCamera);			//·»´õ
+
 		//OnPrepareRender();
 
 		//if (m_pSkinningBoneTransforms)
@@ -351,7 +355,7 @@ void CPlayer::Refresh_Inventory(int ItemType)
 	}
 }
 
-CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
+CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID ,void *pContext)
 {
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
@@ -383,6 +387,8 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 	SetPlayerUpdatedContext(pContext);
 	SetCameraUpdatedContext(pContext);
+
+	m_matID = matID;
 
 	if (pEvilBearModel)
 		delete pEvilBearModel;

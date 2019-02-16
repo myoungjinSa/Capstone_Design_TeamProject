@@ -1,61 +1,49 @@
-Objects Count:10
+Objects Count:8
 <SM_BigPlainRock_Snow_01>
-<Position>: 122.628 0 91.5101
-<Look>: 0 0 1
-<Up>: 0 1 0
-<Right>: 1 0 0
-
-<SM_BigPlainRock_Snow_01>
-<Position>: 147.121 0 116.49
-<Look>: 0 0 1
-<Up>: 0 1 0
-<Right>: 1 0 0
+<Position>: 108.686 0 172.835
+<Look>: 0.982811 0 -0.184614
+<Up>: -0 1 0
+<Right>: -0.184614 0 -0.982811
 
 <SM_BigPlainRock_Snow_01>
-<Position>: 184.71 0 212.306
-<Look>: 0.882948 0 -0.469472
-<Up>: 0 1 0
-<Right>: -0.469472 0 -0.882948
+<Position>: 152.09 0 130.795
+<Look>: 1 0 -0.00072892
+<Up>: -0 1 0
+<Right>: -0.000728883 0 -1
 
 <SM_DeadTrunk_01>
-<Position>: 135.715 0 80.5962
-<Look>: 0.882948 0 -0.469472
-<Up>: 0 1 0
-<Right>: -0.469472 0 -0.882948
+<Position>: 107.216 0 106.156
+<Look>: 0.80092 0 0.598771
+<Up>: -0 1 0
+<Right>: 0.598771 0 -0.80092
 
 <SM_DeadTrunk_01>
-<Position>: 162.316 0 102.841
-<Look>: 0.882948 0 -0.469472
-<Up>: 0 1 0
-<Right>: -0.469472 0 -0.882948
+<Position>: 436.811 0 175.983
+<Look>: -0.850924 0 0.525288
+<Up>: -0 1 0
+<Right>: 0.525288 0 0.850924
 
 <SM_DeadTrunk_01>
-<Position>: 117.013 0 132.606
-<Look>: 0 0 1
-<Up>: 0 1 0
-<Right>: 1 0 0
-
-<SM_DeadTrunk_01>
-<Position>: 219.895 0 168.716
-<Look>: 0.882948 0 -0.469472
-<Up>: 0 1 0
-<Right>: -0.469472 0 -0.882948
+<Position>: 400.294 0 234.667
+<Look>: -0.992058 0 0.125783
+<Up>: -0 1 0
+<Right>: 0.125782 0 0.992058
 
 <SM_PineTree_Snow_01>
-<Position>: 34.0278 0 26.1987
-<Look>: 0 0 1
-<Up>: 0 1 0
-<Right>: 1 0 0
+<Position>: 48.1816 0 44.5152
+<Look>: 0.777047 0 0.629443
+<Up>: -0 1 0
+<Right>: 0.629443 0 -0.777047
 
 <SM_PineTree_Snow_01>
-<Position>: 79.7763 0 66.5673
-<Look>: 0 0 1
-<Up>: 0 1 0
-<Right>: 1 0 0
+<Position>: 446.306 0 271.356
+<Look>: -0.985927 0 -0.167179
+<Up>: -0 1 0
+<Right>: -0.167179 0 0.985927
 
 <SM_PineTree_Snow_01>
-<Position>: 11.4992 0 4.87328
-<Look>: 0 0 1
-<Up>: 0 1 0
-<Right>: 1 0 0
+<Position>: 374.405 0 148.858
+<Look>: -0.938779 0 0.34452
+<Up>: -0 1 0
+<Right>: 0.34452 0 0.938779
 
