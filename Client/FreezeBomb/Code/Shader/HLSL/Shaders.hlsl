@@ -318,3 +318,39 @@ float4 PSLampParticle(VS_LAMPPARTICLE_OUTPUT input) : SV_TARGET
 	return (cColor);
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct VS_ICE_CUBE_INPUT
+{
+	float3 position : POSITION;
+	float2 uv		: TEXCOORD;
+
+};
+
+struct VS_ICE_CUBE_OUTPUT
+{
+	float4 position :SV_POSITION;
+	float2 uv		:TEXCOORD;
+};
+
+Texture2D gtxtIceCube : register(t18);
+VS_ICE_CUBE_OUTPUT VSIceCube(VS_ICE_CUBE_INPUT input)
+{
+	VS_ICE_CUBE_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.uv = input.uv;
+
+
+	return(output);
+}
+
+float4 PSIceCube(VS_ICE_CUBE_OUTPUT input) : SV_Target
+{
+	float4 cColor = gtxtIceCube.Sample(gssWrap, input.uv);
+	//cColor = cColor + float4(0.0f, 0.0f, 0.5f, 1.0f);
+
+	return(cColor);
+}
+

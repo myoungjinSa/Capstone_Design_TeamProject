@@ -19,6 +19,8 @@
 
 #include "../Shader/StandardShader/ItemShader/ItemShader.h"
 
+#include "../Shader/CubeParticleShader/IceParticleShader/IceParticleShader.h"
+
 #include "../GameObject/Player/Player.h"
 #include "../GameObject/Item/Item.h"
 
@@ -35,7 +37,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_pResourceManager = new CResourceManager;
 	m_pResourceManager->Initialize(pd3dDevice, pd3dCommandList);
 
-	m_nShaders = 13;
+	m_nShaders = 14;
 	m_ppShaders = new CShader*[m_nShaders];
 
 	CSkyBoxShader* pSkyBoxShader = new CSkyBoxShader;
@@ -115,6 +117,14 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	pItemShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
 	m_ppShaders[12] = pItemShader;
 	m_ShaderMap.emplace("Item", pItemShader);
+
+	CCubeIceShader* pIceParticleShader = new CCubeIceShader;
+	pIceParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pIceParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
+	m_ppShaders[13] = pIceParticleShader;
+	m_ShaderMap.emplace("IceParticle", pIceParticleShader);
+
+
 }
 
 void CShaderManager::ReleaseObjects()

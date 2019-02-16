@@ -282,6 +282,7 @@ public:
 
 	virtual void OnPrepareRender() { }
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bIce, int matID, CCamera *pCamera = NULL);
 
 	virtual void ReleaseShaderVariables();
 
@@ -322,6 +323,7 @@ public:
 
 public:
 	const enum ANIMATIONTYPE { IDLE, WALKFRONT, RUNFAST, RUNBACKWARD, ATTACK, DIGGING /*땅 파기*/, ICE, NOTYET /*미정*/ };
+	const enum MATERIALTYPE { PINK, BROWN, WHITE, BLACK, BLUE, PANDA, ICEMAT };		//곰의 종류
 
 	// 각각의 객체가 AnimationController를 가지고 있어서, 서로다른 동작을 할 수 있도록 하자.
 	CAnimationController*			m_pAnimationController = NULL;
@@ -349,11 +351,13 @@ public:
 
 protected:
 	CCarry*					m_pCarry{ nullptr };
-	CLampParticle*		m_pLampParticle{ nullptr };	
+	CLampParticle*			m_pLampParticle{ nullptr };	
 
-	string m_ID;
-	CGameObject*		m_pObjectCollided{ nullptr };
+	string					m_ID;													
+	CGameObject*			m_pObjectCollided{ nullptr };
 
+	bool					m_bIce;		//얼음 여부 
+	int						m_matID;	//재질 정보
 public:
 	BoundingOrientedBox m_xmOOBB;
 	BoundingOrientedBox m_xmOOBBTransformed;
@@ -362,6 +366,10 @@ public:
 	{ m_xmOOBBTransformed = m_xmOOBB = BoundingOrientedBox(xmCenter, xmExtents, xmOrientation); }
 	void setID(const string id) { m_ID = id; }
 	const string getID()	const { return m_ID; }
+
+	const int GetMaterialID() { return m_matID; }
+	const bool GetBoolIce() { return m_bIce; }
+
 
 	CGameObject* GetObjectCollided() { return m_pObjectCollided; }
 	void SetObjectCollided(CGameObject* value) { m_pObjectCollided = value; }

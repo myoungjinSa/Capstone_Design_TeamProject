@@ -152,6 +152,32 @@ public:
 	virtual ~CSkyBoxMesh();
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class CCubeMeshTextured : public CMesh
+{
+public:
+	CCubeMeshTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth, float fHeight, float fDepth);
+	virtual ~CCubeMeshTextured();
+
+protected:
+	XMFLOAT2						*m_pxmf2TexturedCoords0 = NULL;
+	XMFLOAT4						*m_pxmf4Colors = NULL;
+
+	ID3D12Resource					*m_pd3dTexturedCoord0Buffer = NULL;
+	ID3D12Resource					*m_pd3dTexturedCoord0UploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dTextureCoord0BufferView;
+
+
+	/*ID3D12Resource					*m_pd3dColorBuffer = NULL;
+	ID3D12Resource					*m_pd3dColorUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dColorBufferView;*/
+public:
+	virtual void ReleaseUploadBuffers();
+	virtual void OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);
+
+};
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class CStandardMesh : public CMesh

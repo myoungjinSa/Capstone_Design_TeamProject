@@ -1,7 +1,10 @@
 #pragma once
 #include "../Camera/Camera.h"
 
+//class CShader;
+class CMaterial;
 class CGameObject;
+
 class CShader
 {
 public:

@@ -23,7 +23,7 @@
     <ProjectGuid>{23CA9C0E-EABB-4942-AEE9-990D6E896DDE}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>FreezeBomb</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -175,6 +175,7 @@
     <ClInclude Include="..\Code\GameObject\Billboard\Snow\Snow.h" />
     <ClInclude Include="..\Code\GameObject\Billboard\UI\UI.h" />
     <ClInclude Include="..\Code\GameObject\Carry\Carry.h" />
+    <ClInclude Include="..\Code\GameObject\Cube\IceParticle\IceCube.h" />
     <ClInclude Include="..\Code\GameObject\EvilBear\EvilBear.h" />
     <ClInclude Include="..\Code\GameObject\GameObject.h" />
     <ClInclude Include="..\Code\GameObject\Item\Item.h" />
@@ -200,6 +201,7 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\SpecialItemUIShader\SpecialItemUIShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TenNumberUIShader\TenNumberUIShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\UIShader.h" />
+    <ClInclude Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.h" />
     <ClInclude Include="..\Code\Shader\MapToolShader\MapTool.h" />
     <ClInclude Include="..\Code\Shader\Shader.h" />
     <ClInclude Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.h" />
@@ -223,6 +225,7 @@
     <ClCompile Include="..\Code\GameObject\Billboard\Snow\Snow.cpp" />
     <ClCompile Include="..\Code\GameObject\Billboard\UI\UI.cpp" />
     <ClCompile Include="..\Code\GameObject\Carry\Carry.cpp" />
+    <ClCompile Include="..\Code\GameObject\Cube\IceParticle\IceCube.cpp" />
     <ClCompile Include="..\Code\GameObject\EvilBear\EvilBear.cpp" />
     <ClCompile Include="..\Code\GameObject\GameObject.cpp" />
     <ClCompile Include="..\Code\GameObject\Item\Item.cpp" />
@@ -248,6 +251,7 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\SpecialItemUIShader\SpecialItemUIShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TenNumberUIShader\TenNumberUIShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\UIShader.cpp" />
+    <ClCompile Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.cpp" />
     <ClCompile Include="..\Code\Shader\MapToolShader\MapTool.cpp" />
     <ClCompile Include="..\Code\Shader\Shader.cpp" />
     <ClCompile Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.cpp" />

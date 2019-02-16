@@ -47,7 +47,7 @@ void CSkinnedAnimationObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D
 	m_nObjects = 5;
 	m_ppObjects = new CGameObject*[m_nObjects];
 
-	m_ppObjects[0] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[0] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,CGameObject::MATERIALTYPE::PINK);
 	m_ppObjects[0]->SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_ppObjects[0]->m_pAnimationController = new CAnimationController(2, pEvilBearModel->m_pAnimationSets);
 	// 0번 트랙에 0번 애니메이션을 Set
@@ -60,7 +60,7 @@ void CSkinnedAnimationObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D
 	m_ppObjects[0]->m_pAnimationController->SetTrackWeight(1, 0.2f);
 	m_ppObjects[0]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);
 
-	m_ppObjects[1] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[1] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,CGameObject::MATERIALTYPE::BLACK);
 	m_ppObjects[1]->SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_ppObjects[1]->m_pAnimationController = new CAnimationController(1, pEvilBearModel->m_pAnimationSets);
 	m_ppObjects[1]->m_pAnimationController->SetTrackAnimationSet(0, 1);
@@ -68,7 +68,7 @@ void CSkinnedAnimationObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D
 	m_ppObjects[1]->m_pAnimationController->SetTrackSpeed(0, 0.25f);
 	m_ppObjects[1]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);
 
-	m_ppObjects[2] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[2] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,CGameObject::MATERIALTYPE::BROWN);
 	m_ppObjects[2]->SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_ppObjects[2]->m_pAnimationController = new CAnimationController(1, pEvilBearModel->m_pAnimationSets);
 	m_ppObjects[2]->m_pAnimationController->SetTrackAnimationSet(0, 0);
@@ -76,13 +76,13 @@ void CSkinnedAnimationObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D
 	m_ppObjects[2]->m_pAnimationController->SetTrackPosition(0, 0.95f);
 	m_ppObjects[2]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);
 
-	m_ppObjects[3] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[3] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,CGameObject::MATERIALTYPE::BLUE);
 	m_ppObjects[3]->SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_ppObjects[3]->m_pAnimationController = new CAnimationController(1, pEvilBearModel->m_pAnimationSets);
 	m_ppObjects[3]->m_pAnimationController->SetTrackAnimationSet(0, 0);
 	m_ppObjects[3]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);
 
-	m_ppObjects[4] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_ppObjects[4] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,CGameObject::MATERIALTYPE::ICEMAT);
 	m_ppObjects[4]->SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_ppObjects[4]->m_pAnimationController = new CAnimationController(1, pEvilBearModel->m_pAnimationSets);
 	m_ppObjects[4]->m_pAnimationController->SetTrackAnimationSet(0, 0);
@@ -122,7 +122,7 @@ void CSkinnedAnimationObjectsShader::AnimateObjects(float fTimeElapsed, CCamera*
 
 void CSkinnedAnimationObjectsShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {
-	CShader::Render(pd3dCommandList, pCamera);
+	CShader::Render(pd3dCommandList,pCamera);
 
 	for (int i = 0; i < m_nObjects; ++i)
 	{
@@ -131,7 +131,7 @@ void CSkinnedAnimationObjectsShader::Render(ID3D12GraphicsCommandList *pd3dComma
 	
 			m_ppObjects[i]->Animate(m_fElapsedTime);
 			m_ppObjects[i]->UpdateTransform(NULL);
-			m_ppObjects[i]->Render(pd3dCommandList, pCamera);
+			m_ppObjects[i]->Render(pd3dCommandList,m_ppObjects[i]->GetBoolIce(),m_ppObjects[i]->GetMaterialID(),pCamera);
 		}
 	}
 }

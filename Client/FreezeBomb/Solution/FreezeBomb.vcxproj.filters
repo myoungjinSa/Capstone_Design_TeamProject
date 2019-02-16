@@ -154,6 +154,15 @@
     <Filter Include="Code\Shader\StandardShader\ItemShader">
       <UniqueIdentifier>{b83f75d2-02dd-4a50-81c1-e163ebc9dde5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\GameObject\IceCube">
+      <UniqueIdentifier>{8a69a17e-8b3e-4402-b4e2-b7250d605047}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\IceParticleShader">
+      <UniqueIdentifier>{2f090b80-3434-4b02-a712-e089324406dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\MapToolShader">
+      <UniqueIdentifier>{103abcb9-f8ea-4655-8e22-4a5b92ae13c1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FreezeBomb.rc">
@@ -310,6 +319,15 @@
     <ClInclude Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.h">
       <Filter>Code\Shader\StandardShader\ItemShader</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Cube\IceParticle\IceCube.h">
+      <Filter>Code\GameObject\IceCube</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.h">
+      <Filter>Code\Shader\IceParticleShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\MapToolShader\MapTool.h">
+      <Filter>Code\Shader\MapToolShader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Code\FreezeBomb.cpp">
@@ -446,6 +464,15 @@
     </ClCompile>
     <ClCompile Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.cpp">
       <Filter>Code\Shader\StandardShader\ItemShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Cube\IceParticle\IceCube.cpp">
+      <Filter>Code\GameObject\IceCube</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.cpp">
+      <Filter>Code\Shader\IceParticleShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\MapToolShader\MapTool.cpp">
+      <Filter>Code\Shader\MapToolShader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

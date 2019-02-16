@@ -100,6 +100,13 @@ void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	pGoldTimer_ItemTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Item/GoldTimer_Item.dds", 0);
 	CScene::CreateShaderResourceViews(pd3dDevice, pGoldTimer_ItemTexture, 17, false);
 	m_TextureMap.emplace("GoldTimer_Item", pGoldTimer_ItemTexture);
+
+
+	CTexture* pIceCubeTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pIceCubeTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Model/texture2.dds", 0);
+	CScene::CreateShaderResourceViews(pd3dDevice, pIceCubeTexture, 20, false);
+	m_TextureMap.emplace("IceTexture", pIceCubeTexture);
+
 }
 
 #define SIZE 22
