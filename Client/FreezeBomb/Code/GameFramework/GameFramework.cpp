@@ -365,24 +365,33 @@ void CGameFramework::OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM w
 		case '1':
 			if (m_pMapToolShader)
 			{
-				if (m_pPlayer) {
-					m_pMapToolShader->InsertObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, string("SM_PineTree_Snow_01"));
+				if (m_pPlayer)
+				{
+					int modelIndex = m_pMapToolShader->GetCurrPineTreeIndex();
+					m_pMapToolShader->SetCurrPineTreeIndex((modelIndex + 1) % m_pMapToolShader->GetPineTreeModelCount()+1);
+					m_pMapToolShader->InsertObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, string("SM_PineTree_Snow_0")+to_string(m_pMapToolShader->GetCurrPineTreeIndex()));
 				}
 			}
 			break;
 		case '2':
 			if (m_pMapToolShader)
 			{
-				if (m_pPlayer) {
-					m_pMapToolShader->InsertObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, string("SM_DeadTrunk_01"));
+				if (m_pPlayer)
+				{
+					int modelIndex = m_pMapToolShader->GetCurrDeadTreeIndex();
+					m_pMapToolShader->SetCurrDeadTreeIndex((modelIndex + 1) % m_pMapToolShader->GetDeadTreeModelCount() + 1);
+					m_pMapToolShader->InsertObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, string("SM_DeadTrunk_0")+to_string(m_pMapToolShader->GetCurrDeadTreeIndex()));
 				}
 			}
 			break;
 		case '3':
 			if (m_pMapToolShader)
 			{
-				if (m_pPlayer) {
-					m_pMapToolShader->InsertObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, string("SM_BigPlainRock_Snow_01"));
+				if (m_pPlayer)
+				{
+					int modelIndex = m_pMapToolShader->GetCurrBigRockIndex();
+					m_pMapToolShader->SetCurrBigRockIndex((modelIndex + 1) % m_pMapToolShader->GetBigRockModelCount() + 1);
+					m_pMapToolShader->InsertObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, string("SM_BigPlainRock_Snow_0") + to_string(m_pMapToolShader->GetCurrBigRockIndex()));
 				}
 			}
 			break;
@@ -390,6 +399,12 @@ void CGameFramework::OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM w
 			if (m_pMapToolShader)
 			{
 				m_pMapToolShader->MakeMapFile();
+			}
+			break;
+		case 'B':
+			if (m_pMapToolShader)
+			{
+				m_pMapToolShader->MakeMapBinaryFile();
 			}
 			break;
 		default:

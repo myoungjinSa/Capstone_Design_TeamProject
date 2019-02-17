@@ -15,6 +15,7 @@ void CResourceManager::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 {
 	LoadTexture(pd3dDevice, pd3dCommandList);
 	LoadBound(pd3dDevice, pd3dCommandList);
+	LoadMap(pd3dDevice, pd3dCommandList);
 }
 
 void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
@@ -152,6 +153,37 @@ void CResourceManager::LoadBound(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 		m_BoundMap.emplace(pBound->m_Name, pBound);
 	}
 	in.close();
+}
+
+
+void CResourceManager::LoadMap(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+{
+	string filename = "MapVer1_Bin.bin";
+
+	ifstream inf(filename, ios::binary | ios::in);
+
+	if (!inf)
+	{
+		cout << filename.append("바이너리 파일 없음")<<"\n";
+		return;
+	}
+
+	cout << filename.append("로딩 성공") << "\n";
+
+
+	
+	size_t nReads = 0;
+
+	inf.read(reinterpret_cast<char*>(&nReads), sizeof(BYTE));
+	cout << "오브젝트 수:" <<nReads<< "\n";
+
+	//inf.read(reinterpret_cast<char*>(&nReads),sizeof())
+	//char *pstrToken = new char[nReads] + 1;
+
+	//inf.read(pstrToken, sizeof(char)*nReads);
+	//cout << "내용:" << pstrToken;
+	//pstrToken[nReads] = '\0';
+	inf.close();
 }
 
 void CResourceManager::Release()
