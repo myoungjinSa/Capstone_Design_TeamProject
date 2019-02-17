@@ -260,8 +260,6 @@ public:
 	XMFLOAT4X4	m_xmf4x4ToParent;
 	XMFLOAT4X4	m_xmf4x4World;
 
-	
-
 	CGameObject*	m_pParent = NULL;
 	CGameObject*	m_pChild = NULL;
 	CGameObject*	m_pSibling = NULL;

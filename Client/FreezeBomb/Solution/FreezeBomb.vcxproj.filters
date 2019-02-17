@@ -1,50 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <FxCompile Include="..\Code\Shader\HLSL\Light.hlsl" />
-    <FxCompile Include="..\Code\Shader\HLSL\Shaders.hlsl" />
-    <FxCompile Include="..\Code\Shader\HLSL\UI.hlsl" />
+    <FxCompile Include="..\Code\Shader\HLSL\Light.hlsl">
+      <Filter>Code\Shader\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Code\Shader\HLSL\Shaders.hlsl">
+      <Filter>Code\Shader\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Code\Shader\HLSL\UI.hlsl">
+      <Filter>Code\Shader\HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Code\Cube\Cube.cpp" />
-    <ClCompile Include="..\Code\DirectX12\DDSTextureLoader\DDSTextureLoader12.cpp" />
-    <ClCompile Include="..\Code\DirectX12\WICTextureLoader\WICTextureLoader12.cpp" />
     <ClCompile Include="..\Code\FreezeBomb.cpp" />
-    <ClCompile Include="..\Code\GameObject\Billboard\LampParticle\LampParticle.cpp" />
-    <ClCompile Include="..\Code\GameObject\Billboard\Snow\Snow.cpp" />
-    <ClCompile Include="..\Code\GameObject\Billboard\UI\UI.cpp" />
-    <ClCompile Include="..\Code\GameObject\Carry\Carry.cpp" />
-    <ClCompile Include="..\Code\GameObject\Cube\IceParticle\IceCube.cpp" />
-    <ClCompile Include="..\Code\GameObject\EvilBear\EvilBear.cpp" />
-    <ClCompile Include="..\Code\GameObject\Item\Item.cpp" />
-    <ClCompile Include="..\Code\GameObject\Player\Player.cpp" />
-    <ClCompile Include="..\Code\GameObject\SkyBox\SkyBox.cpp" />
-    <ClCompile Include="..\Code\GameObject\Surrounding\Surrounding.cpp" />
-    <ClCompile Include="..\Code\GameObject\Terrain\Terrain.cpp" />
-    <ClCompile Include="..\Code\Material\Material.cpp" />
-    <ClCompile Include="..\Code\Mesh\Mesh.cpp" />
-    <ClCompile Include="..\Code\ResourceManager\ResourceManager.cpp" />
-    <ClCompile Include="..\Code\Scene\Scene.cpp" />
-    <ClCompile Include="..\Code\ShaderManager\ShaderManager.cpp" />
-    <ClCompile Include="..\Code\Shader\BillboardShader\LampParticleShader\LampParticleShader.cpp" />
-    <ClCompile Include="..\Code\Shader\BillboardShader\SnowShader\SnowShader.cpp" />
-    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\NormalItemUIShader\NormalItemUIShader.cpp" />
-    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\NumberUIShader\NumberUIShader.cpp" />
-    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\SpecialItemUIShader\SpecialItemUIShader.cpp" />
-    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TenNumberUIShader\TenNumberUIShader.cpp" />
-    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\UIShader.cpp" />
-    <ClCompile Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.cpp" />
-    <ClCompile Include="..\Code\Shader\MapToolShader\MapTool.cpp" />
-    <ClCompile Include="..\Code\Shader\Shader.cpp" />
-    <ClCompile Include="..\Code\Shader\ShadowShader\ShadowShader.cpp" />
-    <ClCompile Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.cpp" />
-    <ClCompile Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.cpp" />
-    <ClCompile Include="..\Code\Shader\StandardShader\SkinnedAnimationObjectsShader\SkinnedAnimationObjectsShader.cpp" />
-    <ClCompile Include="..\Code\Shader\StandardShader\StandardObjectsShader\StandardObjectsShader.cpp" />
-    <ClCompile Include="..\Code\Shader\StandardShader\StandardShader.cpp" />
-    <ClCompile Include="..\Code\Shader\TerrainShader\TerrainShader.cpp" />
-    <ClCompile Include="..\Code\Stdafx\Stdafx.cpp" />
-    <ClCompile Include="..\Code\Texture\Texture.cpp" />
     <ClCompile Include="..\Code\Camera\Camera.cpp">
       <Filter>Code\Camera</Filter>
     </ClCompile>
@@ -75,49 +43,122 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\ItemBoxUIShader\ItemBoxUIShader.cpp">
       <Filter>Code\Shader\BillboardShader\UIShader\ItemBoxUIShader</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\Cube\Cube.cpp">
+      <Filter>Code\Cube</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\DirectX12\DDSTextureLoader\DDSTextureLoader12.cpp">
+      <Filter>Code\DirectX\DDSTextureLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\EvilBear\EvilBear.cpp">
+      <Filter>Code\GameObject\EvilBear</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Item\Item.cpp">
+      <Filter>Code\GameObject\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Mesh\Mesh.cpp">
+      <Filter>Code\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Material\Material.cpp">
+      <Filter>Code\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\NumberUIShader\NumberUIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\NumberUIShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\NormalItemUIShader\NormalItemUIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\NormalItemUIShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\SkyBox\SkyBox.cpp">
+      <Filter>Code\GameObject\SkyBox</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Stdafx\Stdafx.cpp">
+      <Filter>Code\Stdafx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\Shader.cpp">
+      <Filter>Code\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\DirectX12\WICTextureLoader\WICTextureLoader12.cpp">
+      <Filter>Code\DirectX\WICTextureLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\UIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\SpecialItemUIShader\SpecialItemUIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\SpecialItemUIShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\SnowShader\SnowShader.cpp">
+      <Filter>Code\Shader\BillboardShader\SnowShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TenNumberUIShader\TenNumberUIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\TenNumberUIShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\ShaderManager\ShaderManager.cpp">
+      <Filter>Code\ShaderManager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\ShadowShader\ShadowShader.cpp">
+      <Filter>Code\Shader\ShadowShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\LampParticleShader\LampParticleShader.cpp">
+      <Filter>Code\Shader\BillboardShader\LampParticleShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Scene\Scene.cpp">
+      <Filter>Code\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Texture\Texture.cpp">
+      <Filter>Code\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.cpp">
+      <Filter>Code\Shader\SkyBoxShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\TerrainShader\TerrainShader.cpp">
+      <Filter>Code\Shader\TerrainShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\StandardShader\StandardShader.cpp">
+      <Filter>Code\Shader\StandardShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\StandardShader\StandardObjectsShader\StandardObjectsShader.cpp">
+      <Filter>Code\Shader\StandardShader\StandardObjectsShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\StandardShader\SkinnedAnimationObjectsShader\SkinnedAnimationObjectsShader.cpp">
+      <Filter>Code\Shader\StandardShader\SkinnedAnimationObjectsShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.cpp">
+      <Filter>Code\Shader\CubeParticleShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\ResourceManager\ResourceManager.cpp">
+      <Filter>Code\ResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.cpp">
+      <Filter>Code\Shader\StandardShader\ItemShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Cube\IceParticle\IceCube.cpp">
+      <Filter>Code\GameObject\IceCube</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Billboard\LampParticle\LampParticle.cpp">
+      <Filter>Code\GameObject\Billboard\LampParticle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Billboard\Snow\Snow.cpp">
+      <Filter>Code\GameObject\Billboard\Snow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Terrain\Terrain.cpp">
+      <Filter>Code\GameObject\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Billboard\UI\UI.cpp">
+      <Filter>Code\GameObject\Billboard\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Surrounding\Surrounding.cpp">
+      <Filter>Code\GameObject\Surrounding</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Player\Player.cpp">
+      <Filter>Code\GameObject\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\MapToolShader\MapTool.cpp">
+      <Filter>Code\Shader\StandardShader\MapToolShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Carry\Carry.cpp">
+      <Filter>Code\GameObject\Carry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Code\Cube\Cube.h" />
-    <ClInclude Include="..\Code\Default\Resource.h" />
-    <ClInclude Include="..\Code\Default\targetver.h" />
-    <ClInclude Include="..\Code\DirectX12\d3dx12.h" />
-    <ClInclude Include="..\Code\DirectX12\DDSTextureLoader\DDSTextureLoader12.h" />
-    <ClInclude Include="..\Code\DirectX12\WICTextureLoader\WICTextureLoader12.h" />
-    <ClInclude Include="..\Code\GameObject\Billboard\LampParticle\LampParticle.h" />
-    <ClInclude Include="..\Code\GameObject\Billboard\Snow\Snow.h" />
-    <ClInclude Include="..\Code\GameObject\Billboard\UI\UI.h" />
-    <ClInclude Include="..\Code\GameObject\Carry\Carry.h" />
-    <ClInclude Include="..\Code\GameObject\Cube\IceParticle\IceCube.h" />
-    <ClInclude Include="..\Code\GameObject\EvilBear\EvilBear.h" />
-    <ClInclude Include="..\Code\GameObject\Item\Item.h" />
-    <ClInclude Include="..\Code\GameObject\Player\Player.h" />
-    <ClInclude Include="..\Code\GameObject\SkyBox\SkyBox.h" />
-    <ClInclude Include="..\Code\GameObject\Surrounding\Surrounding.h" />
-    <ClInclude Include="..\Code\GameObject\Terrain\Terrain.h" />
-    <ClInclude Include="..\Code\Material\Material.h" />
-    <ClInclude Include="..\Code\Mesh\Mesh.h" />
-    <ClInclude Include="..\Code\ResourceManager\ResourceManager.h" />
-    <ClInclude Include="..\Code\Scene\Scene.h" />
-    <ClInclude Include="..\Code\ShaderManager\ShaderManager.h" />
-    <ClInclude Include="..\Code\Shader\BillboardShader\LampParticleShader\LampParticleShader.h" />
-    <ClInclude Include="..\Code\Shader\BillboardShader\SnowShader\SnowShader.h" />
-    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\NormalItemUIShader\NormalItemUIShader.h" />
-    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\NumberUIShader\NumberUIShader.h" />
-    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\SpecialItemUIShader\SpecialItemUIShader.h" />
-    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TenNumberUIShader\TenNumberUIShader.h" />
-    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\UIShader.h" />
-    <ClInclude Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.h" />
-    <ClInclude Include="..\Code\Shader\MapToolShader\MapTool.h" />
-    <ClInclude Include="..\Code\Shader\Shader.h" />
-    <ClInclude Include="..\Code\Shader\ShadowShader\ShadowShader.h" />
-    <ClInclude Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.h" />
-    <ClInclude Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.h" />
-    <ClInclude Include="..\Code\Shader\StandardShader\SkinnedAnimationObjectsShader\SkinnedAnimationObjectsShader.h" />
-    <ClInclude Include="..\Code\Shader\StandardShader\StandardObjectsShader\StandardObjectsShader.h" />
-    <ClInclude Include="..\Code\Shader\StandardShader\StandardShader.h" />
-    <ClInclude Include="..\Code\Shader\TerrainShader\TerrainShader.h" />
-    <ClInclude Include="..\Code\Stdafx\Stdafx.h" />
-    <ClInclude Include="..\Code\Texture\Texture.h" />
     <ClInclude Include="..\Code\Camera\Camera.h">
       <Filter>Code\Camera</Filter>
     </ClInclude>
@@ -148,11 +189,136 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\ItemBoxUIShader\ItemBoxUIShader.h">
       <Filter>Code\Shader\BillboardShader\UIShader\ItemBoxUIShader</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\Cube\Cube.h">
+      <Filter>Code\Cube</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\DirectX12\d3dx12.h">
+      <Filter>Code\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\DirectX12\DDSTextureLoader\DDSTextureLoader12.h">
+      <Filter>Code\DirectX\DDSTextureLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\EvilBear\EvilBear.h">
+      <Filter>Code\GameObject\EvilBear</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Item\Item.h">
+      <Filter>Code\GameObject\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Mesh\Mesh.h">
+      <Filter>Code\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Material\Material.h">
+      <Filter>Code\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\NumberUIShader\NumberUIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\NumberUIShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\NormalItemUIShader\NormalItemUIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\NormalItemUIShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\SkyBox\SkyBox.h">
+      <Filter>Code\GameObject\SkyBox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Stdafx\Stdafx.h">
+      <Filter>Code\Stdafx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\Shader.h">
+      <Filter>Code\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\DirectX12\WICTextureLoader\WICTextureLoader12.h">
+      <Filter>Code\DirectX\WICTextureLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\UIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\SpecialItemUIShader\SpecialItemUIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\SpecialItemUIShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\SnowShader\SnowShader.h">
+      <Filter>Code\Shader\BillboardShader\SnowShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TenNumberUIShader\TenNumberUIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\TenNumberUIShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\ShaderManager\ShaderManager.h">
+      <Filter>Code\ShaderManager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\ShadowShader\ShadowShader.h">
+      <Filter>Code\Shader\ShadowShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\LampParticleShader\LampParticleShader.h">
+      <Filter>Code\Shader\BillboardShader\LampParticleShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Scene\Scene.h">
+      <Filter>Code\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Texture\Texture.h">
+      <Filter>Code\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.h">
+      <Filter>Code\Shader\SkyBoxShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\TerrainShader\TerrainShader.h">
+      <Filter>Code\Shader\TerrainShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\StandardShader\StandardShader.h">
+      <Filter>Code\Shader\StandardShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\StandardShader\StandardObjectsShader\StandardObjectsShader.h">
+      <Filter>Code\Shader\StandardShader\StandardObjectsShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\StandardShader\SkinnedAnimationObjectsShader\SkinnedAnimationObjectsShader.h">
+      <Filter>Code\Shader\StandardShader\SkinnedAnimationObjectsShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.h">
+      <Filter>Code\Shader\CubeParticleShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\ResourceManager\ResourceManager.h">
+      <Filter>Code\ResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.h">
+      <Filter>Code\Shader\StandardShader\ItemShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Cube\IceParticle\IceCube.h">
+      <Filter>Code\GameObject\IceCube</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Billboard\LampParticle\LampParticle.h">
+      <Filter>Code\GameObject\Billboard\LampParticle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Billboard\Snow\Snow.h">
+      <Filter>Code\GameObject\Billboard\Snow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Terrain\Terrain.h">
+      <Filter>Code\GameObject\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Billboard\UI\UI.h">
+      <Filter>Code\GameObject\Billboard\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Surrounding\Surrounding.h">
+      <Filter>Code\GameObject\Surrounding</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Player\Player.h">
+      <Filter>Code\GameObject\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\MapToolShader\MapTool.h">
+      <Filter>Code\Shader\StandardShader\MapToolShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Carry\Carry.h">
+      <Filter>Code\GameObject\Carry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Default\Resource.h">
+      <Filter>Code\Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Default\targetver.h">
+      <Filter>Code\Default</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="small.ico" />
+    <Image Include="small.ico">
+      <Filter>Code\Default\Resource</Filter>
+    </Image>
     <Image Include="FreezeBomb.ico">
-      <Filter>Code\Default</Filter>
+      <Filter>Code\Default\Resource</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
@@ -231,9 +397,6 @@
     <Filter Include="Code\Shader\BillboardShader\UIShader\ItemBoxUIShader">
       <UniqueIdentifier>{8f84f32c-c9d8-4447-b94b-cef82ca51b81}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Shader\BillboardShader\UIShader\NormalItemUIShader">
-      <UniqueIdentifier>{71d1cb0b-5f91-4925-9d75-4ed12cbc5869}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\Shader\BillboardShader\UIShader\NumberUIShader">
       <UniqueIdentifier>{048036b7-5636-4f05-97b6-5690bd249557}</UniqueIdentifier>
     </Filter>
@@ -249,10 +412,79 @@
     <Filter Include="Code\GameObject\Billboard">
       <UniqueIdentifier>{234a0edf-784c-4fc1-a4ce-e136a4adc187}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Cube">
+      <UniqueIdentifier>{501d02d4-206c-43b2-b870-17bac6187e03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\DirectX">
+      <UniqueIdentifier>{83129f93-d2d0-46f2-acd9-9316b54ccd11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\DirectX\DDSTextureLoader">
+      <UniqueIdentifier>{f9fb39a4-20a1-4488-af68-d65bbd6b9603}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\DirectX\WICTextureLoader">
+      <UniqueIdentifier>{a1fd3b4d-15c3-4a27-96ea-41cbacdbd570}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Item">
+      <UniqueIdentifier>{12826b99-9b30-4d50-a5d9-2cfbcabbd9cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\EvilBear">
+      <UniqueIdentifier>{b40907f2-e041-44e0-a3d2-155b4d916981}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\SkyBox">
+      <UniqueIdentifier>{53ff65e5-b42f-4bb8-a19e-600db130c513}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Terrain">
+      <UniqueIdentifier>{89ea758f-46ba-41ef-aa18-c2eb6e6f5309}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\NormalItemUIShader">
+      <UniqueIdentifier>{71d1cb0b-5f91-4925-9d75-4ed12cbc5869}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\ShadowShader">
+      <UniqueIdentifier>{797f8eac-08ec-49b0-bc8d-b59016b35e28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Scene">
+      <UniqueIdentifier>{c250057d-c5e7-49f9-b7c7-8f7b2f6f8001}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader\StandardObjectsShader">
+      <UniqueIdentifier>{139c9385-69fa-492a-b94d-b345e8d3b486}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader\SkinnedAnimationObjectsShader">
+      <UniqueIdentifier>{70786e25-7d14-43f4-8df2-c9e70117d77e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\IceCube">
+      <UniqueIdentifier>{6923770d-d22e-4787-9024-798ed53a93b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader\ItemShader">
+      <UniqueIdentifier>{3cae2560-9d99-4883-be38-6283d8d14075}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Player">
+      <UniqueIdentifier>{300b68a8-2ba7-44de-add9-41298c785036}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Billboard\LampParticle">
+      <UniqueIdentifier>{c1c3299a-20e1-4bf1-b2d9-5053dca22d2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Billboard\Snow">
+      <UniqueIdentifier>{63a73495-a96b-43c7-9dc4-b400a53a5149}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Billboard\UI">
+      <UniqueIdentifier>{85a40684-a6fc-40ce-978b-9ee30830f3bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Surrounding">
+      <UniqueIdentifier>{67aaf2b2-9056-4a3f-8236-89eabc16faa0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader\MapToolShader">
+      <UniqueIdentifier>{70ac25c7-8d48-4f66-9307-6ea5d99560d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Carry">
+      <UniqueIdentifier>{c0a6aef9-025d-456c-bc38-df4c1f40ce8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Default\Resource">
+      <UniqueIdentifier>{9e110815-d2eb-4236-9775-0c2621579ebb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FreezeBomb.rc">
-      <Filter>Code\Default</Filter>
+      <Filter>Code\Default\Resource</Filter>
     </ResourceCompile>
   </ItemGroup>
 </Project>

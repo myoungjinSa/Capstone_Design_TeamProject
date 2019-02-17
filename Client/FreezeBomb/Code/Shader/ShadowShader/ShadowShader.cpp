@@ -44,10 +44,10 @@ D3D12_BLEND_DESC CShadowShader::CreateBlendState()
 	d3dBlendDesc.IndependentBlendEnable = FALSE;
 	d3dBlendDesc.RenderTarget[0].BlendEnable = true;
 	d3dBlendDesc.RenderTarget[0].LogicOpEnable = false;
-	//d3dBlendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_ZERO;
-	d3dBlendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	//d3dBlendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_SRC_COLOR;
-	d3dBlendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	d3dBlendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_ZERO;
+	//d3dBlendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	d3dBlendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_SRC_COLOR;
+	//d3dBlendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
 	d3dBlendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
 	d3dBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
 	d3dBlendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
@@ -93,16 +93,27 @@ void CShadowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	m_nObjects = 1;
 	m_ppObjects = new CGameObject*[m_nObjects];
 	m_ppObjects[0] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	
+
 	CTerrain* pTerrain = (CTerrain*)pContext;
 
 	XMFLOAT3 Position;
 	Position.x = Random(10.f, 490.f);
 	Position.z = Random(10.f, 290.f);
-	m_ppObjects[0]->SetPosition(Position.x, pTerrain->GetHeight(Position.x, Position.z), Position.z);
+	//m_ppObjects[0]->SetPosition(Position.x, pTerrain->GetHeight(Position.x, Position.z), Position.z);
+	m_ppObjects[0]->SetPosition(Position.x, 10, Position.z);
 	m_ppObjects[0]->SetChild(pDeer01->m_pModelRootObject, true);
 
-	cout << Position.x << ", " << Position.z << endl;
+	// 점 광원
+	XMFLOAT4 xmf4Light(0.f, 1.f, 0.f, 1.f);
+	XMFLOAT4 xmf4Plane(0.f, 1.f, 0.f, 0.f);
+	// 그림자 행렬 생성
+	XMMATRIX xmmtxPlane = XMMatrixShadow(XMLoadFloat4(&xmf4Plane), XMLoadFloat4(&xmf4Light));
+	// 그림자 행렬에 객체의 월드행렬을 곱해서 그림자의 월드행렬을 만들어 준다.
+	XMFLOAT4X4 ShadowWorld = Matrix4x4::Multiply(xmmtxPlane, m_ppObjects[0]->m_xmf4x4World);
+	m_ppObjects[0]->SetPosition(ShadowWorld._41, ShadowWorld._42, ShadowWorld._43);
+
+	cout << ShadowWorld._41 << ", " << ShadowWorld._42 << ", " << ShadowWorld._43 << endl;
+
 
 	if (pDeer01)
 		delete pDeer01;
@@ -112,24 +123,21 @@ void CShadowShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *
 {
 	CShader::Render(pd3dCommandList, pCamera);
 
-	// 점 광원
-	//XMFLOAT4 xmf4Light(0.f, 35.f, 0.f, 1.f);
-	XMFLOAT4 xmf4Light(0.57735f, 1.f, 0.57735f, 0.f);
-	XMFLOAT4 xmf4Plane(0.f, 1.f, 0.f, 0.f);
+	//// 점 광원
+	//XMFLOAT4 xmf4Light(0.f, 1.f, 0.f, 1.f);
+	//XMFLOAT4 xmf4Plane(0.f, 1.f, 0.f, 10.f);
 
 	for (int i = 0; i < m_nObjects; ++i)
 	{
 		if (m_ppObjects[i])
 		{
-			// 그림자 행렬 생성
-			XMMATRIX xmmtxPlane = XMMatrixShadow(XMLoadFloat4(&xmf4Plane), XMLoadFloat4(&xmf4Light));
-			XMFLOAT4X4 xmf4x4Plane;
-			// 그림자 행렬을 XMFLOAT4X4로 변환
-			XMStoreFloat4x4(&xmf4x4Plane, xmmtxPlane);
-			// 그림자 행렬에 객체의 월드행렬을 곱해서 그림자의 월드행렬을 만들어 준다.
-			XMFLOAT4X4 ShadowWorld = Matrix4x4::Multiply(xmf4x4Plane, m_ppObjects[i]->m_xmf4x4World);
+			//// 그림자 행렬 생성
+			//XMMATRIX xmmtxPlane = XMMatrixShadow(XMLoadFloat4(&xmf4Plane), XMLoadFloat4(&xmf4Light));
+			//// 그림자 행렬에 객체의 월드행렬을 곱해서 그림자의 월드행렬을 만들어 준다.
+			//XMFLOAT4X4 ShadowWorld = Matrix4x4::Multiply(xmmtxPlane, m_ppObjects[i]->m_xmf4x4World);
+			//cout << ShadowWorld._41 << ", " << ShadowWorld._42 << ", " << ShadowWorld._43 << endl;
+
 			// 그림자의 월드행렬을 상수버퍼로 넘겨준다.
-			m_ppObjects[i]->m_xmf4x4World = ShadowWorld;
 			m_ppObjects[i]->UpdateTransform(nullptr);
 			m_ppObjects[i]->Render(pd3dCommandList, pCamera);
 

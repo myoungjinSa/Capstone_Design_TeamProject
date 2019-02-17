@@ -511,7 +511,7 @@ CGameObject *CGameObject::GetRootSkinnedGameObject()
 void CGameObject::UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent)
 {
 	m_xmf4x4World = (pxmf4x4Parent) ? Matrix4x4::Multiply(m_xmf4x4ToParent, *pxmf4x4Parent) : m_xmf4x4ToParent;
-	//cout << m_xmf4x4World._41 << ", " << m_xmf4x4World._42 << ", " << m_xmf4x4World._43 << endl;
+	//cout << "¿ùµå : " << m_xmf4x4World._41 << ", " << m_xmf4x4World._42 << ", " << m_xmf4x4World._43 << endl;
 
 	if (m_pSibling) 
 		m_pSibling->UpdateTransform(pxmf4x4Parent);
@@ -663,6 +663,8 @@ void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandLis
 	XMFLOAT4X4 xmf4x4World;
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World, 0);
+
+	cout << xmf4x4World._41 << ", " << xmf4x4World._42 << ", " << xmf4x4World._43 << endl;
 }
 
 void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, CMaterial* pMaterial)

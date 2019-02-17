@@ -27,40 +27,56 @@ private:
 class CVertex
 {
 public:
-	XMFLOAT3						m_xmf3Position;
-
-public:
 	CVertex() { m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); }
 	CVertex(XMFLOAT3 xmf3Position) { m_xmf3Position = xmf3Position; }
-	~CVertex() { }
+	virtual ~CVertex() { }
+
+	XMFLOAT3						m_xmf3Position;
 };
 
-class CTexturedVertex : public CVertex
+class CIlluminatedVertex : public CVertex
 {
 public:
-	XMFLOAT2						m_xmf2TexCoord;
+	CIlluminatedVertex();
+	CIlluminatedVertex(float x, float y, float z, XMFLOAT3 xmf3Normal = XMFLOAT3(0.0f, 0.0f, 0.0f));
+	CIlluminatedVertex(XMFLOAT3 xmf3Position, XMFLOAT3 xmf3Normal = XMFLOAT3(0.0f, 0.0f, 0.0f));
+	virtual ~CIlluminatedVertex();
 
-public:
-	CTexturedVertex() { m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); m_xmf2TexCoord = XMFLOAT2(0.0f, 0.0f); }
-	CTexturedVertex(float x, float y, float z, XMFLOAT2 xmf2TexCoord) { m_xmf3Position = XMFLOAT3(x, y, z); m_xmf2TexCoord = xmf2TexCoord; }
-	CTexturedVertex(XMFLOAT3 xmf3Position, XMFLOAT2 xmf2TexCoord = XMFLOAT2(0.0f, 0.0f)) { m_xmf3Position = xmf3Position; m_xmf2TexCoord = xmf2TexCoord; }
-	~CTexturedVertex() { }
+private:
+	XMFLOAT3 m_xmf3Normal;
 };
 
-
-class CUIMesh : public CMesh
+class CMeshIlluminated : public CMesh
 {
 public:
-	CUIMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth = 20.0f, float fHeight = 20.0f, float fDepth = 20.0f, float fxPosition = 0.0f, float fyPosition = 0.0f, float fzPosition = 0.0f);
-	virtual ~CUIMesh();
+	CMeshIlluminated(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual ~CMeshIlluminated();
 
-	void ReleaseUploadBuffers();
+	void CalculateTriangleListVertexNormals(XMFLOAT3 *pxmf3Normals, XMFLOAT3 *pxmf3Positions, int nVertices);
+	void CalculateTriangleListVertexNormals(XMFLOAT3 *pxmf3Normals, XMFLOAT3 *pxmf3Positions, UINT nVertices, UINT *pnIndices, UINT nIndices);
+	void CalculateTriangleStripVertexNormals(XMFLOAT3 *pxmf3Normals, XMFLOAT3 *pxmf3Positions, UINT nVertices, UINT *pnIndices, UINT nIndices);
+	void CalculateVertexNormals(XMFLOAT3 *pxmf3Normals, XMFLOAT3 *pxmf3Positions, int nVertices, UINT *pnIndices, int nIndices);
+};
+
+class CCubeMeshIlluminated : public CMeshIlluminated
+{
+public:
+	CCubeMeshIlluminated(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth = 2.0f, float fHeight = 2.0f, float fDepth = 2.0f);
+	virtual ~CCubeMeshIlluminated();
+
+	virtual void ReleaseUploadBuffers();
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, int nSubSet);
 
 private:
-	UINT											m_nStride = 0;
+	UINT m_pnIndices[36];
+	UINT m_nIndices = 0;
+	UINT m_nStride = 0;
 
-	ID3D12Resource*						m_pd3dVertexBuffer = nullptr;
-	ID3D12Resource*						m_pd3dVertexUploadBuffer = nullptr;
+	ID3D12Resource*						m_pd3dVertexBuffer = NULL;
+	ID3D12Resource*						m_pd3dVertexUploadBuffer = NULL;
 	D3D12_VERTEX_BUFFER_VIEW	m_d3dVertexBufferView;
+
+	ID3D12Resource*						m_pd3dIndexBuffer = NULL;
+	ID3D12Resource*						m_pd3dIndexUploadBuffer = NULL;
+	D3D12_INDEX_BUFFER_VIEW	m_d3dIndexBufferView;
 };
