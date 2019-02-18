@@ -14,12 +14,15 @@ public:
 	virtual D3D12_RASTERIZER_DESC CreateRasterizerState();
 	virtual D3D12_BLEND_DESC CreateBlendState();
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
+	virtual void OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int nPipelineState);
 
-	void setTime(float time) { m_Time = time; }
-	float getTime()	const { return m_Time; }
-
+	virtual void ReleaseUploadBuffers();
+	virtual void ReleaseObjects();
+	
 protected:
-	CMaterial**	m_ppUIMaterial;
-	float m_Time = 0;
-	map<int, CUI*> m_UIMap;
+	ID3D12PipelineState**				m_ppd3dPipelineStates{ nullptr };
+	int												m_nPipelineStates = 0;
+
+	CMaterial**			m_ppUIMaterial;
+	map<int, CUI*>	m_UIMap;
 };

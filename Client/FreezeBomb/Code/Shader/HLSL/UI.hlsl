@@ -14,7 +14,7 @@ struct VS_UI_OUTPUT
 
 Texture2D gtxtUITexture			: register(t17);
 
-VS_UI_OUTPUT VSNumberUI(uint nVertexID : SV_VertexID)
+VS_UI_OUTPUT VSOneSecUI(uint nVertexID : SV_VertexID)
 {
 	VS_UI_OUTPUT output;
 
@@ -52,7 +52,7 @@ VS_UI_OUTPUT VSNumberUI(uint nVertexID : SV_VertexID)
 	return(output);
 }
 
-VS_UI_OUTPUT VSTenNumberUI(uint nVertexID : SV_VertexID)
+VS_UI_OUTPUT VSTenSecUI(uint nVertexID : SV_VertexID)
 {
 	VS_UI_OUTPUT output;
 
@@ -90,7 +90,7 @@ VS_UI_OUTPUT VSTenNumberUI(uint nVertexID : SV_VertexID)
 	return(output);
 }
 
-VS_UI_OUTPUT VSHundredNumberUI(uint nVertexID : SV_VertexID)
+VS_UI_OUTPUT VSOneMinUI(uint nVertexID : SV_VertexID)
 {
 	VS_UI_OUTPUT output;
 
