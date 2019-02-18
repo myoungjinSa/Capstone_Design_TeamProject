@@ -130,16 +130,16 @@ void CTimerUIShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	pUI->SetMaterial(0, m_ppUIMaterial[m_nObjects - 1]);
 	m_UIMap.emplace(Colon, pUI);
 
+	// 300ÃÊ
+	m_Timer = 300.f;
 }
 
 void CTimerUIShader::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer* pPlayer)
 {
-	m_Time += elapsedTime;
+	TimerUpdate();
 
-	m_Sec = (int)m_Time % 10;
-	m_TenSec = (int)m_Time % 60 / 10;
-	m_Min = (int)m_Time / 60 % 10;
-	m_TenMin = (int)m_Time / 60 % 60 / 10;
+	if(m_Timer >= 0)
+		m_Timer -= elapsedTime;
 }
 
 void CTimerUIShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
@@ -197,4 +197,12 @@ void CTimerUIShader::ReleaseObjects()
 
 	if (m_ppUIMaterial)
 		delete[] m_ppUIMaterial;
+}
+
+void CTimerUIShader::TimerUpdate()
+{
+	m_Sec = (int)m_Timer % 10;
+	m_TenSec = (int)m_Timer % 60 / 10;
+	m_Min = (int)m_Timer / 60 % 10;
+	m_TenMin = (int)m_Timer / 60 % 60 / 10;
 }

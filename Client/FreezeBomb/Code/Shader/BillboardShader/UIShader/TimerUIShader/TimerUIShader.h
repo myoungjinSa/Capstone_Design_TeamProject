@@ -18,6 +18,9 @@ public:
 	virtual void AnimateObjects(float fTimeElapsed, CCamera *pCamera, CPlayer* pPlayer = NULL);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera);
 	virtual void ReleaseObjects();
+
+	void TimerUpdate();
+
 private:
 	enum UIType { OneSec, TenSec, OneMin, Colon };
 
@@ -25,7 +28,8 @@ private:
 	map<int, CUI*>	m_TenSecUIMap;
 	map<int, CUI*>	m_OneMinUIMap;
 
-	float m_Time = 0.f;
+	// √ ¥‹¿ß
+	float m_Timer = 0;
 
 	int		m_Sec = 0;
 	int		m_TenSec = 0;
