@@ -7,12 +7,10 @@
 
 CCubeIceShader::CCubeIceShader()
 {
-
 }
 
 CCubeIceShader::~CCubeIceShader()
 {
-
 }
 
 D3D12_INPUT_LAYOUT_DESC CCubeIceShader::CreateInputLayout()
@@ -30,6 +28,7 @@ D3D12_INPUT_LAYOUT_DESC CCubeIceShader::CreateInputLayout()
 
 	return(d3dInputLayoutDesc);
 }
+
 D3D12_SHADER_BYTECODE CCubeIceShader::CreateVertexShader()
 {
 	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSIceCube", "vs_5_1", &m_pd3dVertexShaderBlob));
@@ -40,12 +39,10 @@ D3D12_SHADER_BYTECODE CCubeIceShader::CreatePixelShader()
 	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSIceCube", "ps_5_1", &m_pd3dPixelShaderBlob));
 }
 
-
 void CCubeIceShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
 	const map<string,CTexture*>& Context,void *pContext)
 {
-	
-	CCubeMeshTextured *pExplosionMesh = new CCubeMeshTextured(pd3dDevice, pd3dCommandList, 10.0f, 10.0f, 10.0f);
+	CCubeMeshTextured *pExplosionMesh = new CCubeMeshTextured(pd3dDevice, pd3dCommandList, 2.f, 2.0f, 2.0f);
 
 	CMaterial*	pIceMaterial = new CMaterial(1);
 	auto iter = Context.find("IceTexture");
@@ -53,7 +50,6 @@ void CCubeIceShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 	{
 		pIceMaterial->SetTexture((*iter).second, 0);
 	}
-
 
 	CIceCube* pIceCube = new CIceCube(1);
 	pIceCube->SetMesh(pExplosionMesh);
@@ -67,16 +63,12 @@ void CCubeIceShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 
 	m_vIceCube.emplace_back(pIceCube);
 	
-
 	CIceCube::PrepareExplosion(pd3dDevice, pd3dCommandList);
 }
 
-
 void CCubeIceShader::AnimateObjects(float fTimeElapsed, CCamera *pCamera, CPlayer *pPlayer)
 {
-	
-
-	for (auto iter = m_vIceCube.begin(); iter != m_vIceCube.end(); iter++)
+	for (auto iter = m_vIceCube.begin(); iter != m_vIceCube.end(); ++iter)
 	{
 		(*iter)->Animate(fTimeElapsed);
 	}
@@ -84,21 +76,20 @@ void CCubeIceShader::AnimateObjects(float fTimeElapsed, CCamera *pCamera, CPlaye
 
 void CCubeIceShader::ReleaseObjects()
 {
-	
 	for (auto iter = m_vIceCube.begin(); iter != m_vIceCube.end();)
 	{
+		delete (*iter);
 		iter = m_vIceCube.erase(iter);
 	}
 	m_vIceCube.clear();
 }
-
 
 void CCubeIceShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {
 	CShader::Render(pd3dCommandList, pCamera);
 
 	
-	for (auto iter = m_vIceCube.begin(); iter != m_vIceCube.end();iter++)
+	for (auto iter = m_vIceCube.begin(); iter != m_vIceCube.end(); ++iter)
 	{
 		(*iter)->Render(pd3dCommandList, pCamera);
 	}
