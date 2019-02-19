@@ -112,6 +112,9 @@ void CShadowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	XMFLOAT4X4 ShadowWorld = Matrix4x4::Multiply(xmmtxPlane, m_ppObjects[0]->m_xmf4x4World);
 	m_ppObjects[0]->SetPosition(ShadowWorld._41, ShadowWorld._42, ShadowWorld._43);
 
+	cout << ShadowWorld._41 << ", " << ShadowWorld._42 << ", " << ShadowWorld._43 << endl;
+
+
 	if (pDeer01)
 		delete pDeer01;
 }

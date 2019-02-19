@@ -1,7 +1,5 @@
 #include "../../../Stdafx/Stdafx.h"
 #include "UIShader.h"
-#include "../../../GameObject/Billboard/UI/UI.h"
-#include "../../../Material/Material.h"
 
 CUIShader::CUIShader()
 {
@@ -9,14 +7,6 @@ CUIShader::CUIShader()
 
 CUIShader::~CUIShader()
 {
-	if (m_ppd3dPipelineStates)
-	{
-		for (int i = 0; i < m_nPipelineStates; ++i)
-			if (m_ppd3dPipelineStates[i])
-				m_ppd3dPipelineStates[i]->Release();
-		delete[] m_ppd3dPipelineStates;
-	}
-
 }
 
 D3D12_SHADER_BYTECODE CUIShader::CreatePixelShader()
@@ -82,31 +72,4 @@ D3D12_BLEND_DESC CUIShader::CreateBlendState()
 	d3dBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
 	return(d3dBlendDesc);
-}
-
-void CUIShader::OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int nPipelineState)
-{
-	if (m_ppd3dPipelineStates)
-		pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[nPipelineState]);
-}
-
-void CUIShader::ReleaseUploadBuffers()
-{
-	for (auto iter = m_UIMap.begin(); iter != m_UIMap.end(); ++iter)
-	{
-		(*iter).second->ReleaseUploadBuffers();
-	}
-}
-
-void CUIShader::ReleaseObjects()
-{
-	for (auto iter = m_UIMap.begin(); iter != m_UIMap.end(); )
-	{
-		delete (*iter).second;
-		iter = m_UIMap.erase(iter);
-	}
-	m_UIMap.clear();
-
-	if (m_ppUIMaterial)
-		delete[] m_ppUIMaterial;
 }
