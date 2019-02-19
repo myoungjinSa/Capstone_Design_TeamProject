@@ -89,6 +89,14 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	//m_ppShaders[index++] = pShadowShader;
 	//m_ShaderMap.emplace("Shadow", pShadowShader);
 
+#ifndef _MAPTOOL_MODE_
+	CMapObjectsShader *pMapShader = new CMapObjectsShader;
+	pMapShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pMapShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
+	m_ppShaders[index++] = pMapShader;
+	m_ShaderMap.emplace("MapShader", pMapShader);
+#endif
+
 	CTimerUIShader* pTimerUIShader = new CTimerUIShader;
 	pTimerUIShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pTimerUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
@@ -107,13 +115,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ppShaders[index++] = pSurroundingShader;
 	m_ShaderMap.emplace("Surrounding", pSurroundingShader);*/
 
-#ifndef _MAPTOOL_MODE_
-	CMapObjectsShader *pMapShader = new CMapObjectsShader;
-	pMapShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pMapShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
-	m_ppShaders[index++] = pMapShader;
-	m_ShaderMap.emplace("MapShader", pMapShader);
-#endif
+
 
 }
 
