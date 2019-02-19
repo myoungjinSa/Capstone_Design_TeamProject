@@ -10,7 +10,8 @@ CShader::~CShader()
 {
 	ReleaseShaderVariables();
 
-	if (m_pd3dPipelineState) m_pd3dPipelineState->Release();
+	if (m_pd3dPipelineState) 
+		m_pd3dPipelineState->Release();
 }
 
 D3D12_SHADER_BYTECODE CShader::CreateVertexShader()
