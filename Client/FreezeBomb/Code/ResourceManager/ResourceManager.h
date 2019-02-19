@@ -18,7 +18,7 @@ public:
 	void Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void LoadBound(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-	void LoadMap(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	void LoadMap(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,const string filename);
 
 
 	void Release();

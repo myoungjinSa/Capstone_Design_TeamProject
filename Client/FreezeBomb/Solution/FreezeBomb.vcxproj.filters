@@ -157,6 +157,9 @@
     <ClCompile Include="..\Code\GameObject\Carry\Carry.cpp">
       <Filter>Code\GameObject\Carry</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\Shader\StandardShader\StandardMapObjectShader\MapObjectShader.cpp">
+      <Filter>Code\Shader\StandardShader\StandardMapObjectShader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h">
@@ -311,6 +314,9 @@
     </ClInclude>
     <ClInclude Include="..\Code\Default\targetver.h">
       <Filter>Code\Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\StandardShader\StandardMapObjectShader\MapObjectShader.h">
+      <Filter>Code\Shader\StandardShader\StandardMapObjectShader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -480,6 +486,9 @@
     </Filter>
     <Filter Include="Code\Default\Resource">
       <UniqueIdentifier>{9e110815-d2eb-4236-9775-0c2621579ebb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader\StandardMapObjectShader">
+      <UniqueIdentifier>{ac84cacf-a5bb-4af9-8b44-76a6522f6b91}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

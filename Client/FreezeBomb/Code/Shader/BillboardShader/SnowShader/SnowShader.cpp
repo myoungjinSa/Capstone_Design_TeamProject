@@ -64,7 +64,7 @@ void CSnowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 		pSnow->SetOffsetX(Random(minX, maxX));
 		pSnow->SetOffsetZ(Random(minZ, maxZ));
 		pSnow->SetPosition(0.0f, Random(300.0f, 400.0f), 0.0f);
-		pSnow->setSpeed(Random(1.0f, 5.0f));
+		pSnow->setSpeed(Random(0.5f, 3.0f));
 		m_ppObjects[i] = pSnow;
 	}
 }

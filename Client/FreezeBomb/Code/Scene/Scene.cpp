@@ -36,7 +36,7 @@ void CScene::BuildDefaultLightsAndMaterials()
 
 	m_xmf4GlobalAmbient = XMFLOAT4(0.15f, 0.15f, 0.15f, 1.0f);
 
-	m_pLights[0].m_bEnable = true;
+	m_pLights[0].m_bEnable = false;
 	m_pLights[0].m_nType = POINT_LIGHT;
 	m_pLights[0].m_fRange = 1000.0f;
 	m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.1f, 0.0f, 0.0f, 1.0f);
@@ -63,7 +63,7 @@ void CScene::BuildDefaultLightsAndMaterials()
 	m_pLights[2].m_xmf4Diffuse = XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f);
 	m_pLights[2].m_xmf4Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 0.0f);
 	m_pLights[2].m_xmf3Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	m_pLights[3].m_bEnable = true;
+	m_pLights[3].m_bEnable = false;
 	m_pLights[3].m_nType = SPOT_LIGHT;
 	m_pLights[3].m_fRange = 600.0f;
 	m_pLights[3].m_xmf4Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
@@ -84,16 +84,18 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	// ShaderResourceView 총 개수
 	// SkyBox : 1, Terrain : 2, Player : 15, EvilBear : 15 => 33
-	// DeadTrees : 25, PineTrees : 35, Rocks : 25, Deer : 2 => 87
+	// SM_DeadTree_05 -> 바뀜 텍스쳐 5개에서 3개만 필요
+	// DeadTrees : 23, PineTrees : 35, Rocks : 25, Deer : 2 ,Pond : 2 , Fence : 0 => 87
 	// Snow : 1, LampParticle : 1 => 2
 	// Number : 10, Colon : 1 => 11
 	// ItemBox : 1, Hammer_Item : 1, GoldHammer_Item : 1, GoldTimer_Item : 1=> 4
 	// Hammer : 4
 	// ICE : 1 
 	// Shadow : 2
+	
 	int nObjects = 0;
 #ifdef _MAPTOOL_MODE_
-	nObjects = 87;		//DeadTrees(25),PineTrees(35),Rocks(25),Deer(2)
+	nObjects = 87;		//DeadTrees(25),PineTrees(35),Rocks(25),Deer(2),Pond(2),Fence(0)
 #endif
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 33 + 87 + 2 + 11 + 4 + 4 + nObjects + 1 + 2);
 
@@ -519,6 +521,8 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	{
 		m_pLights[1].m_xmf3Position = m_pPlayer->GetPosition();
 		m_pLights[1].m_xmf3Direction = m_pPlayer->GetLookVector();
+		m_pLights[2].m_xmf3Position = XMFLOAT3(20.0f, 30.0f, 0.0f);
+		m_pLights[2].m_xmf3Direction = XMFLOAT3(0.0f, -0.5f, -0.5f);
 	}
 }
 

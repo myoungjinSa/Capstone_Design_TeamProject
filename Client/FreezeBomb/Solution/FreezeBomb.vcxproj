@@ -208,6 +208,7 @@
     <ClInclude Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.h" />
     <ClInclude Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.h" />
     <ClInclude Include="..\Code\Shader\StandardShader\SkinnedAnimationObjectsShader\SkinnedAnimationObjectsShader.h" />
+    <ClInclude Include="..\Code\Shader\StandardShader\StandardMapObjectShader\MapObjectShader.h" />
     <ClInclude Include="..\Code\Shader\StandardShader\StandardObjectsShader\StandardObjectsShader.h" />
     <ClInclude Include="..\Code\Shader\StandardShader\StandardShader.h" />
     <ClInclude Include="..\Code\Shader\TerrainShader\TerrainShader.h" />
@@ -259,6 +260,7 @@
     <ClCompile Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.cpp" />
     <ClCompile Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.cpp" />
     <ClCompile Include="..\Code\Shader\StandardShader\SkinnedAnimationObjectsShader\SkinnedAnimationObjectsShader.cpp" />
+    <ClCompile Include="..\Code\Shader\StandardShader\StandardMapObjectShader\MapObjectShader.cpp" />
     <ClCompile Include="..\Code\Shader\StandardShader\StandardObjectsShader\StandardObjectsShader.cpp" />
     <ClCompile Include="..\Code\Shader\StandardShader\StandardShader.cpp" />
     <ClCompile Include="..\Code\Shader\TerrainShader\TerrainShader.cpp" />
