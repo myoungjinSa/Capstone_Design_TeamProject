@@ -394,6 +394,49 @@ void CGameFramework::OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM w
 				}
 			}
 			break;
+		case '4':
+			if (m_pMapToolShader)
+			{
+				if (m_pPlayer)
+				{
+					int modelIndex = m_pMapToolShader->GetCurrPondModelIndex();
+					m_pMapToolShader->SetCurrPondIndex((modelIndex + 1) % m_pMapToolShader->GetPondModelCount() + 1);
+					m_pMapToolShader->InsertObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, string("PondSquare"));
+				}
+			}
+			break;
+		case '5':
+			if (m_pMapToolShader)
+			{
+				if (m_pPlayer)
+				{
+					int modelIndex = m_pMapToolShader->GetCurrDeerIndex();
+					m_pMapToolShader->SetCurrDeerIndex((modelIndex + 1)% m_pMapToolShader->GetDeerModelCount() + 1);
+					m_pMapToolShader->InsertObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, string("SM_Deer"));
+				}
+			}
+			break;
+		case '6':
+			if (m_pMapToolShader)
+			{
+				if (m_pPlayer)
+				{
+					string s;
+					int modelIndex = m_pMapToolShader->GetCurrFenceIndex();
+					m_pMapToolShader->SetCurrFenceIndex((modelIndex + 1)% m_pMapToolShader->GetFenceModelCount());
+					if (m_pMapToolShader->GetCurrFenceIndex() % 2 == 0)
+					{
+						s = 'A';
+					}
+					else
+					{
+						s = 'B';
+					}
+					m_pMapToolShader->InsertObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, string("LowPoly_-_Fence_")+s);
+				}
+			}
+
+			break;
 		case 'S':
 			if (m_pMapToolShader)
 			{
@@ -403,7 +446,7 @@ void CGameFramework::OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM w
 		case 'B':
 			if (m_pMapToolShader)
 			{
-				m_pMapToolShader->MakeMapBinaryFile();
+				m_pMapToolShader->MakeMapBinaryFile(string("MapVer1"));
 			}
 			break;
 		default:

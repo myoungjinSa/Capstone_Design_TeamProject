@@ -12,6 +12,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Code\FreezeBomb.cpp" />
     <ClCompile Include="..\Code\Camera\Camera.cpp">
       <Filter>Code\Camera</Filter>
     </ClCompile>
@@ -20,6 +21,9 @@
     </ClCompile>
     <ClCompile Include="..\Code\Shader\BillboardShader\BillboardShader.cpp">
       <Filter>Code\Shader\BillboardShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\ColonUIShader\ColonUIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\ColonUIShader</Filter>
     </ClCompile>
     <ClCompile Include="..\Code\GameObject\GameObject.cpp">
       <Filter>Code\GameObject</Filter>
@@ -32,6 +36,12 @@
     </ClCompile>
     <ClCompile Include="..\Code\GameObject\Billboard\Billboard.cpp">
       <Filter>Code\GameObject\Billboard</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\HundredNumberUIShader\HundredNumberUIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\HundredNumberUIShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\ItemBoxUIShader\ItemBoxUIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\ItemBoxUIShader</Filter>
     </ClCompile>
     <ClCompile Include="..\Code\Cube\Cube.cpp">
       <Filter>Code\Cube</Filter>
@@ -51,6 +61,12 @@
     <ClCompile Include="..\Code\Material\Material.cpp">
       <Filter>Code\Material</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\NumberUIShader\NumberUIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\NumberUIShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\NormalItemUIShader\NormalItemUIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\NormalItemUIShader</Filter>
+    </ClCompile>
     <ClCompile Include="..\Code\GameObject\SkyBox\SkyBox.cpp">
       <Filter>Code\GameObject\SkyBox</Filter>
     </ClCompile>
@@ -66,8 +82,14 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\UIShader.cpp">
       <Filter>Code\Shader\BillboardShader\UIShader</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\SpecialItemUIShader\SpecialItemUIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\SpecialItemUIShader</Filter>
+    </ClCompile>
     <ClCompile Include="..\Code\Shader\BillboardShader\SnowShader\SnowShader.cpp">
       <Filter>Code\Shader\BillboardShader\SnowShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TenNumberUIShader\TenNumberUIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\TenNumberUIShader</Filter>
     </ClCompile>
     <ClCompile Include="..\Code\ShaderManager\ShaderManager.cpp">
       <Filter>Code\ShaderManager</Filter>
@@ -129,6 +151,7 @@
     <ClCompile Include="..\Code\GameObject\Player\Player.cpp">
       <Filter>Code\GameObject\Player</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="..\Code\FreezeBomb.cpp">
       <Filter>Code</Filter>
     </ClCompile>
@@ -137,6 +160,16 @@
     </ClCompile>
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.cpp">
       <Filter>Code\Shader\BillboardShader\UIShader\TimerUIShader</Filter>
+=======
+    <ClCompile Include="..\Code\Shader\MapToolShader\MapTool.cpp">
+      <Filter>Code\Shader\StandardShader\MapToolShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Carry\Carry.cpp">
+      <Filter>Code\GameObject\Carry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\StandardShader\StandardMapObjectShader\MapObjectShader.cpp">
+      <Filter>Code\Shader\StandardShader\StandardMapObjectShader</Filter>
+>>>>>>> bc76f67d17b34b91c8fc0fba4efd67f96a3611e7
     </ClCompile>
     <ClCompile Include="..\Code\Shader\StandardShader\MapToolShader\MapToolShader.cpp">
       <Filter>Code\Shader\StandardShader\MapToolShader</Filter>
@@ -152,6 +185,9 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\BillboardShader.h">
       <Filter>Code\Shader\BillboardShader</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\ColonUIShader\ColonUIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\ColonUIShader</Filter>
+    </ClInclude>
     <ClInclude Include="..\Code\GameObject\GameObject.h">
       <Filter>Code\GameObject</Filter>
     </ClInclude>
@@ -163,6 +199,12 @@
     </ClInclude>
     <ClInclude Include="..\Code\GameObject\Billboard\Billboard.h">
       <Filter>Code\GameObject\Billboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\HundredNumberUIShader\HundredNumberUIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\HundredNumberUIShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\ItemBoxUIShader\ItemBoxUIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\ItemBoxUIShader</Filter>
     </ClInclude>
     <ClInclude Include="..\Code\Cube\Cube.h">
       <Filter>Code\Cube</Filter>
@@ -185,11 +227,20 @@
     <ClInclude Include="..\Code\Material\Material.h">
       <Filter>Code\Material</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\NumberUIShader\NumberUIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\NumberUIShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\NormalItemUIShader\NormalItemUIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\NormalItemUIShader</Filter>
+    </ClInclude>
     <ClInclude Include="..\Code\GameObject\SkyBox\SkyBox.h">
       <Filter>Code\GameObject\SkyBox</Filter>
     </ClInclude>
     <ClInclude Include="..\Code\Stdafx\Stdafx.h">
       <Filter>Code\Stdafx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\Shader.h">
+      <Filter>Code\Shader</Filter>
     </ClInclude>
     <ClInclude Include="..\Code\DirectX12\WICTextureLoader\WICTextureLoader12.h">
       <Filter>Code\DirectX\WICTextureLoader</Filter>
@@ -197,8 +248,14 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\UIShader.h">
       <Filter>Code\Shader\BillboardShader\UIShader</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\SpecialItemUIShader\SpecialItemUIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\SpecialItemUIShader</Filter>
+    </ClInclude>
     <ClInclude Include="..\Code\Shader\BillboardShader\SnowShader\SnowShader.h">
       <Filter>Code\Shader\BillboardShader\SnowShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TenNumberUIShader\TenNumberUIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\TenNumberUIShader</Filter>
     </ClInclude>
     <ClInclude Include="..\Code\ShaderManager\ShaderManager.h">
       <Filter>Code\ShaderManager</Filter>
@@ -266,14 +323,8 @@
     <ClInclude Include="..\Code\Default\targetver.h">
       <Filter>Code\Default</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\Shader\Shader.h">
-      <Filter>Code\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\ItemUIShader\ItemUIShader.h">
-      <Filter>Code\Shader\BillboardShader\UIShader\ItemUIShader</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.h">
-      <Filter>Code\Shader\BillboardShader\UIShader\TimerUIShader</Filter>
+    <ClInclude Include="..\Code\Shader\StandardShader\StandardMapObjectShader\MapObjectShader.h">
+      <Filter>Code\Shader\StandardShader\StandardMapObjectShader</Filter>
     </ClInclude>
     <ClInclude Include="..\Code\Shader\StandardShader\MapToolShader\MapToolShader.h">
       <Filter>Code\Shader\StandardShader\MapToolShader</Filter>
@@ -354,6 +405,24 @@
     <Filter Include="Code\Shader\BillboardShader\UIShader">
       <UniqueIdentifier>{f05f1214-142f-4808-82f0-7b7ef66ca09c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\ColonUIShader">
+      <UniqueIdentifier>{b8d99ac9-013f-4379-a615-55bdcb81ebd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\HundredNumberUIShader">
+      <UniqueIdentifier>{92cf2254-1c68-40f3-ad72-8e7a3d368d69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\ItemBoxUIShader">
+      <UniqueIdentifier>{8f84f32c-c9d8-4447-b94b-cef82ca51b81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\NumberUIShader">
+      <UniqueIdentifier>{048036b7-5636-4f05-97b6-5690bd249557}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\TenNumberUIShader">
+      <UniqueIdentifier>{83db412b-333c-4c84-9eca-d0232209d4f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\SpecialItemUIShader">
+      <UniqueIdentifier>{a6086847-0d82-488c-806d-bbf5d3304253}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Code\Mesh\BillboardMesh">
       <UniqueIdentifier>{b65f6c1f-77c5-4622-a15f-08ca235ac91b}</UniqueIdentifier>
     </Filter>
@@ -383,6 +452,9 @@
     </Filter>
     <Filter Include="Code\GameObject\Terrain">
       <UniqueIdentifier>{89ea758f-46ba-41ef-aa18-c2eb6e6f5309}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\NormalItemUIShader">
+      <UniqueIdentifier>{71d1cb0b-5f91-4925-9d75-4ed12cbc5869}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\Shader\ShadowShader">
       <UniqueIdentifier>{797f8eac-08ec-49b0-bc8d-b59016b35e28}</UniqueIdentifier>
@@ -423,11 +495,8 @@
     <Filter Include="Code\Default\Resource">
       <UniqueIdentifier>{9e110815-d2eb-4236-9775-0c2621579ebb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Shader\BillboardShader\UIShader\ItemUIShader">
-      <UniqueIdentifier>{81aa17cb-ae31-4f59-a893-a603ac7c50ce}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\BillboardShader\UIShader\TimerUIShader">
-      <UniqueIdentifier>{5b22cc38-0f6a-4296-a438-21d83d984888}</UniqueIdentifier>
+    <Filter Include="Code\Shader\StandardShader\StandardMapObjectShader">
+      <UniqueIdentifier>{ac84cacf-a5bb-4af9-8b44-76a6522f6b91}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

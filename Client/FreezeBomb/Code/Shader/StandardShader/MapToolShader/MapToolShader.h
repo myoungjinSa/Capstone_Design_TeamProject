@@ -22,25 +22,35 @@ public:
 	void InsertObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,CPlayer *pPlayer,const string& model);
 	void DeleteObject();
 	void MakeMapFile();
-	void MakeMapBinaryFile();
+	void MakeMapBinaryFile(const string& str);
 
 	int GetDeerModelCount() { return m_nDeerModelCount; }
 	int GetPineTreeModelCount() { return m_nPineTreeModelCount; }
 	int GetDeadTreeModelCount() { return m_nDeadTreeModelCount; }
 	int GetBigRockModelCount() { return m_nBigRockModelCount; }
 	int GetSmallRockModelCount() { return m_nSmallRockModelCount; }
+	int GetPondModelCount() { return m_nPondModelCount; }
+	int GetFenceModelCount() { return m_nFenceModelCount; }
 
 
+	int GetCurrDeerIndex() { return m_nCurrDeerModelIndex; }
 	int GetCurrDeadTreeIndex() { return m_nCurrDeadTreeModelIndex; }
 	int GetCurrPineTreeIndex() { return m_nCurrPineTreeModelIndex; }
 	int GetCurrBigRockIndex() { return m_nCurrBigRockModelIndex; }
 	int GetCurrSmallRockIndex() { return m_nCurrSmallRockModelIndex; }
+	int GetCurrPondModelIndex() { return m_nCurrPondModelIndex; }
+	int GetCurrFenceIndex() { return m_nCurrFenceModelIndex; }
 
 
+
+	void SetCurrDeerIndex(int index) { m_nCurrDeerModelIndex = index; }
 	void SetCurrDeadTreeIndex(int index) { m_nCurrDeadTreeModelIndex = index; }
 	void SetCurrPineTreeIndex(int index) { m_nCurrPineTreeModelIndex = index; }
 	void SetCurrBigRockIndex(int index) { m_nCurrBigRockModelIndex = index; }
 	void SetCurrSmallRockIndex(int index) { m_nCurrSmallRockModelIndex = index; }
+	void SetCurrPondIndex(int index) { m_nCurrPondModelIndex = index; }
+	void SetCurrFenceIndex(int index) { m_nCurrFenceModelIndex = index; }
+
 
 protected:
 	CTerrain*			m_pTerrain;
@@ -55,12 +65,15 @@ protected:
 	int m_nSmallRockModelCount = 0;
 	int m_nBigRockModelCount = 0;
 	int m_nDeerModelCount = 0;
+	int m_nPondModelCount = 0;
+	int m_nFenceModelCount = 0;
 
-
+	int m_nCurrDeerModelIndex = 0;
 	int m_nCurrDeadTreeModelIndex = 0;
 	int m_nCurrPineTreeModelIndex = 0;
 	int m_nCurrBigRockModelIndex = 0;
 	int m_nCurrSmallRockModelIndex = 0;
-
+	int m_nCurrPondModelIndex = 0;
+	int m_nCurrFenceModelIndex = 0;
 };
 

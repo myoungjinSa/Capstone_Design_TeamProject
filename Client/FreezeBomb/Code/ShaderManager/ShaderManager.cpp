@@ -12,6 +12,7 @@
 #include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
 #include "../Shader/BillboardShader/UIShader/ItemUIShader/ItemUIShader.h"
 
+#include "../Shader/StandardShader/StandardMapObjectShader/MapObjectShader.h"
 #include "../Shader/StandardShader/ItemShader/ItemShader.h"
 #include "../Shader/ShadowShader/ShadowShader.h"
 
@@ -33,7 +34,12 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_pResourceManager = new CResourceManager;
 	m_pResourceManager->Initialize(pd3dDevice, pd3dCommandList);
 
-	m_nShaders = 7;
+	m_nShaders = 8;
+	//맵툴 모드일때는 맵의 오브젝트들을 그리지 않게 하기 위해 
+	// 그래야 맵툴모드에서 적용해서 배치한 오브젝트들만 볼 수 있다.
+#ifndef _MAPTOOL_MODE_
+	m_nShaders = m_nShaders + 1;
+#endif
 
 	m_ppShaders = new CShader*[m_nShaders];
 
@@ -49,7 +55,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	pTerrainShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
 	m_ppShaders[index++] = pTerrainShader;
 	m_ShaderMap.emplace("Terrain", pTerrainShader);
-	
+
 	//CStandardObjectsShader* pSurroundingShader = new CStandardObjectsShader;
 	//pSurroundingShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	//pSurroundingShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
@@ -62,11 +68,11 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ppShaders[index++] = pAnimationObjectShader;
 	m_ShaderMap.emplace("곰돌이", pAnimationObjectShader);
 
-	//CSnowShader* pSnowShader = new CSnowShader;
-	//pSnowShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//pSnowShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), pTerrainShader->getTerrain());
-	//m_ppShaders[index++] = pSnowShader;
-	//m_ShaderMap.emplace("Snow", pSnowShader);
+	CSnowShader * pSnowShader = new CSnowShader;
+	pSnowShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pSnowShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), pTerrainShader->getTerrain());
+	m_ppShaders[index++] = pSnowShader;
+	m_ShaderMap.emplace("Snow", pSnowShader);
 
 	//CCubeIceShader* pIceParticleShader = new CCubeIceShader;
 	//pIceParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -85,6 +91,14 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	pShadowShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), pTerrainShader->getTerrain());
 	m_ppShaders[index++] = pShadowShader;
 	m_ShaderMap.emplace("Shadow", pShadowShader);
+
+#ifndef _MAPTOOL_MODE_
+	CMapObjectsShader *pMapShader = new CMapObjectsShader;
+	pMapShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pMapShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
+	m_ppShaders[index++] = pMapShader;
+	m_ShaderMap.emplace("MapShader", pMapShader);
+#endif
 
 	CTimerUIShader* pTimerUIShader = new CTimerUIShader;
 	pTimerUIShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);

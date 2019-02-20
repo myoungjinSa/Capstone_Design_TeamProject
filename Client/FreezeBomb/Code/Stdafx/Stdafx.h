@@ -90,8 +90,6 @@ inline float InverseSqrt(float fValue) { return 1.0f / sqrtf(fValue); }
 inline void Swap(float *pfS, float *pfT) { float fTemp = *pfS; *pfS = *pfT; *pfT = fTemp; }
 inline float RandF(float fMin, float fMax) { return(fMin + ((float)rand() / (float)RAND_MAX) * (fMax - fMin)); }
 
-
-
 namespace Vector3
 {
 	inline XMFLOAT3 XMVectorToFloat3(XMVECTOR& xmvVector)

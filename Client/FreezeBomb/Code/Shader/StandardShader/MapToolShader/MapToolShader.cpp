@@ -40,7 +40,7 @@ void CMapToolShader::InsertObject(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 		}
 		CLoadedModelInfo* pSurroundingModel = (*iter).second;
 
-		XMFLOAT3 position = pPlayer->GetPosition();
+		XMFLOAT3 position = Vector3::Add(pPlayer->GetPosition(),XMFLOAT3(0.0f,0.01f,0.0f)); 
 		XMFLOAT3 lookVec = pPlayer->GetLookVector();
 		XMFLOAT3 upVec = pPlayer->GetUpVector();
 		XMFLOAT3 rightVec = pPlayer->GetRightVector();
@@ -76,28 +76,98 @@ void CMapToolShader::SortDescByName()
 	}
 }
 
-void CMapToolShader::MakeMapBinaryFile()
+void CMapToolShader::MakeMapBinaryFile(const string& filename)
 {
 
-	ofstream out("MapVer1_Bin.bin", ios::binary | ios::out);
+	ofstream out(filename + ".bin", ios::binary);
 
-	BYTE nReads = 0;
-	//out << sizeof("<Object Count>:");
-	//out.write(&nReads, sizeof("<Object Count>:"));
-	out.write("<Object Count>:", string("<Object Count>").length());
-	for (auto iter = m_Objects.begin(); iter != m_Objects.end(); iter++)
-	{ 
-		out.write(iter->first.c_str(), sizeof(iter->first.length()));
-		out.write("<Position>:",string("<Position>:").length());
-		out << iter->second->GetPosition().x<<iter->second->GetPosition().y<<iter->second->GetPosition().z;
-		out.write("<Look>:", string("<Look>:").length());
-		out << iter->second->GetLook().x << iter->second->GetLook().y<< iter->second->GetLook().z;
-		out.write("<Up>:", string("<Up>:").length());
-		out << iter->second->GetUp().x << iter->second->GetUp().y << iter->second->GetUp().z;
-		out.write("<Right>:", string("<Right>:").length());
-		out << iter->second->GetRight().x  << iter->second->GetRight().y  << iter->second->GetRight().z;
-	}
 	
+	int objCount = m_Objects.size();
+	out.write(reinterpret_cast<const char*>(&objCount), sizeof(int));
+
+	cout << objCount;
+
+	for (int i = 0 ; i < objCount ; i++)
+	{
+		size_t stringLength = m_Objects[i].first.length();
+
+		out.write(reinterpret_cast<const char*>(&stringLength), sizeof(size_t));
+		out.write(m_Objects[i].first.c_str(), sizeof(char)*stringLength);
+
+		string pos = "<Position>";
+		stringLength = pos.length();
+		out.write(reinterpret_cast<const char*>(&stringLength), sizeof(size_t));
+		out.write(pos.c_str(), sizeof(char)*stringLength);
+		//out.write(reinterpret_cast<const char*>(&m_Objects[i].second->GetPosition()),sizeof(XMFLOAT3));
+		//out.write(reinterpret_cast<const char*>(&(m_Objects[i].second)->GetPosition().x), sizeof(float));
+
+		float posX = m_Objects[i].second->GetPosition().x;
+		float posY = m_Objects[i].second->GetPosition().y;
+		float posZ = m_Objects[i].second->GetPosition().z;
+
+		out.write(reinterpret_cast<const char*>(&posX), sizeof(float));
+		out.write(reinterpret_cast<const char*>(&posY), sizeof(float));
+		out.write(reinterpret_cast<const char*>(&posZ), sizeof(float));
+
+		string look = "<Look>";
+		stringLength = look.length();
+		out.write(reinterpret_cast<const char*>(&stringLength), sizeof(size_t));
+		out.write(look.c_str(), sizeof(char)*stringLength);
+
+		float lookX = m_Objects[i].second->GetLook().x;
+		float lookY = m_Objects[i].second->GetLook().y;
+		float lookZ = m_Objects[i].second->GetLook().z;
+
+		out.write(reinterpret_cast<const char*>(&lookX), sizeof(float));
+		out.write(reinterpret_cast<const char*>(&lookY), sizeof(float));
+		out.write(reinterpret_cast<const char*>(&lookZ), sizeof(float));
+
+
+		string up = "<Up>";
+		stringLength = up.length();
+		out.write(reinterpret_cast<const char*>(&stringLength), sizeof(size_t));
+		out.write(up.c_str(), sizeof(char)*stringLength);
+
+		float upX = m_Objects[i].second->GetUp().x;
+		float upY = m_Objects[i].second->GetUp().y;
+		float upZ = m_Objects[i].second->GetUp().z;
+		out.write(reinterpret_cast<const char*>(&upX), sizeof(float));
+		out.write(reinterpret_cast<const char*>(&upY), sizeof(float));
+		out.write(reinterpret_cast<const char*>(&upZ), sizeof(float));
+
+
+		string right = "<Right>";
+		stringLength = right.length();
+
+		out.write(reinterpret_cast<const char*>(&stringLength), sizeof(size_t));
+		out.write(right.c_str(), sizeof(char)*stringLength);
+
+		float rightX = m_Objects[i].second->GetRight().x;
+		float rightY = m_Objects[i].second->GetRight().y;
+		float rightZ = m_Objects[i].second->GetRight().z;
+		out.write(reinterpret_cast<const char*>(&rightX), sizeof(float));
+		out.write(reinterpret_cast<const char*>(&rightY), sizeof(float));
+		out.write(reinterpret_cast<const char*>(&rightZ), sizeof(float));
+
+	}
+	//BYTE nReads = 0;
+	////out << sizeof("<Object Count>:");
+	////out.write(&nReads, sizeof("<Object Count>:"));
+	//out.write("<Object Count>:", string("<Object Count>").length());
+	//for (auto iter = m_Objects.begin(); iter != m_Objects.end(); iter++)
+	//{ 
+	//	out.write(iter->first.c_str(), sizeof(iter->first.length()));
+	//	out.write("<Position>:",string("<Position>:").length());
+	//	out << iter->second->GetPosition().x<<iter->second->GetPosition().y<<iter->second->GetPosition().z;
+	//	out.write("<Look>:", string("<Look>:").length());
+	//	out << iter->second->GetLook().x << iter->second->GetLook().y<< iter->second->GetLook().z;
+	//	out.write("<Up>:", string("<Up>:").length());
+	//	out << iter->second->GetUp().x << iter->second->GetUp().y << iter->second->GetUp().z;
+	//	out.write("<Right>:", string("<Right>:").length());
+	//	out << iter->second->GetRight().x  << iter->second->GetRight().y  << iter->second->GetRight().z;
+	//}
+	//
+
 	out.close();
 
 }
@@ -111,7 +181,7 @@ void CMapToolShader::MakeMapFile()
 
 	SortDescByName();		//파일에 출력하기전에 이름의 내림차순으로 정렬
 	
-	fout.open("MapVer_1.txt"/*ios::out -> automatically Set*/);
+	fout.open("MapVer1.txt"/*ios::out -> automatically Set*/);
 	fout <<"Objects Count:"<< m_Objects.size()<<"\n";
 	
 	for (auto iter = m_Objects.begin(); iter != m_Objects.end();iter++)
@@ -182,6 +252,14 @@ void CMapToolShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 	CLoadedModelInfo* pDeer01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_Deer.bin", this, false);
 	m_nDeerModelCount = 1;
 
+	CLoadedModelInfo* pPond01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/PondSquare.bin", this, false);
+	m_nPondModelCount = 1;
+
+
+	CLoadedModelInfo* pFence01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/LowPoly_Fence_01.bin", this, false);
+	CLoadedModelInfo* pFence02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/LowPoly_Fence_02.bin", this, false);
+	m_nFenceModelCount = 2;
+	
 	m_pTerrain = (CTerrain*)pContext;
 
 	//모델 Map에 저장
@@ -226,7 +304,13 @@ void CMapToolShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 	m_ModelsList.emplace("SM_BigPlainRock_Snow_02", pRocks02);
 	m_ModelsList.emplace("SM_BigPlainRock_Snow_03", pRocks03);
 	m_ModelsList.emplace("SM_BigPlainRock_Snow_04", pRocks04);
-	m_ModelsList.emplace("SM_PlainSmall_Snow_01", pRocks05);
+	//m_ModelsList.emplace("SM_PlainSmall_Snow_01", pRocks05);
+	m_ModelsList.emplace("SM_Deer", pDeer01);
+	m_ModelsList.emplace("PondSquare", pPond01);
+
+	m_ModelsList.emplace("LowPoly_-_Fence_A", pFence01);
+	m_ModelsList.emplace("LowPoly_-_Fence_B", pFence02);
+
 
 
 

@@ -15,7 +15,7 @@ void CResourceManager::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 {
 	LoadTexture(pd3dDevice, pd3dCommandList);
 	LoadBound(pd3dDevice, pd3dCommandList);
-	LoadMap(pd3dDevice, pd3dCommandList);
+	//LoadMap(pd3dDevice, pd3dCommandList,string("MapVer1"));
 }
 
 void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
@@ -156,31 +156,113 @@ void CResourceManager::LoadBound(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 }
 
 
-void CResourceManager::LoadMap(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+void CResourceManager::LoadMap(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,const string filename)
 {
-	string filename = "MapVer1_Bin.bin";
+	//string filename = "MapVer1";
 
-	ifstream inf(filename, ios::binary | ios::in);
+	ifstream inf(filename+".bin", ios::binary);
 
 	if (!inf)
 	{
-		cout << filename.append("바이너리 파일 없음")<<"\n";
+		cout << filename+string("바이너리 파일 없음\n");
 		return;
 	}
 
-	cout << filename.append("로딩 성공") << "\n";
+	cout << filename+string("로딩 성공\n");
 
 	size_t nReads = 0;
+	
+	int objCount = 0;
+	inf.read(reinterpret_cast<char*>(&objCount), sizeof(int));
 
-	inf.read(reinterpret_cast<char*>(&nReads), sizeof(BYTE));
-	cout << "오브젝트 수:" <<nReads<< "\n";
+	cout << objCount << "\n";
 
-	//inf.read(reinterpret_cast<char*>(&nReads),sizeof())
-	//char *pstrToken = new char[nReads] + 1;
+	for (UINT i = 0; i < objCount; i++)
+	{
+		inf.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+		
+		char* p = new char[nReads + 1];
+	
+		inf.read(p, sizeof(char)*nReads);
+		p[nReads] = '\0';
+		cout << p << "\n";
+		delete[] p;
 
-	//inf.read(pstrToken, sizeof(char)*nReads);
-	//cout << "내용:" << pstrToken;
-	//pstrToken[nReads] = '\0';
+		///////////////////////////////////////////////////////////////////////
+		inf.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+
+		p = new char[nReads + 1];
+
+		inf.read(p, sizeof(char)*nReads);
+		p[nReads] = '\0';
+		cout << p << "\n";
+		delete[] p;
+		
+		float posX = 0.0f;
+		float posY = 0.0f;
+		float posZ = 0.0f;
+		inf.read(reinterpret_cast<char*>(&posX), sizeof(float));
+		inf.read(reinterpret_cast<char*>(&posY), sizeof(float));
+		inf.read(reinterpret_cast<char*>(&posZ), sizeof(float));
+
+		cout<<"위치: "<<posX<<","<<posY<<","<<posZ<<"\n";
+
+		////////////////////////////////////////////////////////////////////////
+		inf.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+
+		p = new char[nReads + 1];
+
+		inf.read(p, sizeof(char)*nReads);
+		p[nReads] = '\0';
+		cout << p << "\n";
+		delete[]p;
+
+
+		float lookX = 0.0f;
+		float lookY = 0.0f;
+		float lookZ = 0.0f;
+		inf.read(reinterpret_cast<char*>(&lookX), sizeof(float));
+		inf.read(reinterpret_cast<char*>(&lookY), sizeof(float));
+		inf.read(reinterpret_cast<char*>(&lookZ), sizeof(float));
+		cout << "Look방향: " << lookX << "," << lookY << "," << lookZ << "\n";
+		/////////////////////////////////////////////////////////////////////////////
+
+		inf.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+
+		p = new char[nReads + 1];
+
+		inf.read(p, sizeof(char) * nReads);
+		p[nReads] = '\0';
+		cout << p << "\n";
+		delete[]p;
+
+		float upX = 0.0f;
+		float upY = 0.0f;
+		float upZ = 0.0f;
+		inf.read(reinterpret_cast<char*>(&upX), sizeof(float));
+		inf.read(reinterpret_cast<char*>(&upY), sizeof(float));
+		inf.read(reinterpret_cast<char*>(&upZ), sizeof(float));
+		cout << "Up방향: " << upX << "," << upY << "," << upZ << "\n";
+		///////////////////////////////////////////////////////////////////////////////////////
+
+		inf.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+
+		p = new char[nReads + 1];
+
+		inf.read(p, sizeof(char) * nReads);
+		p[nReads] = '\0';
+		cout << p << "\n";
+		delete[]p;
+
+		float rightX = 0.0f;
+		float rightY = 0.0f;
+		float rightZ = 0.0f;
+		inf.read(reinterpret_cast<char*>(&rightX), sizeof(float));
+		inf.read(reinterpret_cast<char*>(&rightY), sizeof(float));
+		inf.read(reinterpret_cast<char*>(&rightZ), sizeof(float));
+		cout << "Right방향: " << rightX << "," << rightY << "," << rightZ << "\n";
+	}
+
 	inf.close();
 }
 
