@@ -1242,25 +1242,7 @@ CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device *pd
 
 void CGameObject::WorldUpdate(XMFLOAT4X4& world)
 {
-	m_xmf4x4World._11 = world._11;
-	m_xmf4x4World._12 = world._12;
-	m_xmf4x4World._13 = world._13;
-	m_xmf4x4World._14 = world._14;
-
-	m_xmf4x4World._21 = world._21;
-	m_xmf4x4World._22 = world._22;
-	m_xmf4x4World._23 = world._23;
-	m_xmf4x4World._24 = world._24;
-
-	m_xmf4x4World._31 = world._31;
-	m_xmf4x4World._32 = world._32;
-	m_xmf4x4World._33 = -world._33;
-	m_xmf4x4World._34 = world._34;
-
-	m_xmf4x4World._41 = world._41;
-	m_xmf4x4World._42 = world._42;
-	m_xmf4x4World._43 = world._43;
-	m_xmf4x4World._44 = world._44;
+	m_xmf4x4World = world;
 
 	if (m_pSibling)
 		m_pSibling->WorldUpdate(world);

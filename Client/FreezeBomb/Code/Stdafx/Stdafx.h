@@ -54,7 +54,7 @@ extern HINSTANCE						ghAppInstance;
 #define FRAME_BUFFER_HEIGHT		600
 
 //¸ÊÅø ¸ðµå
-//#define _MAPTOOL_MODE_
+#define _MAPTOOL_MODE_
 
 //#define _WITH_CB_GAMEOBJECT_32BIT_CONSTANTS
 //#define _WITH_CB_GAMEOBJECT_ROOT_DESCRIPTOR

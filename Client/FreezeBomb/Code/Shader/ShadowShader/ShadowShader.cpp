@@ -217,7 +217,8 @@ void CShadowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	}
 
 #else
-	CLoadedModelInfo* pDeer01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_Deer.bin", this, false);
+	CLoadedModelInfo* pDeer01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 
+		"../Resource/Models/SM_Deer2.bin", this, false);
 
 	for (int i = 0; i < m_nObjects; ++i)
 	{
@@ -270,13 +271,7 @@ void CShadowShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *
 	for (auto iter = m_ShadowObjectVector.begin(); iter != m_ShadowObjectVector.end(); ++iter)
 	{
 		CShadowShader::OnPrepareRender(pd3dCommandList, Shadow);
-#ifdef CUBE
-		(*iter)->UpdateShaderVariable(pd3dCommandList, &UpdateShadow(i));
-#else
-		//(*iter)->UpdateTransform(&UpdateShadow(i));
-		//(*iter)->UpdateTransform(nullptr);
 		(*iter)->WorldUpdate(UpdateShadow(i));
-#endif
 		(*iter)->Render(pd3dCommandList, pCamera);
 		++i;
 	}
