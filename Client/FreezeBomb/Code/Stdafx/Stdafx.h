@@ -55,6 +55,7 @@ extern HINSTANCE						ghAppInstance;
 
 //¸ÊÅø ¸ðµå
 //#define _MAPTOOL_MODE_
+
 //#define _WITH_CB_GAMEOBJECT_32BIT_CONSTANTS
 //#define _WITH_CB_GAMEOBJECT_ROOT_DESCRIPTOR
 #define _WITH_CB_WORLD_MATRIX_DESCRIPTOR_TABLE
@@ -92,8 +93,6 @@ inline bool IsEqual(float fA, float fB, float fEpsilon) { return(::IsZero(fA - f
 inline float InverseSqrt(float fValue) { return 1.0f / sqrtf(fValue); }
 inline void Swap(float *pfS, float *pfT) { float fTemp = *pfS; *pfS = *pfT; *pfT = fTemp; }
 inline float RandF(float fMin, float fMax) { return(fMin + ((float)rand() / (float)RAND_MAX) * (fMax - fMin)); }
-
-
 
 namespace Vector3
 {

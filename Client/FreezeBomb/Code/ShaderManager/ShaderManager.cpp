@@ -34,16 +34,12 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_pResourceManager = new CResourceManager;
 	m_pResourceManager->Initialize(pd3dDevice, pd3dCommandList);
 
-
 	m_nShaders = 8;
-//맵툴 모드일때는 맵의 오브젝트들을 그리지 않게 하기 위해 
+	//맵툴 모드일때는 맵의 오브젝트들을 그리지 않게 하기 위해 
 	// 그래야 맵툴모드에서 적용해서 배치한 오브젝트들만 볼 수 있다.
-#ifndef _MAPTOOL_MODE_
+#ifdef _MAPTOOL_MODE_
 	m_nShaders = m_nShaders + 1;
 #endif
-
-
-	
 	m_ppShaders = new CShader*[m_nShaders];
 
 	int index = 0;
@@ -59,6 +55,12 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ppShaders[index++] = pTerrainShader;
 	m_ShaderMap.emplace("Terrain", pTerrainShader);
 
+	//CStandardObjectsShader* pSurroundingShader = new CStandardObjectsShader;
+	//pSurroundingShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//pSurroundingShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
+	//m_ppShaders[index++] = pSurroundingShader;
+	//m_ShaderMap.emplace("Surrounding", pSurroundingShader);
+
 	CSkinnedAnimationObjectsShader* pAnimationObjectShader = new CSkinnedAnimationObjectsShader;
 	pAnimationObjectShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pAnimationObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
@@ -71,11 +73,11 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ppShaders[index++] = pSnowShader;
 	m_ShaderMap.emplace("Snow", pSnowShader);
 
-	CCubeIceShader* pIceParticleShader = new CCubeIceShader;
-	pIceParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pIceParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
-	m_ppShaders[index++] = pIceParticleShader;
-	m_ShaderMap.emplace("IceParticle", pIceParticleShader);
+	//CCubeIceShader* pIceParticleShader = new CCubeIceShader;
+	//pIceParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//pIceParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
+	//m_ppShaders[index++] = pIceParticleShader;
+	//m_ShaderMap.emplace("IceParticle", pIceParticleShader);
 
 	CItemShader* pItemShader = new CItemShader;
 	pItemShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -83,13 +85,13 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ppShaders[index++] = pItemShader;
 	m_ShaderMap.emplace("Item", pItemShader);
 
-	//CShadowShader* pShadowShader = new CShadowShader;
-	//pShadowShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//pShadowShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pTerrainShader->getTerrain());
-	//m_ppShaders[index++] = pShadowShader;
-	//m_ShaderMap.emplace("Shadow", pShadowShader);
+	CShadowShader* pShadowShader = new CShadowShader;
+	pShadowShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pShadowShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), pTerrainShader->getTerrain());
+	m_ppShaders[index++] = pShadowShader;
+	m_ShaderMap.emplace("Shadow", pShadowShader);
 
-#ifndef _MAPTOOL_MODE_
+#ifdef _MAPTOOL_MODE_
 	CMapObjectsShader *pMapShader = new CMapObjectsShader;
 	pMapShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pMapShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
@@ -108,15 +110,6 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	pItemUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
 	m_ppShaders[index++] = pItemUIShader;
 	m_ShaderMap.emplace("ItemUI", pItemUIShader);
-
-	/*CStandardObjectsShader* pSurroundingShader = new CStandardObjectsShader;
-	pSurroundingShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pSurroundingShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
-	m_ppShaders[index++] = pSurroundingShader;
-	m_ShaderMap.emplace("Surrounding", pSurroundingShader);*/
-
-
-
 }
 
 void CShaderManager::ReleaseObjects()
@@ -183,6 +176,9 @@ void CShaderManager::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 	for (int i = 0; i < m_nShaders; i++)
 	{
 		if (m_ppShaders[i])
-			m_ppShaders[i]->Render(pd3dCommandList, pCamera);
+		{
+			//if (dynamic_cast<CTerrainShader*>(m_ppShaders[i]) == nullptr)
+				m_ppShaders[i]->Render(pd3dCommandList, pCamera);
+		}
 	}
 }

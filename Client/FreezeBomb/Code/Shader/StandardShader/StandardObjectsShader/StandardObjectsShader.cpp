@@ -21,8 +21,6 @@ CStandardObjectsShader::~CStandardObjectsShader()
 void CStandardObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
 	const map<string, Bounds*>& Context, void* pContext)
 {
-
-
 	int nDeadTrees = 5, nPineTrees = 8, nRocks = 5, nDeers = 1;
 	
 	int i = 0;

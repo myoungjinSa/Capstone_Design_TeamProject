@@ -2,7 +2,15 @@
 #include "ShadowShader.h"
 #include "../../GameObject/GameObject.h"
 #include "../../GameObject/Terrain/Terrain.h"
+#include "../../Texture/Texture.h"
+
+#ifdef CUBE
+#include "../../Material/Material.h"
+#include "../../Mesh/Mesh.h"
+#else
 #include "../../GameObject/Surrounding/Surrounding.h"
+
+#endif
 
 CShadowShader::CShadowShader()
 {
@@ -10,30 +18,115 @@ CShadowShader::CShadowShader()
 
 CShadowShader::~CShadowShader()
 {
+	if (m_ppd3dPipelineStates)
+	{
+		for (int i = 0; i < m_nPipelineStates; ++i)
+			if (m_ppd3dPipelineStates[i])
+				m_ppd3dPipelineStates[i]->Release();
+		delete[] m_ppd3dPipelineStates;
+	}
 }
 
-D3D12_SHADER_BYTECODE CShadowShader::CreateVertexShader()
+void CShadowShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
-	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSShadow", "vs_5_1", &m_pd3dVertexShaderBlob));
+	m_nPipelineStates = 2;
+	m_ppd3dPipelineStates = new ID3D12PipelineState*[m_nPipelineStates];
+
+	for (int i = 0; i < m_nPipelineStates; ++i)
+	{
+		::ZeroMemory(&m_d3dPipelineStateDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+		m_d3dPipelineStateDesc.pRootSignature = pd3dGraphicsRootSignature;
+		m_d3dPipelineStateDesc.VS = CreateVertexShader(i);
+		m_d3dPipelineStateDesc.PS = CreatePixelShader(i);
+		m_d3dPipelineStateDesc.RasterizerState = CreateRasterizerState();
+		m_d3dPipelineStateDesc.BlendState = CreateBlendState();
+		m_d3dPipelineStateDesc.DepthStencilState = CreateDepthStencilState();
+		m_d3dPipelineStateDesc.InputLayout = CreateInputLayout();
+		m_d3dPipelineStateDesc.SampleMask = UINT_MAX;
+		m_d3dPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		m_d3dPipelineStateDesc.NumRenderTargets = 1;
+		m_d3dPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		m_d3dPipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		m_d3dPipelineStateDesc.SampleDesc.Count = 1;
+		m_d3dPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+
+		HRESULT hResult = pd3dDevice->CreateGraphicsPipelineState(&m_d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void **)&m_ppd3dPipelineStates[i]);
+	}
+
+	if (m_pd3dVertexShaderBlob) m_pd3dVertexShaderBlob->Release();
+	if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
+
+	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
 
-D3D12_SHADER_BYTECODE CShadowShader::CreatePixelShader()
+D3D12_SHADER_BYTECODE CShadowShader::CreateVertexShader(int Type)
 {
-	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSShadow", "ps_5_1", &m_pd3dPixelShaderBlob));
+	switch (Type)
+	{
+#ifdef CUBE
+	case Cube:
+		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSIceCube", "vs_5_1", &m_pd3dVertexShaderBlob));
+		break;
+#else
+	case Surrounding:
+		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSStandard", "vs_5_1", &m_pd3dVertexShaderBlob));
+		break;
+#endif
+	case Shadow:
+		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSShadow", "vs_5_1", &m_pd3dVertexShaderBlob));
+		break;
+	}	
+}
+
+D3D12_SHADER_BYTECODE CShadowShader::CreatePixelShader(int Type)
+{
+	switch (Type)
+	{
+#ifdef CUBE
+	case Cube:
+		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSIceCube", "ps_5_1", &m_pd3dPixelShaderBlob));
+		break;
+#else
+	case Surrounding:
+		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSStandard", "ps_5_1", &m_pd3dPixelShaderBlob));
+		break;
+#endif
+	case Shadow:
+		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSShadow", "ps_5_1", &m_pd3dPixelShaderBlob));
+		break;
+	}
 }
 
 D3D12_INPUT_LAYOUT_DESC CShadowShader::CreateInputLayout()
 {
-	UINT nInputElementDescs = 1;
+#ifdef CUBE
+	UINT nInputElementDescs = 2;
 	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
 	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
 	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
 	d3dInputLayoutDesc.NumElements = nInputElementDescs;
 
 	return(d3dInputLayoutDesc);
+#else
+	UINT nInputElementDescs = 5;
+	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
+	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
+	d3dInputLayoutDesc.NumElements = nInputElementDescs;
+
+	return(d3dInputLayoutDesc);
+#endif 
 }
 
 D3D12_BLEND_DESC CShadowShader::CreateBlendState()
@@ -70,8 +163,10 @@ D3D12_DEPTH_STENCIL_DESC CShadowShader::CreateDepthStencilState()
 	d3dDepthStencilDesc.StencilWriteMask = 0xff;
 	d3dDepthStencilDesc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
 	d3dDepthStencilDesc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+
 	d3dDepthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_INCR;
 	d3dDepthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_EQUAL;
+
 	d3dDepthStencilDesc.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
 	d3dDepthStencilDesc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
 	d3dDepthStencilDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_INCR;
@@ -82,72 +177,157 @@ D3D12_DEPTH_STENCIL_DESC CShadowShader::CreateDepthStencilState()
 
 void CShadowShader::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4* pShadowWorld)
 {
-	//XMFLOAT4X4 xmf4x4World;
-	//XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pShadowWorld)));
-	//pd3dCommandList->SetGraphicsRoot32BitConstants(20, 16, &xmf4x4World, 0);
 }
 
-void CShadowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
+void CShadowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
+	const map<string, CTexture*>& Context, void *pContext)
 {
-	CLoadedModelInfo* pDeer01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_Deer.bin", this, false);
-	m_nObjects = 1;
-	m_ppObjects = new CGameObject*[m_nObjects];
-	m_ppObjects[0] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-
 	CTerrain* pTerrain = (CTerrain*)pContext;
 
-	XMFLOAT3 Position;
-	Position.x = Random(10.f, 490.f);
-	Position.z = Random(10.f, 290.f);
-	//m_ppObjects[0]->SetPosition(Position.x, pTerrain->GetHeight(Position.x, Position.z), Position.z);
-	m_ppObjects[0]->SetPosition(Position.x, 10, Position.z);
-	m_ppObjects[0]->SetChild(pDeer01->m_pModelRootObject, true);
+	m_nObjects = 5;
+	m_ppObjects = new CGameObject*[m_nObjects];
+	XMFLOAT3 Position(0, 0, 0);
 
-	// 점 광원
-	XMFLOAT4 xmf4Light(0.f, 1.f, 0.f, 1.f);
-	XMFLOAT4 xmf4Plane(0.f, 1.f, 0.f, 0.f);
-	// 그림자 행렬 생성
-	XMMATRIX xmmtxPlane = XMMatrixShadow(XMLoadFloat4(&xmf4Plane), XMLoadFloat4(&xmf4Light));
-	// 그림자 행렬에 객체의 월드행렬을 곱해서 그림자의 월드행렬을 만들어 준다.
-	XMFLOAT4X4 ShadowWorld = Matrix4x4::Multiply(xmmtxPlane, m_ppObjects[0]->m_xmf4x4World);
-	m_ppObjects[0]->SetPosition(ShadowWorld._41, ShadowWorld._42, ShadowWorld._43);
+#ifdef CUBE
+	CCubeMeshTextured* pCubeMesh = new CCubeMeshTextured(pd3dDevice, pd3dCommandList, 4.f, 4.0f, 4.0f);
+
+	CMaterial*pMaterial = new CMaterial(1);
+	auto iter = Context.find("IceTexture");
+	if (iter != Context.end())
+		pMaterial->SetTexture((*iter).second, 0);
+
+	for (int i = 0; i < m_nObjects; ++i)
+	{
+		CCubeObject* pCube = new CCubeObject(1);
+		Position = XMFLOAT3(Random(10, 490), 5, Random(10, 290));
+		pCube->SetPosition(Position);
+		pCube->SetMesh(pCubeMesh);
+		pCube->SetMaterial(0, pMaterial);
+		m_ppObjects[i] = pCube;
+	}
+
+	for (int i = 0; i < m_nObjects; ++i)
+	{
+		CCubeObject* pCube = new CCubeObject(1);
+		Position = XMFLOAT3(m_ppObjects[i]->GetPosition());
+		pCube->SetPosition(Position);
+		pCube->SetMesh(pCubeMesh);
+		pCube->SetMaterial(0, pMaterial);
+		m_ShadowObjectVector.emplace_back(pCube);
+	}
+
+#else
+	CLoadedModelInfo* pDeer01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_Deer.bin", this, false);
+
+	for (int i = 0; i < m_nObjects; ++i)
+	{
+		m_ppObjects[i] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		Position = XMFLOAT3(Random(10.f, 490.f), 5, Random(10.f, 290.f));
+		m_ppObjects[i]->SetPosition(Position);
+		m_ppObjects[i]->SetChild(pDeer01->m_pModelRootObject, true);
+		m_ppObjects[i]->setID("<Deer01>");
+	}
+
+	for (int i = 0; i < m_nObjects; ++i)
+	{
+		CSurrounding* pShadow = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		Position = XMFLOAT3(m_ppObjects[i]->GetPosition());
+		pShadow->SetPosition(Position);
+		pShadow->SetChild(pDeer01->m_pModelRootObject, true);
+		m_ShadowObjectVector.emplace_back(pShadow);
+	}
 
 	if (pDeer01)
 		delete pDeer01;
+
+#endif
+}
+
+void CShadowShader::OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int nPipelineState)
+{
+	if (m_ppd3dPipelineStates)
+		pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[nPipelineState]);
 }
 
 void CShadowShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {
-	CShader::Render(pd3dCommandList, pCamera);
-
-	//// 점 광원
-	//XMFLOAT4 xmf4Light(0.f, 1.f, 0.f, 1.f);
-	//XMFLOAT4 xmf4Plane(0.f, 1.f, 0.f, 10.f);
-
 	for (int i = 0; i < m_nObjects; ++i)
 	{
 		if (m_ppObjects[i])
 		{
-			//// 그림자 행렬 생성
-			//XMMATRIX xmmtxPlane = XMMatrixShadow(XMLoadFloat4(&xmf4Plane), XMLoadFloat4(&xmf4Light));
-			//// 그림자 행렬에 객체의 월드행렬을 곱해서 그림자의 월드행렬을 만들어 준다.
-			//XMFLOAT4X4 ShadowWorld = Matrix4x4::Multiply(xmmtxPlane, m_ppObjects[i]->m_xmf4x4World);
-			//cout << ShadowWorld._41 << ", " << ShadowWorld._42 << ", " << ShadowWorld._43 << endl;
-
-			// 그림자의 월드행렬을 상수버퍼로 넘겨준다.
+#ifdef CUBE
+			CShadowShader::OnPrepareRender(pd3dCommandList, Cube);
+			m_ppObjects[i]->UpdateShaderVariable(pd3dCommandList, &m_ppObjects[i]->m_xmf4x4World);
+#else
+			CShadowShader::OnPrepareRender(pd3dCommandList, Surrounding);
 			m_ppObjects[i]->UpdateTransform(nullptr);
+#endif 
 			m_ppObjects[i]->Render(pd3dCommandList, pCamera);
-
-
-			//// 그림자 행렬 생성
-			//XMMATRIX xmmtxPlane = XMMatrixShadow(XMLoadFloat4(&xmf4Plane), XMLoadFloat4(&xmf4Light));
-			//XMFLOAT4X4 xmf4x4Plane;
-			//// 그림자 행렬에 객체의 월드행렬을 곱해서 그림자의 월드행렬을 만들어 준다.
-			//// 그림자 행렬을 XMFLOAT4X4로 변환
-			//XMStoreFloat4x4(&xmf4x4Plane, XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World) * xmmtxPlane);
-
-			//m_ppObjects[i]->UpdateTransform(nullptr);
-			//m_ppObjects[i]->Render(pd3dCommandList, pCamera);
 		}
 	}
+
+	int i = 0;
+	for (auto iter = m_ShadowObjectVector.begin(); iter != m_ShadowObjectVector.end(); ++iter)
+	{
+		CShadowShader::OnPrepareRender(pd3dCommandList, Shadow);
+#ifdef CUBE
+		(*iter)->UpdateShaderVariable(pd3dCommandList, &UpdateShadow(i));
+#else
+		//(*iter)->UpdateTransform(&UpdateShadow(i));
+		//(*iter)->UpdateTransform(nullptr);
+		(*iter)->WorldUpdate(UpdateShadow(i));
+#endif
+		(*iter)->Render(pd3dCommandList, pCamera);
+		++i;
+	}
+}
+
+void CShadowShader::ReleaseObjects()
+{
+	if (m_ppObjects)
+	{
+		for (int i = 0; i < m_nObjects; ++i)
+			if (m_ppObjects[i])
+				m_ppObjects[i]->Release();
+		delete[] m_ppObjects;
+	}
+
+	for (auto iter = m_ShadowObjectVector.begin(); iter != m_ShadowObjectVector.end();)
+	{
+		delete (*iter);
+		iter = m_ShadowObjectVector.erase(iter);
+	}
+	m_ShadowObjectVector.clear();
+}
+
+void CShadowShader::ReleaseUploadBuffers()
+{
+	for (int i = 0; i < m_nObjects; ++i)
+		if (m_ppObjects[i])
+			m_ppObjects[i]->ReleaseUploadBuffers();
+
+	for (auto iter = m_ShadowObjectVector.begin(); iter != m_ShadowObjectVector.end(); ++iter)
+		(*iter)->ReleaseUploadBuffers();
+}
+
+XMFLOAT4X4 CShadowShader::UpdateShadow(int index)
+{
+	// 점 광원
+	// Light의 w 벡터가 그림자의 크기를 결정?	
+	XMFLOAT4 xmf4Light(0.f, 35.f, 0.f, 10.f);
+	//XMFLOAT4 xmf4Light(0.57735f, -0.57735f, 0.57735f, 0);
+
+	// Plane의 w 벡터가 그림자의 y에 영향을 준다.
+	XMFLOAT4 xmf4Plane(0.f, 1.f, 0.f, 4.9f);
+	//XMFLOAT4 xmf4Plane(0.f, 1.f, 0.f, 0.f);
+
+	// 그림자 행렬 생성
+	XMMATRIX xmmtxPlane = XMMatrixShadow(XMLoadFloat4(&xmf4Plane), XMLoadFloat4(&xmf4Light));
+	//XMMATRIX xmmtxPlane = XMMatrixShadow(XMLoadFloat4(&xmf4Plane), -XMLoadFloat4(&xmf4Light));
+
+	// 그림자 행렬에 객체의 월드행렬을 곱해서 그림자의 월드행렬을 만들어 준다.
+	XMFLOAT4X4 ShadowWorld = Matrix4x4::Multiply(xmmtxPlane, m_ppObjects[index]->m_xmf4x4World);
+
+	//cout << ShadowWorld._41 << ", " << ShadowWorld._42 << ", " << ShadowWorld._43 << endl;
+	return ShadowWorld;
 }

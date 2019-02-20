@@ -174,7 +174,6 @@
     <ClInclude Include="..\Code\GameObject\Billboard\LampParticle\LampParticle.h" />
     <ClInclude Include="..\Code\GameObject\Billboard\Snow\Snow.h" />
     <ClInclude Include="..\Code\GameObject\Billboard\UI\UI.h" />
-    <ClInclude Include="..\Code\GameObject\Carry\Carry.h" />
     <ClInclude Include="..\Code\GameObject\Cube\IceParticle\IceCube.h" />
     <ClInclude Include="..\Code\GameObject\EvilBear\EvilBear.h" />
     <ClInclude Include="..\Code\GameObject\GameObject.h" />
@@ -197,11 +196,11 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\UIShader.h" />
     <ClInclude Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.h" />
-    <ClInclude Include="..\Code\Shader\MapToolShader\MapTool.h" />
     <ClInclude Include="..\Code\Shader\Shader.h" />
     <ClInclude Include="..\Code\Shader\ShadowShader\ShadowShader.h" />
     <ClInclude Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.h" />
     <ClInclude Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.h" />
+    <ClInclude Include="..\Code\Shader\StandardShader\MapToolShader\MapToolShader.h" />
     <ClInclude Include="..\Code\Shader\StandardShader\SkinnedAnimationObjectsShader\SkinnedAnimationObjectsShader.h" />
     <ClInclude Include="..\Code\Shader\StandardShader\StandardMapObjectShader\MapObjectShader.h" />
     <ClInclude Include="..\Code\Shader\StandardShader\StandardObjectsShader\StandardObjectsShader.h" />
@@ -221,7 +220,6 @@
     <ClCompile Include="..\Code\GameObject\Billboard\LampParticle\LampParticle.cpp" />
     <ClCompile Include="..\Code\GameObject\Billboard\Snow\Snow.cpp" />
     <ClCompile Include="..\Code\GameObject\Billboard\UI\UI.cpp" />
-    <ClCompile Include="..\Code\GameObject\Carry\Carry.cpp" />
     <ClCompile Include="..\Code\GameObject\Cube\IceParticle\IceCube.cpp" />
     <ClCompile Include="..\Code\GameObject\EvilBear\EvilBear.cpp" />
     <ClCompile Include="..\Code\GameObject\GameObject.cpp" />
@@ -244,11 +242,11 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\UIShader.cpp" />
     <ClCompile Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.cpp" />
-    <ClCompile Include="..\Code\Shader\MapToolShader\MapTool.cpp" />
     <ClCompile Include="..\Code\Shader\Shader.cpp" />
     <ClCompile Include="..\Code\Shader\ShadowShader\ShadowShader.cpp" />
     <ClCompile Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.cpp" />
     <ClCompile Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.cpp" />
+    <ClCompile Include="..\Code\Shader\StandardShader\MapToolShader\MapToolShader.cpp" />
     <ClCompile Include="..\Code\Shader\StandardShader\SkinnedAnimationObjectsShader\SkinnedAnimationObjectsShader.cpp" />
     <ClCompile Include="..\Code\Shader\StandardShader\StandardMapObjectShader\MapObjectShader.cpp" />
     <ClCompile Include="..\Code\Shader\StandardShader\StandardObjectsShader\StandardObjectsShader.cpp" />

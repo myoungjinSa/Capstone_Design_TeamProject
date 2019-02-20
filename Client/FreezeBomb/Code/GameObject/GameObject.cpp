@@ -3,7 +3,6 @@
 #include "../Texture/Texture.h"
 #include "../Material/Material.h"
 #include "../Shader/Shader.h"
-#include "Carry/Carry.h"
 #include "Billboard/LampParticle/LampParticle.h"
 
 //int CGameObject::m_AnimationType = CGameObject::ANIMATIONTYPE::IDLE;
@@ -481,7 +480,6 @@ CGameObject *CGameObject::GetRootSkinnedGameObject()
 void CGameObject::UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent)
 {
 	m_xmf4x4World = (pxmf4x4Parent) ? Matrix4x4::Multiply(m_xmf4x4ToParent, *pxmf4x4Parent) : m_xmf4x4ToParent;
-	//cout << "¿ùµå : " << m_xmf4x4World._41 << ", " << m_xmf4x4World._42 << ", " << m_xmf4x4World._43 << endl;
 
 	if (m_pSibling) 
 		m_pSibling->UpdateTransform(pxmf4x4Parent);
@@ -560,7 +558,6 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bIce, 
 	{
 		m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
 	}
-
 
 	if (m_pMesh)
 	{
@@ -1214,4 +1211,67 @@ CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device *pd
 #endif
 
 	return(pLoadedModel);
+}
+
+void CGameObject::WorldUpdate(XMFLOAT4X4& world)
+{
+	m_xmf4x4World._11 = world._11;
+	m_xmf4x4World._12 = world._12;
+	m_xmf4x4World._13 = world._13;
+	m_xmf4x4World._14 = world._14;
+
+	m_xmf4x4World._21 = world._21;
+	m_xmf4x4World._22 = world._22;
+	m_xmf4x4World._23 = world._23;
+	m_xmf4x4World._24 = world._24;
+
+	m_xmf4x4World._31 = world._31;
+	m_xmf4x4World._32 = world._32;
+	m_xmf4x4World._33 = -world._33;
+	m_xmf4x4World._34 = world._34;
+
+	m_xmf4x4World._41 = world._41;
+	m_xmf4x4World._42 = world._42;
+	m_xmf4x4World._43 = world._43;
+	m_xmf4x4World._44 = world._44;
+
+	if (m_pSibling)
+		m_pSibling->WorldUpdate(world);
+
+	if (m_pChild)
+		m_pChild->WorldUpdate(world);
+}
+
+CCubeObject::CCubeObject(int nMaterial) : CGameObject(nMaterial)
+{
+}
+
+CCubeObject::~CCubeObject()
+{
+}
+
+void CCubeObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+{
+	OnPrepareRender();
+
+	if (m_pMesh)
+	{
+		//if (!m_pSkinningBoneTransforms)
+		//	UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+
+		if (m_nMaterials > 0)
+		{
+			for (int i = 0; i < m_nMaterials; i++)
+			{
+				if (m_ppMaterials[i])
+				{
+					if (m_ppMaterials[i]->m_pShader)
+						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+
+					m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
+				}
+				m_pMesh->Render(pd3dCommandList, i);
+			}
+		}
+	}
 }

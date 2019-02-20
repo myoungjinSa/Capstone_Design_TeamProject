@@ -388,7 +388,6 @@ CSkyBoxMesh::~CSkyBoxMesh()
 CCubeMeshTextured::CCubeMeshTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth, float fHeight, float fDepth)
 	:CMesh(pd3dDevice, pd3dCommandList)
 {
-
 	m_nVertices = 36;
 	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
@@ -397,8 +396,6 @@ CCubeMeshTextured::CCubeMeshTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 	float fz = fDepth * 0.5f;
 
 	m_pxmf3Positions = new XMFLOAT3[m_nVertices];
-	m_pxmf2TexturedCoords0 = new XMFLOAT2[m_nVertices];
-	//m_pxmf4Colors = new XMFLOAT4[m_nVertices];
 
 	//앞면 사각형 위쪽 삼각형
 	m_pxmf3Positions[0] = XMFLOAT3(-fx, +fy, -fz);
@@ -466,7 +463,7 @@ CCubeMeshTextured::CCubeMeshTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 	m_d3dPositionBufferView.StrideInBytes = sizeof(XMFLOAT3);
 	m_d3dPositionBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
 
-
+	m_pxmf2TexturedCoords0 = new XMFLOAT2[m_nVertices];
 	//앞면 사각형 위쪽 삼각형
 	m_pxmf2TexturedCoords0[0] = XMFLOAT2(0.0f, 0.0f);
 	m_pxmf2TexturedCoords0[1] = XMFLOAT2(1.0f, 0.0f);
@@ -496,11 +493,9 @@ CCubeMeshTextured::CCubeMeshTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 	m_pxmf2TexturedCoords0[19] = XMFLOAT2(1.0f, 0.0f);
 	m_pxmf2TexturedCoords0[20] = XMFLOAT2(1.0f, 1.0f);
 
-
 	m_pxmf2TexturedCoords0[21] = XMFLOAT2(0.0f, 0.0f);
 	m_pxmf2TexturedCoords0[22] = XMFLOAT2(1.0f, 1.0f);
 	m_pxmf2TexturedCoords0[23] = XMFLOAT2(0.0f, 1.0f);
-
 
 	m_pxmf2TexturedCoords0[24] = XMFLOAT2(0.0f, 0.0f);
 	m_pxmf2TexturedCoords0[25] = XMFLOAT2(1.0f, 0.0f);
@@ -514,7 +509,6 @@ CCubeMeshTextured::CCubeMeshTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 	m_pxmf2TexturedCoords0[31] = XMFLOAT2(1.0f, 0.0f);
 	m_pxmf2TexturedCoords0[32] = XMFLOAT2(1.0f, 1.0f);
 
-
 	m_pxmf2TexturedCoords0[33] = XMFLOAT2(0.0f, 0.0f);
 	m_pxmf2TexturedCoords0[34] = XMFLOAT2(1.0f, 1.0f);
 	m_pxmf2TexturedCoords0[35] = XMFLOAT2(0.0f, 1.0f);
@@ -523,29 +517,15 @@ CCubeMeshTextured::CCubeMeshTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 	m_d3dTextureCoord0BufferView.BufferLocation = m_pd3dTexturedCoord0Buffer->GetGPUVirtualAddress();
 	m_d3dTextureCoord0BufferView.StrideInBytes = sizeof(XMFLOAT2);
 	m_d3dTextureCoord0BufferView.SizeInBytes = sizeof(XMFLOAT2) * m_nVertices;
-
-
-
 }
 
 CCubeMeshTextured::~CCubeMeshTextured()
 {
-
 	if (m_pd3dTexturedCoord0Buffer)
-	{
 		m_pd3dTexturedCoord0Buffer->Release();
-	}
-
-	/*if (m_pd3dColorBuffer)
-	{
-		m_pd3dColorBuffer->Release();
-	}*/
 
 	if (m_pxmf2TexturedCoords0)
-	{
 		delete[] m_pxmf2TexturedCoords0;
-	}
-
 }
 
 void CCubeMeshTextured::ReleaseUploadBuffers()
@@ -557,8 +537,6 @@ void CCubeMeshTextured::ReleaseUploadBuffers()
 		m_pd3dTexturedCoord0UploadBuffer->Release();
 	}
 	m_pd3dTexturedCoord0UploadBuffer = NULL;
-
-
 }
 
 
@@ -566,6 +544,9 @@ void CCubeMeshTextured::OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, 
 {
 	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[2] = { m_d3dPositionBufferView, m_d3dTextureCoord0BufferView };
 	pd3dCommandList->IASetVertexBuffers(m_nSlot, 2, pVertexBufferViews);
+
+	//D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews = { m_d3dPositionBufferView };
+	//pd3dCommandList->IASetVertexBuffers(m_nSlot, 1, &pVertexBufferViews);
 }
 
 

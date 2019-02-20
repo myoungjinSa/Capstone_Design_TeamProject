@@ -170,8 +170,6 @@ void CResourceManager::LoadMap(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 	cout << filename+string("로딩 성공\n");
 
-
-	
 	size_t nReads = 0;
 	
 	int objCount = 0;

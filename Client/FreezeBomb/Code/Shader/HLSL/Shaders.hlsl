@@ -16,7 +16,6 @@ cbuffer cbCameraInfo			: register(b1)
 cbuffer cbGameObjectInfo	: register(b2)
 {
 	matrix			gmtxGameObject		: packoffset(c0);
-	matrix			gmtxShadow			: packoffset(c4);
 };
 
 cbuffer cbMaterialInfo			: register(b3)
@@ -317,25 +316,25 @@ float4 PSLampParticle(VS_LAMPPARTICLE_OUTPUT input) : SV_TARGET
 struct VS_SHADOW_INPUT
 {
 	float3 position : POSITION;
+	float2 uv		:TEXCOORD;
 };
 
 struct VS_SHADOW_OUTPUT
 {
 	float4 position	: SV_POSITION;
+	float2 uv		:TEXCOORD;
 };
 
 VS_SHADOW_OUTPUT VSShadow(VS_SHADOW_INPUT input)
 {
-	VS_SHADOW_OUTPUT output = (VS_SHADOW_OUTPUT)0;
-	//output.position = mul(float4(input.position, 1.f), mul(mul(gmtxGameObject, gmtxView), gmtxProjection));
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	VS_SHADOW_OUTPUT output;
+	output.position = mul(float4(input.position, 1.f), mul(mul(gmtxGameObject, gmtxView), gmtxProjection));
 	return output;
 }
 
 float4 PSShadow(VS_SHADOW_OUTPUT input) : SV_TARGET
 {
-	float4 Color = float4(0.6f, 0.6f, 0.6f, 1.f);
-	return Color;
+	return(float4(0.5f, 0.5f, 0.5f, 1.f));
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -85,7 +85,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	// ShaderResourceView 총 개수
 	// SkyBox : 1, Terrain : 2, Player : 15, EvilBear : 15 => 33
 	// SM_DeadTree_05 -> 바뀜 텍스쳐 5개에서 3개만 필요
-	// DeadTrees : 23, PineTrees : 35, Rocks : 25, Deer : 2 ,Pond : 2 , Fence : 0 => 87
+	// DeadTrees : 23, PineTrees : 35, Rocks : 25, Deer : 2 => 85
 	// Snow : 1, LampParticle : 1 => 2
 	// Number : 10, Colon : 1 => 11
 	// ItemBox : 1, Hammer_Item : 1, GoldHammer_Item : 1, GoldTimer_Item : 1=> 4
@@ -97,7 +97,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 #ifdef _MAPTOOL_MODE_
 	nObjects = 87;		//DeadTrees(25),PineTrees(35),Rocks(25),Deer(2),Pond(2),Fence(0)
 #endif
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 33 + 87 + 2 + 11 + 4 + 4 + nObjects + 1 + 2);
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 33 + 85 + 2 + 11 + 4 + 4 +1 + nObjects + 2);
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
@@ -224,7 +224,7 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	pd3dRootParameters[1].Constants.Num32BitValues = 33;
+	pd3dRootParameters[1].Constants.Num32BitValues = 17;
 	pd3dRootParameters[1].Constants.ShaderRegister = 2; // b2 : GameObject
 	pd3dRootParameters[1].Constants.RegisterSpace = 0;
 	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
@@ -557,10 +557,10 @@ void CScene::CheckObjectByObjectCollisions()
 		{
 			for (int i = 0; i < (*iter).second->m_nObjects; ++i)
 			{
-				if ((*iter).second->m_ppObjects[i]->m_xmOOBB.Intersects(m_pPlayer->m_xmOOBB))
+				if ((*iter).second->m_ppObjects[i]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
-					(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
-					m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
+					//(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
+					//m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
 					cout << i << "번째 정적인 오브젝트와 충돌" << endl;
 				}
 			}
@@ -572,10 +572,10 @@ void CScene::CheckObjectByObjectCollisions()
 		{
 			for (int i = 0; i < (*iter).second->m_nObjects; ++i)
 			{
-				if ((*iter).second->m_ppObjects[i]->m_xmOOBB.Intersects(m_pPlayer->m_xmOOBB))
+				if ((*iter).second->m_ppObjects[i]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
-					(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
-					m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
+					//(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
+					//m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
 					cout << i << "번째 애니메이션 오브젝트와 충돌" << endl;
 				}
 			}
@@ -588,10 +588,10 @@ void CScene::CheckObjectByObjectCollisions()
 			CItemShader* pItemShader = dynamic_cast<CItemShader*>((*iter).second);
 			for (auto iter2 = pItemShader->getItemMap().begin(); iter2 != pItemShader->getItemMap().end(); ++iter2)
 			{
-				if ((*iter2).second->m_xmOOBB.Intersects(m_pPlayer->m_xmOOBB))
+				if ((*iter2).second->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
-					(*iter2).second->SetObjectCollided(m_pPlayer);
-					m_pPlayer->SetObjectCollided((*iter2).second);
+					//(*iter2).second->SetObjectCollided(m_pPlayer);
+					//m_pPlayer->SetObjectCollided((*iter2).second);
 
 					// 충돌 된 Normal 망치 아이템을 플레이어 인벤토리에 추가한다.
 					m_pPlayer->Add_Inventory((*iter2).first, CPlayer::Normal);
