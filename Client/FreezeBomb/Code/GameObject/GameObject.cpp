@@ -6,7 +6,7 @@
 #include "Carry/Carry.h"
 #include "Billboard/LampParticle/LampParticle.h"
 
-int CGameObject::m_AnimationType = CGameObject::ANIMATIONTYPE::IDLE;
+//int CGameObject::m_AnimationType = CGameObject::ANIMATIONTYPE::IDLE;
 
 CAnimationSet::CAnimationSet()
 {
@@ -34,38 +34,8 @@ void *CAnimationSet::GetCallbackData()
 	return(NULL);
 }
 
+
 void CAnimationSet::SetPosition(float fTrackPosition)
-{
-	m_fPosition = fTrackPosition;
-	switch (m_nType)
-	{
-		case ANIMATION_TYPE_LOOP:
-		{
-#ifdef _WITH_ANIMATION_INTERPOLATION			
-			m_fPosition = fmod(fTrackPosition, m_pfKeyFrameTransformTimes[m_nKeyFrameTransforms-1]); // m_fPosition = fTrackPosition - int(fTrackPosition / m_pfKeyFrameTransformTimes[m_nKeyFrameTransforms-1]) * m_pfKeyFrameTransformTimes[m_nKeyFrameTransforms-1];
-//			m_fPosition = fmod(fTrackPosition, m_fLength); //if (m_fPosition < 0) m_fPosition += m_fLength;
-//			m_fPosition = fTrackPosition - int(fTrackPosition / m_fLength) * m_fLength;
-#else
-			m_nCurrentKey++;
-			if (m_nCurrentKey >= m_nKeyFrameTransforms) m_nCurrentKey = 0;
-#endif
-			break;
-		}
-		case ANIMATION_TYPE_ONCE:
-			break;
-		case ANIMATION_TYPE_PINGPONG:
-			break;
-	}
-
-	if (m_pAnimationCallbackHandler)
-	{
-		void* pCallbackData = GetCallbackData();
-		if (pCallbackData) 
-			m_pAnimationCallbackHandler->HandleCallback(pCallbackData);
-	}
-}
-
-void CAnimationSet::SetPosition(float& fTrackPosition, float& oncePosition)
 {
 	float maxLength = m_fLength - 0.18f;
 	float fPosition = 0.0f;
@@ -89,14 +59,12 @@ void CAnimationSet::SetPosition(float& fTrackPosition, float& oncePosition)
 	}
 	case ANIMATION_TYPE_ONCE:
 
-		m_fPosition = fminf(oncePosition, maxLength);
+		m_fPosition = fminf(fTrackPosition, maxLength);
 		if (m_fPosition >= maxLength)
 		{
-			CGameObject::m_AnimationType = CGameObject::IDLE;
-			m_fPosition = 0.0f;
-			oncePosition = 0.0f;					//oncePosition을 0으로 세팅해주는 이유는 Digging 과 Attack을 번갈아 
-													//동시에 실행할때 위치값이 0부터 시작되지 않고 그 전 애니메이션 위치에서부터 시작되는 현상이
-													//있었기 때문에 값을 0으로 만들어 줘야한다.		
+			CAnimationController::m_state = CAnimationController::IDLE;
+			//m_fPosition = 0.0f;
+			//oncePosition = 0.0f;
 		}
 
 		break;
@@ -211,11 +179,13 @@ void CAnimationSets::SetAnimationCallbackHandler(int nAnimationSet, CAnimationCa
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+UINT CAnimationController::m_state = CAnimationController::IDLE;
 CAnimationController::CAnimationController(int nAnimationTracks, CAnimationSets *pAnimationSets)
 {
 	m_nAnimationTracks = nAnimationTracks;
     m_pAnimationTracks = new CAnimationTrack[nAnimationTracks];
 
+	
 	SetAnimationSets(pAnimationSets);
 }
 
@@ -620,7 +590,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bIce, 
 		{
 			if (bIce)							//얼음 상태일때
 			{
-				if (m_ppMaterials[ANIMATIONTYPE::ICE])
+				if (m_ppMaterials[CAnimationController::ICE])
 				{
 					if (m_ppMaterials[MATERIALTYPE::ICEMAT]->m_pShader)
 					{
@@ -811,6 +781,7 @@ void CGameObject::Rotate(XMFLOAT4 *pxmf4Quaternion)
 
 	UpdateTransform(NULL);
 }
+
 
 //#define _WITH_DEBUG_FRAME_HIERARCHY
 
@@ -1133,9 +1104,11 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 			nReads = (UINT)::fread(pAnimationSet->m_pstrName, sizeof(char), nStrLength, pInFile);
 			pAnimationSet->m_pstrName[nStrLength] = '\0';
 
-			if (!strcmp(pAnimationSet->m_pstrName, "ATK3") || !strcmp(pAnimationSet->m_pstrName, "Digging"))
+			if (!strcmp(pAnimationSet->m_pstrName, "ATK3") || !strcmp(pAnimationSet->m_pstrName, "Digging")) 
+			{
 				pAnimationSet->m_nType = ANIMATION_TYPE_ONCE;
-			
+			}
+
 			nReads = (UINT)::fread(&pAnimationSet->m_fLength, sizeof(float), 1, pInFile);
 			nReads = (UINT)::fread(&pAnimationSet->m_nFramesPerSecond, sizeof(int), 1, pInFile);
 

@@ -92,6 +92,8 @@ void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 	if (bUpdateVelocity)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, xmf3Shift);
+		//m_xmf3Position = Vector3::Minus
+		//m_xmf3Position = Vector3::Add(m_xmf3Position, m_xmf3Velocity);
 	}
 	else
 	{
@@ -161,7 +163,7 @@ void CPlayer::Rotate(float x, float y, float z)
 
 void CPlayer::Update(float fTimeElapsed)
 {
-	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Gravity);
+	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Gravity); // 중력과 속도와 합
 	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 	float fMaxVelocityXZ = m_fMaxVelocityXZ;
 	if (fLength > m_fMaxVelocityXZ)
@@ -170,8 +172,8 @@ void CPlayer::Update(float fTimeElapsed)
 		m_xmf3Velocity.z *= (fMaxVelocityXZ / fLength);
 	}
 	float fMaxVelocityY = m_fMaxVelocityY;
-	fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
-	if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
+	float fLengthY = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
+	if (fLengthY > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLengthY);
 
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
 	Move(xmf3Velocity, false);
@@ -189,7 +191,9 @@ void CPlayer::Update(float fTimeElapsed)
 	if (fDeceleration > fLength) fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 
-	SetTrackAnimationSet(0, ::IsZero(fLength) ? 0 : 1);
+
+
+	DecideAnimationState(fLength);
 
 	if (m_Normal_Inventory.size() > 0)
 	{
@@ -200,7 +204,11 @@ void CPlayer::Update(float fTimeElapsed)
 		if (GetAsyncKeyState(VK_MENU) & 0x8000)
 			Refresh_Inventory(Special);
 	}
+
+
 }
+
+
 
 CCamera *CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
 {
@@ -355,9 +363,62 @@ void CPlayer::Refresh_Inventory(int ItemType)
 	}
 }
 
+void CPlayer::DecideAnimationState(float fLength)
+{
+	
+	CAnimationController *pController = m_pAnimationController;
+	if (fLength == 0.0f && pController->GetAnimationState() != CAnimationController::ATTACK 
+		&& pController->GetAnimationState() != CAnimationController::DIGGING
+		&& pController->GetAnimationState() != CAnimationController::JUMP)
+	{
+		SetTrackAnimationSet(0, CAnimationController::IDLE);
+		m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+	
+	}
+	else 
+	{
+		if (GetAsyncKeyState(VK_UP) & 0x8000)
+		{
+			SetTrackAnimationSet(0, CAnimationController::RUNFAST);
+			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
+			m_pAnimationController->SetTrackSpeed(0, 1.3f);
+		}
+		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+		{
+			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
+			SetTrackAnimationSet(0, CAnimationController::RUNBACKWARD);
+		}
+	}
+	if (GetAsyncKeyState(VK_SPACE) & 0x8000 && pController->GetAnimationState() != CAnimationController::JUMP)
+	{
+		SetTrackAnimationSet(0, CAnimationController::JUMP);
+		SetTrackAnimationPosition(0, 0);
+		pController->SetAnimationState(CAnimationController::JUMP);
+		//pController->SetTrackSpeed(0, 1.5f);
+	}
+
+	if (GetAsyncKeyState(VK_X) & 0x8000 && pController->GetAnimationState() != CAnimationController::ATTACK)
+	{
+		
+		SetTrackAnimationSet(0, CAnimationController::ATTACK);
+		SetTrackAnimationPosition(0, 0);
+		
+		pController->SetAnimationState(CAnimationController::ATTACK);
+	}
+	if (GetAsyncKeyState(VK_Z) & 0x8000 && pController->GetAnimationState() != CAnimationController::DIGGING)
+	{
+		SetTrackAnimationSet(0, CAnimationController::DIGGING);
+		SetTrackAnimationPosition(0, 0);
+
+		pController->SetAnimationState(CAnimationController::DIGGING);
+	}
+
+}
+
+
+
 CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID ,void *pContext)
 {
-	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
 	CLoadedModelInfo* pEvilBearModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
 		"../Resource/Models/EvilBear.bin", NULL, true);
@@ -382,6 +443,9 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 	CAnimationCallbackHandler* pAnimationCallbackHandler = new CSoundCallbackHandler();
 	m_pAnimationController->SetAnimationCallbackHandler(1, pAnimationCallbackHandler);
+
+	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
+
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
@@ -443,6 +507,7 @@ void CTerrainPlayer::Animate(float fTimeElapsed)
 	RotateAxisY(fTimeElapsed);
 
 
+
 	CGameObject::Animate(fTimeElapsed);
 }
 
@@ -479,11 +544,11 @@ CCamera *CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		break;
 	case THIRD_PERSON_CAMERA:
 		SetFriction(250.0f);
-		SetGravity(XMFLOAT3(0.0f, -250.0f, 0.0f));
-		SetMaxVelocityXZ(300.0f);
+		SetGravity(XMFLOAT3(0.0f, -250.0f,0.0f));
+		SetMaxVelocityXZ(40.0f);
 		SetMaxVelocityY(400.0f);
 		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
-		m_pCamera->SetTimeLag(0.25f);
+		m_pCamera->SetTimeLag(0.7f);
 		// 카메라 위치
 		m_pCamera->SetOffset(XMFLOAT3(0.0f, 10.0f, -20.0f));
 		m_pCamera->SetPosition(Vector3::Add(m_xmf3Position, m_pCamera->GetOffset()));
