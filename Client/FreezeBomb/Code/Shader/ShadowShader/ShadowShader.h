@@ -25,10 +25,19 @@ public:
 	void OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int nPipelineState);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera);
 
+	virtual void ReleaseObjects();
+	virtual void ReleaseUploadBuffers();
+
 private:
-	enum TYPE {Object, Shadow};
 	ID3D12PipelineState**				m_ppd3dPipelineStates{ nullptr };
 	int												m_nPipelineStates = 0;
 
 	vector<CGameObject*>			m_ShadowObjectVector;
+
+//#define CUBE
+#ifdef CUBE
+	enum TYPE { Cube, Shadow };
+#else
+	enum TYPE { Surrounding, Shadow };
+#endif
 };

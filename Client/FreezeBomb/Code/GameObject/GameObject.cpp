@@ -1254,7 +1254,7 @@ void CGameObject::WorldUpdate(XMFLOAT4X4& world)
 
 	m_xmf4x4World._31 = world._31;
 	m_xmf4x4World._32 = world._32;
-	m_xmf4x4World._33 = world._33;
+	m_xmf4x4World._33 = -world._33;
 	m_xmf4x4World._34 = world._34;
 
 	m_xmf4x4World._41 = world._41;
@@ -1279,16 +1279,6 @@ CCubeObject::~CCubeObject()
 
 void CCubeObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {
-	//OnPrepareRender();
-
-	//if (m_pMesh)
-	//{
-	//	if (!m_pSkinningBoneTransforms)
-	//		UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
-
-	//	m_pMesh->Render(pd3dCommandList, 0);
-	//}
-
 	OnPrepareRender();
 
 	if (m_pMesh)

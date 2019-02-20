@@ -2,10 +2,15 @@
 #include "ShadowShader.h"
 #include "../../GameObject/GameObject.h"
 #include "../../GameObject/Terrain/Terrain.h"
-#include "../../GameObject/Surrounding/Surrounding.h"
-#include "../../Mesh/Mesh.h"
 #include "../../Texture/Texture.h"
+
+#ifdef CUBE
 #include "../../Material/Material.h"
+#include "../../Mesh/Mesh.h"
+#else
+#include "../../GameObject/Surrounding/Surrounding.h"
+
+#endif
 
 CShadowShader::CShadowShader()
 {
@@ -58,10 +63,15 @@ D3D12_SHADER_BYTECODE CShadowShader::CreateVertexShader(int Type)
 {
 	switch (Type)
 	{
-	case Object:
+#ifdef CUBE
+	case Cube:
 		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSIceCube", "vs_5_1", &m_pd3dVertexShaderBlob));
 		break;
-
+#else
+	case Surrounding:
+		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSStandard", "vs_5_1", &m_pd3dVertexShaderBlob));
+		break;
+#endif
 	case Shadow:
 		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSShadow", "vs_5_1", &m_pd3dVertexShaderBlob));
 		break;
@@ -72,10 +82,15 @@ D3D12_SHADER_BYTECODE CShadowShader::CreatePixelShader(int Type)
 {
 	switch (Type)
 	{
-	case Object:
+#ifdef CUBE
+	case Cube:
 		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSIceCube", "ps_5_1", &m_pd3dPixelShaderBlob));
 		break;
-
+#else
+	case Surrounding:
+		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSStandard", "ps_5_1", &m_pd3dPixelShaderBlob));
+		break;
+#endif
 	case Shadow:
 		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSShadow", "ps_5_1", &m_pd3dPixelShaderBlob));
 		break;
@@ -84,6 +99,7 @@ D3D12_SHADER_BYTECODE CShadowShader::CreatePixelShader(int Type)
 
 D3D12_INPUT_LAYOUT_DESC CShadowShader::CreateInputLayout()
 {
+#ifdef CUBE
 	UINT nInputElementDescs = 2;
 	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
@@ -95,6 +111,22 @@ D3D12_INPUT_LAYOUT_DESC CShadowShader::CreateInputLayout()
 	d3dInputLayoutDesc.NumElements = nInputElementDescs;
 
 	return(d3dInputLayoutDesc);
+#else
+	UINT nInputElementDescs = 5;
+	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
+	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
+	d3dInputLayoutDesc.NumElements = nInputElementDescs;
+
+	return(d3dInputLayoutDesc);
+#endif 
 }
 
 D3D12_BLEND_DESC CShadowShader::CreateBlendState()
@@ -150,36 +182,65 @@ void CShadowShader::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommand
 void CShadowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
 	const map<string, CTexture*>& Context, void *pContext)
 {
-	CCubeMeshTextured *pCubeMesh = new CCubeMeshTextured(pd3dDevice, pd3dCommandList, 4.f, 4.0f, 4.0f);
+	CTerrain* pTerrain = (CTerrain*)pContext;
+
+	m_nObjects = 5;
+	m_ppObjects = new CGameObject*[m_nObjects];
+	XMFLOAT3 Position(0, 0, 0);
+
+#ifdef CUBE
+	CCubeMeshTextured* pCubeMesh = new CCubeMeshTextured(pd3dDevice, pd3dCommandList, 4.f, 4.0f, 4.0f);
 
 	CMaterial*pMaterial = new CMaterial(1);
 	auto iter = Context.find("IceTexture");
 	if (iter != Context.end())
 		pMaterial->SetTexture((*iter).second, 0);
 
-	m_nObjects = 5;
-	m_ppObjects = new CGameObject*[m_nObjects];
-
 	for (int i = 0; i < m_nObjects; ++i)
 	{
 		CCubeObject* pCube = new CCubeObject(1);
-		XMFLOAT3 Position(Random(10, 490), 5, Random(10, 290));
+		Position = XMFLOAT3(Random(10, 490), 5, Random(10, 290));
 		pCube->SetPosition(Position);
 		pCube->SetMesh(pCubeMesh);
 		pCube->SetMaterial(0, pMaterial);
 		m_ppObjects[i] = pCube;
 	}
 
-	CCubeObject* pCube{ nullptr };
 	for (int i = 0; i < m_nObjects; ++i)
 	{
-		 pCube = new CCubeObject(1);
-		XMFLOAT3 Position(m_ppObjects[i]->GetPosition());
+		CCubeObject* pCube = new CCubeObject(1);
+		Position = XMFLOAT3(m_ppObjects[i]->GetPosition());
 		pCube->SetPosition(Position);
 		pCube->SetMesh(pCubeMesh);
 		pCube->SetMaterial(0, pMaterial);
 		m_ShadowObjectVector.emplace_back(pCube);
 	}
+
+#else
+	CLoadedModelInfo* pDeer01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_Deer.bin", this, false);
+
+	for (int i = 0; i < m_nObjects; ++i)
+	{
+		m_ppObjects[i] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		Position = XMFLOAT3(Random(10.f, 490.f), 5, Random(10.f, 290.f));
+		m_ppObjects[i]->SetPosition(Position);
+		m_ppObjects[i]->SetChild(pDeer01->m_pModelRootObject, true);
+		m_ppObjects[i]->setID("<Deer01>");
+	}
+
+	for (int i = 0; i < m_nObjects; ++i)
+	{
+		CSurrounding* pShadow = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		Position = XMFLOAT3(m_ppObjects[i]->GetPosition());
+		pShadow->SetPosition(Position);
+		pShadow->SetChild(pDeer01->m_pModelRootObject, true);
+		m_ShadowObjectVector.emplace_back(pShadow);
+	}
+
+	if (pDeer01)
+		delete pDeer01;
+
+#endif
 }
 
 void CShadowShader::OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int nPipelineState)
@@ -194,8 +255,13 @@ void CShadowShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *
 	{
 		if (m_ppObjects[i])
 		{
-			CShadowShader::OnPrepareRender(pd3dCommandList, Object);
+#ifdef CUBE
+			CShadowShader::OnPrepareRender(pd3dCommandList, Cube);
 			m_ppObjects[i]->UpdateShaderVariable(pd3dCommandList, &m_ppObjects[i]->m_xmf4x4World);
+#else
+			CShadowShader::OnPrepareRender(pd3dCommandList, Surrounding);
+			m_ppObjects[i]->UpdateTransform(nullptr);
+#endif 
 			m_ppObjects[i]->Render(pd3dCommandList, pCamera);
 		}
 	}
@@ -204,17 +270,51 @@ void CShadowShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *
 	for (auto iter = m_ShadowObjectVector.begin(); iter != m_ShadowObjectVector.end(); ++iter)
 	{
 		CShadowShader::OnPrepareRender(pd3dCommandList, Shadow);
+#ifdef CUBE
 		(*iter)->UpdateShaderVariable(pd3dCommandList, &UpdateShadow(i));
+#else
+		//(*iter)->UpdateTransform(&UpdateShadow(i));
+		//(*iter)->UpdateTransform(nullptr);
+		(*iter)->WorldUpdate(UpdateShadow(i));
+#endif
 		(*iter)->Render(pd3dCommandList, pCamera);
 		++i;
 	}
+}
+
+void CShadowShader::ReleaseObjects()
+{
+	if (m_ppObjects)
+	{
+		for (int i = 0; i < m_nObjects; ++i)
+			if (m_ppObjects[i])
+				m_ppObjects[i]->Release();
+		delete[] m_ppObjects;
+	}
+
+	for (auto iter = m_ShadowObjectVector.begin(); iter != m_ShadowObjectVector.end();)
+	{
+		delete (*iter);
+		iter = m_ShadowObjectVector.erase(iter);
+	}
+	m_ShadowObjectVector.clear();
+}
+
+void CShadowShader::ReleaseUploadBuffers()
+{
+	for (int i = 0; i < m_nObjects; ++i)
+		if (m_ppObjects[i])
+			m_ppObjects[i]->ReleaseUploadBuffers();
+
+	for (auto iter = m_ShadowObjectVector.begin(); iter != m_ShadowObjectVector.end(); ++iter)
+		(*iter)->ReleaseUploadBuffers();
 }
 
 XMFLOAT4X4 CShadowShader::UpdateShadow(int index)
 {
 	// 점 광원
 	// Light의 w 벡터가 그림자의 크기를 결정?	
-	XMFLOAT4 xmf4Light(0.f, 35.f, 0.f, 1.f);
+	XMFLOAT4 xmf4Light(0.f, 35.f, 0.f, 10.f);
 	//XMFLOAT4 xmf4Light(0.57735f, -0.57735f, 0.57735f, 0);
 
 	// Plane의 w 벡터가 그림자의 y에 영향을 준다.
@@ -228,5 +328,6 @@ XMFLOAT4X4 CShadowShader::UpdateShadow(int index)
 	// 그림자 행렬에 객체의 월드행렬을 곱해서 그림자의 월드행렬을 만들어 준다.
 	XMFLOAT4X4 ShadowWorld = Matrix4x4::Multiply(xmmtxPlane, m_ppObjects[index]->m_xmf4x4World);
 
+	//cout << ShadowWorld._41 << ", " << ShadowWorld._42 << ", " << ShadowWorld._43 << endl;
 	return ShadowWorld;
 }

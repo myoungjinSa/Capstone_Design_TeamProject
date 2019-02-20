@@ -329,13 +329,12 @@ VS_SHADOW_OUTPUT VSShadow(VS_SHADOW_INPUT input)
 {
 	VS_SHADOW_OUTPUT output;
 	output.position = mul(float4(input.position, 1.f), mul(mul(gmtxGameObject, gmtxView), gmtxProjection));
-	//output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
 	return output;
 }
 
 float4 PSShadow(VS_SHADOW_OUTPUT input) : SV_TARGET
 {
-	return(float4(0.3, 0.3, 0.3, 1));
+	return(float4(0.5f, 0.5f, 0.5f, 1.f));
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

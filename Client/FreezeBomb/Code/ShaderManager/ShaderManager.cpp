@@ -37,10 +37,9 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_nShaders = 8;
 	//맵툴 모드일때는 맵의 오브젝트들을 그리지 않게 하기 위해 
 	// 그래야 맵툴모드에서 적용해서 배치한 오브젝트들만 볼 수 있다.
-#ifndef _MAPTOOL_MODE_
+#ifdef _MAPTOOL_MODE_
 	m_nShaders = m_nShaders + 1;
 #endif
-
 	m_ppShaders = new CShader*[m_nShaders];
 
 	int index = 0;
@@ -92,7 +91,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ppShaders[index++] = pShadowShader;
 	m_ShaderMap.emplace("Shadow", pShadowShader);
 
-#ifndef _MAPTOOL_MODE_
+#ifdef _MAPTOOL_MODE_
 	CMapObjectsShader *pMapShader = new CMapObjectsShader;
 	pMapShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pMapShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());

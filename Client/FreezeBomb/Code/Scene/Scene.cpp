@@ -85,7 +85,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	// ShaderResourceView 총 개수
 	// SkyBox : 1, Terrain : 2, Player : 15, EvilBear : 15 => 33
 	// SM_DeadTree_05 -> 바뀜 텍스쳐 5개에서 3개만 필요
-	// DeadTrees : 23, PineTrees : 35, Rocks : 25, Deer : 2 ,Pond : 2 , Fence : 0 => 87
+	// DeadTrees : 23, PineTrees : 35, Rocks : 25, Deer : 2 => 85
 	// Snow : 1, LampParticle : 1 => 2
 	// Number : 10, Colon : 1 => 11
 	// ItemBox : 1, Hammer_Item : 1, GoldHammer_Item : 1, GoldTimer_Item : 1=> 4
@@ -97,7 +97,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 #ifdef _MAPTOOL_MODE_
 	nObjects = 87;		//DeadTrees(25),PineTrees(35),Rocks(25),Deer(2),Pond(2),Fence(0)
 #endif
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 33 + 87 + 2 + 11 + 4 + 4 + nObjects + 1 + 2);
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 33 + 85 + 2 + 11 + 4 + 4 +1 + nObjects + 2);
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
