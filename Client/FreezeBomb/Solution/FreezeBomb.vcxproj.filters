@@ -129,12 +129,6 @@
     <ClCompile Include="..\Code\GameObject\Player\Player.cpp">
       <Filter>Code\GameObject\Player</Filter>
     </ClCompile>
-    <ClCompile Include="..\Code\Shader\MapToolShader\MapTool.cpp">
-      <Filter>Code\Shader\StandardShader\MapToolShader</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Code\GameObject\Carry\Carry.cpp">
-      <Filter>Code\GameObject\Carry</Filter>
-    </ClCompile>
     <ClCompile Include="..\Code\FreezeBomb.cpp">
       <Filter>Code</Filter>
     </ClCompile>
@@ -143,6 +137,9 @@
     </ClCompile>
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.cpp">
       <Filter>Code\Shader\BillboardShader\UIShader\TimerUIShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\StandardShader\MapToolShader\MapToolShader.cpp">
+      <Filter>Code\Shader\StandardShader\MapToolShader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -263,12 +260,6 @@
     <ClInclude Include="..\Code\GameObject\Player\Player.h">
       <Filter>Code\GameObject\Player</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\Shader\MapToolShader\MapTool.h">
-      <Filter>Code\Shader\StandardShader\MapToolShader</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Code\GameObject\Carry\Carry.h">
-      <Filter>Code\GameObject\Carry</Filter>
-    </ClInclude>
     <ClInclude Include="..\Code\Default\Resource.h">
       <Filter>Code\Default</Filter>
     </ClInclude>
@@ -283,6 +274,9 @@
     </ClInclude>
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.h">
       <Filter>Code\Shader\BillboardShader\UIShader\TimerUIShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\StandardShader\MapToolShader\MapToolShader.h">
+      <Filter>Code\Shader\StandardShader\MapToolShader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -425,9 +419,6 @@
     </Filter>
     <Filter Include="Code\Shader\StandardShader\MapToolShader">
       <UniqueIdentifier>{70ac25c7-8d48-4f66-9307-6ea5d99560d1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\GameObject\Carry">
-      <UniqueIdentifier>{c0a6aef9-025d-456c-bc38-df4c1f40ce8c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\Default\Resource">
       <UniqueIdentifier>{9e110815-d2eb-4236-9775-0c2621579ebb}</UniqueIdentifier>

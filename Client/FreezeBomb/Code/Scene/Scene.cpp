@@ -222,7 +222,7 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	pd3dRootParameters[1].Constants.Num32BitValues = 33;
+	pd3dRootParameters[1].Constants.Num32BitValues = 17;
 	pd3dRootParameters[1].Constants.ShaderRegister = 2; // b2 : GameObject
 	pd3dRootParameters[1].Constants.RegisterSpace = 0;
 	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
@@ -553,10 +553,10 @@ void CScene::CheckObjectByObjectCollisions()
 		{
 			for (int i = 0; i < (*iter).second->m_nObjects; ++i)
 			{
-				if ((*iter).second->m_ppObjects[i]->m_xmOOBB.Intersects(m_pPlayer->m_xmOOBB))
+				if ((*iter).second->m_ppObjects[i]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
-					(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
-					m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
+					//(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
+					//m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
 					cout << i << "번째 정적인 오브젝트와 충돌" << endl;
 				}
 			}
@@ -568,10 +568,10 @@ void CScene::CheckObjectByObjectCollisions()
 		{
 			for (int i = 0; i < (*iter).second->m_nObjects; ++i)
 			{
-				if ((*iter).second->m_ppObjects[i]->m_xmOOBB.Intersects(m_pPlayer->m_xmOOBB))
+				if ((*iter).second->m_ppObjects[i]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
-					(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
-					m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
+					//(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
+					//m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
 					cout << i << "번째 애니메이션 오브젝트와 충돌" << endl;
 				}
 			}
@@ -584,10 +584,10 @@ void CScene::CheckObjectByObjectCollisions()
 			CItemShader* pItemShader = dynamic_cast<CItemShader*>((*iter).second);
 			for (auto iter2 = pItemShader->getItemMap().begin(); iter2 != pItemShader->getItemMap().end(); ++iter2)
 			{
-				if ((*iter2).second->m_xmOOBB.Intersects(m_pPlayer->m_xmOOBB))
+				if ((*iter2).second->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
-					(*iter2).second->SetObjectCollided(m_pPlayer);
-					m_pPlayer->SetObjectCollided((*iter2).second);
+					//(*iter2).second->SetObjectCollided(m_pPlayer);
+					//m_pPlayer->SetObjectCollided((*iter2).second);
 
 					// 충돌 된 Normal 망치 아이템을 플레이어 인벤토리에 추가한다.
 					m_pPlayer->Add_Inventory((*iter2).first, CPlayer::Normal);

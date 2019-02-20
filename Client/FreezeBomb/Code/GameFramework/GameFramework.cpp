@@ -6,8 +6,7 @@
 #include "../Shader/TerrainShader/TerrainShader.h"
 #include "../GameObject/Terrain/Terrain.h"
 #include "../ResourceManager/ResourceManager.h"
-#include "../Shader/MapToolShader/MapTool.h"
-
+#include "../Shader/StandardShader/MapToolShader/MapToolShader.h"
 
 CGameFramework::CGameFramework()
 {
@@ -500,7 +499,7 @@ void CGameFramework::BuildObjects()
 			CTerrain* pTerrain = dynamic_cast<CTerrainShader*>((*iter).second)->getTerrain();
 			pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),CGameObject::MATERIALTYPE::PANDA,pTerrain);
 			pPlayer->SetPosition(XMFLOAT3(0.f, pTerrain->GetHeight(0.f, 0.f), 0.f));
-
+			
 			pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));	
 			map<string, Bounds*> BoundMap = m_pScene->getShaderManager()->getResourceManager()->getBoundMap();
 			auto iter2 = BoundMap.find(pPlayer->getID());

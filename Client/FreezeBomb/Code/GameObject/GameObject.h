@@ -233,7 +233,6 @@ public:
 class CTexture;
 class CMaterial;
 class CShader;
-class CCarry;
 class CLampParticle;
 class CGameObject
 {
@@ -347,28 +346,40 @@ public:
 
 	static void PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent);
 
+	void WorldUpdate(XMFLOAT4X4& world);
+
 protected:
-	CCarry*					m_pCarry{ nullptr };
-	CLampParticle*			m_pLampParticle{ nullptr };	
+	CLampParticle*				m_pLampParticle{ nullptr };	
 
-	string					m_ID;													
-	CGameObject*			m_pObjectCollided{ nullptr };
+	string							m_ID;													
+	CGameObject*				m_pObjectCollided{ nullptr };
 
-	bool					m_bIce;		//얼음 여부 
-	int						m_matID;	//재질 정보
+	bool								m_bIce;		//얼음 여부 
+	int									m_matID;	//재질 정보
+
+	BoundingOrientedBox	m_xmOOBB;
+	BoundingOrientedBox	m_xmOOBBTransformed;
 public:
-	BoundingOrientedBox m_xmOOBB;
-	BoundingOrientedBox m_xmOOBBTransformed;
-	BoundingOrientedBox GetBoundingBox() { return m_xmOOBB; }
-	void SetOOBB(XMFLOAT3& xmCenter, XMFLOAT3& xmExtents, XMFLOAT4& xmOrientation)
-	{ m_xmOOBBTransformed = m_xmOOBB = BoundingOrientedBox(xmCenter, xmExtents, xmOrientation); }
+
 	void setID(const string id) { m_ID = id; }
 	const string getID()	const { return m_ID; }
 
 	const int GetMaterialID() { return m_matID; }
 	const bool GetBoolIce() { return m_bIce; }
 
+	BoundingOrientedBox GetBoundingBox() const { return m_xmOOBB; }
+	void SetOOBB(XMFLOAT3& xmCenter, XMFLOAT3& xmExtents, XMFLOAT4& xmOrientation)
+	{ m_xmOOBBTransformed = m_xmOOBB = BoundingOrientedBox(xmCenter, xmExtents, xmOrientation); }
 
 	CGameObject* GetObjectCollided() { return m_pObjectCollided; }
 	void SetObjectCollided(CGameObject* value) { m_pObjectCollided = value; }
+};
+
+class CCubeObject : public CGameObject
+{
+public:
+	CCubeObject(int nMaterial);
+	virtual ~CCubeObject();
+
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL);
 };

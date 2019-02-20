@@ -1,8 +1,8 @@
-#include "../../Stdafx/Stdafx.h"
-#include "../../GameObject/Surrounding/Surrounding.h"
-#include "../../GameObject/Terrain/Terrain.h"
-#include "../../GameObject/Player/Player.h"
-#include "MapTool.h"
+#include "../../../Stdafx/Stdafx.h"
+#include "MapToolShader.h"
+#include "../../../GameObject/Surrounding/Surrounding.h"
+#include "../../../GameObject/Terrain/Terrain.h"
+#include "../../../GameObject/Player/Player.h"
 
 
 bool operator<(pair<string, CGameObject*> &p1, pair< string, CGameObject> &p2)

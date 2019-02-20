@@ -15,7 +15,6 @@ CCubeIceShader::~CCubeIceShader()
 
 D3D12_INPUT_LAYOUT_DESC CCubeIceShader::CreateInputLayout()
 {
-
 	UINT nInputElementDescs = 2;
 	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 

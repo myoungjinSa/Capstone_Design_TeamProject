@@ -1,7 +1,9 @@
 #pragma once
-#include "../StandardShader/StandardShader.h"
 
+#include "../StandardShader.h"
 
+class CTerrain;
+class CLoadedModelInfo;
 class CMapToolShader : public CStandardShader
 {
 public:
