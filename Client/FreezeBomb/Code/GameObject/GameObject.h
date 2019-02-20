@@ -90,7 +90,6 @@ public:
 public:
 	// AnimationTrack의 포지션값 => 애니메이션에서 읽어가야하는 위치 => 서로 다른동작을 하게함
 	void SetPosition(float fTrackPosition);
-	void SetPosition(float& fTrackPosition, float& oncePosition);
 
 	XMFLOAT4X4 GetSRT(int nFrame);
 
@@ -169,6 +168,8 @@ public:
     int 							m_nAnimationTracks = 0;
     CAnimationTrack*	m_pAnimationTracks = NULL;
 
+	static UINT					m_state ;
+	const enum ANIMATIONTYPE { IDLE=0, JUMP, RUNFAST, RUNBACKWARD, ATTACK, DIGGING,DIE,RAISEHAND/*아이템 사용동작*/,ICE,VICTORY  };
 public:
 	void SetAnimationSets(CAnimationSets *pAnimationSets);
 
@@ -181,6 +182,9 @@ public:
 	void SetCallbackKeys(int nAnimationSet, int nCallbackKeys);
 	void SetCallbackKey(int nAnimationSet, int nKeyIndex, float fTime, void *pData);
 	void SetAnimationCallbackHandler(int nAnimationSet, CAnimationCallbackHandler *pCallbackHandler);
+
+	void SetAnimationState(ANIMATIONTYPE state) { m_state = state; }
+	UINT GetAnimationState() { return m_state; }
 
 	void AdvanceTime(float fElapsedTime);
 };
@@ -263,7 +267,7 @@ public:
 	CGameObject*	m_pChild = NULL;
 	CGameObject*	m_pSibling = NULL;
 
-	static int m_AnimationType;
+	//static int m_AnimationType;
 
 	void SetMesh(CMesh *pMesh);
 	void SetShader(CShader *pShader);
@@ -271,6 +275,7 @@ public:
 	void SetMaterial(int nMaterial, CMaterial *pMaterial);
 
 	void SetChild(CGameObject *pChild, bool bReferenceUpdate=false);
+	
 
 	virtual void BuildMaterials(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) { }
 
@@ -319,7 +324,6 @@ public:
 	UINT GetMeshType() { return((m_pMesh) ? m_pMesh->GetType() : 0x00); }
 
 public:
-	const enum ANIMATIONTYPE { IDLE, WALKFRONT, RUNFAST, RUNBACKWARD, ATTACK, DIGGING /*땅 파기*/, ICE, NOTYET /*미정*/ };
 	const enum MATERIALTYPE { PINK, BROWN, WHITE, BLACK, BLUE, PANDA, ICEMAT };		//곰의 종류
 
 	// 각각의 객체가 AnimationController를 가지고 있어서, 서로다른 동작을 할 수 있도록 하자.

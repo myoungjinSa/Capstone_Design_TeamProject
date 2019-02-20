@@ -32,6 +32,7 @@ public:
 	void SetPosition(const XMFLOAT3& xmf3Position) { Move(XMFLOAT3(xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z), false); }
 
 	void SetScale(XMFLOAT3& xmf3Scale) { m_xmf3Scale = xmf3Scale; }
+	void DecideAnimationState(float fLength);
 
 	const XMFLOAT3& GetVelocity() const { return(m_xmf3Velocity); }
 	float GetYaw() const { return(m_fYaw); }
@@ -118,6 +119,7 @@ public:
 	virtual void OnCameraUpdateCallback(float fTimeElapsed);
 
 	void RotateAxisY(float fTimeElapsed);
+
 
 };
 
