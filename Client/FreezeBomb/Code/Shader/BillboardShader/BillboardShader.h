@@ -2,6 +2,7 @@
 
 #include "../Shader.h"
 
+
 class CBillboardShader : public CShader
 {
 public:

@@ -40,7 +40,7 @@ void CSnowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pMaterial = new CMaterial(1);
 	m_pMaterial->SetTexture(pSnowTexture);
 
-	CBillboardMesh* pSnowBillboardMesh = new CBillboardMesh(pd3dDevice, pd3dCommandList, 1.5f, 1.5f, 0.0f, 0.0f, 0.0f, -1.0f);
+	CBillboardMesh* pSnowBillboardMesh = new CBillboardMesh(pd3dDevice, pd3dCommandList, 1.0f,1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
 	//가상의 박스 -> 렌더링 하지는 않음
 	CCube* pCubeObject = new CCube(50.0f, 50.0f, 50.0f);
@@ -64,7 +64,7 @@ void CSnowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 		pSnow->SetOffsetX(Random(minX, maxX));
 		pSnow->SetOffsetZ(Random(minZ, maxZ));
 		pSnow->SetPosition(0.0f, Random(300.0f, 400.0f), 0.0f);
-		pSnow->setSpeed(Random(0.5f, 3.0f));
+		pSnow->setSpeed(Random(0.5f, 1.5f));
 		m_ppObjects[i] = pSnow;
 	}
 }

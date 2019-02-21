@@ -6,7 +6,7 @@ class CScene;
 class CPlayer;
 class CCamera;
 class CMapToolShader;
-
+class CSobelCartoonShader;
 
 
 class CGameFramework
@@ -29,15 +29,19 @@ public:
 
 	void ChangeSwapChainState();
 
-    void BuildObjects();
-    void ReleaseObjects();
+	void BuildObjects();
+	void ReleaseObjects();
 
-    void ProcessInput();
-    void AnimateObjects();
-    void FrameAdvance();
+	void ProcessInput();
+	void AnimateObjects();
+	void FrameAdvance();
 
 	void WaitForGpuComplete();
 	void MoveToNextFrame();
+
+	void CreateOffScreenRenderTargetViews();
+
+
 
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
@@ -50,54 +54,69 @@ public:
 
 private:
 
-	
+
 	HINSTANCE						m_hInstance;
-	HWND							m_hWnd; 
+	HWND							m_hWnd;
 
 	int								m_nWndClientWidth;
 	int								m_nWndClientHeight;
-        
-	IDXGIFactory4*			m_pdxgiFactory = NULL;
-	IDXGISwapChain3*	m_pdxgiSwapChain = NULL;
-	ID3D12Device*			m_pd3dDevice = NULL;
+
+	IDXGIFactory4*					m_pdxgiFactory = NULL;
+	IDXGISwapChain3*				m_pdxgiSwapChain = NULL;
+	ID3D12Device*					m_pd3dDevice = NULL;
 
 	bool							m_bMsaa4xEnable = false;
 	UINT							m_nMsaa4xQualityLevels = 0;
 
-	static const UINT		m_nSwapChainBuffers = 2;
+	static const UINT				m_nSwapChainBuffers = 2;
 	UINT							m_nSwapChainBufferIndex;
 
-	ID3D12Resource*				m_ppd3dSwapChainBackBuffers[m_nSwapChainBuffers];
-	ID3D12DescriptorHeap*	m_pd3dRtvDescriptorHeap = NULL;
+	ID3D12Resource*							m_ppd3dSwapChainBackBuffers[m_nSwapChainBuffers];
+	ID3D12DescriptorHeap*					m_pd3dRtvDescriptorHeap = NULL;
 	UINT									m_nRtvDescriptorIncrementSize;
+	D3D12_CPU_DESCRIPTOR_HANDLE				m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBuffers];
 
-	ID3D12Resource*				m_pd3dDepthStencilBuffer = NULL;
-	ID3D12DescriptorHeap*	m_pd3dDsvDescriptorHeap = NULL;
+
+
+	ID3D12Resource*							m_pd3dDepthStencilBuffer = NULL;
+	ID3D12DescriptorHeap*					m_pd3dDsvDescriptorHeap = NULL;
 	UINT									m_nDsvDescriptorIncrementSize;
 
-	ID3D12CommandAllocator*			m_pd3dCommandAllocator = NULL;
-	ID3D12CommandQueue*				m_pd3dCommandQueue = NULL;
-	ID3D12GraphicsCommandList*		m_pd3dCommandList = NULL;
+	ID3D12CommandAllocator*					m_pd3dCommandAllocator = NULL;
+	ID3D12CommandQueue*						m_pd3dCommandQueue = NULL;
+	ID3D12GraphicsCommandList*				m_pd3dCommandList = NULL;
 
-	ID3D12Fence*			m_pd3dFence = NULL;
-	UINT64						m_nFenceValues[m_nSwapChainBuffers];
-	HANDLE					m_hFenceEvent;
+	ID3D12Fence*							m_pd3dFence = NULL;
+	UINT64									m_nFenceValues[m_nSwapChainBuffers];
+	HANDLE									m_hFenceEvent;
 
 #if defined(_DEBUG)
-	ID3D12Debug*			m_pd3dDebugController;
+	ID3D12Debug*							m_pd3dDebugController;
 #endif
 
-	CGameTimer			m_GameTimer;
+	CGameTimer								m_GameTimer;
 
-	CScene*					m_pScene = NULL;
-	CPlayer*					m_pPlayer = NULL;
-	CCamera*					m_pCamera = NULL;
+	CScene*									m_pScene = NULL;
+	CPlayer*								m_pPlayer = NULL;
+	CCamera*								m_pCamera = NULL;
 
-	POINT						m_ptOldCursorPos;
+	POINT									m_ptOldCursorPos;
 
-	_TCHAR						m_pszFrameRate[70];
+	_TCHAR									m_pszFrameRate[70];
+
+
+	static const UINT			m_nCartoonScreenRenderTargetBuffers = 2;
+	ID3D12Resource				*m_ppd3dCartoonScreenRenderTargetBuffers[m_nCartoonScreenRenderTargetBuffers];
+	D3D12_CPU_DESCRIPTOR_HANDLE m_pd3dCarttonScreenRenderTargetBufferCPUHandles[m_nCartoonScreenRenderTargetBuffers];
+
+
+	CSobelCartoonShader			*m_pCartoonShader =NULL;
+	bool						m_bCartoon =true;
 #ifdef _MAPTOOL_MODE_
 	CMapToolShader*  m_pMapToolShader = NULL;
 #endif
+
+
+
 };
 
