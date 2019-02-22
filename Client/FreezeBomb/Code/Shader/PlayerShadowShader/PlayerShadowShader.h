@@ -3,11 +3,12 @@
 #include "../Shader.h"
 
 class CTexture;
-class CShadowShader : public CShader
+class CPlayer;
+class CPlayerShadowShader : public CShader
 {
 public:
-	CShadowShader();
-	virtual ~CShadowShader();
+	CPlayerShadowShader();
+	virtual ~CPlayerShadowShader();
 
 	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader(int Type);
@@ -18,12 +19,12 @@ public:
 
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4* world);
 
-	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
 		const map<string, CTexture*>& Context, void *pContext = NULL);
 
-	XMFLOAT4X4 UpdateShadow(int index);
+	XMFLOAT4X4 UpdateShadow(CPlayer* pPlayer);
 	void OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int nPipelineState);
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, CPlayer* pPlayer);
 
 	virtual void ReleaseObjects();
 	virtual void ReleaseUploadBuffers();
@@ -34,7 +35,7 @@ private:
 
 	vector<CGameObject*>			m_ShadowObjectVector;
 
-//#define CUBE
+	//#define CUBE
 #ifdef CUBE
 	enum TYPE { Cube, Shadow };
 #else

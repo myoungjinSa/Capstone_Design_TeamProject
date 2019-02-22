@@ -10,6 +10,12 @@
     <FxCompile Include="..\Code\Shader\HLSL\UI.hlsl">
       <Filter>Code\Shader\HLSL</Filter>
     </FxCompile>
+    <FxCompile Include="..\Code\Shader\HLSL\Cartoon.hlsl">
+      <Filter>Code\Shader\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Code\Shader\HLSL\Sobel.hlsl">
+      <Filter>Code\Shader\HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Code\Camera\Camera.cpp">
@@ -143,6 +149,15 @@
     </ClCompile>
     <ClCompile Include="..\Code\Shader\StandardShader\StandardMapObjectShader\MapObjectShader.cpp">
       <Filter>Code\Shader\StandardShader\MapObjectShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\PostProcessShader\ComputeShader\ComputeShader.cpp">
+      <Filter>Code\Shader\ComputeShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\PostProcessShader\CartoonShader\SobelCartoonShader.cpp">
+      <Filter>Code\Shader\ComputeShader\SobelCartoonShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\PlayerShadowShader\PlayerShadowShader.cpp">
+      <Filter>Code\Shader\PlayerShadowShader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -283,6 +298,15 @@
     </ClInclude>
     <ClInclude Include="..\Code\Shader\StandardShader\StandardMapObjectShader\MapObjectShader.h">
       <Filter>Code\Shader\StandardShader\MapObjectShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\PostProcessShader\ComputeShader\ComputeShader.h">
+      <Filter>Code\Shader\ComputeShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\PostProcessShader\CartoonShader\SobelCartoonShader.h">
+      <Filter>Code\Shader\ComputeShader\SobelCartoonShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\PlayerShadowShader\PlayerShadowShader.h">
+      <Filter>Code\Shader\PlayerShadowShader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -437,6 +461,15 @@
     </Filter>
     <Filter Include="Code\Shader\StandardShader\MapObjectShader">
       <UniqueIdentifier>{8906eb79-67e6-4aa3-a1ba-122853d70ed8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\ComputeShader">
+      <UniqueIdentifier>{44a0d9bf-0fc4-4f5d-ade8-0f2b406642ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\ComputeShader\SobelCartoonShader">
+      <UniqueIdentifier>{203a2fe4-ad37-41ff-8cd0-1bdfc5546cc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\PlayerShadowShader">
+      <UniqueIdentifier>{5de9102d-0783-464e-979e-5234e0827047}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

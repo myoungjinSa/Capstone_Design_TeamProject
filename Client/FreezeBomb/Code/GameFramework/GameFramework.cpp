@@ -2,6 +2,8 @@
 #include "GameFramework.h"
 #include "../Scene/Scene.h"
 #include "../GameObject/Player/Player.h"
+#include "../Shader/PlayerShadowShader/PlayerShadowShader.h"
+
 #include "../ShaderManager/ShaderManager.h"
 #include "../Shader/TerrainShader/TerrainShader.h"
 #include "../GameObject/Terrain/Terrain.h"
@@ -51,8 +53,6 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 {
 	m_hInstance = hInstance;
 	m_hWnd = hMainWnd;
-
-
 
 	CreateDirect3DDevice();
 	CreateCommandQueueAndList();
@@ -303,13 +303,11 @@ void CGameFramework::CreateOffScreenRenderTargetViews()
 
 	D3D12_CLEAR_VALUE d3dClearValue = { DXGI_FORMAT_R8G8B8A8_UNORM, { 0.0f, 0.0f, 0.0f, 1.0f } };
 
-
 	for (UINT i = 0; i < m_nCartoonScreenRenderTargetBuffers; i++)
 	{
 		m_ppd3dCartoonScreenRenderTargetBuffers[i] = pTextureForCartoonProcessing->CreateTexture(m_pd3dDevice, m_pd3dCommandList, m_nWndClientWidth, m_nWndClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,i);
 		m_ppd3dCartoonScreenRenderTargetBuffers[i]->AddRef();
 	}
-
 
 	// RtvCPU서술자 증가 크기가 스왑체인의 크기 배수로 증가하는 이유?
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
@@ -321,14 +319,10 @@ void CGameFramework::CreateOffScreenRenderTargetViews()
 	d3dRenderTargetViewDesc.Texture2D.MipSlice = 0;
 	d3dRenderTargetViewDesc.Texture2D.PlaneSlice = 0;
 
-
-
 	m_pCartoonShader = new CSobelCartoonShader();
 	m_pCartoonShader->CreateGraphicsRootSignature(m_pd3dDevice);
 	m_pCartoonShader->CreateShader(m_pd3dDevice, m_pCartoonShader->GetGraphicsRootSignature(), 1);
 	m_pCartoonShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, pTextureForCartoonProcessing);
-
-		
 }
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
@@ -540,19 +534,6 @@ void CGameFramework::OnDestroy()
 
 	::CloseHandle(m_hFenceEvent);
 
-	if (m_pMapToolShader)
-	{
-		m_pMapToolShader->ReleaseShaderVariables();
-		m_pMapToolShader->ReleaseObjects();
-		m_pMapToolShader->Release();
-	}
-
-	if (m_pCartoonShader)
-	{
-		m_pCartoonShader->ReleaseShaderVariables();
-		m_pCartoonShader->ReleaseObjects();
-		//m_pCartoonShader->Release();
-	}
 	if (m_pd3dDepthStencilBuffer) m_pd3dDepthStencilBuffer->Release();
 	if (m_pd3dDsvDescriptorHeap) m_pd3dDsvDescriptorHeap->Release();
 
@@ -590,6 +571,7 @@ void CGameFramework::BuildObjects()
 
 	if (m_pScene->getShaderManager())
 	{
+
 		map<string, CShader*> m = m_pScene->getShaderManager()->getShaderMap();
 		auto iter = m.find("Terrain");
 		if(iter != m.end())
@@ -603,6 +585,11 @@ void CGameFramework::BuildObjects()
 			auto iter2 = BoundMap.find(pPlayer->getID());
 			if (iter2 != BoundMap.end())
 				pPlayer->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
+
+			m_pPlayerShadowShader = new CPlayerShadowShader;
+			m_pPlayerShadowShader->CreateShader(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
+			m_pPlayerShadowShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),
+				m_pScene->getShaderManager()->getResourceManager()->getTextureMap(), pPlayer);
 
 #ifdef _MAPTOOL_MODE_
 			m_pMapToolShader = new CMapToolShader();
@@ -622,21 +609,47 @@ void CGameFramework::BuildObjects()
 
 	WaitForGpuComplete();
 
-	if (m_pScene) m_pScene->ReleaseUploadBuffers();
-	if (m_pPlayer) m_pPlayer->ReleaseUploadBuffers();
+	if (m_pScene) 
+		m_pScene->ReleaseUploadBuffers();
+	if (m_pPlayer) 
+		m_pPlayer->ReleaseUploadBuffers();
+	if (m_pPlayerShadowShader)
+		m_pPlayerShadowShader->ReleaseUploadBuffers();
 
 	m_GameTimer.Reset();
 }
 
 void CGameFramework::ReleaseObjects()
 {
-	if (m_pPlayer) m_pPlayer->Release();
+	if (m_pPlayer) 
+		m_pPlayer->Release();
 
 #ifdef _MAPTOOL_MODE_
-	if (m_pMapToolShader) m_pMapToolShader->ReleaseObjects();
+	if (m_pMapToolShader)
+	{
+		m_pMapToolShader->ReleaseShaderVariables();
+		m_pMapToolShader->ReleaseObjects();
+		delete m_pMapToolShader;
+	}
 #endif
-	if (m_pScene) m_pScene->ReleaseObjects();
-	if (m_pScene) delete m_pScene;
+	if (m_pScene)
+	{
+		m_pScene->ReleaseObjects();
+		delete m_pScene;
+	}
+
+	if (m_pCartoonShader)
+	{
+		m_pCartoonShader->ReleaseShaderVariables();
+		m_pCartoonShader->ReleaseObjects();
+		delete m_pCartoonShader;
+	}
+
+	if (m_pPlayerShadowShader)
+	{
+		m_pPlayerShadowShader->ReleaseObjects();
+		delete m_pPlayerShadowShader;
+	}
 }
 
 void CGameFramework::ProcessInput()
@@ -766,8 +779,6 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3dCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBufferIndex], TRUE, &d3dDsvDepthStencilBufferCPUHandle);
 
-
-
 	if (m_pScene)
 	{
 		m_pScene->Render(m_pd3dCommandList, m_pCamera);
@@ -784,9 +795,13 @@ void CGameFramework::FrameAdvance()
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 #endif
-	if (m_pPlayer) 
-		m_pPlayer->Render(m_pd3dCommandList, m_pCamera);
 
+	if (m_pPlayerShadowShader)
+	{
+		m_pPlayerShadowShader->Render(m_pd3dCommandList, m_pCamera, m_pPlayer);
+	}
+	if (m_pPlayer)
+		m_pPlayer->Render(m_pd3dCommandList, m_pCamera);
 
 	if (m_pCartoonShader)
 	{
