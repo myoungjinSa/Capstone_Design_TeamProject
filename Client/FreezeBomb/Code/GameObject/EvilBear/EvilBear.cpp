@@ -14,7 +14,7 @@ CEvilBear::~CEvilBear()
 
 void CEvilBear::Render(ID3D12GraphicsCommandList* pd3dCommandList,bool bIce,int matID, CCamera* pCamera)
 {
-	CGameObject::Render(pd3dCommandList,bIce,matID, pCamera);
+	CGameObject::Render(pd3dCommandList,m_bHammer,m_bBomb,bIce,matID, pCamera);
 	//OnPrepareRender();
 
 	//if (m_pSkinningBoneTransforms)

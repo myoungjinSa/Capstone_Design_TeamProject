@@ -159,6 +159,15 @@
     <ClCompile Include="..\Code\Shader\PlayerShadowShader\PlayerShadowShader.cpp">
       <Filter>Code\Shader\PlayerShadowShader</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\Shader\FoliageShader\FoliageShader.cpp">
+      <Filter>Code\Shader\FoliageShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Foliage\Foliage.cpp">
+      <Filter>Code\GameObject\Foliage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Mesh\LODMesh\LodMesh.cpp">
+      <Filter>Code\Mesh\LODMesh</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h">
@@ -307,6 +316,15 @@
     </ClInclude>
     <ClInclude Include="..\Code\Shader\PlayerShadowShader\PlayerShadowShader.h">
       <Filter>Code\Shader\PlayerShadowShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\FoliageShader\FoliageShader.h">
+      <Filter>Code\Shader\FoliageShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Foliage\Foliage.h">
+      <Filter>Code\GameObject\Foliage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Mesh\LODMesh\LodMesh.h">
+      <Filter>Code\Mesh\LODMesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -470,6 +488,15 @@
     </Filter>
     <Filter Include="Code\Shader\PlayerShadowShader">
       <UniqueIdentifier>{5de9102d-0783-464e-979e-5234e0827047}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\FoliageShader">
+      <UniqueIdentifier>{4a082e72-24b2-4ae0-ace0-edb616d1687c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Foliage">
+      <UniqueIdentifier>{679fdff2-ec13-47eb-992b-fa8b0ec1f024}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Mesh\LODMesh">
+      <UniqueIdentifier>{d5587de3-cb58-45ba-b592-d50c4cb87e61}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -176,6 +176,7 @@
     <ClInclude Include="..\Code\GameObject\Billboard\UI\UI.h" />
     <ClInclude Include="..\Code\GameObject\Cube\IceParticle\IceCube.h" />
     <ClInclude Include="..\Code\GameObject\EvilBear\EvilBear.h" />
+    <ClInclude Include="..\Code\GameObject\Foliage\Foliage.h" />
     <ClInclude Include="..\Code\GameObject\GameObject.h" />
     <ClInclude Include="..\Code\GameObject\Item\Item.h" />
     <ClInclude Include="..\Code\GameObject\Player\Player.h" />
@@ -185,6 +186,7 @@
     <ClInclude Include="..\Code\GameTimer\GameTimer.h" />
     <ClInclude Include="..\Code\Material\Material.h" />
     <ClInclude Include="..\Code\Mesh\BillboardMesh\BillboardMesh.h" />
+    <ClInclude Include="..\Code\Mesh\LODMesh\LodMesh.h" />
     <ClInclude Include="..\Code\Mesh\Mesh.h" />
     <ClInclude Include="..\Code\ResourceManager\ResourceManager.h" />
     <ClInclude Include="..\Code\Scene\Scene.h" />
@@ -196,6 +198,7 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\UIShader.h" />
     <ClInclude Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.h" />
+    <ClInclude Include="..\Code\Shader\FoliageShader\FoliageShader.h" />
     <ClInclude Include="..\Code\Shader\PlayerShadowShader\PlayerShadowShader.h" />
     <ClInclude Include="..\Code\Shader\PostProcessShader\CartoonShader\SobelCartoonShader.h" />
     <ClInclude Include="..\Code\Shader\PostProcessShader\ComputeShader\ComputeShader.h" />
@@ -225,6 +228,7 @@
     <ClCompile Include="..\Code\GameObject\Billboard\UI\UI.cpp" />
     <ClCompile Include="..\Code\GameObject\Cube\IceParticle\IceCube.cpp" />
     <ClCompile Include="..\Code\GameObject\EvilBear\EvilBear.cpp" />
+    <ClCompile Include="..\Code\GameObject\Foliage\Foliage.cpp" />
     <ClCompile Include="..\Code\GameObject\GameObject.cpp" />
     <ClCompile Include="..\Code\GameObject\Item\Item.cpp" />
     <ClCompile Include="..\Code\GameObject\Player\Player.cpp" />
@@ -234,6 +238,7 @@
     <ClCompile Include="..\Code\GameTimer\GameTimer.cpp" />
     <ClCompile Include="..\Code\Material\Material.cpp" />
     <ClCompile Include="..\Code\Mesh\BillboardMesh\BillboardMesh.cpp" />
+    <ClCompile Include="..\Code\Mesh\LODMesh\LodMesh.cpp" />
     <ClCompile Include="..\Code\Mesh\Mesh.cpp" />
     <ClCompile Include="..\Code\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="..\Code\Scene\Scene.cpp" />
@@ -245,6 +250,7 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\UIShader.cpp" />
     <ClCompile Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.cpp" />
+    <ClCompile Include="..\Code\Shader\FoliageShader\FoliageShader.cpp" />
     <ClCompile Include="..\Code\Shader\PlayerShadowShader\PlayerShadowShader.cpp" />
     <ClCompile Include="..\Code\Shader\PostProcessShader\CartoonShader\SobelCartoonShader.cpp" />
     <ClCompile Include="..\Code\Shader\PostProcessShader\ComputeShader\ComputeShader.cpp" />

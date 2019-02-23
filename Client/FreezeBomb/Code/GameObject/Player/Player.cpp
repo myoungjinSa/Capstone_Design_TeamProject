@@ -263,7 +263,7 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 
 	if (nCameraMode == THIRD_PERSON_CAMERA)
 	{
-		CGameObject::Render(pd3dCommandList,m_bIce,m_matID,pCamera);		//재질별로 렌더 
+		CGameObject::Render(pd3dCommandList,m_bHammer,m_bBomb,m_bIce,m_matID,pCamera);		//재질별로 렌더 
 		//CGameObject::Render(pd3dCommandList,pCamera);			//렌더
 
 		//OnPrepareRender();
@@ -367,13 +367,15 @@ void CPlayer::DecideAnimationState(float fLength)
 	}
 	else 
 	{
-		if (GetAsyncKeyState(VK_UP) & 0x8000 && pController->GetAnimationState() != CAnimationController::ATTACK)
+		if (GetAsyncKeyState(VK_UP) & 0x8000 && pController->GetAnimationState() != CAnimationController::ATTACK 
+			&& pController->GetAnimationState() != CAnimationController::JUMP)
 		{
 			SetTrackAnimationSet(0, CAnimationController::RUNFAST);
 			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
 			m_pAnimationController->SetTrackSpeed(0, 1.3f);
 		}
-		if (GetAsyncKeyState(VK_DOWN) & 0x8000 && pController->GetAnimationState() != CAnimationController::ATTACK)
+		if (GetAsyncKeyState(VK_DOWN) & 0x8000 && pController->GetAnimationState() != CAnimationController::ATTACK
+			&& pController->GetAnimationState() != CAnimationController::JUMP)
 		{
 			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
 			SetTrackAnimationSet(0, CAnimationController::RUNBACKWARD);
@@ -403,13 +405,19 @@ void CPlayer::DecideAnimationState(float fLength)
 
 		pController->SetAnimationState(CAnimationController::DIGGING);
 	}
+	//추후에 아이템과 충돌여부 및 아이템 획득 여부로 변경해서 하면 될듯
+	if (GetAsyncKeyState(VK_C) & 0x0001)
+	{
+		m_bBomb = !m_bBomb;
+		m_bHammer = !m_bHammer;
+	}
 
 }
 
 CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID ,void *pContext)
 {
 	CLoadedModelInfo* pEvilBearModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
-		"../Resource/Models/EvilbearA.bin", NULL, true);
+		"../Resource/Models/EvilBear.bin", NULL, true);
 
 	SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);

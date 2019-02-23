@@ -16,6 +16,7 @@
 #include "../Shader/StandardShader/ItemShader/ItemShader.h"
 #include "../Shader/ShadowShader/ShadowShader.h"
 
+#include "../Shader/FoliageShader/FoliageShader.h"
 #include "../Shader/CubeParticleShader/IceParticleShader/IceParticleShader.h"
 
 #include "../GameObject/Player/Player.h"
@@ -34,7 +35,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_pResourceManager = new CResourceManager;
 	m_pResourceManager->Initialize(pd3dDevice, pd3dCommandList);
 
-	m_nShaders = 5;
+	m_nShaders = 6;
 	//맵툴 모드일때는 맵의 오브젝트들을 그리지 않게 하기 위해 
 	// 그래야 맵툴모드에서 적용해서 배치한 오브젝트들만 볼 수 있다.
 #ifdef _MAPTOOL_MODE_
@@ -90,6 +91,13 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	//pShadowShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), pTerrainShader->getTerrain());
 	//m_ppShaders[index++] = pShadowShader;
 	//m_ShaderMap.emplace("Shadow", pShadowShader);
+
+	//Foliage는 충돌처리가 필요 없음.. 따라서 Bound박스 필요  없다.
+	CFoliageShader* pFoliageShader = new CFoliageShader;
+	pFoliageShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pFoliageShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pTerrainShader->getTerrain());
+	m_ppShaders[index++] = pFoliageShader;
+	m_ShaderMap.emplace("Foliage", pFoliageShader);
 
 #ifdef _MAPTOOL_MODE_
 	CMapObjectsShader *pMapShader = new CMapObjectsShader;
