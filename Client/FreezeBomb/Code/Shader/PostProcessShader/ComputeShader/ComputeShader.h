@@ -25,24 +25,20 @@ public:
 
 
 protected:
-	//ID3D12RootSignature				*m_pd3dGraphicsRootSignature{ nullptr };
-	ID3D12RootSignature				*m_pd3dComputeRootSignature{ nullptr };
+	ID3D12RootSignature*				m_pd3dComputeRootSignature{ nullptr };
 
-	ID3D12PipelineState				**m_ppd3dPipelineStates{ nullptr };
-	UINT							m_nPipelineStates;
+	ID3D12PipelineState**				m_ppd3dPipelineStates{ nullptr };
+	UINT											m_nPipelineStates;
 
-	ID3DBlob*						m_pd3dComputeBlob{ nullptr };
+	ID3DBlob*								m_pd3dComputeBlob{ nullptr };
 
-	UINT							m_nSrvUavDescriptorIncrementSize;
-
-	ID3D12DescriptorHeap			*m_pd3dCbvSrvUavDescriptorHeap = NULL;
+	UINT											m_nSrvUavDescriptorIncrementSize;
+	ID3D12DescriptorHeap*			m_pd3dCbvSrvUavDescriptorHeap = NULL;
 	
-
 	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dCbvCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorStartHandle;
 	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dSrvCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dSrvGPUDescriptorStartHandle;
 	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dUavCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dUavGPUDescriptorStartHandle;
-
 };

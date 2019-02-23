@@ -10,14 +10,12 @@ CSobelCartoonShader::CSobelCartoonShader()
 }
 CSobelCartoonShader::~CSobelCartoonShader()
 {
-	ReleaseObjects();
 }
 
 D3D12_INPUT_LAYOUT_DESC CSobelCartoonShader::CreateInputLayout()
 {
 	UINT nInputElementDescs = 2;
 	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
-
 
 	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 };
@@ -71,8 +69,6 @@ void CSobelCartoonShader::SobelFilter(ID3D12GraphicsCommandList *pd3dCommandList
 	d3dResourceBarrier[2].Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
 	d3dResourceBarrier[2].Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
 	d3dResourceBarrier[2].Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-
-
 
 	pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier[2]);
 
@@ -128,7 +124,6 @@ void CSobelCartoonShader::SobelFilter(ID3D12GraphicsCommandList *pd3dCommandList
 
 	pd3dCommandList->CopyResource(pRenderTexture, m_pTexture[0]->m_ppd3dTextures[1]);
 
-
 	d3dResourceBarrier[7].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	d3dResourceBarrier[7].Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 	d3dResourceBarrier[7].Transition.pResource = m_pTexture[0]->m_ppd3dTextures[1];				//이부분 주의
@@ -147,9 +142,6 @@ void CSobelCartoonShader::SobelFilter(ID3D12GraphicsCommandList *pd3dCommandList
 	d3dResourceBarrier[8].Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
 	pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier[8]);
-
-
-
 }
 
 void CSobelCartoonShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CTexture *pContext)
@@ -161,33 +153,28 @@ void CSobelCartoonShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsC
 	CreateCbvAndSrvAndUavDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 2, 2);
 
 	CreateSrvAndUavViews(pd3dDevice, pd3dCommandList, m_pTexture[0], 0, 2);
-
 }
 
 void CSobelCartoonShader::ReleaseObjects()
 {
 	if (m_pTexture)
 	{
-		for (int i = 0; i < m_nTexture; i++) {
-			m_pTexture[i]->Release();
-		}
-
+		for (int i = 0; i < m_nTexture; i++) 
+			if(m_pTexture[i])
+				m_pTexture[i]->Release();
 	}
 }
 void CSobelCartoonShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, ID3D12Resource *pRenderTexture, ID3D12Resource **pDestTexture, CCamera *pCamera)
 {
-
 	pd3dCommandList->SetGraphicsRootSignature(m_pd3dComputeRootSignature);
 	pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[1]);
 
-	if (m_pd3dCbvSrvUavDescriptorHeap) {
+	if (m_pd3dCbvSrvUavDescriptorHeap) 
 		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvUavDescriptorHeap);
-	}
 
 	pd3dCommandList->SetGraphicsRootDescriptorTable(0, m_pTexture[0]->m_pRootArgumentInfos[0].m_d3dSrvGpuDescriptorHandle);
 	pd3dCommandList->SetGraphicsRootDescriptorTable(1, m_pTexture[0]->m_pRootArgumentInfos[1].m_d3dSrvGpuDescriptorHandle);
 	pd3dCommandList->SetGraphicsRootDescriptorTable(2, m_pTexture[0]->m_pRootArgumentInfos[1].m_d3dUavGpuDescriptorHandle);
-
 
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);

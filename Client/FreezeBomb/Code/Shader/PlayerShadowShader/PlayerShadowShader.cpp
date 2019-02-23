@@ -1,22 +1,22 @@
 #include "../../Stdafx/Stdafx.h"
-#include "ShadowShader.h"
+#include "PlayerShadowShader.h"
 #include "../../GameObject/GameObject.h"
-#include "../../GameObject/Terrain/Terrain.h"
+#include "../../GameObject/Player/Player.h"
 #include "../../Texture/Texture.h"
 
 #ifdef CUBE
 #include "../../Material/Material.h"
 #include "../../Mesh/Mesh.h"
 #else
-#include "../../GameObject/Surrounding/Surrounding.h"
+#include "../../GameObject/EvilBear/EvilBear.h"
 
 #endif
 
-CShadowShader::CShadowShader()
+CPlayerShadowShader::CPlayerShadowShader()
 {
 }
 
-CShadowShader::~CShadowShader()
+CPlayerShadowShader::~CPlayerShadowShader()
 {
 	if (m_ppd3dPipelineStates)
 	{
@@ -27,7 +27,7 @@ CShadowShader::~CShadowShader()
 	}
 }
 
-void CShadowShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
+void CPlayerShadowShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
 	m_nPipelineStates = 2;
 	m_ppd3dPipelineStates = new ID3D12PipelineState*[m_nPipelineStates];
@@ -59,7 +59,7 @@ void CShadowShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
 
-D3D12_SHADER_BYTECODE CShadowShader::CreateVertexShader(int Type)
+D3D12_SHADER_BYTECODE CPlayerShadowShader::CreateVertexShader(int Type)
 {
 	switch (Type)
 	{
@@ -73,12 +73,13 @@ D3D12_SHADER_BYTECODE CShadowShader::CreateVertexShader(int Type)
 		break;
 #endif
 	case Shadow:
+		//return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSAnimationShadow", "vs_5_1", &m_pd3dVertexShaderBlob));
 		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSShadow", "vs_5_1", &m_pd3dVertexShaderBlob));
 		break;
-	}	
+	}
 }
 
-D3D12_SHADER_BYTECODE CShadowShader::CreatePixelShader(int Type)
+D3D12_SHADER_BYTECODE CPlayerShadowShader::CreatePixelShader(int Type)
 {
 	switch (Type)
 	{
@@ -92,27 +93,30 @@ D3D12_SHADER_BYTECODE CShadowShader::CreatePixelShader(int Type)
 		break;
 #endif
 	case Shadow:
+		//return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSAnimationShadow", "ps_5_1", &m_pd3dPixelShaderBlob));
 		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSShadow", "ps_5_1", &m_pd3dPixelShaderBlob));
 		break;
 	}
 }
 
-D3D12_INPUT_LAYOUT_DESC CShadowShader::CreateInputLayout()
+D3D12_INPUT_LAYOUT_DESC CPlayerShadowShader::CreateInputLayout()
 {
-#ifdef CUBE
-	UINT nInputElementDescs = 2;
-	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+	//UINT nInputElementDescs = 5;
+	//D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
-	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	//pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	//pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	//pd3dInputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	//pd3dInputElementDescs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	//pd3dInputElementDescs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
-	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
-	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
-	d3dInputLayoutDesc.NumElements = nInputElementDescs;
+	//D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+	//d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
+	//d3dInputLayoutDesc.NumElements = nInputElementDescs;
 
-	return(d3dInputLayoutDesc);
-#else
-	UINT nInputElementDescs = 5;
+	//return(d3dInputLayoutDesc);
+
+	UINT nInputElementDescs = 7;
 	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
@@ -120,16 +124,17 @@ D3D12_INPUT_LAYOUT_DESC CShadowShader::CreateInputLayout()
 	pd3dInputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[5] = { "BONEINDEX", 0, DXGI_FORMAT_R32G32B32A32_UINT, 5, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[6] = { "BONEWEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 6, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
 	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
 	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
 	d3dInputLayoutDesc.NumElements = nInputElementDescs;
 
 	return(d3dInputLayoutDesc);
-#endif 
 }
 
-D3D12_BLEND_DESC CShadowShader::CreateBlendState(int Type)
+D3D12_BLEND_DESC CPlayerShadowShader::CreateBlendState(int Type)
 {
 	D3D12_BLEND_DESC d3dBlendDesc;
 	::ZeroMemory(&d3dBlendDesc, sizeof(D3D12_BLEND_DESC));
@@ -172,7 +177,7 @@ D3D12_BLEND_DESC CShadowShader::CreateBlendState(int Type)
 	return(d3dBlendDesc);
 }
 
-D3D12_DEPTH_STENCIL_DESC CShadowShader::CreateDepthStencilState(int Type)
+D3D12_DEPTH_STENCIL_DESC CPlayerShadowShader::CreateDepthStencilState(int Type)
 {
 	D3D12_DEPTH_STENCIL_DESC d3dDepthStencilDesc;
 	::ZeroMemory(&d3dDepthStencilDesc, sizeof(D3D12_DEPTH_STENCIL_DESC));
@@ -227,17 +232,17 @@ D3D12_DEPTH_STENCIL_DESC CShadowShader::CreateDepthStencilState(int Type)
 	return(d3dDepthStencilDesc);
 }
 
-void CShadowShader::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4* pShadowWorld)
+void CPlayerShadowShader::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4* pShadowWorld)
 {
 }
 
-void CShadowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
-	const map<string, CTexture*>& Context, void *pContext)
+void CPlayerShadowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
+	const map<string, CTexture*>& Context, void* pContext)
 {
-	CTerrain* pTerrain = (CTerrain*)pContext;
+	//CTerrain* pTerrain = (CTerrain*)pContext;
+	CPlayer* pPlayer = (CPlayer*)pContext;
 
-	m_nObjects = 5;
-	m_ppObjects = new CGameObject*[m_nObjects];
+	m_nObjects = 1;
 	XMFLOAT3 Position(0, 0, 0);
 
 #ifdef CUBE
@@ -269,77 +274,42 @@ void CShadowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	}
 
 #else
-	CLoadedModelInfo* pDeer01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 
-		"../Resource/Models/SM_Deer3.bin", this, false);
+	CLoadedModelInfo* pEvilBear = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
+		"../Resource/Models/EvilBear.bin", this, false);
 
 	for (int i = 0; i < m_nObjects; ++i)
 	{
-		m_ppObjects[i] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		Position = XMFLOAT3(Random(10.f, 490.f), 0, Random(10.f, 290.f));
-		//Position = XMFLOAT3(0, 1, 0);
-		m_ppObjects[i]->SetPosition(Position);
-		m_ppObjects[i]->SetScale(10, 10, 10);
-		m_ppObjects[i]->SetChild(pDeer01->m_pModelRootObject, true);
-		m_ppObjects[i]->setID("<Deer01>");
-	}
-
-	for (int i = 0; i < m_nObjects; ++i)
-	{
-		CSurrounding* pShadow = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		Position = XMFLOAT3(m_ppObjects[i]->GetPosition());
+		CEvilBear* pShadow = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 0);
+		Position = XMFLOAT3(pPlayer->GetPosition());
 		pShadow->SetPosition(Position);
-		pShadow->SetChild(pDeer01->m_pModelRootObject, true);
+		pShadow->SetChild(pEvilBear->m_pModelRootObject, true);
 		m_ShadowObjectVector.emplace_back(pShadow);
 	}
 
-	if (pDeer01)
-		delete pDeer01;
+	if (pEvilBear)
+		delete pEvilBear;
 
 #endif
 }
 
-void CShadowShader::OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int nPipelineState)
+void CPlayerShadowShader::OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int nPipelineState)
 {
 	if (m_ppd3dPipelineStates)
 		pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[nPipelineState]);
 }
 
-void CShadowShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CPlayerShadowShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, CPlayer* pPlayer)
 {
-	int i = 0;
 	for (auto iter = m_ShadowObjectVector.begin(); iter != m_ShadowObjectVector.end(); ++iter)
 	{
-		CShadowShader::OnPrepareRender(pd3dCommandList, Shadow);
-		(*iter)->WorldUpdate(UpdateShadow(i++));
+		CPlayerShadowShader::OnPrepareRender(pd3dCommandList, Shadow);
+		(*iter)->WorldUpdate(UpdateShadow(pPlayer));
 		(*iter)->Render(pd3dCommandList, pCamera);
-	}
-
-	for (int i = 0; i < m_nObjects; ++i)
-	{
-		if (m_ppObjects[i])
-		{
-#ifdef CUBE
-			CShadowShader::OnPrepareRender(pd3dCommandList, Cube);
-			m_ppObjects[i]->UpdateShaderVariable(pd3dCommandList, &m_ppObjects[i]->m_xmf4x4World);
-#else
-			CShadowShader::OnPrepareRender(pd3dCommandList, Surrounding);
-			m_ppObjects[i]->UpdateTransform(nullptr);
-#endif 
-			m_ppObjects[i]->Render(pd3dCommandList, pCamera);
-		}
 	}
 }
 
-void CShadowShader::ReleaseObjects() 
+void CPlayerShadowShader::ReleaseObjects()
 {
-	if (m_ppObjects)
-	{
-		for (int i = 0; i < m_nObjects; ++i)
-			if (m_ppObjects[i])
-				m_ppObjects[i]->Release();
-		delete[] m_ppObjects;
-	}
-
 	for (auto iter = m_ShadowObjectVector.begin(); iter != m_ShadowObjectVector.end();)
 	{
 		delete (*iter);
@@ -348,17 +318,13 @@ void CShadowShader::ReleaseObjects()
 	m_ShadowObjectVector.clear();
 }
 
-void CShadowShader::ReleaseUploadBuffers()
+void CPlayerShadowShader::ReleaseUploadBuffers()
 {
-	for (int i = 0; i < m_nObjects; ++i)
-		if (m_ppObjects[i])
-			m_ppObjects[i]->ReleaseUploadBuffers();
-
 	for (auto iter = m_ShadowObjectVector.begin(); iter != m_ShadowObjectVector.end(); ++iter)
 		(*iter)->ReleaseUploadBuffers();
 }
 
-XMFLOAT4X4 CShadowShader::UpdateShadow(int index)
+XMFLOAT4X4 CPlayerShadowShader::UpdateShadow(CPlayer* pPlayer)
 {
 	// 점 광원
 	// 빛의 위치를 나타내는 4D 벡터. 광원의 w- 성분이 0.0f이면 원점에서 빛까지의 광선이 방향성을 나타냅니다. 1.0f이면 점등입니다.
@@ -381,8 +347,8 @@ XMFLOAT4X4 CShadowShader::UpdateShadow(int index)
 	XMMATRIX xmmtxPlane = XMMatrixShadow(XMLoadFloat4(&xmf4Plane), -XMLoadFloat4(&xmf4Light));
 
 	// 그림자 행렬에 객체의 월드행렬을 곱해서 그림자의 월드행렬을 만들어 준다.
-	XMFLOAT4X4 ShadowWorld = Matrix4x4::Multiply(xmmtxPlane, m_ppObjects[index]->m_xmf4x4World);
-	
+	XMFLOAT4X4 ShadowWorld = Matrix4x4::Multiply(xmmtxPlane, pPlayer->m_xmf4x4World);
+
 	//cout << ShadowWorld._41 << ", " << ShadowWorld._42 << ", " << ShadowWorld._43 << endl;
 	return ShadowWorld;
 }

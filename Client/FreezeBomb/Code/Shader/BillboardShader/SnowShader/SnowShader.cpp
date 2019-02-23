@@ -56,7 +56,7 @@ void CSnowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	int minZ = -m_refCubeObject.GetDepth();
 	int maxZ = m_refCubeObject.GetDepth();
 
-	for (UINT i = 0; i < m_nObjects; i++)
+	for (int i = 0; i < m_nObjects; i++)
 	{
 		CSnow* pSnow = new CSnow(1);
 		pSnow->SetMesh(pSnowBillboardMesh);

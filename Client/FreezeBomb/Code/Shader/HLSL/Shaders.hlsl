@@ -313,29 +313,6 @@ float4 PSLampParticle(VS_LAMPPARTICLE_OUTPUT input) : SV_TARGET
 	return (cColor);
 }
 
-struct VS_SHADOW_INPUT
-{
-	float3 position : POSITION;
-	float2 uv		:TEXCOORD;
-};
-
-struct VS_SHADOW_OUTPUT
-{
-	float4 position	: SV_POSITION;
-	float2 uv		:TEXCOORD;
-};
-
-VS_SHADOW_OUTPUT VSShadow(VS_SHADOW_INPUT input)
-{
-	VS_SHADOW_OUTPUT output;
-	output.position = mul(float4(input.position, 1.f), mul(mul(gmtxGameObject, gmtxView), gmtxProjection));
-	return output;
-}
-
-float4 PSShadow(VS_SHADOW_OUTPUT input) : SV_TARGET
-{
-	return(float4(0.5f, 0.5f, 0.5f, 1.f));
-}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct VS_ICE_CUBE_INPUT
@@ -371,3 +348,66 @@ float4 PSIceCube(VS_ICE_CUBE_OUTPUT input) : SV_Target
 	return(cColor);
 }
 
+struct VS_SHADOW_INPUT
+{
+	float3 position : POSITION;
+};
+
+struct VS_SHADOW_OUTPUT
+{
+	float4 position	: SV_POSITION;
+};
+
+VS_SHADOW_OUTPUT VSShadow(VS_SHADOW_INPUT input)
+{
+	VS_SHADOW_OUTPUT output;
+	output.position = mul(float4(input.position, 1.f), mul(mul(gmtxGameObject, gmtxView), gmtxProjection));
+	return output;
+}
+
+float4 PSShadow(VS_SHADOW_OUTPUT input) : SV_TARGET
+{
+	return(float4(0.5f, 0.5f, 0.5f, 1.f));
+}
+
+
+struct VS_ANIMATION_SHADOW_INPUT
+{
+	float3 position : POSITION;
+	float2 uv : TEXCOORD;
+	float3 normal : NORMAL;
+	float3 tangent : TANGENT;
+	float3 bitangent : BITANGENT;
+	uint4 indices : BONEINDEX;
+	float4 weights : BONEWEIGHT;
+};
+
+struct VS_ANIMATION_SHADOW_OUTPUT
+{
+	float4 position			: SV_POSITION;
+	float3 positionW		: POSITION;
+};
+
+VS_ANIMATION_SHADOW_OUTPUT VSAnimationShadow(VS_ANIMATION_SHADOW_INPUT input)
+{
+	VS_ANIMATION_SHADOW_OUTPUT output;
+	//output.position = mul(float4(input.position, 1.f), mul(mul(gmtxGameObject, gmtxView), gmtxProjection));
+
+	output.positionW = float3(0.0f, 0.0f, 0.0f);
+
+	matrix mtxVertexToBoneWorld;
+	for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++)
+	{
+		mtxVertexToBoneWorld = mul(gpmtxBoneOffsets[input.indices[i]], gpmtxBoneTransforms[input.indices[i]]);
+		output.positionW += input.weights[i] * mul(float4(input.position, 1.0f), mtxVertexToBoneWorld).xyz;
+	}
+
+	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+
+	return output;
+}
+
+float4 PSAnimationShadow(VS_ANIMATION_SHADOW_OUTPUT input) : SV_TARGET
+{
+	return(float4(0.5f, 0.5f, 0.5f, 1.f));
+}

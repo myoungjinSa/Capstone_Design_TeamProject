@@ -41,8 +41,6 @@ public:
 	int GetCurrPondModelIndex() { return m_nCurrPondModelIndex; }
 	int GetCurrFenceIndex() { return m_nCurrFenceModelIndex; }
 
-
-
 	void SetCurrDeerIndex(int index) { m_nCurrDeerModelIndex = index; }
 	void SetCurrDeadTreeIndex(int index) { m_nCurrDeadTreeModelIndex = index; }
 	void SetCurrPineTreeIndex(int index) { m_nCurrPineTreeModelIndex = index; }
