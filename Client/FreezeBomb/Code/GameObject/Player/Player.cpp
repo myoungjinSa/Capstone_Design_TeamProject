@@ -26,16 +26,11 @@ CPlayer::CPlayer()
 
 	m_pPlayerUpdatedContext = nullptr;
 	m_pCameraUpdatedContext = nullptr;
-
-	
 }
 
 CPlayer::~CPlayer()
 {
 	ReleaseShaderVariables();
-
-	if (m_pItem)
-		delete m_pItem;
 
 	if (m_pCamera) 
 		delete m_pCamera;
@@ -191,8 +186,6 @@ void CPlayer::Update(float fTimeElapsed)
 	if (fDeceleration > fLength) fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 
-
-
 	DecideAnimationState(fLength);
 
 	if (m_Normal_Inventory.size() > 0)
@@ -204,8 +197,6 @@ void CPlayer::Update(float fTimeElapsed)
 		if (GetAsyncKeyState(VK_MENU) & 0x8000)
 			Refresh_Inventory(Special);
 	}
-
-
 }
 
 
@@ -272,7 +263,7 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 
 	if (nCameraMode == THIRD_PERSON_CAMERA)
 	{
-		CGameObject::Render(pd3dCommandList,m_bIce,m_matID,pCamera);		//재질별로 렌더 
+		CGameObject::Render(pd3dCommandList,m_bHammer,m_bBomb,m_bIce,m_matID,pCamera);		//재질별로 렌더 
 		//CGameObject::Render(pd3dCommandList,pCamera);			//렌더
 
 		//OnPrepareRender();
@@ -365,7 +356,6 @@ void CPlayer::Refresh_Inventory(int ItemType)
 
 void CPlayer::DecideAnimationState(float fLength)
 {
-	
 	CAnimationController *pController = m_pAnimationController;
 	if (fLength == 0.0f && pController->GetAnimationState() != CAnimationController::ATTACK 
 		&& pController->GetAnimationState() != CAnimationController::DIGGING
@@ -377,13 +367,15 @@ void CPlayer::DecideAnimationState(float fLength)
 	}
 	else 
 	{
-		if (GetAsyncKeyState(VK_UP) & 0x8000)
+		if (GetAsyncKeyState(VK_UP) & 0x8000 && pController->GetAnimationState() != CAnimationController::ATTACK 
+			&& pController->GetAnimationState() != CAnimationController::JUMP)
 		{
 			SetTrackAnimationSet(0, CAnimationController::RUNFAST);
 			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
 			m_pAnimationController->SetTrackSpeed(0, 1.3f);
 		}
-		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+		if (GetAsyncKeyState(VK_DOWN) & 0x8000 && pController->GetAnimationState() != CAnimationController::ATTACK
+			&& pController->GetAnimationState() != CAnimationController::JUMP)
 		{
 			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
 			SetTrackAnimationSet(0, CAnimationController::RUNBACKWARD);
@@ -402,7 +394,8 @@ void CPlayer::DecideAnimationState(float fLength)
 		
 		SetTrackAnimationSet(0, CAnimationController::ATTACK);
 		SetTrackAnimationPosition(0, 0);
-		
+
+		pController->SetTrackSpeed(0, 1.0f);
 		pController->SetAnimationState(CAnimationController::ATTACK);
 	}
 	if (GetAsyncKeyState(VK_Z) & 0x8000 && pController->GetAnimationState() != CAnimationController::DIGGING)
@@ -412,14 +405,17 @@ void CPlayer::DecideAnimationState(float fLength)
 
 		pController->SetAnimationState(CAnimationController::DIGGING);
 	}
+	//추후에 아이템과 충돌여부 및 아이템 획득 여부로 변경해서 하면 될듯
+	if (GetAsyncKeyState(VK_C) & 0x0001)
+	{
+		m_bBomb = !m_bBomb;
+		m_bHammer = !m_bHammer;
+	}
 
 }
 
-
-
 CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID ,void *pContext)
 {
-
 	CLoadedModelInfo* pEvilBearModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
 		"../Resource/Models/EvilBear.bin", NULL, true);
 
@@ -446,7 +442,6 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
-
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	SetPlayerUpdatedContext(pContext);
@@ -454,10 +449,11 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 	m_matID = matID;
 
+	m_ID = "<EvilBear>";
+
 	if (pEvilBearModel)
 		delete pEvilBearModel;
 
-	m_ID = "<EvilBear>";
 
 }
 
@@ -472,7 +468,6 @@ void CTerrainPlayer::RotateAxisY(float fTimeElapsed)
 	XMFLOAT3& xmf3Up = m_xmf3Up;
 	if (m_dwDirection & DIR_RIGHT)
 	{
-
 		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3Right);
 
 		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
@@ -491,11 +486,9 @@ void CTerrainPlayer::RotateAxisY(float fTimeElapsed)
 
 		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
 
-
 		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(-(fAngle*fTimeElapsed)));
 		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
 		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-
 
 		SetDirection(0x00);
 	}
@@ -503,11 +496,7 @@ void CTerrainPlayer::RotateAxisY(float fTimeElapsed)
 
 void CTerrainPlayer::Animate(float fTimeElapsed)
 {
-
 	RotateAxisY(fTimeElapsed);
-
-
-
 	CGameObject::Animate(fTimeElapsed);
 }
 

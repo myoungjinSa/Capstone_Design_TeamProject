@@ -39,8 +39,8 @@ void CShadowShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 		m_d3dPipelineStateDesc.VS = CreateVertexShader(i);
 		m_d3dPipelineStateDesc.PS = CreatePixelShader(i);
 		m_d3dPipelineStateDesc.RasterizerState = CreateRasterizerState();
-		m_d3dPipelineStateDesc.BlendState = CreateBlendState();
-		m_d3dPipelineStateDesc.DepthStencilState = CreateDepthStencilState();
+		m_d3dPipelineStateDesc.BlendState = CreateBlendState(i);
+		m_d3dPipelineStateDesc.DepthStencilState = CreateDepthStencilState(i);
 		m_d3dPipelineStateDesc.InputLayout = CreateInputLayout();
 		m_d3dPipelineStateDesc.SampleMask = UINT_MAX;
 		m_d3dPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -129,48 +129,100 @@ D3D12_INPUT_LAYOUT_DESC CShadowShader::CreateInputLayout()
 #endif 
 }
 
-D3D12_BLEND_DESC CShadowShader::CreateBlendState()
+D3D12_BLEND_DESC CShadowShader::CreateBlendState(int Type)
 {
 	D3D12_BLEND_DESC d3dBlendDesc;
 	::ZeroMemory(&d3dBlendDesc, sizeof(D3D12_BLEND_DESC));
-	d3dBlendDesc.AlphaToCoverageEnable = FALSE;
-	d3dBlendDesc.IndependentBlendEnable = FALSE;
-	d3dBlendDesc.RenderTarget[0].BlendEnable = true;
-	d3dBlendDesc.RenderTarget[0].LogicOpEnable = false;
-	d3dBlendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_ZERO;
-	//d3dBlendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	d3dBlendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_SRC_COLOR;
-	//d3dBlendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-	d3dBlendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	d3dBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-	d3dBlendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
-	d3dBlendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	d3dBlendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
-	d3dBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	switch (Type)
+	{
+	case Surrounding:
+		d3dBlendDesc.AlphaToCoverageEnable = FALSE;
+		d3dBlendDesc.IndependentBlendEnable = FALSE;
+		d3dBlendDesc.RenderTarget[0].BlendEnable = FALSE;
+		d3dBlendDesc.RenderTarget[0].LogicOpEnable = FALSE;
+		d3dBlendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_ONE;
+		d3dBlendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ZERO;
+		d3dBlendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+		d3dBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+		d3dBlendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+		d3dBlendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		d3dBlendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+		d3dBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+		break;
+
+	case Shadow:
+		d3dBlendDesc.AlphaToCoverageEnable = true;
+		d3dBlendDesc.IndependentBlendEnable = true;
+		d3dBlendDesc.RenderTarget[0].BlendEnable = true;
+		d3dBlendDesc.RenderTarget[0].LogicOpEnable = false;
+		//d3dBlendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_ZERO;
+		d3dBlendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+		//d3dBlendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_SRC_COLOR;
+		d3dBlendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+		d3dBlendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+		d3dBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+		d3dBlendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+		d3dBlendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		//d3dBlendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+		d3dBlendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_CLEAR;
+		d3dBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+		break;
+	}
 
 	return(d3dBlendDesc);
 }
 
-D3D12_DEPTH_STENCIL_DESC CShadowShader::CreateDepthStencilState()
+D3D12_DEPTH_STENCIL_DESC CShadowShader::CreateDepthStencilState(int Type)
 {
 	D3D12_DEPTH_STENCIL_DESC d3dDepthStencilDesc;
 	::ZeroMemory(&d3dDepthStencilDesc, sizeof(D3D12_DEPTH_STENCIL_DESC));
-	d3dDepthStencilDesc.DepthEnable = true;
-	d3dDepthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-	d3dDepthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
-	d3dDepthStencilDesc.StencilEnable = true;
-	d3dDepthStencilDesc.StencilReadMask = 0xff;
-	d3dDepthStencilDesc.StencilWriteMask = 0xff;
-	d3dDepthStencilDesc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
-	d3dDepthStencilDesc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
 
-	d3dDepthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_INCR;
-	d3dDepthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_EQUAL;
+	switch (Type)
+	{
+	case Surrounding:
+		//d3dDepthStencilDesc.DepthEnable = TRUE;
+		d3dDepthStencilDesc.DepthEnable = false;
+		d3dDepthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+		d3dDepthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+		d3dDepthStencilDesc.StencilEnable = FALSE;
+		d3dDepthStencilDesc.StencilReadMask = 0x00;
+		d3dDepthStencilDesc.StencilWriteMask = 0x00;
+		d3dDepthStencilDesc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+		d3dDepthStencilDesc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+		d3dDepthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+		d3dDepthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
+		d3dDepthStencilDesc.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+		d3dDepthStencilDesc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+		d3dDepthStencilDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+		d3dDepthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
+		break;
 
-	d3dDepthStencilDesc.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
-	d3dDepthStencilDesc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
-	d3dDepthStencilDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_INCR;
-	d3dDepthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_EQUAL;
+	case Shadow:
+		d3dDepthStencilDesc.DepthEnable = false;
+		//d3dDepthStencilDesc.DepthEnable = true;
+		d3dDepthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+		d3dDepthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+		//d3dDepthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+		d3dDepthStencilDesc.StencilEnable = true;
+		d3dDepthStencilDesc.StencilReadMask = 0xff;
+		//d3dDepthStencilDesc.StencilReadMask = 0x02;
+		d3dDepthStencilDesc.StencilWriteMask = 0xff;
+		//d3dDepthStencilDesc.StencilWriteMask = 0x02;
+		d3dDepthStencilDesc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+		d3dDepthStencilDesc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+		d3dDepthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_INCR;
+		//d3dDepthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
+		d3dDepthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_EQUAL;
+		//d3dDepthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_NOT_EQUAL;
+
+		d3dDepthStencilDesc.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+		d3dDepthStencilDesc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+		d3dDepthStencilDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_INCR;
+		//d3dDepthStencilDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
+		d3dDepthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_EQUAL;
+		//d3dDepthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+		break;
+	}
 
 	return(d3dDepthStencilDesc);
 }
@@ -218,13 +270,15 @@ void CShadowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 
 #else
 	CLoadedModelInfo* pDeer01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 
-		"../Resource/Models/SM_Deer2.bin", this, false);
+		"../Resource/Models/SM_Deer3.bin", this, false);
 
 	for (int i = 0; i < m_nObjects; ++i)
 	{
 		m_ppObjects[i] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-		Position = XMFLOAT3(Random(10.f, 490.f), 5, Random(10.f, 290.f));
+		Position = XMFLOAT3(Random(10.f, 490.f), 0, Random(10.f, 290.f));
+		//Position = XMFLOAT3(0, 1, 0);
 		m_ppObjects[i]->SetPosition(Position);
+		m_ppObjects[i]->SetScale(10, 10, 10);
 		m_ppObjects[i]->SetChild(pDeer01->m_pModelRootObject, true);
 		m_ppObjects[i]->setID("<Deer01>");
 	}
@@ -252,6 +306,14 @@ void CShadowShader::OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, 
 
 void CShadowShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {
+	int i = 0;
+	for (auto iter = m_ShadowObjectVector.begin(); iter != m_ShadowObjectVector.end(); ++iter)
+	{
+		CShadowShader::OnPrepareRender(pd3dCommandList, Shadow);
+		(*iter)->WorldUpdate(UpdateShadow(i++));
+		(*iter)->Render(pd3dCommandList, pCamera);
+	}
+
 	for (int i = 0; i < m_nObjects; ++i)
 	{
 		if (m_ppObjects[i])
@@ -266,18 +328,9 @@ void CShadowShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *
 			m_ppObjects[i]->Render(pd3dCommandList, pCamera);
 		}
 	}
-
-	int i = 0;
-	for (auto iter = m_ShadowObjectVector.begin(); iter != m_ShadowObjectVector.end(); ++iter)
-	{
-		CShadowShader::OnPrepareRender(pd3dCommandList, Shadow);
-		(*iter)->WorldUpdate(UpdateShadow(i));
-		(*iter)->Render(pd3dCommandList, pCamera);
-		++i;
-	}
 }
 
-void CShadowShader::ReleaseObjects()
+void CShadowShader::ReleaseObjects() 
 {
 	if (m_ppObjects)
 	{
@@ -308,21 +361,28 @@ void CShadowShader::ReleaseUploadBuffers()
 XMFLOAT4X4 CShadowShader::UpdateShadow(int index)
 {
 	// 점 광원
-	// Light의 w 벡터가 그림자의 크기를 결정?	
-	XMFLOAT4 xmf4Light(0.f, 35.f, 0.f, 10.f);
-	//XMFLOAT4 xmf4Light(0.57735f, -0.57735f, 0.57735f, 0);
+	// 빛의 위치를 나타내는 4D 벡터. 광원의 w- 성분이 0.0f이면 원점에서 빛까지의 광선이 방향성을 나타냅니다. 1.0f이면 점등입니다.
+	// Light의 w 벡터가 그림자의 크기를 결정?
+	float x, y, z, w;
+	x = 0;
+	y = 1.;
+	z = 0;
+	w = 1.0;
+	//XMFLOAT4 xmf4Light(x, y, z, w);
+	//XMFLOAT4 xmf4Light(35.f, 35.f,35.f, 10.f);
+	XMFLOAT4 xmf4Light(0.57735f, -0.57735f, 0.57735f, 0);
 
 	// Plane의 w 벡터가 그림자의 y에 영향을 준다.
-	XMFLOAT4 xmf4Plane(0.f, 1.f, 0.f, 4.9f);
+	XMFLOAT4 xmf4Plane(0.f, 1.f, 0.f, 0.f);
 	//XMFLOAT4 xmf4Plane(0.f, 1.f, 0.f, 0.f);
 
 	// 그림자 행렬 생성
-	XMMATRIX xmmtxPlane = XMMatrixShadow(XMLoadFloat4(&xmf4Plane), XMLoadFloat4(&xmf4Light));
-	//XMMATRIX xmmtxPlane = XMMatrixShadow(XMLoadFloat4(&xmf4Plane), -XMLoadFloat4(&xmf4Light));
+	//XMMATRIX xmmtxPlane = XMMatrixShadow(XMLoadFloat4(&xmf4Plane), XMLoadFloat4(&xmf4Light));
+	XMMATRIX xmmtxPlane = XMMatrixShadow(XMLoadFloat4(&xmf4Plane), -XMLoadFloat4(&xmf4Light));
 
 	// 그림자 행렬에 객체의 월드행렬을 곱해서 그림자의 월드행렬을 만들어 준다.
 	XMFLOAT4X4 ShadowWorld = Matrix4x4::Multiply(xmmtxPlane, m_ppObjects[index]->m_xmf4x4World);
-
+	
 	//cout << ShadowWorld._41 << ", " << ShadowWorld._42 << ", " << ShadowWorld._43 << endl;
 	return ShadowWorld;
 }

@@ -10,6 +10,12 @@
     <FxCompile Include="..\Code\Shader\HLSL\UI.hlsl">
       <Filter>Code\Shader\HLSL</Filter>
     </FxCompile>
+    <FxCompile Include="..\Code\Shader\HLSL\Cartoon.hlsl">
+      <Filter>Code\Shader\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Code\Shader\HLSL\Sobel.hlsl">
+      <Filter>Code\Shader\HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Code\Camera\Camera.cpp">
@@ -143,6 +149,24 @@
     </ClCompile>
     <ClCompile Include="..\Code\Shader\StandardShader\StandardMapObjectShader\MapObjectShader.cpp">
       <Filter>Code\Shader\StandardShader\MapObjectShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\PostProcessShader\ComputeShader\ComputeShader.cpp">
+      <Filter>Code\Shader\ComputeShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\PostProcessShader\CartoonShader\SobelCartoonShader.cpp">
+      <Filter>Code\Shader\ComputeShader\SobelCartoonShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\PlayerShadowShader\PlayerShadowShader.cpp">
+      <Filter>Code\Shader\PlayerShadowShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\FoliageShader\FoliageShader.cpp">
+      <Filter>Code\Shader\FoliageShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Foliage\Foliage.cpp">
+      <Filter>Code\GameObject\Foliage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Mesh\LODMesh\LodMesh.cpp">
+      <Filter>Code\Mesh\LODMesh</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -283,6 +307,24 @@
     </ClInclude>
     <ClInclude Include="..\Code\Shader\StandardShader\StandardMapObjectShader\MapObjectShader.h">
       <Filter>Code\Shader\StandardShader\MapObjectShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\PostProcessShader\ComputeShader\ComputeShader.h">
+      <Filter>Code\Shader\ComputeShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\PostProcessShader\CartoonShader\SobelCartoonShader.h">
+      <Filter>Code\Shader\ComputeShader\SobelCartoonShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\PlayerShadowShader\PlayerShadowShader.h">
+      <Filter>Code\Shader\PlayerShadowShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\FoliageShader\FoliageShader.h">
+      <Filter>Code\Shader\FoliageShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Foliage\Foliage.h">
+      <Filter>Code\GameObject\Foliage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Mesh\LODMesh\LodMesh.h">
+      <Filter>Code\Mesh\LODMesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -437,6 +479,24 @@
     </Filter>
     <Filter Include="Code\Shader\StandardShader\MapObjectShader">
       <UniqueIdentifier>{8906eb79-67e6-4aa3-a1ba-122853d70ed8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\ComputeShader">
+      <UniqueIdentifier>{44a0d9bf-0fc4-4f5d-ade8-0f2b406642ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\ComputeShader\SobelCartoonShader">
+      <UniqueIdentifier>{203a2fe4-ad37-41ff-8cd0-1bdfc5546cc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\PlayerShadowShader">
+      <UniqueIdentifier>{5de9102d-0783-464e-979e-5234e0827047}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\FoliageShader">
+      <UniqueIdentifier>{4a082e72-24b2-4ae0-ace0-edb616d1687c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Foliage">
+      <UniqueIdentifier>{679fdff2-ec13-47eb-992b-fa8b0ec1f024}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Mesh\LODMesh">
+      <UniqueIdentifier>{d5587de3-cb58-45ba-b592-d50c4cb87e61}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

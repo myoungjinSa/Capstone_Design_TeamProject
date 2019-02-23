@@ -117,6 +117,40 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 	//return cColor;
 }
 
+//
+float4 PSGrassStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
+{
+	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
+	float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_SPECULAR_MAP) cSpecularColor = gtxtSpecularTexture.Sample(gssWrap, input.uv);
+	float4 cNormalColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_NORMAL_MAP) cNormalColor = gtxtNormalTexture.Sample(gssWrap, input.uv);
+	float4 cMetallicColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_METALLIC_MAP) cMetallicColor = gtxtMetallicTexture.Sample(gssWrap, input.uv);
+	float4 cEmissionColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uv);
+
+	float3 normalW;
+
+	cSpecularColor = cSpecularColor + float4(0.1f, 0.3f, 0.1f, 1.0f);
+	cEmissionColor = cEmissionColor + float4(0.05f, 0.6f, 0.1f, 1.0f);
+	float4 cColor = cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor;
+	if (gnTexturesMask & MATERIAL_NORMAL_MAP)
+	{
+		float3x3 TBN = float3x3(normalize(input.tangentW), normalize(input.bitangentW), normalize(input.normalW));
+		float3 vNormal = normalize(cNormalColor.rgb * 2.0f - 1.0f); //[0, 1] ¡æ [-1, 1]
+		normalW = normalize(mul(vNormal, TBN));
+	}
+	else
+	{
+		normalW = normalize(input.normalW);
+	}
+	float4 cIllumination = Lighting(input.positionW, normalW);
+	return(lerp(cColor, cIllumination, 0.5f));
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 #define MAX_VERTEX_INFLUENCES			4
@@ -313,29 +347,6 @@ float4 PSLampParticle(VS_LAMPPARTICLE_OUTPUT input) : SV_TARGET
 	return (cColor);
 }
 
-struct VS_SHADOW_INPUT
-{
-	float3 position : POSITION;
-	float2 uv		:TEXCOORD;
-};
-
-struct VS_SHADOW_OUTPUT
-{
-	float4 position	: SV_POSITION;
-	float2 uv		:TEXCOORD;
-};
-
-VS_SHADOW_OUTPUT VSShadow(VS_SHADOW_INPUT input)
-{
-	VS_SHADOW_OUTPUT output;
-	output.position = mul(float4(input.position, 1.f), mul(mul(gmtxGameObject, gmtxView), gmtxProjection));
-	return output;
-}
-
-float4 PSShadow(VS_SHADOW_OUTPUT input) : SV_TARGET
-{
-	return(float4(0.5f, 0.5f, 0.5f, 1.f));
-}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct VS_ICE_CUBE_INPUT
@@ -371,3 +382,66 @@ float4 PSIceCube(VS_ICE_CUBE_OUTPUT input) : SV_Target
 	return(cColor);
 }
 
+struct VS_SHADOW_INPUT
+{
+	float3 position : POSITION;
+};
+
+struct VS_SHADOW_OUTPUT
+{
+	float4 position	: SV_POSITION;
+};
+
+VS_SHADOW_OUTPUT VSShadow(VS_SHADOW_INPUT input)
+{
+	VS_SHADOW_OUTPUT output;
+	output.position = mul(float4(input.position, 1.f), mul(mul(gmtxGameObject, gmtxView), gmtxProjection));
+	return output;
+}
+
+float4 PSShadow(VS_SHADOW_OUTPUT input) : SV_TARGET
+{
+	return(float4(0.5f, 0.5f, 0.5f, 1.f));
+}
+
+
+struct VS_ANIMATION_SHADOW_INPUT
+{
+	float3 position : POSITION;
+	float2 uv : TEXCOORD;
+	float3 normal : NORMAL;
+	float3 tangent : TANGENT;
+	float3 bitangent : BITANGENT;
+	uint4 indices : BONEINDEX;
+	float4 weights : BONEWEIGHT;
+};
+
+struct VS_ANIMATION_SHADOW_OUTPUT
+{
+	float4 position			: SV_POSITION;
+	float3 positionW		: POSITION;
+};
+
+VS_ANIMATION_SHADOW_OUTPUT VSAnimationShadow(VS_ANIMATION_SHADOW_INPUT input)
+{
+	VS_ANIMATION_SHADOW_OUTPUT output;
+	//output.position = mul(float4(input.position, 1.f), mul(mul(gmtxGameObject, gmtxView), gmtxProjection));
+
+	output.positionW = float3(0.0f, 0.0f, 0.0f);
+
+	matrix mtxVertexToBoneWorld;
+	for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++)
+	{
+		mtxVertexToBoneWorld = mul(gpmtxBoneOffsets[input.indices[i]], gpmtxBoneTransforms[input.indices[i]]);
+		output.positionW += input.weights[i] * mul(float4(input.position, 1.0f), mtxVertexToBoneWorld).xyz;
+	}
+
+	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+
+	return output;
+}
+
+float4 PSAnimationShadow(VS_ANIMATION_SHADOW_OUTPUT input) : SV_TARGET
+{
+	return(float4(0.5f, 0.5f, 0.5f, 1.f));
+}

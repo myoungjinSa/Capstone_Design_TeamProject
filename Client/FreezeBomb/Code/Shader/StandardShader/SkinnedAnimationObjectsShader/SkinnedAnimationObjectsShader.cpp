@@ -132,11 +132,10 @@ void CSkinnedAnimationObjectsShader::Render(ID3D12GraphicsCommandList *pd3dComma
 	for (int i = 0; i < m_nObjects; ++i)
 	{
 		if (m_ppObjects[i])
-		{
-	
+		{	
 			m_ppObjects[i]->Animate(m_fElapsedTime);
 			m_ppObjects[i]->UpdateTransform(NULL);
-			m_ppObjects[i]->Render(pd3dCommandList,m_ppObjects[i]->GetBoolIce(),m_ppObjects[i]->GetMaterialID(),pCamera);
+			m_ppObjects[i]->Render(pd3dCommandList,m_ppObjects[i]->GetIsHammer(),m_ppObjects[i]->GetIsBomb(),m_ppObjects[i]->GetBoolIce(),m_ppObjects[i]->GetMaterialID(),pCamera);
 		}
 	}
 }
