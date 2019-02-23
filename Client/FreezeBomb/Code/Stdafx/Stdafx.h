@@ -50,8 +50,8 @@ extern HINSTANCE						ghAppInstance;
 
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 
-#define FRAME_BUFFER_WIDTH		800
-#define FRAME_BUFFER_HEIGHT		600
+#define FRAME_BUFFER_WIDTH		1200
+#define FRAME_BUFFER_HEIGHT		800
 
 //¸ÊÅø ¸ðµå
 #define _MAPTOOL_MODE_

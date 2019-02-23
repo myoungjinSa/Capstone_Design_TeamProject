@@ -377,13 +377,13 @@ void CPlayer::DecideAnimationState(float fLength)
 	}
 	else 
 	{
-		if (GetAsyncKeyState(VK_UP) & 0x8000)
+		if (GetAsyncKeyState(VK_UP) & 0x8000 && pController->GetAnimationState() != CAnimationController::ATTACK)
 		{
 			SetTrackAnimationSet(0, CAnimationController::RUNFAST);
 			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
 			m_pAnimationController->SetTrackSpeed(0, 1.3f);
 		}
-		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+		if (GetAsyncKeyState(VK_DOWN) & 0x8000 && pController->GetAnimationState() != CAnimationController::ATTACK)
 		{
 			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
 			SetTrackAnimationSet(0, CAnimationController::RUNBACKWARD);
@@ -402,7 +402,8 @@ void CPlayer::DecideAnimationState(float fLength)
 		
 		SetTrackAnimationSet(0, CAnimationController::ATTACK);
 		SetTrackAnimationPosition(0, 0);
-		
+
+		pController->SetTrackSpeed(0, 1.0f);
 		pController->SetAnimationState(CAnimationController::ATTACK);
 	}
 	if (GetAsyncKeyState(VK_Z) & 0x8000 && pController->GetAnimationState() != CAnimationController::DIGGING)
@@ -421,7 +422,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 {
 
 	CLoadedModelInfo* pEvilBearModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
-		"../Resource/Models/EvilBear.bin", NULL, true);
+		"../Resource/Models/EvilbearA.bin", NULL, true);
 
 	SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);
