@@ -76,7 +76,7 @@ void CFoliageShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 	float fTerrainWidth = pTerrain->GetWidth();
 	float fTerrainLength = pTerrain->GetLength();
 
-	int xObjects = int(fTerrainWidth* 0.05f / fxPitch);
+	int xObjects = int(fTerrainWidth/* 0.05f*/ / fxPitch);
 	int zObjects = int(fTerrainLength * 0.25f / fzPitch);
 
 	m_nObjects = xObjects * zObjects;

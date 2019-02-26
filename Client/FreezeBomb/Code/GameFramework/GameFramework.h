@@ -20,11 +20,13 @@ public:
 	void OnDestroy();
 
 	void CreateSwapChain();
+	void CreateDirect2DDevice();
 	void CreateDirect3DDevice();
 	void CreateCommandQueueAndList();
 
 	void CreateRtvAndDsvDescriptorHeaps();
 
+	void Create2DRenderTarget();
 	void CreateRenderTargetViews();
 	void CreateDepthStencilView();
 
@@ -42,6 +44,7 @@ public:
 
 	void CreateOffScreenRenderTargetViews();
 
+
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
@@ -54,6 +57,8 @@ public:
 private:
 
 
+
+
 	HINSTANCE						m_hInstance;
 	HWND							m_hWnd;
 
@@ -63,6 +68,16 @@ private:
 	IDXGIFactory4*					m_pdxgiFactory = nullptr;
 	IDXGISwapChain3*				m_pdxgiSwapChain = nullptr;
 	ID3D12Device*					m_pd3dDevice = nullptr;
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Direct2D 인터페이스
+	ID2D1Factory*					m_pD2DFactory;				
+	ID2D1HwndRenderTarget*			m_pRenderTarget;
+	ID2D1SolidColorBrush*			m_pLightSlateGrayBrush;
+	ID2D1SolidColorBrush*			m_pCornflowerBlueBrush;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	bool							m_bMsaa4xEnable = false;
 	UINT							m_nMsaa4xQualityLevels = 0;

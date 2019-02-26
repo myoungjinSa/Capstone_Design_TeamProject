@@ -18,8 +18,29 @@ void CResourceManager::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	//LoadMap(pd3dDevice, pd3dCommandList,string("MapVer1"));
 }
 
+//void CResourceManager::CreateOffScreenRenderTargeViews(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList,int clientWidth,int clientHeight)
+//{
+//	CTexture *pTextureForCartoonProcessing = new CTexture(m_nCartoonScreenRenderTargetBuffers, RESOURCE_TEXTURE2D_ARRAY, 0);
+//
+//	D3D12_CLEAR_VALUE d3dClearValue = { DXGI_FORMAT_R8G8B8A8_UNORM, { 0.0f, 0.0f, 0.0f, 1.0f } };
+//
+//	for (UINT i = 0; i < m_nCartoonScreenRenderTargetBuffers; i++)
+//	{
+//		m_ppd3dCartoonScreenRenderTargetBuffers[i] = pTextureForCartoonProcessing->CreateTexture(pd3dDevice, pd3dCommandList, clientWidth, clientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, i);
+//		m_ppd3dCartoonScreenRenderTargetBuffers[i]->AddRef();
+//		m_TextureMap.emplace("CartoonRenderTarget" + to_string(i), pTextureForCartoonProcessing);
+//	}
+//
+//	//m_TextureMap.emplace("CartoonRenderTarget"+to_string(i),)
+//
+//
+//}
+
 void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
+
+	//CreateOffScreenRenderTargeViews(pd3dDevice,pd3dCommandList,clientWidth,clientHeight); //OffScreen RenderTarget »ý¼º
+
 	CTexture* pSkyBoxTexture = new CTexture(1, RESOURCE_TEXTURE_CUBE, 0);
 	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/SkyBox/SkyBox_1.dds", 0);
 	CScene::CreateShaderResourceViews(pd3dDevice, pSkyBoxTexture, 10, false);
@@ -107,6 +128,8 @@ void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	pIceCubeTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Model/texture2.dds", 0);
 	CScene::CreateShaderResourceViews(pd3dDevice, pIceCubeTexture, 20, false);
 	m_TextureMap.emplace("IceTexture", pIceCubeTexture);
+
+
 
 }
 

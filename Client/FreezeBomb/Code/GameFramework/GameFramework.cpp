@@ -54,10 +54,13 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	m_hInstance = hInstance;
 	m_hWnd = hMainWnd;
 
+	//CreateDirect2DDevice();
+
 	CreateDirect3DDevice();
 	CreateCommandQueueAndList();
 	CreateRtvAndDsvDescriptorHeaps();
 	CreateSwapChain();
+	//Create2DRenderTarget();
 	CreateDepthStencilView();
 
 	CoInitialize(NULL);
@@ -126,6 +129,19 @@ void CGameFramework::CreateSwapChain()
 #ifndef _WITH_SWAPCHAIN_FULLSCREEN_STATE
 	CreateRenderTargetViews();
 #endif
+}
+
+void CGameFramework::CreateDirect2DDevice()
+{
+	HRESULT hResult;
+	hResult = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &m_pD2DFactory);
+	if (hResult == E_FAIL)
+	{
+		
+		return;
+	}
+
+
 }
 
 void CGameFramework::CreateDirect3DDevice()
@@ -215,6 +231,32 @@ void CGameFramework::CreateRtvAndDsvDescriptorHeaps()
 	hResult = m_pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void **)&m_pd3dDsvDescriptorHeap);
 	m_nDsvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 }
+void CGameFramework::Create2DRenderTarget()
+{
+	RECT rc;
+	GetClientRect(m_hWnd, &rc);
+
+
+	D2D1_SIZE_U size = D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top);
+
+	HRESULT hr = m_pD2DFactory->CreateHwndRenderTarget(D2D1::RenderTargetProperties(), D2D1::HwndRenderTargetProperties(m_hWnd, size), &m_pRenderTarget);
+	if (hr==E_FAIL)
+	{
+		return;
+	}
+	else if (SUCCEEDED(hr))
+	{
+		//Create a Gray brush.
+		hr = m_pRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightSlateGray), &m_pLightSlateGrayBrush);
+
+		//Create a Blue Brush
+		hr = m_pRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::CornflowerBlue), &m_pCornflowerBlueBrush);
+	}
+
+}
+
+
+
 
 void CGameFramework::CreateRenderTargetViews()
 {
@@ -309,7 +351,7 @@ void CGameFramework::CreateOffScreenRenderTargetViews()
 		m_ppd3dCartoonScreenRenderTargetBuffers[i]->AddRef();
 	}
 
-	// RtvCPU서술자 증가 크기가 스왑체인의 크기 배수로 증가하는 이유?
+	 //RtvCPU서술자 증가 크기가 스왑체인의 크기 배수로 증가하는 이유?
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBuffers * m_nRtvDescriptorIncrementSize);
 
@@ -813,8 +855,24 @@ void CGameFramework::FrameAdvance()
 	}
 	
 
+
+
 	::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
+	
+	//////////////////////////////////////////////////////////////////////////////////
+	//D2D1_SIZE_F renderTargetSize = m_pRenderTarget->GetSize();
+
+	//m_pRenderTarget->BeginDraw();
+
+	//m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
+
+
+	//m_pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
+
+	//m_pRenderTarget->EndDraw();
+
+	////////////////////////////////////////////////////////////////////////////////
 
 	hResult = m_pd3dCommandList->Close();
 	

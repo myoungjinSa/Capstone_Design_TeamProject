@@ -33,6 +33,12 @@ using namespace std;
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
 
+//다이렉트 2D 헤더
+#include <d2d1.h>		//This header is used by Direct2D. 
+#include <d2d1helper.h> //The D2D1 namespace provides helper classes, functions, and structures that simplify common tasks, such as creating an identity matrix or creating a color
+#include <dwrite.h>		//This header is used by DirectWrite. For more information, see: MSDN
+#include <wincodec.h>	//This header is used by Windows Imaging Component. For more information, see:
+
 #include <Mmsystem.h>
 
 #ifdef _DEBUG
@@ -64,6 +70,7 @@ extern HINSTANCE						ghAppInstance;
 
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
+#pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "dxgi.lib")
 
 #pragma comment(lib, "dxguid.lib")
