@@ -1,6 +1,6 @@
 <Frame>: 0 0 Plant_c_01
-	<Transform>: 0 0 0 0 0 0 10 10 10 0 0 0 1  
-	<TransformMatrix>: 10 0 0 0 0 10 0 0 0 0 10 0 0 0 0 1  
+	<Transform>: 0 0 0 0 0 0 10 3 10 0 0 0 1  
+	<TransformMatrix>: 10 0 0 0 0 3 0 0 0 0 10 0 0 0 0 1  
 	<Children>: 3
 		<Frame>: 1 0 Plant_c_01_LOD0
 			<Transform>: 0 0 0 9.334668E-06 0 0 1 1 1 8.146034E-08 0 0 1  
