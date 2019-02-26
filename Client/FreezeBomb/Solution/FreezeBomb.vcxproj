@@ -79,6 +79,7 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>../Excutable/</OutDir>
     <TargetName>$(ProjectName)_x64_Debug</TargetName>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
