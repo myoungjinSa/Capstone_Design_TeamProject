@@ -54,13 +54,15 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	m_hInstance = hInstance;
 	m_hWnd = hMainWnd;
 
-	//CreateDirect2DDevice();
+	
 
 	CreateDirect3DDevice();
 	CreateCommandQueueAndList();
 	CreateRtvAndDsvDescriptorHeaps();
 	CreateSwapChain();
-	//Create2DRenderTarget();
+
+	//CreateDirect11DeviceOn12();
+	
 	CreateDepthStencilView();
 
 	CoInitialize(NULL);
@@ -131,18 +133,6 @@ void CGameFramework::CreateSwapChain()
 #endif
 }
 
-void CGameFramework::CreateDirect2DDevice()
-{
-	HRESULT hResult;
-	hResult = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &m_pD2DFactory);
-	if (hResult == E_FAIL)
-	{
-		
-		return;
-	}
-
-
-}
 
 void CGameFramework::CreateDirect3DDevice()
 {
@@ -231,30 +221,6 @@ void CGameFramework::CreateRtvAndDsvDescriptorHeaps()
 	hResult = m_pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void **)&m_pd3dDsvDescriptorHeap);
 	m_nDsvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 }
-void CGameFramework::Create2DRenderTarget()
-{
-	RECT rc;
-	GetClientRect(m_hWnd, &rc);
-
-
-	D2D1_SIZE_U size = D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top);
-
-	HRESULT hr = m_pD2DFactory->CreateHwndRenderTarget(D2D1::RenderTargetProperties(), D2D1::HwndRenderTargetProperties(m_hWnd, size), &m_pRenderTarget);
-	if (hr==E_FAIL)
-	{
-		return;
-	}
-	else if (SUCCEEDED(hr))
-	{
-		//Create a Gray brush.
-		hr = m_pRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightSlateGray), &m_pLightSlateGrayBrush);
-
-		//Create a Blue Brush
-		hr = m_pRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::CornflowerBlue), &m_pCornflowerBlueBrush);
-	}
-
-}
-
 
 
 
@@ -336,6 +302,79 @@ void CGameFramework::ChangeSwapChainState()
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
 
 	CreateRenderTargetViews();
+}
+void CGameFramework::CreateDirect11DeviceOn12()
+{
+	HRESULT hResult;
+	UINT d3d11DeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;		//Note  Required for Direct2D interoperability with Direct3D resources.
+
+	UINT dxgiFactoryFlags = 0;
+	D2D1_FACTORY_OPTIONS d2dFactoryOptions = {};
+
+//#if defined(_DEBUG)
+//	// Enable the debug layer (requires the Graphics Tools "optional feature").
+//	// NOTE: Enabling the debug layer after device creation will invalidate the active device.
+//	{
+//		ComPtr<ID3D12Debug> debugController;
+//		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
+//		{
+//			debugController->EnableDebugLayer();
+//
+//			// Enable additional debug layers.
+//			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+//			d3d11DeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+//			d2dFactoryOptions.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
+//		}
+//	}
+//#endif
+//
+//#if defined(_DEBUG)
+//	// Filter a debug error coming from the 11on12 layer.
+//	ComPtr<ID3D12InfoQueue> infoQueue;
+//	if (SUCCEEDED(m_pd3dDevice->QueryInterface(IID_PPV_ARGS(&infoQueue))))
+//	{
+//		// Suppress whole categories of messages.
+//		//D3D12_MESSAGE_CATEGORY categories[] = {};
+//
+//		// Suppress messages based on their severity level.
+//		D3D12_MESSAGE_SEVERITY severities[] =
+//		{
+//			D3D12_MESSAGE_SEVERITY_INFO,
+//		};
+//
+//		// Suppress individual messages by their ID.
+//		D3D12_MESSAGE_ID denyIds[] =
+//		{
+//			// This occurs when there are uninitialized descriptors in a descriptor table, even when a
+//			// shader does not access the missing descriptors.
+//			D3D12_MESSAGE_ID_INVALID_DESCRIPTOR_HANDLE,
+//		};
+//
+//		D3D12_INFO_QUEUE_FILTER filter = {};
+//		//filter.DenyList.NumCategories = _countof(categories);
+//		//filter.DenyList.pCategoryList = categories;
+//		filter.DenyList.NumSeverities = _countof(severities);
+//		filter.DenyList.pSeverityList = severities;
+//		filter.DenyList.NumIDs = _countof(denyIds);
+//		filter.DenyList.pIDList = denyIds;
+//
+//		HRESULT hr;
+//		hr = infoQueue->PushStorageFilter(&filter);
+//		if (FAILED(hr))
+//		{
+//			return;
+//		}
+//	}
+//#endif
+
+	//ComPtr<ID3D11Device> d3d11Device;
+	hResult = D3D11On12CreateDevice(m_pd3dDevice, d3d11DeviceFlags, nullptr, 0, reinterpret_cast<IUnknown**>(m_pd3dCommandQueue), 1, 0, &m_d3d11Device, &m_d3d11DeviceContext, nullptr);
+	if (FAILED(hResult))
+	{
+		return;
+	}
+
+
 }
 
 

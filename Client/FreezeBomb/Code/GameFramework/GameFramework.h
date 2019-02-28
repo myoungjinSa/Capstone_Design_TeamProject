@@ -20,7 +20,7 @@ public:
 	void OnDestroy();
 
 	void CreateSwapChain();
-	void CreateDirect2DDevice();
+	void CreateDirect11DeviceOn12();
 	void CreateDirect3DDevice();
 	void CreateCommandQueueAndList();
 
@@ -69,15 +69,6 @@ private:
 	IDXGISwapChain3*				m_pdxgiSwapChain = nullptr;
 	ID3D12Device*					m_pd3dDevice = nullptr;
 
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	//Direct2D 인터페이스
-	ID2D1Factory*					m_pD2DFactory;				
-	ID2D1HwndRenderTarget*			m_pRenderTarget;
-	ID2D1SolidColorBrush*			m_pLightSlateGrayBrush;
-	ID2D1SolidColorBrush*			m_pCornflowerBlueBrush;
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	bool							m_bMsaa4xEnable = false;
 	UINT							m_nMsaa4xQualityLevels = 0;
@@ -129,5 +120,24 @@ private:
 #ifdef _MAPTOOL_MODE_
 	CMapToolShader*  m_pMapToolShader = nullptr;
 #endif
+
+
+	/////////////////////////////////////////////////////////////////////////
+	//DirectX 11 
+	static const UINT				FrameCount = 3;
+	ID3D11Device*					m_d3d11Device = nullptr;
+	ID3D11DeviceContext*			m_d3d11DeviceContext=nullptr;
+	ID3D11On12Device*				m_d3d11On12Device=nullptr;
+	IDWriteFactory*					m_dWriteFactory=nullptr;
+	ID2D1Factory3*					m_d2dFactory=nullptr;
+	ID2D1Device2*					m_d2dDevice=nullptr;
+	ID2D1DeviceContext2*			m_d2dDeviceContext=nullptr;
+	ID3D12Resource*					m_renderTargets[FrameCount];
+	ID3D11Resource*					m_wrappedBackBuffers[FrameCount];
+	ID2D1Bitmap1*					m_d2dRenderTargets[FrameCount];
+
+	ID2D1SolidColorBrush*			m_textBrush=nullptr;
+	IDWriteTextFormat*				m_textFormat=nullptr;
+
 };
 

@@ -34,11 +34,11 @@ using namespace std;
 #include <DirectXCollision.h>
 
 //다이렉트 2D 헤더
-#include <d2d1.h>		//This header is used by Direct2D. 
-#include <d2d1helper.h> //The D2D1 namespace provides helper classes, functions, and structures that simplify common tasks, such as creating an identity matrix or creating a color
+#include <d2d1_3.h>		//This header is used by Direct2D. 
+#include <d3d11on12.h>	//11이랑 12의 호환을 담당
 #include <dwrite.h>		//This header is used by DirectWrite. For more information, see: MSDN
 #include <wincodec.h>	//This header is used by Windows Imaging Component. For more information, see:
-
+#include <pix.h>
 #include <Mmsystem.h>
 
 #ifdef _DEBUG
@@ -70,7 +70,7 @@ extern HINSTANCE						ghAppInstance;
 
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
-#pragma comment(lib, "d2d1.lib")
+#pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
 
 #pragma comment(lib, "dxguid.lib")
@@ -102,6 +102,7 @@ inline bool IsEqual(float fA, float fB, float fEpsilon) { return(::IsZero(fA - f
 inline float InverseSqrt(float fValue) { return 1.0f / sqrtf(fValue); }
 inline void Swap(float *pfS, float *pfT) { float fTemp = *pfS; *pfS = *pfT; *pfT = fTemp; }
 inline float RandF(float fMin, float fMax) { return(fMin + ((float)rand() / (float)RAND_MAX) * (fMax - fMin)); }
+
 
 namespace Vector3
 {
