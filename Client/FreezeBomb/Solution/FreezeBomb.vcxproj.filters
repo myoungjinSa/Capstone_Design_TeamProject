@@ -329,9 +329,6 @@
     <ClInclude Include="..\Code\Mesh\LODMesh\LodMesh.h">
       <Filter>Code\Mesh\LODMesh</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Code\Default\Resource</Filter>
-    </ClInclude>
     <ClInclude Include="..\Code\Sound\FmodSound.h">
       <Filter>Code\Sound</Filter>
     </ClInclude>

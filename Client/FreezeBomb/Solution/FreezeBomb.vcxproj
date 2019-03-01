@@ -219,7 +219,6 @@
     <ClInclude Include="..\Code\Sound\FmodSound.h" />
     <ClInclude Include="..\Code\Stdafx\Stdafx.h" />
     <ClInclude Include="..\Code\Texture\Texture.h" />
-    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Code\Camera\Camera.cpp" />
