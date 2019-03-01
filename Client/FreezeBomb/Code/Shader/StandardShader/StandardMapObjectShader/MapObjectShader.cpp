@@ -165,11 +165,11 @@ void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 			CLoadedModelInfo* pSurroundingModel = (*iter).second;
 			if (!strcmp(p, pSurroundingModel->m_pModelRootObject->m_pstrFrameName))
 			{
-
 				m_ppObjects[i]->SetChild(pSurroundingModel->m_pModelRootObject, true);
 				delete[] p;
 				p = nullptr;
 				
+
 				inf.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
 				p = new char[nReads + 1];
 

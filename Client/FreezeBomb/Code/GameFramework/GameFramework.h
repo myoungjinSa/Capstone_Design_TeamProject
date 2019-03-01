@@ -2,6 +2,7 @@
 
 #include "../GameTimer/GameTimer.h"
 
+
 class CScene;
 class CPlayer;
 class CPlayerShadowShader;
@@ -9,6 +10,7 @@ class CPlayerShadowShader;
 class CCamera;
 class CMapToolShader;
 class CSobelCartoonShader;
+class CDirectSound;
 
 class CGameFramework
 {
@@ -29,6 +31,7 @@ public:
 	void Create2DRenderTarget();
 	void CreateRenderTargetViews();
 	void CreateDepthStencilView();
+	
 
 	void ChangeSwapChainState();
 
@@ -57,7 +60,7 @@ public:
 private:
 
 
-
+	
 
 	HINSTANCE						m_hInstance;
 	HWND							m_hWnd;
@@ -138,6 +141,7 @@ private:
 
 	ID2D1SolidColorBrush*			m_textBrush=nullptr;
 	IDWriteTextFormat*				m_textFormat=nullptr;
+
 
 };
 

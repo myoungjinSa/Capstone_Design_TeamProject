@@ -12,6 +12,7 @@
 #include "../Texture/Texture.h"
 #include "../Shader/PostProcessShader/CartoonShader/SobelCartoonShader.h"
 
+
 CGameFramework::CGameFramework()
 {
 	m_pdxgiFactory = NULL;
@@ -41,6 +42,8 @@ CGameFramework::CGameFramework()
 	m_pScene = NULL;
 	m_pPlayer = NULL;
 
+	
+
 	_tcscpy_s(m_pszFrameRate, _T("FreezeBomb ("));
 }
 
@@ -67,7 +70,10 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 
 	CoInitialize(NULL);
 
+	//CreateDirectSound();
+
 	BuildObjects();
+
 
 	CreateOffScreenRenderTargetViews();
 
@@ -188,6 +194,10 @@ void CGameFramework::CreateDirect3DDevice()
 	// IncrementSize를 컴퓨터에 맞게 설정해줌
 	::gnCbvSrvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
+
+
+
+
 
 void CGameFramework::CreateCommandQueueAndList()
 {
@@ -713,6 +723,9 @@ void CGameFramework::ReleaseObjects()
 		delete m_pMapToolShader;
 	}
 #endif
+	
+	//ReleaseDirectSound();
+
 	if (m_pScene)
 	{
 		m_pScene->ReleaseObjects();
@@ -731,6 +744,7 @@ void CGameFramework::ReleaseObjects()
 		m_pPlayerShadowShader->ReleaseObjects();
 		delete m_pPlayerShadowShader;
 	}
+
 }
 
 void CGameFramework::ProcessInput()

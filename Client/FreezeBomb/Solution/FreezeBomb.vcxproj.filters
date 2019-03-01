@@ -168,6 +168,9 @@
     <ClCompile Include="..\Code\Mesh\LODMesh\LodMesh.cpp">
       <Filter>Code\Mesh\LODMesh</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\Sound\FmodSound.cpp">
+      <Filter>Code\Sound</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h">
@@ -325,6 +328,12 @@
     </ClInclude>
     <ClInclude Include="..\Code\Mesh\LODMesh\LodMesh.h">
       <Filter>Code\Mesh\LODMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Code\Default\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Sound\FmodSound.h">
+      <Filter>Code\Sound</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -498,10 +507,24 @@
     <Filter Include="Code\Mesh\LODMesh">
       <UniqueIdentifier>{d5587de3-cb58-45ba-b592-d50c4cb87e61}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Sound">
+      <UniqueIdentifier>{3a384a93-008a-4242-beb2-47d2c30978eb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FreezeBomb.rc">
       <Filter>Code\Default\Resource</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="..\Resource\Sound\BtnDown01.wav">
+      <Filter>Code\Default</Filter>
+    </Media>
+    <Media Include="..\Resource\Sound\BtnDown03.wav">
+      <Filter>Code\Default</Filter>
+    </Media>
+    <Media Include="..\Resource\Sound\town.wav">
+      <Filter>Code\Default</Filter>
+    </Media>
   </ItemGroup>
 </Project>

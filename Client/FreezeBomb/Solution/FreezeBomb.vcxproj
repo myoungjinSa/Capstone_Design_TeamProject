@@ -79,7 +79,7 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>../Excutable/</OutDir>
     <TargetName>$(ProjectName)_x64_Debug</TargetName>
-    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <LibraryPath>D:\ICEBOMB\Capstone_Design_TeamProject\Client\FreezeBomb\Code\Sound\FMOD\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -90,6 +90,7 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>../Excutable/</OutDir>
     <TargetName>$(ProjectName)_x64_Release</TargetName>
+    <LibraryPath>D:\ICEBOMB\Capstone_Design_TeamProject\Client\FreezeBomb\Code\Sound\FMOD\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -113,10 +114,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>D:\ICEBOMB\Capstone_Design_TeamProject\Client\FreezeBomb\Code\Sound\FMOD\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -213,8 +216,10 @@
     <ClInclude Include="..\Code\Shader\StandardShader\StandardObjectsShader\StandardObjectsShader.h" />
     <ClInclude Include="..\Code\Shader\StandardShader\StandardShader.h" />
     <ClInclude Include="..\Code\Shader\TerrainShader\TerrainShader.h" />
+    <ClInclude Include="..\Code\Sound\FmodSound.h" />
     <ClInclude Include="..\Code\Stdafx\Stdafx.h" />
     <ClInclude Include="..\Code\Texture\Texture.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Code\Camera\Camera.cpp" />
@@ -265,6 +270,7 @@
     <ClCompile Include="..\Code\Shader\StandardShader\StandardObjectsShader\StandardObjectsShader.cpp" />
     <ClCompile Include="..\Code\Shader\StandardShader\StandardShader.cpp" />
     <ClCompile Include="..\Code\Shader\TerrainShader\TerrainShader.cpp" />
+    <ClCompile Include="..\Code\Sound\FmodSound.cpp" />
     <ClCompile Include="..\Code\Stdafx\Stdafx.cpp" />
     <ClCompile Include="..\Code\Texture\Texture.cpp" />
   </ItemGroup>
@@ -299,6 +305,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="..\Resource\Sound\BtnDown01.wav" />
+    <Media Include="..\Resource\Sound\BtnDown03.wav" />
+    <Media Include="..\Resource\Sound\town.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
