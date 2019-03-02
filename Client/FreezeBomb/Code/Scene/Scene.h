@@ -29,8 +29,8 @@ struct LIGHT
 										
 struct LIGHTS							
 {										
-	LIGHT			m_pLights[MAX_LIGHTS];
-	XMFLOAT4	m_xmf4GlobalAmbient;
+	LIGHT				m_pLights[MAX_LIGHTS];
+	XMFLOAT4			m_xmf4GlobalAmbient;
 	int					m_nLights;
 };
 
