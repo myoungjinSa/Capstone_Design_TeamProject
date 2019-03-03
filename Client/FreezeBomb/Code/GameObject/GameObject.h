@@ -333,8 +333,7 @@ public:
 
 public:
 	const enum MATERIALTYPE { PINK, BROWN, WHITE, BLACK, BLUE, PANDA, ICEMAT };		//곰의 종류
-	const static enum LODLEVEL
-	{
+	const enum LODLEVEL {
 		LOD_LEVEL0 = 0,
 		LOD_LEVEL1,
 		LOD_LEVEL2,
@@ -374,16 +373,16 @@ protected:
 	string							m_ID;													
 	CGameObject*				m_pObjectCollided{ nullptr };
 
-	bool								m_bIce = false;		//얼음 여부 
-	int									m_matID;	//재질 정보
-	bool								m_bBomb = false;	//폭탄 소지 여부
-	bool								m_bHammer =false;  //망치 소지 여부
-	bool								m_bTimer = false;   //타이머 아이템 소지 여부
-
 	UINT				m_lodLevel;
 
 	BoundingOrientedBox	m_xmOOBB;
 	BoundingOrientedBox	m_xmOOBBTransformed;
+
+	bool								m_bIce = false;			//얼음 여부 
+	int									m_matID;	//재질 정보
+	bool								m_bBomb = true;		//폭탄 소지 여부
+	bool								m_bHammer = true;  //망치 소지 여부
+	bool								m_bTimer = false;		//타이머 아이템 소지 여부
 
 public:
 

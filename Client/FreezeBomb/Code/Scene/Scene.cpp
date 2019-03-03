@@ -7,9 +7,7 @@
 #include "../GameObject/Player/Player.h"
 #include "../GameObject/Item/Item.h"
 #include "../Shader/StandardShader/ItemShader/ItemShader.h"
-#include "../Sound/FmodSound.h"
-
-
+#include "../SoundSystem/SoundSystem.h"
 
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -97,28 +95,23 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	// Hammer : 4
 	// ICE : 1 
 	// Shadow : 2
-	// PlayerShadow : 15
 
 	int nObjects = 0;
 #ifdef _MAPTOOL_MODE_
 	nObjects = 87;		//DeadTrees(25),PineTrees(35),Rocks(25),Deer(2),Pond(2),Fence(0)
 #endif
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 33 + 85 + 2 + 11 + 4 + 4 +1 + nObjects + 2 + 15);
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 33 + 85 + 2 + 11 + 4 + 4 +1 + nObjects + 2);
 
 	// Model을 로드할 때, 셰이더 없이 로드할 경우 이것을 사용함!
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
 	BuildDefaultLightsAndMaterials();
 
-
-
 	m_pShaderManager = new CShaderManager;
 	m_pShaderManager->Initialize(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
-
-
 	//사운드 생성
-	m_pSound = new CSoundSystem();
+	m_pSound = new CSoundSystem;
 
 	m_musicCount = 1;
 	m_musicList = new const char*[m_musicCount];
@@ -129,7 +122,6 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	//2개 동시에 재생도 가능하다
 	m_pSound->Initialize(m_musicCount,m_musicList);
 	m_pSound->Play(m_musicCount);
-
 
 	//PlaySound(_T("../Resource/Sound/town.wav"), GetModuleHandle(NULL), SND_MEMORY | SND_ASYNC | SND_LOOP);
 	//PlaySound(MAKEINTRESOURCE(IDR_WAVE3), ::ghAppInstance, SND_RESOURCE | SND_ASYNC | SND_LOOP);

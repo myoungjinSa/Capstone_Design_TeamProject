@@ -144,12 +144,6 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.cpp">
       <Filter>Code\Shader\BillboardShader\UIShader\TimerUIShader</Filter>
     </ClCompile>
-    <ClCompile Include="..\Code\Shader\StandardShader\MapToolShader\MapToolShader.cpp">
-      <Filter>Code\Shader\StandardShader\MapToolShader</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Code\Shader\StandardShader\StandardMapObjectShader\MapObjectShader.cpp">
-      <Filter>Code\Shader\StandardShader\MapObjectShader</Filter>
-    </ClCompile>
     <ClCompile Include="..\Code\Shader\PostProcessShader\ComputeShader\ComputeShader.cpp">
       <Filter>Code\Shader\ComputeShader</Filter>
     </ClCompile>
@@ -168,11 +162,17 @@
     <ClCompile Include="..\Code\GameObject\Foliage\Foliage.cpp">
       <Filter>Code\GameObject\Foliage</Filter>
     </ClCompile>
-    <ClCompile Include="..\Code\Mesh\LODMesh\LodMesh.cpp">
-      <Filter>Code\Mesh\LODMesh</Filter>
+    <ClCompile Include="..\Code\Shader\StandardShader\MapToolShader\MapToolShader.cpp">
+      <Filter>Code\Shader\StandardShader\MapToolShader</Filter>
     </ClCompile>
-    <ClCompile Include="..\Code\Sound\FmodSound.cpp">
-      <Filter>Code\Sound</Filter>
+    <ClCompile Include="..\Code\Shader\StandardShader\MapObjectShader\MapObjectShader.cpp">
+      <Filter>Code\Shader\StandardShader\MapObjectShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\SoundSystem\SoundSystem.cpp">
+      <Filter>Code\SoundSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Mesh\LODMesh\LODMesh.cpp">
+      <Filter>Code\Mesh\LODMesh</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -308,12 +308,6 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.h">
       <Filter>Code\Shader\BillboardShader\UIShader\TimerUIShader</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\Shader\StandardShader\MapToolShader\MapToolShader.h">
-      <Filter>Code\Shader\StandardShader\MapToolShader</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Code\Shader\StandardShader\StandardMapObjectShader\MapObjectShader.h">
-      <Filter>Code\Shader\StandardShader\MapObjectShader</Filter>
-    </ClInclude>
     <ClInclude Include="..\Code\Shader\PostProcessShader\ComputeShader\ComputeShader.h">
       <Filter>Code\Shader\ComputeShader</Filter>
     </ClInclude>
@@ -332,11 +326,17 @@
     <ClInclude Include="..\Code\GameObject\Foliage\Foliage.h">
       <Filter>Code\GameObject\Foliage</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\Mesh\LODMesh\LodMesh.h">
-      <Filter>Code\Mesh\LODMesh</Filter>
+    <ClInclude Include="..\Code\Shader\StandardShader\MapToolShader\MapToolShader.h">
+      <Filter>Code\Shader\StandardShader\MapToolShader</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\Sound\FmodSound.h">
-      <Filter>Code\Sound</Filter>
+    <ClInclude Include="..\Code\Shader\StandardShader\MapObjectShader\MapObjectShader.h">
+      <Filter>Code\Shader\StandardShader\MapObjectShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\SoundSystem\SoundSystem.h">
+      <Filter>Code\SoundSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Mesh\LODMesh\LODMesh.h.h">
+      <Filter>Code\Mesh\LODMesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -510,27 +510,16 @@
     <Filter Include="Code\GameObject\Foliage">
       <UniqueIdentifier>{679fdff2-ec13-47eb-992b-fa8b0ec1f024}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\SoundSystem">
+      <UniqueIdentifier>{3a384a93-008a-4242-beb2-47d2c30978eb}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Code\Mesh\LODMesh">
       <UniqueIdentifier>{d5587de3-cb58-45ba-b592-d50c4cb87e61}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Sound">
-      <UniqueIdentifier>{3a384a93-008a-4242-beb2-47d2c30978eb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FreezeBomb.rc">
       <Filter>Code\Default\Resource</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Media Include="..\Resource\Sound\BtnDown01.wav">
-      <Filter>Code\Default</Filter>
-    </Media>
-    <Media Include="..\Resource\Sound\BtnDown03.wav">
-      <Filter>Code\Default</Filter>
-    </Media>
-    <Media Include="..\Resource\Sound\town.wav">
-      <Filter>Code\Default</Filter>
-    </Media>
   </ItemGroup>
 </Project>

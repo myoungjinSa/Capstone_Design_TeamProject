@@ -3,14 +3,7 @@
 #include "../../GameObject/GameObject.h"
 #include "../../GameObject/Terrain/Terrain.h"
 #include "../../Texture/Texture.h"
-
-#ifdef CUBE
-#include "../../Material/Material.h"
-#include "../../Mesh/Mesh.h"
-#else
 #include "../../GameObject/Surrounding/Surrounding.h"
-
-#endif
 
 CShadowShader::CShadowShader()
 {
@@ -63,16 +56,10 @@ D3D12_SHADER_BYTECODE CShadowShader::CreateVertexShader(int Type)
 {
 	switch (Type)
 	{
-#ifdef CUBE
-	case Cube:
-		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSIceCube", "vs_5_1", &m_pd3dVertexShaderBlob));
-		break;
-#else
-	case Surrounding:
+	case GameObject:
 		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSStandard", "vs_5_1", &m_pd3dVertexShaderBlob));
 		break;
-#endif
-	case Shadow:
+	case GameObject_Shadow:
 		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSShadow", "vs_5_1", &m_pd3dVertexShaderBlob));
 		break;
 	}	
@@ -82,16 +69,10 @@ D3D12_SHADER_BYTECODE CShadowShader::CreatePixelShader(int Type)
 {
 	switch (Type)
 	{
-#ifdef CUBE
-	case Cube:
-		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSIceCube", "ps_5_1", &m_pd3dPixelShaderBlob));
-		break;
-#else
-	case Surrounding:
+	case GameObject:
 		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSStandard", "ps_5_1", &m_pd3dPixelShaderBlob));
 		break;
-#endif
-	case Shadow:
+	case GameObject_Shadow:
 		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSShadow", "ps_5_1", &m_pd3dPixelShaderBlob));
 		break;
 	}
@@ -99,19 +80,6 @@ D3D12_SHADER_BYTECODE CShadowShader::CreatePixelShader(int Type)
 
 D3D12_INPUT_LAYOUT_DESC CShadowShader::CreateInputLayout()
 {
-#ifdef CUBE
-	UINT nInputElementDescs = 2;
-	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
-
-	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-
-	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
-	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
-	d3dInputLayoutDesc.NumElements = nInputElementDescs;
-
-	return(d3dInputLayoutDesc);
-#else
 	UINT nInputElementDescs = 5;
 	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
@@ -126,7 +94,6 @@ D3D12_INPUT_LAYOUT_DESC CShadowShader::CreateInputLayout()
 	d3dInputLayoutDesc.NumElements = nInputElementDescs;
 
 	return(d3dInputLayoutDesc);
-#endif 
 }
 
 D3D12_BLEND_DESC CShadowShader::CreateBlendState(int Type)
@@ -135,7 +102,7 @@ D3D12_BLEND_DESC CShadowShader::CreateBlendState(int Type)
 	::ZeroMemory(&d3dBlendDesc, sizeof(D3D12_BLEND_DESC));
 	switch (Type)
 	{
-	case Surrounding:
+	case GameObject:
 		d3dBlendDesc.AlphaToCoverageEnable = FALSE;
 		d3dBlendDesc.IndependentBlendEnable = FALSE;
 		d3dBlendDesc.RenderTarget[0].BlendEnable = FALSE;
@@ -150,7 +117,7 @@ D3D12_BLEND_DESC CShadowShader::CreateBlendState(int Type)
 		d3dBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 		break;
 
-	case Shadow:
+	case GameObject_Shadow:
 		d3dBlendDesc.AlphaToCoverageEnable = true;
 		d3dBlendDesc.IndependentBlendEnable = true;
 		d3dBlendDesc.RenderTarget[0].BlendEnable = true;
@@ -179,7 +146,7 @@ D3D12_DEPTH_STENCIL_DESC CShadowShader::CreateDepthStencilState(int Type)
 
 	switch (Type)
 	{
-	case Surrounding:
+	case GameObject:
 		//d3dDepthStencilDesc.DepthEnable = TRUE;
 		d3dDepthStencilDesc.DepthEnable = false;
 		d3dDepthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
@@ -197,7 +164,7 @@ D3D12_DEPTH_STENCIL_DESC CShadowShader::CreateDepthStencilState(int Type)
 		d3dDepthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
 		break;
 
-	case Shadow:
+	case GameObject_Shadow:
 		d3dDepthStencilDesc.DepthEnable = false;
 		//d3dDepthStencilDesc.DepthEnable = true;
 		d3dDepthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
@@ -227,14 +194,6 @@ D3D12_DEPTH_STENCIL_DESC CShadowShader::CreateDepthStencilState(int Type)
 	return(d3dDepthStencilDesc);
 }
 
-void CShadowShader::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList, XMMATRIX pShadowWorld)
-{
-	XMFLOAT4X4 ShadowWorld;
-	//XMStoreFloat4x4(&ShadowWorld, XMMatrixTranspose(XMLoadFloat4x4(pShadowWorld)));
-	XMStoreFloat4x4(&ShadowWorld, XMMatrixTranspose(pShadowWorld));
-	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 16, &ShadowWorld, 0);
-}
-
 void CShadowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
 	const map<string, CTexture*>& Context, void *pContext)
 {
@@ -244,35 +203,6 @@ void CShadowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	m_ppObjects = new CGameObject*[m_nObjects];
 	XMFLOAT3 Position(0, 0, 0);
 
-#ifdef CUBE
-	CCubeMeshTextured* pCubeMesh = new CCubeMeshTextured(pd3dDevice, pd3dCommandList, 4.f, 4.0f, 4.0f);
-
-	CMaterial*pMaterial = new CMaterial(1);
-	auto iter = Context.find("IceTexture");
-	if (iter != Context.end())
-		pMaterial->SetTexture((*iter).second, 0);
-
-	for (int i = 0; i < m_nObjects; ++i)
-	{
-		CCubeObject* pCube = new CCubeObject(1);
-		Position = XMFLOAT3(Random(10, 490), 5, Random(10, 290));
-		pCube->SetPosition(Position);
-		pCube->SetMesh(pCubeMesh);
-		pCube->SetMaterial(0, pMaterial);
-		m_ppObjects[i] = pCube;
-	}
-
-	for (int i = 0; i < m_nObjects; ++i)
-	{
-		CCubeObject* pCube = new CCubeObject(1);
-		Position = XMFLOAT3(m_ppObjects[i]->GetPosition());
-		pCube->SetPosition(Position);
-		pCube->SetMesh(pCubeMesh);
-		pCube->SetMaterial(0, pMaterial);
-		m_ShadowObjectVector.emplace_back(pCube);
-	}
-
-#else
 	CLoadedModelInfo* pDeer01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 
 		"../Resource/Models/SM_Deer3.bin", this, false, "Surrounding");
 
@@ -280,7 +210,6 @@ void CShadowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	{
 		m_ppObjects[i] = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		Position = XMFLOAT3(Random(10.f, 490.f), 0, Random(10.f, 290.f));
-		//Position = XMFLOAT3(0, 1, 0);
 		m_ppObjects[i]->SetPosition(Position);
 		m_ppObjects[i]->SetScale(10, 10, 10);
 		m_ppObjects[i]->SetChild(pDeer01->m_pModelRootObject, true);
@@ -299,8 +228,6 @@ void CShadowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 
 	if (pDeer01)
 		delete pDeer01;
-
-#endif
 }
 
 void CShadowShader::OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int nPipelineState)
@@ -314,7 +241,7 @@ void CShadowShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *
 	int i = 0;
 	for (auto iter = m_ShadowObjectVector.begin(); iter != m_ShadowObjectVector.end(); ++iter)
 	{
-		CShadowShader::OnPrepareRender(pd3dCommandList, Shadow);
+		CShadowShader::OnPrepareRender(pd3dCommandList, GameObject_Shadow);
 		(*iter)->UpdateTransform(nullptr);
 		(*iter)->Render(pd3dCommandList, pCamera);
 	}
@@ -323,13 +250,8 @@ void CShadowShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *
 	{
 		if (m_ppObjects[i])
 		{
-#ifdef CUBE
-			CShadowShader::OnPrepareRender(pd3dCommandList, Cube);
-			m_ppObjects[i]->UpdateShaderVariable(pd3dCommandList, &m_ppObjects[i]->m_xmf4x4World);
-#else
-			CShadowShader::OnPrepareRender(pd3dCommandList, Surrounding);
+			CShadowShader::OnPrepareRender(pd3dCommandList, GameObject);
 			m_ppObjects[i]->UpdateTransform(nullptr);
-#endif 
 			m_ppObjects[i]->Render(pd3dCommandList, pCamera);
 		}
 	}

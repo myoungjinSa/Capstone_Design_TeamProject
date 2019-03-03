@@ -12,7 +12,8 @@
 #include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
 #include "../Shader/BillboardShader/UIShader/ItemUIShader/ItemUIShader.h"
 
-#include "../Shader/StandardShader/StandardMapObjectShader/MapObjectShader.h"
+#include "../Shader/StandardShader/MapObjectShader/MapObjectShader.h"
+
 #include "../Shader/StandardShader/ItemShader/ItemShader.h"
 #include "../Shader/ShadowShader/ShadowShader.h"
 
@@ -31,9 +32,6 @@ CShaderManager::~CShaderManager()
 {
 }
 
-
-
-
 void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	m_pResourceManager = new CResourceManager;
@@ -43,7 +41,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 
 	//맵툴 모드일때는 맵의 오브젝트들을 그리지 않게 하기 위해 
 	// 그래야 맵툴모드에서 적용해서 배치한 오브젝트들만 볼 수 있다.
-#ifndef _MAPTOOL_MODE_
+#ifdef _MAPTOOL_MODE_
 	m_nShaders = m_nShaders + 1;
 #endif
 	m_ppShaders = new CShader*[m_nShaders];
@@ -60,6 +58,39 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	pTerrainShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
 	m_ppShaders[index++] = pTerrainShader;
 	m_ShaderMap.emplace("Terrain", pTerrainShader);
+
+#ifndef _MAPTOOL_MODE_
+	CMapObjectsShader *pMapShader = new CMapObjectsShader;
+	pMapShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pMapShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
+	m_ppShaders[index++] = pMapShader;
+	m_ShaderMap.emplace("MapShader", pMapShader);
+#endif
+
+	//Foliage는 충돌처리가 필요 없음.. 따라서 Bound박스 필요  없다.
+	//CFoliageShader* pFoliageShader = new CFoliageShader;
+	//pFoliageShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//pFoliageShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pTerrainShader->getTerrain());
+	//m_ppShaders[index++] = pFoliageShader;
+	//m_ShaderMap.emplace("Foliage", pFoliageShader);
+
+	CItemShader* pItemShader = new CItemShader;
+	//pItemShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pItemShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
+	m_ppShaders[index++] = pItemShader;
+	m_ShaderMap.emplace("Item", pItemShader);
+
+	CShadowShader* pShadowShader = new CShadowShader;
+	pShadowShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pShadowShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), pTerrainShader->getTerrain());
+	m_ppShaders[index++] = pShadowShader;
+	m_ShaderMap.emplace("Shadow", pShadowShader);
+
+	/*CSobelCartoonShader *pCartoonShader = new CSobelCartoonShader;
+	pCartoonShader->CreateGraphicsRootSignature(pd3dDevice);
+	pCartoonShader->CreateShader(pd3dDevice, pCartoonShader->GetGraphicsRootSignature(), 1);
+	pCartoonShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pResourceManager->getTextureMap());
+*/
 
 	//CStandardObjectsShader* pSurroundingShader = new CStandardObjectsShader;
 	//pSurroundingShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -85,38 +116,6 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	//m_ppShaders[index++] = pIceParticleShader;
 	//m_ShaderMap.emplace("IceParticle", pIceParticleShader);
 
-	CItemShader* pItemShader = new CItemShader;
-	//pItemShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pItemShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
-	m_ppShaders[index++] = pItemShader;
-	m_ShaderMap.emplace("Item", pItemShader);
-
-	CShadowShader* pShadowShader = new CShadowShader;
-	pShadowShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pShadowShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), pTerrainShader->getTerrain());
-	m_ppShaders[index++] = pShadowShader;
-	m_ShaderMap.emplace("Shadow", pShadowShader);
-
-	//Foliage는 충돌처리가 필요 없음.. 따라서 Bound박스 필요  없다.
-	CFoliageShader* pFoliageShader = new CFoliageShader;
-	pFoliageShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pFoliageShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pTerrainShader->getTerrain());
-	m_ppShaders[index++] = pFoliageShader;
-	m_ShaderMap.emplace("Foliage", pFoliageShader);
-
-#ifndef _MAPTOOL_MODE_
-	CMapObjectsShader *pMapShader = new CMapObjectsShader;
-	pMapShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pMapShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
-	m_ppShaders[index++] = pMapShader;
-	m_ShaderMap.emplace("MapShader", pMapShader);
-#endif
-
-	/*CSobelCartoonShader *pCartoonShader = new CSobelCartoonShader;
-	pCartoonShader->CreateGraphicsRootSignature(pd3dDevice);
-	pCartoonShader->CreateShader(pd3dDevice, pCartoonShader->GetGraphicsRootSignature(), 1);
-	pCartoonShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pResourceManager->getTextureMap());
-*/
 	CTimerUIShader* pTimerUIShader = new CTimerUIShader;
 	pTimerUIShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pTimerUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
@@ -194,9 +193,6 @@ void CShaderManager::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 	for (int i = 0; i < m_nShaders; i++)
 	{
 		if (m_ppShaders[i])
-		{
-			//if (dynamic_cast<CTerrainShader*>(m_ppShaders[i]) == nullptr)
-				m_ppShaders[i]->Render(pd3dCommandList, pCamera, GameObject);
-		}
+			m_ppShaders[i]->Render(pd3dCommandList, pCamera, GameObject);
 	}
 }

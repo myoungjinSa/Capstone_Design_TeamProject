@@ -16,8 +16,6 @@ public:
 	virtual D3D12_BLEND_DESC CreateBlendState(int Type);
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState(int Type);
 
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList, XMMATRIX pShadowWorld);
-
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
 		const map<string, CTexture*>& Context, void *pContext = NULL);
 
@@ -35,11 +33,4 @@ private:
 	int												m_nPipelineStates = 0;
 
 	vector<CGameObject*>			m_ShadowObjectVector;
-
-//#define CUBE
-#ifdef CUBE
-	enum TYPE { Cube, Shadow };
-#else
-	enum TYPE { Surrounding, Shadow };
-#endif
 };

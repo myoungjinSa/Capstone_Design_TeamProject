@@ -49,6 +49,9 @@ CPlayer::~CPlayer()
 		iter = m_Special_Inventory.erase(iter);
 	}
 	m_Special_Inventory.clear();
+	
+	//if (m_pShadow)
+	//	m_pShadow->Release();
 }
 
 void CPlayer::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
@@ -200,8 +203,6 @@ void CPlayer::Update(float fTimeElapsed)
 	}
 }
 
-
-
 CCamera *CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
 {
 	CCamera *pNewCamera = NULL;
@@ -267,7 +268,7 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 		if (m_pShadow)
 			m_pShadow->Render(pd3dCommandList, pCamera, GameObject_Shadow);
 
-		CGameObject::Render(pd3dCommandList,m_bHammer,m_bBomb,m_bIce,m_matID,pCamera, GameObject);		//재질별로 렌더 
+		CGameObject::Render(pd3dCommandList, m_bHammer, m_bBomb, m_bIce, m_matID, pCamera, GameObject);		//재질별로 렌더 
 	}
 }
 
@@ -417,28 +418,6 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_ID = "<EvilBear>";
 
 	m_pShadow = new CShadow(pEvilBearModel, this);
-
-	//CGameObject* p = FindFrame("MiddleFinger4_R");
-	//if (p != nullptr)
-	//{
-	//	XMFLOAT4X4 parent = p->m_xmf4x4ToParent;
-	//	cout << p->m_xmf4x4ToParent._41 << ", "
-	//		<< p->m_xmf4x4ToParent._42 << ", "
-	//		<< p->m_xmf4x4ToParent._43 << endl;
-
-	//	p = FindFrame("hammer");
-	//	if (p != nullptr)
-	//	{
-	//		cout << p->m_xmf4x4ToParent._41 << ", "
-	//			<< p->m_xmf4x4ToParent._42 << ", "
-	//			<< p->m_xmf4x4ToParent._43 << endl;
-
-	//		p->m_xmf4x4ToParent = parent;
-	//		cout << p->m_xmf4x4ToParent._41 << ", "
-	//			<< p->m_xmf4x4ToParent._42 << ", "
-	//			<< p->m_xmf4x4ToParent._43 << endl;
-	//	}
-	//}
 
 	if (pEvilBearModel)
 		delete pEvilBearModel;

@@ -54,19 +54,6 @@ D3D12_SHADER_BYTECODE CPlayerSkinnedShader::CreateVertexShader(int nPipelineStat
 	}
 }
 
-D3D12_SHADER_BYTECODE CPlayerSkinnedShader::CreatePixelShader(int nPipelineState)
-{
-	switch (nPipelineState)
-	{
-	case GameObject:
-		return(CStandardShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSStandard", "ps_5_1", &m_pd3dPixelShaderBlob));
-		break;
-	case GameObject_Shadow:
-		return(CStandardShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSShadow", "ps_5_1", &m_pd3dPixelShaderBlob));
-		break;
-	}
-}
-
 D3D12_INPUT_LAYOUT_DESC CPlayerSkinnedShader::CreateInputLayout()
 {
 	UINT nInputElementDescs = 7;

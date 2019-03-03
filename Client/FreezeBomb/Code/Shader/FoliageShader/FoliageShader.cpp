@@ -1,7 +1,8 @@
 #include "../../Stdafx/Stdafx.h"
+#include "FoliageShader.h"
+#include "../../GameObject/GameObject.h"
 #include "../../GameObject/Foliage/Foliage.h"
 #include "../../GameObject/Terrain/Terrain.h"
-#include "FoliageShader.h"
 
 CFoliageShader::CFoliageShader()
 {
@@ -10,7 +11,6 @@ CFoliageShader::CFoliageShader()
 
 CFoliageShader::~CFoliageShader()
 {
-
 	if (m_ppFoliageModel01)
 		delete m_ppFoliageModel01;
 	if (m_ppFoliageModel02)
@@ -51,24 +51,19 @@ float CFoliageShader::GetDistanceToCamera(CGameObject* pObject, CCamera *pCamera
 	XMFLOAT3 cameraPosition = pCamera->GetPosition();
 	XMFLOAT3 objectPosition = pObject->GetPosition();
 
-
 	dist = Vector3::Length(Vector3::Subtract(cameraPosition, objectPosition));
 
 	return dist;
 }
 
-void CFoliageShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
+void CFoliageShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
+	void *pContext = NULL)
 {
-
-
-
-	m_ppFoliageModel01 = CFoliageObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Grass_C_01.bin", this, false);
-	m_ppFoliageModel02 = CFoliageObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Grass_D_01.bin", this, false);
-	m_ppFoliageModel03 = CFoliageObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Plant_c_01.bin", this, false);
-
+	m_ppFoliageModel01 = CFoliageObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Grass_C_01.bin", this, false, "Surrounding");
+	m_ppFoliageModel02 = CFoliageObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Grass_D_01.bin", this, false, "Surrounding");
+	m_ppFoliageModel03 = CFoliageObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Plant_c_01.bin", this, false, "Surrounding");
 
 	CTerrain *pTerrain = (CTerrain *)pContext;
-
 
 	float fxPitch = 1.0f;
 	float fzPitch = 3.0f;
@@ -122,7 +117,6 @@ void CFoliageShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlaye
 	{
 		distance = GetDistanceToCamera(m_ppObjects[i], pCamera);
 
-
 		//lodlevel= (distance < 20.0f) ? CGameObject::LOD_LEVEL0 : CGameObject::LOD_LEVEL1;
 
 		if (distance < 30.0f)
@@ -148,20 +142,16 @@ void CFoliageShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlaye
 }
 
 
-void CFoliageShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CFoliageShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
-
-	CStandardShader::Render(pd3dCommandList, pCamera);
+	CStandardShader::Render(pd3dCommandList, pCamera, nPipelineState);
 	for (int j = 0; j < m_nObjects; j++)
 	{
-
 		if (m_ppObjects[j])
 		{
 			m_ppObjects[j]->Animate(m_fElapsedTime);
 			m_ppObjects[j]->UpdateTransform(NULL);
-			m_ppObjects[j]->Render(pd3dCommandList, m_ppObjects[j]->GetLodLevel(), pCamera);
-
+			m_ppObjects[j]->Render(pd3dCommandList, m_ppObjects[j]->GetLodLevel(), pCamera, nPipelineState);
 		}
-
 	}
 }

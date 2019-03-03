@@ -74,7 +74,6 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 
 	BuildObjects();
 
-
 	CreateOffScreenRenderTargetViews();
 
 	return(true);
@@ -194,10 +193,6 @@ void CGameFramework::CreateDirect3DDevice()
 	// IncrementSize를 컴퓨터에 맞게 설정해줌
 	::gnCbvSrvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
-
-
-
-
 
 void CGameFramework::CreateCommandQueueAndList()
 {
@@ -384,9 +379,7 @@ void CGameFramework::CreateDirect11DeviceOn12()
 		return;
 	}
 
-
 }
-
 
 void CGameFramework::CreateOffScreenRenderTargetViews()
 {
@@ -573,7 +566,7 @@ void CGameFramework::OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM w
 		case 'B':
 			if (m_pMapToolShader)
 			{
-				m_pMapToolShader->MakeMapBinaryFile(string("MapVer1"));
+				m_pMapToolShader->MakeMapBinaryFile(string("../Resource/Position/Surrounding/MapVer1"));
 			}
 			break;
 		default:
@@ -662,7 +655,6 @@ void CGameFramework::BuildObjects()
 
 	if (m_pScene->getShaderManager())
 	{
-
 		map<string, CShader*> m = m_pScene->getShaderManager()->getShaderMap();
 		auto iter = m.find("Terrain");
 		if(iter != m.end())
@@ -797,7 +789,6 @@ void CGameFramework::AnimateObjects()
 	if (m_pScene) 
 		m_pScene->AnimateObjects(fTimeElapsed);
 
-	
 	m_pPlayer->Animate(fTimeElapsed);
 	m_pPlayer->UpdateTransform(NULL);
 
@@ -889,12 +880,8 @@ void CGameFramework::FrameAdvance()
 		}
 	}
 	
-
-
-
 	::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
-	
 	//////////////////////////////////////////////////////////////////////////////////
 	//D2D1_SIZE_F renderTargetSize = m_pRenderTarget->GetSize();
 

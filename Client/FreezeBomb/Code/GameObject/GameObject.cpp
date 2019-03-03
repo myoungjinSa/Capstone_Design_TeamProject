@@ -577,7 +577,8 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bHammer
 		{
 			if (m_ppMaterials[1])
 			{
-				if (m_ppMaterials[1]->m_pShader) m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+				if (m_ppMaterials[1]->m_pShader) 
+					m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
 				m_ppMaterials[1]->UpdateShaderVariables(pd3dCommandList);
 			}
 		}
@@ -611,8 +612,10 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bHammer
 
 	if (!strcmp(this->m_pstrFrameName, "Lamp"))		//불꽅 파티클은 일반 GameObject Render하는 방식을 해야한다. 
 	{
-		if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera, nPipelineState);
-		if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera, nPipelineState);
+		if (m_pSibling) 
+			m_pSibling->Render(pd3dCommandList, pCamera, nPipelineState);
+		if (m_pChild) 
+			m_pChild->Render(pd3dCommandList, pCamera, nPipelineState);
 	}
 	else
 	{
@@ -663,7 +666,8 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lodLev
 			{
 				if (m_ppMaterials[i])
 				{
-					if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+					if (m_ppMaterials[i]->m_pShader) 
+						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
 					m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
 				}
 

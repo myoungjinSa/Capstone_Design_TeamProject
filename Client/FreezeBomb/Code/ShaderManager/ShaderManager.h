@@ -4,7 +4,6 @@ class CShader;
 class CPlayer;
 class CCamera;
 class CResourceManager;
-
 class CTextureManager;
 
 class CShaderManager

@@ -149,8 +149,6 @@ void CSobelCartoonShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsC
 	m_nTexture = 1;
 	m_pTexture = new CTexture*[m_nTexture];
 
-	
-
 	m_pTexture[0] = (CTexture *)pContext;
 
 	//auto iter = Context.find("CartoonRenderTarget1");

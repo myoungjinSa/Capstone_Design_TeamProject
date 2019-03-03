@@ -38,7 +38,6 @@ void CResourceManager::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 
 void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-
 	//CreateOffScreenRenderTargeViews(pd3dDevice,pd3dCommandList,clientWidth,clientHeight); //OffScreen RenderTarget »ý¼º
 
 	CTexture* pSkyBoxTexture = new CTexture(1, RESOURCE_TEXTURE_CUBE, 0);
@@ -54,6 +53,11 @@ void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainSpecularTexture, 14, false);
 	m_TextureMap.emplace("BaseTerrain", pTerrainBaseTexture);
 	m_TextureMap.emplace("SpecularTerrain", pTerrainSpecularTexture);
+
+	CTexture* pSnowTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pSnowTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Effect/Snow.dds", 0);
+	CScene::CreateShaderResourceViews(pd3dDevice, pSnowTexture, 16, false);
+	m_TextureMap.emplace("Snow", pSnowTexture);
 
 	CTexture* pNumber0Texture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pNumber0Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Number/Blue_0.dds", 0);
@@ -123,14 +127,10 @@ void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	CScene::CreateShaderResourceViews(pd3dDevice, pGoldTimer_ItemTexture, 17, false);
 	m_TextureMap.emplace("GoldTimer_Item", pGoldTimer_ItemTexture);
 
-
 	CTexture* pIceCubeTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pIceCubeTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Model/texture2.dds", 0);
 	CScene::CreateShaderResourceViews(pd3dDevice, pIceCubeTexture, 20, false);
 	m_TextureMap.emplace("IceTexture", pIceCubeTexture);
-
-
-
 }
 
 #define SIZE 22
@@ -177,8 +177,6 @@ void CResourceManager::LoadBound(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	}
 	in.close();
 }
-
-
 
 void CResourceManager::Release()
 {

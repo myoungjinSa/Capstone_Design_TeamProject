@@ -16,7 +16,6 @@ CItemShader::~CItemShader()
 void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
 	const map<string, Bounds*>& Context, void* pContext)
 {
-
 	CLoadedModelInfo* pHammer = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 
 		"../Resource/Models/Hammer.bin", nullptr, false, "Hammer");
 
@@ -58,8 +57,6 @@ void CItemShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer* 
 void CItemShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
 	CStandardShader::Render(pd3dCommandList, pCamera, nPipelineState);
-	//CStandardShader::Render(pd3dCommandList, pCamera, GameObject_Shadow);
-	//CStandardShader::Render(pd3dCommandList, pCamera, nPipelineState);
 
 	for (auto iter = m_ItemMap.begin(); iter != m_ItemMap.end(); ++iter)
 	{
