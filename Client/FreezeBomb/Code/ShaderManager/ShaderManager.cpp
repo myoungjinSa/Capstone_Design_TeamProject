@@ -34,7 +34,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_pResourceManager = new CResourceManager;
 	m_pResourceManager->Initialize(pd3dDevice, pd3dCommandList);
 
-	m_nShaders = 5;
+	m_nShaders = 7;
 	//맵툴 모드일때는 맵의 오브젝트들을 그리지 않게 하기 위해 
 	// 그래야 맵툴모드에서 적용해서 배치한 오브젝트들만 볼 수 있다.
 #ifdef _MAPTOOL_MODE_
@@ -79,17 +79,17 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	//m_ppShaders[index++] = pIceParticleShader;
 	//m_ShaderMap.emplace("IceParticle", pIceParticleShader);
 
-	//CItemShader* pItemShader = new CItemShader;
+	CItemShader* pItemShader = new CItemShader;
 	//pItemShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//pItemShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
-	//m_ppShaders[index++] = pItemShader;
-	//m_ShaderMap.emplace("Item", pItemShader);
+	pItemShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
+	m_ppShaders[index++] = pItemShader;
+	m_ShaderMap.emplace("Item", pItemShader);
 
-	//CShadowShader* pShadowShader = new CShadowShader;
-	//pShadowShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//pShadowShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), pTerrainShader->getTerrain());
-	//m_ppShaders[index++] = pShadowShader;
-	//m_ShaderMap.emplace("Shadow", pShadowShader);
+	CShadowShader* pShadowShader = new CShadowShader;
+	pShadowShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pShadowShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), pTerrainShader->getTerrain());
+	m_ppShaders[index++] = pShadowShader;
+	m_ShaderMap.emplace("Shadow", pShadowShader);
 
 #ifdef _MAPTOOL_MODE_
 	CMapObjectsShader *pMapShader = new CMapObjectsShader;
@@ -178,7 +178,7 @@ void CShaderManager::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 		if (m_ppShaders[i])
 		{
 			//if (dynamic_cast<CTerrainShader*>(m_ppShaders[i]) == nullptr)
-				m_ppShaders[i]->Render(pd3dCommandList, pCamera);
+				m_ppShaders[i]->Render(pd3dCommandList, pCamera, GameObject);
 		}
 	}
 }

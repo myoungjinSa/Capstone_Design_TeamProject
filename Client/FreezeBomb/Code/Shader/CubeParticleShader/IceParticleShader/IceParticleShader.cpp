@@ -83,13 +83,13 @@ void CCubeIceShader::ReleaseObjects()
 	m_vIceCube.clear();
 }
 
-void CCubeIceShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CCubeIceShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
-	CShader::Render(pd3dCommandList, pCamera);
+	CShader::Render(pd3dCommandList, pCamera, nPipelineState);
 
 	
 	for (auto iter = m_vIceCube.begin(); iter != m_vIceCube.end(); ++iter)
 	{
-		(*iter)->Render(pd3dCommandList, pCamera);
+		(*iter)->Render(pd3dCommandList, pCamera, nPipelineState);
 	}
 }

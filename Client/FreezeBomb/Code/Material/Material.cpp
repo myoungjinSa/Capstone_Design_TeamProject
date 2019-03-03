@@ -3,6 +3,8 @@
 #include "../Texture/Texture.h"
 #include "../Shader/StandardShader/StandardShader.h"
 #include "../Shader/StandardShader/SkinnedAnimationObjectsShader/SkinnedAnimationObjectsShader.h"
+#include "../Shader/StandardShader/PlayerSkinnedShader/PlayerSkinnedShader.h"
+
 #include "../Scene/Scene.h"
 
 CMaterial::CMaterial()
@@ -41,7 +43,7 @@ CMaterial::~CMaterial()
 	}
 }
 
-void CMaterial::SetShader(CShader *pShader)
+void CMaterial::SetShader(CShader* pShader)
 {
 	if (m_pShader) m_pShader->Release();
 	m_pShader = pShader;
@@ -190,5 +192,19 @@ void CMaterial::LoadTextureFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsComm
 				if (*ppTexture) (*ppTexture)->AddRef();
 			}
 		}
+	}
+}
+
+void CMaterial::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int type, CShader* p)
+{
+	if (type == Standard)
+	{
+		m_pPlayerStandardShader = new CStandardShader;
+		m_pPlayerStandardShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+	else
+	{
+		m_pPlayerSkinnedAnimationShader = new CPlayerSkinnedShader;
+		m_pPlayerSkinnedAnimationShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 }

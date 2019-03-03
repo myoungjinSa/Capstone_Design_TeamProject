@@ -18,7 +18,7 @@ public:
 		const map<string, CTexture*>& Context, void* pContext);
 	virtual void ReleaseObjects();
 	virtual void ReleaseUploadBuffers();
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState);
 
 	CTerrain* getTerrain()	const { return m_pTerrain; }
 private:

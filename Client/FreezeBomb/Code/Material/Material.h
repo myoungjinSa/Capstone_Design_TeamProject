@@ -81,11 +81,23 @@ public:
 
 	static void PrepareShaders(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
 
-	void SetStandardShader() { CMaterial::SetShader(m_pStandardShader); }
+	void SetStandardShader()	{ CMaterial::SetShader(m_pStandardShader); }
 	void SetSkinnedAnimationShader() { CMaterial::SetShader(m_pSkinnedAnimationShader); }
 
+	void setPlayerStandardShader() { CMaterial::SetShader(m_pPlayerStandardShader); }
+	CShader* getPlayerStandardShader() const { return m_pPlayerStandardShader; }
+	void setPlayerSkinnedAnimationShader() { CMaterial::SetShader(m_pPlayerSkinnedAnimationShader); }
+	CShader* getPlayerSkinnedAnimationShader()	const { return m_pPlayerSkinnedAnimationShader; }
+
+	void Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int type, CShader* p);
+	enum SHADER_TYPE{Standard, Skinned};
 private:
 	// »ó¼ö¹öÆÛºä
 	ID3D12Resource*			m_pd3dcbMaterial { nullptr };
 	CB_MATERIAL_INFO*	m_pcbMappedMaterial { nullptr };
+
+	CShader* m_pPlayerStandardShader{ nullptr };
+	CShader* m_pPlayerSkinnedAnimationShader{ nullptr };
+
+	// ¼ÎÀÌ´õ »èÁ¦ÇØ¾ß´ï!
 };

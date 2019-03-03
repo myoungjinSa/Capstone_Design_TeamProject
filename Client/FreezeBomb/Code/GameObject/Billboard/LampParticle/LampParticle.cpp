@@ -52,12 +52,12 @@ void CLampParticle::Animate(float elapsedTime)
 	}
 }
 
-void CLampParticle::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+void CLampParticle::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)
 {
 	XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
 	SetLookAt(xmf3CameraPosition);
 
-	CGameObject::Render(pd3dCommandList, pCamera);
+	CGameObject::Render(pd3dCommandList, pCamera, nPipelineState);
 }
 
 void CLampParticle::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)

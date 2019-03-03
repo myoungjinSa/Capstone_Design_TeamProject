@@ -11,7 +11,7 @@ CUI::~CUI()
 {
 }
 
-void CUI::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CUI::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
 	if (m_pMesh)
 	{
@@ -22,7 +22,7 @@ void CUI::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 				if (m_ppMaterials[i])
 				{
 					if (m_ppMaterials[i]->m_pShader)
-						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
 
 					m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
 				}

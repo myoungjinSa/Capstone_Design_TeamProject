@@ -76,7 +76,7 @@ void CIceCube::Animate(float fTimeElapsed)
 
 }
 
-void CIceCube::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CIceCube::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
 	if (m_bBlowingUp)
 	{
@@ -98,7 +98,7 @@ void CIceCube::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCame
 						{
 							if (m_ppMaterials[i]->m_pShader)
 							{
-								m_ppMaterials[i]->m_pShader->Render(pd3dCommandList,pCamera);
+								m_ppMaterials[i]->m_pShader->Render(pd3dCommandList,pCamera, nPipelineState);
 								//m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
 							}
 							m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);

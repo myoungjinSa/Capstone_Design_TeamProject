@@ -11,6 +11,7 @@
 #include "../../Camera/Camera.h"
 
 class CItem;
+class CShadow;
 class CPlayer : public CGameObject
 {
 public:
@@ -63,7 +64,7 @@ public:
 
 	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed) { return nullptr; }
 	virtual void OnPrepareRender();
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = nullptr);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState);
 
 	enum ITEM_TYPE {Normal, Special};
 	CItem* getItem()	const { return m_pItem; }
@@ -75,6 +76,7 @@ public:
 
 	DWORD				m_dwDirection = 0x00;
 
+	CShadow*	getShadow()		const { return m_pShadow; }
 
 protected:
 	XMFLOAT3			m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -104,6 +106,8 @@ protected:
 
 	map<string, CItem*> m_Normal_Inventory;
 	map<string, CItem*> m_Special_Inventory;
+
+	CShadow*	m_pShadow{ nullptr };
 };
 
 class CTerrainPlayer : public CPlayer
@@ -119,8 +123,6 @@ public:
 	virtual void OnCameraUpdateCallback(float fTimeElapsed);
 
 	void RotateAxisY(float fTimeElapsed);
-
-
 };
 
 class CSoundCallbackHandler : public CAnimationCallbackHandler

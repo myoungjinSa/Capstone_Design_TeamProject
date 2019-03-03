@@ -2,7 +2,7 @@
 #include "GameFramework.h"
 #include "../Scene/Scene.h"
 #include "../GameObject/Player/Player.h"
-#include "../Shader/PlayerShadowShader/PlayerShadowShader.h"
+#include "../GameObject/Shadow/Shadow.h"
 
 #include "../ShaderManager/ShaderManager.h"
 #include "../Shader/TerrainShader/TerrainShader.h"
@@ -577,19 +577,14 @@ void CGameFramework::BuildObjects()
 		if(iter != m.end())
 		{
 			CTerrain* pTerrain = dynamic_cast<CTerrainShader*>((*iter).second)->getTerrain();
-			pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),CGameObject::MATERIALTYPE::PANDA,pTerrain);
+			pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),CGameObject::MATERIALTYPE::PANDA,pTerrain);		
 			pPlayer->SetPosition(XMFLOAT3(0.f, pTerrain->GetHeight(0.f, 0.f), 0.f));
-			
 			pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));	
+
 			map<string, Bounds*> BoundMap = m_pScene->getShaderManager()->getResourceManager()->getBoundMap();
 			auto iter2 = BoundMap.find(pPlayer->getID());
 			if (iter2 != BoundMap.end())
 				pPlayer->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
-
-			m_pPlayerShadowShader = new CPlayerShadowShader;
-			m_pPlayerShadowShader->CreateShader(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
-			m_pPlayerShadowShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),
-				m_pScene->getShaderManager()->getResourceManager()->getTextureMap(), pPlayer);
 
 #ifdef _MAPTOOL_MODE_
 			m_pMapToolShader = new CMapToolShader();
@@ -613,8 +608,6 @@ void CGameFramework::BuildObjects()
 		m_pScene->ReleaseUploadBuffers();
 	if (m_pPlayer) 
 		m_pPlayer->ReleaseUploadBuffers();
-	if (m_pPlayerShadowShader)
-		m_pPlayerShadowShader->ReleaseUploadBuffers();
 
 	m_GameTimer.Reset();
 }
@@ -643,12 +636,6 @@ void CGameFramework::ReleaseObjects()
 		m_pCartoonShader->ReleaseShaderVariables();
 		m_pCartoonShader->ReleaseObjects();
 		delete m_pCartoonShader;
-	}
-
-	if (m_pPlayerShadowShader)
-	{
-		m_pPlayerShadowShader->ReleaseObjects();
-		delete m_pPlayerShadowShader;
 	}
 }
 
@@ -796,12 +783,8 @@ void CGameFramework::FrameAdvance()
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 #endif
 
-	if (m_pPlayerShadowShader)
-	{
-		m_pPlayerShadowShader->Render(m_pd3dCommandList, m_pCamera, m_pPlayer);
-	}
 	if (m_pPlayer)
-		m_pPlayer->Render(m_pd3dCommandList, m_pCamera);
+		m_pPlayer->Render(m_pd3dCommandList, m_pCamera, GameObject);
 
 	if (m_pCartoonShader)
 	{

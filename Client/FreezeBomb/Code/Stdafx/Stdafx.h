@@ -51,6 +51,8 @@ extern HINSTANCE						ghAppInstance;
 #define FRAME_BUFFER_WIDTH		800
 #define FRAME_BUFFER_HEIGHT		600
 
+enum PIPELINESTATE_TYPE { GameObject, GameObject_Shadow };
+
 //¸ÊÅø ¸ðµå
 //#define _MAPTOOL_MODE_
 

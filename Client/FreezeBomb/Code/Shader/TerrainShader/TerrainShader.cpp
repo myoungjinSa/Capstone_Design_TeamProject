@@ -75,9 +75,9 @@ void CTerrainShader::ReleaseUploadBuffers()
 		m_pTerrain->ReleaseUploadBuffers();
 }
 
-void CTerrainShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CTerrainShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
-	CShader::Render(pd3dCommandList, pCamera);
+	CShader::Render(pd3dCommandList, pCamera, nPipelineState);
 
 	if (m_pTerrain)
 		m_pTerrain->Render(pd3dCommandList, pCamera);

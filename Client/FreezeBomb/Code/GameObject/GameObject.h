@@ -283,8 +283,8 @@ public:
 	virtual void Animate(float fTimeElapsed);
 
 	virtual void OnPrepareRender() { }
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bIce, int matID, CCamera *pCamera = NULL);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL, int nPipelineState = GameObject);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bIce, int matID, CCamera* pCamera, int nPipelineState = GameObject);
 
 	virtual void ReleaseShaderVariables();
 
@@ -340,18 +340,17 @@ public:
 
 	void FindAndSetSkinnedMesh(int *pnSkinMesh, CSkinningBoneTransforms *pSkinningBoneTransforms);
 
-	void LoadMaterialsFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CGameObject *pParent, FILE *pInFile, CShader *pShader);
+	void LoadMaterialsFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, 
+		CGameObject *pParent, FILE *pInFile, CShader *pShader, string type);
 
 	static CAnimationSets *LoadAnimationFromFile(FILE *pInFile, CGameObject *pRootFrame);
 	static CGameObject *LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
-		CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes, int* pnFrameMeshes);
+		CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes, string type);
 
-	static CLoadedModelInfo* LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char *pstrFileName, CShader *pShader, bool bHasAnimation);
+	static CLoadedModelInfo* LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
+		char *pstrFileName, CShader *pShader, bool bHasAnimation, string type);
 
 	static void PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent);
-
-	void WorldUpdate(XMFLOAT4X4& world);
-
 protected:
 	CLampParticle*				m_pLampParticle{ nullptr };	
 
@@ -363,6 +362,7 @@ protected:
 
 	BoundingOrientedBox	m_xmOOBB;
 	BoundingOrientedBox	m_xmOOBBTransformed;
+
 public:
 
 	void setID(const string id) { m_ID = id; }

@@ -227,8 +227,12 @@ D3D12_DEPTH_STENCIL_DESC CShadowShader::CreateDepthStencilState(int Type)
 	return(d3dDepthStencilDesc);
 }
 
-void CShadowShader::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4* pShadowWorld)
+void CShadowShader::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList, XMMATRIX pShadowWorld)
 {
+	XMFLOAT4X4 ShadowWorld;
+	//XMStoreFloat4x4(&ShadowWorld, XMMatrixTranspose(XMLoadFloat4x4(pShadowWorld)));
+	XMStoreFloat4x4(&ShadowWorld, XMMatrixTranspose(pShadowWorld));
+	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 16, &ShadowWorld, 0);
 }
 
 void CShadowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
@@ -270,7 +274,7 @@ void CShadowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 
 #else
 	CLoadedModelInfo* pDeer01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 
-		"../Resource/Models/SM_Deer3.bin", this, false);
+		"../Resource/Models/SM_Deer3.bin", this, false, "Surrounding");
 
 	for (int i = 0; i < m_nObjects; ++i)
 	{
@@ -288,6 +292,7 @@ void CShadowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 		CSurrounding* pShadow = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		Position = XMFLOAT3(m_ppObjects[i]->GetPosition());
 		pShadow->SetPosition(Position);
+		pShadow->SetScale(10, 10, 10);
 		pShadow->SetChild(pDeer01->m_pModelRootObject, true);
 		m_ShadowObjectVector.emplace_back(pShadow);
 	}
@@ -304,13 +309,13 @@ void CShadowShader::OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, 
 		pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[nPipelineState]);
 }
 
-void CShadowShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CShadowShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
 	int i = 0;
 	for (auto iter = m_ShadowObjectVector.begin(); iter != m_ShadowObjectVector.end(); ++iter)
 	{
 		CShadowShader::OnPrepareRender(pd3dCommandList, Shadow);
-		(*iter)->WorldUpdate(UpdateShadow(i++));
+		(*iter)->UpdateTransform(nullptr);
 		(*iter)->Render(pd3dCommandList, pCamera);
 	}
 
@@ -385,4 +390,18 @@ XMFLOAT4X4 CShadowShader::UpdateShadow(int index)
 	
 	//cout << ShadowWorld._41 << ", " << ShadowWorld._42 << ", " << ShadowWorld._43 << endl;
 	return ShadowWorld;
+}
+
+XMMATRIX CShadowShader::UpdateXMShadow(int index)
+{
+	XMFLOAT4 xmf4Light(0.57735f, -0.57735f, 0.57735f, 0);
+	// Plane의 w 벡터가 그림자의 y에 영향을 준다.
+	XMFLOAT4 xmf4Plane(0.f, 1.f, 0.f, 0.f);
+	//XMFLOAT4 xmf4Plane(0.f, 1.f, 0.f, 0.f);
+
+	// 그림자 행렬 생성
+	//XMMATRIX xmmtxPlane = XMMatrixShadow(XMLoadFloat4(&xmf4Plane), XMLoadFloat4(&xmf4Light));
+	XMMATRIX xmmtxPlane = XMMatrixShadow(XMLoadFloat4(&xmf4Plane), -XMLoadFloat4(&xmf4Light));
+
+	return xmmtxPlane;
 }

@@ -4,6 +4,7 @@
 #include "../../Material/Material.h"
 #include "../../Shader/Shader.h"
 #include "../Item/Item.h"
+#include "../Shadow/Shadow.h"
 
 CPlayer::CPlayer()
 {
@@ -257,62 +258,16 @@ void CPlayer::OnPrepareRender()
 	UpdateTransform(NULL);
 }
 
-void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
 
 	if (nCameraMode == THIRD_PERSON_CAMERA)
 	{
-		CGameObject::Render(pd3dCommandList,m_bIce,m_matID,pCamera);		//ÀçÁúº°·Î ·»´õ 
-		//CGameObject::Render(pd3dCommandList,pCamera);			//·»´õ
+		if (m_pShadow)
+			m_pShadow->Render(pd3dCommandList, pCamera, GameObject_Shadow);
 
-		//OnPrepareRender();
-
-		//if (m_pSkinningBoneTransforms)
-		//	m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
-
-		//if (m_pMesh)
-		//{
-		//	if (!m_pSkinningBoneTransforms)
-		//		UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
-
-		//	if (m_nMaterials > 0)
-		//	{
-		//		for (int i = 0; i < m_nMaterials; i++)
-		//		{
-		//			if (m_ppMaterials[i])
-		//			{
-		//				if (m_ppMaterials[i]->m_pShader)
-		//					m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
-
-		//				m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
-		//			}
-		//			m_pMesh->Render(pd3dCommandList, i);
-		//		}
-		//	}
-		//}
-
-
-		//if (m_pSibling)
-		//{
-		//	if (strcmp(this->m_pstrFrameName, "black - handbomb") != 0)
-		//		((CPlayer*)m_pSibling)->CPlayer::Render(pd3dCommandList, pCamera);
-		//	else
-		//	{
-		//		//if (carryBomb)
-		//		//	((CPlayer*)m_pSibling)->CPlayer::Render(pd3dCommandList, pCamera);
-		//	}
-		//}
-		//if (m_pChild)
-		//{
-		//	if (strcmp(this->m_pstrFrameName, "black - handbomb") != 0)
-		//		((CPlayer*)m_pChild)->CPlayer::Render(pd3dCommandList, pCamera);
-		//	else
-		//	{
-		//		//if (carryBomb)
-		//		//	((CPlayer*)m_pChild)->CPlayer::Render(pd3dCommandList, pCamera);
-		//	}
-		//}
+		CGameObject::Render(pd3dCommandList, m_bIce,m_matID, pCamera, GameObject);		//ÀçÁúº°·Î ·»´õ
 	}
 }
 
@@ -408,7 +363,7 @@ void CPlayer::DecideAnimationState(float fLength)
 CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID ,void *pContext)
 {
 	CLoadedModelInfo* pEvilBearModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
-		"../Resource/Models/EvilBear.bin", NULL, true);
+		"../Resource/Models/EvilBear.bin", NULL, true, "Player");
 
 	SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);
@@ -442,10 +397,32 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 	m_ID = "<EvilBear>";
 
+	m_pShadow = new CShadow(pEvilBearModel, this);
+
+	//CGameObject* p = FindFrame("MiddleFinger4_R");
+	//if (p != nullptr)
+	//{
+	//	XMFLOAT4X4 parent = p->m_xmf4x4ToParent;
+	//	cout << p->m_xmf4x4ToParent._41 << ", "
+	//		<< p->m_xmf4x4ToParent._42 << ", "
+	//		<< p->m_xmf4x4ToParent._43 << endl;
+
+	//	p = FindFrame("hammer");
+	//	if (p != nullptr)
+	//	{
+	//		cout << p->m_xmf4x4ToParent._41 << ", "
+	//			<< p->m_xmf4x4ToParent._42 << ", "
+	//			<< p->m_xmf4x4ToParent._43 << endl;
+
+	//		p->m_xmf4x4ToParent = parent;
+	//		cout << p->m_xmf4x4ToParent._41 << ", "
+	//			<< p->m_xmf4x4ToParent._42 << ", "
+	//			<< p->m_xmf4x4ToParent._43 << endl;
+	//	}
+	//}
+
 	if (pEvilBearModel)
 		delete pEvilBearModel;
-
-
 }
 
 CTerrainPlayer::~CTerrainPlayer()

@@ -142,27 +142,27 @@ void CTimerUIShader::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer
 		m_Timer -= elapsedTime;
 }
 
-void CTimerUIShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+void CTimerUIShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)
 {
 	CUIShader::OnPrepareRender(pd3dCommandList, OneSec);
 	auto iter = m_OneSecUIMap.find(m_Sec);
 	if (iter != m_OneSecUIMap.end())
-		(*iter).second->Render(pd3dCommandList, pCamera);
+		(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
 
 	CUIShader::OnPrepareRender(pd3dCommandList, TenSec);
 	iter = m_TenSecUIMap.find(m_TenSec);
 	if (iter != m_TenSecUIMap.end())
-		(*iter).second->Render(pd3dCommandList, pCamera);
+		(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
 
 	CUIShader::OnPrepareRender(pd3dCommandList, OneMin);
 	iter = m_OneMinUIMap.find(m_Min);
 	if (iter != m_OneMinUIMap.end())
-		(*iter).second->Render(pd3dCommandList, pCamera);
+		(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
 
 	CUIShader::OnPrepareRender(pd3dCommandList, Colon);
 	iter = m_UIMap.find(Colon);
 	if (iter != m_UIMap.end())
-		(*iter).second->Render(pd3dCommandList, pCamera);
+		(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
 }
 
 void CTimerUIShader::ReleaseObjects()

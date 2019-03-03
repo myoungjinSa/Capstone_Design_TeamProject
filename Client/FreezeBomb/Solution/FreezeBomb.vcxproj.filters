@@ -156,8 +156,11 @@
     <ClCompile Include="..\Code\Shader\PostProcessShader\CartoonShader\SobelCartoonShader.cpp">
       <Filter>Code\Shader\ComputeShader\SobelCartoonShader</Filter>
     </ClCompile>
-    <ClCompile Include="..\Code\Shader\PlayerShadowShader\PlayerShadowShader.cpp">
-      <Filter>Code\Shader\PlayerShadowShader</Filter>
+    <ClCompile Include="..\Code\Shader\StandardShader\PlayerSkinnedShader\PlayerSkinnedShader.cpp">
+      <Filter>Code\Shader\StandardShader\PlayerSkinnedShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Shadow\Shadow.cpp">
+      <Filter>Code\GameObject\Shadow</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -305,8 +308,11 @@
     <ClInclude Include="..\Code\Shader\PostProcessShader\CartoonShader\SobelCartoonShader.h">
       <Filter>Code\Shader\ComputeShader\SobelCartoonShader</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\Shader\PlayerShadowShader\PlayerShadowShader.h">
-      <Filter>Code\Shader\PlayerShadowShader</Filter>
+    <ClInclude Include="..\Code\Shader\StandardShader\PlayerSkinnedShader\PlayerSkinnedShader.h">
+      <Filter>Code\Shader\StandardShader\PlayerSkinnedShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Shadow\Shadow.h">
+      <Filter>Code\GameObject\Shadow</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -468,8 +474,11 @@
     <Filter Include="Code\Shader\ComputeShader\SobelCartoonShader">
       <UniqueIdentifier>{203a2fe4-ad37-41ff-8cd0-1bdfc5546cc7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Shader\PlayerShadowShader">
-      <UniqueIdentifier>{5de9102d-0783-464e-979e-5234e0827047}</UniqueIdentifier>
+    <Filter Include="Code\Shader\StandardShader\PlayerSkinnedShader">
+      <UniqueIdentifier>{abf594bf-9a0e-46af-aef9-b9b86e3a28d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Shadow">
+      <UniqueIdentifier>{a5710e34-5a27-49c6-b1aa-182e574c7056}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

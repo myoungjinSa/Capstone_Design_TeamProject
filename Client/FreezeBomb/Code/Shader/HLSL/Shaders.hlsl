@@ -350,18 +350,26 @@ float4 PSIceCube(VS_ICE_CUBE_OUTPUT input) : SV_Target
 
 struct VS_SHADOW_INPUT
 {
-	float3 position : POSITION;
+	float3 position			: POSITION;
 };
 
 struct VS_SHADOW_OUTPUT
 {
-	float4 position	: SV_POSITION;
+	float4 position			: SV_POSITION;
+	float3 positionW		: POSITION;
+};
+
+cbuffer cbShadow : register(b9)
+{
+	matrix gmtxShadow : packoffset(c0);
 };
 
 VS_SHADOW_OUTPUT VSShadow(VS_SHADOW_INPUT input)
 {
 	VS_SHADOW_OUTPUT output;
-	output.position = mul(float4(input.position, 1.f), mul(mul(gmtxGameObject, gmtxView), gmtxProjection));
+	matrix ShadowWorld = mul(gmtxShadow, gmtxGameObject);
+	output.position = mul(mul(mul(float4(input.position, 1.0f), ShadowWorld), gmtxView), gmtxProjection);
+
 	return output;
 }
 
@@ -370,10 +378,12 @@ float4 PSShadow(VS_SHADOW_OUTPUT input) : SV_TARGET
 	return(float4(0.5f, 0.5f, 0.5f, 1.f));
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////
 
 struct VS_ANIMATION_SHADOW_INPUT
 {
 	float3 position : POSITION;
+
 	float2 uv : TEXCOORD;
 	float3 normal : NORMAL;
 	float3 tangent : TANGENT;
@@ -382,16 +392,9 @@ struct VS_ANIMATION_SHADOW_INPUT
 	float4 weights : BONEWEIGHT;
 };
 
-struct VS_ANIMATION_SHADOW_OUTPUT
+VS_SHADOW_OUTPUT VSAnimationShadow(VS_ANIMATION_SHADOW_INPUT input)
 {
-	float4 position			: SV_POSITION;
-	float3 positionW		: POSITION;
-};
-
-VS_ANIMATION_SHADOW_OUTPUT VSAnimationShadow(VS_ANIMATION_SHADOW_INPUT input)
-{
-	VS_ANIMATION_SHADOW_OUTPUT output;
-	//output.position = mul(float4(input.position, 1.f), mul(mul(gmtxGameObject, gmtxView), gmtxProjection));
+	VS_SHADOW_OUTPUT output;
 
 	output.positionW = float3(0.0f, 0.0f, 0.0f);
 
@@ -402,12 +405,8 @@ VS_ANIMATION_SHADOW_OUTPUT VSAnimationShadow(VS_ANIMATION_SHADOW_INPUT input)
 		output.positionW += input.weights[i] * mul(float4(input.position, 1.0f), mtxVertexToBoneWorld).xyz;
 	}
 
-	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+	// 그림자 행렬
+	output.position = mul(mul(mul(float4(output.positionW, 1.0f), gmtxShadow), gmtxView), gmtxProjection);
 
 	return output;
-}
-
-float4 PSAnimationShadow(VS_ANIMATION_SHADOW_OUTPUT input) : SV_TARGET
-{
-	return(float4(0.5f, 0.5f, 0.5f, 1.f));
 }
