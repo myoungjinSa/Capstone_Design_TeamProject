@@ -16,12 +16,14 @@
     <LocalDebuggerEnvironment>PATH=../Resource/FMod/dll/;%PATH% $(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
-    <LocalDebuggerCommand>C:\Users\이우상\Documents\Visual Studio 2017\Projects\4 - 2\Capstone_Design\Client\FreezeBomb\Excutable\FreezeBomb_x64_Debug.exe</LocalDebuggerCommand>
+    <LocalDebuggerCommand>
+    </LocalDebuggerCommand>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerEnvironment>PATH=../Resource/FMod/dll/;%PATH% $(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
-    <LocalDebuggerCommand>C:\Users\이우상\Documents\Visual Studio 2017\Projects\4 - 2\Capstone_Design\Client\FreezeBomb\Excutable\FreezeBomb_x64_Debug.exe</LocalDebuggerCommand>
+    <LocalDebuggerCommand>
+    </LocalDebuggerCommand>
   </PropertyGroup>
 </Project>

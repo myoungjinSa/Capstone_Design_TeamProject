@@ -19,7 +19,7 @@ CFoliageShader::~CFoliageShader()
 		delete m_ppFoliageModel03;
 }
 
-D3D12_SHADER_BYTECODE CFoliageShader::CreatePixelShader()
+D3D12_SHADER_BYTECODE CFoliageShader::CreatePixelShader(int nPipelineState)
 {
 	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSGrassStandard", "ps_5_1", &m_pd3dPixelShaderBlob));
 }
