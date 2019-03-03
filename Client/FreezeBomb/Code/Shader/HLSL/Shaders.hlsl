@@ -402,8 +402,14 @@ VS_SHADOW_OUTPUT VSShadow(VS_SHADOW_INPUT input)
 {
 	VS_SHADOW_OUTPUT output;
 	matrix ShadowWorld = mul(gmtxShadow, gmtxGameObject);
-	output.position = mul(mul(mul(float4(input.position, 1.0f), ShadowWorld), gmtxView), gmtxProjection);
+	// 모델좌표계에서 그림자행렬을 계산
+	//output.position = mul(mul(mul(float4(input.position, 1.0f), ShadowWorld), gmtxView), gmtxProjection);
 
+	// 모델좌표계의 점을 월드좌표계의 점으로 변환
+	output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject);
+	// 월드좌표계의 점을 그림자 행렬로 변환
+	output.position = mul(mul(mul(float4(output.positionW, 1.0f), gmtxShadow), gmtxView), gmtxProjection);
+	
 	return output;
 }
 
@@ -439,7 +445,7 @@ VS_SHADOW_OUTPUT VSAnimationShadow(VS_ANIMATION_SHADOW_INPUT input)
 		output.positionW += input.weights[i] * mul(float4(input.position, 1.0f), mtxVertexToBoneWorld).xyz;
 	}
 
-	// 그림자 행렬
+	// 월드좌표계의 점을 그림자 행렬로 변환
 	output.position = mul(mul(mul(float4(output.positionW, 1.0f), gmtxShadow), gmtxView), gmtxProjection);
 
 	return output;
