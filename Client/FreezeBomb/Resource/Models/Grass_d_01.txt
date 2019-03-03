@@ -1,6 +1,6 @@
 <Frame>: 0 0 Grass_d_01
-	<Transform>: 0 0 0 0 0 0 10 10 10 0 0 0 1  
-	<TransformMatrix>: 10 0 0 0 0 10 0 0 0 0 10 0 0 0 0 1  
+	<Transform>: 0 0 0 0 0 0 3 3 3 0 0 0 1  
+	<TransformMatrix>: 3 0 0 0 0 3 0 0 0 0 3 0 0 0 0 1  
 	<Children>: 2
 		<Frame>: 1 0 Grass_d_01_LOD0
 			<Transform>: 0 0 0 2.504479E-06 270 0 1 1 1 1.545431E-08 -0.7071068 1.545431E-08 0.7071068  

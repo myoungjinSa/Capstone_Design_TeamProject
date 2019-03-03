@@ -12,6 +12,7 @@
 #include "../Texture/Texture.h"
 #include "../Shader/PostProcessShader/CartoonShader/SobelCartoonShader.h"
 
+
 CGameFramework::CGameFramework()
 {
 	m_pdxgiFactory = NULL;
@@ -41,6 +42,8 @@ CGameFramework::CGameFramework()
 	m_pScene = NULL;
 	m_pPlayer = NULL;
 
+	
+
 	_tcscpy_s(m_pszFrameRate, _T("FreezeBomb ("));
 }
 
@@ -54,15 +57,23 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	m_hInstance = hInstance;
 	m_hWnd = hMainWnd;
 
+	
+
 	CreateDirect3DDevice();
 	CreateCommandQueueAndList();
 	CreateRtvAndDsvDescriptorHeaps();
 	CreateSwapChain();
+
+	//CreateDirect11DeviceOn12();
+	
 	CreateDepthStencilView();
 
 	CoInitialize(NULL);
 
+	//CreateDirectSound();
+
 	BuildObjects();
+
 
 	CreateOffScreenRenderTargetViews();
 
@@ -128,6 +139,7 @@ void CGameFramework::CreateSwapChain()
 #endif
 }
 
+
 void CGameFramework::CreateDirect3DDevice()
 {
 	HRESULT hResult;
@@ -183,6 +195,10 @@ void CGameFramework::CreateDirect3DDevice()
 	::gnCbvSrvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
+
+
+
+
 void CGameFramework::CreateCommandQueueAndList()
 {
 	HRESULT hResult;
@@ -215,6 +231,8 @@ void CGameFramework::CreateRtvAndDsvDescriptorHeaps()
 	hResult = m_pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void **)&m_pd3dDsvDescriptorHeap);
 	m_nDsvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 }
+
+
 
 void CGameFramework::CreateRenderTargetViews()
 {
@@ -295,6 +313,79 @@ void CGameFramework::ChangeSwapChainState()
 
 	CreateRenderTargetViews();
 }
+void CGameFramework::CreateDirect11DeviceOn12()
+{
+	HRESULT hResult;
+	UINT d3d11DeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;		//Note  Required for Direct2D interoperability with Direct3D resources.
+
+	UINT dxgiFactoryFlags = 0;
+	D2D1_FACTORY_OPTIONS d2dFactoryOptions = {};
+
+//#if defined(_DEBUG)
+//	// Enable the debug layer (requires the Graphics Tools "optional feature").
+//	// NOTE: Enabling the debug layer after device creation will invalidate the active device.
+//	{
+//		ComPtr<ID3D12Debug> debugController;
+//		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
+//		{
+//			debugController->EnableDebugLayer();
+//
+//			// Enable additional debug layers.
+//			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+//			d3d11DeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+//			d2dFactoryOptions.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
+//		}
+//	}
+//#endif
+//
+//#if defined(_DEBUG)
+//	// Filter a debug error coming from the 11on12 layer.
+//	ComPtr<ID3D12InfoQueue> infoQueue;
+//	if (SUCCEEDED(m_pd3dDevice->QueryInterface(IID_PPV_ARGS(&infoQueue))))
+//	{
+//		// Suppress whole categories of messages.
+//		//D3D12_MESSAGE_CATEGORY categories[] = {};
+//
+//		// Suppress messages based on their severity level.
+//		D3D12_MESSAGE_SEVERITY severities[] =
+//		{
+//			D3D12_MESSAGE_SEVERITY_INFO,
+//		};
+//
+//		// Suppress individual messages by their ID.
+//		D3D12_MESSAGE_ID denyIds[] =
+//		{
+//			// This occurs when there are uninitialized descriptors in a descriptor table, even when a
+//			// shader does not access the missing descriptors.
+//			D3D12_MESSAGE_ID_INVALID_DESCRIPTOR_HANDLE,
+//		};
+//
+//		D3D12_INFO_QUEUE_FILTER filter = {};
+//		//filter.DenyList.NumCategories = _countof(categories);
+//		//filter.DenyList.pCategoryList = categories;
+//		filter.DenyList.NumSeverities = _countof(severities);
+//		filter.DenyList.pSeverityList = severities;
+//		filter.DenyList.NumIDs = _countof(denyIds);
+//		filter.DenyList.pIDList = denyIds;
+//
+//		HRESULT hr;
+//		hr = infoQueue->PushStorageFilter(&filter);
+//		if (FAILED(hr))
+//		{
+//			return;
+//		}
+//	}
+//#endif
+
+	//ComPtr<ID3D11Device> d3d11Device;
+	hResult = D3D11On12CreateDevice(m_pd3dDevice, d3d11DeviceFlags, nullptr, 0, reinterpret_cast<IUnknown**>(m_pd3dCommandQueue), 1, 0, &m_d3d11Device, &m_d3d11DeviceContext, nullptr);
+	if (FAILED(hResult))
+	{
+		return;
+	}
+
+
+}
 
 
 void CGameFramework::CreateOffScreenRenderTargetViews()
@@ -309,7 +400,7 @@ void CGameFramework::CreateOffScreenRenderTargetViews()
 		m_ppd3dCartoonScreenRenderTargetBuffers[i]->AddRef();
 	}
 
-	// RtvCPU서술자 증가 크기가 스왑체인의 크기 배수로 증가하는 이유?
+	 //RtvCPU서술자 증가 크기가 스왑체인의 크기 배수로 증가하는 이유?
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBuffers * m_nRtvDescriptorIncrementSize);
 
@@ -625,6 +716,9 @@ void CGameFramework::ReleaseObjects()
 		delete m_pMapToolShader;
 	}
 #endif
+	
+	//ReleaseDirectSound();
+
 	if (m_pScene)
 	{
 		m_pScene->ReleaseObjects();
@@ -796,8 +890,24 @@ void CGameFramework::FrameAdvance()
 	}
 	
 
+
+
 	::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
+	
+	//////////////////////////////////////////////////////////////////////////////////
+	//D2D1_SIZE_F renderTargetSize = m_pRenderTarget->GetSize();
+
+	//m_pRenderTarget->BeginDraw();
+
+	//m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
+
+
+	//m_pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
+
+	//m_pRenderTarget->EndDraw();
+
+	////////////////////////////////////////////////////////////////////////////////
 
 	hResult = m_pd3dCommandList->Close();
 	

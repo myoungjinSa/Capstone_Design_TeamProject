@@ -7,6 +7,9 @@
 #include "../GameObject/Player/Player.h"
 #include "../GameObject/Item/Item.h"
 #include "../Shader/StandardShader/ItemShader/ItemShader.h"
+#include "../Sound/FmodSound.h"
+
+
 
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -21,7 +24,9 @@ D3D12_CPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvCPUDescriptorNextHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvGPUDescriptorNextHandle;
 
 CScene::CScene()
+	:m_musicCount(0)
 {
+	
 }
 
 CScene::~CScene()
@@ -105,8 +110,29 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	BuildDefaultLightsAndMaterials();
 
+
+
 	m_pShaderManager = new CShaderManager;
 	m_pShaderManager->Initialize(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+
+
+
+	//사운드 생성
+	m_pSound = new CSoundSystem();
+
+	m_musicCount = 1;
+	m_musicList = new const char*[m_musicCount];
+	
+	m_musicList[0] = "../Resource/Sound/SnowyVillage.wav";
+	//m_musicList[1] = "../Resource/Sound/town.wav";
+
+	//2개 동시에 재생도 가능하다
+	m_pSound->Initialize(m_musicCount,m_musicList);
+	m_pSound->Play(m_musicCount);
+
+
+	//PlaySound(_T("../Resource/Sound/town.wav"), GetModuleHandle(NULL), SND_MEMORY | SND_ASYNC | SND_LOOP);
+	//PlaySound(MAKEINTRESOURCE(IDR_WAVE3), ::ghAppInstance, SND_RESOURCE | SND_ASYNC | SND_LOOP);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
@@ -123,6 +149,11 @@ void CScene::ReleaseObjects()
 		m_pShaderManager->ReleaseObjects();
 
 	ReleaseShaderVariables();
+
+	if (m_pSound)
+	{
+		m_pSound->Release();
+	}
 
 	if (m_pLights)
 		delete[] m_pLights;

@@ -18,8 +18,29 @@ void CResourceManager::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	//LoadMap(pd3dDevice, pd3dCommandList,string("MapVer1"));
 }
 
+//void CResourceManager::CreateOffScreenRenderTargeViews(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList,int clientWidth,int clientHeight)
+//{
+//	CTexture *pTextureForCartoonProcessing = new CTexture(m_nCartoonScreenRenderTargetBuffers, RESOURCE_TEXTURE2D_ARRAY, 0);
+//
+//	D3D12_CLEAR_VALUE d3dClearValue = { DXGI_FORMAT_R8G8B8A8_UNORM, { 0.0f, 0.0f, 0.0f, 1.0f } };
+//
+//	for (UINT i = 0; i < m_nCartoonScreenRenderTargetBuffers; i++)
+//	{
+//		m_ppd3dCartoonScreenRenderTargetBuffers[i] = pTextureForCartoonProcessing->CreateTexture(pd3dDevice, pd3dCommandList, clientWidth, clientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, i);
+//		m_ppd3dCartoonScreenRenderTargetBuffers[i]->AddRef();
+//		m_TextureMap.emplace("CartoonRenderTarget" + to_string(i), pTextureForCartoonProcessing);
+//	}
+//
+//	//m_TextureMap.emplace("CartoonRenderTarget"+to_string(i),)
+//
+//
+//}
+
 void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
+
+	//CreateOffScreenRenderTargeViews(pd3dDevice,pd3dCommandList,clientWidth,clientHeight); //OffScreen RenderTarget 생성
+
 	CTexture* pSkyBoxTexture = new CTexture(1, RESOURCE_TEXTURE_CUBE, 0);
 	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/SkyBox/SkyBox_1.dds", 0);
 	CScene::CreateShaderResourceViews(pd3dDevice, pSkyBoxTexture, 10, false);
@@ -108,6 +129,8 @@ void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	CScene::CreateShaderResourceViews(pd3dDevice, pIceCubeTexture, 20, false);
 	m_TextureMap.emplace("IceTexture", pIceCubeTexture);
 
+
+
 }
 
 #define SIZE 22
@@ -156,115 +179,6 @@ void CResourceManager::LoadBound(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 }
 
 
-void CResourceManager::LoadMap(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,const string filename)
-{
-	//string filename = "MapVer1";
-
-	ifstream inf(filename+".bin", ios::binary);
-
-	if (!inf)
-	{
-		cout << filename+string("바이너리 파일 없음\n");
-		return;
-	}
-
-	cout << filename+string("로딩 성공\n");
-
-	size_t nReads = 0;
-	
-	int objCount = 0;
-	inf.read(reinterpret_cast<char*>(&objCount), sizeof(int));
-
-	cout << objCount << "\n";
-
-	for (UINT i = 0; i < objCount; i++)
-	{
-		inf.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-		
-		char* p = new char[nReads + 1];
-	
-		inf.read(p, sizeof(char)*nReads);
-		p[nReads] = '\0';
-		cout << p << "\n";
-		delete[] p;
-
-		///////////////////////////////////////////////////////////////////////
-		inf.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-
-		p = new char[nReads + 1];
-
-		inf.read(p, sizeof(char)*nReads);
-		p[nReads] = '\0';
-		cout << p << "\n";
-		delete[] p;
-		
-		float posX = 0.0f;
-		float posY = 0.0f;
-		float posZ = 0.0f;
-		inf.read(reinterpret_cast<char*>(&posX), sizeof(float));
-		inf.read(reinterpret_cast<char*>(&posY), sizeof(float));
-		inf.read(reinterpret_cast<char*>(&posZ), sizeof(float));
-
-		cout<<"위치: "<<posX<<","<<posY<<","<<posZ<<"\n";
-
-		////////////////////////////////////////////////////////////////////////
-		inf.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-
-		p = new char[nReads + 1];
-
-		inf.read(p, sizeof(char)*nReads);
-		p[nReads] = '\0';
-		cout << p << "\n";
-		delete[]p;
-
-
-		float lookX = 0.0f;
-		float lookY = 0.0f;
-		float lookZ = 0.0f;
-		inf.read(reinterpret_cast<char*>(&lookX), sizeof(float));
-		inf.read(reinterpret_cast<char*>(&lookY), sizeof(float));
-		inf.read(reinterpret_cast<char*>(&lookZ), sizeof(float));
-		cout << "Look방향: " << lookX << "," << lookY << "," << lookZ << "\n";
-		/////////////////////////////////////////////////////////////////////////////
-
-		inf.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-
-		p = new char[nReads + 1];
-
-		inf.read(p, sizeof(char) * nReads);
-		p[nReads] = '\0';
-		cout << p << "\n";
-		delete[]p;
-
-		float upX = 0.0f;
-		float upY = 0.0f;
-		float upZ = 0.0f;
-		inf.read(reinterpret_cast<char*>(&upX), sizeof(float));
-		inf.read(reinterpret_cast<char*>(&upY), sizeof(float));
-		inf.read(reinterpret_cast<char*>(&upZ), sizeof(float));
-		cout << "Up방향: " << upX << "," << upY << "," << upZ << "\n";
-		///////////////////////////////////////////////////////////////////////////////////////
-
-		inf.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-
-		p = new char[nReads + 1];
-
-		inf.read(p, sizeof(char) * nReads);
-		p[nReads] = '\0';
-		cout << p << "\n";
-		delete[]p;
-
-		float rightX = 0.0f;
-		float rightY = 0.0f;
-		float rightZ = 0.0f;
-		inf.read(reinterpret_cast<char*>(&rightX), sizeof(float));
-		inf.read(reinterpret_cast<char*>(&rightY), sizeof(float));
-		inf.read(reinterpret_cast<char*>(&rightZ), sizeof(float));
-		cout << "Right방향: " << rightX << "," << rightY << "," << rightZ << "\n";
-	}
-
-	inf.close();
-}
 
 void CResourceManager::Release()
 {

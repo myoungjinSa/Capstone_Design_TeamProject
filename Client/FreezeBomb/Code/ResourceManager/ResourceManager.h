@@ -18,8 +18,8 @@ public:
 	void Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void LoadBound(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-	void LoadMap(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,const string filename);
-
+	
+	//void CreateOffScreenRenderTargeViews(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList,int clientWidth,int clientHeight);
 
 	void Release();
 
@@ -27,6 +27,12 @@ public:
 	const map<string, Bounds*>& getBoundMap()	const { return m_BoundMap; }
 
 private:
+
+	//static const UINT				m_nCartoonScreenRenderTargetBuffers = 2;
+	//ID3D12Resource*					m_ppd3dCartoonScreenRenderTargetBuffers[m_nCartoonScreenRenderTargetBuffers];
+	//D3D12_CPU_DESCRIPTOR_HANDLE		m_pd3dCarttonScreenRenderTargetBufferCPUHandles[m_nCartoonScreenRenderTargetBuffers];
+
+
 	map<string, CTexture*> m_TextureMap;
 	map<string, Bounds*> m_BoundMap;
 };

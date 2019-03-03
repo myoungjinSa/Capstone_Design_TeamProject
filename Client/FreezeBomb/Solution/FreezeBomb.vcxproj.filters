@@ -162,6 +162,18 @@
     <ClCompile Include="..\Code\GameObject\Shadow\Shadow.cpp">
       <Filter>Code\GameObject\Shadow</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\Shader\FoliageShader\FoliageShader.cpp">
+      <Filter>Code\Shader\FoliageShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Foliage\Foliage.cpp">
+      <Filter>Code\GameObject\Foliage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Mesh\LODMesh\LodMesh.cpp">
+      <Filter>Code\Mesh\LODMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Sound\FmodSound.cpp">
+      <Filter>Code\Sound</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h">
@@ -313,6 +325,18 @@
     </ClInclude>
     <ClInclude Include="..\Code\GameObject\Shadow\Shadow.h">
       <Filter>Code\GameObject\Shadow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\FoliageShader\FoliageShader.h">
+      <Filter>Code\Shader\FoliageShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Foliage\Foliage.h">
+      <Filter>Code\GameObject\Foliage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Mesh\LODMesh\LodMesh.h">
+      <Filter>Code\Mesh\LODMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Sound\FmodSound.h">
+      <Filter>Code\Sound</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -480,10 +504,33 @@
     <Filter Include="Code\GameObject\Shadow">
       <UniqueIdentifier>{a5710e34-5a27-49c6-b1aa-182e574c7056}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Shader\FoliageShader">
+      <UniqueIdentifier>{4a082e72-24b2-4ae0-ace0-edb616d1687c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Foliage">
+      <UniqueIdentifier>{679fdff2-ec13-47eb-992b-fa8b0ec1f024}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Mesh\LODMesh">
+      <UniqueIdentifier>{d5587de3-cb58-45ba-b592-d50c4cb87e61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Sound">
+      <UniqueIdentifier>{3a384a93-008a-4242-beb2-47d2c30978eb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FreezeBomb.rc">
       <Filter>Code\Default\Resource</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="..\Resource\Sound\BtnDown01.wav">
+      <Filter>Code\Default</Filter>
+    </Media>
+    <Media Include="..\Resource\Sound\BtnDown03.wav">
+      <Filter>Code\Default</Filter>
+    </Media>
+    <Media Include="..\Resource\Sound\town.wav">
+      <Filter>Code\Default</Filter>
+    </Media>
   </ItemGroup>
 </Project>

@@ -29,13 +29,14 @@ struct LIGHT
 										
 struct LIGHTS							
 {										
-	LIGHT			m_pLights[MAX_LIGHTS];
-	XMFLOAT4	m_xmf4GlobalAmbient;
+	LIGHT				m_pLights[MAX_LIGHTS];
+	XMFLOAT4			m_xmf4GlobalAmbient;
 	int					m_nLights;
 };
 
 class CPlayer;
 class CShaderManager;
+class CSoundSystem;
 class CScene
 {
 public:
@@ -108,6 +109,15 @@ public:
 
 private:
 	CPlayer*					m_pPlayer = NULL;
+
+	//void*						m_SoundBuffer1 = NULL;
+	//HANDLE						m_SoundBuffer2 = NULL;
+
+	//FMOD 사운드 시스템
+	//씬마다 음악이 달라져야 할수 있기 때문에 씬이 사운드를 관리함.
+	CSoundSystem*				m_pSound = NULL;
+	const char**				m_musicList = NULL;
+	int							m_musicCount;
 
 	CShaderManager*	m_pShaderManager{ nullptr };
 };

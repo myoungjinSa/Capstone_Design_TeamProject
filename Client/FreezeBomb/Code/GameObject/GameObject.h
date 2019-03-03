@@ -169,7 +169,8 @@ public:
     CAnimationTrack*	m_pAnimationTracks = NULL;
 
 	static UINT					m_state ;
-	const enum ANIMATIONTYPE { IDLE=0, JUMP, RUNFAST, RUNBACKWARD, ATTACK, DIGGING,DIE,RAISEHAND/*아이템 사용동작*/,ICE,VICTORY  };
+	const enum ANIMATIONTYPE { IDLE=0, JUMP, RUNFAST, RUNBACKWARD, ATTACK, DIGGING,DIE,RAISEHAND/*아이템 사용동작*/,ICE,VICTORY,AERT/*준비 동작*/};
+
 public:
 	void SetAnimationSets(CAnimationSets *pAnimationSets);
 
@@ -276,6 +277,11 @@ public:
 
 	void SetChild(CGameObject *pChild, bool bReferenceUpdate=false);
 	
+	bool GetIsBomb() { return m_bBomb; }			//폭탄 소지 여부 true/false 반환
+	bool GetIsHammer() { return m_bHammer; }
+
+	void SetIsBomb(bool bBomb) { m_bBomb = !bBomb; }	//폭탄 설정
+	void SetIsHammer(bool bHammer) { m_bHammer = !bHammer; }
 
 	virtual void BuildMaterials(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) { }
 
@@ -283,8 +289,10 @@ public:
 	virtual void Animate(float fTimeElapsed);
 
 	virtual void OnPrepareRender() { }
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL, int nPipelineState = GameObject);
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bIce, int matID, CCamera* pCamera, int nPipelineState = GameObject);
+
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int nPipelineState = GameObject);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bHammer,bool bBomb ,bool bIce, int matID, CCamera *pCamera, int nPipelineState = GameObject);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lodlevel, CCamera *pCamera, int nPipelineState = GameObject);
 
 	virtual void ReleaseShaderVariables();
 
@@ -302,7 +310,7 @@ public:
 	void SetUpVector(XMFLOAT3& xmf3Up);
 	void SetRightVector(XMFLOAT3& xmf3Right);
 
-
+	void SetLODlevel(UINT lod_level) { m_lodLevel = lod_level; }
 	void SetPosition(float x, float y, float z);
 	void SetPosition(XMFLOAT3 xmf3Position);
 	void SetScale(float x, float y, float z);
@@ -325,6 +333,13 @@ public:
 
 public:
 	const enum MATERIALTYPE { PINK, BROWN, WHITE, BLACK, BLUE, PANDA, ICEMAT };		//곰의 종류
+	const static enum LODLEVEL
+	{
+		LOD_LEVEL0 = 0,
+		LOD_LEVEL1,
+		LOD_LEVEL2,
+		LOD_BILLBOARD
+	};
 
 	// 각각의 객체가 AnimationController를 가지고 있어서, 서로다른 동작을 할 수 있도록 하자.
 	CAnimationController*			m_pAnimationController = NULL;
@@ -351,14 +366,21 @@ public:
 		char *pstrFileName, CShader *pShader, bool bHasAnimation, string type);
 
 	static void PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent);
+
+	UINT GetLodLevel() { return m_lodLevel; }
 protected:
 	CLampParticle*				m_pLampParticle{ nullptr };	
 
 	string							m_ID;													
 	CGameObject*				m_pObjectCollided{ nullptr };
 
-	bool								m_bIce;		//얼음 여부 
+	bool								m_bIce = false;		//얼음 여부 
 	int									m_matID;	//재질 정보
+	bool								m_bBomb = false;	//폭탄 소지 여부
+	bool								m_bHammer =false;  //망치 소지 여부
+	bool								m_bTimer = false;   //타이머 아이템 소지 여부
+
+	UINT				m_lodLevel;
 
 	BoundingOrientedBox	m_xmOOBB;
 	BoundingOrientedBox	m_xmOOBBTransformed;

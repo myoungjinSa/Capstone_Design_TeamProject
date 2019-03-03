@@ -39,6 +39,8 @@ public:
 protected:
 	char							m_pstrMeshName[64] = { 0 };
 
+	UINT							m_LodLevel{ 0 };
+
 	UINT							m_nType = 0x00;
 
 	XMFLOAT3						m_xmf3AABBCenter = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -68,6 +70,9 @@ protected:
 public:
 	UINT GetType() { return(m_nType); }
 
+	void SetLodLevel(UINT lodlevel) { m_LodLevel = lodlevel; }
+	UINT GetLodLevel()				{ return m_LodLevel; }
+
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) { }
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList) { }
 	virtual void ReleaseShaderVariables() { }
@@ -76,6 +81,8 @@ public:
 
 	virtual void OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, int nSubSet);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, int nSubSet, UINT lodLevel) {}
+	
 	virtual void OnPostRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);
 };
 
@@ -187,6 +194,8 @@ public:
 	virtual ~CStandardMesh();
 
 protected:
+
+
 	XMFLOAT4						*m_pxmf4Colors = NULL;
 	XMFLOAT3						*m_pxmf3Normals = NULL;
 	XMFLOAT3						*m_pxmf3Tangents = NULL;
@@ -214,7 +223,12 @@ protected:
 	ID3D12Resource					*m_pd3dBiTangentUploadBuffer = NULL;
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dBiTangentBufferView;
 
+
+	
+
 public:
+
+
 	void LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, FILE *pInFile);
 
 	virtual void ReleaseUploadBuffers();
@@ -232,6 +246,7 @@ public:
 	CSkinnedMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual ~CSkinnedMesh();
 
+
 protected:
 	char							m_pstrSkinnedMeshName[64] = { 0 };
 
@@ -247,6 +262,7 @@ protected:
 	ID3D12Resource					*m_pd3dBoneWeightBuffer = NULL;
 	ID3D12Resource					*m_pd3dBoneWeightUploadBuffer = NULL;
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dBoneWeightBufferView;
+
 
 public:
 	int								m_nSkinningBones = 0; 

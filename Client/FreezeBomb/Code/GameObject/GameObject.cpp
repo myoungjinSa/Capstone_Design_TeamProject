@@ -550,7 +550,8 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 
 //플레이어 Render로 부터 호출되서 플레이어의 프레임들을 호출하며 Render할때 호출되는 함수
 // 플레이어가 들고있는 폭탄이나 , 망치가 이 함수 Render로 호출된다.
-void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bIce, int matID, CCamera* pCamera, int nPipelineState)
+
+void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bHammer,bool bBomb, bool bIce, int matID, CCamera* pCamera, int nPipelineState)
 {
 	OnPrepareRender();
 	if (m_pSkinningBoneTransforms)
@@ -608,17 +609,75 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bIce, 
 		m_pMesh->Render(pd3dCommandList, 0);
 	}
 
-	if (!strcmp(this->m_pstrFrameName, "Lamp"))		//불꽅 파티클은 일반 GameObject Rener하는 방식을 해야한다. 
+	if (!strcmp(this->m_pstrFrameName, "Lamp"))		//불꽅 파티클은 일반 GameObject Render하는 방식을 해야한다. 
 	{
-		if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
-		if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
+		if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera, nPipelineState);
+		if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera, nPipelineState);
 	}
 	else
 	{
-		if (m_pSibling) m_pSibling->Render(pd3dCommandList, bIce, matID, pCamera);
-		if (m_pChild) m_pChild->Render(pd3dCommandList, bIce, matID, pCamera);
-	}
+		if (m_pSibling)
+		{
+			if (!strncmp(m_pSibling->m_pstrFrameName, "hammer", strlen(m_pSibling->m_pstrFrameName)))
+			{
+				if (bHammer) 
+				{
+					m_pSibling->Render(pd3dCommandList, bHammer, bBomb, bIce, matID, pCamera, nPipelineState);
+				}
+			}
+			else 
+			{
+				m_pSibling->Render(pd3dCommandList, bHammer, bBomb, bIce, matID, pCamera, nPipelineState);
+			}
+			
+		}
+		if (m_pChild)
+		{
+			if (!strncmp(m_pChild->m_pstrFrameName, "black-handbomb", strlen(m_pChild->m_pstrFrameName)))
+			{
+				if (bBomb)
+				{
+					 m_pChild->Render(pd3dCommandList,bHammer, bBomb, bIce, matID, pCamera, nPipelineState);
+				}
+			}
+			else 
+			{
+				m_pChild->Render(pd3dCommandList, bHammer,bBomb, bIce, matID, pCamera, nPipelineState);
+			}
+		}
+	}	
 }
+//LOD 오브젝트 렌더 
+
+void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lodLevel, CCamera *pCamera, int nPipelineState)
+{
+	OnPrepareRender();
+
+	if (m_pMesh)
+	{
+		if (!m_pSkinningBoneTransforms) UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+
+		if (m_nMaterials > 0)
+		{
+			for (int i = 0; i < m_nMaterials; i++)
+			{
+				if (m_ppMaterials[i])
+				{
+					if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+					m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
+				}
+
+				m_pMesh->Render(pd3dCommandList, i, lodLevel);
+			}
+		}
+	}
+
+	if (m_pSibling) 
+		m_pSibling->Render(pd3dCommandList, lodLevel, pCamera, nPipelineState);
+	if (m_pChild) 
+		m_pChild->Render(pd3dCommandList, lodLevel, pCamera, nPipelineState);
+}
+
 
 void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4* pxmf4x4World)
 {
@@ -1115,7 +1174,8 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 			nReads = (UINT)::fread(pAnimationSet->m_pstrName, sizeof(char), nStrLength, pInFile);
 			pAnimationSet->m_pstrName[nStrLength] = '\0';
 
-			if (!strcmp(pAnimationSet->m_pstrName, "ATK3") || !strcmp(pAnimationSet->m_pstrName, "Digging")) 
+			if (!strcmp(pAnimationSet->m_pstrName, "ATK3") || !strcmp(pAnimationSet->m_pstrName, "Digging") 
+				|| !strcmp(pAnimationSet->m_pstrName,"Jump")) 
 			{
 				pAnimationSet->m_nType = ANIMATION_TYPE_ONCE;
 			}

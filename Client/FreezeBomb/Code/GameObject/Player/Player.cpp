@@ -267,7 +267,7 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 		if (m_pShadow)
 			m_pShadow->Render(pd3dCommandList, pCamera, GameObject_Shadow);
 
-		CGameObject::Render(pd3dCommandList, m_bIce,m_matID, pCamera, GameObject);		//재질별로 렌더
+		CGameObject::Render(pd3dCommandList,m_bHammer,m_bBomb,m_bIce,m_matID,pCamera, GameObject);		//재질별로 렌더 
 	}
 }
 
@@ -316,19 +316,29 @@ void CPlayer::DecideAnimationState(float fLength)
 		&& pController->GetAnimationState() != CAnimationController::DIGGING
 		&& pController->GetAnimationState() != CAnimationController::JUMP)
 	{
+		if (pController->GetAnimationState() == CAnimationController::RUNFAST)
+		{
+			m_pAnimationController->SetTrackPosition(0, 0.0f);
+		}
 		SetTrackAnimationSet(0, CAnimationController::IDLE);
 		m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
 	
+		
 	}
 	else 
 	{
-		if (GetAsyncKeyState(VK_UP) & 0x8000)
+		if (GetAsyncKeyState(VK_UP) & 0x8000 && pController->GetAnimationState() != CAnimationController::ATTACK 
+			&& pController->GetAnimationState() != CAnimationController::JUMP)
 		{
 			SetTrackAnimationSet(0, CAnimationController::RUNFAST);
 			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
-			m_pAnimationController->SetTrackSpeed(0, 1.3f);
+			//m_pAnimationController->SetTrackSpeed(0, 1.3f);
+			//m_pAnimationController->SetTrackPosition(0, 0.0f);
 		}
-		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+	
+
+		if (GetAsyncKeyState(VK_DOWN) & 0x8000 && pController->GetAnimationState() != CAnimationController::ATTACK
+			&& pController->GetAnimationState() != CAnimationController::JUMP)
 		{
 			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
 			SetTrackAnimationSet(0, CAnimationController::RUNBACKWARD);
@@ -347,7 +357,8 @@ void CPlayer::DecideAnimationState(float fLength)
 		
 		SetTrackAnimationSet(0, CAnimationController::ATTACK);
 		SetTrackAnimationPosition(0, 0);
-		
+
+		pController->SetTrackSpeed(0, 1.0f);
 		pController->SetAnimationState(CAnimationController::ATTACK);
 	}
 	if (GetAsyncKeyState(VK_Z) & 0x8000 && pController->GetAnimationState() != CAnimationController::DIGGING)
@@ -356,6 +367,12 @@ void CPlayer::DecideAnimationState(float fLength)
 		SetTrackAnimationPosition(0, 0);
 
 		pController->SetAnimationState(CAnimationController::DIGGING);
+	}
+	//추후에 아이템과 충돌여부 및 아이템 획득 여부로 변경해서 하면 될듯
+	if (GetAsyncKeyState(VK_C) & 0x0001)
+	{
+		m_bBomb = !m_bBomb;
+		m_bHammer = !m_bHammer;
 	}
 
 }
@@ -372,19 +389,21 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pAnimationController->SetTrackAnimationSet(0, 0);
 
 	// 1번 애니메이션 동작에 사운드 3개를 Set해준다.
-	m_pAnimationController->SetCallbackKeys(1, 3);
+	m_pAnimationController->SetCallbackKeys(m_pAnimationController->RUNFAST, 2);
 
 	// 애니메이션 1번동작 0.1초일때 Footstep01 소리를 재생, 1번동작 0.5초일때 Footstep02 소리를 재생, 1번동작 0.9초일때 Footstep03 소리를 재생
-	m_pAnimationController->SetCallbackKey(1, 0, 0.1f, _T("../Resource/Sound/BtnDown03.wav"));
-	m_pAnimationController->SetCallbackKey(1, 1, 0.5f, _T("../Resource/Sound/BtnDown03.wav"));
-	m_pAnimationController->SetCallbackKey(1, 2, 0.9f, _T("../Resource/Sound/BtnDown03.wav"));
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 0, 0.3f,MAKEINTRESOURCE(IDR_WAVE2));
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 1, 0.6f, MAKEINTRESOURCE(IDR_WAVE2));
+	//m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 2, 0.3f, MAKEINTRESOURCE(IDR_WAVE1));
+//	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 3, 0., MAKEINTRESOURCE(IDR_WAVE1));
+
 
 	//m_pAnimationController->SetCallbackKey(1, 0, 0.1f, _T("../Resource/Sound/FootStep01.wav"));
 	//m_pAnimationController->SetCallbackKey(1, 1, 0.5f, _T("../Resource/Sound/FootStep02.wav"));
 	//m_pAnimationController->SetCallbackKey(1, 2, 0.9f, _T("../Resource/Sound/FootStep03.wav"));
 
 	CAnimationCallbackHandler* pAnimationCallbackHandler = new CSoundCallbackHandler();
-	m_pAnimationController->SetAnimationCallbackHandler(1, pAnimationCallbackHandler);
+	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RUNFAST, pAnimationCallbackHandler);
 
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
@@ -559,18 +578,18 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 	}
 }
 
-#define _WITH_DEBUG_CALLBACK_DATA
-
+//#define _WITH_DEBUG_CALLBACK_DATA
+#define _WITH_SOUND_RESOURCE
 void CSoundCallbackHandler::HandleCallback(void *pCallbackData)
 {
-	_TCHAR *pWavName = (_TCHAR *)pCallbackData;
+	//_TCHAR *pWavName = (_TCHAR *)pCallbackData;
 #ifdef _WITH_DEBUG_CALLBACK_DATA
 	TCHAR pstrDebug[256] = { 0 };
 	_stprintf_s(pstrDebug, 256, _T("%s\n"), pWavName);
 	OutputDebugString(pstrDebug);
 #endif
 #ifdef _WITH_SOUND_RESOURCE
-	PlaySound(pWavName, ::ghAppInstance, SND_RESOURCE | SND_ASYNC);
+	PlaySound(MAKEINTRESOURCE(pCallbackData), ::ghAppInstance, SND_RESOURCE | SND_ASYNC);
 #else
 	PlaySound(pWavName, NULL, SND_FILENAME | SND_ASYNC);
 #endif

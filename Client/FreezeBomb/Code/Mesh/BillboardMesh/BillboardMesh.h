@@ -12,8 +12,8 @@ public:
 	virtual void OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, int nSubSet);
 
-	void SetLodLevel(UINT lodlevel) { m_LodLevel = lodlevel; }
-	UINT GetLodLevel()	const { return m_LodLevel; }
+	//void SetLodLevel(UINT lodlevel) { m_LodLevel = lodlevel; }
+	//UINT GetLodLevel()	const { return m_LodLevel; }
 
 private:
 	XMFLOAT2*									m_pxmf2TextureCoords0 = nullptr;
@@ -21,5 +21,5 @@ private:
 	ID3D12Resource*							m_pd3dTextureCoord0UploadBuffer = nullptr;
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dTextureCoord0BufferView;
 
-	UINT												m_LodLevel = 0;
+	//UINT												m_LodLevel = 0;
 };

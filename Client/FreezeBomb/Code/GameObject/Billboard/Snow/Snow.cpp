@@ -11,6 +11,7 @@ CSnow::~CSnow()
 
 void CSnow::Animate(float fTimeElapsed, CCamera *pCamera)
 {
+	
 	this->SetPosition(this->GetPosition().x - (fTimeElapsed * 100.0f), this->GetPosition().y - (fTimeElapsed * 30.0f) * m_speed, this->GetPosition().z);
 
 	XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();

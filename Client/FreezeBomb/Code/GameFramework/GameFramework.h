@@ -2,6 +2,7 @@
 
 #include "../GameTimer/GameTimer.h"
 
+
 class CScene;
 class CPlayer;
 class CPlayerShadowShader;
@@ -9,6 +10,7 @@ class CPlayerShadowShader;
 class CCamera;
 class CMapToolShader;
 class CSobelCartoonShader;
+class CDirectSound;
 
 class CGameFramework
 {
@@ -20,13 +22,16 @@ public:
 	void OnDestroy();
 
 	void CreateSwapChain();
+	void CreateDirect11DeviceOn12();
 	void CreateDirect3DDevice();
 	void CreateCommandQueueAndList();
 
 	void CreateRtvAndDsvDescriptorHeaps();
 
+	void Create2DRenderTarget();
 	void CreateRenderTargetViews();
 	void CreateDepthStencilView();
+	
 
 	void ChangeSwapChainState();
 
@@ -42,6 +47,7 @@ public:
 
 	void CreateOffScreenRenderTargetViews();
 
+
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
@@ -54,6 +60,8 @@ public:
 private:
 
 
+	
+
 	HINSTANCE						m_hInstance;
 	HWND							m_hWnd;
 
@@ -63,6 +71,7 @@ private:
 	IDXGIFactory4*					m_pdxgiFactory = nullptr;
 	IDXGISwapChain3*				m_pdxgiSwapChain = nullptr;
 	ID3D12Device*					m_pd3dDevice = nullptr;
+
 
 	bool							m_bMsaa4xEnable = false;
 	UINT							m_nMsaa4xQualityLevels = 0;
@@ -114,5 +123,25 @@ private:
 #ifdef _MAPTOOL_MODE_
 	CMapToolShader*  m_pMapToolShader = nullptr;
 #endif
+
+
+	/////////////////////////////////////////////////////////////////////////
+	//DirectX 11 
+	static const UINT				FrameCount = 3;
+	ID3D11Device*					m_d3d11Device = nullptr;
+	ID3D11DeviceContext*			m_d3d11DeviceContext=nullptr;
+	ID3D11On12Device*				m_d3d11On12Device=nullptr;
+	IDWriteFactory*					m_dWriteFactory=nullptr;
+	ID2D1Factory3*					m_d2dFactory=nullptr;
+	ID2D1Device2*					m_d2dDevice=nullptr;
+	ID2D1DeviceContext2*			m_d2dDeviceContext=nullptr;
+	ID3D12Resource*					m_renderTargets[FrameCount];
+	ID3D11Resource*					m_wrappedBackBuffers[FrameCount];
+	ID2D1Bitmap1*					m_d2dRenderTargets[FrameCount];
+
+	ID2D1SolidColorBrush*			m_textBrush=nullptr;
+	IDWriteTextFormat*				m_textFormat=nullptr;
+
+
 };
 
