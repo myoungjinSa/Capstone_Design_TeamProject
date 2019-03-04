@@ -11,7 +11,7 @@ class CPlayerShadowShader;
 class CCamera;
 class CMapToolShader;
 class CSobelCartoonShader;
-class CDirectSound;
+
 
 class CGameFramework
 {
@@ -150,6 +150,13 @@ private:
 	IDWriteTextFormat				*m_pdwFont{ nullptr };//
 	IDWriteTextLayout				*m_pdwTextLayout{ nullptr };//
 	ID2D1SolidColorBrush			*m_pd2dbrText{ nullptr };//
+
+	IWICImagingFactory				*m_pwicImagingFactory{ nullptr };
+	ID2D1Effect						*m_pd2dfxBitmapSource{ nullptr };
+	ID2D1DrawingStateBlock1			*m_pd2dsbDrawingState{ nullptr };
+	IWICFormatConverter				*m_pwicFormatConverter{ nullptr };
+
+
 #endif
 
 };
