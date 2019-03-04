@@ -41,6 +41,8 @@ using namespace std;
 #include <d2d1_3.h>		//This header is used by Direct2D. 
 #include <d3d11on12.h>	//11이랑 12의 호환을 담당
 #include <dwrite.h>		//This header is used by DirectWrite. For more information, see: MSDN
+#include <dwrite_1.h>
+#include <d2d1effects.h>
 #include <wincodec.h>	//This header is used by Windows Imaging Component. For more information, see:
 #include <pix.h>
 #include <Mmsystem.h>
@@ -76,11 +78,13 @@ enum PIPELINESTATE_TYPE { GameObject, GameObject_Shadow };
 
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
-#pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
-
+#pragma comment(lib, "d2d1.lib")
+#pragma comment(lib, "dwrite.lib")
 #pragma comment(lib, "dxguid.lib")
 #pragma comment(lib, "winmm.lib")
+#pragma comment(lib, "d3d11.lib")
+#pragma comment(lib, "windowscodecs.lib")
 
 // TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
 

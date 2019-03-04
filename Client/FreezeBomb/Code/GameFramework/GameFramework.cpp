@@ -58,19 +58,14 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	m_hWnd = hMainWnd;
 
 	
-
 	CreateDirect3DDevice();
 	CreateCommandQueueAndList();
+	CreateDirect2DDevice();
 	CreateRtvAndDsvDescriptorHeaps();
 	CreateSwapChain();
-
-	//CreateDirect11DeviceOn12();
-	
 	CreateDepthStencilView();
 
 	CoInitialize(NULL);
-
-	//CreateDirectSound();
 
 	BuildObjects();
 
@@ -210,6 +205,63 @@ void CGameFramework::CreateCommandQueueAndList()
 	hResult = m_pd3dCommandList->Close();
 }
 
+void CGameFramework::CreateDirect2DDevice()
+{
+	UINT nD3D11DeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+
+#if defined(_DEBUG)
+	nD3D11DeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+	//ID3D12Device 생성 후 ID3D11On12Device 를 생성한다.
+	//ID3D11Device는 D3D11OnCreateDevice API를 통해 ID3D12Device에 Wrapping되어있다.
+	//이 api는 11On12 디바이스에 명령들을  ID3D12CommandQueue에 제출하는 역할을 한다.
+	//ID3D11Device 가 생성된 후에, ID3D11On12Device 인터페이스를 ID3D11Device로 부터 요청할 수 있다.
+	//ID3D11On12Device 가 D2D를 설치하는데 사용하는 주 디바이스가 된다.
+	ID3D11Device *pd3d11Device = NULL;
+	HRESULT hResult = ::D3D11On12CreateDevice(m_pd3dDevice, nD3D11DeviceFlags, NULL, 0, (IUnknown **)&m_pd3dCommandQueue, 1, 0, &pd3d11Device, &m_pd3d11DeviceContext, NULL);
+	hResult = pd3d11Device->QueryInterface(__uuidof(ID3D11On12Device), (void **)&m_pd3d11On12Device);
+	if (pd3d11Device) pd3d11Device->Release();
+
+
+	//11On12 디바이스가 생성된 후, 우리는 이 디바이스를 D2DFactory와 디바이스를 
+	//다이렉트 11에서 했던 것 과 동일하게 생성해준다.
+
+	D2D1_FACTORY_OPTIONS nD2DFactoryOptions = { D2D1_DEBUG_LEVEL_NONE };
+#if defined(_DEBUG)
+	nD2DFactoryOptions.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
+#endif
+	
+	//D2D1_FACTORY_TYPE_SINGLE_THREADED -> 
+	hResult = ::D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, __uuidof(ID2D1Factory3), &nD2DFactoryOptions, (void**)&m_pd2dFactory);
+
+	////////////////////////////////////////////////////////////////////////////////////
+	IDXGIDevice *pdxgiDevice = NULL;
+	hResult = m_pd3d11On12Device->QueryInterface(__uuidof(IDXGIDevice), (void **)&pdxgiDevice);
+	hResult = m_pd2dFactory->CreateDevice(pdxgiDevice, &m_pd2dDevice);
+	hResult = m_pd2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_pd2dDeviceContext);
+	hResult = ::DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), (IUnknown **)&m_pdWriteFactory);
+
+	if(pdxgiDevice) 
+	{
+		pdxgiDevice->Release();
+	}
+
+	m_pd2dDeviceContext->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
+
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(0.3f, 0.0f, 0.0f, 0.5f), &m_pd2dbrBackground);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF(0x9ACD32, 1.0f)), &m_pd2dbrBorder);
+
+	hResult = m_pdWriteFactory->CreateTextFormat(L"궁서체", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_ITALIC, DWRITE_FONT_STRETCH_NORMAL, 48.0f, L"en-US", &m_pdwFont);
+	hResult = m_pdwFont->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+	hResult = m_pdwFont->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+	
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Purple, 1.0f), &m_pd2dbrText);
+	hResult = m_pdWriteFactory->CreateTextLayout(L"텍스트 레이아웃", 8, m_pdwFont, 4096.0f, 4096.0f, &m_pdwTextLayout);
+
+
+
+}
+
 void CGameFramework::CreateRtvAndDsvDescriptorHeaps()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
@@ -238,7 +290,31 @@ void CGameFramework::CreateRenderTargetViews()
 		m_pd3dDevice->CreateRenderTargetView(m_ppd3dSwapChainBackBuffers[i], NULL, d3dRtvCPUDescriptorHandle);
 		d3dRtvCPUDescriptorHandle.ptr += m_nRtvDescriptorIncrementSize;
 	}
+
+	CreateDirect2DRenderTargetViews();
 }
+
+void CGameFramework::CreateDirect2DRenderTargetViews()
+{
+	float fxDPI, fyDPI;
+
+	m_pd2dFactory->GetDesktopDpi(&fxDPI, &fyDPI);
+
+	D2D1_BITMAP_PROPERTIES1 d2dBitmapProperties = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW, D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED), fxDPI, fxDPI);
+
+	for (UINT i = 0; i < m_nSwapChainBuffers; i++)
+	{
+		D3D11_RESOURCE_FLAGS d3d11Flags = { D3D11_BIND_RENDER_TARGET };
+		m_pd3d11On12Device->CreateWrappedResource(m_ppd3dSwapChainBackBuffers[i], &d3d11Flags, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, __uuidof(ID3D11Resource), (void**)&m_ppd3d11WrappedBackBuffers[i]);
+
+		IDXGISurface *pdxgiSurface = NULL;
+		m_ppd3d11WrappedBackBuffers[i]->QueryInterface(__uuidof(IDXGISurface), (void**)&pdxgiSurface);
+		m_pd2dDeviceContext->CreateBitmapFromDxgiSurface(pdxgiSurface, &d2dBitmapProperties, &m_ppd2dRenderTargets[i]);
+		if (pdxgiSurface) pdxgiSurface->Release();
+	}
+
+}
+
 
 void CGameFramework::CreateDepthStencilView()
 {
@@ -308,78 +384,7 @@ void CGameFramework::ChangeSwapChainState()
 
 	CreateRenderTargetViews();
 }
-void CGameFramework::CreateDirect11DeviceOn12()
-{
-	HRESULT hResult;
-	UINT d3d11DeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;		//Note  Required for Direct2D interoperability with Direct3D resources.
 
-	UINT dxgiFactoryFlags = 0;
-	D2D1_FACTORY_OPTIONS d2dFactoryOptions = {};
-
-//#if defined(_DEBUG)
-//	// Enable the debug layer (requires the Graphics Tools "optional feature").
-//	// NOTE: Enabling the debug layer after device creation will invalidate the active device.
-//	{
-//		ComPtr<ID3D12Debug> debugController;
-//		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
-//		{
-//			debugController->EnableDebugLayer();
-//
-//			// Enable additional debug layers.
-//			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
-//			d3d11DeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-//			d2dFactoryOptions.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
-//		}
-//	}
-//#endif
-//
-//#if defined(_DEBUG)
-//	// Filter a debug error coming from the 11on12 layer.
-//	ComPtr<ID3D12InfoQueue> infoQueue;
-//	if (SUCCEEDED(m_pd3dDevice->QueryInterface(IID_PPV_ARGS(&infoQueue))))
-//	{
-//		// Suppress whole categories of messages.
-//		//D3D12_MESSAGE_CATEGORY categories[] = {};
-//
-//		// Suppress messages based on their severity level.
-//		D3D12_MESSAGE_SEVERITY severities[] =
-//		{
-//			D3D12_MESSAGE_SEVERITY_INFO,
-//		};
-//
-//		// Suppress individual messages by their ID.
-//		D3D12_MESSAGE_ID denyIds[] =
-//		{
-//			// This occurs when there are uninitialized descriptors in a descriptor table, even when a
-//			// shader does not access the missing descriptors.
-//			D3D12_MESSAGE_ID_INVALID_DESCRIPTOR_HANDLE,
-//		};
-//
-//		D3D12_INFO_QUEUE_FILTER filter = {};
-//		//filter.DenyList.NumCategories = _countof(categories);
-//		//filter.DenyList.pCategoryList = categories;
-//		filter.DenyList.NumSeverities = _countof(severities);
-//		filter.DenyList.pSeverityList = severities;
-//		filter.DenyList.NumIDs = _countof(denyIds);
-//		filter.DenyList.pIDList = denyIds;
-//
-//		HRESULT hr;
-//		hr = infoQueue->PushStorageFilter(&filter);
-//		if (FAILED(hr))
-//		{
-//			return;
-//		}
-//	}
-//#endif
-
-	//ComPtr<ID3D11Device> d3d11Device;
-	hResult = D3D11On12CreateDevice(m_pd3dDevice, d3d11DeviceFlags, nullptr, 0, reinterpret_cast<IUnknown**>(m_pd3dCommandQueue), 1, 0, &m_d3d11Device, &m_d3d11DeviceContext, nullptr);
-	if (FAILED(hResult))
-	{
-		return;
-	}
-
-}
 
 void CGameFramework::CreateOffScreenRenderTargetViews()
 {
@@ -407,6 +412,7 @@ void CGameFramework::CreateOffScreenRenderTargetViews()
 	m_pCartoonShader->CreateGraphicsRootSignature(m_pd3dDevice);
 	m_pCartoonShader->CreateShader(m_pd3dDevice, m_pCartoonShader->GetGraphicsRootSignature(), 1);
 	m_pCartoonShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, pTextureForCartoonProcessing);
+
 }
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
@@ -617,6 +623,28 @@ void CGameFramework::OnDestroy()
     ReleaseObjects();
 
 	::CloseHandle(m_hFenceEvent);
+
+	//Direct2D
+	if (m_pd2dbrBackground) m_pd2dbrBackground->Release();
+	if (m_pd2dbrBorder) m_pd2dbrBorder->Release();
+	if (m_pdwFont) m_pdwFont->Release();
+	if (m_pdwTextLayout) m_pdwTextLayout->Release();
+	if (m_pd2dbrText) m_pd2dbrText->Release();
+
+	//Direct11
+	if (m_pd2dDeviceContext) m_pd2dDeviceContext->Release();
+	if (m_pd2dDevice) m_pd2dDevice->Release();
+	if (m_pdWriteFactory) m_pdWriteFactory->Release();
+	if (m_pd3d11On12Device) m_pd3d11On12Device->Release();
+	if (m_pd3d11DeviceContext) m_pd3d11DeviceContext->Release();
+	if (m_pd2dFactory) m_pd2dFactory->Release();
+
+	for (int i = 0; i < m_nSwapChainBuffers; i++)
+	{
+		if (m_ppd3d11WrappedBackBuffers[i]) m_ppd3d11WrappedBackBuffers[i]->Release();
+		if (m_ppd2dRenderTargets[i]) m_ppd2dRenderTargets[i]->Release();
+	}
+
 
 	if (m_pd3dDepthStencilBuffer) m_pd3dDepthStencilBuffer->Release();
 	if (m_pd3dDsvDescriptorHeap) m_pd3dDsvDescriptorHeap->Release();
@@ -879,22 +907,10 @@ void CGameFramework::FrameAdvance()
 			m_pCartoonShader->Render(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
 		}
 	}
+
 	
 	::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
-	//////////////////////////////////////////////////////////////////////////////////
-	//D2D1_SIZE_F renderTargetSize = m_pRenderTarget->GetSize();
-
-	//m_pRenderTarget->BeginDraw();
-
-	//m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
-
-
-	//m_pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
-
-	//m_pRenderTarget->EndDraw();
-
-	////////////////////////////////////////////////////////////////////////////////
 
 	hResult = m_pd3dCommandList->Close();
 	
@@ -902,6 +918,31 @@ void CGameFramework::FrameAdvance()
 	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 
 	WaitForGpuComplete();
+
+
+	m_pd3d11On12Device->AcquireWrappedResources(&m_ppd3d11WrappedBackBuffers[m_nSwapChainBufferIndex], 1);
+	m_pd2dDeviceContext->SetTarget(m_ppd2dRenderTargets[m_nSwapChainBufferIndex]);
+
+	m_pd2dDeviceContext->BeginDraw();
+
+	m_pd2dDeviceContext->SetTransform(D2D1::Matrix3x2F::Identity());
+
+	////////////////////////////////////////////////////////////////////////
+	//WITH_DIRECT2D_IMAGE_EFFECT
+
+	////////////////////////////////////////////////////////////////////////
+
+	D2D1_SIZE_F szRenderTarget = m_ppd2dRenderTargets[m_nSwapChainBufferIndex]->GetSize();
+	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
+	D2D1_RECT_F rcUpperText = D2D1::RectF(0, 0, szRenderTarget.width, szRenderTarget.height * 0.5f);
+	m_pd2dDeviceContext->DrawTextW(m_pszFrameRate, (UINT32)wcslen(m_pszFrameRate), m_pdwFont, &rcUpperText, m_pd2dbrText);
+
+	m_pd2dDeviceContext->EndDraw();
+
+	m_pd3d11On12Device->ReleaseWrappedResources(&m_ppd3d11WrappedBackBuffers[m_nSwapChainBufferIndex], 1);
+
+	m_pd3d11DeviceContext->Flush();
+
 
 #ifdef _WITH_PRESENT_PARAMETERS
 	DXGI_PRESENT_PARAMETERS dxgiPresentParameters;
