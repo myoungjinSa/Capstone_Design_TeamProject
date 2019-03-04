@@ -2,6 +2,7 @@
 
 #include "../GameObject.h"
 
+class CShadow;
 class CEvilBear : public CGameObject
 {
 public:
@@ -9,5 +10,10 @@ public:
 	virtual ~CEvilBear();
 
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int nPipelineState);
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bIce,int matID ,CCamera *pCamera, int nPipelineState);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bHammer, bool bBomb, bool bIce, int matID, CCamera *pCamera, int nPipelineState = GameObject);
+
+	void Initialize_Shadow(CLoadedModelInfo* pLoadedModel, CGameObject* pGameObject);
+
+private:
+	CShadow*	m_pShadow{ nullptr };
 };

@@ -5,19 +5,18 @@
 #include "../Shader/Shader.h"
 #include "../Shader/SkyBoxShader/SkyBoxShader.h"
 #include "../Shader/TerrainShader/TerrainShader.h"
-#include "../Shader/StandardShader/StandardObjectsShader/StandardObjectsShader.h"
-#include "../Shader/BillboardShader/SnowShader/SnowShader.h"
-#include "../Shader/StandardShader/SkinnedAnimationObjectsShader/SkinnedAnimationObjectsShader.h"
-
-#include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
-#include "../Shader/BillboardShader/UIShader/ItemUIShader/ItemUIShader.h"
 
 #include "../Shader/StandardShader/MapObjectShader/MapObjectShader.h"
 
+#include "../Shader/StandardShader/FoliageShader/FoliageShader.h"
 #include "../Shader/StandardShader/ItemShader/ItemShader.h"
-#include "../Shader/ShadowShader/ShadowShader.h"
 
-#include "../Shader/FoliageShader/FoliageShader.h"
+#include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
+
+#include "../Shader/BillboardShader/SnowShader/SnowShader.h"
+#include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
+#include "../Shader/BillboardShader/UIShader/ItemUIShader/ItemUIShader.h"
+
 #include "../Shader/CubeParticleShader/IceParticleShader/IceParticleShader.h"
 #include "../Shader/PostProcessShader/CartoonShader/SobelCartoonShader.h"
 
@@ -37,11 +36,11 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_pResourceManager = new CResourceManager;
 	m_pResourceManager->Initialize(pd3dDevice, pd3dCommandList);
 
-	m_nShaders = 9;
+	m_nShaders = 8;
 
 	//맵툴 모드일때는 맵의 오브젝트들을 그리지 않게 하기 위해 
 	// 그래야 맵툴모드에서 적용해서 배치한 오브젝트들만 볼 수 있다.
-#ifdef _MAPTOOL_MODE_
+#ifndef _MAPTOOL_MODE_
 	m_nShaders = m_nShaders + 1;
 #endif
 	m_ppShaders = new CShader*[m_nShaders];
@@ -61,7 +60,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 
 #ifndef _MAPTOOL_MODE_
 	CMapObjectsShader *pMapShader = new CMapObjectsShader;
-	pMapShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//pMapShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pMapShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
 	m_ppShaders[index++] = pMapShader;
 	m_ShaderMap.emplace("MapShader", pMapShader);
@@ -80,29 +79,17 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ppShaders[index++] = pItemShader;
 	m_ShaderMap.emplace("Item", pItemShader);
 
-	CShadowShader* pShadowShader = new CShadowShader;
-	pShadowShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pShadowShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), pTerrainShader->getTerrain());
-	m_ppShaders[index++] = pShadowShader;
-	m_ShaderMap.emplace("Shadow", pShadowShader);
-
-	/*CSobelCartoonShader *pCartoonShader = new CSobelCartoonShader;
+	/*
+	CSobelCartoonShader *pCartoonShader = new CSobelCartoonShader;
 	pCartoonShader->CreateGraphicsRootSignature(pd3dDevice);
 	pCartoonShader->CreateShader(pd3dDevice, pCartoonShader->GetGraphicsRootSignature(), 1);
 	pCartoonShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pResourceManager->getTextureMap());
-*/
+	*/
 
-	//CStandardObjectsShader* pSurroundingShader = new CStandardObjectsShader;
-	//pSurroundingShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//pSurroundingShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
-	//m_ppShaders[index++] = pSurroundingShader;
-	//m_ShaderMap.emplace("Surrounding", pSurroundingShader);
-
-	//CSkinnedAnimationObjectsShader* pAnimationObjectShader = new CSkinnedAnimationObjectsShader;
-	////pAnimationObjectShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//pAnimationObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
-	//m_ppShaders[index++] = pAnimationObjectShader;
-	//m_ShaderMap.emplace("곰돌이", pAnimationObjectShader);
+	CSkinnedAnimationObjectShader* pAnimationObjectShader = new CSkinnedAnimationObjectShader;
+	pAnimationObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
+	m_ppShaders[index++] = pAnimationObjectShader;
+	m_ShaderMap.emplace("곰돌이", pAnimationObjectShader);
 
 	CSnowShader * pSnowShader = new CSnowShader;
 	pSnowShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);

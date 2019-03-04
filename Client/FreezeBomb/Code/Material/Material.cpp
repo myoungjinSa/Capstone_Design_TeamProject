@@ -2,10 +2,12 @@
 #include "Material.h"
 #include "../Texture/Texture.h"
 #include "../Shader/StandardShader/StandardShader.h"
-#include "../Shader/StandardShader/SkinnedAnimationObjectsShader/SkinnedAnimationObjectsShader.h"
-#include "../Shader/StandardShader/PlayerSkinnedShader/PlayerSkinnedShader.h"
+#include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationShader.h"
 
 #include "../Scene/Scene.h"
+
+CShader* CMaterial::m_pSkinnedAnimationShader{ nullptr };
+CShader* CMaterial::m_pStandardShader{ nullptr };
 
 CMaterial::CMaterial()
 {
@@ -66,18 +68,13 @@ void CMaterial::ReleaseUploadBuffers()
 	}
 }
 
-CShader* CMaterial::m_pSkinnedAnimationShader{ nullptr };
-CShader* CMaterial::m_pStandardShader{ nullptr };
-
 void CMaterial::PrepareShaders(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
 	m_pStandardShader = new CStandardShader;
 	m_pStandardShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pStandardShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	m_pSkinnedAnimationShader = new CSkinnedAnimationObjectsShader;
+	m_pSkinnedAnimationShader = new CSkinnedAnimationShader;
 	m_pSkinnedAnimationShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pSkinnedAnimationShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList)
@@ -192,19 +189,5 @@ void CMaterial::LoadTextureFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsComm
 				if (*ppTexture) (*ppTexture)->AddRef();
 			}
 		}
-	}
-}
-
-void CMaterial::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int type, CShader* p)
-{
-	if (type == Standard)
-	{
-		m_pPlayerStandardShader = new CStandardShader;
-		m_pPlayerStandardShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	}
-	else
-	{
-		m_pPlayerSkinnedAnimationShader = new CPlayerSkinnedShader;
-		m_pPlayerSkinnedAnimationShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 }

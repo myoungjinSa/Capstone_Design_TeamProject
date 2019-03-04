@@ -78,9 +78,6 @@
     <ClCompile Include="..\Code\ShaderManager\ShaderManager.cpp">
       <Filter>Code\ShaderManager</Filter>
     </ClCompile>
-    <ClCompile Include="..\Code\Shader\ShadowShader\ShadowShader.cpp">
-      <Filter>Code\Shader\ShadowShader</Filter>
-    </ClCompile>
     <ClCompile Include="..\Code\Shader\BillboardShader\LampParticleShader\LampParticleShader.cpp">
       <Filter>Code\Shader\BillboardShader\LampParticleShader</Filter>
     </ClCompile>
@@ -98,12 +95,6 @@
     </ClCompile>
     <ClCompile Include="..\Code\Shader\StandardShader\StandardShader.cpp">
       <Filter>Code\Shader\StandardShader</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Code\Shader\StandardShader\StandardObjectsShader\StandardObjectsShader.cpp">
-      <Filter>Code\Shader\StandardShader\StandardObjectsShader</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Code\Shader\StandardShader\SkinnedAnimationObjectsShader\SkinnedAnimationObjectsShader.cpp">
-      <Filter>Code\Shader\StandardShader\SkinnedAnimationObjectsShader</Filter>
     </ClCompile>
     <ClCompile Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.cpp">
       <Filter>Code\Shader\CubeParticleShader</Filter>
@@ -150,14 +141,8 @@
     <ClCompile Include="..\Code\Shader\PostProcessShader\CartoonShader\SobelCartoonShader.cpp">
       <Filter>Code\Shader\ComputeShader\SobelCartoonShader</Filter>
     </ClCompile>
-    <ClCompile Include="..\Code\Shader\StandardShader\PlayerSkinnedShader\PlayerSkinnedShader.cpp">
-      <Filter>Code\Shader\StandardShader\PlayerSkinnedShader</Filter>
-    </ClCompile>
     <ClCompile Include="..\Code\GameObject\Shadow\Shadow.cpp">
       <Filter>Code\GameObject\Shadow</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Code\Shader\FoliageShader\FoliageShader.cpp">
-      <Filter>Code\Shader\FoliageShader</Filter>
     </ClCompile>
     <ClCompile Include="..\Code\GameObject\Foliage\Foliage.cpp">
       <Filter>Code\GameObject\Foliage</Filter>
@@ -173,6 +158,15 @@
     </ClCompile>
     <ClCompile Include="..\Code\Mesh\LODMesh\LODMesh.cpp">
       <Filter>Code\Mesh\LODMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationShader.cpp">
+      <Filter>Code\Shader\StandardShader\SkinnedAnimationShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationObjectShader\SkinnedAnimationObjectShader.cpp">
+      <Filter>Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationObjectShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\StandardShader\FoliageShader\FoliageShader.cpp">
+      <Filter>Code\Shader\StandardShader\FoliageShader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -236,9 +230,6 @@
     <ClInclude Include="..\Code\ShaderManager\ShaderManager.h">
       <Filter>Code\ShaderManager</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\Shader\ShadowShader\ShadowShader.h">
-      <Filter>Code\Shader\ShadowShader</Filter>
-    </ClInclude>
     <ClInclude Include="..\Code\Shader\BillboardShader\LampParticleShader\LampParticleShader.h">
       <Filter>Code\Shader\BillboardShader\LampParticleShader</Filter>
     </ClInclude>
@@ -256,12 +247,6 @@
     </ClInclude>
     <ClInclude Include="..\Code\Shader\StandardShader\StandardShader.h">
       <Filter>Code\Shader\StandardShader</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Code\Shader\StandardShader\StandardObjectsShader\StandardObjectsShader.h">
-      <Filter>Code\Shader\StandardShader\StandardObjectsShader</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Code\Shader\StandardShader\SkinnedAnimationObjectsShader\SkinnedAnimationObjectsShader.h">
-      <Filter>Code\Shader\StandardShader\SkinnedAnimationObjectsShader</Filter>
     </ClInclude>
     <ClInclude Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.h">
       <Filter>Code\Shader\CubeParticleShader</Filter>
@@ -314,14 +299,8 @@
     <ClInclude Include="..\Code\Shader\PostProcessShader\CartoonShader\SobelCartoonShader.h">
       <Filter>Code\Shader\ComputeShader\SobelCartoonShader</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\Shader\StandardShader\PlayerSkinnedShader\PlayerSkinnedShader.h">
-      <Filter>Code\Shader\StandardShader\PlayerSkinnedShader</Filter>
-    </ClInclude>
     <ClInclude Include="..\Code\GameObject\Shadow\Shadow.h">
       <Filter>Code\GameObject\Shadow</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Code\Shader\FoliageShader\FoliageShader.h">
-      <Filter>Code\Shader\FoliageShader</Filter>
     </ClInclude>
     <ClInclude Include="..\Code\GameObject\Foliage\Foliage.h">
       <Filter>Code\GameObject\Foliage</Filter>
@@ -337,6 +316,15 @@
     </ClInclude>
     <ClInclude Include="..\Code\Mesh\LODMesh\LODMesh.h.h">
       <Filter>Code\Mesh\LODMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationShader.h">
+      <Filter>Code\Shader\StandardShader\SkinnedAnimationShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationObjectShader\SkinnedAnimationObjectShader.h">
+      <Filter>Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationObjectShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\StandardShader\FoliageShader\FoliageShader.h">
+      <Filter>Code\Shader\StandardShader\FoliageShader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -444,17 +432,8 @@
     <Filter Include="Code\GameObject\Terrain">
       <UniqueIdentifier>{89ea758f-46ba-41ef-aa18-c2eb6e6f5309}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Shader\ShadowShader">
-      <UniqueIdentifier>{797f8eac-08ec-49b0-bc8d-b59016b35e28}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\Scene">
       <UniqueIdentifier>{c250057d-c5e7-49f9-b7c7-8f7b2f6f8001}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\StandardShader\StandardObjectsShader">
-      <UniqueIdentifier>{139c9385-69fa-492a-b94d-b345e8d3b486}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\StandardShader\SkinnedAnimationObjectsShader">
-      <UniqueIdentifier>{70786e25-7d14-43f4-8df2-c9e70117d77e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\GameObject\IceCube">
       <UniqueIdentifier>{6923770d-d22e-4787-9024-798ed53a93b3}</UniqueIdentifier>
@@ -498,14 +477,8 @@
     <Filter Include="Code\Shader\ComputeShader\SobelCartoonShader">
       <UniqueIdentifier>{203a2fe4-ad37-41ff-8cd0-1bdfc5546cc7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Shader\StandardShader\PlayerSkinnedShader">
-      <UniqueIdentifier>{abf594bf-9a0e-46af-aef9-b9b86e3a28d8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\GameObject\Shadow">
       <UniqueIdentifier>{a5710e34-5a27-49c6-b1aa-182e574c7056}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\FoliageShader">
-      <UniqueIdentifier>{4a082e72-24b2-4ae0-ace0-edb616d1687c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\GameObject\Foliage">
       <UniqueIdentifier>{679fdff2-ec13-47eb-992b-fa8b0ec1f024}</UniqueIdentifier>
@@ -515,6 +488,15 @@
     </Filter>
     <Filter Include="Code\Mesh\LODMesh">
       <UniqueIdentifier>{d5587de3-cb58-45ba-b592-d50c4cb87e61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader\SkinnedAnimationShader">
+      <UniqueIdentifier>{5dd3635d-8da6-42ac-9f1c-3b362eb55a1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationObjectShader">
+      <UniqueIdentifier>{abf594bf-9a0e-46af-aef9-b9b86e3a28d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader\FoliageShader">
+      <UniqueIdentifier>{4a082e72-24b2-4ae0-ace0-edb616d1687c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -36,7 +36,7 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 		auto iter = Context.find(pItem->getID());
 		if (iter != Context.end())
 			pItem->SetOOBB((*iter).second->m_xmf3Center, (*iter).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
-		pItem->Initialize(pHammer, pItem);
+		pItem->Initialize_Shadow(pHammer, pItem);
 
 		m_ItemMap.emplace("¸ÁÄ¡" + to_string(i), dynamic_cast<CItem*>(pItem));
 	}

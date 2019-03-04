@@ -117,8 +117,7 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 	//return cColor;
 }
 
-//
-float4 PSGrassStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
+float4 PSFoliage(VS_STANDARD_OUTPUT input) : SV_TARGET
 {
 	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
@@ -152,7 +151,7 @@ float4 PSGrassStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
+
 #define MAX_VERTEX_INFLUENCES			4
 #define SKINNED_ANIMATION_BONES	128
 

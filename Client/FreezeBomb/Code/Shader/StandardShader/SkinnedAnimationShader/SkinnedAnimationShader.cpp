@@ -1,15 +1,15 @@
 #include "../../../Stdafx/Stdafx.h"
-#include "PlayerSkinnedShader.h"
+#include "SkinnedAnimationShader.h"
 
-CPlayerSkinnedShader::CPlayerSkinnedShader()
+CSkinnedAnimationShader::CSkinnedAnimationShader()
 {
 }
 
-CPlayerSkinnedShader::~CPlayerSkinnedShader()
+CSkinnedAnimationShader::~CSkinnedAnimationShader()
 {
 }
 
-void CPlayerSkinnedShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
+void CSkinnedAnimationShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
 	m_nPipelineStates = 2;
 	m_ppd3dPipelineStates = new ID3D12PipelineState*[m_nPipelineStates];
@@ -41,7 +41,7 @@ void CPlayerSkinnedShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12Graphics
 	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
 
-D3D12_SHADER_BYTECODE CPlayerSkinnedShader::CreateVertexShader(int nPipelineState)
+D3D12_SHADER_BYTECODE CSkinnedAnimationShader::CreateVertexShader(int nPipelineState)
 {
 	switch (nPipelineState)
 	{
@@ -54,7 +54,7 @@ D3D12_SHADER_BYTECODE CPlayerSkinnedShader::CreateVertexShader(int nPipelineStat
 	}
 }
 
-D3D12_INPUT_LAYOUT_DESC CPlayerSkinnedShader::CreateInputLayout()
+D3D12_INPUT_LAYOUT_DESC CSkinnedAnimationShader::CreateInputLayout()
 {
 	UINT nInputElementDescs = 7;
 	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
@@ -74,7 +74,7 @@ D3D12_INPUT_LAYOUT_DESC CPlayerSkinnedShader::CreateInputLayout()
 	return(d3dInputLayoutDesc);
 }
 
-void CPlayerSkinnedShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
+void CSkinnedAnimationShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)
 {
-	CStandardShader::Render(pd3dCommandList, pCamera, nPipelineState);
+	CStandardShader::OnPrepareRender(pd3dCommandList, nPipelineState);
 }

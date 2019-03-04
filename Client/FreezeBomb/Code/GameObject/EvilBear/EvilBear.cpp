@@ -1,5 +1,6 @@
 #include "../../Stdafx/Stdafx.h"
 #include "EvilBear.h"
+#include "../Shadow/Shadow.h"
 #include "../../Material/Material.h"
 #include "../../Shader/Shader.h"
 
@@ -12,8 +13,16 @@ CEvilBear::~CEvilBear()
 {
 }
 
+void CEvilBear::Initialize_Shadow(CLoadedModelInfo* pLoadedModel, CGameObject* pGameObject)
+{
+	m_pShadow = new CShadow(pLoadedModel, this);
+}
+
 void CEvilBear::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
+	if (m_pShadow)
+		m_pShadow->Render(pd3dCommandList, pCamera, GameObject_Shadow);
+
 	OnPrepareRender();
 
 	if (m_pSkinningBoneTransforms)
@@ -46,10 +55,12 @@ void CEvilBear::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCam
 		((CEvilBear*)m_pChild)->CEvilBear::Render(pd3dCommandList, pCamera, nPipelineState);
 }
 
-void CEvilBear::Render(ID3D12GraphicsCommandList* pd3dCommandList,bool bIce,int matID, CCamera* pCamera, int nPipelineState)
+void CEvilBear::Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bHammer, bool bBomb, bool bIce, int matID, CCamera* pCamera, int nPipelineState)
 {
-	OnPrepareRender();
+	if (m_pShadow)
+		m_pShadow->Render(pd3dCommandList, pCamera, GameObject_Shadow);
 
+	OnPrepareRender();
 	if (m_pSkinningBoneTransforms)
 		m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
 
@@ -73,7 +84,8 @@ void CEvilBear::Render(ID3D12GraphicsCommandList* pd3dCommandList,bool bIce,int 
 		{
 			if (m_ppMaterials[1])
 			{
-				if (m_ppMaterials[1]->m_pShader) m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+				if (m_ppMaterials[1]->m_pShader)
+					m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
 				m_ppMaterials[1]->UpdateShaderVariables(pd3dCommandList);
 			}
 		}
@@ -105,18 +117,43 @@ void CEvilBear::Render(ID3D12GraphicsCommandList* pd3dCommandList,bool bIce,int 
 		m_pMesh->Render(pd3dCommandList, 0);
 	}
 
-	if (!strcmp(this->m_pstrFrameName, "Lamp"))		//불꽅 파티클은 일반 GameObject Rener하는 방식을 해야한다. 
+	if (!strcmp(this->m_pstrFrameName, "Lamp"))		//불꽅 파티클은 일반 GameObject Render하는 방식을 해야한다. 
 	{
-		if (m_pSibling) 
+		if (m_pSibling)
 			m_pSibling->Render(pd3dCommandList, pCamera, nPipelineState);
-		if (m_pChild) 
+		if (m_pChild)
 			m_pChild->Render(pd3dCommandList, pCamera, nPipelineState);
 	}
 	else
 	{
-		if (m_pSibling) 
-			((CEvilBear*)m_pSibling)->CEvilBear::Render(pd3dCommandList, bIce, matID, pCamera, nPipelineState);
-		if (m_pChild) 
-			((CEvilBear*)m_pChild)->CEvilBear::Render(pd3dCommandList, bIce, matID, pCamera, nPipelineState);
+		if (m_pSibling)
+		{
+			if (!strncmp(m_pSibling->m_pstrFrameName, "hammer", strlen(m_pSibling->m_pstrFrameName)))
+			{
+				if (bHammer)
+				{
+					m_pSibling->Render(pd3dCommandList, bHammer, bBomb, bIce, matID, pCamera, nPipelineState);
+				}
+			}
+			else
+			{
+				m_pSibling->Render(pd3dCommandList, bHammer, bBomb, bIce, matID, pCamera, nPipelineState);
+			}
+
+		}
+		if (m_pChild)
+		{
+			if (!strncmp(m_pChild->m_pstrFrameName, "black-handbomb", strlen(m_pChild->m_pstrFrameName)))
+			{
+				if (bBomb)
+				{
+					m_pChild->Render(pd3dCommandList, bHammer, bBomb, bIce, matID, pCamera, nPipelineState);
+				}
+			}
+			else
+			{
+				m_pChild->Render(pd3dCommandList, bHammer, bBomb, bIce, matID, pCamera, nPipelineState);
+			}
+		}
 	}
 }

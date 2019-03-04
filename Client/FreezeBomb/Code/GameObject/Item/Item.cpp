@@ -10,7 +10,7 @@ CItem::~CItem()
 {
 }
 
-void CItem::Initialize(CLoadedModelInfo* pLoadedModel, CGameObject* pGameObject)
+void CItem::Initialize_Shadow(CLoadedModelInfo* pLoadedModel, CGameObject* pGameObject)
 {
 	m_pShadow = new CShadow(pLoadedModel, this);
 }

@@ -1,13 +1,15 @@
 #pragma once
-#include "../StandardShader/StandardObjectsShader/StandardObjectsShader.h"
+
+#include "../StandardShader.h"
 
 class CLoadedModelInfo;
-class CFoliageShader : public CStandardObjectsShader
+class CFoliageShader : public CStandardShader
 {
 public:
 	CFoliageShader();
 	virtual ~CFoliageShader();
 
+	virtual void CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
 	virtual D3D12_BLEND_DESC CreateBlendState();
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader(int nPipelineState);
 
