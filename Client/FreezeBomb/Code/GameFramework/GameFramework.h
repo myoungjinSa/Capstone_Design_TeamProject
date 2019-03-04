@@ -2,6 +2,7 @@
 
 #include "../GameTimer/GameTimer.h"
 
+#define _WITH_DIRECT2D_
 
 class CScene;
 class CPlayer;
@@ -26,12 +27,15 @@ public:
 	void CreateDirect3DDevice();
 	void CreateCommandQueueAndList();
 	//void CreateDirect11DeviceOn12();
-	void CreateDirect2DDevice();
-
+	
 	void CreateRtvAndDsvDescriptorHeaps();
 
 	void CreateRenderTargetViews();
+
+#ifdef _WITH_DIRECT2D_
 	void CreateDirect2DRenderTargetViews();
+	void CreateDirect2DDevice();
+#endif
 	void CreateDepthStencilView();
 	
 
@@ -127,25 +131,10 @@ private:
 #endif
 
 
-	/////////////////////////////////////////////////////////////////////////
-	//DirectX 11 
-	/*static const UINT				FrameCount = 3;
-	ID3D11Device*					m_d3d11Device = nullptr;
-	ID3D11DeviceContext*			m_d3d11DeviceContext=nullptr;
-	ID3D11On12Device*				m_d3d11On12Device=nullptr;
-	IDWriteFactory*					m_dWriteFactory=nullptr;
-	ID2D1Factory3*					m_d2dFactory=nullptr;
-	ID2D1Device2*					m_d2dDevice=nullptr;
-	ID2D1DeviceContext2*			m_d2dDeviceContext=nullptr;
-	ID3D12Resource*					m_renderTargets[FrameCount];
-	ID3D11Resource*					m_wrappedBackBuffers[FrameCount];
-	ID2D1Bitmap1*					m_d2dRenderTargets[FrameCount];
-
-	ID2D1SolidColorBrush*			m_textBrush=nullptr;
-	IDWriteTextFormat*				m_textFormat=nullptr;*/
 
 
 
+#ifdef _WITH_DIRECT2D_
 	ID3D11On12Device				*m_pd3d11On12Device{ nullptr };//
 	ID3D11DeviceContext				*m_pd3d11DeviceContext{ nullptr };//
 	ID2D1Factory3					*m_pd2dFactory{ nullptr };//
@@ -161,7 +150,7 @@ private:
 	IDWriteTextFormat				*m_pdwFont{ nullptr };//
 	IDWriteTextLayout				*m_pdwTextLayout{ nullptr };//
 	ID2D1SolidColorBrush			*m_pd2dbrText{ nullptr };//
-	
+#endif
 
 };
 

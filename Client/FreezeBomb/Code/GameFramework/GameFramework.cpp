@@ -60,7 +60,9 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	
 	CreateDirect3DDevice();
 	CreateCommandQueueAndList();
+#ifdef _WITH_DIRECT2D_
 	CreateDirect2DDevice();
+#endif
 	CreateRtvAndDsvDescriptorHeaps();
 	CreateSwapChain();
 	CreateDepthStencilView();
@@ -204,7 +206,7 @@ void CGameFramework::CreateCommandQueueAndList()
 	hResult = m_pd3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pd3dCommandAllocator, NULL, __uuidof(ID3D12GraphicsCommandList), (void **)&m_pd3dCommandList);
 	hResult = m_pd3dCommandList->Close();
 }
-
+#ifdef _WITH_DIRECT2D_
 void CGameFramework::CreateDirect2DDevice()
 {
 	UINT nD3D11DeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
@@ -231,8 +233,10 @@ void CGameFramework::CreateDirect2DDevice()
 	nD2DFactoryOptions.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
 #endif
 	
-	//D2D1_FACTORY_TYPE_SINGLE_THREADED -> 
+	//D2D1_FACTORY_TYPE_SINGLE_THREADED ->팩토리에 접근하거나 쓰는것 또는 객체를 생성하는 것으로부터 동기화를 제공하지 않는다.
+	//									만약 팩토리나 객체들이 다중 스레드에서 호출되면, Application은 접근을 lock해준다.
 	hResult = ::D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, __uuidof(ID2D1Factory3), &nD2DFactoryOptions, (void**)&m_pd2dFactory);
+
 
 	////////////////////////////////////////////////////////////////////////////////////
 	IDXGIDevice *pdxgiDevice = NULL;
@@ -262,6 +266,8 @@ void CGameFramework::CreateDirect2DDevice()
 
 }
 
+
+#endif
 void CGameFramework::CreateRtvAndDsvDescriptorHeaps()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
@@ -290,10 +296,15 @@ void CGameFramework::CreateRenderTargetViews()
 		m_pd3dDevice->CreateRenderTargetView(m_ppd3dSwapChainBackBuffers[i], NULL, d3dRtvCPUDescriptorHandle);
 		d3dRtvCPUDescriptorHandle.ptr += m_nRtvDescriptorIncrementSize;
 	}
-
+#ifdef _WITH_DIRECT2D_
 	CreateDirect2DRenderTargetViews();
+#endif
 }
 
+#ifdef _WITH_DIRECT2D_
+// D3D12가 스왑체인을 소유한다. 그렇기 때문에 우리가 사용하는 11On12 Device에 백버퍼에 우리가 원하는것을 그리려면 
+// 우리는 ID3D12Resource 의 BackBuffer 로 부터 Wrapped Resource of type ID3D11Resource.
+// 
 void CGameFramework::CreateDirect2DRenderTargetViews()
 {
 	float fxDPI, fyDPI;
@@ -315,7 +326,7 @@ void CGameFramework::CreateDirect2DRenderTargetViews()
 
 }
 
-
+#endif
 void CGameFramework::CreateDepthStencilView()
 {
 	D3D12_RESOURCE_DESC d3dResourceDesc;
@@ -623,7 +634,7 @@ void CGameFramework::OnDestroy()
     ReleaseObjects();
 
 	::CloseHandle(m_hFenceEvent);
-
+#ifdef _WITH_DIRECT2D_
 	//Direct2D
 	if (m_pd2dbrBackground) m_pd2dbrBackground->Release();
 	if (m_pd2dbrBorder) m_pd2dbrBorder->Release();
@@ -645,7 +656,7 @@ void CGameFramework::OnDestroy()
 		if (m_ppd2dRenderTargets[i]) m_ppd2dRenderTargets[i]->Release();
 	}
 
-
+#endif
 	if (m_pd3dDepthStencilBuffer) m_pd3dDepthStencilBuffer->Release();
 	if (m_pd3dDsvDescriptorHeap) m_pd3dDsvDescriptorHeap->Release();
 
@@ -908,9 +919,9 @@ void CGameFramework::FrameAdvance()
 		}
 	}
 
-	
+#ifndef _WITH_DIRECT2D_
 	::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-
+#endif
 
 	hResult = m_pd3dCommandList->Close();
 	
@@ -919,7 +930,7 @@ void CGameFramework::FrameAdvance()
 
 	WaitForGpuComplete();
 
-
+#ifdef _WITH_DIRECT2D_
 	m_pd3d11On12Device->AcquireWrappedResources(&m_ppd3d11WrappedBackBuffers[m_nSwapChainBufferIndex], 1);
 	m_pd2dDeviceContext->SetTarget(m_ppd2dRenderTargets[m_nSwapChainBufferIndex]);
 
@@ -943,6 +954,8 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3d11DeviceContext->Flush();
 
+	
+#endif
 
 #ifdef _WITH_PRESENT_PARAMETERS
 	DXGI_PRESENT_PARAMETERS dxgiPresentParameters;
