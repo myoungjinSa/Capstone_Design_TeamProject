@@ -131,9 +131,6 @@ private:
 #endif
 
 
-
-
-
 #ifdef _WITH_DIRECT2D_
 	ID3D11On12Device				*m_pd3d11On12Device{ nullptr };//
 	ID3D11DeviceContext				*m_pd3d11DeviceContext{ nullptr };//
@@ -147,7 +144,7 @@ private:
 
 	ID2D1SolidColorBrush			*m_pd2dbrBackground{ nullptr };//
 	ID2D1SolidColorBrush			*m_pd2dbrBorder{ nullptr };//
-	IDWriteTextFormat				*m_pdwFont{ nullptr };//
+	IDWriteTextFormat				*m_pdwFont[1]{ nullptr };//
 	IDWriteTextLayout				*m_pdwTextLayout{ nullptr };//
 	ID2D1SolidColorBrush			*m_pd2dbrText{ nullptr };//
 

@@ -24,6 +24,10 @@ public:
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 	DWORD    GetDirection() { return m_dwDirection; }
 
+	_TCHAR* GetPlayerName() { return m_playerName; }
+
+	void SetPlayerName(const _TCHAR* nPlayerName) { wcscpy_s(m_playerName, nPlayerName); }
+
 	void SetDirection(DWORD direction) { m_dwDirection = direction; }
 	void SetFriction(float fFriction) { m_fFriction = fFriction; }
 	void SetGravity(const XMFLOAT3& xmf3Gravity) { m_xmf3Gravity = xmf3Gravity; }
@@ -79,6 +83,9 @@ public:
 	CShadow*	getShadow()		const { return m_pShadow; }
 
 protected:
+
+	_TCHAR				m_playerName[256];
+
 	XMFLOAT3			m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3			m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	XMFLOAT3			m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);

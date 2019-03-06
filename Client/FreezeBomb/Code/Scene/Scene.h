@@ -64,6 +64,9 @@ public:
 	void ReleaseUploadBuffers();
 
 	void setPlayer(CPlayer* pPlayer) { m_pPlayer = pPlayer; }
+	void SetPlayerCount(UINT nPlayerCount) { m_playerCount = nPlayerCount;}
+
+	UINT GetPlayerCount() { return m_playerCount; }
 
 	CShaderManager* getShaderManager()	const { return m_pShaderManager; }
 	void CheckObjectByObjectCollisions();
@@ -118,6 +121,9 @@ private:
 	CSoundSystem*				m_pSound = NULL;
 	const char**				m_musicList = NULL;
 	int							m_musicCount;
+
+	//게임 플레이어 수
+	UINT						m_playerCount;
 
 	CShaderManager*	m_pShaderManager{ nullptr };
 };

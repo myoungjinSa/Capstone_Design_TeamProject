@@ -256,12 +256,12 @@ void CGameFramework::CreateDirect2DDevice()
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(0.3f, 0.0f, 0.0f, 0.5f), &m_pd2dbrBackground);
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF(0x9ACD32, 1.0f)), &m_pd2dbrBorder);
 
-	hResult = m_pdWriteFactory->CreateTextFormat(L"궁서체", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_ITALIC, DWRITE_FONT_STRETCH_NORMAL, 48.0f, L"en-US", &m_pdwFont);
-	hResult = m_pdwFont->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-	hResult = m_pdwFont->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+	hResult = m_pdWriteFactory->CreateTextFormat(L"궁서체", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_ITALIC, DWRITE_FONT_STRETCH_NORMAL, 30.0f, L"en-US", &m_pdwFont[0]);
+	hResult = m_pdwFont[0]->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+	hResult = m_pdwFont[0]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 	
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Purple, 1.0f), &m_pd2dbrText);
-	hResult = m_pdWriteFactory->CreateTextLayout(L"텍스트 레이아웃", 8, m_pdwFont, 4096.0f, 4096.0f, &m_pdwTextLayout);
+	hResult = m_pdWriteFactory->CreateTextLayout(L"텍스트 레이아웃", 8, m_pdwFont[0], 4096.0f, 4096.0f, &m_pdwTextLayout);
 
 	//nitializes the COM library on the current thread and identifies the concurrency model as single-thread apartment 
 	CoInitialize(NULL);
@@ -276,11 +276,11 @@ void CGameFramework::CreateDirect2DDevice()
 
 	IWICBitmapFrameDecode *pwicFrameDecode;
 	pwicBitmapDecoder->GetFrame(0, &pwicFrameDecode);	//GetFrame() : Retrieves the specified frame of the image.
-	
+
+
 	//CreateFormatConverter::Creates a new instance of the IWICFormatConverter class.
 	m_pwicImagingFactory->CreateFormatConverter(&m_pwicFormatConverter);
-	
-	
+
 	//Initializes the format converter.
 	//1. WIICBitmapSource* : the input bitmap to convert
 	//2. REFWICPixelFormatGUID : The destination pixel format GUID.
@@ -293,21 +293,19 @@ void CGameFramework::CreateDirect2DDevice()
 	//   WICBitmapPaletteTypeCustom -> An arbitrary custom palette provided by caller.
 	m_pwicFormatConverter->Initialize(pwicFrameDecode, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 0.0f, WICBitmapPaletteTypeCustom);
 	
-	
 	//D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE : The IWICBitmapSource containing loaded. The type is IWICBitmapSource.
 	m_pd2dfxBitmapSource->SetValue(D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE,m_pwicFormatConverter);
 	
+	D2D1_VECTOR_2F	vec{ 1.0f,1.6f };
+	m_pd2dfxBitmapSource->SetValue(D2D1_BITMAPSOURCE_PROP_SCALE, vec);
 
+	//ScoreBoard
 	if(pwicBitmapDecoder) 
-	{
 		pwicBitmapDecoder->Release();
-	}
 
 	if (pwicFrameDecode)
-	{
 		pwicFrameDecode->Release();
-	}
-
+		
 }
 
 #endif
@@ -692,7 +690,7 @@ void CGameFramework::OnDestroy()
 	//Direct2D
 	if (m_pd2dbrBackground) m_pd2dbrBackground->Release();
 	if (m_pd2dbrBorder) m_pd2dbrBorder->Release();
-	if (m_pdwFont) m_pdwFont->Release();
+	if (m_pdwFont[0]) m_pdwFont[0]->Release();
 	if (m_pdwTextLayout) m_pdwTextLayout->Release();
 	if (m_pd2dbrText) m_pd2dbrText->Release();
 
@@ -714,7 +712,6 @@ void CGameFramework::OnDestroy()
 	if (m_pd2dsbDrawingState) m_pd2dsbDrawingState->Release();
 	if (m_pwicFormatConverter) m_pwicFormatConverter->Release();
 	if (m_pwicImagingFactory) m_pwicImagingFactory->Release();
-
 
 #endif
 	if (m_pd3dDepthStencilBuffer) m_pd3dDepthStencilBuffer->Release();
@@ -761,7 +758,8 @@ void CGameFramework::BuildObjects()
 			CTerrain* pTerrain = dynamic_cast<CTerrainShader*>((*iter).second)->getTerrain();
 			pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),CGameObject::MATERIALTYPE::PANDA,pTerrain);		
 			pPlayer->SetPosition(XMFLOAT3(0.f, pTerrain->GetHeight(0.f, 0.f), 0.f));
-			pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));	
+			pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
+			pPlayer->SetPlayerName(L"사명진");
 
 			map<string, Bounds*> BoundMap = m_pScene->getShaderManager()->getResourceManager()->getBoundMap();
 			auto iter2 = BoundMap.find(pPlayer->getID());
@@ -1016,9 +1014,16 @@ void CGameFramework::FrameAdvance()
 		//const D2D1_POINT_2F point = { 100.0f,0.0f };
 		//const D2D1_RECT_F scale = { 10.0f,10.0f,szRenderTarget.width+500,szRenderTarget.height };
 		m_pd2dDeviceContext->DrawImage(m_pd2dfxBitmapSource);
+		D2D1_RECT_F rcText = D2D1::RectF(0, 0, szRenderTarget.width * 0.2f , szRenderTarget.height * 0.45f);
+	
+		m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[0], &rcText, m_pd2dbrText);
+	
+
+		
 	}
 	////////////////////////////////////////////////////////////////////////
 	//WITH_DIRECT2D_IMAGE_EFFECT
+
 
 	////////////////////////////////////////////////////////////////////////
 
@@ -1027,7 +1032,7 @@ void CGameFramework::FrameAdvance()
 	D2D1_RECT_F rcUpperText = D2D1::RectF(0, 0, szRenderTarget.width, szRenderTarget.height * 0.5f);
 	
 	//IDWriteTextFormat (interface) : 텍스트 형식에 사용되는 폰트를 서술함. 
-	m_pd2dDeviceContext->DrawTextW(m_pszFrameRate, (UINT32)wcslen(m_pszFrameRate), m_pdwFont, &rcUpperText, m_pd2dbrText);
+	m_pd2dDeviceContext->DrawTextW(m_pszFrameRate, (UINT32)wcslen(m_pszFrameRate), m_pdwFont[0], &rcUpperText, m_pd2dbrText);
 	m_pd2dDeviceContext->EndDraw();
 
 	//Releases D3D11 resources that were wrapped for D3D 11on12
