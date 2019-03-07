@@ -42,8 +42,6 @@ CGameFramework::CGameFramework()
 	m_pScene = NULL;
 	m_pPlayer = NULL;
 
-	
-
 	_tcscpy_s(m_pszFrameRate, _T("FreezeBomb ("));
 }
 
@@ -791,9 +789,6 @@ void CGameFramework::AnimateObjects()
 
 	m_pPlayer->Animate(fTimeElapsed);
 	m_pPlayer->UpdateTransform(NULL);
-
-	if(m_pScene)
-		m_pScene->CheckObjectByObjectCollisions();
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -870,6 +865,9 @@ void CGameFramework::FrameAdvance()
 
 	if (m_pPlayer)
 		m_pPlayer->Render(m_pd3dCommandList, m_pCamera, GameObject);
+
+	if (m_pScene)
+		m_pScene->CheckObjectByObjectCollisions();
 
 	if (m_pCartoonShader)
 	{

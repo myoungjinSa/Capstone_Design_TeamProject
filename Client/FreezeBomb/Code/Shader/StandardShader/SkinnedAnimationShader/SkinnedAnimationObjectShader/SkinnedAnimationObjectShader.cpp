@@ -44,7 +44,7 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 	//m_ppObjects[1]->m_pAnimationController->SetTrackAnimationSet(1, 2);
 	m_ppObjects[1]->m_pAnimationController->SetTrackAnimationSet(0, 9);
 	m_ppObjects[1]->m_pAnimationController->SetTrackSpeed(0, 0.8f);
-	//m_ppObjects[1]->m_pAnimationController->SetTrackWeight(0, 0.9);
+	m_ppObjects[1]->m_pAnimationController->SetTrackWeight(0, 0.9);
 	//m_ppObjects[1]->m_pAnimationController->SetTrackWeight(1, 0.1);
 	// 애니메이션의 속도를 0.25로 주어서 느리게 애니메이션 동작을 하도록 Set
 	m_ppObjects[1]->m_pAnimationController->SetTrackSpeed(0, 0.25f);
@@ -94,6 +94,7 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 void CSkinnedAnimationObjectShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer* pPlayer)
 {
 	m_fElapsedTime = fTimeElapsed;
+	
 	for (int i = 0; i < m_nObjects; ++i)
 	{
 		if (m_ppObjects[i])
@@ -105,15 +106,17 @@ void CSkinnedAnimationObjectShader::AnimateObjects(float fTimeElapsed, CCamera* 
 
 void CSkinnedAnimationObjectShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)
 {
-	CSkinnedAnimationShader::Render(pd3dCommandList, pCamera, nPipelineState);
-
 	for (int i = 0; i < m_nObjects; ++i)
 	{
 		if (m_ppObjects[i])
 		{
-			m_ppObjects[i]->Animate(m_fElapsedTime);
 			m_ppObjects[i]->UpdateTransform(NULL);
-			m_ppObjects[i]->Render(pd3dCommandList, m_ppObjects[i]->GetIsHammer(), m_ppObjects[i]->GetIsBomb(), m_ppObjects[i]->GetBoolIce(), m_ppObjects[i]->GetMaterialID(), pCamera);
+			m_ppObjects[i]->Render(pd3dCommandList, 
+				m_ppObjects[i]->GetIsHammer(), 
+				m_ppObjects[i]->GetIsBomb(), 
+				m_ppObjects[i]->GetBoolIce(), 
+				m_ppObjects[i]->GetMaterialID(), 
+				pCamera, nPipelineState);
 		}
 	}
 }

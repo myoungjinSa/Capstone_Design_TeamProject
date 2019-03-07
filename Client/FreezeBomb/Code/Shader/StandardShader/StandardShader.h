@@ -29,6 +29,4 @@ protected:
 
 	ID3D12PipelineState**				m_ppd3dPipelineStates{ nullptr };
 	int												m_nPipelineStates = 0;
-
-	vector<CGameObject*>			m_ShadowObjectVector;
 };

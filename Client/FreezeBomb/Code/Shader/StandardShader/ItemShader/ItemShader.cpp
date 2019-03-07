@@ -55,8 +55,6 @@ void CItemShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer* 
 
 void CItemShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
-	CStandardShader::Render(pd3dCommandList, pCamera, nPipelineState);
-
 	for (auto iter = m_ItemMap.begin(); iter != m_ItemMap.end(); ++iter)
 	{
 		(*iter).second->UpdateTransform(nullptr);

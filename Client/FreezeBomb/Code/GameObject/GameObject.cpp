@@ -908,26 +908,11 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 				{
 					if (nMeshType & VERTEXT_BONE_INDEX_WEIGHT)
 					{
-						//if (type == "Player")
-						//{
-						//	if (pMaterial->getPlayerSkinnedAnimationShader() == nullptr)
-						//		pMaterial->Initialize(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CMaterial::Skinned, pMaterial->getPlayerSkinnedAnimationShader());
-						//	pMaterial->setPlayerSkinnedAnimationShader();
-						//}
-						//else
-							pMaterial->SetSkinnedAnimationShader();
+						pMaterial->SetSkinnedAnimationShader();
 					}
 					else
 					{
-						//if (type == "Player")
-						//{
-						//	if (pMaterial->getPlayerStandardShader() == nullptr)
-						//		pMaterial->Initialize(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CMaterial::Standard, pMaterial->getPlayerStandardShader());
-						//	else
-						//		pMaterial->setPlayerSkinnedAnimationShader();
-						//}
-						//else
-							pMaterial->SetStandardShader();
+						pMaterial->SetStandardShader();
 					}
 				}
 			}
@@ -1178,8 +1163,9 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 			nReads = (UINT)::fread(pAnimationSet->m_pstrName, sizeof(char), nStrLength, pInFile);
 			pAnimationSet->m_pstrName[nStrLength] = '\0';
 
+			// 애니메이션이 안되는 문제해결해야댐
 			if (!strcmp(pAnimationSet->m_pstrName, "ATK3") || !strcmp(pAnimationSet->m_pstrName, "Digging") 
-				|| !strcmp(pAnimationSet->m_pstrName,"Jump")) 
+			/*	|| !strcmp(pAnimationSet->m_pstrName,"Jump")*/ ) 
 			{
 				pAnimationSet->m_nType = ANIMATION_TYPE_ONCE;
 			}

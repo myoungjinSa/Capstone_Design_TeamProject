@@ -13,7 +13,4 @@ public:
 		const map<string, Bounds*>& Context, void *pContext = nullptr);
 	virtual void AnimateObjects(float fTimeElapsed, CCamera *pCamera, CPlayer* pPlayer = nullptr);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState);
-
-private:
-
 };

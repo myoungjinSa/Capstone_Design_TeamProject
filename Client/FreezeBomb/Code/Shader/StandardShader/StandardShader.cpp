@@ -214,13 +214,6 @@ void CStandardShader::ReleaseObjects()
 				m_ppObjects[i]->Release();
 		delete[] m_ppObjects;
 	}
-
-	for (auto iter = m_ShadowObjectVector.begin(); iter != m_ShadowObjectVector.end();)
-	{
-		delete (*iter);
-		iter = m_ShadowObjectVector.erase(iter);
-	}
-	m_ShadowObjectVector.clear();
 }
 
 void CStandardShader::ReleaseUploadBuffers()
@@ -228,9 +221,6 @@ void CStandardShader::ReleaseUploadBuffers()
 	for (int i = 0; i < m_nObjects; ++i)
 		if (m_ppObjects[i])
 			m_ppObjects[i]->ReleaseUploadBuffers();
-
-	for (auto iter = m_ShadowObjectVector.begin(); iter != m_ShadowObjectVector.end(); ++iter)
-		(*iter)->ReleaseUploadBuffers();
 }
 
 XMFLOAT4X4 CStandardShader::UpdateShadow(int index)
