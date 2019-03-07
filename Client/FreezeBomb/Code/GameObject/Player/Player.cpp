@@ -50,6 +50,7 @@ CPlayer::~CPlayer()
 	}
 	m_Special_Inventory.clear();
 	
+
 	//if (m_pShadow)
 	//	m_pShadow->Release();
 }

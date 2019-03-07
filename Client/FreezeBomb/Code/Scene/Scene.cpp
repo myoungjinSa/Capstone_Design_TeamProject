@@ -22,7 +22,8 @@ D3D12_CPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvCPUDescriptorNextHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvGPUDescriptorNextHandle;
 
 CScene::CScene()
-	:m_musicCount(0)
+	:m_musicCount(0),
+	 m_playerCount(0)
 {
 	
 }

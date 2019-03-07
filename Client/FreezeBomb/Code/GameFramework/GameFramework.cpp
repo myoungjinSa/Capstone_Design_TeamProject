@@ -56,19 +56,16 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	m_hWnd = hMainWnd;
 
 	
-
 	CreateDirect3DDevice();
 	CreateCommandQueueAndList();
+#ifdef _WITH_DIRECT2D_
+	CreateDirect2DDevice();
+#endif
 	CreateRtvAndDsvDescriptorHeaps();
 	CreateSwapChain();
-
-	//CreateDirect11DeviceOn12();
-	
 	CreateDepthStencilView();
 
 	CoInitialize(NULL);
-
-	//CreateDirectSound();
 
 	BuildObjects();
 
@@ -208,6 +205,109 @@ void CGameFramework::CreateCommandQueueAndList()
 	hResult = m_pd3dCommandList->Close();
 }
 
+#ifdef _WITH_DIRECT2D_
+void CGameFramework::CreateDirect2DDevice()
+{
+	UINT nD3D11DeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+
+#if defined(_DEBUG)
+	nD3D11DeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+	//ID3D12Device 생성 후 ID3D11On12Device 를 생성한다.
+	//ID3D11Device는 D3D11OnCreateDevice API를 통해 ID3D12Device에 Wrapping되어있다.
+	//이 api는 11On12 디바이스에 명령들을  ID3D12CommandQueue에 제출하는 역할을 한다.
+	//ID3D11Device 가 생성된 후에, ID3D11On12Device 인터페이스를 ID3D11Device로 부터 요청할 수 있다.
+	//ID3D11On12Device 가 D2D를 설치하는데 사용하는 주 디바이스가 된다.
+	ID3D11Device *pd3d11Device = NULL;
+	HRESULT hResult = ::D3D11On12CreateDevice(m_pd3dDevice, nD3D11DeviceFlags, NULL, 0, (IUnknown **)&m_pd3dCommandQueue, 1, 0, &pd3d11Device, &m_pd3d11DeviceContext, NULL);
+	hResult = pd3d11Device->QueryInterface(__uuidof(ID3D11On12Device), (void **)&m_pd3d11On12Device);
+	if (pd3d11Device) pd3d11Device->Release();
+
+
+	//11On12 디바이스가 생성된 후, 우리는 이 디바이스를 D2DFactory와 디바이스를 
+	//다이렉트 11에서 했던 것 과 동일하게 생성해준다.
+
+	D2D1_FACTORY_OPTIONS nD2DFactoryOptions = { D2D1_DEBUG_LEVEL_NONE };
+#if defined(_DEBUG)
+	nD2DFactoryOptions.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
+#endif
+	
+	//D2D1_FACTORY_TYPE_SINGLE_THREADED ->팩토리에 접근하거나 쓰는것 또는 객체를 생성하는 것으로부터 동기화를 제공하지 않는다.
+	//									만약 팩토리나 객체들이 다중 스레드에서 호출되면, Application은 접근을 lock해준다.
+	hResult = ::D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, __uuidof(ID2D1Factory3), &nD2DFactoryOptions, (void**)&m_pd2dFactory);
+
+
+	////////////////////////////////////////////////////////////////////////////////////
+	IDXGIDevice *pdxgiDevice = NULL;
+	hResult = m_pd3d11On12Device->QueryInterface(__uuidof(IDXGIDevice), (void **)&pdxgiDevice);
+	hResult = m_pd2dFactory->CreateDevice(pdxgiDevice, &m_pd2dDevice);
+	hResult = m_pd2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_pd2dDeviceContext);
+	hResult = ::DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), (IUnknown **)&m_pdWriteFactory);
+
+	if(pdxgiDevice) 
+	{
+		pdxgiDevice->Release();
+	}
+
+	m_pd2dDeviceContext->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
+
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(0.3f, 0.0f, 0.0f, 0.5f), &m_pd2dbrBackground);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF(0x9ACD32, 1.0f)), &m_pd2dbrBorder);
+
+	hResult = m_pdWriteFactory->CreateTextFormat(L"궁서체", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_ITALIC, DWRITE_FONT_STRETCH_NORMAL, 30.0f, L"en-US", &m_pdwFont[0]);
+	hResult = m_pdwFont[0]->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+	hResult = m_pdwFont[0]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+	
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Purple, 1.0f), &m_pd2dbrText);
+	hResult = m_pdWriteFactory->CreateTextLayout(L"텍스트 레이아웃", 8, m_pdwFont[0], 4096.0f, 4096.0f, &m_pdwTextLayout);
+
+	//nitializes the COM library on the current thread and identifies the concurrency model as single-thread apartment 
+	CoInitialize(NULL);
+	hResult = CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory), (void**)&m_pwicImagingFactory);
+
+	hResult = m_pd2dFactory->CreateDrawingStateBlock( &m_pd2dsbDrawingState);
+	hResult = m_pd2dDeviceContext->CreateEffect(CLSID_D2D1BitmapSource, &m_pd2dfxBitmapSource);
+
+
+	IWICBitmapDecoder *pwicBitmapDecoder;
+	hResult = m_pwicImagingFactory->CreateDecoderFromFilename(L"../Resource/Png/ScoreBoard.png", NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &pwicBitmapDecoder);
+
+	IWICBitmapFrameDecode *pwicFrameDecode;
+	pwicBitmapDecoder->GetFrame(0, &pwicFrameDecode);	//GetFrame() : Retrieves the specified frame of the image.
+
+
+	//CreateFormatConverter::Creates a new instance of the IWICFormatConverter class.
+	m_pwicImagingFactory->CreateFormatConverter(&m_pwicFormatConverter);
+
+	//Initializes the format converter.
+	//1. WIICBitmapSource* : the input bitmap to convert
+	//2. REFWICPixelFormatGUID : The destination pixel format GUID.
+	//3. WICBitmapDitherType : The WICBitmapDitherType used for conversation.
+	// WICBitmapDitherTypeNone -> A solid color algorithm without dither.
+	//							//떨림이 없는 단색 알고리즘	
+	//4. IWICPalette*  : The palette to use for conversation.
+	//5. double : the alpha threshold to use for conversation.
+	//6. WICBitmapPaletteType : the palette translation type to use for conversation.
+	//   WICBitmapPaletteTypeCustom -> An arbitrary custom palette provided by caller.
+	m_pwicFormatConverter->Initialize(pwicFrameDecode, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 0.0f, WICBitmapPaletteTypeCustom);
+	
+	//D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE : The IWICBitmapSource containing loaded. The type is IWICBitmapSource.
+	m_pd2dfxBitmapSource->SetValue(D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE,m_pwicFormatConverter);
+	
+	D2D1_VECTOR_2F	vec{ 1.0f,1.6f };
+	m_pd2dfxBitmapSource->SetValue(D2D1_BITMAPSOURCE_PROP_SCALE, vec);
+
+	//ScoreBoard
+	if(pwicBitmapDecoder) 
+		pwicBitmapDecoder->Release();
+
+	if (pwicFrameDecode)
+		pwicFrameDecode->Release();
+		
+}
+
+#endif
+
 void CGameFramework::CreateRtvAndDsvDescriptorHeaps()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
@@ -236,8 +336,47 @@ void CGameFramework::CreateRenderTargetViews()
 		m_pd3dDevice->CreateRenderTargetView(m_ppd3dSwapChainBackBuffers[i], NULL, d3dRtvCPUDescriptorHandle);
 		d3dRtvCPUDescriptorHandle.ptr += m_nRtvDescriptorIncrementSize;
 	}
+#ifdef _WITH_DIRECT2D_
+	CreateDirect2DRenderTargetViews();
+#endif
 }
 
+#ifdef _WITH_DIRECT2D_
+// D3D12가 스왑체인을 소유한다. 그렇기 때문에 우리가 사용하는 11On12 Device에 백버퍼에 우리가 원하는것을 그리려면 
+// 우리는 ID3D12Resource 의 BackBuffer 로 부터 Wrapped Resource of type ID3D11Resource.
+// 이것은 ID3D12Resource 와 D3D11 기반의 인터페이스들을 연결해준다.
+// 이것은 또한 11On12Device에서도 사용가능하다. 
+// 우리는 Wrapped Resource 를 가진 후 부터 우리는 D2D Render Target Surface 를 생성할 수 있다.
+// 뿐만 아니라 Load Assets메소드안 에 있는 렌더 타겟도 가능하다.
+void CGameFramework::CreateDirect2DRenderTargetViews()
+{
+	float fxDPI, fyDPI;
+
+	m_pd2dFactory->GetDesktopDpi(&fxDPI, &fyDPI); // 현재 데스크톱에 dots per inch(DPI)를 검색하고 ,각 변수들에 할당해준다.
+
+	//D2D1_BITMAP_PROPERTIES1	 : 
+	//1. D2D1_BITMAP_OPTIONS     : 비트맵의 용도 옵션.  EX> D2D1_BITMAP_OPTIONS_TARGET : the bitmap can be used as a device context target.
+	//												   EX> D2D1_BITMAP_OPTIONS_CANNOT_DRAW : the bitmap cannot be used an input.
+	//2. const D2D1_PIXEL_FORMAT : 비트맵의 픽셀 형식과 알파 모드.  EX> D2D1_ALPHA_MODE_PREMULTIPLIED :  알파값이 미리 곱해진다.
+	D2D1_BITMAP_PROPERTIES1 d2dBitmapProperties = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW, D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED), fxDPI, fxDPI);
+
+	for (UINT i = 0; i < m_nSwapChainBuffers; i++)
+	{
+
+		D3D11_RESOURCE_FLAGS d3d11Flags = { D3D11_BIND_RENDER_TARGET };
+		//CreateWrappedResource-> 이 함수는 D3D11On12 에서 사용가능한  D3D11 리소스들을 만들어준다.
+		m_pd3d11On12Device->CreateWrappedResource(m_ppd3dSwapChainBackBuffers[i], &d3d11Flags, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, __uuidof(ID3D11Resource), (void**)&m_ppd3d11WrappedBackBuffers[i]);
+
+		IDXGISurface *pdxgiSurface = NULL;
+		m_ppd3d11WrappedBackBuffers[i]->QueryInterface(__uuidof(IDXGISurface), (void**)&pdxgiSurface);
+		//CreateBitmapFromDxgiSurface() -> DXGI표면에서 대상 표면으로 설정하거나 추가 색상 컨텍스트 정보를 지정할 수 있는 비트맵을 만듭니다. 
+		m_pd2dDeviceContext->CreateBitmapFromDxgiSurface(pdxgiSurface, &d2dBitmapProperties, &m_ppd2dRenderTargets[i]);
+		if (pdxgiSurface) pdxgiSurface->Release();
+	}
+
+}
+
+#endif
 void CGameFramework::CreateDepthStencilView()
 {
 	D3D12_RESOURCE_DESC d3dResourceDesc;
@@ -306,78 +445,7 @@ void CGameFramework::ChangeSwapChainState()
 
 	CreateRenderTargetViews();
 }
-void CGameFramework::CreateDirect11DeviceOn12()
-{
-	HRESULT hResult;
-	UINT d3d11DeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;		//Note  Required for Direct2D interoperability with Direct3D resources.
 
-	UINT dxgiFactoryFlags = 0;
-	D2D1_FACTORY_OPTIONS d2dFactoryOptions = {};
-
-//#if defined(_DEBUG)
-//	// Enable the debug layer (requires the Graphics Tools "optional feature").
-//	// NOTE: Enabling the debug layer after device creation will invalidate the active device.
-//	{
-//		ComPtr<ID3D12Debug> debugController;
-//		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
-//		{
-//			debugController->EnableDebugLayer();
-//
-//			// Enable additional debug layers.
-//			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
-//			d3d11DeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-//			d2dFactoryOptions.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
-//		}
-//	}
-//#endif
-//
-//#if defined(_DEBUG)
-//	// Filter a debug error coming from the 11on12 layer.
-//	ComPtr<ID3D12InfoQueue> infoQueue;
-//	if (SUCCEEDED(m_pd3dDevice->QueryInterface(IID_PPV_ARGS(&infoQueue))))
-//	{
-//		// Suppress whole categories of messages.
-//		//D3D12_MESSAGE_CATEGORY categories[] = {};
-//
-//		// Suppress messages based on their severity level.
-//		D3D12_MESSAGE_SEVERITY severities[] =
-//		{
-//			D3D12_MESSAGE_SEVERITY_INFO,
-//		};
-//
-//		// Suppress individual messages by their ID.
-//		D3D12_MESSAGE_ID denyIds[] =
-//		{
-//			// This occurs when there are uninitialized descriptors in a descriptor table, even when a
-//			// shader does not access the missing descriptors.
-//			D3D12_MESSAGE_ID_INVALID_DESCRIPTOR_HANDLE,
-//		};
-//
-//		D3D12_INFO_QUEUE_FILTER filter = {};
-//		//filter.DenyList.NumCategories = _countof(categories);
-//		//filter.DenyList.pCategoryList = categories;
-//		filter.DenyList.NumSeverities = _countof(severities);
-//		filter.DenyList.pSeverityList = severities;
-//		filter.DenyList.NumIDs = _countof(denyIds);
-//		filter.DenyList.pIDList = denyIds;
-//
-//		HRESULT hr;
-//		hr = infoQueue->PushStorageFilter(&filter);
-//		if (FAILED(hr))
-//		{
-//			return;
-//		}
-//	}
-//#endif
-
-	//ComPtr<ID3D11Device> d3d11Device;
-	hResult = D3D11On12CreateDevice(m_pd3dDevice, d3d11DeviceFlags, nullptr, 0, reinterpret_cast<IUnknown**>(m_pd3dCommandQueue), 1, 0, &m_d3d11Device, &m_d3d11DeviceContext, nullptr);
-	if (FAILED(hResult))
-	{
-		return;
-	}
-
-}
 
 void CGameFramework::CreateOffScreenRenderTargetViews()
 {
@@ -405,6 +473,7 @@ void CGameFramework::CreateOffScreenRenderTargetViews()
 	m_pCartoonShader->CreateGraphicsRootSignature(m_pd3dDevice);
 	m_pCartoonShader->CreateShader(m_pd3dDevice, m_pCartoonShader->GetGraphicsRootSignature(), 1);
 	m_pCartoonShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, pTextureForCartoonProcessing);
+
 }
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
@@ -615,7 +684,34 @@ void CGameFramework::OnDestroy()
     ReleaseObjects();
 
 	::CloseHandle(m_hFenceEvent);
+#ifdef _WITH_DIRECT2D_
+	//Direct2D
+	if (m_pd2dbrBackground) m_pd2dbrBackground->Release();
+	if (m_pd2dbrBorder) m_pd2dbrBorder->Release();
+	if (m_pdwFont[0]) m_pdwFont[0]->Release();
+	if (m_pdwTextLayout) m_pdwTextLayout->Release();
+	if (m_pd2dbrText) m_pd2dbrText->Release();
 
+	//Direct11
+	if (m_pd2dDeviceContext) m_pd2dDeviceContext->Release();
+	if (m_pd2dDevice) m_pd2dDevice->Release();
+	if (m_pdWriteFactory) m_pdWriteFactory->Release();
+	if (m_pd3d11On12Device) m_pd3d11On12Device->Release();
+	if (m_pd3d11DeviceContext) m_pd3d11DeviceContext->Release();
+	if (m_pd2dFactory) m_pd2dFactory->Release();
+
+	for (int i = 0; i < m_nSwapChainBuffers; i++)
+	{
+		if (m_ppd3d11WrappedBackBuffers[i]) m_ppd3d11WrappedBackBuffers[i]->Release();
+		if (m_ppd2dRenderTargets[i]) m_ppd2dRenderTargets[i]->Release();
+	}
+
+	if (m_pd2dfxBitmapSource) m_pd2dfxBitmapSource->Release();
+	if (m_pd2dsbDrawingState) m_pd2dsbDrawingState->Release();
+	if (m_pwicFormatConverter) m_pwicFormatConverter->Release();
+	if (m_pwicImagingFactory) m_pwicImagingFactory->Release();
+
+#endif
 	if (m_pd3dDepthStencilBuffer) m_pd3dDepthStencilBuffer->Release();
 	if (m_pd3dDsvDescriptorHeap) m_pd3dDsvDescriptorHeap->Release();
 
@@ -660,7 +756,8 @@ void CGameFramework::BuildObjects()
 			CTerrain* pTerrain = dynamic_cast<CTerrainShader*>((*iter).second)->getTerrain();
 			pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),CGameObject::MATERIALTYPE::PANDA,pTerrain);		
 			pPlayer->SetPosition(XMFLOAT3(0.f, pTerrain->GetHeight(0.f, 0.f), 0.f));
-			pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));	
+			pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
+			pPlayer->SetPlayerName(L"사명진");
 
 			map<string, Bounds*> BoundMap = m_pScene->getShaderManager()->getResourceManager()->getBoundMap();
 			auto iter2 = BoundMap.find(pPlayer->getID());
@@ -877,29 +974,73 @@ void CGameFramework::FrameAdvance()
 			m_pCartoonShader->Render(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
 		}
 	}
-	
+	//Direct2D를 사용하면 스왑체인 버퍼 리소스 전이를 Present로 바꿔주면 안된다. 
+#ifndef _WITH_DIRECT2D_
 	::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-
-	//////////////////////////////////////////////////////////////////////////////////
-	//D2D1_SIZE_F renderTargetSize = m_pRenderTarget->GetSize();
-
-	//m_pRenderTarget->BeginDraw();
-
-	//m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
-
-
-	//m_pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
-
-	//m_pRenderTarget->EndDraw();
-
-	////////////////////////////////////////////////////////////////////////////////
+#endif
 
 	hResult = m_pd3dCommandList->Close();
 	
 	ID3D12CommandList *ppd3dCommandLists[] = { m_pd3dCommandList };
 	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 
+	
 	WaitForGpuComplete();
+
+
+#ifdef _WITH_DIRECT2D_
+	
+	
+	//AcquireWrappedResources() D3D11On12 디바이스에서 사용될 수 있는 D3D11 리소스들을 얻게해준다.
+	//이 함수는 렌더링 할 Wrapped Resource 들을 다시 사용할 수 있다고 암시해준다. 
+	m_pd3d11On12Device->AcquireWrappedResources(&m_ppd3d11WrappedBackBuffers[m_nSwapChainBufferIndex], 1);
+	
+	//Direct2D 디바이스가 렌더 할 비트맵이나 커맨드 리스트를 설정한다.
+	m_pd2dDeviceContext->SetTarget(m_ppd2dRenderTargets[m_nSwapChainBufferIndex]);
+
+	m_pd2dDeviceContext->BeginDraw();
+
+	// Apply the rotation transform to the render target
+	m_pd2dDeviceContext->SetTransform(D2D1::Matrix3x2F::Identity());
+
+	//D2D1_SIZE_F : float형태의 가로 세로 쌍을 저장한 구조체
+	D2D1_SIZE_F szRenderTarget = m_ppd2dRenderTargets[m_nSwapChainBufferIndex]->GetSize();
+	
+	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
+
+	if (m_pd2dfxBitmapSource && GetAsyncKeyState(VK_TAB) & 0x8000) {
+		//const D2D1_POINT_2F point = { 100.0f,0.0f };
+		//const D2D1_RECT_F scale = { 10.0f,10.0f,szRenderTarget.width+500,szRenderTarget.height };
+		m_pd2dDeviceContext->DrawImage(m_pd2dfxBitmapSource);
+		D2D1_RECT_F rcText = D2D1::RectF(0, 0, szRenderTarget.width * 0.2f , szRenderTarget.height * 0.45f);
+	
+		m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[0], &rcText, m_pd2dbrText);
+	
+
+		
+	}
+	////////////////////////////////////////////////////////////////////////
+	//WITH_DIRECT2D_IMAGE_EFFECT
+
+
+	////////////////////////////////////////////////////////////////////////
+
+	
+	
+	D2D1_RECT_F rcUpperText = D2D1::RectF(0, 0, szRenderTarget.width, szRenderTarget.height * 0.5f);
+	
+	//IDWriteTextFormat (interface) : 텍스트 형식에 사용되는 폰트를 서술함. 
+	m_pd2dDeviceContext->DrawTextW(m_pszFrameRate, (UINT32)wcslen(m_pszFrameRate), m_pdwFont[0], &rcUpperText, m_pd2dbrText);
+	m_pd2dDeviceContext->EndDraw();
+
+	//Releases D3D11 resources that were wrapped for D3D 11on12
+	m_pd3d11On12Device->ReleaseWrappedResources(&m_ppd3d11WrappedBackBuffers[m_nSwapChainBufferIndex], 1);
+
+	//,커맨드 버퍼에 대기중인 커맨드를 gpu로 전송
+	m_pd3d11DeviceContext->Flush();
+
+	
+#endif
 
 #ifdef _WITH_PRESENT_PARAMETERS
 	DXGI_PRESENT_PARAMETERS dxgiPresentParameters;

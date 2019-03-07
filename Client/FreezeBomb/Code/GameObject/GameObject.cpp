@@ -1165,7 +1165,7 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 
 			// 애니메이션이 안되는 문제해결해야댐
 			if (!strcmp(pAnimationSet->m_pstrName, "ATK3") || !strcmp(pAnimationSet->m_pstrName, "Digging") 
-			/*	|| !strcmp(pAnimationSet->m_pstrName,"Jump")*/ ) 
+				/*|| !strcmp(pAnimationSet->m_pstrName,"Jump")*/) 
 			{
 				pAnimationSet->m_nType = ANIMATION_TYPE_ONCE;
 			}
