@@ -254,12 +254,26 @@ void CGameFramework::CreateDirect2DDevice()
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(0.3f, 0.0f, 0.0f, 0.5f), &m_pd2dbrBackground);
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF(0x9ACD32, 1.0f)), &m_pd2dbrBorder);
 
-	hResult = m_pdWriteFactory->CreateTextFormat(L"궁서체", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_ITALIC, DWRITE_FONT_STRETCH_NORMAL, 30.0f, L"en-US", &m_pdwFont[0]);
-	hResult = m_pdwFont[0]->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-	hResult = m_pdwFont[0]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+	m_pdwFont = new IDWriteTextFormat*[m_nNameFont];
+	m_pd2dbrText = new ID2D1SolidColorBrush*[m_nNameFont];
+	for (int i = 0; i < m_nNameFont; ++i) 
+	{
+		hResult = m_pdWriteFactory->CreateTextFormat(L"고딕", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 30.0f, L"en-US", &m_pdwFont[i]);
+		hResult = m_pdwFont[i]->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+		hResult = m_pdwFont[i]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+		hResult = m_pdWriteFactory->CreateTextLayout(L"텍스트 레이아웃", 8, m_pdwFont[i], 4096.0f, 4096.0f, &m_pdwTextLayout);
+	}
 	
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Purple, 1.0f), &m_pd2dbrText);
-	hResult = m_pdWriteFactory->CreateTextLayout(L"텍스트 레이아웃", 8, m_pdwFont[0], 4096.0f, 4096.0f, &m_pdwTextLayout);
+	
+
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightBlue, 1.0f), &m_pd2dbrText[0]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Orange, 1.0f), &m_pd2dbrText[1]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrText[2]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightGreen, 1.0f), &m_pd2dbrText[3]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightCoral, 1.0f), &m_pd2dbrText[4]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LavenderBlush, 1.0f), &m_pd2dbrText[5]);
+	
+
 
 	//nitializes the COM library on the current thread and identifies the concurrency model as single-thread apartment 
 	CoInitialize(NULL);
@@ -294,7 +308,7 @@ void CGameFramework::CreateDirect2DDevice()
 	//D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE : The IWICBitmapSource containing loaded. The type is IWICBitmapSource.
 	m_pd2dfxBitmapSource->SetValue(D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE,m_pwicFormatConverter);
 	
-	D2D1_VECTOR_2F	vec{ 1.0f,1.6f };
+	D2D1_VECTOR_2F	vec{ 1.1f,1.6f };
 	m_pd2dfxBitmapSource->SetValue(D2D1_BITMAPSOURCE_PROP_SCALE, vec);
 
 	//ScoreBoard
@@ -688,9 +702,20 @@ void CGameFramework::OnDestroy()
 	//Direct2D
 	if (m_pd2dbrBackground) m_pd2dbrBackground->Release();
 	if (m_pd2dbrBorder) m_pd2dbrBorder->Release();
-	if (m_pdwFont[0]) m_pdwFont[0]->Release();
-	if (m_pdwTextLayout) m_pdwTextLayout->Release();
-	if (m_pd2dbrText) m_pd2dbrText->Release();
+	for(UINT i=0;i<m_nNameFont;++i)
+	{
+		if (m_pdwFont[i]) m_pdwFont[i]->Release();
+		if (m_pd2dbrText[i]) m_pd2dbrText[i]->Release();
+	}
+	delete[]m_pdwFont;
+	m_pdwFont = nullptr;
+	delete[]m_pd2dbrText;
+	m_pd2dbrText = nullptr;
+	
+	if(m_pdwTextLayout) m_pdwTextLayout->Release();
+	
+
+
 
 	//Direct11
 	if (m_pd2dDeviceContext) m_pd2dDeviceContext->Release();
@@ -741,9 +766,13 @@ void CGameFramework::BuildObjects()
 {
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
+	////////////////////////////////////////////////////////////////////////////
+	const int nPlayerCount = 6;		//임시로 플레이어 개수 지정. 
+	//추후에 서버에서 접속 인원을 씬 BuildObject 호출 전에 받아와서 세팅하면 될듯함.
 	m_pScene = new CScene();
 	if (m_pScene) 
-		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
+		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList,nPlayerCount-1); //GameFramework에서 관리하는 CPlayer를 제외한 나머지 넘겨준다.
+
 
 	CTerrainPlayer* pPlayer{ nullptr };
 
@@ -1006,18 +1035,40 @@ void CGameFramework::FrameAdvance()
 	//D2D1_SIZE_F : float형태의 가로 세로 쌍을 저장한 구조체
 	D2D1_SIZE_F szRenderTarget = m_ppd2dRenderTargets[m_nSwapChainBufferIndex]->GetSize();
 	
-	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
+	
+
+	D2D1_RECT_F rcText{0,0,0,0};
+
 
 	if (m_pd2dfxBitmapSource && GetAsyncKeyState(VK_TAB) & 0x8000) {
 		//const D2D1_POINT_2F point = { 100.0f,0.0f };
 		//const D2D1_RECT_F scale = { 10.0f,10.0f,szRenderTarget.width+500,szRenderTarget.height };
 		m_pd2dDeviceContext->DrawImage(m_pd2dfxBitmapSource);
-		D2D1_RECT_F rcText = D2D1::RectF(0, 0, szRenderTarget.width * 0.2f , szRenderTarget.height * 0.45f);
-	
-		m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[0], &rcText, m_pd2dbrText);
-	
+		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/360.0f);
+		
+		m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
+		
+		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/515.0f);
 
 		
+		m_pd2dDeviceContext->DrawTextW(L"이우상", (UINT32)wcslen(L"이우상"), m_pdwFont[1], &rcText, m_pd2dbrText[1]);
+	
+		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/670.0f);
+
+		m_pd2dDeviceContext->DrawTextW(L"가나다", (UINT32)wcslen(L"가나다"), m_pdwFont[2], &rcText, m_pd2dbrText[2]);
+	
+		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/825.0f);
+
+		m_pd2dDeviceContext->DrawTextW(L"라마바", (UINT32)wcslen(L"라마바"), m_pdwFont[3], &rcText, m_pd2dbrText[3]);
+		
+		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/980.0f);
+
+		m_pd2dDeviceContext->DrawTextW(L"사아자", (UINT32)wcslen(L"사아자"), m_pdwFont[4], &rcText, m_pd2dbrText[4]);
+	
+		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/1135.0f);
+
+		m_pd2dDeviceContext->DrawTextW(L"타파하", (UINT32)wcslen(L"타파하"), m_pdwFont[5], &rcText, m_pd2dbrText[5]);
+	
 	}
 	////////////////////////////////////////////////////////////////////////
 	//WITH_DIRECT2D_IMAGE_EFFECT
@@ -1026,11 +1077,11 @@ void CGameFramework::FrameAdvance()
 	////////////////////////////////////////////////////////////////////////
 
 	
-	
-	D2D1_RECT_F rcUpperText = D2D1::RectF(0, 0, szRenderTarget.width, szRenderTarget.height * 0.5f);
+	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
+	D2D1_RECT_F rcUpperText = D2D1::RectF(0, 0, 200.0f, 1400.0f);
 	
 	//IDWriteTextFormat (interface) : 텍스트 형식에 사용되는 폰트를 서술함. 
-	m_pd2dDeviceContext->DrawTextW(m_pszFrameRate, (UINT32)wcslen(m_pszFrameRate), m_pdwFont[0], &rcUpperText, m_pd2dbrText);
+	m_pd2dDeviceContext->DrawTextW(m_pszFrameRate, (UINT32)wcslen(m_pszFrameRate), m_pdwFont[0], &rcUpperText, m_pd2dbrText[0]);
 	m_pd2dDeviceContext->EndDraw();
 
 	//Releases D3D11 resources that were wrapped for D3D 11on12
