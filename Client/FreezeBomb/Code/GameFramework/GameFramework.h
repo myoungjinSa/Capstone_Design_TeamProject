@@ -144,9 +144,15 @@ private:
 
 	ID2D1SolidColorBrush			*m_pd2dbrBackground{ nullptr };//
 	ID2D1SolidColorBrush			*m_pd2dbrBorder{ nullptr };//
-	IDWriteTextFormat				*m_pdwFont[1]{ nullptr };//
+
+	//IDWriteTextFormat				*m_pdwFont[6]{ nullptr };//
+	IDWriteTextFormat				**m_pdwFont{ nullptr };//
+	const int						m_nNameFont=6;
+
 	IDWriteTextLayout				*m_pdwTextLayout{ nullptr };//
-	ID2D1SolidColorBrush			*m_pd2dbrText{ nullptr };//
+	ID2D1SolidColorBrush			**m_pd2dbrText{ nullptr };//
+	//ID2D1SolidColorBrush			*m_pd2dbrText[6]{ nullptr };//
+
 
 	IWICImagingFactory				*m_pwicImagingFactory{ nullptr };
 	ID2D1Effect						*m_pd2dfxBitmapSource{ nullptr };
