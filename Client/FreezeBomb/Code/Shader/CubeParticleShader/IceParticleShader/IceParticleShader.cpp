@@ -41,14 +41,12 @@ D3D12_SHADER_BYTECODE CCubeIceShader::CreatePixelShader()
 void CCubeIceShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
 	const map<string,CTexture*>& Context,void *pContext)
 {
-	CCubeMeshTextured *pExplosionMesh = new CCubeMeshTextured(pd3dDevice, pd3dCommandList, 2.f, 2.0f, 2.0f);
+	CCubeMeshTextured* pExplosionMesh = new CCubeMeshTextured(pd3dDevice, pd3dCommandList, 2.f, 2.0f, 2.0f);
 
 	CMaterial*	pIceMaterial = new CMaterial(1);
 	auto iter = Context.find("IceTexture");
 	if (iter != Context.end())
-	{
 		pIceMaterial->SetTexture((*iter).second, 0);
-	}
 
 	CIceCube* pIceCube = new CIceCube(1);
 	pIceCube->SetMesh(pExplosionMesh);

@@ -1033,10 +1033,7 @@ void CGameFramework::FrameAdvance()
 	//D2D1_SIZE_F : float형태의 가로 세로 쌍을 저장한 구조체
 	D2D1_SIZE_F szRenderTarget = m_ppd2dRenderTargets[m_nSwapChainBufferIndex]->GetSize();
 	
-	
-
 	D2D1_RECT_F rcText{0,0,0,0};
-
 
 	if (m_pd2dfxBitmapSource && GetAsyncKeyState(VK_TAB) & 0x8000)
 	{

@@ -3,10 +3,8 @@
 #include "../../../Material/Material.h"
 #include "IceCube.h"
 
-
 XMFLOAT3 CIceCube::m_pxmf3SphereVectors[EXPLOSION_DEBRISES];
 CMesh *CIceCube::m_pExplosionMesh = NULL;
-
 
 CIceCube::CIceCube(int nMaterials)
 	: CGameObject(nMaterials),

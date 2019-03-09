@@ -596,6 +596,20 @@ void CScene::CheckObjectByObjectCollisions()
 		}
 
 		// 플레이어와 다른 곰돌이 오브젝트 충돌검사
+		//iter = m.find("곰돌이");
+		//if (iter != m.end())
+		//{
+		//	for (int i = 0; i < (*iter).second->m_nObjects; ++i)
+		//	{
+		//		if ((*iter).second->m_ppObjects[i]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
+		//		{
+		//			//(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
+		//			//m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
+		//			cout << i << "번째 애니메이션 오브젝트와 충돌" << endl;
+		//		}
+		//	}
+		//}
+
 		iter = m.find("곰돌이");
 		if (iter != m.end())
 		{
@@ -607,6 +621,25 @@ void CScene::CheckObjectByObjectCollisions()
 					//m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
 					cout << i << "번째 애니메이션 오브젝트와 충돌" << endl;
 				}
+			}
+
+			for (int i = 0; i < (*iter).second->m_nObjects; ++i)
+			{
+				CGameObject* pHammer = m_pPlayer->FindFrame("hammer");
+				if (pHammer != nullptr)
+				{					
+					if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[i]->GetBoundingBox()))
+					{
+						cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
+					}
+
+					//if ((*iter).second->m_ppObjects[i]->GetObjectCollided() == m_pPlayer->FindFrame("hammer"))
+					//{
+					//	(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
+					//	m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
+					//	cout << i << "번째 애니메이션 오브젝트와 충돌" << endl;
+					//}
+				}			
 			}
 		}
 

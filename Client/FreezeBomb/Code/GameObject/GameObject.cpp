@@ -504,13 +504,13 @@ void CGameObject::Animate(float fTimeElapsed)
 	if (m_pAnimationController) 
 		m_pAnimationController->AdvanceTime(fTimeElapsed);
 
+	m_xmOOBBTransformed.Transform(m_xmOOBB, XMLoadFloat4x4(&m_xmf4x4World));
+	XMStoreFloat4(&m_xmOOBBTransformed.Orientation, XMQuaternionNormalize(XMLoadFloat4(&m_xmOOBBTransformed.Orientation)));
+
 	if (m_pSibling) 
 		m_pSibling->Animate(fTimeElapsed);
 	if (m_pChild) 
 		m_pChild->Animate(fTimeElapsed);
-
-	m_xmOOBBTransformed.Transform(m_xmOOBB, XMLoadFloat4x4(&m_xmf4x4World));
-	XMStoreFloat4(&m_xmOOBBTransformed.Orientation, XMQuaternionNormalize(XMLoadFloat4(&m_xmOOBBTransformed.Orientation)));
 }
 
 void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
@@ -1044,7 +1044,8 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 
 			pGameObject->SetMesh(pMesh);
 
-			//pGameObject->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+			// 각 바운드 크기 셋
+			pGameObject->SetOOBB(pMesh->getBoundCenter(), pMesh->getBoundExtent(), XMFLOAT4(0, 0, 0, 1));
 		}
 		else if (!strcmp(pstrToken, "<SkinningInfo>:"))
 		{
