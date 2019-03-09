@@ -989,8 +989,6 @@ void CGameFramework::FrameAdvance()
 
 
 #ifdef _WITH_DIRECT2D_
-	
-	
 	//AcquireWrappedResources() D3D11On12 디바이스에서 사용될 수 있는 D3D11 리소스들을 얻게해준다.
 	//이 함수는 렌더링 할 Wrapped Resource 들을 다시 사용할 수 있다고 암시해준다. 
 	m_pd3d11On12Device->AcquireWrappedResources(&m_ppd3d11WrappedBackBuffers[m_nSwapChainBufferIndex], 1);
@@ -1008,16 +1006,14 @@ void CGameFramework::FrameAdvance()
 	
 	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
 
-	if (m_pd2dfxBitmapSource && GetAsyncKeyState(VK_TAB) & 0x8000) {
+	if (m_pd2dfxBitmapSource && GetAsyncKeyState(VK_TAB) & 0x8000)
+	{
 		//const D2D1_POINT_2F point = { 100.0f,0.0f };
 		//const D2D1_RECT_F scale = { 10.0f,10.0f,szRenderTarget.width+500,szRenderTarget.height };
 		m_pd2dDeviceContext->DrawImage(m_pd2dfxBitmapSource);
-		D2D1_RECT_F rcText = D2D1::RectF(0, 0, szRenderTarget.width * 0.2f , szRenderTarget.height * 0.45f);
-	
+		//D2D1_RECT_F rcText = D2D1::RectF(0, 0, szRenderTarget.width * 0.2f , szRenderTarget.height * 0.45f);
+		D2D1_RECT_F rcText = D2D1::RectF(0, 0, 240.f, 360.f);
 		m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[0], &rcText, m_pd2dbrText);
-	
-
-		
 	}
 	////////////////////////////////////////////////////////////////////////
 	//WITH_DIRECT2D_IMAGE_EFFECT
@@ -1038,8 +1034,6 @@ void CGameFramework::FrameAdvance()
 
 	//,커맨드 버퍼에 대기중인 커맨드를 gpu로 전송
 	m_pd3d11DeviceContext->Flush();
-
-	
 #endif
 
 #ifdef _WITH_PRESENT_PARAMETERS

@@ -52,7 +52,7 @@ CPlayer::~CPlayer()
 	
 
 	//if (m_pShadow)
-	//	m_pShadow->Release();
+	//	delete m_pShadow;
 }
 
 void CPlayer::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)

@@ -414,7 +414,8 @@ VS_SHADOW_OUTPUT VSShadow(VS_SHADOW_INPUT input)
 
 float4 PSShadow(VS_SHADOW_OUTPUT input) : SV_TARGET
 {
-	return(float4(0.5f, 0.5f, 0.5f, 1.f));
+	//return(float4(0.6f, 0.6f, 0.6f, 1.f));
+	return(float4(0.7f, 0.7f, 0.7f, 1.f));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

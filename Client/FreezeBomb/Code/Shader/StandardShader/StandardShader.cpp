@@ -97,8 +97,8 @@ D3D12_BLEND_DESC CStandardShader::CreateBlendState(int nPipelineState)
 		break;
 
 	case GameObject_Shadow:
-		d3dBlendDesc.AlphaToCoverageEnable = true;
-		d3dBlendDesc.IndependentBlendEnable = true;
+		d3dBlendDesc.AlphaToCoverageEnable = false;
+		d3dBlendDesc.IndependentBlendEnable = false;
 		d3dBlendDesc.RenderTarget[0].BlendEnable = true;
 		d3dBlendDesc.RenderTarget[0].LogicOpEnable = false;
 		//d3dBlendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_ZERO;
@@ -109,8 +109,8 @@ D3D12_BLEND_DESC CStandardShader::CreateBlendState(int nPipelineState)
 		d3dBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
 		d3dBlendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
 		d3dBlendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-		//d3dBlendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
-		d3dBlendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_CLEAR;
+		d3dBlendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+		//d3dBlendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_CLEAR;
 		d3dBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 		break;
 	}
@@ -144,8 +144,8 @@ D3D12_DEPTH_STENCIL_DESC CStandardShader::CreateDepthStencilState(int nPipelineS
 		break;
 
 	case GameObject_Shadow:
-		d3dDepthStencilDesc.DepthEnable = false;
-		//d3dDepthStencilDesc.DepthEnable = true;
+		//d3dDepthStencilDesc.DepthEnable = false;
+		d3dDepthStencilDesc.DepthEnable = true;
 		d3dDepthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
 		d3dDepthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
 		//d3dDepthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
