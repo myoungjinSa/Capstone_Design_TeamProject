@@ -7,12 +7,45 @@
 #define SERVERPORT 9000
 #define BUFSIZE 512
 
+const static int UP_KEY = 0;
+const static int DOWN_KEY = 1;
+const static int RIGHT_KEY = 2;
+const static int LEFT_KEY = 3;
+
+
+struct POSITION
+{
+	POSITION() :x(0), y(0), z(0) {};
+	POSITION(int x1, int y1, int z1) :x(x1), y(y1), z(z1) {};
+	int x, y, z;
+};
+
+
+class ClientInfo
+{
+private:
+	u_short clientID;
+	POSITION pos;
+
+public:
+	ClientInfo() :clientID(0), pos(0, 0, 0) {};
+	ClientInfo(u_short cid, POSITION p) :clientID(cid), pos(p) {};
+	
+	u_short getClientID() { return clientID; }
+	u_short getPos(int& x, int& y, int& z) { x = pos.x; y = pos.y; z = pos.z; }
+
+private:
+	// 복사대입과 복사생성 방지
+	ClientInfo(const ClientInfo&);
+	ClientInfo& operator=(const ClientInfo&);
+};
+
 // 소켓 정보 저장을 위한 구조체와 변수
 struct SOCKETINFO
 {
 	WSAOVERLAPPED overlapped;
 	SOCKET sock;
-	char buf[BUFSIZE + 1];
+	ClientInfo* cInfo;
 	int recvbytes;
 	int sendbytes;
 	WSABUF wsabuf;
@@ -133,12 +166,12 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 		// client_sock 변수 값을 읽어가는 즉시 hReadEent 신호 상태로 전환
 		SetEvent(hReadEvent);
 		ptr->recvbytes = ptr->sendbytes = 0;
-		ptr->wsabuf.buf = ptr->buf;
-		ptr->wsabuf.len = BUFSIZE;
+		// 괜찮나???? cInfo의 동적할당은 어디서해주지?
+		// 프로세스에서 데이터 관리하고 해당 객체 포인터만 넘겨줄까?? 
+		ptr->wsabuf.buf = (char *)ptr->cInfo;
+		ptr->wsabuf.len = sizeof(ClientInfo);
 
 		// 비동기 입출력 시작
-		// 얘는 처음 접속 시 한 번만 받는 recv
-		// 이후 송수신은 완료루틴에서만 하네
 		DWORD recvbytes;
 		DWORD flags = 0;
 		retval = WSARecv(ptr->sock, &ptr->wsabuf, 1, &recvbytes, &flags, &ptr->overlapped, CompletionRoutine);
@@ -157,7 +190,6 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 // 비동기 입출력 처리 함수(입출력 완료 루틴)
 void CALLBACK CompletionRoutine(DWORD dwError, DWORD cbTransferred, LPWSAOVERLAPPED lpOverlapped, DWORD dwFlags)
 {
-	printf("cbTransferred : %d\n", (int)cbTransferred);
 	int retval;
 
 	// 클라이언트 정보 얻기
@@ -178,59 +210,7 @@ void CALLBACK CompletionRoutine(DWORD dwError, DWORD cbTransferred, LPWSAOVERLAP
 		return;
 	}
 
-	// 데이터 전송량 갱신
-	if (ptr->recvbytes == 0)
-	{
-		ptr->recvbytes = cbTransferred;
-		ptr->sendbytes = 0;
-		// 받은 데이터 출력
-		ptr->buf[ptr->recvbytes] = '\0';
-		printf("[TCP/%s:%d] %s\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port), ptr->buf);
-	}
-	else
-	{
-		ptr->sendbytes += cbTransferred;
-	}
 
-	if (ptr->recvbytes > ptr->sendbytes)
-	{
-		// 데이터 보내기
-		ZeroMemory(&ptr->overlapped, sizeof(ptr->overlapped));
-		ptr->wsabuf.buf = ptr->buf + ptr->sendbytes;
-		ptr->wsabuf.len = ptr->recvbytes - ptr->sendbytes;
-		
-		DWORD sendbytes;
-		retval = WSASend(ptr->sock, &ptr->wsabuf, 1, &sendbytes, 0, &ptr->overlapped, CompletionRoutine);
-		if (retval == SOCKET_ERROR)
-		{
-			if (WSAGetLastError() != WSA_IO_PENDING)
-			{
-				err_display("WSASend()");
-				return;
-			}
-		}
-	}
-	else
-	{
-		ptr->recvbytes = 0;
-
-		// 데이터 받기
-		ZeroMemory(&ptr->overlapped, sizeof(ptr->overlapped));
-		ptr->wsabuf.buf = ptr->buf;
-		ptr->wsabuf.len = BUFSIZE;
-
-		DWORD recvbytes;
-		DWORD flags = 0;
-		retval = WSARecv(ptr->sock, &ptr->wsabuf, 1, &recvbytes, &flags, &ptr->overlapped, CompletionRoutine);
-		if (retval == SOCKET_ERROR)
-		{
-			if (WSAGetLastError() != WSA_IO_PENDING)
-			{
-				err_display("WSARecv()");
-				return;
-			}
-		}
-	}
 }
 
 // 소켓 함수 오류 출력 후 종료
