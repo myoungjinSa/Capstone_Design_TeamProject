@@ -277,11 +277,10 @@ public:
 
 	void SetChild(CGameObject *pChild, bool bReferenceUpdate=false);
 	
-	bool GetIsBomb() { return m_bBomb; }			//폭탄 소지 여부 true/false 반환
-	bool GetIsHammer() { return m_bHammer; }
-
-	void SetIsBomb(bool bBomb) { m_bBomb = !bBomb; }	//폭탄 설정
-	void SetIsHammer(bool bHammer) { m_bHammer = !bHammer; }
+	bool GetIsBomb()	const { return m_bBomb; }			//폭탄 소지 여부 true/false 반환
+	void SetIsBomb(bool bBomb) { m_bBomb = bBomb; }	//폭탄 설정
+	bool GetIsHammer()	const{ return m_bHammer; }
+	void SetIsHammer(bool bHammer) { m_bHammer = bHammer; }
 
 	virtual void BuildMaterials(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) { }
 
@@ -380,8 +379,8 @@ protected:
 
 	bool								m_bIce = false;			//얼음 여부 
 	int									m_matID;	//재질 정보
-	bool								m_bBomb = true;		//폭탄 소지 여부
-	bool								m_bHammer = true;  //망치 소지 여부
+	bool								m_bBomb = false;		//폭탄 소지 여부
+	bool								m_bHammer = false;  //망치 소지 여부
 	bool								m_bTimer = false;		//타이머 아이템 소지 여부
 
 public:

@@ -15,7 +15,7 @@ public:
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
 
-	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
 		const map<string, CTexture*>& Context, void* pContext);
 	virtual void ReleaseObjects();
 	virtual void ReleaseUploadBuffers();
@@ -24,4 +24,5 @@ public:
 	CTerrain* getTerrain()	const { return m_pTerrain; }
 private:
 	CTerrain* m_pTerrain{ nullptr };
+
 };
