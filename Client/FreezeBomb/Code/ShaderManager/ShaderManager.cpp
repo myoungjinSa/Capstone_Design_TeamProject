@@ -65,10 +65,9 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	pMapShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
 		m_pResourceManager->getModelMap(), m_pResourceManager->getMapObjectInfo(), m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
 	m_ppShaders[index++] = pMapShader;
-	m_ShaderMap.emplace("MapShader", pMapShader);
+	m_ShaderMap.emplace("MapObjects", pMapShader);
 	//// 모델 메모리 해제
 	m_pResourceManager->ReleaseModel();
-
 #endif
 
 	//Foliage는 충돌처리가 필요 없음.. 따라서 Bound 박스 필요  없다. 그림자도 필요업음
@@ -168,6 +167,7 @@ void CShaderManager::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer
 			dynamic_cast<CItemUIShader*>((*iter).second)->setRender(false);
 	}
 
+
 	//if (pPlayer->getItem()->getSpecialItem() == false)
 	//{
 	//	auto iter = m_ShaderMap.find("Special_ItemUI");
@@ -189,5 +189,15 @@ void CShaderManager::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 	{
 		if (m_ppShaders[i])
 			m_ppShaders[i]->Render(pd3dCommandList, pCamera, GameObject);
+	}
+}
+
+void CShaderManager::ProcessCollision(XMFLOAT3& position)
+{
+	auto iter = m_ShaderMap.find("IceParticle");
+
+	if(iter!= m_ShaderMap.end())
+	{
+		dynamic_cast<CCubeIceShader*>((*iter).second)->SetParticleBlowUp(position);
 	}
 }

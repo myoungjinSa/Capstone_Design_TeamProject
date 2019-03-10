@@ -18,6 +18,9 @@ public:
 	void ReleaseUploadBuffers();
 	void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = nullptr);
 
+
+	void ProcessCollision(XMFLOAT3& position);				//面倒 咯何 贸府 窃荐
+
 	const map<string, CShader*>& getShaderMap()	const { return m_ShaderMap; }
 	CResourceManager* getResourceManager()	const { return m_pResourceManager; }
 

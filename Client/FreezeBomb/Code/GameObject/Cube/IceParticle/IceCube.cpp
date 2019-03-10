@@ -67,7 +67,7 @@ void CIceCube::Animate(float fTimeElapsed)
 	else
 	{
 		m_fElapsedTimes = 0.0f;
-		//m_bBlowingUp = false;
+		m_bBlowingUp = false;
 	}
 
 }
