@@ -18,7 +18,8 @@ void CSurrounding::Initialize_Shadow(CLoadedModelInfo* pLoadedModel, CGameObject
 
 void CSurrounding::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
+	CGameObject::Render(pd3dCommandList, pCamera, GameObject);
+
 	if (m_pShadow)
 		m_pShadow->Render(pd3dCommandList, pCamera, GameObject_Shadow);
-	CGameObject::Render(pd3dCommandList, pCamera, GameObject);
 }

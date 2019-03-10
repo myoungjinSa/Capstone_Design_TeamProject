@@ -193,15 +193,15 @@ void CPlayer::Update(float fTimeElapsed)
 
 	DecideAnimationState(fLength);
 
-	if (m_Normal_Inventory.size() > 0)
-	{
-		// Ctrl 키
-		if (GetAsyncKeyState(VK_CONTROL) & 0x8000)
-			Refresh_Inventory(Normal);
-		// Alt 키
-		if (GetAsyncKeyState(VK_MENU) & 0x8000)
-			Refresh_Inventory(Special);
-	}
+	//if (m_Normal_Inventory.size() > 0)
+	//{
+	//	// Ctrl 키
+	//	if (GetAsyncKeyState(VK_CONTROL) & 0x0001)
+	//		Refresh_Inventory(Normal);
+	//	// Alt 키
+	//	if (GetAsyncKeyState(VK_MENU) & 0x0001)
+	//		Refresh_Inventory(Special);
+	//}
 }
 
 CCamera *CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
@@ -266,10 +266,10 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 
 	if (nCameraMode == THIRD_PERSON_CAMERA)
 	{
-		if (m_pShadow)
-			m_pShadow->Render(pd3dCommandList, pCamera, GameObject_Shadow);
-
 		CGameObject::Render(pd3dCommandList, m_bHammer, m_bBomb, m_bIce, m_matID, pCamera, GameObject);		//재질별로 렌더 
+
+		if (m_pShadow)
+			m_pShadow->Render(pd3dCommandList, m_bHammer, m_bBomb, m_bIce, m_matID, pCamera, GameObject_Shadow);
 	}
 }
 
@@ -338,7 +338,6 @@ void CPlayer::DecideAnimationState(float fLength)
 			//m_pAnimationController->SetTrackPosition(0, 0.0f);
 		}
 	
-
 		if (GetAsyncKeyState(VK_DOWN) & 0x8000 && pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::JUMP)
 		{
@@ -354,15 +353,21 @@ void CPlayer::DecideAnimationState(float fLength)
 		//pController->SetTrackSpeed(0, 1.5f);
 	}
 
-	if (GetAsyncKeyState(VK_X) & 0x8000 && pController->GetAnimationState() != CAnimationController::ATTACK)
+	// 망치로 때리기 애니메이션
+	if (GetAsyncKeyState(VK_CONTROL) & 0x0001 && pController->GetAnimationState() != CAnimationController::ATTACK)
 	{
-		
 		SetTrackAnimationSet(0, CAnimationController::ATTACK);
 		SetTrackAnimationPosition(0, 0);
 
 		pController->SetTrackSpeed(0, 1.0f);
 		pController->SetAnimationState(CAnimationController::ATTACK);
+
+		if (m_Normal_Inventory.size() > 0)
+		{
+			Refresh_Inventory(Normal);
+		}
 	}
+
 	if (GetAsyncKeyState(VK_Z) & 0x8000 && pController->GetAnimationState() != CAnimationController::DIGGING)
 	{
 		SetTrackAnimationSet(0, CAnimationController::DIGGING);

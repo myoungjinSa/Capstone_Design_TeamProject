@@ -19,3 +19,8 @@ void CShadow::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamer
 {
 	CGameObject::Render(pd3dCommandList, pCamera, nPipelineState);
 }
+
+void CShadow::Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bHammer, bool bBomb, bool bIce, int matID, CCamera* pCamera, int nPipelineState)
+{
+	CGameObject::Render(pd3dCommandList, bHammer, bBomb, bIce, matID, pCamera, nPipelineState);
+}

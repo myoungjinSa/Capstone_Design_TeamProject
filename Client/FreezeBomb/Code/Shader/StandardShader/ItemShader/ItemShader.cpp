@@ -14,35 +14,33 @@ CItemShader::~CItemShader()
 }
 
 void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
-	const map<string, Bounds*>& Context, void* pContext)
+	const map<string, CLoadedModelInfo*>& ModelMap, const map<string, Bounds*>& Context, void* pContext)
 {
-	CLoadedModelInfo* pHammer = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 
-		"../Resource/Models/Hammer.bin", nullptr, false, "Hammer");
-
-	CTerrain* pTerrain = (CTerrain*)pContext;
-
-	m_nObjects = 10;
-
-	for (int i = 0; i < m_nObjects; ++i)
+	auto iter = ModelMap.find("NormalItem");
+	if (iter != ModelMap.end())
 	{
-		CItem* pItem = new CItem;
-		XMFLOAT3 Position = XMFLOAT3(Random(10.f, 490.f), 0, Random(10.f, 290.f));
-		pItem->SetPosition(Position);
-		// 망치가 누워있게하기 위해 회전시킴
-		XMFLOAT3 Axis = XMFLOAT3(1.f, 0.f, 0.f);
-		pItem->Rotate(&Axis, 90);
-		pItem->SetChild(pHammer->m_pModelRootObject, true);
-		pItem->setID("<Hammer>");
-		auto iter = Context.find(pItem->getID());
-		if (iter != Context.end())
-			pItem->SetOOBB((*iter).second->m_xmf3Center, (*iter).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
-		pItem->Initialize_Shadow(pHammer, pItem);
+		CTerrain* pTerrain = (CTerrain*)pContext;
 
-		m_ItemMap.emplace("망치" + to_string(i), dynamic_cast<CItem*>(pItem));
+		m_nObjects = 10;
+
+		for (int i = 0; i < m_nObjects; ++i)
+		{
+			CItem* pItem = new CItem;
+			XMFLOAT3 Position = XMFLOAT3(Random(10.f, 490.f), 0, Random(10.f, 290.f));
+			pItem->SetPosition(Position);
+			// 망치가 누워있게하기 위해 회전시킴
+			XMFLOAT3 Axis = XMFLOAT3(1.f, 0.f, 0.f);
+			pItem->Rotate(&Axis, 90);
+			pItem->SetChild((*iter).second->m_pModelRootObject, true);
+			pItem->setID("<Hammer>");
+			auto iter2 = Context.find(pItem->getID());
+			if (iter2 != Context.end())
+				pItem->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
+			pItem->Initialize_Shadow((*iter).second, pItem);
+
+			m_ItemMap.emplace("망치" + to_string(i), dynamic_cast<CItem*>(pItem));
+		}
 	}
-
-	if (pHammer)
-		delete pHammer;
 }
 
 void CItemShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer* pPlayer)
