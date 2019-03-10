@@ -36,7 +36,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_pResourceManager = new CResourceManager;
 	m_pResourceManager->Initialize(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	m_nShaders = 6;
+	m_nShaders = 7;
 
 	//맵툴 모드일때는 맵의 오브젝트들을 그리지 않게 하기 위해 
 	// 그래야 맵툴모드에서 적용해서 배치한 오브젝트들만 볼 수 있다.
@@ -59,13 +59,13 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ShaderMap.emplace("Terrain", pTerrainShader);
 
 #ifndef _MAPTOOL_MODE_
-	//CMapObjectsShader *pMapShader = new CMapObjectsShader;
-	//pMapShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//pMapShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
-	//	m_pResourceManager->getModelMap(), m_pResourceManager->getMapObjectInfo(), m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
+	CMapObjectsShader *pMapShader = new CMapObjectsShader;
+	pMapShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pMapShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
+		m_pResourceManager->getModelMap(), m_pResourceManager->getMapObjectInfo(), m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
 
-	//m_ppShaders[index++] = pMapShader;
-	//m_ShaderMap.emplace("MapShader", pMapShader);
+	m_ppShaders[index++] = pMapShader;
+	m_ShaderMap.emplace("MapShader", pMapShader);
 	//// 모델 메모리 해제
 	m_pResourceManager->ReleaseModel();
 #endif

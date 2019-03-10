@@ -31,7 +31,7 @@ void CMapToolShader::InsertObject(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 
 		CLoadedModelInfo* pSurroundingModel = (*iter).second;
 
-		XMFLOAT3 position = Vector3::Add(pPlayer->GetPosition(),XMFLOAT3(0.0f,0.01f,0.0f)); 
+		XMFLOAT3 position = pPlayer->GetPosition(); 
 		XMFLOAT3 lookVec = pPlayer->GetLookVector();
 		XMFLOAT3 upVec = pPlayer->GetUpVector();
 		XMFLOAT3 rightVec = pPlayer->GetRightVector();

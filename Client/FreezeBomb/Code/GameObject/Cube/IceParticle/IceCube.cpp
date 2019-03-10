@@ -45,17 +45,14 @@ void CIceCube::SetMovingSpeed(float fSpeed)
 
 void CIceCube::SetExplode(bool bBlowing)
 {
-	if (m_bBlowingUp == false)
-	{
-		m_bBlowingUp = bBlowing;
-	}
+	m_bBlowingUp = bBlowing;
 }
 
 void CIceCube::Animate(float fTimeElapsed)
 {
 	m_fElapsedTimes += fTimeElapsed;
 
-	if (m_fElapsedTimes <= m_fDuration)
+	if (m_fElapsedTimes <= m_fDuration && m_bBlowingUp == true)
 	{
 		XMFLOAT3 xmf3Position = GetPosition();
 		for (int i = 0; i < EXPLOSION_DEBRISES; i++)
@@ -70,6 +67,7 @@ void CIceCube::Animate(float fTimeElapsed)
 	else
 	{
 		m_fElapsedTimes = 0.0f;
+		//m_bBlowingUp = false;
 	}
 
 }

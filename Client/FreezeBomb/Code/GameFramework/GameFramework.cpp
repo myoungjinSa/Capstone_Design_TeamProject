@@ -980,7 +980,7 @@ void CGameFramework::FrameAdvance()
 #ifdef _MAPTOOL_MODE_
 	if (m_pMapToolShader)
 	{
-		m_pMapToolShader->Render(m_pd3dCommandList, m_pCamera);
+		m_pMapToolShader->Render(m_pd3dCommandList, m_pCamera,0);
 	}
 		
 #endif

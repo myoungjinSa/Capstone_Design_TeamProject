@@ -631,6 +631,7 @@ void CScene::CheckObjectByObjectCollisions()
 					if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[i]->GetBoundingBox()))
 					{
 						cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
+
 					}
 
 					//if ((*iter).second->m_ppObjects[i]->GetObjectCollided() == m_pPlayer->FindFrame("hammer"))
