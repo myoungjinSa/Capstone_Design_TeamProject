@@ -157,7 +157,6 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 // 비동기 입출력 처리 함수(입출력 완료 루틴)
 void CALLBACK CompletionRoutine(DWORD dwError, DWORD cbTransferred, LPWSAOVERLAPPED lpOverlapped, DWORD dwFlags)
 {
-	printf("cbTransferred : %d\n", (int)cbTransferred);
 	int retval;
 
 	// 클라이언트 정보 얻기

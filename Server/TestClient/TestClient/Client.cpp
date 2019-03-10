@@ -6,12 +6,51 @@
 #include <ws2tcpip.h>
 #include <stdlib.h>
 #include <iostream>
+#include <conio.h>
 
 #define SERVERIP "127.0.0.1"
 #define SERVERPORT 9000
 #define BUFSIZE    512
 
+const static int UP_KEY = 72;
+const static int DOWN_KEY = 80;
+const static int RIGHT_KEY = 77;
+const static int LEFT_KEY = 75;
+
 using namespace std;
+
+struct POSITION
+{
+	POSITION() :x(0), y(0), z(0) {};
+	POSITION(int x1, int y1, int z1) :x(x1), y(y1), z(z1) {};
+	int x, y, z;
+};
+
+class ClientInfo
+{
+private:
+	u_short clientID;
+	POSITION pos;
+	int key;
+
+public:
+	ClientInfo() :clientID(0), pos(0, 0, 0), key(0) {};
+	ClientInfo(u_short cid, POSITION p) :clientID(cid), pos(p), key(0) {};
+
+	u_short getClientID() { return clientID; }
+	void getPos(int& x, int& y, int& z) { x = pos.x; y = pos.y; z = pos.z; }
+	int getKey() { return key; }
+
+	void setClientID(u_short cid) { clientID = cid; }
+	void setPos(int x, int y, int z) { pos.x = x; pos.y = y; pos.z = z; }
+	void setPos(POSITION* p) { pos = *p; }
+	void setKey(int k) { key = k; }
+
+private:
+	// 복사대입과 복사생성 방지
+	ClientInfo(const ClientInfo&);
+	ClientInfo& operator=(const ClientInfo&);
+};
 
 // 소켓 함수 오류 출력 후 종료
 void err_quit(const char *msg)
@@ -64,7 +103,6 @@ int recvn(SOCKET s, char *buf, int len, int flags)
 int main(int argc, char *argv[])
 {
 	int retval;
-
 	// 윈속 초기화
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
@@ -87,48 +125,82 @@ int main(int argc, char *argv[])
 		err_quit("connect()");
 
 	// 데이터 통신에 사용할 변수
-	char buf[BUFSIZE + 1];
+	//char buf[BUFSIZE + 1];
 	int len;
+	ClientInfo* myInfo = new ClientInfo(0,POSITION(0,0,0));
 
 	// 서버와 데이터 통신
 	while (1)
 	{
-		// 데이터 입력
-		cout << endl;
-		cout << "[보낼 데이터] ";
-		if (fgets(buf, BUFSIZE + 1, stdin) == NULL)
-			break;
-
-		// '\n' 문자 제거 후 NULL로 채움
-		len = strlen(buf);
-		/*if (buf[len - 1] == '\n')
-			buf[len - 1] = '\0';*/
-		if (strlen(buf) == 0)
-			break;
-
-		// 데이터 보내기
-		retval = send(sock, buf, strlen(buf), 0);
-		if (retval == SOCKET_ERROR)
+		// getch()는 키입력 없으면 무한대기 상태. but kbhit()는 없으면 지나침 -> kbhit로 감싸주기
+		if (_kbhit())
 		{
-			err_display("send()");
-			break;
-		}
-		cout << "[TCP 클라이언트] " << retval << "바이트를 보냈습니다." << endl;
+			int key; 
+			key = _getch();
+			if (key == 224 || key == 0)
+			{
+				key = _getch();
+				switch (key)
+				{
+				case UP_KEY:
+					printf("UP_KEY 눌림\n");
+					break;
+				case DOWN_KEY:
+					printf("DOWN_KEY 눌림\n");
+					break;
+				case RIGHT_KEY:
+					printf("RIGHT_KEY 눌림\n");
+					break;
+				case LEFT_KEY:
+					printf("LEFT_KEY 눌림\n");
+					break;
+				}
 
-		// 데이터 받기
-		retval = recvn(sock, buf, retval, 0);
-		if (retval == SOCKET_ERROR)
-		{
-			err_display("recvn()");
-			break;
-		}
-		else if (retval == 0)
-			break;
+				retval = send(sock, (char *)myInfo, sizeof(ClientInfo), 0);
+				if (retval == SOCKET_ERROR)
+				{
+					err_display("send()");
+					break;
+				}
+			}
 
-		// 받은 데이터 출력
-		buf[retval] = '\0';
-		cout << "[TCP 클라이언트] " << retval << "바이트를 받았습니다." << endl;
-		cout << "[받은 데이터] " << buf << endl;
+		}
+		//// 데이터 입력
+		//cout << endl;
+		//cout << "[보낼 데이터] ";
+		//if (fgets(buf, BUFSIZE + 1, stdin) == NULL)
+		//	break;
+
+		//// '\n' 문자 제거 후 NULL로 채움
+		//len = strlen(buf);
+		////if (buf[len - 1] == '\n')
+		////	buf[len - 1] = '\0';
+		//if (strlen(buf) == 0)
+		//	break;
+
+		//// 데이터 보내기
+		//retval = send(sock, buf, strlen(buf), 0);
+		//if (retval == SOCKET_ERROR)
+		//{
+		//	err_display("send()");
+		//	break;
+		//}
+		//cout << "[TCP 클라이언트] " << retval << "바이트를 보냈습니다." << endl;
+
+		//// 데이터 받기
+		//retval = recvn(sock, buf, retval, 0);
+		//if (retval == SOCKET_ERROR)
+		//{
+		//	err_display("recvn()");
+		//	break;
+		//}
+		//else if (retval == 0)
+		//	break;
+
+		//// 받은 데이터 출력
+		//buf[retval] = '\0';
+		//cout << "[TCP 클라이언트] " << retval << "바이트를 받았습니다." << endl;
+		//cout << "[받은 데이터] " << buf << endl;
 	}
 
 	// closesocket()
