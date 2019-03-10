@@ -18,6 +18,8 @@ public:
 
 	virtual void ReleaseObjects();
 	virtual void ReleaseUploadBuffers();
+	
+	const list<CGameObject*>& getSurroundingList()	const { return m_SurroundingList; }
 
 private:
 	list<CGameObject*> m_SurroundingList;

@@ -63,7 +63,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	pMapShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
 		m_pResourceManager->getModelMap(), m_pResourceManager->getMapObjectInfo(), m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
 	m_ppShaders[index++] = pMapShader;
-	m_ShaderMap.emplace("MapShader", pMapShader);
+	m_ShaderMap.emplace("MapObjects", pMapShader);
 	// 모델 메모리 해제
 #endif
 

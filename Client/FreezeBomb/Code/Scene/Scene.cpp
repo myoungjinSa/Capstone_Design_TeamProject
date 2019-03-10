@@ -6,6 +6,7 @@
 #include "../Shader/Shader.h"
 #include "../GameObject/Player/Player.h"
 #include "../GameObject/Item/Item.h"
+#include "../Shader/StandardShader/MapObjectShader/MapObjectShader.h"
 #include "../Shader/StandardShader/ItemShader/ItemShader.h"
 #include "../SoundSystem/SoundSystem.h"
 
@@ -581,18 +582,28 @@ void CScene::CheckObjectByObjectCollisions()
 	{
 		// 플레이어와 정적인 오브젝트 충돌검사
 		map<string, CShader*> m = m_pShaderManager->getShaderMap();
-		auto iter = m.find("Surrounding");
+		auto iter = m.find("MapObjects");
 		if (iter != m.end())
 		{
-			for (int i = 0; i < (*iter).second->m_nObjects; ++i)
+			int i = 0;
+			auto MapObjectsList = dynamic_cast<CMapObjectsShader*>((*iter).second)->getSurroundingList();
+			for (auto iter2 = MapObjectsList.begin(); iter2 != MapObjectsList.end(); ++iter2)
 			{
-				if ((*iter).second->m_ppObjects[i]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
+				if((*iter2)->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
-					//(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
-					//m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
 					cout << i << "번째 정적인 오브젝트와 충돌" << endl;
 				}
+				++i;
 			}
+			//for (int i = 0; i < (*iter).second->m_nObjects; ++i)
+			//{
+			//	if ((*iter).second->m_ppObjects[i]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
+			//	{
+			//		//(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
+			//		//m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
+			//		cout << i << "번째 정적인 오브젝트와 충돌" << endl;
+			//	}
+			//}
 		}
 
 		// 플레이어와 다른 곰돌이 오브젝트 충돌검사
