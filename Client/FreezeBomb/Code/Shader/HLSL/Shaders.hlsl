@@ -117,8 +117,7 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 	//return cColor;
 }
 
-//
-float4 PSGrassStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
+float4 PSFoliage(VS_STANDARD_OUTPUT input) : SV_TARGET
 {
 	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
@@ -152,7 +151,7 @@ float4 PSGrassStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
+
 #define MAX_VERTEX_INFLUENCES			4
 #define SKINNED_ANIMATION_BONES	128
 
@@ -384,30 +383,47 @@ float4 PSIceCube(VS_ICE_CUBE_OUTPUT input) : SV_Target
 
 struct VS_SHADOW_INPUT
 {
-	float3 position : POSITION;
+	float3 position			: POSITION;
 };
 
 struct VS_SHADOW_OUTPUT
 {
-	float4 position	: SV_POSITION;
+	float4 position			: SV_POSITION;
+	float3 positionW		: POSITION;
+};
+
+cbuffer cbShadow : register(b9)
+{
+	matrix gmtxShadow : packoffset(c0);
 };
 
 VS_SHADOW_OUTPUT VSShadow(VS_SHADOW_INPUT input)
 {
 	VS_SHADOW_OUTPUT output;
-	output.position = mul(float4(input.position, 1.f), mul(mul(gmtxGameObject, gmtxView), gmtxProjection));
+	matrix ShadowWorld = mul(gmtxShadow, gmtxGameObject);
+	// 모델좌표계에서 그림자행렬을 계산
+	//output.position = mul(mul(mul(float4(input.position, 1.0f), ShadowWorld), gmtxView), gmtxProjection);
+
+	// 모델좌표계의 점을 월드좌표계의 점으로 변환
+	output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject);
+	// 월드좌표계의 점을 그림자 행렬로 변환
+	output.position = mul(mul(mul(float4(output.positionW, 1.0f), gmtxShadow), gmtxView), gmtxProjection);
+	
 	return output;
 }
 
 float4 PSShadow(VS_SHADOW_OUTPUT input) : SV_TARGET
 {
-	return(float4(0.5f, 0.5f, 0.5f, 1.f));
+	//return(float4(0.6f, 0.6f, 0.6f, 1.f));
+	return(float4(0.7f, 0.7f, 0.7f, 1.f));
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////
 
 struct VS_ANIMATION_SHADOW_INPUT
 {
 	float3 position : POSITION;
+
 	float2 uv : TEXCOORD;
 	float3 normal : NORMAL;
 	float3 tangent : TANGENT;
@@ -416,16 +432,9 @@ struct VS_ANIMATION_SHADOW_INPUT
 	float4 weights : BONEWEIGHT;
 };
 
-struct VS_ANIMATION_SHADOW_OUTPUT
+VS_SHADOW_OUTPUT VSAnimationShadow(VS_ANIMATION_SHADOW_INPUT input)
 {
-	float4 position			: SV_POSITION;
-	float3 positionW		: POSITION;
-};
-
-VS_ANIMATION_SHADOW_OUTPUT VSAnimationShadow(VS_ANIMATION_SHADOW_INPUT input)
-{
-	VS_ANIMATION_SHADOW_OUTPUT output;
-	//output.position = mul(float4(input.position, 1.f), mul(mul(gmtxGameObject, gmtxView), gmtxProjection));
+	VS_SHADOW_OUTPUT output;
 
 	output.positionW = float3(0.0f, 0.0f, 0.0f);
 
@@ -436,12 +445,8 @@ VS_ANIMATION_SHADOW_OUTPUT VSAnimationShadow(VS_ANIMATION_SHADOW_INPUT input)
 		output.positionW += input.weights[i] * mul(float4(input.position, 1.0f), mtxVertexToBoneWorld).xyz;
 	}
 
-	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+	// 월드좌표계의 점을 그림자 행렬로 변환
+	output.position = mul(mul(mul(float4(output.positionW, 1.0f), gmtxShadow), gmtxView), gmtxProjection);
 
 	return output;
-}
-
-float4 PSAnimationShadow(VS_ANIMATION_SHADOW_OUTPUT input) : SV_TARGET
-{
-	return(float4(0.5f, 0.5f, 0.5f, 1.f));
 }

@@ -3,10 +3,8 @@
 #include "../../../Material/Material.h"
 #include "IceCube.h"
 
-
 XMFLOAT3 CIceCube::m_pxmf3SphereVectors[EXPLOSION_DEBRISES];
 CMesh *CIceCube::m_pExplosionMesh = NULL;
-
 
 CIceCube::CIceCube(int nMaterials)
 	: CGameObject(nMaterials),
@@ -47,17 +45,14 @@ void CIceCube::SetMovingSpeed(float fSpeed)
 
 void CIceCube::SetExplode(bool bBlowing)
 {
-	if (m_bBlowingUp == false)
-	{
-		m_bBlowingUp = bBlowing;
-	}
+	m_bBlowingUp = bBlowing;
 }
 
 void CIceCube::Animate(float fTimeElapsed)
 {
 	m_fElapsedTimes += fTimeElapsed;
 
-	if (m_fElapsedTimes <= m_fDuration)
+	if (m_fElapsedTimes <= m_fDuration && m_bBlowingUp == true)
 	{
 		XMFLOAT3 xmf3Position = GetPosition();
 		for (int i = 0; i < EXPLOSION_DEBRISES; i++)
@@ -72,11 +67,12 @@ void CIceCube::Animate(float fTimeElapsed)
 	else
 	{
 		m_fElapsedTimes = 0.0f;
+		//m_bBlowingUp = false;
 	}
 
 }
 
-void CIceCube::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CIceCube::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
 	if (m_bBlowingUp)
 	{
@@ -98,7 +94,7 @@ void CIceCube::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCame
 						{
 							if (m_ppMaterials[i]->m_pShader)
 							{
-								m_ppMaterials[i]->m_pShader->Render(pd3dCommandList,pCamera);
+								m_ppMaterials[i]->m_pShader->Render(pd3dCommandList,pCamera, nPipelineState);
 								//m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
 							}
 							m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);

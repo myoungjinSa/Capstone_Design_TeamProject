@@ -277,11 +277,10 @@ public:
 
 	void SetChild(CGameObject *pChild, bool bReferenceUpdate=false);
 	
-	bool GetIsBomb() { return m_bBomb; }			//폭탄 소지 여부 true/false 반환
-	bool GetIsHammer() { return m_bHammer; }
-
-	void SetIsBomb(bool bBomb) { m_bBomb = !bBomb; }	//폭탄 설정
-	void SetIsHammer(bool bHammer) { m_bHammer = !bHammer; }
+	bool GetIsBomb()	const { return m_bBomb; }			//폭탄 소지 여부 true/false 반환
+	void SetIsBomb(bool bBomb) { m_bBomb = bBomb; }	//폭탄 설정
+	bool GetIsHammer()	const{ return m_bHammer; }
+	void SetIsHammer(bool bHammer) { m_bHammer = bHammer; }
 
 	virtual void BuildMaterials(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) { }
 
@@ -289,9 +288,10 @@ public:
 	virtual void Animate(float fTimeElapsed);
 
 	virtual void OnPrepareRender() { }
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bHammer,bool bBomb ,bool bIce, int matID, CCamera *pCamera = NULL);
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lodlevel, CCamera *pCamera = NULL);
+
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int nPipelineState = GameObject);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bHammer,bool bBomb ,bool bIce, int matID, CCamera *pCamera, int nPipelineState = GameObject);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lodlevel, CCamera *pCamera, int nPipelineState = GameObject);
 
 	virtual void ReleaseShaderVariables();
 
@@ -332,8 +332,7 @@ public:
 
 public:
 	const enum MATERIALTYPE { PINK, BROWN, WHITE, BLACK, BLUE, PANDA, ICEMAT };		//곰의 종류
-	const static enum LODLEVEL
-	{
+	const enum LODLEVEL {
 		LOD_LEVEL0 = 0,
 		LOD_LEVEL1,
 		LOD_LEVEL2,
@@ -354,36 +353,36 @@ public:
 
 	void FindAndSetSkinnedMesh(int *pnSkinMesh, CSkinningBoneTransforms *pSkinningBoneTransforms);
 
-	void LoadMaterialsFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CGameObject *pParent, FILE *pInFile, CShader *pShader);
+	void LoadMaterialsFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, 
+		CGameObject *pParent, FILE *pInFile, CShader *pShader, string type);
 
 	static CAnimationSets *LoadAnimationFromFile(FILE *pInFile, CGameObject *pRootFrame);
 	static CGameObject *LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
-		CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes, int* pnFrameMeshes);
+		CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes, string type);
 
-	static CLoadedModelInfo* LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char *pstrFileName, CShader *pShader, bool bHasAnimation);
+	static CLoadedModelInfo* LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
+		char *pstrFileName, CShader *pShader, bool bHasAnimation, string type);
 
 	static void PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent);
 
-	void WorldUpdate(XMFLOAT4X4& world);
-
 	UINT GetLodLevel() { return m_lodLevel; }
-
 protected:
 	CLampParticle*				m_pLampParticle{ nullptr };	
 
 	string							m_ID;													
 	CGameObject*				m_pObjectCollided{ nullptr };
 
-	bool								m_bIce = false;		//얼음 여부 
-	int									m_matID;	//재질 정보
-	bool								m_bBomb = false;	//폭탄 소지 여부
-	bool								m_bHammer =false;  //망치 소지 여부
-	bool								m_bTimer = false;   //타이머 아이템 소지 여부
-
 	UINT				m_lodLevel;
 
 	BoundingOrientedBox	m_xmOOBB;
 	BoundingOrientedBox	m_xmOOBBTransformed;
+
+	bool								m_bIce = false;			//얼음 여부 
+	int									m_matID;	//재질 정보
+	bool								m_bBomb = false;		//폭탄 소지 여부
+	bool								m_bHammer = false;  //망치 소지 여부
+	bool								m_bTimer = false;		//타이머 아이템 소지 여부
+
 public:
 
 	void setID(const string id) { m_ID = id; }

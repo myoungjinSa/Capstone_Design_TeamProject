@@ -1,20 +1,18 @@
 #include "../../Stdafx/Stdafx.h"
 #include "../../Material/Material.h"
 #include "../../Shader/Shader.h"
-#include "../../Mesh/LODMesh/LodMesh.h"
+#include "../../Mesh/LODMesh/LODMesh.h.h"
 #include "Foliage.h"
-
 
 CFoliageObject::CFoliageObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
-
 }
+
 CFoliageObject::~CFoliageObject()
 {
-
 }
 
-void CFoliageObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lodlevel, CCamera *pCamera)
+void CFoliageObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lodlevel, CCamera *pCamera, int nPipelineState)
 {
 	OnPrepareRender();
 
@@ -28,21 +26,22 @@ void CFoliageObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lod
 			{
 				if (m_ppMaterials[i])
 				{
-					if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+					if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
 					m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
 				}
-				if (m_pMesh->GetLodLevel() == lodlevel) {
+				if (m_pMesh->GetLodLevel() == lodlevel) 
 					m_pMesh->Render(pd3dCommandList, i, lodlevel);
-				}
 			}
 		}
 	}
 
-	if (m_pSibling) m_pSibling->Render(pd3dCommandList, lodlevel, pCamera);
-	if (m_pChild) m_pChild->Render(pd3dCommandList, lodlevel, pCamera);
+	if (m_pSibling)
+		m_pSibling->Render(pd3dCommandList, lodlevel, pCamera, nPipelineState);
+	if (m_pChild)
+		m_pChild->Render(pd3dCommandList, lodlevel, pCamera, nPipelineState);
 }
 
-CGameObject* CFoliageObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CGameObject* pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes)
+CGameObject* CFoliageObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CGameObject* pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes, string Type)
 {
 	char pstrToken[64] = { '\0' };
 
@@ -105,21 +104,21 @@ CGameObject* CFoliageObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice
 		{
 			if (pGameObject->GetLodLevel() == LODLEVEL::LOD_LEVEL0)
 			{
-				CLodMesh *pMesh = new CLodMesh(pd3dDevice, pd3dCommandList);
+				CLODMesh* pMesh = new CLODMesh(pd3dDevice, pd3dCommandList);
 				pMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
 				pGameObject->SetMesh(pMesh);
 				pMesh->SetLodLevel(LODLEVEL::LOD_LEVEL0);
 			}
 			else if (pGameObject->GetLodLevel() == LODLEVEL::LOD_LEVEL1)
 			{
-				CLodMesh *pMesh = new CLodMesh(pd3dDevice, pd3dCommandList);
+				CLODMesh* pMesh = new CLODMesh(pd3dDevice, pd3dCommandList);
 				pMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
 				pGameObject->SetMesh(pMesh);
 				pMesh->SetLodLevel(LODLEVEL::LOD_LEVEL1);
 			}
 			else if (pGameObject->GetLodLevel() == LODLEVEL::LOD_LEVEL2)
 			{
-				CLodMesh *pMesh = new CLodMesh(pd3dDevice, pd3dCommandList);
+				CLODMesh* pMesh = new CLODMesh(pd3dDevice, pd3dCommandList);
 				pMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
 				pGameObject->SetMesh(pMesh);
 				pMesh->SetLodLevel(LODLEVEL::LOD_LEVEL2);
@@ -150,7 +149,7 @@ CGameObject* CFoliageObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice
 		}
 		else if (!strcmp(pstrToken, "<Materials>:"))
 		{
-			pGameObject->LoadMaterialsFromFile(pd3dDevice, pd3dCommandList, pParent, pInFile, pShader);
+			pGameObject->LoadMaterialsFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature , pParent, pInFile, pShader, Type);
 		}
 		else if (!strcmp(pstrToken, "<Children>:"))
 		{
@@ -160,7 +159,7 @@ CGameObject* CFoliageObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice
 			{
 				for (int i = 0; i < nChilds; i++)
 				{
-					CGameObject *pChild = CFoliageObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInFile, pShader, pnSkinnedMeshes);
+					CGameObject *pChild = CFoliageObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInFile, pShader, pnSkinnedMeshes, Type);
 					if (pChild) pGameObject->SetChild(pChild);
 #ifdef _WITH_DEBUG_FRAME_HIERARCHY
 					TCHAR pstrDebug[256] = { 0 };
@@ -178,7 +177,7 @@ CGameObject* CFoliageObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice
 	return(pGameObject);
 }
 
-CLoadedModelInfo *CFoliageObject::LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char *pstrFileName, CShader *pShader, bool bHasAnimation)
+CLoadedModelInfo *CFoliageObject::LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, char *pstrFileName, CShader *pShader, bool bHasAnimation, string Type)
 {
 	FILE *pInFile = NULL;
 	::fopen_s(&pInFile, pstrFileName, "rb");
@@ -186,7 +185,7 @@ CLoadedModelInfo *CFoliageObject::LoadGeometryAndAnimationFromFile(ID3D12Device 
 
 	CLoadedModelInfo *pLoadedModel = new CLoadedModelInfo();
 	//¸ðµ¨ °èÃþÁ¤º¸ ·Îµå
-	pLoadedModel->m_pModelRootObject = CFoliageObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, pInFile, pShader, &pLoadedModel->m_nSkinnedMeshes);
+	pLoadedModel->m_pModelRootObject = CFoliageObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, pInFile, pShader, &pLoadedModel->m_nSkinnedMeshes, Type);
 	if (bHasAnimation)
 	{
 		pLoadedModel->m_pAnimationSets = CGameObject::LoadAnimationFromFile(pInFile, pLoadedModel->m_pModelRootObject);

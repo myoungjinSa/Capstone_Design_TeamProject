@@ -9,5 +9,5 @@ public:
 	CUI(int nMaterial);
 	virtual ~CUI();
 
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = nullptr);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState);
 };

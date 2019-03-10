@@ -46,7 +46,7 @@ D3D12_BLEND_DESC CBillboardShader::CreateBlendState()
 	return(d3dBlendDesc);
 }
 
-void CBillboardShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CBillboardShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
-	CShader::Render(pd3dCommandList, pCamera);
+	CShader::Render(pd3dCommandList, pCamera, nPipelineState);
 }

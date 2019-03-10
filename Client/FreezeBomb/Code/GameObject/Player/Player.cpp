@@ -4,6 +4,7 @@
 #include "../../Material/Material.h"
 #include "../../Shader/Shader.h"
 #include "../Item/Item.h"
+#include "../Shadow/Shadow.h"
 
 CPlayer::CPlayer()
 {
@@ -48,6 +49,10 @@ CPlayer::~CPlayer()
 		iter = m_Special_Inventory.erase(iter);
 	}
 	m_Special_Inventory.clear();
+	
+
+	//if (m_pShadow)
+	//	delete m_pShadow;
 }
 
 void CPlayer::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
@@ -188,18 +193,16 @@ void CPlayer::Update(float fTimeElapsed)
 
 	DecideAnimationState(fLength);
 
-	if (m_Normal_Inventory.size() > 0)
-	{
-		// Ctrl 키
-		if (GetAsyncKeyState(VK_CONTROL) & 0x8000)
-			Refresh_Inventory(Normal);
-		// Alt 키
-		if (GetAsyncKeyState(VK_MENU) & 0x8000)
-			Refresh_Inventory(Special);
-	}
+	//if (m_Normal_Inventory.size() > 0)
+	//{
+	//	// Ctrl 키
+	//	if (GetAsyncKeyState(VK_CONTROL) & 0x0001)
+	//		Refresh_Inventory(Normal);
+	//	// Alt 키
+	//	if (GetAsyncKeyState(VK_MENU) & 0x0001)
+	//		Refresh_Inventory(Special);
+	//}
 }
-
-
 
 CCamera *CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
 {
@@ -257,62 +260,16 @@ void CPlayer::OnPrepareRender()
 	UpdateTransform(NULL);
 }
 
-void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
 
 	if (nCameraMode == THIRD_PERSON_CAMERA)
 	{
-		CGameObject::Render(pd3dCommandList,m_bHammer,m_bBomb,m_bIce,m_matID,pCamera);		//재질별로 렌더 
-		//CGameObject::Render(pd3dCommandList,pCamera);			//렌더
+		CGameObject::Render(pd3dCommandList, m_bHammer, m_bBomb, m_bIce, m_matID, pCamera, GameObject);		//재질별로 렌더 
 
-		//OnPrepareRender();
-
-		//if (m_pSkinningBoneTransforms)
-		//	m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
-
-		//if (m_pMesh)
-		//{
-		//	if (!m_pSkinningBoneTransforms)
-		//		UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
-
-		//	if (m_nMaterials > 0)
-		//	{
-		//		for (int i = 0; i < m_nMaterials; i++)
-		//		{
-		//			if (m_ppMaterials[i])
-		//			{
-		//				if (m_ppMaterials[i]->m_pShader)
-		//					m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
-
-		//				m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
-		//			}
-		//			m_pMesh->Render(pd3dCommandList, i);
-		//		}
-		//	}
-		//}
-
-
-		//if (m_pSibling)
-		//{
-		//	if (strcmp(this->m_pstrFrameName, "black - handbomb") != 0)
-		//		((CPlayer*)m_pSibling)->CPlayer::Render(pd3dCommandList, pCamera);
-		//	else
-		//	{
-		//		//if (carryBomb)
-		//		//	((CPlayer*)m_pSibling)->CPlayer::Render(pd3dCommandList, pCamera);
-		//	}
-		//}
-		//if (m_pChild)
-		//{
-		//	if (strcmp(this->m_pstrFrameName, "black - handbomb") != 0)
-		//		((CPlayer*)m_pChild)->CPlayer::Render(pd3dCommandList, pCamera);
-		//	else
-		//	{
-		//		//if (carryBomb)
-		//		//	((CPlayer*)m_pChild)->CPlayer::Render(pd3dCommandList, pCamera);
-		//	}
-		//}
+		if (m_pShadow)
+			m_pShadow->Render(pd3dCommandList, m_bHammer, m_bBomb, m_bIce, m_matID, pCamera, GameObject_Shadow);
 	}
 }
 
@@ -361,9 +318,14 @@ void CPlayer::DecideAnimationState(float fLength)
 		&& pController->GetAnimationState() != CAnimationController::DIGGING
 		&& pController->GetAnimationState() != CAnimationController::JUMP)
 	{
+		if (pController->GetAnimationState() == CAnimationController::RUNFAST)
+		{
+			m_pAnimationController->SetTrackPosition(0, 0.0f);
+		}
 		SetTrackAnimationSet(0, CAnimationController::IDLE);
 		m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
 	
+		
 	}
 	else 
 	{
@@ -372,8 +334,10 @@ void CPlayer::DecideAnimationState(float fLength)
 		{
 			SetTrackAnimationSet(0, CAnimationController::RUNFAST);
 			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
-			m_pAnimationController->SetTrackSpeed(0, 1.3f);
+			//m_pAnimationController->SetTrackSpeed(0, 1.3f);
+			//m_pAnimationController->SetTrackPosition(0, 0.0f);
 		}
+	
 		if (GetAsyncKeyState(VK_DOWN) & 0x8000 && pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::JUMP)
 		{
@@ -389,15 +353,21 @@ void CPlayer::DecideAnimationState(float fLength)
 		//pController->SetTrackSpeed(0, 1.5f);
 	}
 
-	if (GetAsyncKeyState(VK_X) & 0x8000 && pController->GetAnimationState() != CAnimationController::ATTACK)
+	// 망치로 때리기 애니메이션
+	if (GetAsyncKeyState(VK_CONTROL) & 0x0001 && pController->GetAnimationState() != CAnimationController::ATTACK)
 	{
-		
 		SetTrackAnimationSet(0, CAnimationController::ATTACK);
 		SetTrackAnimationPosition(0, 0);
 
 		pController->SetTrackSpeed(0, 1.0f);
 		pController->SetAnimationState(CAnimationController::ATTACK);
+
+		if (m_Normal_Inventory.size() > 0)
+		{
+			Refresh_Inventory(Normal);
+		}
 	}
+
 	if (GetAsyncKeyState(VK_Z) & 0x8000 && pController->GetAnimationState() != CAnimationController::DIGGING)
 	{
 		SetTrackAnimationSet(0, CAnimationController::DIGGING);
@@ -417,7 +387,7 @@ void CPlayer::DecideAnimationState(float fLength)
 CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID ,void *pContext)
 {
 	CLoadedModelInfo* pEvilBearModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
-		"../Resource/Models/EvilBear.bin", NULL, true);
+		"../Resource/Models/EvilBear.bin", NULL, true, "Player");
 
 	SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);
@@ -426,19 +396,21 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pAnimationController->SetTrackAnimationSet(0, 0);
 
 	// 1번 애니메이션 동작에 사운드 3개를 Set해준다.
-	m_pAnimationController->SetCallbackKeys(1, 3);
+	m_pAnimationController->SetCallbackKeys(m_pAnimationController->RUNFAST, 2);
 
 	// 애니메이션 1번동작 0.1초일때 Footstep01 소리를 재생, 1번동작 0.5초일때 Footstep02 소리를 재생, 1번동작 0.9초일때 Footstep03 소리를 재생
-	m_pAnimationController->SetCallbackKey(1, 0, 0.1f, _T("../Resource/Sound/BtnDown03.wav"));
-	m_pAnimationController->SetCallbackKey(1, 1, 0.5f, _T("../Resource/Sound/BtnDown03.wav"));
-	m_pAnimationController->SetCallbackKey(1, 2, 0.9f, _T("../Resource/Sound/BtnDown03.wav"));
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 0, 0.3f,MAKEINTRESOURCE(IDR_WAVE2));
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 1, 0.6f, MAKEINTRESOURCE(IDR_WAVE2));
+	//m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 2, 0.3f, MAKEINTRESOURCE(IDR_WAVE1));
+//	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 3, 0., MAKEINTRESOURCE(IDR_WAVE1));
+
 
 	//m_pAnimationController->SetCallbackKey(1, 0, 0.1f, _T("../Resource/Sound/FootStep01.wav"));
 	//m_pAnimationController->SetCallbackKey(1, 1, 0.5f, _T("../Resource/Sound/FootStep02.wav"));
 	//m_pAnimationController->SetCallbackKey(1, 2, 0.9f, _T("../Resource/Sound/FootStep03.wav"));
 
 	CAnimationCallbackHandler* pAnimationCallbackHandler = new CSoundCallbackHandler();
-	m_pAnimationController->SetAnimationCallbackHandler(1, pAnimationCallbackHandler);
+	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RUNFAST, pAnimationCallbackHandler);
 
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
@@ -451,10 +423,10 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 	m_ID = "<EvilBear>";
 
+	m_pShadow = new CShadow(pEvilBearModel, this);
+
 	if (pEvilBearModel)
 		delete pEvilBearModel;
-
-
 }
 
 CTerrainPlayer::~CTerrainPlayer()
@@ -591,18 +563,18 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 	}
 }
 
-#define _WITH_DEBUG_CALLBACK_DATA
-
+//#define _WITH_DEBUG_CALLBACK_DATA
+#define _WITH_SOUND_RESOURCE
 void CSoundCallbackHandler::HandleCallback(void *pCallbackData)
 {
-	_TCHAR *pWavName = (_TCHAR *)pCallbackData;
+	//_TCHAR *pWavName = (_TCHAR *)pCallbackData;
 #ifdef _WITH_DEBUG_CALLBACK_DATA
 	TCHAR pstrDebug[256] = { 0 };
 	_stprintf_s(pstrDebug, 256, _T("%s\n"), pWavName);
 	OutputDebugString(pstrDebug);
 #endif
 #ifdef _WITH_SOUND_RESOURCE
-	PlaySound(pWavName, ::ghAppInstance, SND_RESOURCE | SND_ASYNC);
+	PlaySound(MAKEINTRESOURCE(pCallbackData), ::ghAppInstance, SND_RESOURCE | SND_ASYNC);
 #else
 	PlaySound(pWavName, NULL, SND_FILENAME | SND_ASYNC);
 #endif

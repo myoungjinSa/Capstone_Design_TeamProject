@@ -1,18 +1,18 @@
 #include "../../Stdafx/Stdafx.h"
-#include "LodMesh.h"
+#include "LODMesh.h.h"
 
-CLodMesh::CLodMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+CLODMesh::CLODMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 	:CStandardMesh(pd3dDevice, pd3dCommandList)
 {
 
 }
 
-CLodMesh::~CLodMesh()
+CLODMesh::~CLODMesh()
 {
 
 }
 
-void CLodMesh::Render(ID3D12GraphicsCommandList *pd3dCommandList, int nSubSet, UINT lodLevel)
+void CLODMesh::Render(ID3D12GraphicsCommandList *pd3dCommandList, int nSubSet, UINT lodLevel)
 {
 	if (m_LodLevel == lodLevel) {
 		UpdateShaderVariables(pd3dCommandList);

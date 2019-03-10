@@ -11,15 +11,39 @@ CResourceManager::~CResourceManager()
 {
 }
 
-void CResourceManager::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+void CResourceManager::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
 	LoadTexture(pd3dDevice, pd3dCommandList);
+	
+	LoadModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	LoadMapObjectInfo(pd3dDevice, pd3dCommandList);
+
 	LoadBound(pd3dDevice, pd3dCommandList);
-	//LoadMap(pd3dDevice, pd3dCommandList,string("MapVer1"));
+
 }
+
+//void CResourceManager::CreateOffScreenRenderTargeViews(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList,int clientWidth,int clientHeight)
+//{
+//	CTexture *pTextureForCartoonProcessing = new CTexture(m_nCartoonScreenRenderTargetBuffers, RESOURCE_TEXTURE2D_ARRAY, 0);
+//
+//	D3D12_CLEAR_VALUE d3dClearValue = { DXGI_FORMAT_R8G8B8A8_UNORM, { 0.0f, 0.0f, 0.0f, 1.0f } };
+//
+//	for (UINT i = 0; i < m_nCartoonScreenRenderTargetBuffers; i++)
+//	{
+//		m_ppd3dCartoonScreenRenderTargetBuffers[i] = pTextureForCartoonProcessing->CreateTexture(pd3dDevice, pd3dCommandList, clientWidth, clientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, i);
+//		m_ppd3dCartoonScreenRenderTargetBuffers[i]->AddRef();
+//		m_TextureMap.emplace("CartoonRenderTarget" + to_string(i), pTextureForCartoonProcessing);
+//	}
+//
+//	//m_TextureMap.emplace("CartoonRenderTarget"+to_string(i),)
+//
+//
+//}
 
 void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
+	//CreateOffScreenRenderTargeViews(pd3dDevice,pd3dCommandList,clientWidth,clientHeight); //OffScreen RenderTarget 생성
+
 	CTexture* pSkyBoxTexture = new CTexture(1, RESOURCE_TEXTURE_CUBE, 0);
 	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/SkyBox/SkyBox_1.dds", 0);
 	CScene::CreateShaderResourceViews(pd3dDevice, pSkyBoxTexture, 10, false);
@@ -33,6 +57,11 @@ void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainSpecularTexture, 14, false);
 	m_TextureMap.emplace("BaseTerrain", pTerrainBaseTexture);
 	m_TextureMap.emplace("SpecularTerrain", pTerrainSpecularTexture);
+
+	CTexture* pSnowTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pSnowTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Effect/Snow.dds", 0);
+	CScene::CreateShaderResourceViews(pd3dDevice, pSnowTexture, 16, false);
+	m_TextureMap.emplace("Snow", pSnowTexture);
 
 	CTexture* pNumber0Texture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pNumber0Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Number/Blue_0.dds", 0);
@@ -102,12 +131,151 @@ void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	CScene::CreateShaderResourceViews(pd3dDevice, pGoldTimer_ItemTexture, 17, false);
 	m_TextureMap.emplace("GoldTimer_Item", pGoldTimer_ItemTexture);
 
-
 	CTexture* pIceCubeTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pIceCubeTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Model/texture2.dds", 0);
 	CScene::CreateShaderResourceViews(pd3dDevice, pIceCubeTexture, 20, false);
 	m_TextureMap.emplace("IceTexture", pIceCubeTexture);
+}
 
+void CResourceManager::LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
+{
+	int nDeadTrees = 5, nPineTrees = 8, nBigRocks = 4, nDeers = 1, nPond = 1, nFence = 2;
+
+	CLoadedModelInfo* pDeadTreeModel01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_01.bin", nullptr, false, "Surrounding");
+	m_ModelMap.emplace("SM_DeadTrunk_01", pDeadTreeModel01);
+	CLoadedModelInfo* pDeadTreeModel02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_02.bin", nullptr, false, "Surrounding");
+	m_ModelMap.emplace("SM_DeadTrunk_02", pDeadTreeModel02);
+	CLoadedModelInfo* pDeadTreeModel03 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_03.bin", nullptr, false, "Surrounding");
+	m_ModelMap.emplace("SM_DeadTrunk_03", pDeadTreeModel03);
+	CLoadedModelInfo* pDeadTreeModel04 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_04.bin", nullptr, false, "Surrounding");
+	m_ModelMap.emplace("SM_DeadTrunk_04", pDeadTreeModel04);
+	CLoadedModelInfo* pDeadTreeModel05 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_05.bin", nullptr, false, "Surrounding");
+	m_ModelMap.emplace("SM_DeadTrunk_05", pDeadTreeModel05);
+
+	CLoadedModelInfo* pPineTreeModel01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_01.bin", nullptr, false, "Surrounding");
+	m_ModelMap.emplace("SM_PineTree_Snow_01", pPineTreeModel01);
+	CLoadedModelInfo* pPineTreeModel02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_02.bin", nullptr, false, "Surrounding");
+	m_ModelMap.emplace("SM_PineTree_Snow_02", pPineTreeModel02);
+	CLoadedModelInfo* pPineTreeModel03 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_03.bin", nullptr, false, "Surrounding");
+	m_ModelMap.emplace("SM_PineTree_Snow_03", pPineTreeModel03);
+	CLoadedModelInfo* pPineTreeModel04 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_04.bin", nullptr, false, "Surrounding");
+	m_ModelMap.emplace("SM_PineTree_Snow_04", pPineTreeModel04);
+	CLoadedModelInfo* pPineTreeModel05 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_05.bin", nullptr, false, "Surrounding");
+	m_ModelMap.emplace("SM_PineTree_Snow_05", pPineTreeModel05);
+	CLoadedModelInfo* pPineTreeModel06 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_06.bin", nullptr, false, "Surrounding");
+	m_ModelMap.emplace("SM_PineTree_Snow_06", pPineTreeModel06);
+	CLoadedModelInfo* pPineTreeModel07 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_07.bin", nullptr, false, "Surrounding");
+	m_ModelMap.emplace("SM_PineTree_Snow_07", pPineTreeModel07);
+	CLoadedModelInfo* pPineTreeModel08 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_08.bin", nullptr, false, "Surrounding");
+	m_ModelMap.emplace("SM_PineTree_Snow_08", pPineTreeModel08);
+
+	CLoadedModelInfo* pRock01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_01.bin", nullptr, false, "Surrounding");
+	m_ModelMap.emplace("SM_BigPlainRock_Snow_01", pRock01);
+	CLoadedModelInfo* pRock02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_02.bin", nullptr, false, "Surrounding");
+	m_ModelMap.emplace("SM_BigPlainRock_Snow_02", pRock02);
+	CLoadedModelInfo* pRock03 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_03.bin", nullptr, false, "Surrounding");
+	m_ModelMap.emplace("SM_BigPlainRock_Snow_03", pRock03);
+	CLoadedModelInfo* pRock04 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_04.bin", nullptr, false, "Surrounding");
+	m_ModelMap.emplace("SM_BigPlainRock_Snow_04", pRock04);
+
+	CLoadedModelInfo* pDeer = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_Deer.bin", nullptr, false, "Surrounding");
+	m_ModelMap.emplace("SM_Deer", pDeer);
+
+	CLoadedModelInfo* pPond = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/PondSquare.bin", nullptr, false, "Surrounding");
+	m_ModelMap.emplace("PondSquare", pPond);
+
+	CLoadedModelInfo* pFence01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/LowPoly_Fence_01.bin", nullptr, false, "Surrounding");
+	m_ModelMap.emplace("LowPoly_-_Fence_A", pFence01);
+	CLoadedModelInfo* pFence02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/LowPoly_Fence_02.bin", nullptr, false, "Surrounding");
+	m_ModelMap.emplace("LowPoly_-_Fence_B", pFence02);
+
+	CLoadedModelInfo* pHammer = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Hammer.bin", nullptr, false, "Hammer");
+	m_ModelMap.emplace("NormalItem", pHammer);
+}
+
+void CResourceManager::LoadMapObjectInfo(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	string filename = "../Resource/Position/Surrounding/MapVer1.bin";
+
+	ifstream in(filename, ios::binary);
+
+	if (!in)
+	{
+		cout << filename << " - 바이너리 파일 없음" << endl;
+		return;
+	}
+
+	size_t nReads = 0;
+
+	// 맵 오브젝트 개수
+	int nObjects = 0;
+	in.read(reinterpret_cast<char*>(&nObjects), sizeof(int));
+
+	for (int i = 0; i < nObjects; ++i)
+	{
+		MapObjectInfo* pMapObjectInfo = new MapObjectInfo;
+		// 모델 이름 문자열 길이 저장
+		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+
+		// 길이 + 1만큼 자원 할당
+		char* p = new char[nReads + 1];
+		in.read(p, sizeof(char) * nReads);
+		p[nReads] = '\0';
+		//  모델 이름 저장
+		pMapObjectInfo->m_Name = p;
+		delete[] p;
+
+		// Position 문자열 길이 저장
+		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+		p = new char[nReads + 1];
+		in.read(p, sizeof(char)*nReads);
+		p[nReads] = '\0';
+		delete[] p;
+
+		// Position x, y, z값 저장
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Position.x), sizeof(float));
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Position.y), sizeof(float));
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Position.z), sizeof(float));
+
+		// Look 문자열 길이 저장
+		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+		p = new char[nReads + 1];
+		in.read(p, sizeof(char)*nReads);
+		p[nReads] = '\0';
+		delete[] p;
+
+		// <Look> x, y, z값 저장
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.x), sizeof(float));
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.y), sizeof(float));
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.z), sizeof(float));
+		
+		// Up 문자열 길이 저장
+		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+		p = new char[nReads + 1];
+		in.read(p, sizeof(char)*nReads);
+		p[nReads] = '\0';
+		delete[] p;
+
+		// <Up> x, y, z값 저장
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Up.x), sizeof(float));
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Up.y), sizeof(float));
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Up.z), sizeof(float));
+
+		// Right 문자열 길이 저장
+		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+		p = new char[nReads + 1];
+		in.read(p, sizeof(char)*nReads);
+		p[nReads] = '\0';
+		delete[] p;
+
+		// <Right> x, y, z값 저장
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Right.x), sizeof(float));
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Right.y), sizeof(float));
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Right.z), sizeof(float));
+
+		m_MapObjectInfoMultiMap.emplace(pMapObjectInfo->m_Name, pMapObjectInfo);
+	}
+	in.close();
 }
 
 #define SIZE 22
@@ -155,128 +323,36 @@ void CResourceManager::LoadBound(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	in.close();
 }
 
-
-void CResourceManager::LoadMap(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,const string filename)
-{
-	//string filename = "MapVer1";
-
-	ifstream inf(filename+".bin", ios::binary);
-
-	if (!inf)
-	{
-		cout << filename+string("바이너리 파일 없음\n");
-		return;
-	}
-
-	cout << filename+string("로딩 성공\n");
-
-	size_t nReads = 0;
-	
-	int objCount = 0;
-	inf.read(reinterpret_cast<char*>(&objCount), sizeof(int));
-
-	cout << objCount << "\n";
-
-	for (UINT i = 0; i < objCount; i++)
-	{
-		inf.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-		
-		char* p = new char[nReads + 1];
-	
-		inf.read(p, sizeof(char)*nReads);
-		p[nReads] = '\0';
-		cout << p << "\n";
-		delete[] p;
-
-		///////////////////////////////////////////////////////////////////////
-		inf.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-
-		p = new char[nReads + 1];
-
-		inf.read(p, sizeof(char)*nReads);
-		p[nReads] = '\0';
-		cout << p << "\n";
-		delete[] p;
-		
-		float posX = 0.0f;
-		float posY = 0.0f;
-		float posZ = 0.0f;
-		inf.read(reinterpret_cast<char*>(&posX), sizeof(float));
-		inf.read(reinterpret_cast<char*>(&posY), sizeof(float));
-		inf.read(reinterpret_cast<char*>(&posZ), sizeof(float));
-
-		cout<<"위치: "<<posX<<","<<posY<<","<<posZ<<"\n";
-
-		////////////////////////////////////////////////////////////////////////
-		inf.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-
-		p = new char[nReads + 1];
-
-		inf.read(p, sizeof(char)*nReads);
-		p[nReads] = '\0';
-		cout << p << "\n";
-		delete[]p;
-
-
-		float lookX = 0.0f;
-		float lookY = 0.0f;
-		float lookZ = 0.0f;
-		inf.read(reinterpret_cast<char*>(&lookX), sizeof(float));
-		inf.read(reinterpret_cast<char*>(&lookY), sizeof(float));
-		inf.read(reinterpret_cast<char*>(&lookZ), sizeof(float));
-		cout << "Look방향: " << lookX << "," << lookY << "," << lookZ << "\n";
-		/////////////////////////////////////////////////////////////////////////////
-
-		inf.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-
-		p = new char[nReads + 1];
-
-		inf.read(p, sizeof(char) * nReads);
-		p[nReads] = '\0';
-		cout << p << "\n";
-		delete[]p;
-
-		float upX = 0.0f;
-		float upY = 0.0f;
-		float upZ = 0.0f;
-		inf.read(reinterpret_cast<char*>(&upX), sizeof(float));
-		inf.read(reinterpret_cast<char*>(&upY), sizeof(float));
-		inf.read(reinterpret_cast<char*>(&upZ), sizeof(float));
-		cout << "Up방향: " << upX << "," << upY << "," << upZ << "\n";
-		///////////////////////////////////////////////////////////////////////////////////////
-
-		inf.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-
-		p = new char[nReads + 1];
-
-		inf.read(p, sizeof(char) * nReads);
-		p[nReads] = '\0';
-		cout << p << "\n";
-		delete[]p;
-
-		float rightX = 0.0f;
-		float rightY = 0.0f;
-		float rightZ = 0.0f;
-		inf.read(reinterpret_cast<char*>(&rightX), sizeof(float));
-		inf.read(reinterpret_cast<char*>(&rightY), sizeof(float));
-		inf.read(reinterpret_cast<char*>(&rightZ), sizeof(float));
-		cout << "Right방향: " << rightX << "," << rightY << "," << rightZ << "\n";
-	}
-
-	inf.close();
-}
-
 void CResourceManager::Release()
 {
 	for (auto iter = m_TextureMap.begin(); iter != m_TextureMap.end(); )
 		iter = m_TextureMap.erase(iter);
-
 	m_TextureMap.clear();
 
 	for (auto iter = m_BoundMap.begin(); iter != m_BoundMap.end(); )
 	{
-		delete(*iter).second;
+		delete (*iter).second;
 		iter = m_BoundMap.erase(iter);
 	}
 	m_BoundMap.clear();
+
+	for (auto iter = m_MapObjectInfoMultiMap.begin(); iter != m_MapObjectInfoMultiMap.end(); )
+	{
+		delete (*iter).second;
+		iter = m_MapObjectInfoMultiMap.erase(iter);
+	}
+	m_MapObjectInfoMultiMap.clear();
+}
+
+void CResourceManager::ReleaseModel()
+{
+	for (auto iter = m_ModelMap.begin(); iter != m_ModelMap.end(); )
+	{
+		if ((*iter).second)
+		{
+			delete (*iter).second;
+			iter = m_ModelMap.erase(iter);
+		}
+	}
+	m_ModelMap.clear();
 }

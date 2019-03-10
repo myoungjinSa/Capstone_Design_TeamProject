@@ -12,40 +12,30 @@ bool operator<(pair<string, CGameObject*> &p1, pair< string, CGameObject> &p2)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-CMapToolShader::CMapToolShader()
-	:m_nObjects(0),
-	m_pTerrain(nullptr)
+CMapToolShader::CMapToolShader()	:m_nObjects(0), m_pTerrain(nullptr)
 {
-
 }
 
 CMapToolShader::~CMapToolShader()
 {
-
-
 }
 
 void CMapToolShader::InsertObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CPlayer* pPlayer, const string& model)
 {
-
-
 	auto iter = m_ModelsList.find(model);
 
 	if (iter != m_ModelsList.end())
 	{
-
 		if (pPlayer == nullptr)
-		{
 			return;
-		}
+
 		CLoadedModelInfo* pSurroundingModel = (*iter).second;
 
-		XMFLOAT3 position = Vector3::Add(pPlayer->GetPosition(),XMFLOAT3(0.0f,0.01f,0.0f)); 
+		XMFLOAT3 position = pPlayer->GetPosition(); 
 		XMFLOAT3 lookVec = pPlayer->GetLookVector();
 		XMFLOAT3 upVec = pPlayer->GetUpVector();
 		XMFLOAT3 rightVec = pPlayer->GetRightVector();
 
-		
 		CGameObject* pGameObject = new CSurrounding(pd3dDevice, pd3dCommandList,NULL);
 		//Object 위치 설정
 		pGameObject->SetPosition(position);
@@ -59,14 +49,11 @@ void CMapToolShader::InsertObject(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 
 		m_Objects.emplace_back(make_pair((*iter).first, pGameObject));
 	}
-
-
 }
+
 void CMapToolShader::DeleteObject()
 {
-
 }
-
 
 void CMapToolShader::SortDescByName()
 {
@@ -78,10 +65,8 @@ void CMapToolShader::SortDescByName()
 
 void CMapToolShader::MakeMapBinaryFile(const string& filename)
 {
-
 	ofstream out(filename + ".bin", ios::binary);
 
-	
 	int objCount = m_Objects.size();
 	out.write(reinterpret_cast<const char*>(&objCount), sizeof(int));
 
@@ -178,15 +163,13 @@ void CMapToolShader::MakeMapFile()
 
 	string str;
 
-
 	SortDescByName();		//파일에 출력하기전에 이름의 내림차순으로 정렬
 	
-	fout.open("MapVer1.txt"/*ios::out -> automatically Set*/);
+	fout.open("../Resource/Position/Surrounding/MapVer1.txt"/*ios::out -> automatically Set*/);
 	fout <<"Objects Count:"<< m_Objects.size()<<"\n";
 	
 	for (auto iter = m_Objects.begin(); iter != m_Objects.end();iter++)
 	{
-		
 		str = "<" + iter->first + ">\n";			//write Objects Name
 		fout.write(str.c_str(), str.size());
 		str = "<Position>: ";
@@ -208,56 +191,48 @@ void CMapToolShader::MakeMapFile()
 		fout << "\n";
 
 	}
-	
 	fout.close();
-
-
-
-
 }
-
 
 void CMapToolShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
 {
-
-
-	CLoadedModelInfo* pDeadTreesModel01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_01.bin", this, false);
-	CLoadedModelInfo* pDeadTreesModel02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_02.bin", this, false);
-	CLoadedModelInfo* pDeadTreesModel03 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_03.bin", this, false);
-	CLoadedModelInfo* pDeadTreesModel04 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_04.bin", this, false);
-	CLoadedModelInfo* pDeadTreesModel05 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_05.bin", this, false);
+	CLoadedModelInfo* pDeadTreesModel01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_01.bin", this, false, "Surrounding");
+	CLoadedModelInfo* pDeadTreesModel02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_02.bin", this, false, "Surrounding");
+	CLoadedModelInfo* pDeadTreesModel03 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_03.bin", this, false, "Surrounding");
+	CLoadedModelInfo* pDeadTreesModel04 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_04.bin", this, false, "Surrounding");
+	CLoadedModelInfo* pDeadTreesModel05 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_05.bin", this, false, "Surrounding");
 	m_nDeadTreeModelCount = 5;
 
 
-	CLoadedModelInfo* pPineTreesModel01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_01.bin", this, false);
-	CLoadedModelInfo* pPineTreesModel02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_02.bin", this, false);
-	CLoadedModelInfo* pPineTreesModel03 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_03.bin", this, false);
-	CLoadedModelInfo* pPineTreesModel04 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_04.bin", this, false);
-	CLoadedModelInfo* pPineTreesModel05 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_05.bin", this, false);
-	CLoadedModelInfo* pPineTreesModel06 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_06.bin", this, false);
-	CLoadedModelInfo* pPineTreesModel07 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_07.bin", this, false);
-	CLoadedModelInfo* pPineTreesModel08 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_08.bin", this, false);
+	CLoadedModelInfo* pPineTreesModel01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_01.bin", this, false, "Surrounding");
+	CLoadedModelInfo* pPineTreesModel02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_02.bin", this, false, "Surrounding");
+	CLoadedModelInfo* pPineTreesModel03 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_03.bin", this, false, "Surrounding");
+	CLoadedModelInfo* pPineTreesModel04 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_04.bin", this, false, "Surrounding");
+	CLoadedModelInfo* pPineTreesModel05 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_05.bin", this, false, "Surrounding");
+	CLoadedModelInfo* pPineTreesModel06 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_06.bin", this, false, "Surrounding");
+	CLoadedModelInfo* pPineTreesModel07 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_07.bin", this, false, "Surrounding");
+	CLoadedModelInfo* pPineTreesModel08 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_08.bin", this, false, "Surrounding");
 	m_nPineTreeModelCount = 8;
 
 
-	CLoadedModelInfo* pRocks01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_01.bin", this, false);
-	CLoadedModelInfo* pRocks02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_02.bin", this, false);
-	CLoadedModelInfo* pRocks03 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_03.bin", this, false);
-	CLoadedModelInfo* pRocks04 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_04.bin", this, false);
+	CLoadedModelInfo* pRocks01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_01.bin", this, false, "Surrounding");
+	CLoadedModelInfo* pRocks02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_02.bin", this, false, "Surrounding");
+	CLoadedModelInfo* pRocks03 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_03.bin", this, false, "Surrounding");
+	CLoadedModelInfo* pRocks04 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_04.bin", this, false, "Surrounding");
 	m_nBigRockModelCount = 4;
 	
-	CLoadedModelInfo* pRocks05 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PlainSmall_Snow_01.bin", this, false);
+	CLoadedModelInfo* pRocks05 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PlainSmall_Snow_01.bin", this, false, "Surrounding");
 	m_nSmallRockModelCount = 1;
 
-	CLoadedModelInfo* pDeer01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_Deer.bin", this, false);
+	CLoadedModelInfo* pDeer01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_Deer.bin", this, false, "Surrounding");
 	m_nDeerModelCount = 1;
 
-	CLoadedModelInfo* pPond01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/PondSquare.bin", this, false);
+	CLoadedModelInfo* pPond01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/PondSquare.bin", this, false, "Surrounding");
 	m_nPondModelCount = 1;
 
 
-	CLoadedModelInfo* pFence01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/LowPoly_Fence_01.bin", this, false);
-	CLoadedModelInfo* pFence02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/LowPoly_Fence_02.bin", this, false);
+	CLoadedModelInfo* pFence01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/LowPoly_Fence_01.bin", this, false, "Surrounding");
+	CLoadedModelInfo* pFence02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/LowPoly_Fence_02.bin", this, false, "Surrounding");
 	m_nFenceModelCount = 2;
 	
 	m_pTerrain = (CTerrain*)pContext;
@@ -310,10 +285,6 @@ void CMapToolShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 
 	m_ModelsList.emplace("LowPoly_-_Fence_A", pFence01);
 	m_ModelsList.emplace("LowPoly_-_Fence_B", pFence02);
-
-
-
-
 }
 
 void CMapToolShader::ReleaseObjects()
@@ -329,27 +300,18 @@ void CMapToolShader::ReleaseObjects()
 		iter = m_ModelsList.erase(iter);
 	}
 	m_ModelsList.clear();
-
-
 }
-void CMapToolShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CMapToolShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
-	CShader::Render(pd3dCommandList, pCamera);
+	CShader::Render(pd3dCommandList, pCamera, nPipelineState);
 
-	//for (int i = 0; i < m_nObjects; ++i)
-	//{
-	//	if (m_ppObjects[i])
-	//	{
-	//		m_ppObjects[i]->Render(pd3dCommandList, pCamera);
-	//	}
-	//}
 	for (auto iter = m_Objects.begin(); iter != m_Objects.end();iter++)
 	{
 		if (iter->second)
 		{
 			iter->second->Animate(m_fElapsedTime);
 			iter->second->UpdateTransform(NULL);
-			iter->second->Render(pd3dCommandList, pCamera);
+			iter->second->Render(pd3dCommandList, pCamera, nPipelineState);
 		}
 	}
 }

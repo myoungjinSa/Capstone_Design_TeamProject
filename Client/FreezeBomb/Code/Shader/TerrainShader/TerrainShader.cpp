@@ -13,6 +13,38 @@ CTerrainShader::~CTerrainShader()
 {
 }
 
+D3D12_SHADER_BYTECODE CTerrainShader::CreateVertexShader()
+{
+	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSTerrain", "vs_5_1", &m_pd3dVertexShaderBlob));
+}
+
+D3D12_SHADER_BYTECODE CTerrainShader::CreatePixelShader()
+{
+	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSTerrain", "ps_5_1", &m_pd3dPixelShaderBlob));
+}
+
+D3D12_DEPTH_STENCIL_DESC CTerrainShader::CreateDepthStencilState()
+{
+	D3D12_DEPTH_STENCIL_DESC d3dDepthStencilDesc;
+	::ZeroMemory(&d3dDepthStencilDesc, sizeof(D3D12_DEPTH_STENCIL_DESC));
+	d3dDepthStencilDesc.DepthEnable = false;
+	d3dDepthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	d3dDepthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+	d3dDepthStencilDesc.StencilEnable = FALSE;
+	d3dDepthStencilDesc.StencilReadMask = 0x00;
+	d3dDepthStencilDesc.StencilWriteMask = 0x00;
+	d3dDepthStencilDesc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	d3dDepthStencilDesc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	d3dDepthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	d3dDepthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
+	d3dDepthStencilDesc.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	d3dDepthStencilDesc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	d3dDepthStencilDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	d3dDepthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
+
+	return(d3dDepthStencilDesc);
+}
+
 D3D12_INPUT_LAYOUT_DESC CTerrainShader::CreateInputLayout()
 {
 	UINT nInputElementDescs = 4;
@@ -30,15 +62,6 @@ D3D12_INPUT_LAYOUT_DESC CTerrainShader::CreateInputLayout()
 	return(d3dInputLayoutDesc);
 }
 
-D3D12_SHADER_BYTECODE CTerrainShader::CreateVertexShader()
-{
-	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSTerrain", "vs_5_1", &m_pd3dVertexShaderBlob));
-}
-
-D3D12_SHADER_BYTECODE CTerrainShader::CreatePixelShader()
-{
-	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSTerrain", "ps_5_1", &m_pd3dPixelShaderBlob));
-}
 
 void CTerrainShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
 	const map<string, CTexture*>& Context, void* pContext)
@@ -75,9 +98,9 @@ void CTerrainShader::ReleaseUploadBuffers()
 		m_pTerrain->ReleaseUploadBuffers();
 }
 
-void CTerrainShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CTerrainShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
-	CShader::Render(pd3dCommandList, pCamera);
+	CShader::Render(pd3dCommandList, pCamera, nPipelineState);
 
 	if (m_pTerrain)
 		m_pTerrain->Render(pd3dCommandList, pCamera);

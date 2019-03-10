@@ -2,7 +2,7 @@
 #include "GameFramework.h"
 #include "../Scene/Scene.h"
 #include "../GameObject/Player/Player.h"
-#include "../Shader/PlayerShadowShader/PlayerShadowShader.h"
+#include "../GameObject/Shadow/Shadow.h"
 
 #include "../ShaderManager/ShaderManager.h"
 #include "../Shader/TerrainShader/TerrainShader.h"
@@ -11,6 +11,7 @@
 #include "../Shader/StandardShader/MapToolShader/MapToolShader.h"
 #include "../Texture/Texture.h"
 #include "../Shader/PostProcessShader/CartoonShader/SobelCartoonShader.h"
+
 
 CGameFramework::CGameFramework()
 {
@@ -54,8 +55,12 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	m_hInstance = hInstance;
 	m_hWnd = hMainWnd;
 
+	
 	CreateDirect3DDevice();
 	CreateCommandQueueAndList();
+#ifdef _WITH_DIRECT2D_
+	CreateDirect2DDevice();
+#endif
 	CreateRtvAndDsvDescriptorHeaps();
 	CreateSwapChain();
 	CreateDepthStencilView();
@@ -128,6 +133,7 @@ void CGameFramework::CreateSwapChain()
 #endif
 }
 
+
 void CGameFramework::CreateDirect3DDevice()
 {
 	HRESULT hResult;
@@ -199,6 +205,123 @@ void CGameFramework::CreateCommandQueueAndList()
 	hResult = m_pd3dCommandList->Close();
 }
 
+#ifdef _WITH_DIRECT2D_
+void CGameFramework::CreateDirect2DDevice()
+{
+	UINT nD3D11DeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+
+#if defined(_DEBUG)
+	nD3D11DeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+	//ID3D12Device 생성 후 ID3D11On12Device 를 생성한다.
+	//ID3D11Device는 D3D11OnCreateDevice API를 통해 ID3D12Device에 Wrapping되어있다.
+	//이 api는 11On12 디바이스에 명령들을  ID3D12CommandQueue에 제출하는 역할을 한다.
+	//ID3D11Device 가 생성된 후에, ID3D11On12Device 인터페이스를 ID3D11Device로 부터 요청할 수 있다.
+	//ID3D11On12Device 가 D2D를 설치하는데 사용하는 주 디바이스가 된다.
+	ID3D11Device *pd3d11Device = NULL;
+	HRESULT hResult = ::D3D11On12CreateDevice(m_pd3dDevice, nD3D11DeviceFlags, NULL, 0, (IUnknown **)&m_pd3dCommandQueue, 1, 0, &pd3d11Device, &m_pd3d11DeviceContext, NULL);
+	hResult = pd3d11Device->QueryInterface(__uuidof(ID3D11On12Device), (void **)&m_pd3d11On12Device);
+	if (pd3d11Device) pd3d11Device->Release();
+
+
+	//11On12 디바이스가 생성된 후, 우리는 이 디바이스를 D2DFactory와 디바이스를 
+	//다이렉트 11에서 했던 것 과 동일하게 생성해준다.
+
+	D2D1_FACTORY_OPTIONS nD2DFactoryOptions = { D2D1_DEBUG_LEVEL_NONE };
+#if defined(_DEBUG)
+	nD2DFactoryOptions.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
+#endif
+	
+	//D2D1_FACTORY_TYPE_SINGLE_THREADED ->팩토리에 접근하거나 쓰는것 또는 객체를 생성하는 것으로부터 동기화를 제공하지 않는다.
+	//									만약 팩토리나 객체들이 다중 스레드에서 호출되면, Application은 접근을 lock해준다.
+	hResult = ::D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, __uuidof(ID2D1Factory3), &nD2DFactoryOptions, (void**)&m_pd2dFactory);
+
+
+	////////////////////////////////////////////////////////////////////////////////////
+	IDXGIDevice *pdxgiDevice = NULL;
+	hResult = m_pd3d11On12Device->QueryInterface(__uuidof(IDXGIDevice), (void **)&pdxgiDevice);
+	hResult = m_pd2dFactory->CreateDevice(pdxgiDevice, &m_pd2dDevice);
+	hResult = m_pd2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_pd2dDeviceContext);
+	hResult = ::DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), (IUnknown **)&m_pdWriteFactory);
+
+	if(pdxgiDevice) 
+	{
+		pdxgiDevice->Release();
+	}
+
+	m_pd2dDeviceContext->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
+
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(0.3f, 0.0f, 0.0f, 0.5f), &m_pd2dbrBackground);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF(0x9ACD32, 1.0f)), &m_pd2dbrBorder);
+
+	m_pdwFont = new IDWriteTextFormat*[m_nNameFont];
+	m_pd2dbrText = new ID2D1SolidColorBrush*[m_nNameFont];
+	for (int i = 0; i < m_nNameFont; ++i) 
+	{
+		hResult = m_pdWriteFactory->CreateTextFormat(L"고딕", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 30.0f, L"en-US", &m_pdwFont[i]);
+		hResult = m_pdwFont[i]->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+		hResult = m_pdwFont[i]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+		hResult = m_pdWriteFactory->CreateTextLayout(L"텍스트 레이아웃", 8, m_pdwFont[i], 4096.0f, 4096.0f, &m_pdwTextLayout);
+	}
+	
+	
+
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightBlue, 1.0f), &m_pd2dbrText[0]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Orange, 1.0f), &m_pd2dbrText[1]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrText[2]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightGreen, 1.0f), &m_pd2dbrText[3]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightCoral, 1.0f), &m_pd2dbrText[4]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LavenderBlush, 1.0f), &m_pd2dbrText[5]);
+	
+
+
+	//nitializes the COM library on the current thread and identifies the concurrency model as single-thread apartment 
+	CoInitialize(NULL);
+	hResult = CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory), (void**)&m_pwicImagingFactory);
+
+	hResult = m_pd2dFactory->CreateDrawingStateBlock( &m_pd2dsbDrawingState);
+	hResult = m_pd2dDeviceContext->CreateEffect(CLSID_D2D1BitmapSource, &m_pd2dfxBitmapSource);
+
+
+	IWICBitmapDecoder *pwicBitmapDecoder;
+	hResult = m_pwicImagingFactory->CreateDecoderFromFilename(L"../Resource/Png/ScoreBoard.png", NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &pwicBitmapDecoder);
+
+	IWICBitmapFrameDecode *pwicFrameDecode;
+	pwicBitmapDecoder->GetFrame(0, &pwicFrameDecode);	//GetFrame() : Retrieves the specified frame of the image.
+
+
+	//CreateFormatConverter::Creates a new instance of the IWICFormatConverter class.
+	m_pwicImagingFactory->CreateFormatConverter(&m_pwicFormatConverter);
+
+	//Initializes the format converter.
+	//1. WIICBitmapSource* : the input bitmap to convert
+	//2. REFWICPixelFormatGUID : The destination pixel format GUID.
+	//3. WICBitmapDitherType : The WICBitmapDitherType used for conversation.
+	// WICBitmapDitherTypeNone -> A solid color algorithm without dither.
+	//							//떨림이 없는 단색 알고리즘	
+	//4. IWICPalette*  : The palette to use for conversation.
+	//5. double : the alpha threshold to use for conversation.
+	//6. WICBitmapPaletteType : the palette translation type to use for conversation.
+	//   WICBitmapPaletteTypeCustom -> An arbitrary custom palette provided by caller.
+	m_pwicFormatConverter->Initialize(pwicFrameDecode, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 0.0f, WICBitmapPaletteTypeCustom);
+	
+	//D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE : The IWICBitmapSource containing loaded. The type is IWICBitmapSource.
+	m_pd2dfxBitmapSource->SetValue(D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE,m_pwicFormatConverter);
+	
+	D2D1_VECTOR_2F	vec{ 1.1f,1.6f };
+	m_pd2dfxBitmapSource->SetValue(D2D1_BITMAPSOURCE_PROP_SCALE, vec);
+
+	//ScoreBoard
+	if(pwicBitmapDecoder) 
+		pwicBitmapDecoder->Release();
+
+	if (pwicFrameDecode)
+		pwicFrameDecode->Release();
+		
+}
+
+#endif
+
 void CGameFramework::CreateRtvAndDsvDescriptorHeaps()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
@@ -216,6 +339,8 @@ void CGameFramework::CreateRtvAndDsvDescriptorHeaps()
 	m_nDsvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 }
 
+
+
 void CGameFramework::CreateRenderTargetViews()
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
@@ -225,8 +350,47 @@ void CGameFramework::CreateRenderTargetViews()
 		m_pd3dDevice->CreateRenderTargetView(m_ppd3dSwapChainBackBuffers[i], NULL, d3dRtvCPUDescriptorHandle);
 		d3dRtvCPUDescriptorHandle.ptr += m_nRtvDescriptorIncrementSize;
 	}
+#ifdef _WITH_DIRECT2D_
+	CreateDirect2DRenderTargetViews();
+#endif
 }
 
+#ifdef _WITH_DIRECT2D_
+// D3D12가 스왑체인을 소유한다. 그렇기 때문에 우리가 사용하는 11On12 Device에 백버퍼에 우리가 원하는것을 그리려면 
+// 우리는 ID3D12Resource 의 BackBuffer 로 부터 Wrapped Resource of type ID3D11Resource.
+// 이것은 ID3D12Resource 와 D3D11 기반의 인터페이스들을 연결해준다.
+// 이것은 또한 11On12Device에서도 사용가능하다. 
+// 우리는 Wrapped Resource 를 가진 후 부터 우리는 D2D Render Target Surface 를 생성할 수 있다.
+// 뿐만 아니라 Load Assets메소드안 에 있는 렌더 타겟도 가능하다.
+void CGameFramework::CreateDirect2DRenderTargetViews()
+{
+	float fxDPI, fyDPI;
+
+	m_pd2dFactory->GetDesktopDpi(&fxDPI, &fyDPI); // 현재 데스크톱에 dots per inch(DPI)를 검색하고 ,각 변수들에 할당해준다.
+
+	//D2D1_BITMAP_PROPERTIES1	 : 
+	//1. D2D1_BITMAP_OPTIONS     : 비트맵의 용도 옵션.  EX> D2D1_BITMAP_OPTIONS_TARGET : the bitmap can be used as a device context target.
+	//												   EX> D2D1_BITMAP_OPTIONS_CANNOT_DRAW : the bitmap cannot be used an input.
+	//2. const D2D1_PIXEL_FORMAT : 비트맵의 픽셀 형식과 알파 모드.  EX> D2D1_ALPHA_MODE_PREMULTIPLIED :  알파값이 미리 곱해진다.
+	D2D1_BITMAP_PROPERTIES1 d2dBitmapProperties = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW, D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED), fxDPI, fxDPI);
+
+	for (UINT i = 0; i < m_nSwapChainBuffers; i++)
+	{
+
+		D3D11_RESOURCE_FLAGS d3d11Flags = { D3D11_BIND_RENDER_TARGET };
+		//CreateWrappedResource-> 이 함수는 D3D11On12 에서 사용가능한  D3D11 리소스들을 만들어준다.
+		m_pd3d11On12Device->CreateWrappedResource(m_ppd3dSwapChainBackBuffers[i], &d3d11Flags, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, __uuidof(ID3D11Resource), (void**)&m_ppd3d11WrappedBackBuffers[i]);
+
+		IDXGISurface *pdxgiSurface = NULL;
+		m_ppd3d11WrappedBackBuffers[i]->QueryInterface(__uuidof(IDXGISurface), (void**)&pdxgiSurface);
+		//CreateBitmapFromDxgiSurface() -> DXGI표면에서 대상 표면으로 설정하거나 추가 색상 컨텍스트 정보를 지정할 수 있는 비트맵을 만듭니다. 
+		m_pd2dDeviceContext->CreateBitmapFromDxgiSurface(pdxgiSurface, &d2dBitmapProperties, &m_ppd2dRenderTargets[i]);
+		if (pdxgiSurface) pdxgiSurface->Release();
+	}
+
+}
+
+#endif
 void CGameFramework::CreateDepthStencilView()
 {
 	D3D12_RESOURCE_DESC d3dResourceDesc;
@@ -309,7 +473,7 @@ void CGameFramework::CreateOffScreenRenderTargetViews()
 		m_ppd3dCartoonScreenRenderTargetBuffers[i]->AddRef();
 	}
 
-	// RtvCPU서술자 증가 크기가 스왑체인의 크기 배수로 증가하는 이유?
+	 //RtvCPU서술자 증가 크기가 스왑체인의 크기 배수로 증가하는 이유?
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBuffers * m_nRtvDescriptorIncrementSize);
 
@@ -323,6 +487,7 @@ void CGameFramework::CreateOffScreenRenderTargetViews()
 	m_pCartoonShader->CreateGraphicsRootSignature(m_pd3dDevice);
 	m_pCartoonShader->CreateShader(m_pd3dDevice, m_pCartoonShader->GetGraphicsRootSignature(), 1);
 	m_pCartoonShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, pTextureForCartoonProcessing);
+
 }
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
@@ -482,7 +647,7 @@ void CGameFramework::OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM w
 		case 'B':
 			if (m_pMapToolShader)
 			{
-				m_pMapToolShader->MakeMapBinaryFile(string("MapVer1"));
+				m_pMapToolShader->MakeMapBinaryFile(string("../Resource/Position/Surrounding/MapVer1"));
 			}
 			break;
 		default:
@@ -533,7 +698,45 @@ void CGameFramework::OnDestroy()
     ReleaseObjects();
 
 	::CloseHandle(m_hFenceEvent);
+#ifdef _WITH_DIRECT2D_
+	//Direct2D
+	if (m_pd2dbrBackground) m_pd2dbrBackground->Release();
+	if (m_pd2dbrBorder) m_pd2dbrBorder->Release();
+	for(UINT i=0;i<m_nNameFont;++i)
+	{
+		if (m_pdwFont[i]) m_pdwFont[i]->Release();
+		if (m_pd2dbrText[i]) m_pd2dbrText[i]->Release();
+	}
+	delete[]m_pdwFont;
+	m_pdwFont = nullptr;
+	delete[]m_pd2dbrText;
+	m_pd2dbrText = nullptr;
+	
+	if(m_pdwTextLayout) m_pdwTextLayout->Release();
+	
 
+
+
+	//Direct11
+	if (m_pd2dDeviceContext) m_pd2dDeviceContext->Release();
+	if (m_pd2dDevice) m_pd2dDevice->Release();
+	if (m_pdWriteFactory) m_pdWriteFactory->Release();
+	if (m_pd3d11On12Device) m_pd3d11On12Device->Release();
+	if (m_pd3d11DeviceContext) m_pd3d11DeviceContext->Release();
+	if (m_pd2dFactory) m_pd2dFactory->Release();
+
+	for (int i = 0; i < m_nSwapChainBuffers; i++)
+	{
+		if (m_ppd3d11WrappedBackBuffers[i]) m_ppd3d11WrappedBackBuffers[i]->Release();
+		if (m_ppd2dRenderTargets[i]) m_ppd2dRenderTargets[i]->Release();
+	}
+
+	if (m_pd2dfxBitmapSource) m_pd2dfxBitmapSource->Release();
+	if (m_pd2dsbDrawingState) m_pd2dsbDrawingState->Release();
+	if (m_pwicFormatConverter) m_pwicFormatConverter->Release();
+	if (m_pwicImagingFactory) m_pwicImagingFactory->Release();
+
+#endif
 	if (m_pd3dDepthStencilBuffer) m_pd3dDepthStencilBuffer->Release();
 	if (m_pd3dDsvDescriptorHeap) m_pd3dDsvDescriptorHeap->Release();
 
@@ -563,33 +766,32 @@ void CGameFramework::BuildObjects()
 {
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
+	////////////////////////////////////////////////////////////////////////////
+	const int nPlayerCount = 6;		//임시로 플레이어 개수 지정. 
+	//추후에 서버에서 접속 인원을 씬 BuildObject 호출 전에 받아와서 세팅하면 될듯함.
 	m_pScene = new CScene();
 	if (m_pScene) 
-		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
+		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList,nPlayerCount-1); //GameFramework에서 관리하는 CPlayer를 제외한 나머지 넘겨준다.
+
 
 	CTerrainPlayer* pPlayer{ nullptr };
 
 	if (m_pScene->getShaderManager())
 	{
-
 		map<string, CShader*> m = m_pScene->getShaderManager()->getShaderMap();
 		auto iter = m.find("Terrain");
 		if(iter != m.end())
 		{
 			CTerrain* pTerrain = dynamic_cast<CTerrainShader*>((*iter).second)->getTerrain();
-			pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),CGameObject::MATERIALTYPE::PANDA,pTerrain);
+			pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),CGameObject::MATERIALTYPE::PANDA,pTerrain);		
 			pPlayer->SetPosition(XMFLOAT3(0.f, pTerrain->GetHeight(0.f, 0.f), 0.f));
-			
-			pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));	
+			pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
+			pPlayer->SetPlayerName(L"사명진");
+
 			map<string, Bounds*> BoundMap = m_pScene->getShaderManager()->getResourceManager()->getBoundMap();
 			auto iter2 = BoundMap.find(pPlayer->getID());
 			if (iter2 != BoundMap.end())
 				pPlayer->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
-
-			m_pPlayerShadowShader = new CPlayerShadowShader;
-			m_pPlayerShadowShader->CreateShader(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
-			m_pPlayerShadowShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),
-				m_pScene->getShaderManager()->getResourceManager()->getTextureMap(), pPlayer);
 
 #ifdef _MAPTOOL_MODE_
 			m_pMapToolShader = new CMapToolShader();
@@ -613,8 +815,6 @@ void CGameFramework::BuildObjects()
 		m_pScene->ReleaseUploadBuffers();
 	if (m_pPlayer) 
 		m_pPlayer->ReleaseUploadBuffers();
-	if (m_pPlayerShadowShader)
-		m_pPlayerShadowShader->ReleaseUploadBuffers();
 
 	m_GameTimer.Reset();
 }
@@ -632,6 +832,9 @@ void CGameFramework::ReleaseObjects()
 		delete m_pMapToolShader;
 	}
 #endif
+	
+	//ReleaseDirectSound();
+
 	if (m_pScene)
 	{
 		m_pScene->ReleaseObjects();
@@ -643,12 +846,6 @@ void CGameFramework::ReleaseObjects()
 		m_pCartoonShader->ReleaseShaderVariables();
 		m_pCartoonShader->ReleaseObjects();
 		delete m_pCartoonShader;
-	}
-
-	if (m_pPlayerShadowShader)
-	{
-		m_pPlayerShadowShader->ReleaseObjects();
-		delete m_pPlayerShadowShader;
 	}
 }
 
@@ -716,12 +913,8 @@ void CGameFramework::AnimateObjects()
 	if (m_pScene) 
 		m_pScene->AnimateObjects(fTimeElapsed);
 
-	
 	m_pPlayer->Animate(fTimeElapsed);
 	m_pPlayer->UpdateTransform(NULL);
-
-	if(m_pScene)
-		m_pScene->CheckObjectByObjectCollisions();
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -787,7 +980,7 @@ void CGameFramework::FrameAdvance()
 #ifdef _MAPTOOL_MODE_
 	if (m_pMapToolShader)
 	{
-		m_pMapToolShader->Render(m_pd3dCommandList, m_pCamera);
+		m_pMapToolShader->Render(m_pd3dCommandList, m_pCamera,0);
 	}
 		
 #endif
@@ -796,12 +989,11 @@ void CGameFramework::FrameAdvance()
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 #endif
 
-	if (m_pPlayerShadowShader)
-	{
-		m_pPlayerShadowShader->Render(m_pd3dCommandList, m_pCamera, m_pPlayer);
-	}
 	if (m_pPlayer)
-		m_pPlayer->Render(m_pd3dCommandList, m_pCamera);
+		m_pPlayer->Render(m_pd3dCommandList, m_pCamera, GameObject);
+
+	if (m_pScene)
+		m_pScene->CheckObjectByObjectCollisions();
 
 	if (m_pCartoonShader)
 	{
@@ -811,17 +1003,88 @@ void CGameFramework::FrameAdvance()
 			m_pCartoonShader->Render(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
 		}
 	}
-	
-
+	//Direct2D를 사용하면 스왑체인 버퍼 리소스 전이를 Present로 바꿔주면 안된다. 
+#ifndef _WITH_DIRECT2D_
 	::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-
+#endif
 
 	hResult = m_pd3dCommandList->Close();
 	
 	ID3D12CommandList *ppd3dCommandLists[] = { m_pd3dCommandList };
 	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 
+	
 	WaitForGpuComplete();
+
+
+#ifdef _WITH_DIRECT2D_
+	//AcquireWrappedResources() D3D11On12 디바이스에서 사용될 수 있는 D3D11 리소스들을 얻게해준다.
+	//이 함수는 렌더링 할 Wrapped Resource 들을 다시 사용할 수 있다고 암시해준다. 
+	m_pd3d11On12Device->AcquireWrappedResources(&m_ppd3d11WrappedBackBuffers[m_nSwapChainBufferIndex], 1);
+	
+	//Direct2D 디바이스가 렌더 할 비트맵이나 커맨드 리스트를 설정한다.
+	m_pd2dDeviceContext->SetTarget(m_ppd2dRenderTargets[m_nSwapChainBufferIndex]);
+
+	m_pd2dDeviceContext->BeginDraw();
+
+	// Apply the rotation transform to the render target
+	m_pd2dDeviceContext->SetTransform(D2D1::Matrix3x2F::Identity());
+
+	//D2D1_SIZE_F : float형태의 가로 세로 쌍을 저장한 구조체
+	D2D1_SIZE_F szRenderTarget = m_ppd2dRenderTargets[m_nSwapChainBufferIndex]->GetSize();
+	
+	D2D1_RECT_F rcText{0,0,0,0};
+
+	if (m_pd2dfxBitmapSource && GetAsyncKeyState(VK_TAB) & 0x8000)
+	{
+		m_pd2dDeviceContext->DrawImage(m_pd2dfxBitmapSource);
+		D2D1_RECT_F rcText = D2D1::RectF(0, 0, 240.f, 360.f);
+
+		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/360.0f);
+		
+		m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
+		
+		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/515.0f);
+
+		
+		m_pd2dDeviceContext->DrawTextW(L"이우상", (UINT32)wcslen(L"이우상"), m_pdwFont[1], &rcText, m_pd2dbrText[1]);
+	
+		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/670.0f);
+
+		m_pd2dDeviceContext->DrawTextW(L"가나다", (UINT32)wcslen(L"가나다"), m_pdwFont[2], &rcText, m_pd2dbrText[2]);
+	
+		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/825.0f);
+
+		m_pd2dDeviceContext->DrawTextW(L"라마바", (UINT32)wcslen(L"라마바"), m_pdwFont[3], &rcText, m_pd2dbrText[3]);
+		
+		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/980.0f);
+
+		m_pd2dDeviceContext->DrawTextW(L"사아자", (UINT32)wcslen(L"사아자"), m_pdwFont[4], &rcText, m_pd2dbrText[4]);
+	
+		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/1135.0f);
+
+		m_pd2dDeviceContext->DrawTextW(L"타파하", (UINT32)wcslen(L"타파하"), m_pdwFont[5], &rcText, m_pd2dbrText[5]);
+	}
+	////////////////////////////////////////////////////////////////////////
+	//WITH_DIRECT2D_IMAGE_EFFECT
+
+
+	////////////////////////////////////////////////////////////////////////
+
+	
+	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
+	D2D1_RECT_F rcUpperText = D2D1::RectF(0, 0, 200.0f, 1400.0f);
+	
+	//IDWriteTextFormat (interface) : 텍스트 형식에 사용되는 폰트를 서술함. 
+	m_pd2dDeviceContext->DrawTextW(m_pszFrameRate, (UINT32)wcslen(m_pszFrameRate), m_pdwFont[0], &rcUpperText, m_pd2dbrText[0]);
+	m_pd2dDeviceContext->EndDraw();
+
+	//Releases D3D11 resources that were wrapped for D3D 11on12
+	m_pd3d11On12Device->ReleaseWrappedResources(&m_ppd3d11WrappedBackBuffers[m_nSwapChainBufferIndex], 1);
+
+	//,커맨드 버퍼에 대기중인 커맨드를 gpu로 전송
+	m_pd3d11DeviceContext->Flush();
+#endif
 
 #ifdef _WITH_PRESENT_PARAMETERS
 	DXGI_PRESENT_PARAMETERS dxgiPresentParameters;

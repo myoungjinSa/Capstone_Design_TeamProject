@@ -148,7 +148,15 @@ void CSobelCartoonShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsC
 {
 	m_nTexture = 1;
 	m_pTexture = new CTexture*[m_nTexture];
+
 	m_pTexture[0] = (CTexture *)pContext;
+
+	//auto iter = Context.find("CartoonRenderTarget1");
+	//if (iter != Context.end())
+	//{
+	//	m_pTexture[0] = iter->second;
+	//}
+
 
 	CreateCbvAndSrvAndUavDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 2, 2);
 

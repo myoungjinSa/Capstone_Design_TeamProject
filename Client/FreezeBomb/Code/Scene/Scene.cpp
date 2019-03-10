@@ -6,7 +6,9 @@
 #include "../Shader/Shader.h"
 #include "../GameObject/Player/Player.h"
 #include "../GameObject/Item/Item.h"
+#include "../Shader/StandardShader/MapObjectShader/MapObjectShader.h"
 #include "../Shader/StandardShader/ItemShader/ItemShader.h"
+#include "../SoundSystem/SoundSystem.h"
 
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -21,7 +23,10 @@ D3D12_CPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvCPUDescriptorNextHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvGPUDescriptorNextHandle;
 
 CScene::CScene()
+	:m_musicCount(0),
+	m_playerCount(0)
 {
+
 }
 
 CScene::~CScene()
@@ -78,7 +83,7 @@ void CScene::BuildDefaultLightsAndMaterials()
 }
 
 
-void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, const int& nPlayerCount)
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
@@ -91,21 +96,36 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	// ItemBox : 1, Hammer_Item : 1, GoldHammer_Item : 1, GoldTimer_Item : 1=> 4
 	// Hammer : 4
 	// ICE : 1 
-	// Shadow : 2
-	// PlayerShadow : 15
 
 	int nObjects = 0;
 #ifdef _MAPTOOL_MODE_
 	nObjects = 87;		//DeadTrees(25),PineTrees(35),Rocks(25),Deer(2),Pond(2),Fence(0)
 #endif
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 33 + 85 + 2 + 11 + 4 + 4 +1 + nObjects + 2 + 15);
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 33 + 85 + 2 + 11 + 4 + 4 + 1 + nObjects);
 
+	// Model을 로드할 때, 셰이더 없이 로드할 경우 이것을 사용함!
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
 	BuildDefaultLightsAndMaterials();
 
 	m_pShaderManager = new CShaderManager;
-	m_pShaderManager->Initialize(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	m_pShaderManager->Initialize(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nPlayerCount);
+
+	//사운드 생성
+	m_pSound = new CSoundSystem;
+
+	m_musicCount = 1;
+	m_musicList = new const char*[m_musicCount];
+
+	m_musicList[0] = "../Resource/Sound/SnowyVillage.wav";
+	//m_musicList[1] = "../Resource/Sound/town.wav";
+
+	//2개 동시에 재생도 가능하다
+	m_pSound->Initialize(m_musicCount, m_musicList);
+	m_pSound->Play(m_musicCount);
+
+	//PlaySound(_T("../Resource/Sound/town.wav"), GetModuleHandle(NULL), SND_MEMORY | SND_ASYNC | SND_LOOP);
+	//PlaySound(MAKEINTRESOURCE(IDR_WAVE3), ::ghAppInstance, SND_RESOURCE | SND_ASYNC | SND_LOOP);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
@@ -122,6 +142,11 @@ void CScene::ReleaseObjects()
 		m_pShaderManager->ReleaseObjects();
 
 	ReleaseShaderVariables();
+
+	if (m_pSound)
+	{
+		m_pSound->Release();
+	}
 
 	if (m_pLights)
 		delete[] m_pLights;
@@ -217,7 +242,7 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dDescriptorRanges[13].RegisterSpace = 0;
 	pd3dDescriptorRanges[13].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[21];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[22];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 1;	// b1 : Camera
@@ -324,8 +349,12 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[20].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[20].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[13]);
 	pd3dRootParameters[20].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	
 
+	pd3dRootParameters[21].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+	pd3dRootParameters[21].Constants.Num32BitValues = 17;
+	pd3dRootParameters[21].Constants.ShaderRegister = 9; // b9 :
+	pd3dRootParameters[21].Constants.RegisterSpace = 0;
+	pd3dRootParameters[21].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
 
@@ -553,21 +582,45 @@ void CScene::CheckObjectByObjectCollisions()
 	{
 		// 플레이어와 정적인 오브젝트 충돌검사
 		map<string, CShader*> m = m_pShaderManager->getShaderMap();
-		auto iter = m.find("Surrounding");
+		auto iter = m.find("MapObjects");
 		if (iter != m.end())
 		{
-			for (int i = 0; i < (*iter).second->m_nObjects; ++i)
+			int i = 0;
+			auto MapObjectsList = dynamic_cast<CMapObjectsShader*>((*iter).second)->getSurroundingList();
+			for (auto iter2 = MapObjectsList.begin(); iter2 != MapObjectsList.end(); ++iter2)
 			{
-				if ((*iter).second->m_ppObjects[i]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
+				if((*iter2)->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
-					//(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
-					//m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
 					cout << i << "번째 정적인 오브젝트와 충돌" << endl;
 				}
+				++i;
 			}
+			//for (int i = 0; i < (*iter).second->m_nObjects; ++i)
+			//{
+			//	if ((*iter).second->m_ppObjects[i]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
+			//	{
+			//		//(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
+			//		//m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
+			//		cout << i << "번째 정적인 오브젝트와 충돌" << endl;
+			//	}
+			//}
 		}
 
 		// 플레이어와 다른 곰돌이 오브젝트 충돌검사
+		//iter = m.find("곰돌이");
+		//if (iter != m.end())
+		//{
+		//	for (int i = 0; i < (*iter).second->m_nObjects; ++i)
+		//	{
+		//		if ((*iter).second->m_ppObjects[i]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
+		//		{
+		//			//(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
+		//			//m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
+		//			cout << i << "번째 애니메이션 오브젝트와 충돌" << endl;
+		//		}
+		//	}
+		//}
+
 		iter = m.find("곰돌이");
 		if (iter != m.end())
 		{
@@ -578,6 +631,23 @@ void CScene::CheckObjectByObjectCollisions()
 					//(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
 					//m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
 					cout << i << "번째 애니메이션 오브젝트와 충돌" << endl;
+				}
+			}
+
+			if (m_pPlayer->GetIsHammer() == true)
+			{
+				CGameObject* pHammer = m_pPlayer->FindFrame("hammer");
+				if (pHammer != nullptr)
+				{
+					for (int i = 0; i < (*iter).second->m_nObjects; ++i)
+					{
+
+						if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[i]->GetBoundingBox()))
+						{
+							cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
+						}
+
+					}
 				}
 			}
 		}
@@ -596,6 +666,7 @@ void CScene::CheckObjectByObjectCollisions()
 
 					// 충돌 된 Normal 망치 아이템을 플레이어 인벤토리에 추가한다.
 					m_pPlayer->Add_Inventory((*iter2).first, CPlayer::Normal);
+					m_pPlayer->SetIsHammer(true);
 					// 맵에 있는 아이템 삭제
 					pItemShader->ItemDelete((*iter2).first);
 					break;

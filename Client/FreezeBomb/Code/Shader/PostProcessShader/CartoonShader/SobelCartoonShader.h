@@ -20,7 +20,7 @@ public:
 
 protected:
 	
-	CTexture**				m_pTexture{ nullptr };
+	CTexture**						m_pTexture{ nullptr };
 	int								m_nTexture;
 
 	UINT							m_nWidth;

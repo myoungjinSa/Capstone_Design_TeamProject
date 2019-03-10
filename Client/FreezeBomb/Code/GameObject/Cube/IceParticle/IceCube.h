@@ -42,10 +42,9 @@ public:
 	void    SetExplosionDuration(float fDuration);		//Æø¹ß½Ã°£ set
 	void	SetExplode(bool bBlowing);
 
+	bool	GetBlowingUp() { return m_bBlowingUp; }
 	float   GetRotaionSpeed() { return m_fRotationSpeed; }
 
 	virtual void Animate(float fTimeElapsed);
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL);
-
-
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState);
 };

@@ -41,27 +41,30 @@ D3D12_SHADER_BYTECODE CCubeIceShader::CreatePixelShader()
 void CCubeIceShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
 	const map<string,CTexture*>& Context,void *pContext)
 {
-	CCubeMeshTextured *pExplosionMesh = new CCubeMeshTextured(pd3dDevice, pd3dCommandList, 2.f, 2.0f, 2.0f);
+	CCubeMeshTextured* pExplosionMesh = new CCubeMeshTextured(pd3dDevice, pd3dCommandList, 2.f, 2.0f, 2.0f);
 
 	CMaterial*	pIceMaterial = new CMaterial(1);
 	auto iter = Context.find("IceTexture");
 	if (iter != Context.end())
-	{
 		pIceMaterial->SetTexture((*iter).second, 0);
+
+	CIceCube** pIceCube = new CIceCube*[m_nMaxParticle];
+
+	for(UINT i=0;i<m_nMaxParticle;i++)
+	{
+		pIceCube[i] = new CIceCube(1);
+		pIceCube[i]->SetMesh(pExplosionMesh);
+		pIceCube[i]->SetPosition(50.0f+(50.0f*i), 15.0f, 50.0f);
+		pIceCube[i]->SetMaterial(0, pIceMaterial);
+		pIceCube[i]->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
+		pIceCube[i]->SetRotationSpeed(90.0f);
+		pIceCube[i]->SetMovingSpeed(1.0f);
+		pIceCube[i]->SetExplosionDuration(5.0f);
+		pIceCube[i]->SetExplode(false);
+
+		m_vIceCube.emplace_back(pIceCube[i]);
 	}
 
-	CIceCube* pIceCube = new CIceCube(1);
-	pIceCube->SetMesh(pExplosionMesh);
-	pIceCube->SetPosition(50.0f, 15.0f, 50.0f);
-	pIceCube->SetMaterial(0, pIceMaterial);
-	pIceCube->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
-	pIceCube->SetRotationSpeed(90.0f);
-	pIceCube->SetMovingSpeed(1.0f);
-	pIceCube->SetExplosionDuration(5.0f);
-	pIceCube->SetExplode(true);
-
-	m_vIceCube.emplace_back(pIceCube);
-	
 	CIceCube::PrepareExplosion(pd3dDevice, pd3dCommandList);
 }
 
@@ -83,13 +86,27 @@ void CCubeIceShader::ReleaseObjects()
 	m_vIceCube.clear();
 }
 
-void CCubeIceShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CCubeIceShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
-	CShader::Render(pd3dCommandList, pCamera);
+	CShader::Render(pd3dCommandList, pCamera, nPipelineState);
 
 	
 	for (auto iter = m_vIceCube.begin(); iter != m_vIceCube.end(); ++iter)
 	{
-		(*iter)->Render(pd3dCommandList, pCamera);
+		(*iter)->Render(pd3dCommandList, pCamera, nPipelineState);
 	}
+}
+
+void CCubeIceShader::SetParticleBlowUp(XMFLOAT3& position)
+{
+	for(UINT i=0;i<m_nMaxParticle;++i)
+	{
+		if(m_vIceCube[i]->GetBlowingUp() == false )
+		{
+			m_vIceCube[i]->SetPosition(position);
+			m_vIceCube[i]->SetExplode(true);
+			break;
+		}
+	}
+	
 }

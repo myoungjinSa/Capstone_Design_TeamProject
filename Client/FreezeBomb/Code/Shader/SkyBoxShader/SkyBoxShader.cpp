@@ -78,15 +78,15 @@ void CSkyBoxShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	m_ppObjects[0] = pSkyBox;
 }
 
-void CSkyBoxShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CSkyBoxShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
-	CShader::Render(pd3dCommandList, pCamera);
+	CShader::Render(pd3dCommandList, pCamera, nPipelineState);
 
 	for (int i = 0; i < m_nObjects; ++i)
 	{
 		if (m_ppObjects[i])
 		{
-			m_ppObjects[i]->Render(pd3dCommandList, pCamera);
+			m_ppObjects[i]->Render(pd3dCommandList, pCamera, nPipelineState);
 		}
 	}
 }

@@ -32,15 +32,12 @@ void CSnowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	//SnowBillboard는 지형의 높이정보를 알고있어야함. 그래야 지형의 밑으로 내려갔을때 다시 하늘에서 떨어지게 할 수 있다.
 	m_pTerrain = (CTerrain*)pContext;
 
-	CTexture* pSnowTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pSnowTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Effect/Snow.dds", 0);
-
-	CScene::CreateShaderResourceViews(pd3dDevice, pSnowTexture, 16, false);
-
 	m_pMaterial = new CMaterial(1);
-	m_pMaterial->SetTexture(pSnowTexture);
+	auto iter = Context.find("Snow");
+	if(iter != Context.end())
+		m_pMaterial->SetTexture((*iter).second, 0);
 
-	CBillboardMesh* pSnowBillboardMesh = new CBillboardMesh(pd3dDevice, pd3dCommandList, 1.0f,1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	CBillboardMesh* pSnowBillboardMesh = new CBillboardMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
 	//가상의 박스 -> 렌더링 하지는 않음
 	CCube* pCubeObject = new CCube(50.0f, 50.0f, 50.0f);
@@ -94,7 +91,7 @@ void CSnowShader::AnimateObjects(float fTimeElapsed, CCamera *pCamera, CPlayer *
 	}
 }
 
-void CSnowShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CSnowShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
 	OnPrepareRender(pd3dCommandList);
 
@@ -104,7 +101,7 @@ void CSnowShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 		{
 			if (m_ppObjects[i])
 			{
-				m_ppObjects[i]->Render(pd3dCommandList, pCamera);
+				m_ppObjects[i]->Render(pd3dCommandList, pCamera, nPipelineState);
 			}
 		}
 	}

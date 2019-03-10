@@ -1,6 +1,9 @@
 #pragma once
 
 #define WIN32_LEAN_AND_MEAN             // 거의 사용되지 않는 내용은 Windows 헤더에서 제외합니다.
+
+#include "../Default/Resource.h"
+#include "../Default/targetver.h"
 // Windows 헤더 파일:
 #include <windows.h>
 
@@ -19,6 +22,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <list>
 #include <map>
 #include <random>
 using namespace std;
@@ -33,6 +37,15 @@ using namespace std;
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
 
+
+//다이렉트 2D 헤더
+#include <d2d1_3.h>		//This header is used by Direct2D. 
+#include <d3d11on12.h>	//11이랑 12의 호환을 담당
+#include <dwrite.h>		//This header is used by DirectWrite. For more information, see: MSDN
+#include <dwrite_1.h>
+#include <d2d1effects.h>
+#include <wincodec.h>	//This header is used by Windows Imaging Component. For more information, see:
+#include <pix.h>
 #include <Mmsystem.h>
 
 #ifdef _DEBUG
@@ -51,6 +64,8 @@ extern HINSTANCE						ghAppInstance;
 #define FRAME_BUFFER_WIDTH		1200
 #define FRAME_BUFFER_HEIGHT		800
 
+enum PIPELINESTATE_TYPE { GameObject, GameObject_Shadow };
+
 //맵툴 모드
 //#define _MAPTOOL_MODE_
 
@@ -65,10 +80,12 @@ extern HINSTANCE						ghAppInstance;
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
-
+#pragma comment(lib, "d2d1.lib")
+#pragma comment(lib, "dwrite.lib")
 #pragma comment(lib, "dxguid.lib")
-
 #pragma comment(lib, "winmm.lib")
+#pragma comment(lib, "d3d11.lib")
+#pragma comment(lib, "windowscodecs.lib")
 
 // TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
 
@@ -95,6 +112,7 @@ inline bool IsEqual(float fA, float fB, float fEpsilon) { return(::IsZero(fA - f
 inline float InverseSqrt(float fValue) { return 1.0f / sqrtf(fValue); }
 inline void Swap(float *pfS, float *pfT) { float fTemp = *pfS; *pfS = *pfT; *pfT = fTemp; }
 inline float RandF(float fMin, float fMax) { return(fMin + ((float)rand() / (float)RAND_MAX) * (fMax - fMin)); }
+
 
 namespace Vector3
 {

@@ -74,21 +74,25 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>../Excutable/</OutDir>
     <TargetName>$(ProjectName)_x86_Debug</TargetName>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>../Excutable/</OutDir>
     <TargetName>$(ProjectName)_x64_Debug</TargetName>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>../Excutable/</OutDir>
     <TargetName>$(ProjectName)_x86_Release</TargetName>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>../Excutable/</OutDir>
     <TargetName>$(ProjectName)_x64_Release</TargetName>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -98,6 +102,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -112,6 +117,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -180,13 +186,14 @@
     <ClInclude Include="..\Code\GameObject\GameObject.h" />
     <ClInclude Include="..\Code\GameObject\Item\Item.h" />
     <ClInclude Include="..\Code\GameObject\Player\Player.h" />
+    <ClInclude Include="..\Code\GameObject\Shadow\Shadow.h" />
     <ClInclude Include="..\Code\GameObject\SkyBox\SkyBox.h" />
     <ClInclude Include="..\Code\GameObject\Surrounding\Surrounding.h" />
     <ClInclude Include="..\Code\GameObject\Terrain\Terrain.h" />
     <ClInclude Include="..\Code\GameTimer\GameTimer.h" />
     <ClInclude Include="..\Code\Material\Material.h" />
     <ClInclude Include="..\Code\Mesh\BillboardMesh\BillboardMesh.h" />
-    <ClInclude Include="..\Code\Mesh\LODMesh\LodMesh.h" />
+    <ClInclude Include="..\Code\Mesh\LODMesh\LODMesh.h.h" />
     <ClInclude Include="..\Code\Mesh\Mesh.h" />
     <ClInclude Include="..\Code\ResourceManager\ResourceManager.h" />
     <ClInclude Include="..\Code\Scene\Scene.h" />
@@ -198,20 +205,19 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\UIShader.h" />
     <ClInclude Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.h" />
-    <ClInclude Include="..\Code\Shader\FoliageShader\FoliageShader.h" />
-    <ClInclude Include="..\Code\Shader\PlayerShadowShader\PlayerShadowShader.h" />
     <ClInclude Include="..\Code\Shader\PostProcessShader\CartoonShader\SobelCartoonShader.h" />
     <ClInclude Include="..\Code\Shader\PostProcessShader\ComputeShader\ComputeShader.h" />
     <ClInclude Include="..\Code\Shader\Shader.h" />
-    <ClInclude Include="..\Code\Shader\ShadowShader\ShadowShader.h" />
     <ClInclude Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.h" />
+    <ClInclude Include="..\Code\Shader\StandardShader\FoliageShader\FoliageShader.h" />
     <ClInclude Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.h" />
+    <ClInclude Include="..\Code\Shader\StandardShader\MapObjectShader\MapObjectShader.h" />
     <ClInclude Include="..\Code\Shader\StandardShader\MapToolShader\MapToolShader.h" />
-    <ClInclude Include="..\Code\Shader\StandardShader\SkinnedAnimationObjectsShader\SkinnedAnimationObjectsShader.h" />
-    <ClInclude Include="..\Code\Shader\StandardShader\StandardMapObjectShader\MapObjectShader.h" />
-    <ClInclude Include="..\Code\Shader\StandardShader\StandardObjectsShader\StandardObjectsShader.h" />
+    <ClInclude Include="..\Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationObjectShader\SkinnedAnimationObjectShader.h" />
+    <ClInclude Include="..\Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationShader.h" />
     <ClInclude Include="..\Code\Shader\StandardShader\StandardShader.h" />
     <ClInclude Include="..\Code\Shader\TerrainShader\TerrainShader.h" />
+    <ClInclude Include="..\Code\SoundSystem\SoundSystem.h" />
     <ClInclude Include="..\Code\Stdafx\Stdafx.h" />
     <ClInclude Include="..\Code\Texture\Texture.h" />
   </ItemGroup>
@@ -232,13 +238,14 @@
     <ClCompile Include="..\Code\GameObject\GameObject.cpp" />
     <ClCompile Include="..\Code\GameObject\Item\Item.cpp" />
     <ClCompile Include="..\Code\GameObject\Player\Player.cpp" />
+    <ClCompile Include="..\Code\GameObject\Shadow\Shadow.cpp" />
     <ClCompile Include="..\Code\GameObject\SkyBox\SkyBox.cpp" />
     <ClCompile Include="..\Code\GameObject\Surrounding\Surrounding.cpp" />
     <ClCompile Include="..\Code\GameObject\Terrain\Terrain.cpp" />
     <ClCompile Include="..\Code\GameTimer\GameTimer.cpp" />
     <ClCompile Include="..\Code\Material\Material.cpp" />
     <ClCompile Include="..\Code\Mesh\BillboardMesh\BillboardMesh.cpp" />
-    <ClCompile Include="..\Code\Mesh\LODMesh\LodMesh.cpp" />
+    <ClCompile Include="..\Code\Mesh\LODMesh\LODMesh.cpp" />
     <ClCompile Include="..\Code\Mesh\Mesh.cpp" />
     <ClCompile Include="..\Code\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="..\Code\Scene\Scene.cpp" />
@@ -250,20 +257,19 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\UIShader.cpp" />
     <ClCompile Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.cpp" />
-    <ClCompile Include="..\Code\Shader\FoliageShader\FoliageShader.cpp" />
-    <ClCompile Include="..\Code\Shader\PlayerShadowShader\PlayerShadowShader.cpp" />
     <ClCompile Include="..\Code\Shader\PostProcessShader\CartoonShader\SobelCartoonShader.cpp" />
     <ClCompile Include="..\Code\Shader\PostProcessShader\ComputeShader\ComputeShader.cpp" />
     <ClCompile Include="..\Code\Shader\Shader.cpp" />
-    <ClCompile Include="..\Code\Shader\ShadowShader\ShadowShader.cpp" />
     <ClCompile Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.cpp" />
+    <ClCompile Include="..\Code\Shader\StandardShader\FoliageShader\FoliageShader.cpp" />
     <ClCompile Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.cpp" />
+    <ClCompile Include="..\Code\Shader\StandardShader\MapObjectShader\MapObjectShader.cpp" />
     <ClCompile Include="..\Code\Shader\StandardShader\MapToolShader\MapToolShader.cpp" />
-    <ClCompile Include="..\Code\Shader\StandardShader\SkinnedAnimationObjectsShader\SkinnedAnimationObjectsShader.cpp" />
-    <ClCompile Include="..\Code\Shader\StandardShader\StandardMapObjectShader\MapObjectShader.cpp" />
-    <ClCompile Include="..\Code\Shader\StandardShader\StandardObjectsShader\StandardObjectsShader.cpp" />
+    <ClCompile Include="..\Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationObjectShader\SkinnedAnimationObjectShader.cpp" />
+    <ClCompile Include="..\Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationShader.cpp" />
     <ClCompile Include="..\Code\Shader\StandardShader\StandardShader.cpp" />
     <ClCompile Include="..\Code\Shader\TerrainShader\TerrainShader.cpp" />
+    <ClCompile Include="..\Code\SoundSystem\SoundSystem.cpp" />
     <ClCompile Include="..\Code\Stdafx\Stdafx.cpp" />
     <ClCompile Include="..\Code\Texture\Texture.cpp" />
   </ItemGroup>

@@ -106,12 +106,12 @@ void CItemUIShader::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer*
 {
 }
 
-void CItemUIShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+void CItemUIShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)
 {
 	CItemUIShader::OnPrepareRender(pd3dCommandList, ItemBoxUI);
 	auto iter = m_UIMap.find(ItemBoxUI);
 	if (iter != m_UIMap.end())
-		(*iter).second->Render(pd3dCommandList, pCamera);
+		(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
 
 	if (m_Render)
 	{
@@ -121,7 +121,7 @@ void CItemUIShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* 
 
 			auto iter = m_UIMap.find(i);
 			if (iter != m_UIMap.end())
-				(*iter).second->Render(pd3dCommandList, pCamera);
+				(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
 		}
 	}
 }
