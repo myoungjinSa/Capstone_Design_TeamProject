@@ -137,6 +137,8 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 		ptr->wsabuf.len = BUFSIZE;
 
 		// 비동기 입출력 시작
+		// 얘는 처음 접속 시 한 번만 받는 recv
+		// 이후 송수신은 완료루틴에서만 하네
 		DWORD recvbytes;
 		DWORD flags = 0;
 		retval = WSARecv(ptr->sock, &ptr->wsabuf, 1, &recvbytes, &flags, &ptr->overlapped, CompletionRoutine);

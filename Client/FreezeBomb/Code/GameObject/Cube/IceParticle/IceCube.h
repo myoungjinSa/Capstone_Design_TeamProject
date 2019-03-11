@@ -42,6 +42,7 @@ public:
 	void    SetExplosionDuration(float fDuration);		//Æø¹ß½Ã°£ set
 	void	SetExplode(bool bBlowing);
 
+	bool	GetBlowingUp() { return m_bBlowingUp; }
 	float   GetRotaionSpeed() { return m_fRotationSpeed; }
 
 	virtual void Animate(float fTimeElapsed);

@@ -632,10 +632,13 @@ void CScene::CheckObjectByObjectCollisions()
 				{
 					for (int i = 0; i < (*iter).second->m_nObjects; ++i)
 					{
+
 						if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[i]->GetBoundingBox()))
 						{
+							m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
 							cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
 						}
+
 					}
 				}
 			}
