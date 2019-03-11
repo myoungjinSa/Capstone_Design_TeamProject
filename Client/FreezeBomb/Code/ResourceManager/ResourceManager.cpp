@@ -120,16 +120,16 @@ void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	CTexture* pHammer_ItemTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pHammer_ItemTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Item/Hammer_Item.dds", 0);
 	CScene::CreateShaderResourceViews(pd3dDevice, pHammer_ItemTexture, 17, false);
-	m_TextureMap.emplace("Hammer_Item", pHammer_ItemTexture);
+	m_TextureMap.emplace("NormalHammer", pHammer_ItemTexture);
 
 	CTexture* pGoldHammer_ItemTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pGoldHammer_ItemTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Item/GoldHammer_Item.dds", 0);
 	CScene::CreateShaderResourceViews(pd3dDevice, pGoldHammer_ItemTexture, 17, false);
-	m_TextureMap.emplace("GoldHammer_Item", pGoldHammer_ItemTexture);
+	m_TextureMap.emplace("GoldHammer", pGoldHammer_ItemTexture);
 	CTexture* pGoldTimer_ItemTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pGoldTimer_ItemTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Item/GoldTimer_Item.dds", 0);
 	CScene::CreateShaderResourceViews(pd3dDevice, pGoldTimer_ItemTexture, 17, false);
-	m_TextureMap.emplace("GoldTimer_Item", pGoldTimer_ItemTexture);
+	m_TextureMap.emplace("GoldTimer", pGoldTimer_ItemTexture);
 
 	CTexture* pIceCubeTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pIceCubeTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Model/texture2.dds", 0);
@@ -189,8 +189,11 @@ void CResourceManager::LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	CLoadedModelInfo* pFence02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/LowPoly_Fence_02.bin", nullptr, false, "Surrounding");
 	m_ModelMap.emplace("LowPoly_-_Fence_B", pFence02);
 
-	CLoadedModelInfo* pHammer = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Hammer.bin", nullptr, false, "Hammer");
-	m_ModelMap.emplace("NormalItem", pHammer);
+	CLoadedModelInfo* pHammer = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Hammer2.bin", nullptr, false, "Hammer");
+	m_ModelMap.emplace("NormalHammer", pHammer);
+
+	CLoadedModelInfo* pGoldTimer = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Pocket_Watch.bin", nullptr, false, "GoldTimer");
+	m_ModelMap.emplace("GoldTimer", pGoldTimer);
 }
 
 void CResourceManager::LoadMapObjectInfo(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)

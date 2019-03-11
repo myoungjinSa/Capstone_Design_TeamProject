@@ -49,7 +49,6 @@ CPlayer::~CPlayer()
 		iter = m_Special_Inventory.erase(iter);
 	}
 	m_Special_Inventory.clear();
-	
 
 	//if (m_pShadow)
 	//	delete m_pShadow;
@@ -275,11 +274,12 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 
 void CPlayer::Add_Inventory(string key, int ItemType) 
 { 
-	if (ItemType == Normal)
+	if (ItemType == CItem::NormalHammer)
 	{
 		if (m_Normal_Inventory.size() > 0)
 			Refresh_Inventory(ItemType);
 		CItem* pItem = new CItem;
+		pItem->setItemType(ItemType);
 		m_Normal_Inventory.emplace(key, pItem);
 	}
 	else
@@ -287,13 +287,14 @@ void CPlayer::Add_Inventory(string key, int ItemType)
 		if (m_Special_Inventory.size() > 0)
 			Refresh_Inventory(ItemType);
 		CItem* pItem = new CItem;
+		pItem->setItemType(ItemType);
 		m_Special_Inventory.emplace(key, pItem);
 	}
 }
 
 void CPlayer::Refresh_Inventory(int ItemType)
 {
-	if (ItemType == Normal)
+	if (ItemType == CItem::NormalHammer)
 	{
 		for (auto iter = m_Normal_Inventory.begin(); iter != m_Normal_Inventory.end();)
 		{
@@ -353,21 +354,6 @@ void CPlayer::DecideAnimationState(float fLength)
 		//pController->SetTrackSpeed(0, 1.5f);
 	}
 
-	// 망치로 때리기 애니메이션
-	if (GetAsyncKeyState(VK_CONTROL) & 0x0001 && pController->GetAnimationState() != CAnimationController::ATTACK)
-	{
-		SetTrackAnimationSet(0, CAnimationController::ATTACK);
-		SetTrackAnimationPosition(0, 0);
-
-		pController->SetTrackSpeed(0, 1.0f);
-		pController->SetAnimationState(CAnimationController::ATTACK);
-
-		if (m_Normal_Inventory.size() > 0)
-		{
-			Refresh_Inventory(Normal);
-		}
-	}
-
 	if (GetAsyncKeyState(VK_Z) & 0x8000 && pController->GetAnimationState() != CAnimationController::DIGGING)
 	{
 		SetTrackAnimationSet(0, CAnimationController::DIGGING);
@@ -382,6 +368,23 @@ void CPlayer::DecideAnimationState(float fLength)
 		m_bHammer = !m_bHammer;
 	}
 
+	// 망치로 때리기 애니메이션
+	if (GetAsyncKeyState(VK_CONTROL) & 0x0001 && pController->GetAnimationState() != CAnimationController::ATTACK)
+	{
+		SetTrackAnimationSet(0, CAnimationController::ATTACK);
+		SetTrackAnimationPosition(0, 0);
+
+		pController->SetTrackSpeed(0, 1.0f);
+		pController->SetAnimationState(CAnimationController::ATTACK);
+
+		if (m_Normal_Inventory.size() > 0)
+		{
+			Refresh_Inventory(CItem::NormalHammer);
+		}
+	}
+
+	if (GetAsyncKeyState(VK_MENU) & 0x0001)
+		Refresh_Inventory(CItem::GoldHammer);
 }
 
 CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID ,void *pContext)

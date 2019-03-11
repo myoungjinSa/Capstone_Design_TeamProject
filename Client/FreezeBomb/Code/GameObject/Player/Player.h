@@ -70,11 +70,12 @@ public:
 	virtual void OnPrepareRender();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState);
 
-	enum ITEM_TYPE {Normal, Special};
 	CItem* getItem()	const { return m_pItem; }
 
 	void Add_Inventory(string key, int ItemType);
 	void Refresh_Inventory(int ItemType);
+
+	const map<string, CItem*> get_Special_Inventory()	const { return m_Special_Inventory; }
 	size_t get_Normal_InventorySize() const { return m_Normal_Inventory.size(); }
 	size_t get_Special_InventorySize() const { return m_Special_Inventory.size(); }
 
@@ -108,11 +109,9 @@ protected:
 
 	CCamera*				m_pCamera{ nullptr };
 
-
-	CItem*					m_pItem{ nullptr };
-
-	map<string, CItem*> m_Normal_Inventory;
-	map<string, CItem*> m_Special_Inventory;
+	CItem*							m_pItem{ nullptr };
+	map<string, CItem*>	m_Normal_Inventory;
+	map<string, CItem*>	m_Special_Inventory;
 
 	CShadow*	m_pShadow{ nullptr };
 };

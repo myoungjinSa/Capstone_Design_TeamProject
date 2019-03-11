@@ -5,6 +5,7 @@
 class CTexture;
 class CMaterial;
 class CUI;
+class CPlayer;
 class CItemUIShader : public CUIShader
 {
 public:
@@ -25,4 +26,6 @@ private:
 	enum UIType { ItemBoxUI, NormalItemUI, SpecialItemUI };
 
 	bool m_Render = false;
+
+	CPlayer* m_pPlayer{ nullptr };
 };

@@ -38,7 +38,6 @@ public:
 #endif
 	void CreateDepthStencilView();
 	
-
 	void ChangeSwapChainState();
 
 	void BuildObjects();
@@ -65,10 +64,7 @@ public:
 
 private:
 
-
-	
-
-	HINSTANCE						m_hInstance;
+	HINSTANCE					m_hInstance;
 	HWND							m_hWnd;
 
 	int								m_nWndClientWidth;
@@ -77,7 +73,6 @@ private:
 	IDXGIFactory4*					m_pdxgiFactory = nullptr;
 	IDXGISwapChain3*				m_pdxgiSwapChain = nullptr;
 	ID3D12Device*					m_pd3dDevice = nullptr;
-
 
 	bool							m_bMsaa4xEnable = false;
 	UINT							m_nMsaa4xQualityLevels = 0;

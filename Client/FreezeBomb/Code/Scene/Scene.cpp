@@ -595,15 +595,6 @@ void CScene::CheckObjectByObjectCollisions()
 				}
 				++i;
 			}
-			//for (int i = 0; i < (*iter).second->m_nObjects; ++i)
-			//{
-			//	if ((*iter).second->m_ppObjects[i]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
-			//	{
-			//		//(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
-			//		//m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
-			//		cout << i << "번째 정적인 오브젝트와 충돌" << endl;
-			//	}
-			//}
 		}
 
 		// 플레이어와 다른 곰돌이 오브젝트 충돌검사
@@ -662,9 +653,11 @@ void CScene::CheckObjectByObjectCollisions()
 					//(*iter2).second->SetObjectCollided(m_pPlayer);
 					//m_pPlayer->SetObjectCollided((*iter2).second);
 
-					// 충돌 된 Normal 망치 아이템을 플레이어 인벤토리에 추가한다.
-					m_pPlayer->Add_Inventory((*iter2).first, CPlayer::Normal);
-					m_pPlayer->SetIsHammer(true);
+					// 충돌 된 아이템을 플레이어 인벤토리에 추가한다.
+					m_pPlayer->Add_Inventory((*iter2).first, (*iter2).second->getItemType());
+					if((*iter2).second->getItemType() == CItem::NormalHammer)
+						m_pPlayer->SetIsHammer(true);
+
 					// 맵에 있는 아이템 삭제
 					pItemShader->ItemDelete((*iter2).first);
 					break;

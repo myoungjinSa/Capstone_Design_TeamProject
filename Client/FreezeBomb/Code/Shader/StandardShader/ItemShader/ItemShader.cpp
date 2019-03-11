@@ -16,29 +16,73 @@ CItemShader::~CItemShader()
 void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
 	const map<string, CLoadedModelInfo*>& ModelMap, const map<string, Bounds*>& Context, void* pContext)
 {
-	auto iter = ModelMap.find("NormalItem");
+	int nNormalHammer = 10, nGoldHammer = 1, nGoldTimer = 1;
+	m_nObjects = nNormalHammer + nGoldHammer + nGoldTimer;
+
+	auto iter = ModelMap.find("NormalHammer");
 	if (iter != ModelMap.end())
 	{
 		CTerrain* pTerrain = (CTerrain*)pContext;
 
-		m_nObjects = 10;
-
-		for (int i = 0; i < m_nObjects; ++i)
+		for (int i = 0; i < nNormalHammer; ++i)
 		{
 			CItem* pItem = new CItem;
+			pItem->SetChild((*iter).second->m_pModelRootObject, true);
 			XMFLOAT3 Position = XMFLOAT3(Random(10.f, 490.f), 0, Random(10.f, 290.f));
 			pItem->SetPosition(Position);
 			// 망치가 누워있게하기 위해 회전시킴
-			XMFLOAT3 Axis = XMFLOAT3(1.f, 0.f, 0.f);
-			pItem->Rotate(&Axis, 90);
-			pItem->SetChild((*iter).second->m_pModelRootObject, true);
-			pItem->setID("<Hammer>");
+			//XMFLOAT3 Axis = XMFLOAT3(1.f, 0.f, 0.f);
+			//pItem->Rotate(&Axis, 90);
+			pItem->setItemType(CItem::NormalHammer);
+			pItem->setID("<NormalHammer>");
 			auto iter2 = Context.find(pItem->getID());
 			if (iter2 != Context.end())
 				pItem->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
 			pItem->Initialize_Shadow((*iter).second, pItem);
 
-			m_ItemMap.emplace("망치" + to_string(i), dynamic_cast<CItem*>(pItem));
+			m_ItemMap.emplace("NormalHammer" + to_string(i), dynamic_cast<CItem*>(pItem));
+		}
+	}
+
+	iter = ModelMap.find("GoldHammer");
+	if (iter != ModelMap.end())
+	{
+		for (int i = 0; i < nGoldHammer; ++i)
+		{
+			CItem* pItem = new CItem;
+			pItem->SetChild((*iter).second->m_pModelRootObject, true);
+			XMFLOAT3 Position = XMFLOAT3(Random(10.f, 490.f), 0, Random(10.f, 290.f));
+			cout << Position.x << ", " << Position.y << ", " << Position.z << endl;
+			pItem->SetPosition(Position);
+			pItem->setItemType(CItem::GoldHammer);
+			pItem->setID("<GoldHammer>");
+			auto iter2 = Context.find(pItem->getID());
+			if (iter2 != Context.end())
+				pItem->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
+			pItem->Initialize_Shadow((*iter).second, pItem);
+
+			m_ItemMap.emplace("GoldHammer" + to_string(i), dynamic_cast<CItem*>(pItem));
+		}
+	}
+
+	iter = ModelMap.find("GoldTimer");
+	if (iter != ModelMap.end())
+	{
+		for (int i = 0; i < nGoldTimer; ++i)
+		{
+			CItem* pItem = new CItem;
+			pItem->SetChild((*iter).second->m_pModelRootObject, true);
+			XMFLOAT3 Position = XMFLOAT3(Random(10.f, 490.f), 0.22, Random(10.f, 290.f));
+			cout << Position.x << ", " << Position.y << ", " << Position.z << endl;
+			pItem->SetPosition(Position);
+			pItem->setItemType(CItem::GoldTimer);
+			pItem->setID("<GoldTimer>");
+			auto iter2 = Context.find(pItem->getID());
+			if (iter2 != Context.end())
+				pItem->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
+			pItem->Initialize_Shadow((*iter).second, pItem);
+
+			m_ItemMap.emplace("GoldTimer" + to_string(i), dynamic_cast<CItem*>(pItem));
 		}
 	}
 }

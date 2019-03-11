@@ -35,7 +35,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_pResourceManager = new CResourceManager;
 	m_pResourceManager->Initialize(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	m_nShaders = 8;
+	m_nShaders = 7;
 
 	//맵툴 모드일때는 맵의 오브젝트들을 그리지 않게 하기 위해 
 	// 그래야 맵툴모드에서 적용해서 배치한 오브젝트들만 볼 수 있다.
@@ -99,11 +99,11 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ppShaders[index++] = pSnowShader;
 	m_ShaderMap.emplace("Snow", pSnowShader);
 
-	CCubeIceShader* pIceParticleShader = new CCubeIceShader;
-	pIceParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pIceParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
-	m_ppShaders[index++] = pIceParticleShader;
-	m_ShaderMap.emplace("IceParticle", pIceParticleShader);
+	//CCubeIceShader* pIceParticleShader = new CCubeIceShader;
+	//pIceParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//pIceParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
+	//m_ppShaders[index++] = pIceParticleShader;
+	//m_ShaderMap.emplace("IceParticle", pIceParticleShader);
 
 	CTimerUIShader* pTimerUIShader = new CTimerUIShader;
 	pTimerUIShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -150,33 +150,6 @@ void CShaderManager::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer
 {
 	for (int i = 0; i < m_nShaders; i++)
 		m_ppShaders[i]->AnimateObjects(elapsedTime, pCamera, pPlayer);
-
-	if (pPlayer->get_Normal_InventorySize() > 0)
-	{
-		auto iter = m_ShaderMap.find("ItemUI");
-		if (iter != m_ShaderMap.end())
-			dynamic_cast<CItemUIShader*>((*iter).second)->setRender(true);
-	}
-	else
-	{
-		auto iter = m_ShaderMap.find("ItemUI");
-		if (iter != m_ShaderMap.end())
-			dynamic_cast<CItemUIShader*>((*iter).second)->setRender(false);
-	}
-
-	//if (pPlayer->getItem()->getSpecialItem() == false)
-	//{
-	//	auto iter = m_ShaderMap.find("Special_ItemUI");
-	//	if (iter != m_ShaderMap.end())
-	//		dynamic_cast<CSpecialItemUIShader*>((*iter).second)->setRender(false);
-	//}
-	//else
-	//{
-	//	auto iter = m_ShaderMap.find("Special_ItemUI");
-	//	if (iter != m_ShaderMap.end())
-	//		dynamic_cast<CSpecialItemUIShader*>((*iter).second)->setRender(true);
-	//}
-
 }
 
 void CShaderManager::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
