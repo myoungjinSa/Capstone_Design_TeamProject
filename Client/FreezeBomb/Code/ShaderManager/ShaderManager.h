@@ -30,4 +30,6 @@ private:
 	map<string, CShader*>	m_ShaderMap;
 
 	CResourceManager*			m_pResourceManager{ nullptr };
+
+	CPlayer*	m_pPlayer{ nullptr };
 };

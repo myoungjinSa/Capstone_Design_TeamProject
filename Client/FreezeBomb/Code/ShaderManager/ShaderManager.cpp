@@ -19,6 +19,8 @@
 #include "../Shader/CubeParticleShader/IceParticleShader/IceParticleShader.h"
 #include "../Shader/PostProcessShader/CartoonShader/SobelCartoonShader.h"
 
+#include "../GameObject/Player/Player.h"
+
 CShaderManager::CShaderManager()
 {
 }
@@ -144,6 +146,8 @@ void CShaderManager::ReleaseUploadBuffers()
 
 void CShaderManager::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer* pPlayer)
 {
+	m_pPlayer = pPlayer;
+
 	for (int i = 0; i < m_nShaders; i++)
 		m_ppShaders[i]->AnimateObjects(elapsedTime, pCamera, pPlayer);
 }
@@ -155,6 +159,9 @@ void CShaderManager::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 		if (m_ppShaders[i])
 			m_ppShaders[i]->Render(pd3dCommandList, pCamera, GameObject);
 	}
+
+	if (m_pPlayer)
+		m_pPlayer->setShaderManager(this);
 }
 
 void CShaderManager::ProcessCollision(XMFLOAT3& position)

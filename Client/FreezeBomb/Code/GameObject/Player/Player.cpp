@@ -6,6 +6,9 @@
 #include "../Item/Item.h"
 #include "../Shadow/Shadow.h"
 
+#include "../../ShaderManager/ShaderManager.h"
+#include "../../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
+
 CPlayer::CPlayer()
 {
 	m_pCamera = NULL;
@@ -384,7 +387,22 @@ void CPlayer::DecideAnimationState(float fLength)
 	}
 
 	if (GetAsyncKeyState(VK_MENU) & 0x0001)
-		Refresh_Inventory(CItem::GoldHammer);
+	{
+		if (m_Special_Inventory.size() > 0)
+		{
+			if (m_pShaderManager)
+			{
+				auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
+				if (iter != m_pShaderManager->getShaderMap().end())
+				{
+					// 90√  ¡ı∞°
+					dynamic_cast<CTimerUIShader*>((*iter).second)->setTimer(90.f);
+				}
+			}
+
+			Refresh_Inventory(CItem::GoldHammer);
+		}
+	}
 }
 
 CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID ,void *pContext)

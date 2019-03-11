@@ -16,7 +16,7 @@ CItemShader::~CItemShader()
 void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
 	const map<string, CLoadedModelInfo*>& ModelMap, const map<string, Bounds*>& Context, void* pContext)
 {
-	int nNormalHammer = 10, nGoldHammer = 1, nGoldTimer = 1;
+	int nNormalHammer = 10, nGoldHammer = 1, nGoldTimer = 5;
 	m_nObjects = nNormalHammer + nGoldHammer + nGoldTimer;
 
 	auto iter = ModelMap.find("NormalHammer");

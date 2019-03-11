@@ -12,6 +12,7 @@
 
 class CItem;
 class CShadow;
+class CShaderManager;
 class CPlayer : public CGameObject
 {
 public:
@@ -83,6 +84,7 @@ public:
 
 	CShadow*	getShadow()		const { return m_pShadow; }
 
+	void setShaderManager(CShaderManager* pShaderManager) { m_pShaderManager = pShaderManager; }
 protected:
 
 	_TCHAR				m_playerName[256];
@@ -114,6 +116,8 @@ protected:
 	map<string, CItem*>	m_Special_Inventory;
 
 	CShadow*	m_pShadow{ nullptr };
+
+	CShaderManager* m_pShaderManager{ nullptr };
 };
 
 class CTerrainPlayer : public CPlayer
