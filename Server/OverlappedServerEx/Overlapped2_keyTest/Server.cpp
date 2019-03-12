@@ -48,10 +48,10 @@ public:
 	void setPos(POSITION* p) { pos = *p; }
 	void setKey(int k) { key = k; }
 
-private:
+public:
 	// 복사대입과 복사생성 방지
-	ClientInfo(const ClientInfo&);
-	ClientInfo& operator=(const ClientInfo&);
+	ClientInfo(const ClientInfo&) = delete;
+	ClientInfo& operator=(const ClientInfo&) = delete;
 };
 
 // 소켓 정보 저장을 위한 구조체와 변수
