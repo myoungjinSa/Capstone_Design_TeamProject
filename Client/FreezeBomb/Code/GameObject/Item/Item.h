@@ -17,7 +17,13 @@ public:
 
 	void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState);
 
+	enum ItemType { Empty, NormalHammer, GoldHammer, GoldTimer };
+	byte getItemType()	const { return m_ItemType; }
+	void setItemType(byte value) { m_ItemType = value; }
+
 private:
+	byte m_ItemType = 0;
+
 	bool m_DeleteItem = false;
 	CShadow*	m_pShadow{ nullptr };
 };

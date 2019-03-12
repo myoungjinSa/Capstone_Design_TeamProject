@@ -26,6 +26,6 @@ public:
 	void SetParticleBlowUp(XMFLOAT3& position);
 protected:
 	
-	const int m_nMaxParticle = 6;
+	const int m_nMaxParticle = 1;
 	vector<CIceCube*> m_vIceCube;
 };

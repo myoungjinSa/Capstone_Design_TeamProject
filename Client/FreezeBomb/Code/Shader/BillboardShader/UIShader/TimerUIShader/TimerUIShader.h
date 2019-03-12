@@ -21,6 +21,8 @@ public:
 
 	void TimerUpdate();
 
+	void setTimer(float value);
+
 private:
 	enum UIType { OneSec, TenSec, OneMin, Colon };
 

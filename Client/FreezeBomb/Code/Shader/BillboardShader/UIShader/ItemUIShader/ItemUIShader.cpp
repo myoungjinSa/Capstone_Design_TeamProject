@@ -1,10 +1,12 @@
 #include "../../../../Stdafx/Stdafx.h"
 #include "ItemUIShader.h"
+#include "../../../../GameObject/Billboard/UI/UI.h"
 #include "../../../../Mesh/BillboardMesh/BillboardMesh.h"
 #include "../../../../Texture/Texture.h"
 #include "../../../../Material/Material.h"
 #include "../../../../Scene/Scene.h"
-#include "../../../../GameObject/Billboard/UI/UI.h"
+#include "../../../../GameObject/Player/Player.h"
+#include "../../../../GameObject/Item/Item.h"
 
 CItemUIShader::CItemUIShader()
 {
@@ -69,7 +71,7 @@ void CItemUIShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 {
 	CBillboardMesh* pItemBoxMesh = new CBillboardMesh(pd3dDevice, pd3dCommandList, 20.f, 20.f, 0.0f, 0.0f, 0.0f, 0.0f);
 
-	m_nObjects = 3;
+	m_nObjects = 4;
 
 	m_ppUIMaterial = new CMaterial*[m_nObjects];
 
@@ -79,19 +81,19 @@ void CItemUIShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 		m_ppUIMaterial[0]->SetTexture((*iter).second, 0);
 
 	m_ppUIMaterial[1] = new CMaterial(1);
-	iter = Context.find("Hammer_Item");
+	iter = Context.find("NormalHammer");
 	if (iter != Context.end())
 		m_ppUIMaterial[1]->SetTexture((*iter).second, 0);
 
 	m_ppUIMaterial[2] = new CMaterial(1);
-	iter = Context.find("GoldHammer_Item");
+	iter = Context.find("GoldHammer");
 	if (iter != Context.end())
 		m_ppUIMaterial[2]->SetTexture((*iter).second, 0);
 
-	//m_ppUIMaterial[2] = new CMaterial(1);
-	//iter = Context.find("GoldTimer_Item");
-	//if (iter != Context.end())
-	//	m_ppUIMaterial[2]->SetTexture((*iter).second, 0);
+	m_ppUIMaterial[3] = new CMaterial(1);
+	iter = Context.find("GoldTimer");
+	if (iter != Context.end())
+		m_ppUIMaterial[3]->SetTexture((*iter).second, 0);
 
 	for (int i = 0; i < m_nObjects; ++i)
 	{
@@ -104,22 +106,31 @@ void CItemUIShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 
 void CItemUIShader::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer* pPlayer)
 {
+	m_pPlayer = pPlayer;
 }
 
 void CItemUIShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)
 {
-	CItemUIShader::OnPrepareRender(pd3dCommandList, ItemBoxUI);
-	auto iter = m_UIMap.find(ItemBoxUI);
+	CUIShader::OnPrepareRender(pd3dCommandList, ItemBoxUI);
+	auto iter = m_UIMap.find(CItem::Empty);
 	if (iter != m_UIMap.end())
 		(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
 
-	if (m_Render)
+	if (m_pPlayer)
 	{
-		for (int i = NormalItemUI; i < SpecialItemUI; ++i)
+		if (m_pPlayer->get_Normal_InventorySize() > 0)
 		{
-			CUIShader::OnPrepareRender(pd3dCommandList, i);
+			CUIShader::OnPrepareRender(pd3dCommandList, NormalItemUI);
+			auto iter = m_UIMap.find(CItem::NormalHammer);
+			if (iter != m_UIMap.end())
+				(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
+		}
 
-			auto iter = m_UIMap.find(i);
+		if (m_pPlayer->get_Special_InventorySize() > 0)
+		{
+			CUIShader::OnPrepareRender(pd3dCommandList, SpecialItemUI);
+			byte itemType = m_pPlayer->get_Special_Inventory().begin()->second->getItemType();
+			auto iter = m_UIMap.find( itemType);
 			if (iter != m_UIMap.end())
 				(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
 		}

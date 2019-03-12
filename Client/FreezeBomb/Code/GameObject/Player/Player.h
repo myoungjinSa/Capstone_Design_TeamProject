@@ -12,6 +12,7 @@
 
 class CItem;
 class CShadow;
+class CShaderManager;
 class CPlayer : public CGameObject
 {
 public:
@@ -70,11 +71,12 @@ public:
 	virtual void OnPrepareRender();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState);
 
-	enum ITEM_TYPE {Normal, Special};
 	CItem* getItem()	const { return m_pItem; }
 
 	void Add_Inventory(string key, int ItemType);
 	void Refresh_Inventory(int ItemType);
+
+	const map<string, CItem*> get_Special_Inventory()	const { return m_Special_Inventory; }
 	size_t get_Normal_InventorySize() const { return m_Normal_Inventory.size(); }
 	size_t get_Special_InventorySize() const { return m_Special_Inventory.size(); }
 
@@ -82,6 +84,7 @@ public:
 
 	CShadow*	getShadow()		const { return m_pShadow; }
 
+	void setShaderManager(CShaderManager* pShaderManager) { m_pShaderManager = pShaderManager; }
 protected:
 
 	_TCHAR				m_playerName[256];
@@ -108,13 +111,13 @@ protected:
 
 	CCamera*				m_pCamera{ nullptr };
 
-
-	CItem*					m_pItem{ nullptr };
-
-	map<string, CItem*> m_Normal_Inventory;
-	map<string, CItem*> m_Special_Inventory;
+	CItem*							m_pItem{ nullptr };
+	map<string, CItem*>	m_Normal_Inventory;
+	map<string, CItem*>	m_Special_Inventory;
 
 	CShadow*	m_pShadow{ nullptr };
+
+	CShaderManager* m_pShaderManager{ nullptr };
 };
 
 class CTerrainPlayer : public CPlayer

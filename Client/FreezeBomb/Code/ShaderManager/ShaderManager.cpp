@@ -20,7 +20,6 @@
 #include "../Shader/PostProcessShader/CartoonShader/SobelCartoonShader.h"
 
 #include "../GameObject/Player/Player.h"
-#include "../GameObject/Item/Item.h"
 
 CShaderManager::CShaderManager()
 {
@@ -35,9 +34,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_pResourceManager = new CResourceManager;
 	m_pResourceManager->Initialize(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-
-	m_nShaders = 8;
-
+	m_nShaders = 7;
 
 	//맵툴 모드일때는 맵의 오브젝트들을 그리지 않게 하기 위해 
 	// 그래야 맵툴모드에서 적용해서 배치한 오브젝트들만 볼 수 있다.
@@ -65,10 +62,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	pMapShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
 		m_pResourceManager->getModelMap(), m_pResourceManager->getMapObjectInfo(), m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
 	m_ppShaders[index++] = pMapShader;
-	m_ShaderMap.emplace("MapShader", pMapShader);
-	//// 모델 메모리 해제
-	m_pResourceManager->ReleaseModel();
-
+	m_ShaderMap.emplace("MapObjects", pMapShader);
 #endif
 
 	//Foliage는 충돌처리가 필요 없음.. 따라서 Bound 박스 필요  없다. 그림자도 필요업음
@@ -103,11 +97,11 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ppShaders[index++] = pSnowShader;
 	m_ShaderMap.emplace("Snow", pSnowShader);
 
-	CCubeIceShader* pIceParticleShader = new CCubeIceShader;
-	pIceParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pIceParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
-	m_ppShaders[index++] = pIceParticleShader;
-	m_ShaderMap.emplace("IceParticle", pIceParticleShader);
+	//CCubeIceShader* pIceParticleShader = new CCubeIceShader;
+	//pIceParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//pIceParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
+	//m_ppShaders[index++] = pIceParticleShader;
+	//m_ShaderMap.emplace("IceParticle", pIceParticleShader);
 
 	CTimerUIShader* pTimerUIShader = new CTimerUIShader;
 	pTimerUIShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -152,35 +146,10 @@ void CShaderManager::ReleaseUploadBuffers()
 
 void CShaderManager::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer* pPlayer)
 {
+	m_pPlayer = pPlayer;
+
 	for (int i = 0; i < m_nShaders; i++)
 		m_ppShaders[i]->AnimateObjects(elapsedTime, pCamera, pPlayer);
-
-	if (pPlayer->get_Normal_InventorySize() > 0)
-	{
-		auto iter = m_ShaderMap.find("ItemUI");
-		if (iter != m_ShaderMap.end())
-			dynamic_cast<CItemUIShader*>((*iter).second)->setRender(true);
-	}
-	else
-	{
-		auto iter = m_ShaderMap.find("ItemUI");
-		if (iter != m_ShaderMap.end())
-			dynamic_cast<CItemUIShader*>((*iter).second)->setRender(false);
-	}
-
-	//if (pPlayer->getItem()->getSpecialItem() == false)
-	//{
-	//	auto iter = m_ShaderMap.find("Special_ItemUI");
-	//	if (iter != m_ShaderMap.end())
-	//		dynamic_cast<CSpecialItemUIShader*>((*iter).second)->setRender(false);
-	//}
-	//else
-	//{
-	//	auto iter = m_ShaderMap.find("Special_ItemUI");
-	//	if (iter != m_ShaderMap.end())
-	//		dynamic_cast<CSpecialItemUIShader*>((*iter).second)->setRender(true);
-	//}
-
 }
 
 void CShaderManager::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
@@ -189,5 +158,18 @@ void CShaderManager::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 	{
 		if (m_ppShaders[i])
 			m_ppShaders[i]->Render(pd3dCommandList, pCamera, GameObject);
+	}
+
+	if (m_pPlayer)
+		m_pPlayer->setShaderManager(this);
+}
+
+void CShaderManager::ProcessCollision(XMFLOAT3& position)
+{
+	auto iter = m_ShaderMap.find("IceParticle");
+
+	if(iter!= m_ShaderMap.end())
+	{
+		dynamic_cast<CCubeIceShader*>((*iter).second)->SetParticleBlowUp(position);
 	}
 }

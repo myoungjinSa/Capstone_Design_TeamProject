@@ -206,3 +206,11 @@ void CTimerUIShader::TimerUpdate()
 	m_Min = (int)m_Timer / 60 % 10;
 	m_TenMin = (int)m_Timer / 60 % 60 / 10;
 }
+
+void CTimerUIShader::setTimer(float value)
+{
+	m_Timer += value;
+
+	if (m_Timer > 300.f)
+		m_Timer = 300.f;
+}

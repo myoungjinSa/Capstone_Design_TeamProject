@@ -16,7 +16,6 @@ CUIShader::~CUIShader()
 				m_ppd3dPipelineStates[i]->Release();
 		delete[] m_ppd3dPipelineStates;
 	}
-
 }
 
 D3D12_SHADER_BYTECODE CUIShader::CreatePixelShader()
