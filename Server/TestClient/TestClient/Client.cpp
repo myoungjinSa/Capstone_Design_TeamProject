@@ -31,25 +31,41 @@ class ClientInfo
 private:
 	u_short clientID;
 	POSITION pos;
-	int key;
 
 public:
-	ClientInfo() :clientID(0), pos(0, 0, 0), key(0) {};
-	ClientInfo(u_short cid, POSITION p) :clientID(cid), pos(p), key(0) {};
+	ClientInfo() :clientID(0), pos(0, 0, 0) {};
+	ClientInfo(u_short cid, POSITION p) :clientID(cid), pos(p) {};
 
 	u_short getClientID() { return clientID; }
 	void getPos(int& x, int& y, int& z) { x = pos.x; y = pos.y; z = pos.z; }
-	int getKey() { return key; }
 
 	void setClientID(u_short cid) { clientID = cid; }
 	void setPos(int x, int y, int z) { pos.x = x; pos.y = y; pos.z = z; }
 	void setPos(POSITION* p) { pos = *p; }
-	void setKey(int k) { key = k; }
 
-private:
+public:
 	// 복사대입과 복사생성 방지
-	ClientInfo(const ClientInfo&);
-	ClientInfo& operator=(const ClientInfo&);
+	ClientInfo(const ClientInfo&) = delete;
+	ClientInfo& operator=(const ClientInfo&) = delete;
+};
+
+struct SOCKETINFO
+{
+	SOCKETINFO() { cInfo = new ClientInfo; }
+	~SOCKETINFO() { delete cInfo; }
+
+	WSAOVERLAPPED overlapped;
+	SOCKET sock;
+	ClientInfo* cInfo;
+	int recvbytes;
+	int sendbytes;
+	WSABUF wsabuf;
+	int key;
+};
+
+struct CS_SOCK
+{
+
 };
 
 // 소켓 함수 오류 출력 후 종료
@@ -155,7 +171,9 @@ int main(int argc, char *argv[])
 					printf("LEFT_KEY 눌림\n");
 					break;
 				}
+				myInfo->setKey(key);
 
+				printf("ClientID : %d\nkey : %d\n", myInfo->getClientID(), myInfo->getKey());
 				retval = send(sock, (char *)myInfo, sizeof(ClientInfo), 0);
 				if (retval == SOCKET_ERROR)
 				{
