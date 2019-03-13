@@ -43,14 +43,13 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 	m_ppObjects[1]->SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_ppObjects[1]->m_pAnimationController = new CAnimationController(1, pEvilBearModel->m_pAnimationSets);
 	//m_ppObjects[1]->m_pAnimationController->SetTrackAnimationSet(1, 2);
-	m_ppObjects[1]->m_pAnimationController->SetTrackAnimationSet(0, 9);
+	m_ppObjects[1]->m_pAnimationController->SetTrackAnimationSet(0, 3);
 	m_ppObjects[1]->m_pAnimationController->SetTrackSpeed(0, 0.8f);
 	m_ppObjects[1]->m_pAnimationController->SetTrackWeight(0, 0.9);
 	//m_ppObjects[1]->m_pAnimationController->SetTrackWeight(1, 0.1);
 	// 애니메이션의 속도를 0.25로 주어서 느리게 애니메이션 동작을 하도록 Set
 	m_ppObjects[1]->m_pAnimationController->SetTrackSpeed(0, 0.25f);
 	m_ppObjects[1]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);
-
 
 
 
@@ -65,7 +64,7 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 	m_ppObjects[3] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::BLUE);
 	m_ppObjects[3]->SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_ppObjects[3]->m_pAnimationController = new CAnimationController(1, pEvilBearModel->m_pAnimationSets);
-	m_ppObjects[3]->m_pAnimationController->SetTrackAnimationSet(0, 0);
+	m_ppObjects[3]->m_pAnimationController->SetTrackAnimationSet(0, 2);
 	m_ppObjects[3]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);
 
 	m_ppObjects[4] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::ICEMAT);
@@ -73,6 +72,18 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 	m_ppObjects[4]->m_pAnimationController = new CAnimationController(1, pEvilBearModel->m_pAnimationSets);
 	m_ppObjects[4]->m_pAnimationController->SetTrackAnimationSet(0, 0);
 	m_ppObjects[4]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);
+
+
+
+	CAnimationCallbackHandler* pAnimationCallback = new CSoundCallbackHandler();
+	for(UINT i=0;i</*m_nObjects*/ 5;i++)		//플레이어 수만큼 사운드 효과 설정해준다
+	{
+		m_ppObjects[i]->m_pAnimationController->SetCallbackKeys(m_ppObjects[i]->m_pAnimationController->RUNFAST, 2);
+		m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNFAST, 0, 0.3f,MAKEINTRESOURCE(IDR_WAVE2));
+		m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNFAST, 1, 0.6f, MAKEINTRESOURCE(IDR_WAVE2));
+		m_ppObjects[i]->m_pAnimationController->SetAnimationCallbackHandler(m_ppObjects[i]->m_pAnimationController->RUNFAST, pAnimationCallback);
+
+	}
 
 	XMFLOAT3 Position;
 	for (int i = 0; i < m_nObjects; ++i)

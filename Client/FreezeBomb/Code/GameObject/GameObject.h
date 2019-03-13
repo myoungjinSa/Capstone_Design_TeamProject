@@ -47,6 +47,15 @@ public:
    virtual void HandleCallback(void *pCallbackData) { }
 };
 
+class CSoundCallbackHandler : public CAnimationCallbackHandler
+{
+public:
+	CSoundCallbackHandler() { }
+	~CSoundCallbackHandler() { }
+
+	virtual void HandleCallback(void *pCallbackData);
+};
+
 class CAnimationSet
 {
 public:

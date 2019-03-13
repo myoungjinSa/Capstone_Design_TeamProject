@@ -200,9 +200,6 @@
     <ClInclude Include="..\Code\DirectX12\DDSTextureLoader\DDSTextureLoader12.h">
       <Filter>Code\DirectX\DDSTextureLoader</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\GameObject\EvilBear\EvilBear.h">
-      <Filter>Code\GameObject\EvilBear</Filter>
-    </ClInclude>
     <ClInclude Include="..\Code\GameObject\Item\Item.h">
       <Filter>Code\GameObject\Item</Filter>
     </ClInclude>
@@ -325,6 +322,9 @@
     </ClInclude>
     <ClInclude Include="..\Code\Shader\StandardShader\FoliageShader\FoliageShader.h">
       <Filter>Code\Shader\StandardShader\FoliageShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\EvilBear\EvilBear.h">
+      <Filter>Code\GameObject\EvilBear</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
