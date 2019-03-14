@@ -400,7 +400,7 @@ cbuffer cbShadow : register(b9)
 VS_SHADOW_OUTPUT VSShadow(VS_SHADOW_INPUT input)
 {
 	VS_SHADOW_OUTPUT output;
-	matrix ShadowWorld = mul(gmtxShadow, gmtxGameObject);
+	//matrix ShadowWorld = mul(gmtxShadow, gmtxGameObject);
 	// 모델좌표계에서 그림자행렬을 계산
 	//output.position = mul(mul(mul(float4(input.position, 1.0f), ShadowWorld), gmtxView), gmtxProjection);
 

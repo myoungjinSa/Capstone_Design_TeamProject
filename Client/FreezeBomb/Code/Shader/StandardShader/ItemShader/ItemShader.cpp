@@ -28,11 +28,9 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 		{
 			CItem* pItem = new CItem;
 			pItem->SetChild((*iter).second->m_pModelRootObject, true);
-			XMFLOAT3 Position = XMFLOAT3(Random(10.f, 490.f), 0, Random(10.f, 290.f));
+			// 그림자를 모델좌표계에서 계산하도록 변경하면 될듯?
+			XMFLOAT3 Position = XMFLOAT3(Random(10.f, 490.f), 0.5f, Random(10.f, 290.f));
 			pItem->SetPosition(Position);
-			// 망치가 누워있게하기 위해 회전시킴
-			//XMFLOAT3 Axis = XMFLOAT3(1.f, 0.f, 0.f);
-			//pItem->Rotate(&Axis, 90);
 			pItem->setItemType(CItem::NormalHammer);
 			pItem->setID("<NormalHammer>");
 			auto iter2 = Context.find(pItem->getID());
@@ -51,7 +49,7 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 		{
 			CItem* pItem = new CItem;
 			pItem->SetChild((*iter).second->m_pModelRootObject, true);
-			XMFLOAT3 Position = XMFLOAT3(Random(10.f, 490.f), 0, Random(10.f, 290.f));
+			XMFLOAT3 Position = XMFLOAT3(Random(10.f, 490.f), 0.5, Random(10.f, 290.f));
 			cout << Position.x << ", " << Position.y << ", " << Position.z << endl;
 			pItem->SetPosition(Position);
 			pItem->setItemType(CItem::GoldHammer);

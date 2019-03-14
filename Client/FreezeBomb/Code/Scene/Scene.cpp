@@ -97,12 +97,13 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	// ItemBox : 1, Hammer_Item : 1, GoldHammer_Item : 1, GoldTimer_Item : 1=> 4
 	// Hammer : 4
 	// ICE : 1 
+	// Thor_Hammer : 4
 
 	int nObjects = 0;
 #ifdef _MAPTOOL_MODE_
 	nObjects = 87;		//DeadTrees(25),PineTrees(35),Rocks(25),Deer(2),Pond(2),Fence(0)
 #endif
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 33 + 85 + 2 + 11 + 4 + 4 + 1 + nObjects);
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 33 + 85 + 2 + 11 + 4 + 4 + 1 + nObjects + 4);
 
 	// Model을 로드할 때, 셰이더 없이 로드할 경우 이것을 사용함!
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
@@ -627,23 +628,47 @@ void CScene::CheckObjectByObjectCollisions()
 				}
 			}
 
+			//if (m_pPlayer->GetIsHammer() == true)
+			//{
+			//	CGameObject* pHammer = m_pPlayer->FindFrame("hammer");
+			//	if (pHammer != nullptr)
+			//	{
+			//		for (int i = 0; i < (*iter).second->m_nObjects; ++i)
+			//		{
+			//			if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[i]->GetBoundingBox()))
+			//			{
+			//				m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
+			//				cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
+			//			}
+			//		}
+			//	}
+			//}
+
+			// 1) 망치로 때리는 애니메이션을 할때만 충돌체크
+			// 2) 망치로 때리는 시점에만 충돌체크하는 방법은??
 			if (m_pPlayer->GetIsHammer() == true)
 			{
-				CGameObject* pHammer = m_pPlayer->FindFrame("hammer");
-				if (pHammer != nullptr)
+				if (m_pPlayer->m_pAnimationController->GetAnimationState() == CAnimationController::ATTACK)
 				{
-					for (int i = 0; i < (*iter).second->m_nObjects; ++i)
+					// 망치로 내려 찍는 애니메이션의 위치 근사 값
+					if (m_pPlayer->GetTrackAnimationPosition(0) >= 0.5 && m_pPlayer->GetTrackAnimationPosition(0) <= 0.65)
 					{
-
-						if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[i]->GetBoundingBox()))
+						CGameObject* pHammer = m_pPlayer->FindFrame("hammer");
+						if (pHammer != nullptr)
 						{
-							m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
-							cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
+							for (int i = 0; i < (*iter).second->m_nObjects; ++i)
+							{
+								if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[i]->GetBoundingBox()))
+								{
+									m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
+									cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
+								}
+							}
 						}
-
 					}
 				}
 			}
+
 		}
 
 		// 플레이어와 아이템 오브젝트 충돌검사

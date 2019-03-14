@@ -317,7 +317,7 @@ void CPlayer::Refresh_Inventory(int ItemType)
 
 void CPlayer::DecideAnimationState(float fLength)
 {
-	CAnimationController *pController = m_pAnimationController;
+	CAnimationController* pController = m_pAnimationController;
 	if (fLength == 0.0f && pController->GetAnimationState() != CAnimationController::ATTACK 
 		&& pController->GetAnimationState() != CAnimationController::DIGGING
 		&& pController->GetAnimationState() != CAnimationController::JUMP)
@@ -386,6 +386,7 @@ void CPlayer::DecideAnimationState(float fLength)
 		}
 	}
 
+	// 특수 아이템 사용 버튼(ALT)
 	if (GetAsyncKeyState(VK_MENU) & 0x0001)
 	{
 		if (m_Special_Inventory.size() > 0)

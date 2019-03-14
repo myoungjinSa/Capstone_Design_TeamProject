@@ -161,6 +161,7 @@ public:
 	void SetSpeed(float fSpeed) { m_fSpeed = fSpeed; }
 	void SetWeight(float fWeight) { m_fWeight = fWeight; }
 	void SetPosition(float fPosition) { m_fPosition = fPosition; }
+	float GetPosition()		const { return m_fPosition; }
 };
 
 class CAnimationController 
@@ -186,6 +187,8 @@ public:
 	void SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet);
 	void SetTrackEnable(int nAnimationTrack, bool bEnable);
 	void SetTrackPosition(int nAnimationTrack, float fPosition);
+	float GetTrackPosition(int nAnimationTrack);
+
 	void SetTrackSpeed(int nAnimationTrack, float fSpeed);
 	void SetTrackWeight(int nAnimationTrack, float fWeight);
 
@@ -357,6 +360,7 @@ public:
 
 	void SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet);
 	void SetTrackAnimationPosition(int nAnimationTrack, float fPosition);
+	float GetTrackAnimationPosition(int nAnimationTrack);
 
 	void CacheSkinningBoneFrames(CGameObject *pRootFrame);
 
