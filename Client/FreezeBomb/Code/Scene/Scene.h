@@ -126,4 +126,21 @@ private:
 	UINT						m_playerCount;
 
 	CShaderManager*	m_pShaderManager{ nullptr };
+
+	// [ ShaderResourceView ÃÑ °³¼ö ]
+	// SkyBox : 1
+	// Terrain : 2, 
+	// DeadTrees : 23, PineTrees : 35, Rocks : 25, Deer : 2, Pond : 2=> MapObjects : 87
+	// Hammer : 3, Pocket_Watch : 2 => Item = 5
+	// EvilBear : 15
+	// Player : 15 
+	// Snow : 1, IceParticle : 1 => Particle = 2 
+	// Number : 10, Colon : 1 => TimerUI = 11
+	// ItemBox = 1, Hammer_Item : 1, GoldHammer_Item : 1, GoldTimer_Item : 1=> ItemUI : 4
+
+	enum nShaderResourceView
+	{
+		SkyBox = 1, Terrain = 2, MapObjects = 67, Item = 5,
+		EvilBear = 15, Player = 15, Particle = 2, TimerUI = 11, ItemUI = 4
+	};
 };

@@ -87,23 +87,12 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	// ShaderResourceView 총 개수
-	// SkyBox : 1, Terrain : 2, Player : 15, EvilBear : 15 => 33
-	// SM_DeadTree_05 -> 바뀜 텍스쳐 5개에서 3개만 필요
-	// DeadTrees : 23, PineTrees : 35, Rocks : 25, Deer : 2 => 85
-	// Snow : 1, LampParticle : 1 => 2
-	// Number : 10, Colon : 1 => 11
-	// ItemBox : 1, Hammer_Item : 1, GoldHammer_Item : 1, GoldTimer_Item : 1=> 4
-	// Hammer : 4
-	// ICE : 1 
-	// Thor_Hammer : 4
-
 	int nObjects = 0;
 #ifdef _MAPTOOL_MODE_
-	nObjects = 87;		//DeadTrees(25),PineTrees(35),Rocks(25),Deer(2),Pond(2),Fence(0)
+	nObjects = 67;		//DeadTrees(15),PineTrees(34),Rocks(14),Deer(2),Pond(2)
 #endif
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 33 + 85 + 2 + 11 + 4 + 4 + 1 + nObjects + 4);
-
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 
+		SkyBox + Terrain + MapObjects + Item + EvilBear + Particle + TimerUI + ItemUI + Player);
 	// Model을 로드할 때, 셰이더 없이 로드할 경우 이것을 사용함!
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
