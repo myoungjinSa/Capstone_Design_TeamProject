@@ -228,6 +228,14 @@ void CAnimationController::SetTrackPosition(int nAnimationTrack, float fPosition
 	if (m_pAnimationTracks) m_pAnimationTracks[nAnimationTrack].SetPosition(fPosition);
 }
 
+float CAnimationController::GetTrackPosition(int nAnimationTrack)
+{
+	if (m_pAnimationTracks)
+		return m_pAnimationTracks[nAnimationTrack].GetPosition();
+	else
+		return 0.f;
+}
+
 void CAnimationController::SetTrackSpeed(int nAnimationTrack, float fSpeed)
 {
 	if (m_pAnimationTracks) m_pAnimationTracks[nAnimationTrack].SetSpeed(fSpeed);
@@ -496,6 +504,14 @@ void CGameObject::SetTrackAnimationPosition(int nAnimationTrack, float fPosition
 {
 	if (m_pAnimationController) 
 		m_pAnimationController->SetTrackPosition(nAnimationTrack, fPosition);
+}
+
+float CGameObject::GetTrackAnimationPosition(int nAnimationTrack)
+{
+	if (m_pAnimationController)
+		return m_pAnimationController->GetTrackPosition(nAnimationTrack);
+	else
+		return 0.f;
 }
 
 void CGameObject::Animate(float fTimeElapsed)
