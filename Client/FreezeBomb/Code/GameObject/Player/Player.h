@@ -136,11 +136,3 @@ public:
 	void RotateAxisY(float fTimeElapsed);
 };
 
-class CSoundCallbackHandler : public CAnimationCallbackHandler
-{
-public:
-	CSoundCallbackHandler() { }
-	~CSoundCallbackHandler() { }
-
-	virtual void HandleCallback(void *pCallbackData);
-};

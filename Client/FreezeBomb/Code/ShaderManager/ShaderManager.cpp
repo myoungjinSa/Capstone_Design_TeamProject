@@ -170,6 +170,7 @@ void CShaderManager::ProcessCollision(XMFLOAT3& position)
 
 	if(iter!= m_ShaderMap.end())
 	{
+		
 		dynamic_cast<CCubeIceShader*>((*iter).second)->SetParticleBlowUp(position);
 	}
 }

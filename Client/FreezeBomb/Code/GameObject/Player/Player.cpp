@@ -585,19 +585,3 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 	}
 }
 
-//#define _WITH_DEBUG_CALLBACK_DATA
-#define _WITH_SOUND_RESOURCE
-void CSoundCallbackHandler::HandleCallback(void *pCallbackData)
-{
-	//_TCHAR *pWavName = (_TCHAR *)pCallbackData;
-#ifdef _WITH_DEBUG_CALLBACK_DATA
-	TCHAR pstrDebug[256] = { 0 };
-	_stprintf_s(pstrDebug, 256, _T("%s\n"), pWavName);
-	OutputDebugString(pstrDebug);
-#endif
-#ifdef _WITH_SOUND_RESOURCE
-	PlaySound(MAKEINTRESOURCE(pCallbackData), ::ghAppInstance, SND_RESOURCE | SND_ASYNC);
-#else
-	PlaySound(pWavName, NULL, SND_FILENAME | SND_ASYNC);
-#endif
-}
