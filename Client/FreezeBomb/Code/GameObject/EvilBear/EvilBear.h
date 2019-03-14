@@ -16,7 +16,8 @@ public:
 	void Initialize_Shadow(CLoadedModelInfo* pLoadedModel, CGameObject* pGameObject);	
 private:
 	
-
+	
 	CShadow*	m_pShadow{ nullptr };
 
 };
+

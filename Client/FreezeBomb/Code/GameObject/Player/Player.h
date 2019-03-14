@@ -85,6 +85,7 @@ public:
 	CShadow*	getShadow()		const { return m_pShadow; }
 
 	void setShaderManager(CShaderManager* pShaderManager) { m_pShaderManager = pShaderManager; }
+
 protected:
 
 	_TCHAR				m_playerName[256];
@@ -135,11 +136,3 @@ public:
 	void RotateAxisY(float fTimeElapsed);
 };
 
-class CSoundCallbackHandler : public CAnimationCallbackHandler
-{
-public:
-	CSoundCallbackHandler() { }
-	~CSoundCallbackHandler() { }
-
-	virtual void HandleCallback(void *pCallbackData);
-};

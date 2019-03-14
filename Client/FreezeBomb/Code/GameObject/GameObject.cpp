@@ -228,6 +228,14 @@ void CAnimationController::SetTrackPosition(int nAnimationTrack, float fPosition
 	if (m_pAnimationTracks) m_pAnimationTracks[nAnimationTrack].SetPosition(fPosition);
 }
 
+float CAnimationController::GetTrackPosition(int nAnimationTrack)
+{
+	if (m_pAnimationTracks)
+		return m_pAnimationTracks[nAnimationTrack].GetPosition();
+	else
+		return 0.f;
+}
+
 void CAnimationController::SetTrackSpeed(int nAnimationTrack, float fSpeed)
 {
 	if (m_pAnimationTracks) m_pAnimationTracks[nAnimationTrack].SetSpeed(fSpeed);
@@ -274,6 +282,24 @@ void CAnimationController::AdvanceTime(float fTimeElapsed)
 		}
 	}
 } 
+
+//#define _WITH_DEBUG_CALLBACK_DATA
+#define _WITH_SOUND_RESOURCE
+void CSoundCallbackHandler::HandleCallback(void *pCallbackData)
+{
+	//_TCHAR *pWavName = (_TCHAR *)pCallbackData;
+#ifdef _WITH_DEBUG_CALLBACK_DATA
+	TCHAR pstrDebug[256] = { 0 };
+	_stprintf_s(pstrDebug, 256, _T("%s\n"), pWavName);
+	OutputDebugString(pstrDebug);
+#endif
+#ifdef _WITH_SOUND_RESOURCE
+	PlaySound(MAKEINTRESOURCE(pCallbackData), ::ghAppInstance, SND_RESOURCE | SND_ASYNC);
+#else
+	PlaySound(pWavName, NULL, SND_FILENAME | SND_ASYNC);
+#endif
+}
+
 
 CSkinningBoneTransforms::CSkinningBoneTransforms(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CLoadedModelInfo *pModel)
 {
@@ -496,6 +522,14 @@ void CGameObject::SetTrackAnimationPosition(int nAnimationTrack, float fPosition
 {
 	if (m_pAnimationController) 
 		m_pAnimationController->SetTrackPosition(nAnimationTrack, fPosition);
+}
+
+float CGameObject::GetTrackAnimationPosition(int nAnimationTrack)
+{
+	if (m_pAnimationController)
+		return m_pAnimationController->GetTrackPosition(nAnimationTrack);
+	else
+		return 0.f;
 }
 
 void CGameObject::Animate(float fTimeElapsed)
@@ -1311,3 +1345,5 @@ void CCubeObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 		}
 	}
 }
+
+
