@@ -26,46 +26,16 @@ struct POSITION
 	int x, y, z;
 };
 
-class ClientInfo
+struct CS_SOCK
 {
-private:
 	u_short clientID;
-	POSITION pos;
-
-public:
-	ClientInfo() :clientID(0), pos(0, 0, 0) {};
-	ClientInfo(u_short cid, POSITION p) :clientID(cid), pos(p) {};
-
-	u_short getClientID() { return clientID; }
-	void getPos(int& x, int& y, int& z) { x = pos.x; y = pos.y; z = pos.z; }
-
-	void setClientID(u_short cid) { clientID = cid; }
-	void setPos(int x, int y, int z) { pos.x = x; pos.y = y; pos.z = z; }
-	void setPos(POSITION* p) { pos = *p; }
-
-public:
-	// 복사대입과 복사생성 방지
-	ClientInfo(const ClientInfo&) = delete;
-	ClientInfo& operator=(const ClientInfo&) = delete;
-};
-
-struct SOCKETINFO
-{
-	SOCKETINFO() { cInfo = new ClientInfo; }
-	~SOCKETINFO() { delete cInfo; }
-
-	WSAOVERLAPPED overlapped;
-	SOCKET sock;
-	ClientInfo* cInfo;
-	int recvbytes;
-	int sendbytes;
-	WSABUF wsabuf;
 	int key;
 };
 
-struct CS_SOCK
+struct SC_SOCK
 {
-
+	// 벡터를 통째로 주고 받아야 하나?
+	POSITION pos;
 };
 
 // 소켓 함수 오류 출력 후 종료
@@ -143,11 +113,19 @@ int main(int argc, char *argv[])
 	// 데이터 통신에 사용할 변수
 	//char buf[BUFSIZE + 1];
 	int len;
-	ClientInfo* myInfo = new ClientInfo(0,POSITION(0,0,0));
+	POSITION myPos(0, 0, 0);
+	CS_SOCK csSock;
 
 	// 서버와 데이터 통신
 	while (1)
 	{
+		// 서버에서 send해주는 코드 작성 필요
+		retval = recv(sock, (char *)&csSock.clientID, sizeof(csSock.clientID), 0);
+		if (retval == SOCKET_ERROR)
+		{
+			err_display("recv()");
+			break;
+		}
 		// getch()는 키입력 없으면 무한대기 상태. but kbhit()는 없으면 지나침 -> kbhit로 감싸주기
 		if (_kbhit())
 		{
@@ -171,15 +149,17 @@ int main(int argc, char *argv[])
 					printf("LEFT_KEY 눌림\n");
 					break;
 				}
-				myInfo->setKey(key);
+				csSock.key = key;
 
-				printf("ClientID : %d\nkey : %d\n", myInfo->getClientID(), myInfo->getKey());
-				retval = send(sock, (char *)myInfo, sizeof(ClientInfo), 0);
+				printf("ClientID : %d\nkey : %d\n", csSock.clientID, csSock.key);
+				retval = send(sock, (char *)&csSock.key, sizeof(csSock.key), 0);
 				if (retval == SOCKET_ERROR)
 				{
 					err_display("send()");
 					break;
 				}
+
+				// 서버에서 send해주는 연산 결과 recv해서 적용하는 코드 필요
 			}
 
 		}

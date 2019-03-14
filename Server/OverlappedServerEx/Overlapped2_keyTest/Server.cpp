@@ -55,29 +55,26 @@ public:
 
 // 소켓 정보 저장을 위한 구조체와 변수
 // recv또는 send할 때 통신을 위한 임시객체
-struct SockInfo
-{
-	WSAOVERLAPPED overlapped;
-	WSABUF wsabuf;
-};
+
 struct CS_SOCK
 {
-	CS_SOCK() { cInfo = new ClientInfo; }
-	~CS_SOCK() { delete cInfo; }
-	
 	u_short clientID;
-	// 얘를 꼭 이렇게 써야하나?
-	ClientInfo* cInfo;
 	int key;
 };
 
 struct SC_SOCK
 {
 	// 벡터를 통째로 주고 받아야 하나?
-	ClientInfo* cInfo;
+	POSITION pos;
 };
-
-SockInfo sInfo;
+struct SockInfo
+{
+	WSAOVERLAPPED overlapped;
+	ClientInfo* cInfo;
+	WSABUF wsabuf;
+	CS_SOCK csSock;
+	SC_SOCK scSock;
+};
 // accept()의 리턴값을 저장할 변수. 두 스레드에서 접근하므로 전역 변수로 선언.
 SOCKET client_sock;
 // client_sock 변수를 보호하기 위한 이벤트 객체 핸들.
@@ -189,7 +186,7 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 			inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
 
 		// 소켓 정보 구조체 할당과 초기화
-		CS_SOCK *ptr = new CS_SOCK;
+		SockInfo *ptr = new SockInfo;
 		ptr->cInfo = new ClientInfo(POSITION(0, 0, 0));
 		clientCount++;
 
@@ -198,21 +195,21 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 			printf("[오류] 메모리가 부족합니다!\n");
 			return 1;
 		}
-		ZeroMemory(&sInfo.overlapped, sizeof(sInfo.overlapped));
+		ZeroMemory(&ptr->overlapped, sizeof(ptr->overlapped));
 		ptr->cInfo->setSocket(&client_sock);
 		// client_sock 변수 값을 읽어가는 즉시 hReadEent 신호 상태로 전환
 		SetEvent(hReadEvent);
 		// 괜찮나???? cInfo의 동적할당은 어디서해주지?
 		// 프로세스에서 데이터 관리하고 해당 객체 포인터만 넘겨줄까?? 
-		sInfo.wsabuf.buf = (char *)ptr->cInfo;
-		sInfo.wsabuf.len = sizeof(ClientInfo);
+		ptr->wsabuf.buf = (char *)&ptr->csSock;
+		ptr->wsabuf.len = sizeof(ClientInfo);
 		// 정보 받아왔으니 client들의 정보를 담는 벡터에 저장
 		vClient.emplace_back(*ptr);
 
 		// 비동기 입출력 시작
 		DWORD recvbytes;
 		DWORD flags = 0;
-		retval = WSARecv(ptr->cInfo->getSocket(), &sInfo.wsabuf, 1, &recvbytes, &flags, &sInfo.overlapped, RecvCompletionRoutine);
+		retval = WSARecv(ptr->cInfo->getSocket() , &ptr->wsabuf, 1, &recvbytes, &flags, &ptr->overlapped, RecvCompletionRoutine);
 		if (retval == SOCKET_ERROR)
 		{
 			if (WSAGetLastError() != WSA_IO_PENDING)
@@ -243,10 +240,9 @@ void CALLBACK RecvCompletionRoutine(DWORD dwError, DWORD cbTransferred, LPWSAOVE
 	int retval;
 
 	// 클라이언트 정보 얻기
-	CS_SOCK *ptr = (CS_SOCK *)lpOverlapped;
+	SockInfo *ptr = (SockInfo *)lpOverlapped;
 	SOCKADDR_IN clientaddr;
 	int addrlen = sizeof(clientaddr);
-
 	{
 		SOCKET tmpSock;
 		getpeername(tmpSock, (SOCKADDR *)&clientaddr, &addrlen);
@@ -271,8 +267,8 @@ void CALLBACK RecvCompletionRoutine(DWORD dwError, DWORD cbTransferred, LPWSAOVE
 	POSITION tmpPos;
 	u_short cID;
 
-	cID = ptr->clientID;
-	key = ptr->key;
+	cID = ptr->csSock.clientID;
+	key = ptr->csSock.key;
 	ptr->cInfo->getPos(tmpPos.x, tmpPos.y, tmpPos.z);
 
 	printf("ClientID : %d\nKey : %d\n", cID, key);
@@ -301,17 +297,18 @@ void CALLBACK RecvCompletionRoutine(DWORD dwError, DWORD cbTransferred, LPWSAOVE
 	printf("ClientID : %d\nkey : %d\nx : %d, y : %d\n", cID, key, vClient[cID].getPosX(), vClient[cID].getPosY());
 	LeaveCriticalSection(&cs);
 
-	SC_SOCK *scSock = new SC_SOCK;
-	ZeroMemory(&sInfo.overlapped, sizeof(sInfo.overlapped));
+	ptr->scSock.pos = tmpPos;
+	
+	ZeroMemory(&ptr->overlapped, sizeof(ptr->overlapped));
 	// 이렇게 연결해야하나 scSock에 연결할 수 있나
-	sInfo.wsabuf.buf = (char *)scSock;
-	sInfo.wsabuf.len = sizeof(SC_SOCK);
+	ptr->wsabuf.buf = (char *)&ptr->scSock;
+	ptr->wsabuf.len = sizeof(SC_SOCK);
 	
 	// 연산된 내용을 send
 	DWORD sendbytes;
 	for (int i = 0; i < vClient.size(); ++i)
 	{
-		retval = WSASend(vClient[i].getSocket(), &sInfo.wsabuf, 1, &sendbytes, 0, &sInfo.overlapped, SendCompletionRoutine);
+		retval = WSASend(vClient[i].getSocket(), &ptr->wsabuf, 1, &sendbytes, 0, &ptr->overlapped, SendCompletionRoutine);
 		if (retval == SOCKET_ERROR)
 		{
 			if (WSAGetLastError() != WSA_IO_PENDING)
@@ -323,14 +320,14 @@ void CALLBACK RecvCompletionRoutine(DWORD dwError, DWORD cbTransferred, LPWSAOVE
 	}
 	// 데이터 받기
 	// 이거 안 써주면 이어서 안되는듯. 계속해서 recv받기 위해서는 완료루틴을 계속 호출해야 하는 것 같다.
-	ZeroMemory(&sInfo.overlapped, sizeof(sInfo.overlapped));
+	ZeroMemory(&ptr->overlapped, sizeof(ptr->overlapped));
 	// 이렇게 연결해야하나 ptr 자체에 연결할 수 있나
-	sInfo.wsabuf.buf = (char *)ptr;
-	sInfo.wsabuf.len = sizeof(CS_SOCK);
+	ptr->wsabuf.buf = (char *)&ptr->csSock;
+	ptr->wsabuf.len = sizeof(CS_SOCK);
 
 	DWORD recvbytes;
 	DWORD flags = 0;
-	retval = WSARecv(ptr->cInfo->getSocket(), &sInfo.wsabuf, 1, &recvbytes, &flags, &sInfo.overlapped, RecvCompletionRoutine);
+	retval = WSARecv(ptr->cInfo->getSocket(), &ptr->wsabuf, 1, &recvbytes, &flags, &ptr->overlapped, RecvCompletionRoutine);
 	if (retval == SOCKET_ERROR)
 	{
 		if (WSAGetLastError() != WSA_IO_PENDING)
@@ -347,10 +344,16 @@ void CALLBACK SendCompletionRoutine(DWORD dwError, DWORD cbTransferred, LPWSAOVE
 	int retval;
 
 	// 클라이언트 정보 얻기
-	CS_SOCK *ptr = (CS_SOCK *)lpOverlapped;
+	SockInfo *ptr = (SockInfo *)lpOverlapped;
 	SOCKADDR_IN clientaddr;
 	int addrlen = sizeof(clientaddr);
-	getpeername(ptr->cInfo->getSocket(), (SOCKADDR *)&clientaddr, &addrlen);
+
+	{
+		SOCKET tmpSock;
+		getpeername(tmpSock, (SOCKADDR *)&clientaddr, &addrlen);
+
+		ptr->cInfo->setSocket(&tmpSock);
+	}
 
 	// 비동기 입출력 결과 확인
 	if (dwError != 0 || cbTransferred == 0)
