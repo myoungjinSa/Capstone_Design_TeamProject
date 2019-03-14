@@ -27,15 +27,15 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 
 	m_ppObjects[0] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::PINK);
 	m_ppObjects[0]->SetChild(pEvilBearModel->m_pModelRootObject, true);
-	m_ppObjects[0]->m_pAnimationController = new CAnimationController(2, pEvilBearModel->m_pAnimationSets);
+	m_ppObjects[0]->m_pAnimationController = new CAnimationController(1, pEvilBearModel->m_pAnimationSets);
 	// 0번 트랙에 0번 애니메이션을 Set
-	m_ppObjects[0]->m_pAnimationController->SetTrackAnimationSet(0, 0);
+	m_ppObjects[0]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[0]->m_pAnimationController->ATTACK);
 	// 1번 트랙에 1번 애니메이션을 Set
-	m_ppObjects[0]->m_pAnimationController->SetTrackAnimationSet(1, 1);
+	//m_ppObjects[0]->m_pAnimationController->SetTrackAnimationSet(1, 1);
 	// 0번 트랙에 가중치를 80%
-	m_ppObjects[0]->m_pAnimationController->SetTrackWeight(0, 0.8f);
+//	m_ppObjects[0]->m_pAnimationController->SetTrackWeight(0, 0.8f);
 	// 1번 트랙에 가중치를 20% 
-	m_ppObjects[0]->m_pAnimationController->SetTrackWeight(1, 0.2f);
+	//m_ppObjects[0]->m_pAnimationController->SetTrackWeight(1, 0.2f);
 	m_ppObjects[0]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);
 
 
@@ -43,7 +43,7 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 	m_ppObjects[1]->SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_ppObjects[1]->m_pAnimationController = new CAnimationController(1, pEvilBearModel->m_pAnimationSets);
 	//m_ppObjects[1]->m_pAnimationController->SetTrackAnimationSet(1, 2);
-	m_ppObjects[1]->m_pAnimationController->SetTrackAnimationSet(0, 3);
+	m_ppObjects[1]->m_pAnimationController->SetTrackAnimationSet(0, 4);
 	m_ppObjects[1]->m_pAnimationController->SetTrackSpeed(0, 0.8f);
 	m_ppObjects[1]->m_pAnimationController->SetTrackWeight(0, 0.9);
 	//m_ppObjects[1]->m_pAnimationController->SetTrackWeight(1, 0.1);
@@ -75,15 +75,15 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 
 
 
-	CAnimationCallbackHandler* pAnimationCallback = new CSoundCallbackHandler();
-	for(UINT i=0;i</*m_nObjects*/ 5;i++)		//플레이어 수만큼 사운드 효과 설정해준다
-	{
-		m_ppObjects[i]->m_pAnimationController->SetCallbackKeys(m_ppObjects[i]->m_pAnimationController->RUNFAST, 2);
-		m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNFAST, 0, 0.3f,MAKEINTRESOURCE(IDR_WAVE2));
-		m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNFAST, 1, 0.6f, MAKEINTRESOURCE(IDR_WAVE2));
-		m_ppObjects[i]->m_pAnimationController->SetAnimationCallbackHandler(m_ppObjects[i]->m_pAnimationController->RUNFAST, pAnimationCallback);
+	//CAnimationCallbackHandler* pAnimationCallback = new CSoundCallbackHandler();
+	//for(UINT i=0;i<m_nObjects ;i++)		//플레이어 수만큼 사운드 효과 설정해준다
+	//{
+	//	m_ppObjects[i]->m_pAnimationController->SetCallbackKeys(m_ppObjects[i]->m_pAnimationController->RUNFAST, 2);
+	//	m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNFAST, 0, 0.3f,MAKEINTRESOURCE(IDR_WAVE2));
+	//	m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNFAST, 1, 0.6f, MAKEINTRESOURCE(IDR_WAVE2));
+	//	m_ppObjects[i]->m_pAnimationController->SetAnimationCallbackHandler(m_ppObjects[i]->m_pAnimationController->RUNFAST, pAnimationCallback);
 
-	}
+	//}
 
 	XMFLOAT3 Position;
 	for (int i = 0; i < m_nObjects; ++i)

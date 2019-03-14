@@ -25,6 +25,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvGPUDescriptorNextHandle;
 CScene::CScene()
 	:m_musicCount(0),
 	m_playerCount(0)
+
 {
 
 }
@@ -121,9 +122,11 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	//m_musicList[1] = "../Resource/Sound/town.wav";
 
 	//2개 동시에 재생도 가능하다
-	m_pSound->Initialize(m_musicCount, m_musicList);
-	m_pSound->Play(m_musicCount);
-
+	if (m_pSound)
+	{
+		m_pSound->Initialize(m_musicCount, m_musicList);
+		m_pSound->Play(m_musicCount);
+	}
 	//PlaySound(_T("../Resource/Sound/town.wav"), GetModuleHandle(NULL), SND_MEMORY | SND_ASYNC | SND_LOOP);
 	//PlaySound(MAKEINTRESOURCE(IDR_WAVE3), ::ghAppInstance, SND_RESOURCE | SND_ASYNC | SND_LOOP);
 
@@ -143,8 +146,7 @@ void CScene::ReleaseObjects()
 
 	ReleaseShaderVariables();
 
-	if (m_pSound)
-	{
+	if (m_pSound) {
 		m_pSound->Release();
 	}
 
