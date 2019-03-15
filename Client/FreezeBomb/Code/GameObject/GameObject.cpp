@@ -36,8 +36,8 @@ void *CAnimationSet::GetCallbackData()
 
 void CAnimationSet::SetPosition(CAnimationController& AnimationController,float& fTrackPosition)
 {
-
 	m_fPosition = fTrackPosition;
+
 	switch (m_nType)
 	{
 	case ANIMATION_TYPE_LOOP:
@@ -46,9 +46,8 @@ void CAnimationSet::SetPosition(CAnimationController& AnimationController,float&
 		//fmod 
 		//0~1사이의 값이 됨
 		m_fPosition = fmod(fTrackPosition, m_pfKeyFrameTransformTimes[m_nKeyFrameTransforms - 1]); // m_fPosition = fTrackPosition - int(fTrackPosition / m_pfKeyFrameTransformTimes[m_nKeyFrameTransforms-1]) * m_pfKeyFrameTransformTimes[m_nKeyFrameTransforms-1];
-//			m_fPosition = fmod(fTrackPosition, m_fLength); //if (m_fPosition < 0) m_fPosition += m_fLength;
-//			m_fPosition = fTrackPosition - int(fTrackPosition / m_fLength) * m_fLength;
-
+		//m_fPosition = fmod(fTrackPosition, m_fLength); //if (m_fPosition < 0) m_fPosition += m_fLength;
+		//m_fPosition = fTrackPosition - int(fTrackPosition / m_fLength) * m_fLength;
 #else
 		m_nCurrentKey++;
 		if (m_nCurrentKey >= m_nKeyFrameTransforms) m_nCurrentKey = 0;
@@ -56,17 +55,13 @@ void CAnimationSet::SetPosition(CAnimationController& AnimationController,float&
 		break;
 	}
 	case ANIMATION_TYPE_ONCE:
-
-
 		if (fTrackPosition >= m_fLength - 0.1f)
 		{
-			
 			AnimationController.m_state = CAnimationController::IDLE;
 			fTrackPosition = 0.0f;
-		
 		}
-
 		break;
+
 	case ANIMATION_TYPE_PINGPONG:
 		break;
 }
@@ -1202,6 +1197,7 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 			if (!strcmp(pAnimationSet->m_pstrName, "ATK3") || !strcmp(pAnimationSet->m_pstrName, "Digging") 
 				|| !strcmp(pAnimationSet->m_pstrName,"Jump") ||!strcmp(pAnimationSet->m_pstrName, "RaiseHand")
 				) 
+
 			{
 				pAnimationSet->m_nType = ANIMATION_TYPE_ONCE;
 			}
