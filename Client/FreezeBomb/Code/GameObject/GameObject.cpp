@@ -34,10 +34,10 @@ void *CAnimationSet::GetCallbackData()
 }
 
 
-void CAnimationSet::SetPosition(float fTrackPosition)
+void CAnimationSet::SetPosition(CAnimationController& AnimationController,float& fTrackPosition)
 {
-	float maxLength = m_fLength - 0.15;
 	m_fPosition = fTrackPosition;
+
 	switch (m_nType)
 	{
 	case ANIMATION_TYPE_LOOP:
@@ -55,16 +55,13 @@ void CAnimationSet::SetPosition(float fTrackPosition)
 		break;
 	}
 	case ANIMATION_TYPE_ONCE:
-
-		// fminf( x, y ) : x와 y중 최소값을 리턴
-		m_fPosition = fminf(fTrackPosition, maxLength);
-		if (m_fPosition >= maxLength)
+		if (fTrackPosition >= m_fLength - 0.1f)
 		{
-			CAnimationController::m_state = CAnimationController::IDLE;
-			//m_fPosition = 0.0f;
+			AnimationController.m_state = CAnimationController::IDLE;
+			fTrackPosition = 0.0f;
 		}
-
 		break;
+
 	case ANIMATION_TYPE_PINGPONG:
 		break;
 }
@@ -176,7 +173,7 @@ void CAnimationSets::SetAnimationCallbackHandler(int nAnimationSet, CAnimationCa
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-UINT CAnimationController::m_state = CAnimationController::IDLE;
+
 CAnimationController::CAnimationController(int nAnimationTracks, CAnimationSets *pAnimationSets)
 {
 	m_nAnimationTracks = nAnimationTracks;
@@ -265,7 +262,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed)
 
 			CAnimationSet *pAnimationSet = m_pAnimationTracks[j].m_pAnimationSet;
 			pAnimationSet->m_fPosition += (fTimeElapsed * m_pAnimationTracks[j].m_fSpeed);
-			m_pAnimationTracks[j].m_pAnimationSet->SetPosition(m_pAnimationTracks[j].m_fPosition);
+			m_pAnimationTracks[j].m_pAnimationSet->SetPosition(*this,m_pAnimationTracks[j].m_fPosition);
 			//m_pAnimationTracks[j].m_pAnimationSet->m_fLength;
 			if (m_pAnimationTracks[j].m_bEnable)
 			{
@@ -273,7 +270,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed)
 				{
 					//m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent = Matrix4x4::Add(m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent, Matrix4x4::Scale(m_pAnimationTracks[j].m_pAnimationSet->GetSRT(i), m_pAnimationTracks[j].m_fWeight));
 					//프레임 마다 그 시간대의 변환행렬이 있는지 확인후 있다면 변환
-					m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent = m_pAnimationTracks[j].m_pAnimationSet->GetSRT(i);
+					m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent = Matrix4x4::Scale(m_pAnimationTracks[j].m_pAnimationSet->GetSRT(i), m_pAnimationTracks[j].m_fWeight);
 
 				}
 			}
@@ -618,7 +615,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bHammer
 		{
 			if (bIce)							//얼음 상태일때
 			{
-				if (m_ppMaterials[CAnimationController::ICE])
+				if (m_ppMaterials[MATERIALTYPE::ICEMAT])
 				{
 					if (m_ppMaterials[MATERIALTYPE::ICEMAT]->m_pShader)
 					{
@@ -1196,11 +1193,9 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 			nReads = (UINT)::fread(pAnimationSet->m_pstrName, sizeof(char), nStrLength, pInFile);
 			pAnimationSet->m_pstrName[nStrLength] = '\0';
 
-			// 애니메이션이 안되는 문제해결해야댐
-			//if (!strcmp(pAnimationSet->m_pstrName, "ATK3") 
-			//	|| !strcmp(pAnimationSet->m_pstrName, "Digging")
-			//	|| !strcmp(pAnimationSet->m_pstrName,"Jump"))
-			if (!strcmp(pAnimationSet->m_pstrName, "ATK3") || !strcmp(pAnimationSet->m_pstrName, "Digging")) 
+			if (!strcmp(pAnimationSet->m_pstrName, "ATK3") 
+				|| !strcmp(pAnimationSet->m_pstrName, "Digging") 
+				|| !strcmp(pAnimationSet->m_pstrName,"Jump")) 
 			{
 				pAnimationSet->m_nType = ANIMATION_TYPE_ONCE;
 			}

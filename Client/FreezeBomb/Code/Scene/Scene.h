@@ -2,6 +2,7 @@
 
 #include "../GameObject/GameObject.h"
 
+
 #define MAX_LIGHTS						16 
 
 #define POINT_LIGHT						1
@@ -58,8 +59,8 @@ public:
 	ID3D12RootSignature *GetGraphicsRootSignature() { return(m_pd3dGraphicsRootSignature); }
 
 	bool ProcessInput(UCHAR *pKeysBuffer);
-    void AnimateObjects(float fTimeElapsed);
-    void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
+    void AnimateObjects(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed);
+    void Render(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed, CCamera *pCamera=NULL);
 
 	void ReleaseUploadBuffers();
 
@@ -105,20 +106,20 @@ public:
 	LIGHT*						m_pLights = NULL;
 	int								m_nLights = 0;
 
-	XMFLOAT4				m_xmf4GlobalAmbient;
+	XMFLOAT4					m_xmf4GlobalAmbient;
 
-	ID3D12Resource*		m_pd3dcbLights = NULL;
-	LIGHTS*					m_pcbMappedLights = NULL;
-
+	ID3D12Resource*				m_pd3dcbLights = NULL;
+	LIGHTS*						m_pcbMappedLights = NULL;
+	
 private:
 	CPlayer*					m_pPlayer = NULL;
 
 	//void*						m_SoundBuffer1 = NULL;
 	//HANDLE						m_SoundBuffer2 = NULL;
-
+	CSoundSystem*				m_pSound=NULL;
 	//FMOD 사운드 시스템
 	//씬마다 음악이 달라져야 할수 있기 때문에 씬이 사운드를 관리함.
-	CSoundSystem*				m_pSound = NULL;
+	
 	const char**				m_musicList = NULL;
 	int							m_musicCount;
 

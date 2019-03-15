@@ -25,6 +25,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvGPUDescriptorNextHandle;
 CScene::CScene()
 	:m_musicCount(0),
 	m_playerCount(0)
+
 {
 
 }
@@ -92,7 +93,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	nObjects = 67;		//DeadTrees(15),PineTrees(34),Rocks(14),Deer(2),Pond(2)
 #endif
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 
-		SkyBox + Terrain + MapObjects + Item + EvilBear + Particle + TimerUI + ItemUI + Player);
+		SkyBox + Terrain + MapObjects + Item + EvilBear  + Particle + TimerUI + ItemUI + Player);
 	// Model을 로드할 때, 셰이더 없이 로드할 경우 이것을 사용함!
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
@@ -111,9 +112,11 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	//m_musicList[1] = "../Resource/Sound/town.wav";
 
 	//2개 동시에 재생도 가능하다
-	m_pSound->Initialize(m_musicCount, m_musicList);
-	m_pSound->Play(m_musicCount);
-
+	if (m_pSound)
+	{
+		m_pSound->Initialize(m_musicCount, m_musicList);
+		m_pSound->Play(m_musicCount);
+	}
 	//PlaySound(_T("../Resource/Sound/town.wav"), GetModuleHandle(NULL), SND_MEMORY | SND_ASYNC | SND_LOOP);
 	//PlaySound(MAKEINTRESOURCE(IDR_WAVE3), ::ghAppInstance, SND_RESOURCE | SND_ASYNC | SND_LOOP);
 
@@ -133,8 +136,7 @@ void CScene::ReleaseObjects()
 
 	ReleaseShaderVariables();
 
-	if (m_pSound)
-	{
+	if (m_pSound) {
 		m_pSound->Release();
 	}
 
@@ -532,7 +534,7 @@ bool CScene::ProcessInput(UCHAR *pKeysBuffer)
 	return false;
 }
 
-void CScene::AnimateObjects(float fTimeElapsed)
+void CScene::AnimateObjects(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed)
 {
 	if (m_pShaderManager)
 		m_pShaderManager->AnimateObjects(fTimeElapsed, m_pPlayer->GetCamera(), m_pPlayer);
@@ -546,7 +548,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	}
 }
 
-void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed, CCamera *pCamera)
 {
 	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 	if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
@@ -561,7 +563,7 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 
 	if (m_pShaderManager)
 	{
-		m_pShaderManager->Render(pd3dCommandList, pCamera);
+		m_pShaderManager->Render(pd3dCommandList,fTimeElapsed, pCamera);
 	}
 
 }

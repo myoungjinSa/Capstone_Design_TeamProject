@@ -25,47 +25,23 @@ struct POSITION
 	POSITION(int x1, int y1, int z1) :x(x1), y(y1), z(z1) {};
 	int x, y, z;
 };
-
-class ClientInfo
+// 소켓 정보 저장을 위한 구조체와 변수
+// recv또는 send할 때 통신을 위한 임시객체
+struct SC_INIT_SOCK
 {
-private:
-	u_short clientID;
+	int clientID;
 	POSITION pos;
-
-public:
-	ClientInfo() :clientID(0), pos(0, 0, 0) {};
-	ClientInfo(u_short cid, POSITION p) :clientID(cid), pos(p) {};
-
-	u_short getClientID() { return clientID; }
-	void getPos(int& x, int& y, int& z) { x = pos.x; y = pos.y; z = pos.z; }
-
-	void setClientID(u_short cid) { clientID = cid; }
-	void setPos(int x, int y, int z) { pos.x = x; pos.y = y; pos.z = z; }
-	void setPos(POSITION* p) { pos = *p; }
-
-public:
-	// 복사대입과 복사생성 방지
-	ClientInfo(const ClientInfo&) = delete;
-	ClientInfo& operator=(const ClientInfo&) = delete;
 };
-
-struct SOCKETINFO
+struct CS_SOCK
 {
-	SOCKETINFO() { cInfo = new ClientInfo; }
-	~SOCKETINFO() { delete cInfo; }
-
-	WSAOVERLAPPED overlapped;
-	SOCKET sock;
-	ClientInfo* cInfo;
-	int recvbytes;
-	int sendbytes;
-	WSABUF wsabuf;
+	int clientID;
 	int key;
 };
 
-struct CS_SOCK
+struct SC_SOCK
 {
-
+	// 벡터를 통째로 주고 받아야 하나?
+	POSITION pos;
 };
 
 // 소켓 함수 오류 출력 후 종료
@@ -142,12 +118,29 @@ int main(int argc, char *argv[])
 
 	// 데이터 통신에 사용할 변수
 	//char buf[BUFSIZE + 1];
-	int len;
-	ClientInfo* myInfo = new ClientInfo(0,POSITION(0,0,0));
+	int len = 0;;
+	int myId = 0;
+	POSITION myPos(0, 0, 0);
+	CS_SOCK csSock;
+	SC_SOCK scSock;
+	SC_INIT_SOCK scInitSock;
 
 	// 서버와 데이터 통신
 	while (1)
 	{
+		// 서버에서 send해주는 코드 작성 필요
+		retval = recv(sock, (char *)&scInitSock, sizeof(scInitSock), 0);
+		if (retval == SOCKET_ERROR)
+		{
+			err_display("recv()");
+			break;
+		}
+		// 잘 받아짐
+		myId = scInitSock.clientID;
+		myPos = scInitSock.pos;
+		printf("ClientID : %d, X : %d, Y : %d, Z : %d\n", myId, myPos.x, myPos.y, myPos.z);
+		csSock.clientID = myId;
+
 		// getch()는 키입력 없으면 무한대기 상태. but kbhit()는 없으면 지나침 -> kbhit로 감싸주기
 		if (_kbhit())
 		{
@@ -171,15 +164,24 @@ int main(int argc, char *argv[])
 					printf("LEFT_KEY 눌림\n");
 					break;
 				}
-				myInfo->setKey(key);
+				csSock.key = key;
 
-				printf("ClientID : %d\nkey : %d\n", myInfo->getClientID(), myInfo->getKey());
-				retval = send(sock, (char *)myInfo, sizeof(ClientInfo), 0);
+				retval = send(sock, (char *)&csSock, sizeof(csSock), 0);
 				if (retval == SOCKET_ERROR)
 				{
 					err_display("send()");
 					break;
 				}
+				
+				// 서버에서 send해주는 연산 결과 recv해서 적용하는 코드 필요
+				retval = recvn(sock, (char *)&scSock, sizeof(scSock), 0);
+				if (retval == SOCKET_ERROR)
+				{
+					err_display("recvn()");
+					break;
+				}
+				printf("X : %3d, Y : %3d, Z : %3d\n", scSock.pos.x, scSock.pos.y, scSock.pos.z);
+				myPos = scSock.pos;
 			}
 
 		}

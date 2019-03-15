@@ -148,16 +148,24 @@ void CShaderManager::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer
 {
 	m_pPlayer = pPlayer;
 
-	for (int i = 0; i < m_nShaders; i++)
+	for (int i = 0; i < m_nShaders; i++) {
 		m_ppShaders[i]->AnimateObjects(elapsedTime, pCamera, pPlayer);
+	}
 }
 
-void CShaderManager::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+void CShaderManager::Render(ID3D12GraphicsCommandList* pd3dCommandList,float fTimeElapsed, CCamera* pCamera)
 {
 	for (int i = 0; i < m_nShaders; i++)
 	{
-		if (m_ppShaders[i])
-			m_ppShaders[i]->Render(pd3dCommandList, pCamera, GameObject);
+		if (m_ppShaders[i]) {
+			if (i == 4) 
+			{
+				dynamic_cast<CSkinnedAnimationObjectShader*>(m_ppShaders[i])->Render(pd3dCommandList, pCamera, GameObject, fTimeElapsed);
+			}
+			else {
+				m_ppShaders[i]->Render(pd3dCommandList, pCamera, GameObject);
+			}
+		}
 	}
 
 	if (m_pPlayer)
