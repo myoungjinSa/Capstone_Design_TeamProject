@@ -334,8 +334,10 @@ void CPlayer::DecideAnimationState(float fLength)
 	}
 	else 
 	{
-		if (GetAsyncKeyState(VK_UP) & 0x8000 && pController->GetAnimationState() != CAnimationController::ATTACK 
-			&& pController->GetAnimationState() != CAnimationController::JUMP)
+		if (GetAsyncKeyState(VK_UP) & 0x8000 
+			&& pController->GetAnimationState() != CAnimationController::ATTACK 
+			&& pController->GetAnimationState() != CAnimationController::JUMP
+			)
 		{
 			SetTrackAnimationSet(0, CAnimationController::RUNFAST);
 			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
@@ -370,6 +372,13 @@ void CPlayer::DecideAnimationState(float fLength)
 	{
 		m_bBomb = !m_bBomb;
 		m_bHammer = !m_bHammer;
+	}
+
+	////얼음으로 변신
+	if(GetAsyncKeyState(VK_LSHIFT) & 0x0001)
+	{
+		m_bIce = !m_bIce;
+		//pController->SetAnimationState(CAnimationController::ICE);
 	}
 
 	// 망치로 때리기 애니메이션

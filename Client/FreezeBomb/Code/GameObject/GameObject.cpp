@@ -58,7 +58,7 @@ void CAnimationSet::SetPosition(CAnimationController& AnimationController,float&
 	case ANIMATION_TYPE_ONCE:
 
 
-		if (fTrackPosition >= m_fLength - 0.05f)
+		if (fTrackPosition >= m_fLength - 0.1f)
 		{
 			
 			AnimationController.m_state = CAnimationController::IDLE;
@@ -620,7 +620,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bHammer
 		{
 			if (bIce)							//얼음 상태일때
 			{
-				if (m_ppMaterials[CAnimationController::ICE])
+				if (m_ppMaterials[MATERIALTYPE::ICEMAT])
 				{
 					if (m_ppMaterials[MATERIALTYPE::ICEMAT]->m_pShader)
 					{
