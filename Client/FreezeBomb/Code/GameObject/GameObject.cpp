@@ -34,10 +34,9 @@ void *CAnimationSet::GetCallbackData()
 }
 
 
-void CAnimationSet::SetPosition(float fTrackPosition)
+void CAnimationSet::SetPosition(float& fTrackPosition)
 {
-	float maxLength = m_fLength - 0.18f;
-	float fPosition = 0.0f;
+
 	m_fPosition = fTrackPosition;
 	switch (m_nType)
 	{
@@ -58,10 +57,10 @@ void CAnimationSet::SetPosition(float fTrackPosition)
 	}
 	case ANIMATION_TYPE_ONCE:
 
-		m_fPosition = fminf(fTrackPosition, maxLength);
-		if (m_fPosition >= maxLength)
+		if (fTrackPosition >= m_fLength-0.1f)
 		{
 			CAnimationController::m_state = CAnimationController::IDLE;
+			fTrackPosition = 0.0f;
 			//m_fPosition = 0.0f;
 			//oncePosition = 0.0f;
 		}
@@ -1200,7 +1199,7 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 
 			// 애니메이션이 안되는 문제해결해야댐
 			if (!strcmp(pAnimationSet->m_pstrName, "ATK3") || !strcmp(pAnimationSet->m_pstrName, "Digging") 
-				/*|| !strcmp(pAnimationSet->m_pstrName,"Jump")*/) 
+				|| !strcmp(pAnimationSet->m_pstrName,"Jump")) 
 			{
 				pAnimationSet->m_nType = ANIMATION_TYPE_ONCE;
 			}

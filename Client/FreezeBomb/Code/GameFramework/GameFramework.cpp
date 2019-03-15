@@ -911,7 +911,7 @@ void CGameFramework::AnimateObjects()
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 
 	if (m_pScene) 
-		m_pScene->AnimateObjects(fTimeElapsed);
+		m_pScene->AnimateObjects(m_pd3dCommandList,fTimeElapsed);
 
 	m_pPlayer->Animate(fTimeElapsed);
 	m_pPlayer->UpdateTransform(NULL);
@@ -974,7 +974,7 @@ void CGameFramework::FrameAdvance()
 
 	if (m_pScene)
 	{
-		m_pScene->Render(m_pd3dCommandList, m_pCamera);
+		m_pScene->Render(m_pd3dCommandList, m_GameTimer.GetTimeElapsed(),m_pCamera);
 	}
 
 #ifdef _MAPTOOL_MODE_

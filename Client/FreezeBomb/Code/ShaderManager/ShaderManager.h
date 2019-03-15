@@ -16,7 +16,7 @@ public:
 	void AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer* pPlayer = nullptr);
 	void ReleaseObjects();
 	void ReleaseUploadBuffers();
-	void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = nullptr);
+	void Render(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed, CCamera *pCamera = nullptr);
 
 	void ProcessCollision(XMFLOAT3& position);				//面倒 咯何 贸府 窃荐
 

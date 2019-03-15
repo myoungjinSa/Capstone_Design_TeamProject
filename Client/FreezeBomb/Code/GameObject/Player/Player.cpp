@@ -318,10 +318,11 @@ void CPlayer::Refresh_Inventory(int ItemType)
 void CPlayer::DecideAnimationState(float fLength)
 {
 	CAnimationController* pController = m_pAnimationController;
-	if (fLength == 0.0f && pController->GetAnimationState() != CAnimationController::ATTACK 
+	if (fLength == 0.0f && (pController->GetAnimationState() != CAnimationController::ATTACK 
 		&& pController->GetAnimationState() != CAnimationController::DIGGING
-		&& pController->GetAnimationState() != CAnimationController::JUMP)
+		&& pController->GetAnimationState() != CAnimationController::JUMP))
 	{
+
 		if (pController->GetAnimationState() == CAnimationController::RUNFAST)
 		{
 			m_pAnimationController->SetTrackPosition(0, 0.0f);
@@ -377,7 +378,7 @@ void CPlayer::DecideAnimationState(float fLength)
 		SetTrackAnimationSet(0, CAnimationController::ATTACK);
 		SetTrackAnimationPosition(0, 0);
 
-		pController->SetTrackSpeed(0, 1.0f);
+		//pController->SetTrackSpeed(0, 1.0f);
 		pController->SetAnimationState(CAnimationController::ATTACK);
 
 		if (m_Normal_Inventory.size() > 0)
