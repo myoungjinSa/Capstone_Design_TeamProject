@@ -158,10 +158,13 @@ void CShaderManager::Render(ID3D12GraphicsCommandList* pd3dCommandList,float fTi
 	for (int i = 0; i < m_nShaders; i++)
 	{
 		if (m_ppShaders[i]) {
-			if (i == 4) {
+			if (i == 4) 
+			{
 				dynamic_cast<CSkinnedAnimationObjectShader*>(m_ppShaders[i])->Render(pd3dCommandList, pCamera, GameObject, fTimeElapsed);
 			}
-			m_ppShaders[i]->Render(pd3dCommandList, pCamera, GameObject);
+			else {
+				m_ppShaders[i]->Render(pd3dCommandList, pCamera, GameObject);
+			}
 		}
 	}
 
