@@ -57,9 +57,9 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 	m_ppObjects[2] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::BROWN);
 	m_ppObjects[2]->SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_ppObjects[2]->m_pAnimationController = new CAnimationController(1, pEvilBearModel->m_pAnimationSets);
-	m_ppObjects[2]->m_pAnimationController->SetTrackAnimationSet(0,  m_ppObjects[2]->m_pAnimationController->IDLE);
+	m_ppObjects[2]->m_pAnimationController->SetTrackAnimationSet(0,  m_ppObjects[2]->m_pAnimationController->ATTACK);
 	// 애니메이션의 시작위치를 다르게 준다. 그러면 같은 동작이더라도 다르게 애니메이션함
-	m_ppObjects[2]->m_pAnimationController->SetTrackPosition(0, 0.95f);
+	//m_ppObjects[2]->m_pAnimationController->SetTrackPosition(0, 0.95f);
 	m_ppObjects[2]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);
 
 	m_ppObjects[3] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::BLUE);
@@ -71,18 +71,18 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 	m_ppObjects[4] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::ICEMAT);
 	m_ppObjects[4]->SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_ppObjects[4]->m_pAnimationController = new CAnimationController(1, pEvilBearModel->m_pAnimationSets);
-	m_ppObjects[4]->m_pAnimationController->SetTrackAnimationSet(0,  m_ppObjects[4]->m_pAnimationController->DIGGING);
+	m_ppObjects[4]->m_pAnimationController->SetTrackAnimationSet(0,  m_ppObjects[4]->m_pAnimationController->ATTACK);
 	m_ppObjects[4]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);
 
-	//CAnimationCallbackHandler* pAnimationCallback = new CSoundCallbackHandler();
-	//for(UINT i=0;i</*m_nObjects*/ 5;i++)		//플레이어 수만큼 사운드 효과 설정해준다
-	//{
-	//	m_ppObjects[i]->m_pAnimationController->SetCallbackKeys(m_ppObjects[i]->m_pAnimationController->RUNFAST, 2);
-	//	m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNFAST, 0, 0.3f,MAKEINTRESOURCE(IDR_WAVE2));
-	//	m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNFAST, 1, 0.6f, MAKEINTRESOURCE(IDR_WAVE2));
-	//	m_ppObjects[i]->m_pAnimationController->SetAnimationCallbackHandler(m_ppObjects[i]->m_pAnimationController->RUNFAST, pAnimationCallback);
+	CAnimationCallbackHandler* pAnimationCallback = new CSoundCallbackHandler();
+	for(UINT i=0;i<m_nObjects;i++)		//플레이어 수만큼 사운드 효과 설정해준다
+	{
+		m_ppObjects[i]->m_pAnimationController->SetCallbackKeys(m_ppObjects[i]->m_pAnimationController->RUNFAST, 2);
+		m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNFAST, 0, 0.3f,MAKEINTRESOURCE(IDR_WAVE2));
+		m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNFAST, 1, 0.6f, MAKEINTRESOURCE(IDR_WAVE2));
+		m_ppObjects[i]->m_pAnimationController->SetAnimationCallbackHandler(m_ppObjects[i]->m_pAnimationController->RUNFAST, pAnimationCallback);
 
-	//}
+	}
 
 	XMFLOAT3 Position;
 	for (int i = 0; i < m_nObjects; ++i)

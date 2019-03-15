@@ -56,6 +56,8 @@ public:
 	virtual void HandleCallback(void *pCallbackData);
 };
 
+class CAnimationController;
+
 class CAnimationSet
 {
 public:
@@ -98,7 +100,7 @@ public:
 
 public:
 	// AnimationTrack의 포지션값 => 애니메이션에서 읽어가야하는 위치 => 서로 다른동작을 하게함
-	void SetPosition(float& fTrackPosition);
+	void SetPosition(CAnimationController& AnimationController,float& fTrackPosition);
 
 	XMFLOAT4X4 GetSRT(int nFrame);
 
@@ -178,7 +180,7 @@ public:
     int 							m_nAnimationTracks = 0;
     CAnimationTrack*	m_pAnimationTracks = NULL;
 
-	static UINT					m_state ;
+	UINT					m_state ;
 	const enum ANIMATIONTYPE { IDLE=0, JUMP, RUNFAST, RUNBACKWARD, ATTACK, DIGGING,DIE,RAISEHAND/*아이템 사용동작*/,ICE,VICTORY,AERT/*준비 동작*/};
 
 public:

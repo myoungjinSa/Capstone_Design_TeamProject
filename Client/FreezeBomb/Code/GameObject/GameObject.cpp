@@ -34,7 +34,7 @@ void *CAnimationSet::GetCallbackData()
 }
 
 
-void CAnimationSet::SetPosition(float& fTrackPosition)
+void CAnimationSet::SetPosition(CAnimationController& AnimationController,float& fTrackPosition)
 {
 
 	m_fPosition = fTrackPosition;
@@ -57,12 +57,13 @@ void CAnimationSet::SetPosition(float& fTrackPosition)
 	}
 	case ANIMATION_TYPE_ONCE:
 
-		if (fTrackPosition >= m_fLength-0.1f)
+
+		if (fTrackPosition >= m_fLength - 0.05f)
 		{
-			CAnimationController::m_state = CAnimationController::IDLE;
+			
+			AnimationController.m_state = CAnimationController::IDLE;
 			fTrackPosition = 0.0f;
-			//m_fPosition = 0.0f;
-			//oncePosition = 0.0f;
+		
 		}
 
 		break;
@@ -177,7 +178,7 @@ void CAnimationSets::SetAnimationCallbackHandler(int nAnimationSet, CAnimationCa
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-UINT CAnimationController::m_state = CAnimationController::IDLE;
+
 CAnimationController::CAnimationController(int nAnimationTracks, CAnimationSets *pAnimationSets)
 {
 	m_nAnimationTracks = nAnimationTracks;
@@ -266,7 +267,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed)
 
 			CAnimationSet *pAnimationSet = m_pAnimationTracks[j].m_pAnimationSet;
 			pAnimationSet->m_fPosition += (fTimeElapsed * m_pAnimationTracks[j].m_fSpeed);
-			m_pAnimationTracks[j].m_pAnimationSet->SetPosition(m_pAnimationTracks[j].m_fPosition);
+			m_pAnimationTracks[j].m_pAnimationSet->SetPosition(*this,m_pAnimationTracks[j].m_fPosition);
 			//m_pAnimationTracks[j].m_pAnimationSet->m_fLength;
 			if (m_pAnimationTracks[j].m_bEnable)
 			{
