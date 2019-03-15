@@ -416,9 +416,10 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 	m_pAnimationController = new CAnimationController(1, pEvilBearModel->m_pAnimationSets);
 	m_pAnimationController->SetTrackAnimationSet(0, 0);
-
+	
 	// 1번 애니메이션 동작에 사운드 3개를 Set해준다.
 	m_pAnimationController->SetCallbackKeys(m_pAnimationController->RUNFAST, 2);
+
 
 	// 애니메이션 1번동작 0.1초일때 Footstep01 소리를 재생, 1번동작 0.5초일때 Footstep02 소리를 재생, 1번동작 0.9초일때 Footstep03 소리를 재생
 	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 0, 0.3f,MAKEINTRESOURCE(IDR_WAVE2));

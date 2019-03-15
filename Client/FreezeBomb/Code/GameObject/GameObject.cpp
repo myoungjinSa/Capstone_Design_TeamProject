@@ -275,7 +275,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed)
 				{
 					//m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent = Matrix4x4::Add(m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent, Matrix4x4::Scale(m_pAnimationTracks[j].m_pAnimationSet->GetSRT(i), m_pAnimationTracks[j].m_fWeight));
 					//프레임 마다 그 시간대의 변환행렬이 있는지 확인후 있다면 변환
-					m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent = m_pAnimationTracks[j].m_pAnimationSet->GetSRT(i);
+					m_pAnimationSets->m_ppAnimationFrameCaches[i]->m_xmf4x4ToParent = Matrix4x4::Scale(m_pAnimationTracks[j].m_pAnimationSet->GetSRT(i), m_pAnimationTracks[j].m_fWeight);
 
 				}
 			}

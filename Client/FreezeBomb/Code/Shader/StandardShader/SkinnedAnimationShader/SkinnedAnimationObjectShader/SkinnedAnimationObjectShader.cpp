@@ -29,15 +29,15 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 
 	m_ppObjects[0] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::PINK);
 	m_ppObjects[0]->SetChild(pEvilBearModel->m_pModelRootObject, true);
-	m_ppObjects[0]->m_pAnimationController = new CAnimationController(2, pEvilBearModel->m_pAnimationSets);
+	m_ppObjects[0]->m_pAnimationController = new CAnimationController(1, pEvilBearModel->m_pAnimationSets);
 	// 0번 트랙에 0번 애니메이션을 Set
-	m_ppObjects[0]->m_pAnimationController->SetTrackAnimationSet(0, 0);
+	m_ppObjects[0]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[0]->m_pAnimationController->ATTACK);
 	// 1번 트랙에 1번 애니메이션을 Set
-	m_ppObjects[0]->m_pAnimationController->SetTrackAnimationSet(1, 1);
+	//m_ppObjects[0]->m_pAnimationController->SetTrackAnimationSet(1, 1);
 	// 0번 트랙에 가중치를 80%
-	m_ppObjects[0]->m_pAnimationController->SetTrackWeight(0, 0.8f);
+//	m_ppObjects[0]->m_pAnimationController->SetTrackWeight(0, 0.8f);
 	// 1번 트랙에 가중치를 20% 
-	m_ppObjects[0]->m_pAnimationController->SetTrackWeight(1, 0.2f);
+	//m_ppObjects[0]->m_pAnimationController->SetTrackWeight(1, 0.2f);
 	m_ppObjects[0]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);
 
 	//m_ppObjects[1] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::BLACK);
