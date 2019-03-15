@@ -93,7 +93,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	nObjects = 67;		//DeadTrees(15),PineTrees(34),Rocks(14),Deer(2),Pond(2)
 #endif
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 
-		SkyBox + Terrain + MapObjects + Item + EvilBear  + Particle + TimerUI + ItemUI + Player);
+		SkyBox + Terrain + MapObjects + Item + EvilBear + Particle + TimerUI + ItemUI + Player);
 	// Model을 로드할 때, 셰이더 없이 로드할 경우 이것을 사용함!
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 

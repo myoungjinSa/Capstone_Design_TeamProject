@@ -132,7 +132,7 @@ private:
 	// SkyBox : 1
 	// Terrain : 2, 
 	// DeadTrees : 23, PineTrees : 35, Rocks : 25, Deer : 2, Pond : 2=> MapObjects : 87
-	// Hammer : 3, Pocket_Watch : 2 => Item = 5
+	// Hammer : 10, Pocket_Watch : 6 => Item = 16
 	// EvilBear : 15
 	// Player : 15 
 	// Snow : 1, IceParticle : 1 => Particle = 2 
@@ -141,7 +141,7 @@ private:
 
 	enum nShaderResourceView
 	{
-		SkyBox = 1, Terrain = 2, MapObjects = 67, Item = 5,
+		SkyBox = 1, Terrain = 2, MapObjects = 67, Item = 16,
 		EvilBear = 15, Player = 15, Particle = 2, TimerUI = 11, ItemUI = 4
 	};
 };

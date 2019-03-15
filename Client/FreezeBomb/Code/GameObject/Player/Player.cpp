@@ -320,7 +320,10 @@ void CPlayer::DecideAnimationState(float fLength)
 	CAnimationController* pController = m_pAnimationController;
 	if (fLength == 0.0f && (pController->GetAnimationState() != CAnimationController::ATTACK 
 		&& pController->GetAnimationState() != CAnimationController::DIGGING
-		&& pController->GetAnimationState() != CAnimationController::JUMP))
+		&& pController->GetAnimationState() != CAnimationController::JUMP		
+		&& pController->GetAnimationState() != CAnimationController::RAISEHAND
+		&& pController->GetAnimationState() != CAnimationController::ICE
+		))
 	{
 
 		if (pController->GetAnimationState() == CAnimationController::RUNFAST)
@@ -337,6 +340,7 @@ void CPlayer::DecideAnimationState(float fLength)
 		if (GetAsyncKeyState(VK_UP) & 0x8000 
 			&& pController->GetAnimationState() != CAnimationController::ATTACK 
 			&& pController->GetAnimationState() != CAnimationController::JUMP
+			&& pController->GetAnimationState() != CAnimationController::ICE
 			)
 		{
 			SetTrackAnimationSet(0, CAnimationController::RUNFAST);
@@ -345,14 +349,20 @@ void CPlayer::DecideAnimationState(float fLength)
 			//m_pAnimationController->SetTrackPosition(0, 0.0f);
 		}
 	
-		if (GetAsyncKeyState(VK_DOWN) & 0x8000 && pController->GetAnimationState() != CAnimationController::ATTACK
-			&& pController->GetAnimationState() != CAnimationController::JUMP)
+		if (GetAsyncKeyState(VK_DOWN) & 0x8000
+			&& pController->GetAnimationState() != CAnimationController::ATTACK
+			&& pController->GetAnimationState() != CAnimationController::JUMP
+			&& pController->GetAnimationState() != CAnimationController::ICE
+			)
 		{
 			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
 			SetTrackAnimationSet(0, CAnimationController::RUNBACKWARD);
 		}
 	}
-	if (GetAsyncKeyState(VK_SPACE) & 0x8000 && pController->GetAnimationState() != CAnimationController::JUMP)
+	if (GetAsyncKeyState(VK_SPACE) & 0x8000 
+		&& pController->GetAnimationState() != CAnimationController::JUMP
+		&& pController->GetAnimationState() != CAnimationController::ICE
+		)
 	{
 		SetTrackAnimationSet(0, CAnimationController::JUMP);
 		SetTrackAnimationPosition(0, 0);
@@ -360,7 +370,10 @@ void CPlayer::DecideAnimationState(float fLength)
 		//pController->SetTrackSpeed(0, 1.5f);
 	}
 
-	if (GetAsyncKeyState(VK_Z) & 0x8000 && pController->GetAnimationState() != CAnimationController::DIGGING)
+	if (GetAsyncKeyState(VK_Z) & 0x8000 
+		&& pController->GetAnimationState() != CAnimationController::DIGGING
+		&& pController->GetAnimationState() != CAnimationController::ICE
+		)
 	{
 		SetTrackAnimationSet(0, CAnimationController::DIGGING);
 		SetTrackAnimationPosition(0, 0);
@@ -375,10 +388,12 @@ void CPlayer::DecideAnimationState(float fLength)
 	}
 
 	////얼음으로 변신
-	if(GetAsyncKeyState(VK_LSHIFT) & 0x0001)
+	if(GetAsyncKeyState(VK_LSHIFT) & 0x0001
+		&& pController->GetAnimationState() != CAnimationController::ICE
+		)
 	{
 		m_bIce = !m_bIce;
-		//pController->SetAnimationState(CAnimationController::ICE);
+		pController->SetAnimationState(CAnimationController::ICE);
 	}
 
 	// 망치로 때리기 애니메이션
@@ -410,7 +425,8 @@ void CPlayer::DecideAnimationState(float fLength)
 					dynamic_cast<CTimerUIShader*>((*iter).second)->setTimer(90.f);
 				}
 			}
-
+			SetTrackAnimationSet(0, CAnimationController::RAISEHAND);
+			pController->SetAnimationState(CAnimationController::RAISEHAND);
 			Refresh_Inventory(CItem::GoldHammer);
 		}
 	}
@@ -419,7 +435,7 @@ void CPlayer::DecideAnimationState(float fLength)
 CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID ,void *pContext)
 {
 	CLoadedModelInfo* pEvilBearModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
-		"../Resource/Models/EvilBear.bin", NULL, true, "Player");
+		"../Resource/Models/EvilbearA.bin", NULL, true, "Player");
 
 	SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);

@@ -859,13 +859,20 @@ void CGameFramework::ProcessInput()
 		DWORD dwDirection = 0;
 		if (pKeysBuffer[VK_UP] & 0xF0)
 		{
-			dwDirection |= DIR_FORWARD;
-			m_pPlayer->SetDirection(dwDirection);
+			if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
+			{	
+				dwDirection |= DIR_FORWARD;
+				m_pPlayer->SetDirection(dwDirection);
+			}
+			
 		}
 		if (pKeysBuffer[VK_DOWN] & 0xF0)
 		{
-			dwDirection |= DIR_BACKWARD;
-			m_pPlayer->SetDirection(dwDirection);
+			if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
+			{
+				dwDirection |= DIR_BACKWARD;
+				m_pPlayer->SetDirection(dwDirection);
+			}
 		}
 		if (pKeysBuffer[VK_LEFT] & 0xF0)
 		{

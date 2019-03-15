@@ -655,7 +655,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bHammer
 	{
 		if (m_pSibling)
 		{
-			if (!strncmp(m_pSibling->m_pstrFrameName, "hammer", strlen(m_pSibling->m_pstrFrameName)))
+			if (!strncmp(m_pSibling->m_pstrFrameName, "Hammer", strlen(m_pSibling->m_pstrFrameName)))
 			{
 				if (bHammer) 
 				{
@@ -1200,7 +1200,8 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 
 			// 애니메이션이 안되는 문제해결해야댐
 			if (!strcmp(pAnimationSet->m_pstrName, "ATK3") || !strcmp(pAnimationSet->m_pstrName, "Digging") 
-				|| !strcmp(pAnimationSet->m_pstrName,"Jump")) 
+				|| !strcmp(pAnimationSet->m_pstrName,"Jump") ||!strcmp(pAnimationSet->m_pstrName, "RaiseHand")
+				) 
 			{
 				pAnimationSet->m_nType = ANIMATION_TYPE_ONCE;
 			}
