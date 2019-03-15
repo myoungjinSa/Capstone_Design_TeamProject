@@ -98,7 +98,7 @@ public:
 
 public:
 	// AnimationTrack의 포지션값 => 애니메이션에서 읽어가야하는 위치 => 서로 다른동작을 하게함
-	void SetPosition(float fTrackPosition);
+	void SetPosition(float& fTrackPosition);
 
 	XMFLOAT4X4 GetSRT(int nFrame);
 
