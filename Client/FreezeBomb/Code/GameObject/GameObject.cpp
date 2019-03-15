@@ -36,8 +36,7 @@ void *CAnimationSet::GetCallbackData()
 
 void CAnimationSet::SetPosition(float fTrackPosition)
 {
-	float maxLength = m_fLength - 0.18f;
-	float fPosition = 0.0f;
+	float maxLength = m_fLength - 0.15;
 	m_fPosition = fTrackPosition;
 	switch (m_nType)
 	{
@@ -47,9 +46,8 @@ void CAnimationSet::SetPosition(float fTrackPosition)
 		//fmod 
 		//0~1사이의 값이 됨
 		m_fPosition = fmod(fTrackPosition, m_pfKeyFrameTransformTimes[m_nKeyFrameTransforms - 1]); // m_fPosition = fTrackPosition - int(fTrackPosition / m_pfKeyFrameTransformTimes[m_nKeyFrameTransforms-1]) * m_pfKeyFrameTransformTimes[m_nKeyFrameTransforms-1];
-//			m_fPosition = fmod(fTrackPosition, m_fLength); //if (m_fPosition < 0) m_fPosition += m_fLength;
-//			m_fPosition = fTrackPosition - int(fTrackPosition / m_fLength) * m_fLength;
-
+		//m_fPosition = fmod(fTrackPosition, m_fLength); //if (m_fPosition < 0) m_fPosition += m_fLength;
+		//m_fPosition = fTrackPosition - int(fTrackPosition / m_fLength) * m_fLength;
 #else
 		m_nCurrentKey++;
 		if (m_nCurrentKey >= m_nKeyFrameTransforms) m_nCurrentKey = 0;
@@ -58,12 +56,12 @@ void CAnimationSet::SetPosition(float fTrackPosition)
 	}
 	case ANIMATION_TYPE_ONCE:
 
+		// fminf( x, y ) : x와 y중 최소값을 리턴
 		m_fPosition = fminf(fTrackPosition, maxLength);
 		if (m_fPosition >= maxLength)
 		{
 			CAnimationController::m_state = CAnimationController::IDLE;
 			//m_fPosition = 0.0f;
-			//oncePosition = 0.0f;
 		}
 
 		break;
@@ -1199,8 +1197,10 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 			pAnimationSet->m_pstrName[nStrLength] = '\0';
 
 			// 애니메이션이 안되는 문제해결해야댐
-			if (!strcmp(pAnimationSet->m_pstrName, "ATK3") || !strcmp(pAnimationSet->m_pstrName, "Digging") 
-				/*|| !strcmp(pAnimationSet->m_pstrName,"Jump")*/) 
+			//if (!strcmp(pAnimationSet->m_pstrName, "ATK3") 
+			//	|| !strcmp(pAnimationSet->m_pstrName, "Digging")
+			//	|| !strcmp(pAnimationSet->m_pstrName,"Jump"))
+			if (!strcmp(pAnimationSet->m_pstrName, "ATK3") || !strcmp(pAnimationSet->m_pstrName, "Digging")) 
 			{
 				pAnimationSet->m_nType = ANIMATION_TYPE_ONCE;
 			}

@@ -25,9 +25,9 @@
 					<Glossiness>: 0.5
 					<SpecularHighlight>: 1
 					<GlossyReflection>: 1
-					<AlbedoMap>: RunicStoneHammer_Albedo
-					<SpecularMap>: RunicStoneHammer_Specular
-					<NormalMap>: RunicStoneHammer_Normal
+					<AlbedoMap>: Hammer_Albedo
+					<SpecularMap>: Hammer_Specular
+					<NormalMap>: Hammer_Normal
 					<EmissionMap>: null
 					<DetailAlbedoMap>: null
 					<DetailNormalMap>: null

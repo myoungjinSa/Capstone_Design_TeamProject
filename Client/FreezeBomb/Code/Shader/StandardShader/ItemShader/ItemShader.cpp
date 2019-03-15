@@ -50,7 +50,6 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 			CItem* pItem = new CItem;
 			pItem->SetChild((*iter).second->m_pModelRootObject, true);
 			XMFLOAT3 Position = XMFLOAT3(Random(10.f, 490.f), 0.5, Random(10.f, 290.f));
-			cout << Position.x << ", " << Position.y << ", " << Position.z << endl;
 			pItem->SetPosition(Position);
 			pItem->setItemType(CItem::GoldHammer);
 			pItem->setID("<GoldHammer>");
@@ -70,8 +69,7 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 		{
 			CItem* pItem = new CItem;
 			pItem->SetChild((*iter).second->m_pModelRootObject, true);
-			XMFLOAT3 Position = XMFLOAT3(Random(10.f, 490.f), 0.22, Random(10.f, 290.f));
-			cout << Position.x << ", " << Position.y << ", " << Position.z << endl;
+			XMFLOAT3 Position = XMFLOAT3(Random(10.f, 490.f), 0.22f, Random(10.f, 290.f));
 			pItem->SetPosition(Position);
 			pItem->setItemType(CItem::GoldTimer);
 			pItem->setID("<GoldTimer>");
