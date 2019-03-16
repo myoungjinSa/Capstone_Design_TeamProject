@@ -102,24 +102,10 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_pShaderManager = new CShaderManager;
 	m_pShaderManager->Initialize(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nPlayerCount);
 
+
 	//사운드 생성
-	m_pSound = new CSoundSystem;
-
-	m_musicCount = 1;
-	m_musicList = new const char*[m_musicCount];
-
-	m_musicList[0] = "../Resource/Sound/SnowyVillage.wav";
-	//m_musicList[1] = "../Resource/Sound/town.wav";
-
-	//2개 동시에 재생도 가능하다
-	if (m_pSound)
-	{
-		m_pSound->Initialize(m_musicCount, m_musicList);
-		m_pSound->Play(m_musicCount);
-	}
-	//PlaySound(_T("../Resource/Sound/town.wav"), GetModuleHandle(NULL), SND_MEMORY | SND_ASYNC | SND_LOOP);
-	//PlaySound(MAKEINTRESOURCE(IDR_WAVE3), ::ghAppInstance, SND_RESOURCE | SND_ASYNC | SND_LOOP);
-
+	CreateSoundSystem();
+	
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
@@ -143,6 +129,7 @@ void CScene::ReleaseObjects()
 	if (m_pLights)
 		delete[] m_pLights;
 }
+
 
 ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevice)
 {
@@ -642,7 +629,7 @@ void CScene::CheckObjectByObjectCollisions()
 					// 망치로 내려 찍는 애니메이션의 위치 근사 값
 					if (m_pPlayer->GetTrackAnimationPosition(0) >= 0.5 && m_pPlayer->GetTrackAnimationPosition(0) <= 0.65)
 					{
-						CGameObject* pHammer = m_pPlayer->FindFrame("hammer");
+						CGameObject* pHammer = m_pPlayer->FindFrame("Hammer");
 						if (pHammer != nullptr)
 						{
 							for (int i = 0; i < (*iter).second->m_nObjects; ++i)
@@ -684,4 +671,28 @@ void CScene::CheckObjectByObjectCollisions()
 			}
 		}
 	}
+}
+
+
+void CScene::CreateSoundSystem()
+{
+		//사운드 생성
+	m_pSound = new CSoundSystem;
+
+	m_musicCount = 1;
+	m_musicList = new const char*[m_musicCount];
+
+	m_musicList[0] = "../Resource/Sound/SnowyVillage.wav";
+//	m_musicList[1] = "../Resource/Sound/town.wav";
+
+	//2개 동시에 재생도 가능하다
+	if (m_pSound)
+	{
+		m_pSound->Initialize(m_musicCount, m_musicList,FMOD_LOOP_NORMAL);
+		m_pSound->Play(m_musicCount);
+	}
+
+	//PlaySound(_T("../Resource/Sound/town.wav"), GetModuleHandle(NULL), SND_MEMORY | SND_ASYNC | SND_LOOP);
+	//PlaySound(MAKEINTRESOURCE(IDR_WAVE3), ::ghAppInstance, SND_RESOURCE | SND_ASYNC | SND_LOOP);
+
 }

@@ -4,9 +4,11 @@
 #include "../Material/Material.h"
 #include "../Shader/Shader.h"
 #include "Billboard/LampParticle/LampParticle.h"
+#include "../SoundSystem/SoundSystem.h"
 
 //int CGameObject::m_AnimationType = CGameObject::ANIMATIONTYPE::IDLE;
 
+class CSoundSystem;
 CAnimationSet::CAnimationSet()
 {
 }
@@ -69,7 +71,10 @@ void CAnimationSet::SetPosition(CAnimationController& AnimationController,float&
 	if (m_pAnimationCallbackHandler)
 	{
 		void *pCallbackData = GetCallbackData();
-		if (pCallbackData) m_pAnimationCallbackHandler->HandleCallback(pCallbackData);
+		if (pCallbackData)
+		{
+			m_pAnimationCallbackHandler->HandleCallback(pCallbackData);
+		}
 	}
 }
 
@@ -137,9 +142,13 @@ void CAnimationSet::SetCallbackKey(int nKeyIndex, float fKeyTime, void *pData)
 	m_pCallbackKeys[nKeyIndex].m_pCallbackData = pData;
 }
 
-void CAnimationSet::SetAnimationCallbackHandler(CAnimationCallbackHandler *pCallbackHandler)
+void CAnimationSet::SetAnimationCallbackHandler(CAnimationCallbackHandler *pCallbackHandler,void* pContext)
 {
 	m_pAnimationCallbackHandler = pCallbackHandler;
+	if (pContext)
+	{
+		m_pAnimationCallbackHandler->SetAdditianalData(pContext);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -166,9 +175,9 @@ void CAnimationSets::SetCallbackKey(int nAnimationSet, int nKeyIndex, float fKey
 	m_pAnimationSets[nAnimationSet].m_pCallbackKeys[nKeyIndex].m_pCallbackData = pData;
 }
 
-void CAnimationSets::SetAnimationCallbackHandler(int nAnimationSet, CAnimationCallbackHandler *pCallbackHandler)
+void CAnimationSets::SetAnimationCallbackHandler(int nAnimationSet, CAnimationCallbackHandler *pCallbackHandler,void* pSoundContext)
 {
-	m_pAnimationSets[nAnimationSet].SetAnimationCallbackHandler(pCallbackHandler);
+	m_pAnimationSets[nAnimationSet].SetAnimationCallbackHandler(pCallbackHandler,pSoundContext);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -200,9 +209,9 @@ void CAnimationController::SetCallbackKey(int nAnimationSet, int nKeyIndex, floa
 	if (m_pAnimationSets) m_pAnimationSets->SetCallbackKey(nAnimationSet, nKeyIndex, fKeyTime, pData);
 }
 
-void CAnimationController::SetAnimationCallbackHandler(int nAnimationSet, CAnimationCallbackHandler *pCallbackHandler)
+void CAnimationController::SetAnimationCallbackHandler(int nAnimationSet, CAnimationCallbackHandler *pCallbackHandler,void* pSoundContext)
 {
-	if (m_pAnimationSets) m_pAnimationSets->SetAnimationCallbackHandler(nAnimationSet, pCallbackHandler);
+	if (m_pAnimationSets) m_pAnimationSets->SetAnimationCallbackHandler(nAnimationSet, pCallbackHandler,pSoundContext);
 }
 
 void CAnimationController::SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet)
@@ -279,20 +288,27 @@ void CAnimationController::AdvanceTime(float fTimeElapsed)
 } 
 
 //#define _WITH_DEBUG_CALLBACK_DATA
-#define _WITH_SOUND_RESOURCE
+//#define _WITH_SOUND_RESOURCE
 void CSoundCallbackHandler::HandleCallback(void *pCallbackData)
 {
 	//_TCHAR *pWavName = (_TCHAR *)pCallbackData;
-#ifdef _WITH_DEBUG_CALLBACK_DATA
-	TCHAR pstrDebug[256] = { 0 };
-	_stprintf_s(pstrDebug, 256, _T("%s\n"), pWavName);
-	OutputDebugString(pstrDebug);
-#endif
-#ifdef _WITH_SOUND_RESOURCE
-	PlaySound(MAKEINTRESOURCE(pCallbackData), ::ghAppInstance, SND_RESOURCE | SND_ASYNC);
-#else
-	PlaySound(pWavName, NULL, SND_FILENAME | SND_ASYNC);
-#endif
+//#ifdef _WITH_DEBUG_CALLBACK_DATA
+//	TCHAR pstrDebug[256] = { 0 };
+//	_stprintf_s(pstrDebug, 256, _T("%s\n"), pWavName);
+//	OutputDebugString(pstrDebug);
+//#endif
+//#ifdef _WITH_SOUND_RESOURCE
+//	PlaySound(MAKEINTRESOURCE(pCallbackData), ::ghAppInstance, SND_RESOURCE | SND_ASYNC);
+//#else
+//	PlaySound(pWavName, NULL, SND_FILENAME | SND_ASYNC);
+//#endif
+
+	if (m_pContextData) {
+		CSoundSystem* pSound = (CSoundSystem*)m_pContextData;
+
+		//사운드 배열은 0부터지만 넘어오는 데이터는 1부터 시작하기 때문에 인자에서 1빼서 넘겨준다.
+		pSound->PlayIndex((int)pCallbackData-1);
+	}
 }
 
 
@@ -871,6 +887,7 @@ void CGameObject::Rotate(XMFLOAT4 *pxmf4Quaternion)
 
 	UpdateTransform(NULL);
 }
+
 
 
 //#define _WITH_DEBUG_FRAME_HIERARCHY

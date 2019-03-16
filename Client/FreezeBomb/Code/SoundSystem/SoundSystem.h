@@ -14,13 +14,16 @@ public:
 	~CSoundSystem();
 
 public:
-	void Initialize(const int soundNum,const char** musicList);
-	void Play(int index);
+	void Initialize(const int soundNum,const char** musicList,int nFlags);
+	void Play(const int SoundNum);
+	void PlayIndex(unsigned int index);
 	void Release();
+
+	const int& GetSoundCount()const { return m_soundCount; }
 
 private:
 	System* pSystem;
 	Sound**	pSound;
 	int m_soundCount;
-	Channel* pChannel[1];		//»ç¿îµå ¹Í½Ì¿¡ ÇÊ¿ä
+	Channel* pChannel[2];		//»ç¿îµå ¹Í½Ì¿¡ ÇÊ¿ä
 };

@@ -80,11 +80,25 @@ public:
 	size_t get_Normal_InventorySize() const { return m_Normal_Inventory.size(); }
 	size_t get_Special_InventorySize() const { return m_Special_Inventory.size(); }
 
-	DWORD				m_dwDirection = 0x00;
+	
 
 	CShadow*	getShadow()		const { return m_pShadow; }
 
 	void setShaderManager(CShaderManager* pShaderManager) { m_pShaderManager = pShaderManager; }
+
+	void InitializeSound();
+	void ReleaseSound();
+
+	void* GetSoundData() const { return static_cast<void*>(m_pSound); }
+public:
+	DWORD				m_dwDirection = 0x00;
+
+	enum MUSIC_ENUM
+	{
+		FOOTSTEP=1,
+		ATTACK
+	};
+	std::map<MUSIC_ENUM, std::string> m_mapMusicList;
 
 protected:
 
@@ -119,7 +133,13 @@ protected:
 	CShadow*	m_pShadow{ nullptr };
 
 	CShaderManager* m_pShaderManager{ nullptr };
+
+	CSoundSystem*	m_pSound{ nullptr };
+	const char**	m_SoundList;
+	int			m_SoundCount;
 };
+
+class CSoundSystem;
 
 class CTerrainPlayer : public CPlayer
 {
@@ -134,5 +154,7 @@ public:
 	virtual void OnCameraUpdateCallback(float fTimeElapsed);
 
 	void RotateAxisY(float fTimeElapsed);
+
+
 };
 
