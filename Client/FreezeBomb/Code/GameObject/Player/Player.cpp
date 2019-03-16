@@ -315,25 +315,23 @@ void CPlayer::Refresh_Inventory(int ItemType)
 	}
 }
 
+//플레이어의 애니메이션을 결정
 void CPlayer::DecideAnimationState(float fLength)
 {
 	CAnimationController* pController = m_pAnimationController;
-	if (fLength == 0.0f && (pController->GetAnimationState() != CAnimationController::ATTACK 
+	if (fLength == 0.0f 
+		&& (pController->GetAnimationState() != CAnimationController::ATTACK 
 		&& pController->GetAnimationState() != CAnimationController::DIGGING
 		&& pController->GetAnimationState() != CAnimationController::JUMP		
 		&& pController->GetAnimationState() != CAnimationController::RAISEHAND
-		&& pController->GetAnimationState() != CAnimationController::ICE
-		))
+		&& pController->GetAnimationState() != CAnimationController::ICE ))
 	{
-
 		if (pController->GetAnimationState() == CAnimationController::RUNFAST)
 		{
 			m_pAnimationController->SetTrackPosition(0, 0.0f);
 		}
 		SetTrackAnimationSet(0, CAnimationController::IDLE);
 		m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
-	
-		
 	}
 	else 
 	{
@@ -393,11 +391,14 @@ void CPlayer::DecideAnimationState(float fLength)
 		)
 	{
 		m_bIce = !m_bIce;
+		pController->SetTrackAnimationSet(0,CAnimationController::IDLE);
 		pController->SetAnimationState(CAnimationController::ICE);
 	}
 
 	// 망치로 때리기 애니메이션
-	if (GetAsyncKeyState(VK_CONTROL) & 0x0001 && pController->GetAnimationState() != CAnimationController::ATTACK)
+	if (GetAsyncKeyState(VK_CONTROL) & 0x0001
+		&& pController->GetAnimationState() != CAnimationController::ATTACK
+		&& pController->GetAnimationState() != CAnimationController::ICE)
 	{
 		SetTrackAnimationSet(0, CAnimationController::ATTACK);
 		SetTrackAnimationPosition(0, 0);
