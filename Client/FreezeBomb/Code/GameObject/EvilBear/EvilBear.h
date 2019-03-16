@@ -18,6 +18,7 @@ public:
 	enum MUSIC_ENUM
 	{
 		FOOTSTEP=1,
+		USETIMER,
 		ATTACK
 	};
 

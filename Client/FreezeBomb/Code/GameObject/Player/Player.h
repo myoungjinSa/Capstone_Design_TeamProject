@@ -83,7 +83,7 @@ public:
 	
 
 	CShadow*	getShadow()		const { return m_pShadow; }
-
+	
 	void setShaderManager(CShaderManager* pShaderManager) { m_pShaderManager = pShaderManager; }
 
 	void InitializeSound();
@@ -96,6 +96,7 @@ public:
 	enum MUSIC_ENUM
 	{
 		FOOTSTEP=1,
+		USETIMER,
 		ATTACK
 	};
 	std::map<MUSIC_ENUM, std::string> m_mapMusicList;

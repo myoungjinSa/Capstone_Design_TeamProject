@@ -328,12 +328,15 @@ void CPlayer::DecideAnimationState(float fLength)
 		&& pController->GetAnimationState() != CAnimationController::DIGGING
 		&& pController->GetAnimationState() != CAnimationController::JUMP		
 		&& pController->GetAnimationState() != CAnimationController::RAISEHAND
+		&& pController->GetAnimationState() != CAnimationController::DIE
 		&& pController->GetAnimationState() != CAnimationController::ICE ))
 	{
 		if (pController->GetAnimationState() == CAnimationController::RUNFAST)
 		{
 			m_pAnimationController->SetTrackPosition(0, 0.0f);
 		}
+
+
 		SetTrackAnimationSet(0, CAnimationController::IDLE);
 		m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
 	}
@@ -343,6 +346,8 @@ void CPlayer::DecideAnimationState(float fLength)
 			&& pController->GetAnimationState() != CAnimationController::ATTACK 
 			&& pController->GetAnimationState() != CAnimationController::JUMP
 			&& pController->GetAnimationState() != CAnimationController::ICE
+			&& pController->GetAnimationState() != CAnimationController::RAISEHAND
+
 			)
 		{
 			SetTrackAnimationSet(0, CAnimationController::RUNFAST);
@@ -355,6 +360,7 @@ void CPlayer::DecideAnimationState(float fLength)
 			&& pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::JUMP
 			&& pController->GetAnimationState() != CAnimationController::ICE
+			&& pController->GetAnimationState() != CAnimationController::RAISEHAND
 			)
 		{
 			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
@@ -387,6 +393,15 @@ void CPlayer::DecideAnimationState(float fLength)
 	{
 		m_bBomb = !m_bBomb;
 		m_bHammer = !m_bHammer;
+	}
+	if(GetAsyncKeyState(VK_RSHIFT) & 0x0001
+		&& pController->GetAnimationState() != CAnimationController::DIE
+		)
+	{
+		
+		pController->SetTrackPosition(0, 0.0f);
+		pController->SetTrackAnimationSet(0,CAnimationController::DIE);
+		pController->SetAnimationState(CAnimationController::DIE);
 	}
 
 	////얼음으로 변신
@@ -431,6 +446,7 @@ void CPlayer::DecideAnimationState(float fLength)
 				}
 			}
 			SetTrackAnimationSet(0, CAnimationController::RAISEHAND);
+			SetTrackAnimationPosition(0, 0.0f);
 			pController->SetAnimationState(CAnimationController::RAISEHAND);
 			Refresh_Inventory(CItem::GoldHammer);
 		}
@@ -484,26 +500,28 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);
 
 	m_pAnimationController = new CAnimationController(1, pEvilBearModel->m_pAnimationSets);
-	m_pAnimationController->SetTrackAnimationSet(0, 0);
+	m_pAnimationController->SetTrackAnimationSet(0, m_pAnimationController->IDLE);
 	
-	// 1번 애니메이션 동작에 사운드 3개를 Set해준다.
+	// RUNFAST번 애니메이션 동작에 사운드 2개를 Set해준다.
 	m_pAnimationController->SetCallbackKeys(m_pAnimationController->RUNFAST, 2);
 
 
 	// 애니메이션 1번동작 0.1초일때 Footstep01 소리를 재생, 1번동작 0.5초일때 Footstep02 소리를 재생, 1번동작 0.9초일때 Footstep03 소리를 재생
 	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 0, 0.1f, (void*)CPlayer::MUSIC_ENUM::FOOTSTEP);
 	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 1, 0.5f, (void*)CPlayer::MUSIC_ENUM::FOOTSTEP);
-	//m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 2, 0.3f, MAKEINTRESOURCE(IDR_WAVE1));
-//	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 3, 0., MAKEINTRESOURCE(IDR_WAVE1));
 
 
-	//m_pAnimationController->SetCallbackKey(1, 0, 0.1f, _T("../Resource/Sound/FootStep01.wav"));
-	//m_pAnimationController->SetCallbackKey(1, 1, 0.5f, _T("../Resource/Sound/FootStep02.wav"));
-	//m_pAnimationController->SetCallbackKey(1, 2, 0.9f, _T("../Resource/Sound/FootStep03.wav"));
+	m_pAnimationController->SetCallbackKeys(m_pAnimationController->RAISEHAND, 1);
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->RAISEHAND, 0, 0.3f, (void*)CPlayer::MUSIC_ENUM::USETIMER);
 
-	CAnimationCallbackHandler* pAnimationCallbackHandler = new CSoundCallbackHandler();
-	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RUNFAST, pAnimationCallbackHandler,
+	CAnimationCallbackHandler* pRunAnimationCallbackHandler = new CSoundCallbackHandler();
+	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RUNFAST, pRunAnimationCallbackHandler,
 		GetSoundData());
+
+	CAnimationCallbackHandler* pRaiseHandAnimationCallbackHandler = new CSoundCallbackHandler();
+	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RAISEHAND, pRaiseHandAnimationCallbackHandler,
+		GetSoundData());
+
 
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 

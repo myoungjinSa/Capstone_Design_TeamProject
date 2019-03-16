@@ -41,7 +41,7 @@ void CEvilBear::InitializeSound()
 
 
 	m_mapMusicList.emplace(FOOTSTEP, s0);
-	m_mapMusicList.emplace(ATTACK, s1);
+	m_mapMusicList.emplace(USETIMER, s1);
 
 
 	if(m_pSound)

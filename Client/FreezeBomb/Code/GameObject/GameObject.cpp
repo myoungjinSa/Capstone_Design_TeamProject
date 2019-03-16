@@ -59,8 +59,17 @@ void CAnimationSet::SetPosition(CAnimationController& AnimationController,float&
 	case ANIMATION_TYPE_ONCE:
 		if (fTrackPosition >= m_fLength - 0.1f)
 		{
-			AnimationController.m_state = CAnimationController::IDLE;
-			fTrackPosition = 0.0f;
+			if (AnimationController.m_state == CAnimationController::DIE)
+			{
+				AnimationController.m_state = CAnimationController::DIE;
+				fTrackPosition = m_fLength - 0.1f;
+			}
+			else
+			{
+				AnimationController.m_state = CAnimationController::IDLE;
+				fTrackPosition = 0.0f;
+			}
+			
 		}
 		break;
 
@@ -1213,6 +1222,7 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 			// 애니메이션이 안되는 문제해결해야댐
 			if (!strcmp(pAnimationSet->m_pstrName, "ATK3") || !strcmp(pAnimationSet->m_pstrName, "Digging") 
 				|| !strcmp(pAnimationSet->m_pstrName,"Jump") ||!strcmp(pAnimationSet->m_pstrName, "RaiseHand")
+				|| !strcmp(pAnimationSet->m_pstrName,"Die2")
 				) 
 
 			{
