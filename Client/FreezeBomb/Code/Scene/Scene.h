@@ -43,6 +43,8 @@ class CScene
 public:
     CScene();
     ~CScene();
+	
+	void CreateSoundSystem();
 
 	bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);

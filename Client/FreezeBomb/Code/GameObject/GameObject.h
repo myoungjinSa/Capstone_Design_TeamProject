@@ -7,7 +7,10 @@
 #define ANIMATION_TYPE_LOOP			1
 #define ANIMATION_TYPE_PINGPONG	2
 
-#define ANIMATION_CALLBACK_EPSILON	0.015f
+#define ANIMATION_CALLBACK_EPSILON	0.03f
+
+
+class CSoundSystem;
 
 struct CALLBACKKEY
 {
@@ -43,8 +46,14 @@ public:
 	CAnimationCallbackHandler() { }
 	~CAnimationCallbackHandler() { }
 
+
 public:
    virtual void HandleCallback(void *pCallbackData) { }
+
+   void SetAdditianalData(void* pContext) { m_pContextData = pContext; }
+protected:
+	//사운드나 부가적인 정보가 넘어올때 받아줄 포인터
+	void* m_pContextData{ nullptr };
 };
 
 class CSoundCallbackHandler : public CAnimationCallbackHandler
@@ -94,9 +103,9 @@ public:
 	int												m_nCurrentKey = -1;
 
 	int 											m_nCallbackKeys = 0;
-	CALLBACKKEY*							m_pCallbackKeys = NULL;
+	CALLBACKKEY*									m_pCallbackKeys = NULL;
 
-	CAnimationCallbackHandler*	m_pAnimationCallbackHandler = NULL;
+	CAnimationCallbackHandler*						m_pAnimationCallbackHandler = NULL;
 
 public:
 	// AnimationTrack의 포지션값 => 애니메이션에서 읽어가야하는 위치 => 서로 다른동작을 하게함
@@ -106,7 +115,7 @@ public:
 
 	void SetCallbackKeys(int nCallbackKeys);
 	void SetCallbackKey(int nKeyIndex, float fTime, void *pData);
-	void SetAnimationCallbackHandler(CAnimationCallbackHandler *pCallbackHandler);
+	void SetAnimationCallbackHandler(CAnimationCallbackHandler *pCallbackHandler,void* pContext=nullptr);
 
 	void *GetCallbackData();
 };
@@ -136,7 +145,7 @@ public:
 public:
 	void SetCallbackKeys(int nAnimationSet, int nCallbackKeys);
 	void SetCallbackKey(int nAnimationSet, int nKeyIndex, float fTime, void *pData);
-	void SetAnimationCallbackHandler(int nAnimationSet, CAnimationCallbackHandler *pCallbackHandler);
+	void SetAnimationCallbackHandler(int nAnimationSet, CAnimationCallbackHandler *pCallbackHandler,void* pContext=nullptr);
 };
 
 class CAnimationTrack
@@ -196,7 +205,7 @@ public:
 
 	void SetCallbackKeys(int nAnimationSet, int nCallbackKeys);
 	void SetCallbackKey(int nAnimationSet, int nKeyIndex, float fTime, void *pData);
-	void SetAnimationCallbackHandler(int nAnimationSet, CAnimationCallbackHandler *pCallbackHandler);
+	void SetAnimationCallbackHandler(int nAnimationSet, CAnimationCallbackHandler *pCallbackHandler,void *pSoundContext =nullptr);
 
 	void SetAnimationState(ANIMATIONTYPE state) { m_state = state; }
 	UINT GetAnimationState() { return m_state; }
@@ -242,9 +251,9 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define DIR_FORWARD			0x01
-#define DIR_BACKWARD			0x02
-#define DIR_LEFT						0x04
+#define DIR_FORWARD					0x01
+#define DIR_BACKWARD				0x02
+#define DIR_LEFT					0x04
 #define DIR_RIGHT					0x08
 #define DIR_UP						0x10
 #define DIR_DOWN					0x20
@@ -336,6 +345,7 @@ public:
 	void Rotate(XMFLOAT3 *pxmf3Axis, float fAngle);
 	void Rotate(XMFLOAT4 *pxmf4Quaternion);
 
+
 	CGameObject* GetParent() { return(m_pParent); }
 	void UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent=NULL);
 	CGameObject* FindFrame(char *pstrFrameName);
@@ -397,6 +407,8 @@ protected:
 	bool								m_bBomb = false;		//폭탄 소지 여부
 	bool								m_bHammer = false;  //망치 소지 여부
 	bool								m_bTimer = false;		//타이머 아이템 소지 여부
+
+
 
 public:
 

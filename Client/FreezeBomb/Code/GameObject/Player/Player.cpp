@@ -6,6 +6,7 @@
 #include "../Item/Item.h"
 #include "../Shadow/Shadow.h"
 
+#include "../../SoundSystem/SoundSystem.h"
 #include "../../ShaderManager/ShaderManager.h"
 #include "../../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
 
@@ -30,6 +31,8 @@ CPlayer::CPlayer()
 
 	m_pPlayerUpdatedContext = nullptr;
 	m_pCameraUpdatedContext = nullptr;
+
+	InitializeSound();
 }
 
 CPlayer::~CPlayer()
@@ -53,6 +56,7 @@ CPlayer::~CPlayer()
 	}
 	m_Special_Inventory.clear();
 
+	ReleaseSound();
 	//if (m_pShadow)
 	//	delete m_pShadow;
 }
@@ -315,25 +319,26 @@ void CPlayer::Refresh_Inventory(int ItemType)
 	}
 }
 
+//플레이어의 애니메이션을 결정
 void CPlayer::DecideAnimationState(float fLength)
 {
 	CAnimationController* pController = m_pAnimationController;
-	if (fLength == 0.0f && (pController->GetAnimationState() != CAnimationController::ATTACK 
+	if (fLength == 0.0f 
+		&& (pController->GetAnimationState() != CAnimationController::ATTACK 
 		&& pController->GetAnimationState() != CAnimationController::DIGGING
 		&& pController->GetAnimationState() != CAnimationController::JUMP		
 		&& pController->GetAnimationState() != CAnimationController::RAISEHAND
-		&& pController->GetAnimationState() != CAnimationController::ICE
-		))
+		&& pController->GetAnimationState() != CAnimationController::DIE
+		&& pController->GetAnimationState() != CAnimationController::ICE ))
 	{
-
 		if (pController->GetAnimationState() == CAnimationController::RUNFAST)
 		{
 			m_pAnimationController->SetTrackPosition(0, 0.0f);
 		}
+
+
 		SetTrackAnimationSet(0, CAnimationController::IDLE);
 		m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
-	
-		
 	}
 	else 
 	{
@@ -341,6 +346,8 @@ void CPlayer::DecideAnimationState(float fLength)
 			&& pController->GetAnimationState() != CAnimationController::ATTACK 
 			&& pController->GetAnimationState() != CAnimationController::JUMP
 			&& pController->GetAnimationState() != CAnimationController::ICE
+			&& pController->GetAnimationState() != CAnimationController::RAISEHAND
+
 			)
 		{
 			SetTrackAnimationSet(0, CAnimationController::RUNFAST);
@@ -353,6 +360,7 @@ void CPlayer::DecideAnimationState(float fLength)
 			&& pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::JUMP
 			&& pController->GetAnimationState() != CAnimationController::ICE
+			&& pController->GetAnimationState() != CAnimationController::RAISEHAND
 			)
 		{
 			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
@@ -386,6 +394,15 @@ void CPlayer::DecideAnimationState(float fLength)
 		m_bBomb = !m_bBomb;
 		m_bHammer = !m_bHammer;
 	}
+	if(GetAsyncKeyState(VK_RSHIFT) & 0x0001
+		&& pController->GetAnimationState() != CAnimationController::DIE
+		)
+	{
+		
+		pController->SetTrackPosition(0, 0.0f);
+		pController->SetTrackAnimationSet(0,CAnimationController::DIE);
+		pController->SetAnimationState(CAnimationController::DIE);
+	}
 
 	////얼음으로 변신
 	if(GetAsyncKeyState(VK_LSHIFT) & 0x0001
@@ -393,11 +410,14 @@ void CPlayer::DecideAnimationState(float fLength)
 		)
 	{
 		m_bIce = !m_bIce;
+		pController->SetTrackAnimationSet(0,CAnimationController::IDLE);
 		pController->SetAnimationState(CAnimationController::ICE);
 	}
 
 	// 망치로 때리기 애니메이션
-	if (GetAsyncKeyState(VK_CONTROL) & 0x0001 && pController->GetAnimationState() != CAnimationController::ATTACK)
+	if (GetAsyncKeyState(VK_CONTROL) & 0x0001
+		&& pController->GetAnimationState() != CAnimationController::ATTACK
+		&& pController->GetAnimationState() != CAnimationController::ICE)
 	{
 		SetTrackAnimationSet(0, CAnimationController::ATTACK);
 		SetTrackAnimationPosition(0, 0);
@@ -426,6 +446,7 @@ void CPlayer::DecideAnimationState(float fLength)
 				}
 			}
 			SetTrackAnimationSet(0, CAnimationController::RAISEHAND);
+			SetTrackAnimationPosition(0, 0.0f);
 			pController->SetAnimationState(CAnimationController::RAISEHAND);
 			Refresh_Inventory(CItem::GoldHammer);
 		}
@@ -448,11 +469,39 @@ bool CPlayer::AnimationCollision(byte AnimationType)
 			}
 		}
 		break;
-		
+
 	default:
 		break;
 	}
 	return false;
+}
+
+void CPlayer::InitializeSound()
+{
+	m_pSound = new CSoundSystem;
+
+	m_SoundCount = 2;
+	
+	m_SoundList = new const char*[m_SoundCount];
+
+	m_SoundList[0] = "../Resource/Sound/BtnDown03.wav";
+	m_SoundList[1] = "../Resource/Sound/bell1.wav";
+	
+	std::string s0(m_SoundList[0]);
+	std::string s1(m_SoundList[1]);
+	////m_SoundList[1] = "../Resource/Sound/bell1.wav";
+
+	m_mapMusicList.emplace(FOOTSTEP, s0);
+	m_mapMusicList.emplace(ATTACK, s1);
+
+	if(m_pSound)
+		m_pSound->Initialize(m_SoundCount, m_SoundList,FMOD_LOOP_OFF);
+}
+
+void CPlayer::ReleaseSound()
+{
+	if(m_pSound)
+		m_pSound->Release();
 }
 
 CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID ,void *pContext)
@@ -460,29 +509,34 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	CLoadedModelInfo* pEvilBearModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
 		"../Resource/Models/EvilBear.bin", NULL, true, "Player");
 
+
+
 	SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);
 
 	m_pAnimationController = new CAnimationController(1, pEvilBearModel->m_pAnimationSets);
-	m_pAnimationController->SetTrackAnimationSet(0, 0);
+	m_pAnimationController->SetTrackAnimationSet(0, m_pAnimationController->IDLE);
 	
-	// 1번 애니메이션 동작에 사운드 3개를 Set해준다.
+	// RUNFAST번 애니메이션 동작에 사운드 2개를 Set해준다.
 	m_pAnimationController->SetCallbackKeys(m_pAnimationController->RUNFAST, 2);
 
 
 	// 애니메이션 1번동작 0.1초일때 Footstep01 소리를 재생, 1번동작 0.5초일때 Footstep02 소리를 재생, 1번동작 0.9초일때 Footstep03 소리를 재생
-	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 0, 0.3f,MAKEINTRESOURCE(IDR_WAVE2));
-	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 1, 0.6f, MAKEINTRESOURCE(IDR_WAVE2));
-	//m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 2, 0.3f, MAKEINTRESOURCE(IDR_WAVE1));
-//	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 3, 0., MAKEINTRESOURCE(IDR_WAVE1));
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 0, 0.1f, (void*)CPlayer::MUSIC_ENUM::FOOTSTEP);
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 1, 0.5f, (void*)CPlayer::MUSIC_ENUM::FOOTSTEP);
 
 
-	//m_pAnimationController->SetCallbackKey(1, 0, 0.1f, _T("../Resource/Sound/FootStep01.wav"));
-	//m_pAnimationController->SetCallbackKey(1, 1, 0.5f, _T("../Resource/Sound/FootStep02.wav"));
-	//m_pAnimationController->SetCallbackKey(1, 2, 0.9f, _T("../Resource/Sound/FootStep03.wav"));
+	m_pAnimationController->SetCallbackKeys(m_pAnimationController->RAISEHAND, 1);
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->RAISEHAND, 0, 0.3f, (void*)CPlayer::MUSIC_ENUM::USETIMER);
 
-	CAnimationCallbackHandler* pAnimationCallbackHandler = new CSoundCallbackHandler();
-	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RUNFAST, pAnimationCallbackHandler);
+	CAnimationCallbackHandler* pRunAnimationCallbackHandler = new CSoundCallbackHandler();
+	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RUNFAST, pRunAnimationCallbackHandler,
+		GetSoundData());
+
+	CAnimationCallbackHandler* pRaiseHandAnimationCallbackHandler = new CSoundCallbackHandler();
+	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RAISEHAND, pRaiseHandAnimationCallbackHandler,
+		GetSoundData());
+
 
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
