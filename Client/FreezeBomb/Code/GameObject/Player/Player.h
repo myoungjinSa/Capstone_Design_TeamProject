@@ -38,7 +38,6 @@ public:
 	void SetPosition(const XMFLOAT3& xmf3Position) { Move(XMFLOAT3(xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z), false); }
 
 	void SetScale(XMFLOAT3& xmf3Scale) { m_xmf3Scale = xmf3Scale; }
-	void DecideAnimationState(float fLength);
 
 	const XMFLOAT3& GetVelocity() const { return(m_xmf3Velocity); }
 	float GetYaw() const { return(m_fYaw); }
@@ -71,16 +70,17 @@ public:
 	virtual void OnPrepareRender();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState);
 
-	CItem* getItem()	const { return m_pItem; }
-
 	void Add_Inventory(string key, int ItemType);
 	void Refresh_Inventory(int ItemType);
+	void DecideAnimationState(float fLength);
+	bool AnimationCollision(byte AnimationType);
 
+	CItem* getItem()	const { return m_pItem; }
 	const map<string, CItem*> get_Special_Inventory()	const { return m_Special_Inventory; }
 	size_t get_Normal_InventorySize() const { return m_Normal_Inventory.size(); }
 	size_t get_Special_InventorySize() const { return m_Special_Inventory.size(); }
 
-	DWORD				m_dwDirection = 0x00;
+	DWORD		m_dwDirection = 0x00;
 
 	CShadow*	getShadow()		const { return m_pShadow; }
 

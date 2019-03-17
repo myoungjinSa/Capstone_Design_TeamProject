@@ -617,47 +617,21 @@ void CScene::CheckObjectByObjectCollisions()
 				}
 			}
 
-			//if (m_pPlayer->GetIsHammer() == true)
-			//{
-			//	CGameObject* pHammer = m_pPlayer->FindFrame("hammer");
-			//	if (pHammer != nullptr)
-			//	{
-			//		for (int i = 0; i < (*iter).second->m_nObjects; ++i)
-			//		{
-			//			if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[i]->GetBoundingBox()))
-			//			{
-			//				m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
-			//				cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
-			//			}
-			//		}
-			//	}
-			//}
-
-			// 1) 망치로 때리는 애니메이션을 할때만 충돌체크
-			// 2) 망치로 때리는 시점에만 충돌체크하는 방법은??
-			if (m_pPlayer->GetIsHammer() == true)
+			if (m_pPlayer->AnimationCollision(CAnimationController::ATTACK))
 			{
-				if (m_pPlayer->m_pAnimationController->GetAnimationState() == CAnimationController::ATTACK)
+				CGameObject* pHammer = m_pPlayer->FindFrame("Hammer");
+				if (pHammer != nullptr)
 				{
-					// 망치로 내려 찍는 애니메이션의 위치 근사 값
-					if (m_pPlayer->GetTrackAnimationPosition(0) >= 0.5 && m_pPlayer->GetTrackAnimationPosition(0) <= 0.65)
+					for (int i = 0; i < (*iter).second->m_nObjects; ++i)
 					{
-						CGameObject* pHammer = m_pPlayer->FindFrame("hammer");
-						if (pHammer != nullptr)
+						if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[i]->GetBoundingBox()))
 						{
-							for (int i = 0; i < (*iter).second->m_nObjects; ++i)
-							{
-								if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[i]->GetBoundingBox()))
-								{
-									m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
-									cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
-								}
-							}
+							m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
+							cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
 						}
 					}
 				}
-			}
-
+			}			
 		}
 
 		// 플레이어와 아이템 오브젝트 충돌검사

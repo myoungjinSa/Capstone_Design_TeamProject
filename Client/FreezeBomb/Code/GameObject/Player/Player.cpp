@@ -432,6 +432,29 @@ void CPlayer::DecideAnimationState(float fLength)
 	}
 }
 
+bool CPlayer::AnimationCollision(byte AnimationType)
+{
+	switch (AnimationType)
+	{
+		// 망치로 때릴 때 충돌체크
+	case CAnimationController::ATTACK:
+		if (m_bHammer)
+		{
+			if (m_pAnimationController->GetAnimationState() == AnimationType)
+			{
+				// 망치로 내려 찍는 애니메이션의 위치 근사 값
+				if (0.5 <= GetTrackAnimationPosition(0) && GetTrackAnimationPosition(0) <= 0.65)
+					return true;
+			}
+		}
+		break;
+		
+	default:
+		break;
+	}
+	return false;
+}
+
 CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID ,void *pContext)
 {
 	CLoadedModelInfo* pEvilBearModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,

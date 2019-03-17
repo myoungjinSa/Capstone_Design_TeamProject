@@ -144,4 +144,10 @@ private:
 		SkyBox = 1, Terrain = 2, MapObjects = 67, Item = 16,
 		EvilBear = 15, Player = 15, Particle = 2, TimerUI = 11, ItemUI = 4
 	};
+
+	//enum nShaderResourceView
+	//{
+	//	SkyBox = 1, Terrain = 2, MapObjects = 67, Item = 16,
+	//	EvilBear = 18, Player = 18, Particle = 2, TimerUI = 11, ItemUI = 4
+	//};
 };
