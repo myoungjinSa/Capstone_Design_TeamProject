@@ -80,8 +80,6 @@ public:
 	size_t get_Normal_InventorySize() const { return m_Normal_Inventory.size(); }
 	size_t get_Special_InventorySize() const { return m_Special_Inventory.size(); }
 
-	DWORD		m_dwDirection = 0x00;
-
 	CShadow*	getShadow()		const { return m_pShadow; }
 	
 	void setShaderManager(CShaderManager* pShaderManager) { m_pShaderManager = pShaderManager; }
@@ -90,6 +88,7 @@ public:
 	void ReleaseSound();
 
 	void* GetSoundData() const { return static_cast<void*>(m_pSound); }
+
 public:
 	DWORD				m_dwDirection = 0x00;
 

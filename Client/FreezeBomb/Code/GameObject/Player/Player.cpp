@@ -394,11 +394,8 @@ void CPlayer::DecideAnimationState(float fLength)
 		m_bBomb = !m_bBomb;
 		m_bHammer = !m_bHammer;
 	}
-	if(GetAsyncKeyState(VK_RSHIFT) & 0x0001
-		&& pController->GetAnimationState() != CAnimationController::DIE
-		)
-	{
-		
+	if(GetAsyncKeyState(VK_RSHIFT) & 0x0001 && pController->GetAnimationState() != CAnimationController::DIE )
+	{	
 		pController->SetTrackPosition(0, 0.0f);
 		pController->SetTrackAnimationSet(0,CAnimationController::DIE);
 		pController->SetAnimationState(CAnimationController::DIE);
@@ -422,7 +419,6 @@ void CPlayer::DecideAnimationState(float fLength)
 		SetTrackAnimationSet(0, CAnimationController::ATTACK);
 		SetTrackAnimationPosition(0, 0);
 
-		//pController->SetTrackSpeed(0, 1.0f);
 		pController->SetAnimationState(CAnimationController::ATTACK);
 
 		if (m_Normal_Inventory.size() > 0)
@@ -436,6 +432,10 @@ void CPlayer::DecideAnimationState(float fLength)
 	{
 		if (m_Special_Inventory.size() > 0)
 		{
+			SetTrackAnimationSet(0, CAnimationController::RAISEHAND);
+			SetTrackAnimationPosition(0, 0.0f);
+			pController->SetAnimationState(CAnimationController::RAISEHAND);
+
 			if (m_pShaderManager)
 			{
 				auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
@@ -445,9 +445,6 @@ void CPlayer::DecideAnimationState(float fLength)
 					dynamic_cast<CTimerUIShader*>((*iter).second)->setTimer(90.f);
 				}
 			}
-			SetTrackAnimationSet(0, CAnimationController::RAISEHAND);
-			SetTrackAnimationPosition(0, 0.0f);
-			pController->SetAnimationState(CAnimationController::RAISEHAND);
 			Refresh_Inventory(CItem::GoldHammer);
 		}
 	}
