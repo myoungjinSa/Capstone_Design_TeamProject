@@ -19,7 +19,7 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	int nNormalHammer = 10, nGoldHammer = 1, nGoldTimer = 5;
 	m_nObjects = nNormalHammer + nGoldHammer + nGoldTimer;
 
-	auto iter = ModelMap.find("NormalHammer");
+	auto iter = ModelMap.find("Hammer");
 	if (iter != ModelMap.end())
 	{
 		CTerrain* pTerrain = (CTerrain*)pContext;
@@ -32,7 +32,7 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 			XMFLOAT3 Position = XMFLOAT3(Random(10.f, 490.f), 0.5f, Random(10.f, 290.f));
 			pItem->SetPosition(Position);
 			pItem->setItemType(CItem::NormalHammer);
-			pItem->setID("<NormalHammer>");
+			pItem->setID("<Hammer>");
 			auto iter2 = Context.find(pItem->getID());
 			if (iter2 != Context.end())
 				pItem->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
@@ -42,7 +42,7 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 		}
 	}
 
-	iter = ModelMap.find("GoldHammer");
+	iter = ModelMap.find("Hammer");
 	if (iter != ModelMap.end())
 	{
 		for (int i = 0; i < nGoldHammer; ++i)
@@ -52,7 +52,7 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 			XMFLOAT3 Position = XMFLOAT3(Random(10.f, 490.f), 0.5, Random(10.f, 290.f));
 			pItem->SetPosition(Position);
 			pItem->setItemType(CItem::GoldHammer);
-			pItem->setID("<GoldHammer>");
+			pItem->setID("<Hammer>");
 			auto iter2 = Context.find(pItem->getID());
 			if (iter2 != Context.end())
 				pItem->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
@@ -69,10 +69,10 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 		{
 			CItem* pItem = new CItem;
 			pItem->SetChild((*iter).second->m_pModelRootObject, true);
-			XMFLOAT3 Position = XMFLOAT3(Random(10.f, 490.f), 0.22f, Random(10.f, 290.f));
+			XMFLOAT3 Position = XMFLOAT3(Random(10.f, 490.f), 0.3f, Random(10.f, 290.f));
 			pItem->SetPosition(Position);
 			pItem->setItemType(CItem::GoldTimer);
-			pItem->setID("<GoldTimer>");
+			pItem->setID("<Pocket_Watch>");
 			auto iter2 = Context.find(pItem->getID());
 			if (iter2 != Context.end())
 				pItem->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));

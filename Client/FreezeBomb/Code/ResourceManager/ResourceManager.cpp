@@ -18,7 +18,7 @@ void CResourceManager::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	LoadModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	LoadMapObjectInfo(pd3dDevice, pd3dCommandList);
 
-	//LoadBound(pd3dDevice, pd3dCommandList);
+	LoadBound(pd3dDevice, pd3dCommandList);
 
 }
 
@@ -190,7 +190,7 @@ void CResourceManager::LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	m_ModelMap.emplace("LowPoly_-_Fence_B", pFence02);
 
 	CLoadedModelInfo* pHammer = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Hammer.bin", nullptr, false, "Hammer");
-	m_ModelMap.emplace("NormalHammer", pHammer);
+	m_ModelMap.emplace("Hammer", pHammer);
 
 	CLoadedModelInfo* pGoldTimer = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Pocket_Watch.bin", nullptr, false, "GoldTimer");
 	m_ModelMap.emplace("GoldTimer", pGoldTimer);
@@ -283,7 +283,6 @@ void CResourceManager::LoadMapObjectInfo(ID3D12Device* pd3dDevice, ID3D12Graphic
 	in.close();
 }
 
-#define SIZE 22
 void CResourceManager::LoadBound(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	string filename = "../Resource/Bounds/ModelBounds.bin";
@@ -294,7 +293,8 @@ void CResourceManager::LoadBound(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 		return;
 	}
 
-	for (int i = 0; i < SIZE; ++i)
+	const int size = 25;
+	for (int i = 0; i < size; ++i)
 	{
 		Bounds* pBound = new Bounds;
 

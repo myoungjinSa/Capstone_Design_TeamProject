@@ -27,8 +27,13 @@ void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 			pSurrounding->SetLookVector((*iter2).second->m_Look);
 			pSurrounding->SetUpVector((*iter2).second->m_Up);
 			pSurrounding->SetRightVector((*iter2).second->m_Right);
+			auto iter3 = BoundMap.find(name);
+			if (iter3 != BoundMap.end())
+				pSurrounding->SetOOBB((*iter3).second->m_xmf3Center, (*iter3).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
+
 			if (name != "PondSquare")
 				pSurrounding->Initialize_Shadow((*iter).second, pSurrounding);
+
 			m_SurroundingList.emplace_back(pSurrounding);
 		}
 	}
