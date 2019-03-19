@@ -118,8 +118,8 @@ int main(int argc, char *argv[])
 
 	// 데이터 통신에 사용할 변수
 	//char buf[BUFSIZE + 1];
-	int len = 0;;
-	int myId = 0;
+	int len = 0;
+	int myId = -1;
 	POSITION myPos(0, 0, 0);
 	CS_SOCK csSock;
 	SC_SOCK scSock;
@@ -128,19 +128,21 @@ int main(int argc, char *argv[])
 	// 서버와 데이터 통신
 	while (1)
 	{
-		// 서버에서 send해주는 코드 작성 필요
-		retval = recv(sock, (char *)&scInitSock, sizeof(scInitSock), 0);
-		if (retval == SOCKET_ERROR)
+		if (myId < 0)
 		{
-			err_display("recv()");
-			break;
+			// 서버에서 send해주는 코드 작성 필요
+			retval = recv(sock, (char *)&scInitSock, sizeof(scInitSock), 0);
+			if (retval == SOCKET_ERROR)
+			{
+				err_display("recv()");
+				break;
+			}
+			// 잘 받아짐
+			myId = scInitSock.clientID;
+			myPos = scInitSock.pos;
+			printf("ClientID : %d, X : %d, Y : %d, Z : %d\n", myId, myPos.x, myPos.y, myPos.z);
+			csSock.clientID = myId;
 		}
-		// 잘 받아짐
-		myId = scInitSock.clientID;
-		myPos = scInitSock.pos;
-		printf("ClientID : %d, X : %d, Y : %d, Z : %d\n", myId, myPos.x, myPos.y, myPos.z);
-		csSock.clientID = myId;
-
 		// getch()는 키입력 없으면 무한대기 상태. but kbhit()는 없으면 지나침 -> kbhit로 감싸주기
 		if (_kbhit())
 		{
@@ -165,6 +167,7 @@ int main(int argc, char *argv[])
 					break;
 				}
 				csSock.key = key;
+				csSock.clientID = myId;
 
 				retval = send(sock, (char *)&csSock, sizeof(csSock), 0);
 				if (retval == SOCKET_ERROR)
@@ -185,42 +188,6 @@ int main(int argc, char *argv[])
 			}
 
 		}
-		//// 데이터 입력
-		//cout << endl;
-		//cout << "[보낼 데이터] ";
-		//if (fgets(buf, BUFSIZE + 1, stdin) == NULL)
-		//	break;
-
-		//// '\n' 문자 제거 후 NULL로 채움
-		//len = strlen(buf);
-		////if (buf[len - 1] == '\n')
-		////	buf[len - 1] = '\0';
-		//if (strlen(buf) == 0)
-		//	break;
-
-		//// 데이터 보내기
-		//retval = send(sock, buf, strlen(buf), 0);
-		//if (retval == SOCKET_ERROR)
-		//{
-		//	err_display("send()");
-		//	break;
-		//}
-		//cout << "[TCP 클라이언트] " << retval << "바이트를 보냈습니다." << endl;
-
-		//// 데이터 받기
-		//retval = recvn(sock, buf, retval, 0);
-		//if (retval == SOCKET_ERROR)
-		//{
-		//	err_display("recvn()");
-		//	break;
-		//}
-		//else if (retval == 0)
-		//	break;
-
-		//// 받은 데이터 출력
-		//buf[retval] = '\0';
-		//cout << "[TCP 클라이언트] " << retval << "바이트를 받았습니다." << endl;
-		//cout << "[받은 데이터] " << buf << endl;
 	}
 
 	// closesocket()
