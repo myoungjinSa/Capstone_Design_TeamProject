@@ -116,7 +116,7 @@ public:
 private:
 	CPlayer*					m_pPlayer = NULL;
 
-	//void*						m_SoundBuffer1 = NULL;
+	//void*								m_SoundBuffer1 = NULL;
 	//HANDLE						m_SoundBuffer2 = NULL;
 	CSoundSystem*				m_pSound=NULL;
 	//FMOD 사운드 시스템
@@ -134,7 +134,7 @@ private:
 	// SkyBox : 1
 	// Terrain : 2, 
 	// DeadTrees : 23, PineTrees : 35, Rocks : 25, Deer : 2, Pond : 2=> MapObjects : 67
-	// Hammer : 5, Pocket_Watch : 5 => Item = 10
+	// Hammer : 3, Pocket_Watch : 5 => Item = 8
 	// EvilBear : 18, LampParticle : 1 => 19
 	// Player : 18, LampParticle : 1 => 19
 	// Snow : 1, IceParticle : 1 => Particle = 2 
@@ -143,7 +143,7 @@ private:
 
 	enum nShaderResourceView
 	{
-		SkyBox = 1, Terrain = 2, MapObjects = 67, Item = 10,
+		SkyBox = 1, Terrain = 2, MapObjects = 67, Item = 8,
 		EvilBear = 19, Player = 19, Particle = 2, TimerUI = 11, ItemUI = 4
 	};
 };

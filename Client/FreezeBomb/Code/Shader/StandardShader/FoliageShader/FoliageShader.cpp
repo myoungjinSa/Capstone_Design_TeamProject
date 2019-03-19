@@ -11,12 +11,6 @@ CFoliageShader::CFoliageShader()
 
 CFoliageShader::~CFoliageShader()
 {
-	if (m_ppFoliageModel01)
-		delete m_ppFoliageModel01;
-	if (m_ppFoliageModel02)
-		delete m_ppFoliageModel02;
-	if (m_ppFoliageModel03)
-		delete m_ppFoliageModel03;
 }
 
 void CFoliageShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
@@ -132,6 +126,12 @@ void CFoliageShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 		}
 	}
 
+	if (m_ppFoliageModel01)
+		delete m_ppFoliageModel01;
+	if (m_ppFoliageModel02)
+		delete m_ppFoliageModel02;
+	if (m_ppFoliageModel03)
+		delete m_ppFoliageModel03;
 }
 
 void CFoliageShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer* pPlayer)

@@ -34,7 +34,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_pResourceManager = new CResourceManager;
 	m_pResourceManager->Initialize(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	m_nShaders = 8;
+	m_nShaders = 9;
 
 	//맵툴 모드일때는 맵의 오브젝트들을 그리지 않게 하기 위해 
 	// 그래야 맵툴모드에서 적용해서 배치한 오브젝트들만 볼 수 있다.
@@ -66,11 +66,11 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 #endif
 
 	//Foliage는 충돌처리가 필요 없음.. 따라서 Bound 박스 필요  없다. 그림자도 필요업음
-	//CFoliageShader* pFoliageShader = new CFoliageShader;
-	//pFoliageShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//pFoliageShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pTerrainShader->getTerrain());
-	//m_ppShaders[index++] = pFoliageShader;
-	//m_ShaderMap.emplace("Foliage", pFoliageShader);
+	CFoliageShader* pFoliageShader = new CFoliageShader;
+	pFoliageShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pFoliageShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pTerrainShader->getTerrain());
+	m_ppShaders[index++] = pFoliageShader;
+	m_ShaderMap.emplace("Foliage", pFoliageShader);
 
 	CItemShader* pItemShader = new CItemShader;
 	//pItemShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -87,7 +87,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 
 	CSkinnedAnimationObjectShader* pAnimationObjectShader = new CSkinnedAnimationObjectShader;
 	//pAnimationObjectShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pAnimationObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(),nPlayerCount,pTerrainShader->getTerrain());
+	pAnimationObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getModelMap(), m_pResourceManager->getBoundMap(),nPlayerCount,pTerrainShader->getTerrain());
 	m_ppShaders[index++] = pAnimationObjectShader;
 	m_ShaderMap.emplace("곰돌이", pAnimationObjectShader);
 
@@ -157,15 +157,8 @@ void CShaderManager::Render(ID3D12GraphicsCommandList* pd3dCommandList,float fTi
 {
 	for (int i = 0; i < m_nShaders; i++)
 	{
-		if (m_ppShaders[i]) {
-			if (i == 4) 
-			{
-				dynamic_cast<CSkinnedAnimationObjectShader*>(m_ppShaders[i])->Render(pd3dCommandList, pCamera, GameObject, fTimeElapsed);
-			}
-			else {
-				m_ppShaders[i]->Render(pd3dCommandList, pCamera, GameObject);
-			}
-		}
+		if (m_ppShaders[i]) 
+			m_ppShaders[i]->Render(pd3dCommandList, pCamera, GameObject);
 	}
 
 	if (m_pPlayer)
