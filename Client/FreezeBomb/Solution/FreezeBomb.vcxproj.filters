@@ -168,6 +168,9 @@
     <ClCompile Include="..\Code\Shader\StandardShader\FoliageShader\FoliageShader.cpp">
       <Filter>Code\Shader\StandardShader\FoliageShader</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\Network\Network.cpp">
+      <Filter>Code\Network</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h">
@@ -325,6 +328,12 @@
     </ClInclude>
     <ClInclude Include="..\Code\GameObject\EvilBear\EvilBear.h">
       <Filter>Code\GameObject\EvilBear</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Network\Network.h">
+      <Filter>Code\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Network\PacketDefine.h">
+      <Filter>Code\Network</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -497,6 +506,9 @@
     </Filter>
     <Filter Include="Code\Shader\StandardShader\FoliageShader">
       <UniqueIdentifier>{4a082e72-24b2-4ae0-ace0-edb616d1687c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Network">
+      <UniqueIdentifier>{1b26d7f8-52f8-4a93-8f94-f19be495dabb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

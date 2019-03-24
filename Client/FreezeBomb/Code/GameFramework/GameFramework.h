@@ -11,7 +11,7 @@ class CPlayerShadowShader;
 class CCamera;
 class CMapToolShader;
 class CSobelCartoonShader;
-
+class Network;
 
 class CGameFramework
 {
@@ -40,7 +40,7 @@ public:
 	
 	void ChangeSwapChainState();
 
-	void BuildObjects();
+	bool BuildObjects();
 	void ReleaseObjects();
 
 	void ProcessInput();
@@ -63,7 +63,6 @@ public:
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 private:
-
 	HINSTANCE					m_hInstance;
 	HWND							m_hWnd;
 
@@ -100,7 +99,6 @@ private:
 #if defined(_DEBUG)
 	ID3D12Debug*							m_pd3dDebugController;
 #endif
-
 	CGameTimer								m_GameTimer;
 
 	CScene*									m_pScene = nullptr;
@@ -153,9 +151,8 @@ private:
 	ID2D1Effect						*m_pd2dfxBitmapSource{ nullptr };
 	ID2D1DrawingStateBlock1			*m_pd2dsbDrawingState{ nullptr };
 	IWICFormatConverter				*m_pwicFormatConverter{ nullptr };
-
-
 #endif
 
+	Network*	m_pNetwork{ nullptr };
 };
 

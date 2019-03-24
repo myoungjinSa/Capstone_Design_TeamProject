@@ -1,5 +1,7 @@
 #include "../Stdafx/Stdafx.h"
 #include "GameFramework.h"
+#include "../Network/Network.h"
+
 #include "../Scene/Scene.h"
 #include "../GameObject/Player/Player.h"
 #include "../GameObject/Shadow/Shadow.h"
@@ -47,7 +49,6 @@ CGameFramework::CGameFramework()
 
 CGameFramework::~CGameFramework()
 {
-	
 }
 
 bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
@@ -67,7 +68,8 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 
 	CoInitialize(NULL);
 
-	BuildObjects();
+	if (!BuildObjects())
+		return false;
 
 	CreateOffScreenRenderTargetViews();
 
@@ -714,9 +716,6 @@ void CGameFramework::OnDestroy()
 	
 	if(m_pdwTextLayout) m_pdwTextLayout->Release();
 	
-
-
-
 	//Direct11
 	if (m_pd2dDeviceContext) m_pd2dDeviceContext->Release();
 	if (m_pd2dDevice) m_pd2dDevice->Release();
@@ -762,9 +761,17 @@ void CGameFramework::OnDestroy()
 #endif
 }
 
-void CGameFramework::BuildObjects()
+bool CGameFramework::BuildObjects()
 {
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
+
+	//m_pNetwork = new Network;
+	//if (!m_pNetwork->Initialize())
+	//{
+	//	OnDestroy();
+	//	::PostQuitMessage(0);
+	//	return false;
+	//}
 
 	////////////////////////////////////////////////////////////////////////////
 	const int nPlayerCount = 6;		//임시로 플레이어 개수 지정. 
@@ -772,7 +779,6 @@ void CGameFramework::BuildObjects()
 	m_pScene = new CScene();
 	if (m_pScene) 
 		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList,nPlayerCount-1); //GameFramework에서 관리하는 CPlayer를 제외한 나머지 넘겨준다.
-
 
 	CTerrainPlayer* pPlayer{ nullptr };
 
@@ -817,10 +823,15 @@ void CGameFramework::BuildObjects()
 		m_pPlayer->ReleaseUploadBuffers();
 
 	m_GameTimer.Reset();
+
+	return true;
 }
 
 void CGameFramework::ReleaseObjects()
 {
+	if (m_pNetwork)
+		delete m_pNetwork;
+
 	if (m_pPlayer) 
 		m_pPlayer->Release();
 

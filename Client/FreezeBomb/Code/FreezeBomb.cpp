@@ -82,7 +82,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	if (!hMainWnd) return(FALSE);
 
-	gGameFramework.OnCreate(hInstance, hMainWnd);
+	if (!gGameFramework.OnCreate(hInstance, hMainWnd))
+	{
+		::PostQuitMessage(0);
+	}
 
 	::ShowWindow(hMainWnd, nCmdShow);
 	::UpdateWindow(hMainWnd);

@@ -195,6 +195,8 @@
     <ClInclude Include="..\Code\Mesh\BillboardMesh\BillboardMesh.h" />
     <ClInclude Include="..\Code\Mesh\LODMesh\LODMesh.h.h" />
     <ClInclude Include="..\Code\Mesh\Mesh.h" />
+    <ClInclude Include="..\Code\Network\Network.h" />
+    <ClInclude Include="..\Code\Network\PacketDefine.h" />
     <ClInclude Include="..\Code\ResourceManager\ResourceManager.h" />
     <ClInclude Include="..\Code\Scene\Scene.h" />
     <ClInclude Include="..\Code\ShaderManager\ShaderManager.h" />
@@ -247,6 +249,7 @@
     <ClCompile Include="..\Code\Mesh\BillboardMesh\BillboardMesh.cpp" />
     <ClCompile Include="..\Code\Mesh\LODMesh\LODMesh.cpp" />
     <ClCompile Include="..\Code\Mesh\Mesh.cpp" />
+    <ClCompile Include="..\Code\Network\Network.cpp" />
     <ClCompile Include="..\Code\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="..\Code\Scene\Scene.cpp" />
     <ClCompile Include="..\Code\ShaderManager\ShaderManager.cpp" />
