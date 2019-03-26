@@ -441,9 +441,6 @@
     <Filter Include="Code\GameObject\Terrain">
       <UniqueIdentifier>{89ea758f-46ba-41ef-aa18-c2eb6e6f5309}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Scene">
-      <UniqueIdentifier>{c250057d-c5e7-49f9-b7c7-8f7b2f6f8001}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\GameObject\IceCube">
       <UniqueIdentifier>{6923770d-d22e-4787-9024-798ed53a93b3}</UniqueIdentifier>
     </Filter>
@@ -509,6 +506,9 @@
     </Filter>
     <Filter Include="Code\Network">
       <UniqueIdentifier>{1b26d7f8-52f8-4a93-8f94-f19be495dabb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Scene">
+      <UniqueIdentifier>{c250057d-c5e7-49f9-b7c7-8f7b2f6f8001}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

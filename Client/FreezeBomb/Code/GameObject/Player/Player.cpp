@@ -39,7 +39,7 @@ CPlayer::~CPlayer()
 {
 	ReleaseShaderVariables();
 
-	if (m_pCamera) 
+	if (m_pCamera)
 		delete m_pCamera;
 
 	for (auto iter = m_Normal_Inventory.begin(); iter != m_Normal_Inventory.end();)
@@ -73,7 +73,7 @@ void CPlayer::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
 
 void CPlayer::ReleaseShaderVariables()
 {
-	if (m_pCamera) 
+	if (m_pCamera)
 		m_pCamera->ReleaseShaderVariables();
 }
 
@@ -103,7 +103,13 @@ void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 	}
 	else
 	{
+		// 여기서 플레이어가 정적인 오브젝트와 충돌했을 시에 못움직이게 해야됨.
+		// 방법
+		// 1. 플레이어가 무슨 키의 입력을 받았을 때, 충돌 되었는지
+		// 2. 플레이어가 무슨 애니메이션일 때, 충돌 되었는지
+		// 3. 
 		m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
+
 		m_pCamera->Move(xmf3Shift);
 	}
 }
@@ -180,6 +186,7 @@ void CPlayer::Update(float fTimeElapsed)
 	float fMaxVelocityY = m_fMaxVelocityY;
 	float fLengthY = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
 	if (fLengthY > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLengthY);
+
 
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
 	Move(xmf3Velocity, false);
@@ -279,8 +286,8 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 	}
 }
 
-void CPlayer::Add_Inventory(string key, int ItemType) 
-{ 
+void CPlayer::Add_Inventory(string key, int ItemType)
+{
 	if (ItemType == CItem::NormalHammer)
 	{
 		if (m_Normal_Inventory.size() > 0)
@@ -323,13 +330,14 @@ void CPlayer::Refresh_Inventory(int ItemType)
 void CPlayer::DecideAnimationState(float fLength)
 {
 	CAnimationController* pController = m_pAnimationController;
-	if (fLength == 0.0f 
-		&& (pController->GetAnimationState() != CAnimationController::ATTACK 
-		&& pController->GetAnimationState() != CAnimationController::DIGGING
-		&& pController->GetAnimationState() != CAnimationController::JUMP		
-		&& pController->GetAnimationState() != CAnimationController::RAISEHAND
-		&& pController->GetAnimationState() != CAnimationController::DIE
-		&& pController->GetAnimationState() != CAnimationController::ICE ))
+
+	if (fLength == 0.0f
+		&& (pController->GetAnimationState() != CAnimationController::ATTACK
+			&& pController->GetAnimationState() != CAnimationController::DIGGING
+			&& pController->GetAnimationState() != CAnimationController::JUMP
+			&& pController->GetAnimationState() != CAnimationController::RAISEHAND
+			&& pController->GetAnimationState() != CAnimationController::DIE
+			&& pController->GetAnimationState() != CAnimationController::ICE))
 	{
 		if (pController->GetAnimationState() == CAnimationController::RUNFAST)
 		{
@@ -340,10 +348,10 @@ void CPlayer::DecideAnimationState(float fLength)
 		SetTrackAnimationSet(0, CAnimationController::IDLE);
 		m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
 	}
-	else 
+	else
 	{
-		if (GetAsyncKeyState(VK_UP) & 0x8000 
-			&& pController->GetAnimationState() != CAnimationController::ATTACK 
+		if (GetAsyncKeyState(VK_UP) & 0x8000
+			&& pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::JUMP
 			&& pController->GetAnimationState() != CAnimationController::ICE
 			&& pController->GetAnimationState() != CAnimationController::RAISEHAND
@@ -355,7 +363,7 @@ void CPlayer::DecideAnimationState(float fLength)
 			//m_pAnimationController->SetTrackSpeed(0, 1.3f);
 			//m_pAnimationController->SetTrackPosition(0, 0.0f);
 		}
-	
+
 		if (GetAsyncKeyState(VK_DOWN) & 0x8000
 			&& pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::JUMP
@@ -367,7 +375,7 @@ void CPlayer::DecideAnimationState(float fLength)
 			SetTrackAnimationSet(0, CAnimationController::RUNBACKWARD);
 		}
 	}
-	if (GetAsyncKeyState(VK_SPACE) & 0x8000 
+	if (GetAsyncKeyState(VK_SPACE) & 0x8000
 		&& pController->GetAnimationState() != CAnimationController::JUMP
 		&& pController->GetAnimationState() != CAnimationController::ICE
 		)
@@ -378,7 +386,7 @@ void CPlayer::DecideAnimationState(float fLength)
 		//pController->SetTrackSpeed(0, 1.5f);
 	}
 
-	if (GetAsyncKeyState(VK_Z) & 0x8000 
+	if (GetAsyncKeyState(VK_Z) & 0x8000
 		&& pController->GetAnimationState() != CAnimationController::DIGGING
 		&& pController->GetAnimationState() != CAnimationController::ICE
 		)
@@ -394,20 +402,20 @@ void CPlayer::DecideAnimationState(float fLength)
 		m_bBomb = !m_bBomb;
 		m_bHammer = !m_bHammer;
 	}
-	if(GetAsyncKeyState(VK_RSHIFT) & 0x0001 && pController->GetAnimationState() != CAnimationController::DIE )
-	{	
+	if (GetAsyncKeyState(VK_RSHIFT) & 0x0001 && pController->GetAnimationState() != CAnimationController::DIE)
+	{
 		pController->SetTrackPosition(0, 0.0f);
-		pController->SetTrackAnimationSet(0,CAnimationController::DIE);
+		pController->SetTrackAnimationSet(0, CAnimationController::DIE);
 		pController->SetAnimationState(CAnimationController::DIE);
 	}
 
 	////얼음으로 변신
-	if(GetAsyncKeyState(VK_LSHIFT) & 0x0001
+	if (GetAsyncKeyState(VK_LSHIFT) & 0x0001
 		&& pController->GetAnimationState() != CAnimationController::ICE
 		)
 	{
 		m_bIce = !m_bIce;
-		pController->SetTrackAnimationSet(0,CAnimationController::IDLE);
+		pController->SetTrackAnimationSet(0, CAnimationController::IDLE);
 		pController->SetAnimationState(CAnimationController::ICE);
 	}
 
@@ -448,6 +456,24 @@ void CPlayer::DecideAnimationState(float fLength)
 			Refresh_Inventory(CItem::GoldHammer);
 		}
 	}
+
+	if (m_pShaderManager)
+	{
+		if (pController->GetAnimationState() != CAnimationController::DIE)
+		{
+			auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
+			if (iter != m_pShaderManager->getShaderMap().end())
+			{
+				if (((CTimerUIShader*)((*iter).second))->getTimer() <= 0.f)
+				{
+					pController->SetTrackPosition(0, 0.0f);
+					pController->SetTrackAnimationSet(0, CAnimationController::DIE);
+					pController->SetAnimationState(CAnimationController::DIE);
+				}
+			}
+		}
+		}
+	
 }
 
 bool CPlayer::AnimationCollision(byte AnimationType)
@@ -478,12 +504,12 @@ void CPlayer::InitializeSound()
 	m_pSound = new CSoundSystem;
 
 	m_SoundCount = 2;
-	
+
 	m_SoundList = new const char*[m_SoundCount];
 
 	m_SoundList[0] = "../Resource/Sound/BtnDown03.wav";
 	m_SoundList[1] = "../Resource/Sound/bell1.wav";
-	
+
 	std::string s0(m_SoundList[0]);
 	std::string s1(m_SoundList[1]);
 	////m_SoundList[1] = "../Resource/Sound/bell1.wav";
@@ -491,17 +517,17 @@ void CPlayer::InitializeSound()
 	m_mapMusicList.emplace(FOOTSTEP, s0);
 	m_mapMusicList.emplace(ATTACK, s1);
 
-	if(m_pSound)
-		m_pSound->Initialize(m_SoundCount, m_SoundList,FMOD_LOOP_OFF);
+	if (m_pSound)
+		m_pSound->Initialize(m_SoundCount, m_SoundList, FMOD_LOOP_OFF);
 }
 
 void CPlayer::ReleaseSound()
 {
-	if(m_pSound)
+	if (m_pSound)
 		m_pSound->Release();
 }
 
-CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID ,void *pContext)
+CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, int matID, void *pContext)
 {
 	CLoadedModelInfo* pEvilBearModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
 		"../Resource/Models/EvilBear.bin", NULL, true, "Player");
@@ -513,7 +539,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 	m_pAnimationController = new CAnimationController(1, pEvilBearModel->m_pAnimationSets);
 	m_pAnimationController->SetTrackAnimationSet(0, m_pAnimationController->IDLE);
-	
+
 	// RUNFAST번 애니메이션 동작에 사운드 2개를 Set해준다.
 	m_pAnimationController->SetCallbackKeys(m_pAnimationController->RUNFAST, 2);
 
@@ -628,7 +654,7 @@ CCamera *CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		break;
 	case THIRD_PERSON_CAMERA:
 		SetFriction(250.0f);
-		SetGravity(XMFLOAT3(0.0f, -250.0f,0.0f));
+		SetGravity(XMFLOAT3(0.0f, -250.0f, 0.0f));
 		SetMaxVelocityXZ(40.0f);
 		SetMaxVelocityY(400.0f);
 		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
