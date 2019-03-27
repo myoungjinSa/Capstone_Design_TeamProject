@@ -2,7 +2,7 @@
 
 #include "../GameTimer/GameTimer.h"
 
-#define _WITH_DIRECT2D_
+
 
 class CScene;
 class CPlayer;
@@ -26,7 +26,6 @@ public:
 
 	void CreateDirect3DDevice();
 	void CreateCommandQueueAndList();
-	//void CreateDirect11DeviceOn12();
 	
 	void CreateRtvAndDsvDescriptorHeaps();
 
@@ -140,13 +139,13 @@ private:
 	ID2D1SolidColorBrush			*m_pd2dbrBackground{ nullptr };//
 	ID2D1SolidColorBrush			*m_pd2dbrBorder{ nullptr };//
 
-	//IDWriteTextFormat				*m_pdwFont[6]{ nullptr };//
+	
 	IDWriteTextFormat				**m_pdwFont{ nullptr };//
 	const int						m_nNameFont=6;
 
 	IDWriteTextLayout				*m_pdwTextLayout{ nullptr };//
 	ID2D1SolidColorBrush			**m_pd2dbrText{ nullptr };//
-	//ID2D1SolidColorBrush			*m_pd2dbrText[6]{ nullptr };//
+	
 
 
 	IWICImagingFactory				*m_pwicImagingFactory{ nullptr };
