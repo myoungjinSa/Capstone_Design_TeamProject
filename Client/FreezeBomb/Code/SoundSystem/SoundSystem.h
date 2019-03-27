@@ -15,8 +15,8 @@ public:
 
 public:
 	void Initialize(const int soundNum,const char** musicList,int nFlags);
-	void Play(const int SoundNum);
-	void PlayIndex(unsigned int index);
+	void Play(const int SoundNum,float volume =1.0f);
+	void PlayIndex(unsigned int index,float volume=1.0f);
 	void Release();
 
 	const int& GetSoundCount()const { return m_soundCount; }

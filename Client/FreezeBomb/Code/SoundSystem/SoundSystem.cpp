@@ -35,21 +35,26 @@ void CSoundSystem::Initialize(const int soundNum ,const char** musicList,int nFl
 }
 
 
-void CSoundSystem::Play(const int Sound_num)
+void CSoundSystem::Play(const int Sound_num,float volume)
 {
 	if (pSystem) {
 		for (int i = 0; i < Sound_num; i++) {
-			if(pSound[i])
-			pSystem->playSound(pSound[i], nullptr, 0, pChannel);
+			if (pSound[i]) {
+				pSystem->playSound(pSound[i], nullptr, 0, &pChannel[i]);
+				pChannel[i]->setVolume(volume);
+			}
 		}
 	}
 }
-void CSoundSystem::PlayIndex(unsigned int index)
+void CSoundSystem::PlayIndex(unsigned int index,float volume)
 {
 	if(pSystem)
 	{
-		if (pSound[index])
-			pSystem->playSound(pSound[index], nullptr, false, pChannel);
+		if (pSound[index]) {
+		
+			pSystem->playSound(pSound[index], nullptr, false, &pChannel[index]);
+			(volume > 0) ? pChannel[index]->setVolume(volume) : pChannel[index]->setVolume(0);
+		}
 	}
 }
 

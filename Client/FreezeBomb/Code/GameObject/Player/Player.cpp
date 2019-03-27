@@ -183,6 +183,8 @@ void CPlayer::Update(float fTimeElapsed)
 		m_xmf3Velocity.x *= (fMaxVelocityXZ / fLength);
 		m_xmf3Velocity.z *= (fMaxVelocityXZ / fLength);
 	}
+	
+	
 	float fMaxVelocityY = m_fMaxVelocityY;
 	float fLengthY = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
 	if (fLengthY > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLengthY);

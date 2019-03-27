@@ -10,6 +10,7 @@
 #include "../Shader/StandardShader/ItemShader/ItemShader.h"
 #include "../SoundSystem/SoundSystem.h"
 
+
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
 D3D12_CPU_DESCRIPTOR_HANDLE	CScene::m_d3dCbvCPUDescriptorStartHandle;
@@ -579,6 +580,9 @@ void CScene::CheckObjectByObjectCollisions()
 				if((*iter2)->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
 					m_pPlayer->SetObjectCollided((*iter2));
+					XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize((*iter2)->GetPosition() ,m_pPlayer->GetPosition());
+					xmf3CollisionDir=Vector3::ScalarProduct(xmf3CollisionDir, m_pPlayer->GetMaxVelocity()*0.3f);
+					m_pPlayer->SetVelocity(-xmf3CollisionDir.x,-xmf3CollisionDir.y,-xmf3CollisionDir.z);
 					cout << i << "번째 정적인 오브젝트와 충돌" << endl;
 				}
 				++i;
@@ -609,15 +613,31 @@ void CScene::CheckObjectByObjectCollisions()
 		iter = m.find("곰돌이");
 		if (iter != m.end())
 		{
+			float minDistance = 1000.0f;
 			for (int i = 0; i < (*iter).second->m_nObjects; ++i)
 			{
 				if ((*iter).second->m_ppObjects[i]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
 					//(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
 					//m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
+					//이쪽에 일단 클라이언트단에서 못움직이게 구현. 추후에 서버에서 해야함
+					//플레이어와 오브젝트의 원점에서의 거리를 구한다음 방향을 구하여 그 방향으로는 진행을 못하게 해야할듯
+
+					XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize((*iter).second->m_ppObjects[i]->GetPosition() ,m_pPlayer->GetPosition());
+					xmf3CollisionDir=Vector3::ScalarProduct(xmf3CollisionDir, (m_pPlayer->GetMaxVelocity()*0.3f));
+					m_pPlayer->SetVelocity(-xmf3CollisionDir.x,-xmf3CollisionDir.y,-xmf3CollisionDir.z);
+			
 					cout << i << "번째 애니메이션 오브젝트와 충돌" << endl;
 				}
+
+				//각 캐릭터는 플레이어와의 거리 변수를 저장한다.
+				//사운드 볼륩 조절에 필요.
+				float dist = Vector3::Length(Vector3::SubtractNormalize( (*iter).second->m_ppObjects[i]->GetPosition(),m_pPlayer->GetPosition()));
+				(*iter).second->m_ppObjects[i]->SetDistanceToTarget(dist);
+				//m_pPlayer->SetMinDistanceWithEnemy(minDistance);
 			}
+			
+			//cout<< "최소 거리:" << minDistance << "\n";
 
 			if (m_pPlayer->AnimationCollision(CAnimationController::ATTACK))
 			{
@@ -633,7 +653,13 @@ void CScene::CheckObjectByObjectCollisions()
 						}
 					}
 				}
-			}			
+			}		
+
+
+			
+			/*sort(begin(m), end(m), [&](const CGameObject& enmey1,const CGameObject& enemy2)->float {
+				float fDistamce = m_pPlayer->
+			});*/
 		}
 
 		// 플레이어와 아이템 오브젝트 충돌검사
