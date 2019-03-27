@@ -60,9 +60,13 @@ using Microsoft::WRL::ComPtr;
 extern HINSTANCE						ghAppInstance;
 
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
+//#define _WITH_SYNCH_SWAPCHAIN
+#define _WITH_DIRECT2D_
+
 
 #define FRAME_BUFFER_WIDTH		1200
 #define FRAME_BUFFER_HEIGHT		800
+
 
 enum PIPELINESTATE_TYPE { GameObject, GameObject_Shadow };
 
