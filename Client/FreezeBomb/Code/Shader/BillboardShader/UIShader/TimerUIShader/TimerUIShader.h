@@ -22,6 +22,7 @@ public:
 	void TimerUpdate();
 
 	void setTimer(float value);
+	float getTimer() const { return m_Timer; }
 
 private:
 	enum UIType { OneSec, TenSec, OneMin, Colon };

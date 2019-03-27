@@ -559,21 +559,36 @@ void CScene::CheckObjectByObjectCollisions()
 {
 	if (m_pPlayer)
 	{
+		// 플레이어와 충돌 된 오브젝트 정보를 초기화
+		//m_pPlayer->SetObjectCollided(nullptr);
+
 		// 플레이어와 정적인 오브젝트 충돌검사
 		map<string, CShader*> m = m_pShaderManager->getShaderMap();
 		auto iter = m.find("MapObjects");
 		if (iter != m.end())
 		{
 			int i = 0;
-			auto MapObjectsList = dynamic_cast<CMapObjectsShader*>((*iter).second)->getSurroundingList();
+			auto MapObjectsList = ((CMapObjectsShader*)((*iter).second))->getSurroundingList();
+
+			// 맵 오브젝트의 충돌 된 오브젝트를 초기화해줌
+			for (auto iter2 = MapObjectsList.begin(); iter2 != MapObjectsList.end(); ++iter2)
+				(*iter2)->SetObjectCollided(nullptr);
+
 			for (auto iter2 = MapObjectsList.begin(); iter2 != MapObjectsList.end(); ++iter2)
 			{
 				if((*iter2)->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
+					m_pPlayer->SetObjectCollided((*iter2));
 					cout << i << "번째 정적인 오브젝트와 충돌" << endl;
 				}
 				++i;
 			}
+
+			//// 플레이어가 맵 오브젝트와 충돌했다면
+			//if (m_pPlayer->GetObjectCollided() != nullptr)
+			//{
+
+			//}
 		}
 
 		// 플레이어와 다른 곰돌이 오브젝트 충돌검사
