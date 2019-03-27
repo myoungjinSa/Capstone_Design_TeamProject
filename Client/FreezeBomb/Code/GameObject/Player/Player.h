@@ -104,6 +104,7 @@ public:
 	{
 		FOOTSTEP=1,
 		USETIMER,
+		DIE,
 		ATTACK
 	};
 	std::map<MUSIC_ENUM, std::string> m_mapMusicList;

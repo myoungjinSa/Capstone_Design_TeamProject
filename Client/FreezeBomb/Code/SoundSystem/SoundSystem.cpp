@@ -4,6 +4,7 @@ CSoundSystem::CSoundSystem() : m_soundCount(0), pSystem(nullptr), pSound(nullptr
 {
 	pChannel[0] = nullptr;
 	pChannel[1] = nullptr;
+	pChannel[2] = nullptr;
 }
 
 CSoundSystem::~CSoundSystem()
@@ -18,7 +19,7 @@ void CSoundSystem::Initialize(const int soundNum ,const char** musicList,int nFl
 
 	System_Create(&pSystem);
 
-	const int maxSound = 4;
+	const int maxSound = 8;
 
 	if (soundNum <= maxSound) 
 	{

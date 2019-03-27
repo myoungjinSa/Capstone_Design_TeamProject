@@ -505,19 +505,22 @@ void CPlayer::InitializeSound()
 {
 	m_pSound = new CSoundSystem;
 
-	m_SoundCount = 2;
+	m_SoundCount = 3;
 
 	m_SoundList = new const char*[m_SoundCount];
 
 	m_SoundList[0] = "../Resource/Sound/BtnDown03.wav";
 	m_SoundList[1] = "../Resource/Sound/bell1.wav";
+	m_SoundList[2] = "../Resource/Sound/Bomb.mp3";
 
 	std::string s0(m_SoundList[0]);
 	std::string s1(m_SoundList[1]);
+	std::string s2(m_SoundList[2]);
 	////m_SoundList[1] = "../Resource/Sound/bell1.wav";
 
 	m_mapMusicList.emplace(FOOTSTEP, s0);
 	m_mapMusicList.emplace(ATTACK, s1);
+	m_mapMusicList.emplace(DIE, s2);
 
 	if (m_pSound)
 		m_pSound->Initialize(m_SoundCount, m_SoundList, FMOD_LOOP_OFF);
@@ -554,12 +557,20 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pAnimationController->SetCallbackKeys(m_pAnimationController->RAISEHAND, 1);
 	m_pAnimationController->SetCallbackKey(m_pAnimationController->RAISEHAND, 0, 0.3f, (void*)CPlayer::MUSIC_ENUM::USETIMER);
 
+	m_pAnimationController->SetCallbackKeys(m_pAnimationController->DIE, 1);
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->DIE, 0, 0.1f, (void*)CPlayer::MUSIC_ENUM::DIE);
+
+
 	CAnimationCallbackHandler* pRunAnimationCallbackHandler = new CSoundCallbackHandler();
 	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RUNFAST, pRunAnimationCallbackHandler,
 		GetSoundData());
 
 	CAnimationCallbackHandler* pRaiseHandAnimationCallbackHandler = new CSoundCallbackHandler();
 	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RAISEHAND, pRaiseHandAnimationCallbackHandler,
+		GetSoundData());
+	
+	CAnimationCallbackHandler* pDieAnimationCallbackHandler = new CSoundCallbackHandler();
+	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->DIE, pDieAnimationCallbackHandler,
 		GetSoundData());
 
 

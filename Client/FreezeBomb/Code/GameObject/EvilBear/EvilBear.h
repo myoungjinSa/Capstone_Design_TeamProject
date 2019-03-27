@@ -20,6 +20,7 @@ public:
 	{
 		FOOTSTEP=1,
 		USETIMER,
+		DIE,
 		ATTACK
 	};
 
