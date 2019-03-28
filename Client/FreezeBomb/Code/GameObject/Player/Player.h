@@ -34,15 +34,23 @@ public:
 	void SetGravity(const XMFLOAT3& xmf3Gravity) { m_xmf3Gravity = xmf3Gravity; }
 	void SetMaxVelocityXZ(float fMaxVelocity) { m_fMaxVelocityXZ = fMaxVelocity; }
 	void SetMaxVelocityY(float fMaxVelocity) { m_fMaxVelocityY = fMaxVelocity; }
+
+	float GetVelocityX() { return m_xmf3Velocity.x; }
+	float GetVelocityZ() { return m_xmf3Velocity.z; }
+
 	void SetVelocity(const XMFLOAT3& xmf3Velocity) { m_xmf3Velocity = xmf3Velocity; }
+	void SetVelocity(const float& velX, const float& velY, const float& velZ) { m_xmf3Velocity.x = velX; m_xmf3Velocity.y = velY, m_xmf3Velocity.z = velZ; }
 	void SetPosition(const XMFLOAT3& xmf3Position) { Move(XMFLOAT3(xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z), false); }
 
+	//사운드 볼륨 조절을 위해 가장 가까운 적과의 거리를 멤버 변수로 저장한다.
+	void SetMinDistanceWithEnemy(float fDistance) { m_fMinDistance = fDistance; }
 	void SetScale(XMFLOAT3& xmf3Scale) { m_xmf3Scale = xmf3Scale; }
 
 	const XMFLOAT3& GetVelocity() const { return(m_xmf3Velocity); }
 	float GetYaw() const { return(m_fYaw); }
 	float GetPitch() const { return(m_fPitch); }
 	float GetRoll() const { return(m_fRoll); }
+	float GetMaxVelocity() const { return m_fMaxVelocityXZ; }
 
 	CCamera *GetCamera() { return(m_pCamera); }
 	void SetCamera(CCamera *pCamera) { m_pCamera = pCamera; }
@@ -95,6 +103,7 @@ public:
 	{
 		FOOTSTEP=1,
 		USETIMER,
+		DIE,
 		ATTACK
 	};
 	std::map<MUSIC_ENUM, std::string> m_mapMusicList;
@@ -122,6 +131,8 @@ protected:
 	float           			m_fMaxVelocityXZ = 0.0f;
 	float           			m_fMaxVelocityY = 0.0f;
 	float           			m_fFriction = 0.0f;
+
+	float						m_fMinDistance = 0.0f;
 
 	LPVOID				m_pPlayerUpdatedContext{ nullptr };
 	LPVOID				m_pCameraUpdatedContext{ nullptr };

@@ -36,7 +36,7 @@ void *CAnimationSet::GetCallbackData()
 }
 
 
-void CAnimationSet::SetPosition(CAnimationController& AnimationController,float& fTrackPosition)
+void CAnimationSet::SetPosition(CAnimationController& AnimationController,float& fTrackPosition,void* pContext)
 {
 	m_fPosition = fTrackPosition;
 
@@ -82,7 +82,16 @@ void CAnimationSet::SetPosition(CAnimationController& AnimationController,float&
 		void *pCallbackData = GetCallbackData();
 		if (pCallbackData)
 		{
-			m_pAnimationCallbackHandler->HandleCallback(pCallbackData);
+			if (pContext)
+			{
+				
+				m_pAnimationCallbackHandler->HandleCallback(pCallbackData, pContext);
+			}
+			else {
+				m_pAnimationCallbackHandler->HandleCallback(pCallbackData);
+
+			}
+
 		}
 	}
 }
@@ -158,6 +167,7 @@ void CAnimationSet::SetAnimationCallbackHandler(CAnimationCallbackHandler *pCall
 	{
 		m_pAnimationCallbackHandler->SetAdditianalData(pContext);
 	}
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -265,7 +275,7 @@ void CAnimationController::SetAnimationSets(CAnimationSets *pAnimationSets)
 	pAnimationSets->AddRef();
 }
 
-void CAnimationController::AdvanceTime(float fTimeElapsed) 
+void CAnimationController::AdvanceTime(float fTimeElapsed, void* pContext)
 {
 	m_fTime += fTimeElapsed; 
 	if (m_pAnimationSets && m_pAnimationTracks)
@@ -280,7 +290,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed)
 
 			CAnimationSet *pAnimationSet = m_pAnimationTracks[j].m_pAnimationSet;
 			pAnimationSet->m_fPosition += (fTimeElapsed * m_pAnimationTracks[j].m_fSpeed);
-			m_pAnimationTracks[j].m_pAnimationSet->SetPosition(*this,m_pAnimationTracks[j].m_fPosition);
+			m_pAnimationTracks[j].m_pAnimationSet->SetPosition(*this,m_pAnimationTracks[j].m_fPosition,pContext);
 			//m_pAnimationTracks[j].m_pAnimationSet->m_fLength;
 			if (m_pAnimationTracks[j].m_bEnable)
 			{
@@ -296,27 +306,25 @@ void CAnimationController::AdvanceTime(float fTimeElapsed)
 	}
 } 
 
-//#define _WITH_DEBUG_CALLBACK_DATA
-//#define _WITH_SOUND_RESOURCE
-void CSoundCallbackHandler::HandleCallback(void *pCallbackData)
+
+void CSoundCallbackHandler::HandleCallback(void *pCallbackData,void* pAdditionalData)
 {
-	//_TCHAR *pWavName = (_TCHAR *)pCallbackData;
-//#ifdef _WITH_DEBUG_CALLBACK_DATA
-//	TCHAR pstrDebug[256] = { 0 };
-//	_stprintf_s(pstrDebug, 256, _T("%s\n"), pWavName);
-//	OutputDebugString(pstrDebug);
-//#endif
-//#ifdef _WITH_SOUND_RESOURCE
-//	PlaySound(MAKEINTRESOURCE(pCallbackData), ::ghAppInstance, SND_RESOURCE | SND_ASYNC);
-//#else
-//	PlaySound(pWavName, NULL, SND_FILENAME | SND_ASYNC);
-//#endif
 
 	if (m_pContextData) {
 		CSoundSystem* pSound = (CSoundSystem*)m_pContextData;
 
-		//사운드 배열은 0부터지만 넘어오는 데이터는 1부터 시작하기 때문에 인자에서 1빼서 넘겨준다.
-		pSound->PlayIndex((int)pCallbackData-1);
+		if (pAdditionalData) {
+			float* fDistance = (float*)pAdditionalData;
+
+			float fDistRate = *fDistance / 100.0f;
+			//사운드 배열은 0부터지만 넘어오는 데이터는 1부터 시작하기 때문에 인자에서 1빼서 넘겨준다.
+			pSound->PlayIndex((int)pCallbackData - 1,1-fDistRate);
+		}
+		else
+		{
+			pSound->PlayIndex((int)pCallbackData - 1);
+		}
+
 	}
 }
 

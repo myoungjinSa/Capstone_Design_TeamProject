@@ -60,9 +60,13 @@ using Microsoft::WRL::ComPtr;
 extern HINSTANCE						ghAppInstance;
 
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
+//#define _WITH_SYNCH_SWAPCHAIN
+#define _WITH_DIRECT2D_
+
 
 #define FRAME_BUFFER_WIDTH		1200
 #define FRAME_BUFFER_HEIGHT		800
+
 
 enum PIPELINESTATE_TYPE { GameObject, GameObject_Shadow };
 
@@ -196,6 +200,12 @@ namespace Vector3
 		XMStoreFloat3(&xmf3Result, XMVector3Length(XMLoadFloat3(&xmf3Vector)));
 		return(xmf3Result.x);
 	}
+	inline float LengthSqaure(XMFLOAT3& xmf3Vector)
+	{
+		XMFLOAT3 xmf3Result;
+		XMStoreFloat3(&xmf3Result, XMVector3LengthSq(XMLoadFloat3(&xmf3Vector)));
+		return(xmf3Result.x);
+	}
 
 	inline bool IsZero(XMFLOAT3& xmf3Vector)
 	{
@@ -232,6 +242,12 @@ namespace Vector3
 	inline XMFLOAT3 TransformCoord(XMFLOAT3& xmf3Vector, XMFLOAT4X4& xmmtx4x4Matrix)
 	{
 		return(TransformCoord(xmf3Vector, XMLoadFloat4x4(&xmmtx4x4Matrix)));
+	}
+	inline XMFLOAT3 Multiply(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
+	{
+		XMFLOAT3 xmf3Result;
+		XMStoreFloat3(&xmf3Result, XMVectorMultiply(XMLoadFloat3(&xmf3Vector1), XMLoadFloat3(&xmf3Vector2)));
+		return(xmf3Result);
 	}
 }
 

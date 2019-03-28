@@ -32,16 +32,16 @@ enum STATE_TYPE { Init, Run, Over };
 struct ITEM
 {
 	bool Hammer;				// 망치
-	bool SpecialHammer;	// 특수 망치
+	bool SpecialHammer;			// 특수 망치
 	bool Timer;					// 시간 연장
 };
 
 struct PLAYER
 {
 	bool Role; 					// 플레이어들의 역할
-	XMFLOAT3 Pos;			// 플레이어 위치
+	XMFLOAT3 Pos;				// 플레이어 위치
 	XMFLOAT4 Dir;				// 방향(쿼터니언)
-	byte AnimationNum; 	// 애니메이션 번호
+	byte AnimationNum; 			// 애니메이션 번호
 	bool ItemUse;				// 아이템 사용 여부
 	ITEM ItemType;				// 아이템 종류
 	byte PlayerState;			// 플레이어 상태
@@ -73,8 +73,8 @@ struct SC_InitPacket
 
 struct SC_InGamePacket
 {
-	PLAYER		Player_Packet[6];
-	byte			RoundCount;			// 몇 라운드인지
+	PLAYER			Player_Packet[6];
+	byte			RoundCount;					// 몇 라운드인지
 	float			Timer;						// 게임 시간
 	bool			Bomb;						// 폭탄이 터졌는지
 };

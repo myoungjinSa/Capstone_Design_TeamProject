@@ -4,6 +4,7 @@ CSoundSystem::CSoundSystem() : m_soundCount(0), pSystem(nullptr), pSound(nullptr
 {
 	pChannel[0] = nullptr;
 	pChannel[1] = nullptr;
+	pChannel[2] = nullptr;
 }
 
 CSoundSystem::~CSoundSystem()
@@ -18,7 +19,7 @@ void CSoundSystem::Initialize(const int soundNum ,const char** musicList,int nFl
 
 	System_Create(&pSystem);
 
-	const int maxSound = 4;
+	const int maxSound = 8;
 
 	if (soundNum <= maxSound) 
 	{
@@ -35,21 +36,26 @@ void CSoundSystem::Initialize(const int soundNum ,const char** musicList,int nFl
 }
 
 
-void CSoundSystem::Play(const int Sound_num)
+void CSoundSystem::Play(const int Sound_num,float volume)
 {
 	if (pSystem) {
 		for (int i = 0; i < Sound_num; i++) {
-			if(pSound[i])
-			pSystem->playSound(pSound[i], nullptr, 0, pChannel);
+			if (pSound[i]) {
+				pSystem->playSound(pSound[i], nullptr, 0, &pChannel[i]);
+				pChannel[i]->setVolume(volume);
+			}
 		}
 	}
 }
-void CSoundSystem::PlayIndex(unsigned int index)
+void CSoundSystem::PlayIndex(unsigned int index,float volume)
 {
 	if(pSystem)
 	{
-		if (pSound[index])
-			pSystem->playSound(pSound[index], nullptr, false, pChannel);
+		if (pSound[index]) {
+		
+			pSystem->playSound(pSound[index], nullptr, false, &pChannel[index]);
+			(volume > 0) ? pChannel[index]->setVolume(volume) : pChannel[index]->setVolume(0);
+		}
 	}
 }
 
