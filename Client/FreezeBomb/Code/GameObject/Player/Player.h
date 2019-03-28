@@ -88,8 +88,7 @@ public:
 	void ReleaseSound();
 
 	void* GetSoundData() const { return static_cast<void*>(m_pSound); }
-
-public:
+	
 	DWORD				m_dwDirection = 0x00;
 
 	enum MUSIC_ENUM
@@ -99,6 +98,9 @@ public:
 		ATTACK
 	};
 	std::map<MUSIC_ENUM, std::string> m_mapMusicList;
+
+	void setScore(short score) { m_Score = score; }
+	short getScore()		const { return m_Score; }
 
 protected:
 
@@ -136,7 +138,10 @@ protected:
 
 	CSoundSystem*	m_pSound{ nullptr };
 	const char**	m_SoundList;
-	int			m_SoundCount;
+	int					m_SoundCount;
+
+	short				m_Score = 0;
+	float m_Time = 0.f;
 };
 
 class CSoundSystem;

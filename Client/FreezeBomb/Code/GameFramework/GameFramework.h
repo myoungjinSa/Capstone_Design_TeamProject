@@ -140,7 +140,9 @@ private:
 
 	//IDWriteTextFormat				*m_pdwFont[6]{ nullptr };//
 	IDWriteTextFormat				**m_pdwFont{ nullptr };//
-	const int						m_nNameFont=6;
+	const int								m_nNameFont=6;
+	//const int								m_nNameFont = 7;
+
 
 	IDWriteTextLayout				*m_pdwTextLayout{ nullptr };//
 	ID2D1SolidColorBrush			**m_pd2dbrText{ nullptr };//

@@ -206,15 +206,13 @@ void CPlayer::Update(float fTimeElapsed)
 
 	DecideAnimationState(fLength);
 
-	//if (m_Normal_Inventory.size() > 0)
-	//{
-	//	// Ctrl Ű
-	//	if (GetAsyncKeyState(VK_CONTROL) & 0x0001)
-	//		Refresh_Inventory(Normal);
-	//	// Alt Ű
-	//	if (GetAsyncKeyState(VK_MENU) & 0x0001)
-	//		Refresh_Inventory(Special);
-	//}
+	m_Time += fTimeElapsed;
+	if (m_Time > 1.f)
+	{
+		m_Score += 100;
+		m_Time = 0.f;
+	}
+
 }
 
 CCamera *CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)

@@ -266,16 +266,13 @@ void CGameFramework::CreateDirect2DDevice()
 		hResult = m_pdWriteFactory->CreateTextLayout(L"텍스트 레이아웃", 8, m_pdwFont[i], 4096.0f, 4096.0f, &m_pdwTextLayout);
 	}
 	
-	
-
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightBlue, 1.0f), &m_pd2dbrText[0]);
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Orange, 1.0f), &m_pd2dbrText[1]);
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrText[2]);
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightGreen, 1.0f), &m_pd2dbrText[3]);
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightCoral, 1.0f), &m_pd2dbrText[4]);
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LavenderBlush, 1.0f), &m_pd2dbrText[5]);
-	
-
+	int index = 0;
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightBlue, 1.0f), &m_pd2dbrText[index++]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Orange, 1.0f), &m_pd2dbrText[index++]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrText[index++]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightGreen, 1.0f), &m_pd2dbrText[index++]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightCoral, 1.0f), &m_pd2dbrText[index++]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LavenderBlush, 1.0f), &m_pd2dbrText[index++]);
 
 	//nitializes the COM library on the current thread and identifies the concurrency model as single-thread apartment 
 	CoInitialize(NULL);
@@ -790,9 +787,11 @@ bool CGameFramework::BuildObjects()
 		{
 			CTerrain* pTerrain = dynamic_cast<CTerrainShader*>((*iter).second)->getTerrain();
 			pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),CGameObject::MATERIALTYPE::PANDA,pTerrain);		
-			pPlayer->SetPosition(XMFLOAT3(0.f, pTerrain->GetHeight(0.f, 0.f), 0.f));
+			pPlayer->SetPosition(XMFLOAT3(40.f, pTerrain->GetHeight(0.f, 0.f), 40.f));
 			pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
 			pPlayer->SetPlayerName(L"사명진");
+
+			pPlayer->setScore(100);
 
 			map<string, Bounds*> BoundMap = m_pScene->getShaderManager()->getResourceManager()->getBoundMap();
 			auto iter2 = BoundMap.find(pPlayer->getID());
@@ -1030,10 +1029,8 @@ void CGameFramework::FrameAdvance()
 	
 	ID3D12CommandList *ppd3dCommandLists[] = { m_pd3dCommandList };
 	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
-
 	
 	WaitForGpuComplete();
-
 
 #ifdef _WITH_DIRECT2D_
 	//AcquireWrappedResources() D3D11On12 디바이스에서 사용될 수 있는 D3D11 리소스들을 얻게해준다.
@@ -1052,44 +1049,40 @@ void CGameFramework::FrameAdvance()
 	D2D1_SIZE_F szRenderTarget = m_ppd2dRenderTargets[m_nSwapChainBufferIndex]->GetSize();
 	
 	D2D1_RECT_F rcText{0,0,0,0};
-
 	if (m_pd2dfxBitmapSource && GetAsyncKeyState(VK_TAB) & 0x8000)
 	{
 		m_pd2dDeviceContext->DrawImage(m_pd2dfxBitmapSource);
 		D2D1_RECT_F rcText = D2D1::RectF(0, 0, 240.f, 360.f);
-
-		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/360.0f);
 		
+		// 이름
+		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/360.0f);		
 		m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
-		
-		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/515.0f);
 
-		
+		// Score
+		rcText = D2D1::RectF(0, 0, 1900.0f, 360.0f);
+		m_pd2dDeviceContext->DrawTextW((to_wstring(m_pPlayer->getScore())).c_str(), (UINT32)(to_wstring(m_pPlayer->getScore())).length(), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
+
+		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/515.0f);
 		m_pd2dDeviceContext->DrawTextW(L"이우상", (UINT32)wcslen(L"이우상"), m_pdwFont[1], &rcText, m_pd2dbrText[1]);
 	
 		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/670.0f);
-
 		m_pd2dDeviceContext->DrawTextW(L"가나다", (UINT32)wcslen(L"가나다"), m_pdwFont[2], &rcText, m_pd2dbrText[2]);
 	
 		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/825.0f);
-
 		m_pd2dDeviceContext->DrawTextW(L"라마바", (UINT32)wcslen(L"라마바"), m_pdwFont[3], &rcText, m_pd2dbrText[3]);
-		
-		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/980.0f);
 
+		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/980.0f);
 		m_pd2dDeviceContext->DrawTextW(L"사아자", (UINT32)wcslen(L"사아자"), m_pdwFont[4], &rcText, m_pd2dbrText[4]);
 	
+		//cout << index << endl;
 		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/1135.0f);
-
 		m_pd2dDeviceContext->DrawTextW(L"타파하", (UINT32)wcslen(L"타파하"), m_pdwFont[5], &rcText, m_pd2dbrText[5]);
 	}
 	////////////////////////////////////////////////////////////////////////
 	//WITH_DIRECT2D_IMAGE_EFFECT
 
-
 	////////////////////////////////////////////////////////////////////////
 
-	
 	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
 	D2D1_RECT_F rcUpperText = D2D1::RectF(0, 0, 200.0f, 1400.0f);
 	
