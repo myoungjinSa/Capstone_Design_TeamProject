@@ -171,6 +171,9 @@
     <ClCompile Include="..\Code\Network\Network.cpp">
       <Filter>Code\Network</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Bomb\Bomb.cpp">
+      <Filter>Code\GameObject\Bomb</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h">
@@ -334,6 +337,9 @@
     </ClInclude>
     <ClInclude Include="..\Code\Network\PacketDefine.h">
       <Filter>Code\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Bomb\Bomb.h">
+      <Filter>Code\GameObject\Bomb</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -509,6 +515,9 @@
     </Filter>
     <Filter Include="Code\Scene">
       <UniqueIdentifier>{c250057d-c5e7-49f9-b7c7-8f7b2f6f8001}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Bomb">
+      <UniqueIdentifier>{be8f0a9a-9605-446c-97e9-f90e5d63342c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

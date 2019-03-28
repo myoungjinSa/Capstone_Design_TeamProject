@@ -193,7 +193,8 @@ void CPlayer::Update(float fTimeElapsed)
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
 	Move(xmf3Velocity, false);
 
-	if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
+	if (m_pPlayerUpdatedContext) 
+		OnPlayerUpdateCallback(fTimeElapsed);
 
 	DWORD nCurrentCameraMode = m_pCamera->GetMode();
 	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->Update(m_xmf3Position, fTimeElapsed);
@@ -469,10 +470,11 @@ void CPlayer::DecideAnimationState(float fLength)
 					pController->SetTrackPosition(0, 0.0f);
 					pController->SetTrackAnimationSet(0, CAnimationController::DIE);
 					pController->SetAnimationState(CAnimationController::DIE);
+
 				}
 			}
 		}
-		}
+	}
 	
 }
 
@@ -509,8 +511,8 @@ void CPlayer::InitializeSound()
 
 	m_SoundList[0] = "../Resource/Sound/BtnDown03.wav";
 	m_SoundList[1] = "../Resource/Sound/bell1.wav";
-	m_SoundList[2] = "../Resource/Sound/Bomb.mp3";
-
+	//m_SoundList[2] = "../Resource/Sound/Bomb.mp3";
+	m_SoundList[2] = "../Resource/Sound/BombExplode2.wav";
 	std::string s0(m_SoundList[0]);
 	std::string s1(m_SoundList[1]);
 	std::string s2(m_SoundList[2]);
@@ -534,8 +536,6 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 {
 	CLoadedModelInfo* pEvilBearModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
 		"../Resource/Models/EvilBear.bin", NULL, true, "Player");
-
-
 
 	SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);

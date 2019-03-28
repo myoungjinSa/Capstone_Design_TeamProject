@@ -180,6 +180,7 @@
     <ClInclude Include="..\Code\GameObject\Billboard\LampParticle\LampParticle.h" />
     <ClInclude Include="..\Code\GameObject\Billboard\Snow\Snow.h" />
     <ClInclude Include="..\Code\GameObject\Billboard\UI\UI.h" />
+    <ClInclude Include="..\Code\GameObject\Bomb\Bomb.h" />
     <ClInclude Include="..\Code\GameObject\Cube\IceParticle\IceCube.h" />
     <ClInclude Include="..\Code\GameObject\EvilBear\EvilBear.h" />
     <ClInclude Include="..\Code\GameObject\Foliage\Foliage.h" />
@@ -234,6 +235,7 @@
     <ClCompile Include="..\Code\GameObject\Billboard\LampParticle\LampParticle.cpp" />
     <ClCompile Include="..\Code\GameObject\Billboard\Snow\Snow.cpp" />
     <ClCompile Include="..\Code\GameObject\Billboard\UI\UI.cpp" />
+    <ClCompile Include="..\Code\GameObject\Bomb\Bomb.cpp" />
     <ClCompile Include="..\Code\GameObject\Cube\IceParticle\IceCube.cpp" />
     <ClCompile Include="..\Code\GameObject\EvilBear\EvilBear.cpp" />
     <ClCompile Include="..\Code\GameObject\Foliage\Foliage.cpp" />
