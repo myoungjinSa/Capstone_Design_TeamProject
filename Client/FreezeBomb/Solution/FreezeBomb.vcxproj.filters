@@ -171,8 +171,11 @@
     <ClCompile Include="..\Code\Network\Network.cpp">
       <Filter>Code\Network</Filter>
     </ClCompile>
-    <ClCompile Include="..\Code\GameObject\Bomb\Bomb.cpp">
-      <Filter>Code\GameObject\Bomb</Filter>
+    <ClCompile Include="..\Code\GameObject\Billboard\Bomb\Bomb.cpp">
+      <Filter>Code\GameObject\Billboard\Bomb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\BombParticleShader\BombParticleShader.cpp">
+      <Filter>Code\Shader\BillboardShader\BombParticleShader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -338,8 +341,11 @@
     <ClInclude Include="..\Code\Network\PacketDefine.h">
       <Filter>Code\Network</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\GameObject\Bomb\Bomb.h">
-      <Filter>Code\GameObject\Bomb</Filter>
+    <ClInclude Include="..\Code\GameObject\Billboard\Bomb\Bomb.h">
+      <Filter>Code\GameObject\Billboard\Bomb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\BombParticleShader\BombParticleShader.h">
+      <Filter>Code\Shader\BillboardShader\BombParticleShader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -516,8 +522,11 @@
     <Filter Include="Code\Scene">
       <UniqueIdentifier>{c250057d-c5e7-49f9-b7c7-8f7b2f6f8001}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\GameObject\Bomb">
+    <Filter Include="Code\GameObject\Billboard\Bomb">
       <UniqueIdentifier>{be8f0a9a-9605-446c-97e9-f90e5d63342c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\BombParticleShader">
+      <UniqueIdentifier>{a5851b9a-9a01-4937-a5bc-0c659566a20d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

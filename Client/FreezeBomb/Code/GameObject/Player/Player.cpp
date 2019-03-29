@@ -9,6 +9,8 @@
 #include "../../SoundSystem/SoundSystem.h"
 #include "../../ShaderManager/ShaderManager.h"
 #include "../../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
+#include "../../Shader/BillboardShader/BombParticleShader/BombParticleShader.h"
+#include "../Billboard/Bomb/Bomb.h"
 
 CPlayer::CPlayer()
 {
@@ -356,7 +358,7 @@ void CPlayer::DecideAnimationState(float fLength)
 			&& pController->GetAnimationState() != CAnimationController::JUMP
 			&& pController->GetAnimationState() != CAnimationController::ICE
 			&& pController->GetAnimationState() != CAnimationController::RAISEHAND
-
+			&& pController->GetAnimationState() != CAnimationController::DIE
 			)
 		{
 			SetTrackAnimationSet(0, CAnimationController::RUNFAST);
@@ -370,6 +372,7 @@ void CPlayer::DecideAnimationState(float fLength)
 			&& pController->GetAnimationState() != CAnimationController::JUMP
 			&& pController->GetAnimationState() != CAnimationController::ICE
 			&& pController->GetAnimationState() != CAnimationController::RAISEHAND
+			&& pController->GetAnimationState() != CAnimationController::DIE
 			)
 		{
 			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
@@ -458,24 +461,36 @@ void CPlayer::DecideAnimationState(float fLength)
 		}
 	}
 
-	if (m_pShaderManager)
+	// ÆøÅºÀÌ ÀÖÀ» ¶§,
+	if (m_bBomb == true)
 	{
-		if (pController->GetAnimationState() != CAnimationController::DIE)
+		if (m_pShaderManager)
 		{
-			auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
-			if (iter != m_pShaderManager->getShaderMap().end())
+			if (pController->GetAnimationState() != CAnimationController::DIE)
 			{
-				if (((CTimerUIShader*)((*iter).second))->getTimer() <= 0.f)
+				auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
+				if (iter != m_pShaderManager->getShaderMap().end())
 				{
-					pController->SetTrackPosition(0, 0.0f);
-					pController->SetTrackAnimationSet(0, CAnimationController::DIE);
-					pController->SetAnimationState(CAnimationController::DIE);
+					if (((CTimerUIShader*)((*iter).second))->getTimer() <= 0.f)
+					{
+						auto iter2 = m_pShaderManager->getShaderMap().find("Bomb");
+						if (iter2 != m_pShaderManager->getShaderMap().end())
+						{
+							m_BombParticle = ((CBombParticleShader*)(*iter2).second)->getBomb();
+							m_BombParticle->setIsBlowing(true);
+							m_bBomb = false;
 
+							pController->SetTrackPosition(0, 0.0f);
+							pController->SetTrackAnimationSet(0, CAnimationController::DIE);
+							pController->SetAnimationState(CAnimationController::DIE);
+						}
+					}
 				}
+
+
 			}
 		}
 	}
-	
 }
 
 bool CPlayer::AnimationCollision(byte AnimationType)

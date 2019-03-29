@@ -135,6 +135,11 @@ void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	pIceCubeTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Model/texture2.dds", 0);
 	CScene::CreateShaderResourceViews(pd3dDevice, pIceCubeTexture, 20, false);
 	m_TextureMap.emplace("IceTexture", pIceCubeTexture);
+
+	CTexture *pParticleTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Effect/LampParticle.dds", 0);
+	CScene::CreateShaderResourceViews(pd3dDevice, pParticleTexture, 22, false);
+	m_TextureMap.emplace("Particle", pParticleTexture);
 }
 
 void CResourceManager::LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)

@@ -450,3 +450,41 @@ VS_SHADOW_OUTPUT VSAnimationShadow(VS_ANIMATION_SHADOW_INPUT input)
 
 	return output;
 }
+
+struct VS_BOMBPARTICLE_INPUT
+{
+	float3 position	: POSITION;
+	float2 uv			: TEXCOORD;
+};
+
+struct VS_BOMBPARTICLE_OUTPUT
+{
+	float4 position	: SV_POSITION;
+	float2 uv			: TEXCOORD;
+};
+
+cbuffer cbBombAnimationClip	: register(b6)
+{
+	uint	gBombAnimationClip	: packoffset(c0);
+};
+
+Texture2D gtxtBombParticleTexture : register (t19);
+
+VS_BOMBPARTICLE_OUTPUT VSBombParticle(VS_BOMBPARTICLE_INPUT input)
+{
+	VS_LAMPPARTICLE_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.uv = input.uv;
+
+	return (output);
+}
+
+float4 PSBombParticle(VS_BOMBPARTICLE_OUTPUT input) : SV_TARGET
+{
+	float2 texcoord = input.uv;
+	texcoord.x = texcoord.x / 6.0f + (1.0f / 6.0f) * gBombAnimationClip;
+	float4 cColor = gtxtBombParticleTexture.Sample(gssWrap, texcoord);
+
+	return (cColor);
+}

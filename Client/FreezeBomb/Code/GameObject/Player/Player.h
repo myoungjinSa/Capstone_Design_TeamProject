@@ -13,6 +13,7 @@
 class CItem;
 class CShadow;
 class CShaderManager;
+class CBomb;
 class CPlayer : public CGameObject
 {
 public:
@@ -152,7 +153,9 @@ protected:
 	int					m_SoundCount;
 
 	short				m_Score = 0;
-	float m_Time = 0.f;
+	float				m_Time = 0.f;
+
+	CBomb	*		m_BombParticle{ nullptr };
 };
 
 class CSoundSystem;
