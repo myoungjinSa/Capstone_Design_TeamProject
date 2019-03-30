@@ -284,12 +284,6 @@
     <ClInclude Include="..\Code\GameObject\Player\Player.h">
       <Filter>Code\GameObject\Player</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\Default\Resource.h">
-      <Filter>Code\Default</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Code\Default\targetver.h">
-      <Filter>Code\Default</Filter>
-    </ClInclude>
     <ClInclude Include="..\Code\Shader\Shader.h">
       <Filter>Code\Shader</Filter>
     </ClInclude>
@@ -347,14 +341,12 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\BombParticleShader\BombParticleShader.h">
       <Filter>Code\Shader\BillboardShader\BombParticleShader</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="small.ico">
-      <Filter>Code\Default\Resource</Filter>
-    </Image>
-    <Image Include="FreezeBomb.ico">
-      <Filter>Code\Default\Resource</Filter>
-    </Image>
+    <ClInclude Include="..\Code\Default\Resource.h">
+      <Filter>Code\Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Default\targetver.h">
+      <Filter>Code\Default</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Code">
@@ -392,9 +384,6 @@
     </Filter>
     <Filter Include="Code\Stdafx">
       <UniqueIdentifier>{414e4748-1faa-44ba-a157-684aa1249c1b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Default">
-      <UniqueIdentifier>{bc5e2b5b-83ce-4641-90e9-74affb934db4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\Shader\StandardShader">
       <UniqueIdentifier>{9067a751-803d-4d43-9b26-cb5f01db8579}</UniqueIdentifier>
@@ -477,9 +466,6 @@
     <Filter Include="Code\Shader\StandardShader\MapToolShader">
       <UniqueIdentifier>{70ac25c7-8d48-4f66-9307-6ea5d99560d1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Default\Resource">
-      <UniqueIdentifier>{9e110815-d2eb-4236-9775-0c2621579ebb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\Shader\BillboardShader\UIShader\ItemUIShader">
       <UniqueIdentifier>{81aa17cb-ae31-4f59-a893-a603ac7c50ce}</UniqueIdentifier>
     </Filter>
@@ -528,10 +514,30 @@
     <Filter Include="Code\Shader\BillboardShader\BombParticleShader">
       <UniqueIdentifier>{a5851b9a-9a01-4937-a5bc-0c659566a20d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Default">
+      <UniqueIdentifier>{4e9044f3-d610-4eeb-b2fa-e2fa633d2587}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="FreezeBomb.rc">
-      <Filter>Code\Default\Resource</Filter>
+    <Image Include="..\Code\Default\FreezeBomb.ico">
+      <Filter>Code\Default</Filter>
+    </Image>
+    <Image Include="..\Code\Default\bear.ico">
+      <Filter>Code\Default</Filter>
+    </Image>
+    <Image Include="BEARICON.ico" />
+    <Image Include="..\Code\Default\small.ico" />
+    <Image Include="..\Code\Default\BEARICON.ico" />
+    <Image Include="..\Code\Default\bear_panda.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\Code\Default\FreezeBomb.rc">
+      <Filter>Code\Default</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="..\Code\Default\BtnDown01.wav" />
+    <Media Include="..\Code\Default\BtnDown03.wav" />
+    <Media Include="..\Code\Default\town.wav" />
   </ItemGroup>
 </Project>

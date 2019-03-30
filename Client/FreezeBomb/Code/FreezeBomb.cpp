@@ -1,5 +1,5 @@
 ﻿#include "Stdafx/Stdafx.h"
-#include "Default/Resource.h"
+#include "Default\Resource.h"
 #include "GameFramework/GameFramework.h"
 
 #define MAX_LOADSTRING 100
@@ -63,12 +63,12 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = hInstance;
-	wcex.hIcon = ::LoadIcon(hInstance, MAKEINTRESOURCE(IDI_FREEZEBOMB));
+	wcex.hIcon = ::LoadIcon(hInstance, MAKEINTRESOURCE(IDI_BEARICON));
 	wcex.hCursor = ::LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	wcex.lpszMenuName = NULL;
 	wcex.lpszClassName = szWindowClass;
-	wcex.hIconSm = ::LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+	wcex.hIconSm = ::LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_BEARICON));
 
 	return ::RegisterClassEx(&wcex);
 }

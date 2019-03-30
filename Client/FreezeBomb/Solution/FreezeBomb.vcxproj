@@ -161,13 +161,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ResourceCompile Include="FreezeBomb.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="FreezeBomb.ico" />
-    <Image Include="small.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h" />
     <ClInclude Include="..\Code\Cube\Cube.h" />
     <ClInclude Include="..\Code\Default\Resource.h" />
@@ -311,6 +304,22 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Code\Default\bear.ico" />
+    <Image Include="..\Code\Default\BEARICON.ico" />
+    <Image Include="..\Code\Default\bear_panda.PNG" />
+    <Image Include="..\Code\Default\FreezeBomb.ico" />
+    <Image Include="..\Code\Default\small.ico" />
+    <Image Include="BEARICON.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\Code\Default\FreezeBomb.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="..\Code\Default\BtnDown01.wav" />
+    <Media Include="..\Code\Default\BtnDown03.wav" />
+    <Media Include="..\Code\Default\town.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

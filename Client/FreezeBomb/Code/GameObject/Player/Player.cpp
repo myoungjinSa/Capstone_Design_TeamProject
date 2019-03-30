@@ -429,7 +429,7 @@ void CPlayer::DecideAnimationState(float fLength)
 		&& pController->GetAnimationState() != CAnimationController::ICE)
 	{
 		SetTrackAnimationSet(0, CAnimationController::ATTACK);
-		SetTrackAnimationPosition(0, 0);
+		SetTrackAnimationPosition(0, 0.0f);
 
 		pController->SetAnimationState(CAnimationController::ATTACK);
 
