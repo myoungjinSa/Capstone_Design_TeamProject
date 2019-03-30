@@ -462,35 +462,35 @@ void CPlayer::DecideAnimationState(float fLength)
 	}
 
 	//// ÆøÅºÀÌ ÀÖÀ» ¶§,
-	//if (m_bBomb == true)
-	//{
-	//	if (m_pShaderManager)
-	//	{
-	//		if (pController->GetAnimationState() != CAnimationController::DIE)
-	//		{
-	//			auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
-	//			if (iter != m_pShaderManager->getShaderMap().end())
-	//			{
-	//				if (((CTimerUIShader*)((*iter).second))->getTimer() <= 0.f)
-	//				{
-	//					auto iter2 = m_pShaderManager->getShaderMap().find("Bomb");
-	//					if (iter2 != m_pShaderManager->getShaderMap().end())
-	//					{
-	//						m_BombParticle = ((CBombParticleShader*)(*iter2).second)->getBomb();
-	//						m_BombParticle->setIsBlowing(true);
-	//						m_bBomb = false;
+	if (m_bBomb == true)
+	{
+		if (m_pShaderManager)
+		{
+			if (pController->GetAnimationState() != CAnimationController::DIE)
+			{
+				auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
+				if (iter != m_pShaderManager->getShaderMap().end())
+				{
+					if (((CTimerUIShader*)((*iter).second))->getTimer() <= 0.f)
+					{
+						auto iter2 = m_pShaderManager->getShaderMap().find("Bomb");
+						if (iter2 != m_pShaderManager->getShaderMap().end())
+						{
+							m_BombParticle = ((CBombParticleShader*)(*iter2).second)->getBomb();
+							m_BombParticle->setIsBlowing(true);
+							m_bBomb = false;
 
-	//						pController->SetTrackPosition(0, 0.0f);
-	//						pController->SetTrackAnimationSet(0, CAnimationController::DIE);
-	//						pController->SetAnimationState(CAnimationController::DIE);
-	//					}
-	//				}
-	//			}
+							pController->SetTrackPosition(0, 0.0f);
+							pController->SetTrackAnimationSet(0, CAnimationController::DIE);
+							pController->SetAnimationState(CAnimationController::DIE);
+						}
+					}
+				}
 
 
-	//		}
-	//	}
-	//}
+			}
+		}
+	}
 }
 
 bool CPlayer::AnimationCollision(byte AnimationType)
