@@ -461,36 +461,36 @@ void CPlayer::DecideAnimationState(float fLength)
 		}
 	}
 
-	// 폭탄이 있을 때,
-	if (m_bBomb == true)
-	{
-		if (m_pShaderManager)
-		{
-			if (pController->GetAnimationState() != CAnimationController::DIE)
-			{
-				auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
-				if (iter != m_pShaderManager->getShaderMap().end())
-				{
-					if (((CTimerUIShader*)((*iter).second))->getTimer() <= 0.f)
-					{
-						auto iter2 = m_pShaderManager->getShaderMap().find("Bomb");
-						if (iter2 != m_pShaderManager->getShaderMap().end())
-						{
-							m_BombParticle = ((CBombParticleShader*)(*iter2).second)->getBomb();
-							m_BombParticle->setIsBlowing(true);
-							m_bBomb = false;
+	//// 폭탄이 있을 때,
+	//if (m_bBomb == true)
+	//{
+	//	if (m_pShaderManager)
+	//	{
+	//		if (pController->GetAnimationState() != CAnimationController::DIE)
+	//		{
+	//			auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
+	//			if (iter != m_pShaderManager->getShaderMap().end())
+	//			{
+	//				if (((CTimerUIShader*)((*iter).second))->getTimer() <= 0.f)
+	//				{
+	//					auto iter2 = m_pShaderManager->getShaderMap().find("Bomb");
+	//					if (iter2 != m_pShaderManager->getShaderMap().end())
+	//					{
+	//						m_BombParticle = ((CBombParticleShader*)(*iter2).second)->getBomb();
+	//						m_BombParticle->setIsBlowing(true);
+	//						m_bBomb = false;
 
-							pController->SetTrackPosition(0, 0.0f);
-							pController->SetTrackAnimationSet(0, CAnimationController::DIE);
-							pController->SetAnimationState(CAnimationController::DIE);
-						}
-					}
-				}
+	//						pController->SetTrackPosition(0, 0.0f);
+	//						pController->SetTrackAnimationSet(0, CAnimationController::DIE);
+	//						pController->SetAnimationState(CAnimationController::DIE);
+	//					}
+	//				}
+	//			}
 
 
-			}
-		}
-	}
+	//		}
+	//	}
+	//}
 }
 
 bool CPlayer::AnimationCollision(byte AnimationType)
@@ -520,7 +520,7 @@ void CPlayer::InitializeSound()
 {
 	m_pSound = new CSoundSystem;
 
-	m_SoundCount = 3;
+	m_SoundCount = 4;
 
 	m_SoundList = new const char*[m_SoundCount];
 
@@ -528,14 +528,21 @@ void CPlayer::InitializeSound()
 	m_SoundList[1] = "../Resource/Sound/bell1.wav";
 	//m_SoundList[2] = "../Resource/Sound/Bomb.mp3";
 	m_SoundList[2] = "../Resource/Sound/BombExplode2.wav";
+	m_SoundList[3] = "../Resource/Sound/Effect/HammerSwing.wav";
+
+
 	std::string s0(m_SoundList[0]);
 	std::string s1(m_SoundList[1]);
 	std::string s2(m_SoundList[2]);
+	std::string s3(m_SoundList[3]);
+
 	////m_SoundList[1] = "../Resource/Sound/bell1.wav";
 
 	m_mapMusicList.emplace(FOOTSTEP, s0);
 	m_mapMusicList.emplace(ATTACK, s1);
 	m_mapMusicList.emplace(DIE, s2);
+	m_mapMusicList.emplace(ATTACK, s3);
+
 
 	if (m_pSound)
 		m_pSound->Initialize(m_SoundCount, m_SoundList, FMOD_LOOP_OFF);
@@ -561,10 +568,14 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	// RUNFAST번 애니메이션 동작에 사운드 2개를 Set해준다.
 	m_pAnimationController->SetCallbackKeys(m_pAnimationController->RUNFAST, 2);
 
-
 	// 애니메이션 1번동작 0.1초일때 Footstep01 소리를 재생, 1번동작 0.5초일때 Footstep02 소리를 재생, 1번동작 0.9초일때 Footstep03 소리를 재생
 	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 0, 0.1f, (void*)CPlayer::MUSIC_ENUM::FOOTSTEP);
 	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 1, 0.5f, (void*)CPlayer::MUSIC_ENUM::FOOTSTEP);
+
+
+	m_pAnimationController->SetCallbackKeys(m_pAnimationController->RUNBACKWARD, 2);
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNBACKWARD, 0, 0.1f, (void*)CPlayer::MUSIC_ENUM::FOOTSTEP);
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNBACKWARD, 1, 0.3f, (void*)CPlayer::MUSIC_ENUM::FOOTSTEP);
 
 
 	m_pAnimationController->SetCallbackKeys(m_pAnimationController->RAISEHAND, 1);
@@ -573,9 +584,17 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pAnimationController->SetCallbackKeys(m_pAnimationController->DIE, 1);
 	m_pAnimationController->SetCallbackKey(m_pAnimationController->DIE, 0, 0.1f, (void*)CPlayer::MUSIC_ENUM::DIE);
 
+	m_pAnimationController->SetCallbackKeys(m_pAnimationController->ATTACK, 1);
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->ATTACK, 0, 0.2f, (void*)CPlayer::MUSIC_ENUM::ATTACK);
+
+
 
 	CAnimationCallbackHandler* pRunAnimationCallbackHandler = new CSoundCallbackHandler();
 	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RUNFAST, pRunAnimationCallbackHandler,
+		GetSoundData());
+
+	CAnimationCallbackHandler* pBackRunAnimationCallbackHandler = new CSoundCallbackHandler();
+	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RUNBACKWARD, pBackRunAnimationCallbackHandler,
 		GetSoundData());
 
 	CAnimationCallbackHandler* pRaiseHandAnimationCallbackHandler = new CSoundCallbackHandler();
@@ -584,6 +603,10 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	
 	CAnimationCallbackHandler* pDieAnimationCallbackHandler = new CSoundCallbackHandler();
 	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->DIE, pDieAnimationCallbackHandler,
+		GetSoundData());
+
+	CAnimationCallbackHandler* pAttackAnimationCallbackHandler = new CSoundCallbackHandler();
+	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->ATTACK, pAttackAnimationCallbackHandler,
 		GetSoundData());
 
 

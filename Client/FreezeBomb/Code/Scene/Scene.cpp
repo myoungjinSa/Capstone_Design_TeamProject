@@ -9,6 +9,7 @@
 #include "../Shader/StandardShader/MapObjectShader/MapObjectShader.h"
 #include "../Shader/StandardShader/ItemShader/ItemShader.h"
 #include "../SoundSystem/SoundSystem.h"
+#include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
 
 
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
@@ -540,9 +541,12 @@ bool CScene::ProcessInput(UCHAR *pKeysBuffer)
 
 void CScene::AnimateObjects(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed)
 {
-	if (m_pShaderManager)
+	if (m_pShaderManager) {
 		m_pShaderManager->AnimateObjects(fTimeElapsed, m_pPlayer->GetCamera(), m_pPlayer);
+		CheckWarningTimer();
+	}
 
+	
 	if (m_pLights)
 	{
 		m_pLights[1].m_xmf3Position = m_pPlayer->GetPosition();
@@ -704,23 +708,46 @@ void CScene::CheckObjectByObjectCollisions()
 	}
 }
 
+void CScene::SetWarningTimer()
+{
+	m_pSound->PlayIndex(TIMERWARNING);
+}
+void CScene::CheckWarningTimer()
+{
+	if (m_pSound) {
+		map<string, CShader*> m = m_pShaderManager->getShaderMap();
+
+		auto iter = m.find("TimerUI");
+		float sec = dynamic_cast<CTimerUIShader*>((*iter).second)->getTimer();
+		
+		if(sec < 10.0f)
+		{
+			if (m_bWarningSet == false) {
+				m_bWarningSet = true;
+				SetWarningTimer();
+			}
+		}
+	}
+}
+
 
 void CScene::CreateSoundSystem()
 {
 		//사운드 생성
 	m_pSound = new CSoundSystem;
 
-	m_musicCount = 1;
+	m_musicCount = 2;
 	m_musicList = new const char*[m_musicCount];
 
 	m_musicList[0] = "../Resource/Sound/SnowyVillage.wav";
+	m_musicList[1] = "../Resource/Sound/Effect/TimerWarning.wav";
 //	m_musicList[1] = "../Resource/Sound/town.wav";
 
 	//2개 동시에 재생도 가능하다
 	if (m_pSound)
 	{
 		m_pSound->Initialize(m_musicCount, m_musicList,FMOD_LOOP_NORMAL);
-		m_pSound->Play(m_musicCount);
+		m_pSound->PlayIndex(BACKGROUNDMUSIC);
 	}
 
 	//PlaySound(_T("../Resource/Sound/town.wav"), GetModuleHandle(NULL), SND_MEMORY | SND_ASYNC | SND_LOOP);

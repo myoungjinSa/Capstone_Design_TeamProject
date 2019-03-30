@@ -27,7 +27,7 @@ void CEvilBear::InitializeSound()
 	m_pSound = new CSoundSystem;
 
 
-	m_SoundCount = 3;
+	m_SoundCount = 4;
 	
 	
 	m_SoundList = new const char*[m_SoundCount];
@@ -35,17 +35,21 @@ void CEvilBear::InitializeSound()
 	m_SoundList[0] = "../Resource/Sound/BtnDown03.wav";
 	m_SoundList[1] = "../Resource/Sound/bell1.wav";
 	m_SoundList[2] = "../Resource/Sound/Bomb.mp3";
+	m_SoundList[3] = "../Resource/Sound/Effect/HammerSwing.wav";
 	
 
 	std::string s0(m_SoundList[0]);
 	std::string s1(m_SoundList[1]);
 	std::string s2(m_SoundList[2]);
+	std::string s3(m_SoundList[3]);
 	////m_SoundList[1] = "../Resource/Sound/bell1.wav";
 
 
 	m_mapMusicList.emplace(FOOTSTEP, s0);
 	m_mapMusicList.emplace(USETIMER, s1);
 	m_mapMusicList.emplace(DIE, s2);
+	m_mapMusicList.emplace(ATTACK, s3);
+
 
 	if(m_pSound)
 	{

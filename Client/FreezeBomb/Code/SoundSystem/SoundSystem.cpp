@@ -5,6 +5,7 @@ CSoundSystem::CSoundSystem() : m_soundCount(0), pSystem(nullptr), pSound(nullptr
 	pChannel[0] = nullptr;
 	pChannel[1] = nullptr;
 	pChannel[2] = nullptr;
+	pChannel[3] = nullptr;
 }
 
 CSoundSystem::~CSoundSystem()
