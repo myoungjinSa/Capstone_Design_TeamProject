@@ -525,19 +525,10 @@
     <Image Include="..\Code\Default\bear.ico">
       <Filter>Code\Default</Filter>
     </Image>
-    <Image Include="BEARICON.ico" />
-    <Image Include="..\Code\Default\small.ico" />
-    <Image Include="..\Code\Default\BEARICON.ico" />
-    <Image Include="..\Code\Default\bear_panda.PNG" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Code\Default\FreezeBomb.rc">
       <Filter>Code\Default</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Media Include="..\Code\Default\BtnDown01.wav" />
-    <Media Include="..\Code\Default\BtnDown03.wav" />
-    <Media Include="..\Code\Default\town.wav" />
   </ItemGroup>
 </Project>

@@ -298,6 +298,7 @@ namespace Matrix4x4
 		return(xmf4x4Result);
 	}
 
+
 	inline XMFLOAT4X4 Multiply(XMFLOAT4X4& xmmtx4x4Matrix1, XMMATRIX& xmmtxMatrix2)
 	{
 		XMFLOAT4X4 xmf4x4Result;

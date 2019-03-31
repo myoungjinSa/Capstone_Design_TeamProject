@@ -202,6 +202,7 @@ void CPlayer::Update(float fTimeElapsed)
 	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->Update(m_xmf3Position, fTimeElapsed);
 	if (m_pCameraUpdatedContext) OnCameraUpdateCallback(fTimeElapsed);
 	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(m_xmf3Position);
+
 	m_pCamera->RegenerateViewMatrix();
 
 	fLength = Vector3::Length(m_xmf3Velocity);
@@ -340,7 +341,8 @@ void CPlayer::DecideAnimationState(float fLength)
 			&& pController->GetAnimationState() != CAnimationController::JUMP
 			&& pController->GetAnimationState() != CAnimationController::RAISEHAND
 			&& pController->GetAnimationState() != CAnimationController::DIE
-			&& pController->GetAnimationState() != CAnimationController::ICE))
+			&& pController->GetAnimationState() != CAnimationController::ICE
+			&& pController->GetAnimationState() != CAnimationController::SLIDE))
 	{
 		if (pController->GetAnimationState() == CAnimationController::RUNFAST)
 		{
@@ -405,6 +407,12 @@ void CPlayer::DecideAnimationState(float fLength)
 	{
 		m_bBomb = !m_bBomb;
 		m_bHammer = !m_bHammer;
+	}
+	if(GetAsyncKeyState(VK_X) & 0X0001)
+	{
+		pController->SetTrackAnimationSet(0, CAnimationController::SLIDE);
+		pController->SetAnimationState(CAnimationController::SLIDE);
+		//pController->SetTrackSpeed(0, 10.0f);
 	}
 	if (GetAsyncKeyState(VK_RSHIFT) & 0x0001 && pController->GetAnimationState() != CAnimationController::DIE)
 	{
@@ -758,6 +766,7 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 			CThirdPersonCamera *p3rdPersonCamera = (CThirdPersonCamera *)m_pCamera;
 			p3rdPersonCamera->SetLookAt(GetPosition());
 		}
+		
 	}
 }
 

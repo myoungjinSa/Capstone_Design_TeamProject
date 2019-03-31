@@ -146,7 +146,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
@@ -307,19 +307,10 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Code\Default\bear.ico" />
-    <Image Include="..\Code\Default\BEARICON.ico" />
-    <Image Include="..\Code\Default\bear_panda.PNG" />
     <Image Include="..\Code\Default\FreezeBomb.ico" />
-    <Image Include="..\Code\Default\small.ico" />
-    <Image Include="BEARICON.ico" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Code\Default\FreezeBomb.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Media Include="..\Code\Default\BtnDown01.wav" />
-    <Media Include="..\Code\Default\BtnDown03.wav" />
-    <Media Include="..\Code\Default\town.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
