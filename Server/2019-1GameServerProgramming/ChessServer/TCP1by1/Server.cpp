@@ -3,7 +3,6 @@
 #include <WinSock2.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <iostream>
 #include <vector>
 
 #define SERVERPORT 9000
@@ -194,7 +193,7 @@ int main(int argc, char *argv[])
 		ptr->wsabuf.buf = (char *)&ptr->csSock;
 		ptr->wsabuf.len = sizeof(CS_SOCK);
 		// 정보 받아왔으니 client들의 정보를 담는 벡터에 저장
-		std::cout << client_sock << "\n";
+
 		// 비동기 입출력 시작
 		DWORD flags = 0;
 		retval = WSARecv(ptr->sock, &ptr->wsabuf, 1, NULL, &flags, &ptr->overlapped, RecvCompletionRoutine);

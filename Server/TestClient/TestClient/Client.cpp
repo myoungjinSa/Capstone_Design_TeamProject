@@ -116,6 +116,7 @@ int main(int argc, char *argv[])
 	if (retval == SOCKET_ERROR)
 		err_quit("connect()");
 
+	std::cout << sock << "\n";
 	// 데이터 통신에 사용할 변수
 	//char buf[BUFSIZE + 1];
 	int len = 0;
