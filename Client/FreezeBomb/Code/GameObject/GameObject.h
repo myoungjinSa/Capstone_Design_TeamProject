@@ -48,12 +48,14 @@ public:
 
 
 public:
-   virtual void HandleCallback(void *pCallbackData) { }
+   virtual void HandleCallback(void *pCallbackData,void* pAdditionalData = nullptr) { }
 
    void SetAdditianalData(void* pContext) { m_pContextData = pContext; }
+  
 protected:
 	//사운드나 부가적인 정보가 넘어올때 받아줄 포인터
 	void* m_pContextData{ nullptr };
+
 };
 
 class CSoundCallbackHandler : public CAnimationCallbackHandler
@@ -62,7 +64,7 @@ public:
 	CSoundCallbackHandler() { }
 	~CSoundCallbackHandler() { }
 
-	virtual void HandleCallback(void *pCallbackData);
+	virtual void HandleCallback(void *pCallbackData,void* pAdditionalData= nullptr);
 };
 
 class CAnimationController;
@@ -109,7 +111,7 @@ public:
 
 public:
 	// AnimationTrack의 포지션값 => 애니메이션에서 읽어가야하는 위치 => 서로 다른동작을 하게함
-	void SetPosition(CAnimationController& AnimationController,float& fTrackPosition);
+	void SetPosition(CAnimationController& AnimationController,float& fTrackPosition,void* pContext);
 
 	XMFLOAT4X4 GetSRT(int nFrame);
 
@@ -190,7 +192,7 @@ public:
     CAnimationTrack*	m_pAnimationTracks = NULL;
 
 	UINT					m_state ;
-	const enum ANIMATIONTYPE { IDLE=0, JUMP, RUNFAST, RUNBACKWARD, ATTACK, DIGGING,DIE,RAISEHAND/*아이템 사용동작*/,ICE,VICTORY,AERT/*준비 동작*/};
+	const enum ANIMATIONTYPE { IDLE=0, JUMP, RUNFAST, RUNBACKWARD, ATTACK, DIGGING,DIE,RAISEHAND/*아이템 사용동작*/,ICE,VICTORY,AERT/*준비 동작*/,SLIDE};
 
 public:
 	void SetAnimationSets(CAnimationSets *pAnimationSets);
@@ -205,12 +207,12 @@ public:
 
 	void SetCallbackKeys(int nAnimationSet, int nCallbackKeys);
 	void SetCallbackKey(int nAnimationSet, int nKeyIndex, float fTime, void *pData);
-	void SetAnimationCallbackHandler(int nAnimationSet, CAnimationCallbackHandler *pCallbackHandler,void *pSoundContext =nullptr);
+	void SetAnimationCallbackHandler(int nAnimationSet, CAnimationCallbackHandler *pCallbackHandler,void *pSoundContext = nullptr);
 
 	void SetAnimationState(ANIMATIONTYPE state) { m_state = state; }
 	UINT GetAnimationState() { return m_state; }
 
-	void AdvanceTime(float fElapsedTime);
+	void AdvanceTime(float fElapsedTime,void* pContext = nullptr);
 };
 
 class CLoadedModelInfo
@@ -328,6 +330,9 @@ public:
 	XMFLOAT3 GetUp();
 	XMFLOAT3 GetRight();
 
+	float GetDistanceToTarget() { return m_fDistanceToTarget; }
+	void SetDistanceToTarget(float dist) { m_fDistanceToTarget = dist; }
+
 	void SetLookVector(XMFLOAT3& xmf3Look);
 	void SetUpVector(XMFLOAT3& xmf3Up);
 	void SetRightVector(XMFLOAT3& xmf3Right);
@@ -344,7 +349,6 @@ public:
 	void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
 	void Rotate(XMFLOAT3 *pxmf3Axis, float fAngle);
 	void Rotate(XMFLOAT4 *pxmf4Quaternion);
-
 
 	CGameObject* GetParent() { return(m_pParent); }
 	void UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent=NULL);
@@ -409,7 +413,8 @@ protected:
 	bool								m_bTimer = false;		//타이머 아이템 소지 여부
 
 
-
+	//플레이어와의 거리
+	float		m_fDistanceToTarget = 0.0f;
 public:
 
 	void setID(const string id) { m_ID = id; }

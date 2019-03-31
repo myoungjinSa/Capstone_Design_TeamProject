@@ -2,6 +2,10 @@
 
 #include "../Shader.h"
 
+struct CB_ANIMATIONCLIP
+{
+	UINT		m_AnimationClip = 0;
+};
 
 class CBillboardShader : public CShader
 {

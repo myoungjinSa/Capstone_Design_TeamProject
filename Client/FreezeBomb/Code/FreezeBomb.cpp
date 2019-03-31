@@ -1,5 +1,5 @@
 ﻿#include "Stdafx/Stdafx.h"
-#include "Default/Resource.h"
+#include "Default\Resource.h"
 #include "GameFramework/GameFramework.h"
 
 #define MAX_LOADSTRING 100
@@ -9,6 +9,8 @@ TCHAR							szTitle[MAX_LOADSTRING];
 TCHAR							szWindowClass[MAX_LOADSTRING];
 
 CGameFramework		gGameFramework;
+
+
 
 ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
@@ -61,12 +63,12 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = hInstance;
-	wcex.hIcon = ::LoadIcon(hInstance, MAKEINTRESOURCE(IDI_FREEZEBOMB));
+	wcex.hIcon = ::LoadIcon(hInstance, MAKEINTRESOURCE(IDI_BEARICON));
 	wcex.hCursor = ::LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	wcex.lpszMenuName = NULL;
 	wcex.lpszClassName = szWindowClass;
-	wcex.hIconSm = ::LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+	wcex.hIconSm = ::LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_BEARICON));
 
 	return ::RegisterClassEx(&wcex);
 }
@@ -75,14 +77,20 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	ghAppInstance = hInstance;
 
-	RECT rc = { 0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT };
-	DWORD dwStyle = WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER;
+
+
+	//
+	RECT rc = { 0, 0,FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT };
+	DWORD dwStyle = WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU |WS_BORDER;
 	AdjustWindowRect(&rc, dwStyle, FALSE);
 	HWND hMainWnd = CreateWindow(szWindowClass, szTitle, dwStyle, CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, hInstance, NULL);
 
 	if (!hMainWnd) return(FALSE);
 
-	gGameFramework.OnCreate(hInstance, hMainWnd);
+	if (!gGameFramework.OnCreate(hInstance, hMainWnd))
+	{
+		::PostQuitMessage(0);
+	}
 
 	::ShowWindow(hMainWnd, nCmdShow);
 	::UpdateWindow(hMainWnd);

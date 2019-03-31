@@ -74,6 +74,9 @@ public:
 	CShaderManager* getShaderManager()	const { return m_pShaderManager; }
 	void CheckObjectByObjectCollisions();
 
+	void CheckWarningTimer();
+	void SetWarningTimer();
+
 protected:
 	ID3D12RootSignature*						m_pd3dGraphicsRootSignature = NULL;
 
@@ -113,17 +116,26 @@ public:
 	ID3D12Resource*				m_pd3dcbLights = NULL;
 	LIGHTS*						m_pcbMappedLights = NULL;
 	
+protected:
+
+	//FMOD 사운드 시스템
+	//씬마다 음악이 달라져야 할수 있기 때문에 씬이 사운드를 관리함.
+	CSoundSystem*				m_pSound=NULL;
+
+	const char**				m_musicList = NULL;
+	int							m_musicCount;
+
+	enum MucicEnum
+	{
+		BACKGROUNDMUSIC=0,
+		TIMERWARNING
+	};
+
 private:
 	CPlayer*					m_pPlayer = NULL;
 
-	//void*						m_SoundBuffer1 = NULL;
-	//HANDLE						m_SoundBuffer2 = NULL;
-	CSoundSystem*				m_pSound=NULL;
-	//FMOD 사운드 시스템
-	//씬마다 음악이 달라져야 할수 있기 때문에 씬이 사운드를 관리함.
-	
-	const char**				m_musicList = NULL;
-	int							m_musicCount;
+
+	bool						m_bWarningSet{ false };		//경고음 울리는지 여부 
 
 	//게임 플레이어 수
 	UINT						m_playerCount;
@@ -134,16 +146,18 @@ private:
 	// SkyBox : 1
 	// Terrain : 2, 
 	// DeadTrees : 23, PineTrees : 35, Rocks : 25, Deer : 2, Pond : 2=> MapObjects : 67
-	// Hammer : 5, Pocket_Watch : 5 => Item = 10
+	// Hammer : 3, Pocket_Watch : 5 => Item = 8
 	// EvilBear : 18, LampParticle : 1 => 19
 	// Player : 18, LampParticle : 1 => 19
 	// Snow : 1, IceParticle : 1 => Particle = 2 
 	// Number : 10, Colon : 1 => TimerUI = 11
 	// ItemBox = 1, Hammer_Item : 1, GoldHammer_Item : 1, GoldTimer_Item : 1=> ItemUI : 4
+	// BombExplosion : 2
 
+	
 	enum nShaderResourceView
 	{
-		SkyBox = 1, Terrain = 2, MapObjects = 67, Item = 10,
-		EvilBear = 19, Player = 19, Particle = 2, TimerUI = 11, ItemUI = 4
+		SkyBox = 1, Terrain = 2, MapObjects = 67, Item = 8,
+		EvilBear = 19, Player = 19, Particle = 2, TimerUI = 11, ItemUI = 4, BombExplosion = 2
 	};
 };

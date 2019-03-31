@@ -168,6 +168,15 @@
     <ClCompile Include="..\Code\Shader\StandardShader\FoliageShader\FoliageShader.cpp">
       <Filter>Code\Shader\StandardShader\FoliageShader</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\Network\Network.cpp">
+      <Filter>Code\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Billboard\Bomb\Bomb.cpp">
+      <Filter>Code\GameObject\Billboard\Bomb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\BombParticleShader\BombParticleShader.cpp">
+      <Filter>Code\Shader\BillboardShader\BombParticleShader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h">
@@ -275,12 +284,6 @@
     <ClInclude Include="..\Code\GameObject\Player\Player.h">
       <Filter>Code\GameObject\Player</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\Default\Resource.h">
-      <Filter>Code\Default</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Code\Default\targetver.h">
-      <Filter>Code\Default</Filter>
-    </ClInclude>
     <ClInclude Include="..\Code\Shader\Shader.h">
       <Filter>Code\Shader</Filter>
     </ClInclude>
@@ -326,14 +329,24 @@
     <ClInclude Include="..\Code\GameObject\EvilBear\EvilBear.h">
       <Filter>Code\GameObject\EvilBear</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="small.ico">
-      <Filter>Code\Default\Resource</Filter>
-    </Image>
-    <Image Include="FreezeBomb.ico">
-      <Filter>Code\Default\Resource</Filter>
-    </Image>
+    <ClInclude Include="..\Code\Network\Network.h">
+      <Filter>Code\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Network\PacketDefine.h">
+      <Filter>Code\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Billboard\Bomb\Bomb.h">
+      <Filter>Code\GameObject\Billboard\Bomb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\BombParticleShader\BombParticleShader.h">
+      <Filter>Code\Shader\BillboardShader\BombParticleShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Default\Resource.h">
+      <Filter>Code\Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Default\targetver.h">
+      <Filter>Code\Default</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Code">
@@ -371,9 +384,6 @@
     </Filter>
     <Filter Include="Code\Stdafx">
       <UniqueIdentifier>{414e4748-1faa-44ba-a157-684aa1249c1b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Default">
-      <UniqueIdentifier>{bc5e2b5b-83ce-4641-90e9-74affb934db4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\Shader\StandardShader">
       <UniqueIdentifier>{9067a751-803d-4d43-9b26-cb5f01db8579}</UniqueIdentifier>
@@ -432,9 +442,6 @@
     <Filter Include="Code\GameObject\Terrain">
       <UniqueIdentifier>{89ea758f-46ba-41ef-aa18-c2eb6e6f5309}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Scene">
-      <UniqueIdentifier>{c250057d-c5e7-49f9-b7c7-8f7b2f6f8001}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\GameObject\IceCube">
       <UniqueIdentifier>{6923770d-d22e-4787-9024-798ed53a93b3}</UniqueIdentifier>
     </Filter>
@@ -458,9 +465,6 @@
     </Filter>
     <Filter Include="Code\Shader\StandardShader\MapToolShader">
       <UniqueIdentifier>{70ac25c7-8d48-4f66-9307-6ea5d99560d1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Default\Resource">
-      <UniqueIdentifier>{9e110815-d2eb-4236-9775-0c2621579ebb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\Shader\BillboardShader\UIShader\ItemUIShader">
       <UniqueIdentifier>{81aa17cb-ae31-4f59-a893-a603ac7c50ce}</UniqueIdentifier>
@@ -498,10 +502,33 @@
     <Filter Include="Code\Shader\StandardShader\FoliageShader">
       <UniqueIdentifier>{4a082e72-24b2-4ae0-ace0-edb616d1687c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Network">
+      <UniqueIdentifier>{1b26d7f8-52f8-4a93-8f94-f19be495dabb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Scene">
+      <UniqueIdentifier>{c250057d-c5e7-49f9-b7c7-8f7b2f6f8001}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Billboard\Bomb">
+      <UniqueIdentifier>{be8f0a9a-9605-446c-97e9-f90e5d63342c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\BombParticleShader">
+      <UniqueIdentifier>{a5851b9a-9a01-4937-a5bc-0c659566a20d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Default">
+      <UniqueIdentifier>{4e9044f3-d610-4eeb-b2fa-e2fa633d2587}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="FreezeBomb.rc">
-      <Filter>Code\Default\Resource</Filter>
+    <Image Include="..\Code\Default\FreezeBomb.ico">
+      <Filter>Code\Default</Filter>
+    </Image>
+    <Image Include="..\Code\Default\bear.ico">
+      <Filter>Code\Default</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\Code\Default\FreezeBomb.rc">
+      <Filter>Code\Default</Filter>
     </ResourceCompile>
   </ItemGroup>
 </Project>

@@ -8,8 +8,8 @@
 
 struct VS_CB_CAMERA_INFO
 {
-	XMFLOAT4X4	m_xmf4x4View;
-	XMFLOAT4X4	m_xmf4x4Projection;
+	XMFLOAT4X4		m_xmf4x4View;
+	XMFLOAT4X4		m_xmf4x4Projection;
 	XMFLOAT3		m_xmf3Position;
 };
 
@@ -23,26 +23,27 @@ protected:
 	XMFLOAT3				m_xmf3Up;
 	XMFLOAT3				m_xmf3Look;
 
-	float							m_fPitch;
-	float           				m_fRoll;
-	float           				m_fYaw;
+	float					m_fCameraMovingTime;
+	float					m_fPitch;
+	float           		m_fRoll;
+	float           		m_fYaw;
 
 	DWORD					m_nMode;
 
 	XMFLOAT3				m_xmf3LookAtWorld;
 	XMFLOAT3				m_xmf3Offset;
-	float           				m_fTimeLag;
+	float           		m_fTimeLag;
 
-	XMFLOAT4X4			m_xmf4x4View;
-	XMFLOAT4X4			m_xmf4x4Projection;
+	XMFLOAT4X4				m_xmf4x4View;
+	XMFLOAT4X4				m_xmf4x4Projection;
 
-	D3D12_VIEWPORT	m_d3dViewport;
+	D3D12_VIEWPORT			m_d3dViewport;
 	D3D12_RECT				m_d3dScissorRect;
 
-	CPlayer*					m_pPlayer = NULL;
+	CPlayer*				m_pPlayer = NULL;
 
-	ID3D12Resource*				m_pd3dcbCamera = NULL;
-	VS_CB_CAMERA_INFO*	m_pcbMappedCamera = NULL;
+	ID3D12Resource*			m_pd3dcbCamera = NULL;
+	VS_CB_CAMERA_INFO*		m_pcbMappedCamera = NULL;
 
 public:
 	CCamera();
@@ -100,6 +101,10 @@ public:
 	virtual void Rotate(float fPitch = 0.0f, float fYaw = 0.0f, float fRoll = 0.0f) { }
 	virtual void Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed) { }
 	virtual void SetLookAt(XMFLOAT3& xmf3LookAt) { }
+
+
+	virtual XMFLOAT4X4& ViberateCamera(const float& elapsedTime,const float& maxAngle,const float& fVibeSpeed);
+	virtual void SphericalLinearInterpolation(float angle,float time, float speed);
 };
 
 class CSpaceShipCamera : public CCamera

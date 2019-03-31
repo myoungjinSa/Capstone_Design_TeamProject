@@ -135,6 +135,11 @@ void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	pIceCubeTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Model/texture2.dds", 0);
 	CScene::CreateShaderResourceViews(pd3dDevice, pIceCubeTexture, 20, false);
 	m_TextureMap.emplace("IceTexture", pIceCubeTexture);
+
+	CTexture *pParticleTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Effect/LampParticle.dds", 0);
+	CScene::CreateShaderResourceViews(pd3dDevice, pParticleTexture, 22, false);
+	m_TextureMap.emplace("Particle", pParticleTexture);
 }
 
 void CResourceManager::LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
@@ -189,11 +194,15 @@ void CResourceManager::LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	CLoadedModelInfo* pFence02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/LowPoly_Fence_02.bin", nullptr, false, "Surrounding");
 	m_ModelMap.emplace("LowPoly_-_Fence_B", pFence02);
 
-	CLoadedModelInfo* pHammer = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Hammer.bin", nullptr, false, "Hammer");
+	//CLoadedModelInfo* pHammer = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Hammer.bin", nullptr, false, "Hammer");
+	CLoadedModelInfo* pHammer = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Hammer2.bin", nullptr, false, "Hammer");
 	m_ModelMap.emplace("Hammer", pHammer);
 
 	CLoadedModelInfo* pGoldTimer = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Pocket_Watch.bin", nullptr, false, "GoldTimer");
 	m_ModelMap.emplace("GoldTimer", pGoldTimer);
+
+	CLoadedModelInfo* pEvilBearModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/EvilBear.bin", nullptr, true, "Enemy");
+	m_ModelMap.emplace("EvilBear", pEvilBearModel);
 }
 
 void CResourceManager::LoadMapObjectInfo(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)

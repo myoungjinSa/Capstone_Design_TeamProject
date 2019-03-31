@@ -9,6 +9,8 @@
 #include "../../SoundSystem/SoundSystem.h"
 #include "../../ShaderManager/ShaderManager.h"
 #include "../../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
+#include "../../Shader/BillboardShader/BombParticleShader/BombParticleShader.h"
+#include "../Billboard/Bomb/Bomb.h"
 
 CPlayer::CPlayer()
 {
@@ -39,7 +41,7 @@ CPlayer::~CPlayer()
 {
 	ReleaseShaderVariables();
 
-	if (m_pCamera) 
+	if (m_pCamera)
 		delete m_pCamera;
 
 	for (auto iter = m_Normal_Inventory.begin(); iter != m_Normal_Inventory.end();)
@@ -73,7 +75,7 @@ void CPlayer::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
 
 void CPlayer::ReleaseShaderVariables()
 {
-	if (m_pCamera) 
+	if (m_pCamera)
 		m_pCamera->ReleaseShaderVariables();
 }
 
@@ -103,7 +105,13 @@ void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 	}
 	else
 	{
+		// 여기서 플레이어가 정적인 오브젝트와 충돌했을 시에 못움직이게 해야됨.
+		// 방법
+		// 1. 플레이어가 무슨 키의 입력을 받았을 때, 충돌 되었는지
+		// 2. 플레이어가 무슨 애니메이션일 때, 충돌 되었는지
+		// 3. 
 		m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
+
 		m_pCamera->Move(xmf3Shift);
 	}
 }
@@ -177,19 +185,24 @@ void CPlayer::Update(float fTimeElapsed)
 		m_xmf3Velocity.x *= (fMaxVelocityXZ / fLength);
 		m_xmf3Velocity.z *= (fMaxVelocityXZ / fLength);
 	}
+	
+	
 	float fMaxVelocityY = m_fMaxVelocityY;
 	float fLengthY = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
 	if (fLengthY > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLengthY);
 
+
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
 	Move(xmf3Velocity, false);
 
-	if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
+	if (m_pPlayerUpdatedContext) 
+		OnPlayerUpdateCallback(fTimeElapsed);
 
 	DWORD nCurrentCameraMode = m_pCamera->GetMode();
 	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->Update(m_xmf3Position, fTimeElapsed);
 	if (m_pCameraUpdatedContext) OnCameraUpdateCallback(fTimeElapsed);
 	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(m_xmf3Position);
+
 	m_pCamera->RegenerateViewMatrix();
 
 	fLength = Vector3::Length(m_xmf3Velocity);
@@ -199,15 +212,13 @@ void CPlayer::Update(float fTimeElapsed)
 
 	DecideAnimationState(fLength);
 
-	//if (m_Normal_Inventory.size() > 0)
-	//{
-	//	// Ctrl 키
-	//	if (GetAsyncKeyState(VK_CONTROL) & 0x0001)
-	//		Refresh_Inventory(Normal);
-	//	// Alt 키
-	//	if (GetAsyncKeyState(VK_MENU) & 0x0001)
-	//		Refresh_Inventory(Special);
-	//}
+	m_Time += fTimeElapsed;
+	if (m_Time > 1.f)
+	{
+		m_Score += 100;
+		m_Time = 0.f;
+	}
+
 }
 
 CCamera *CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
@@ -279,8 +290,8 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 	}
 }
 
-void CPlayer::Add_Inventory(string key, int ItemType) 
-{ 
+void CPlayer::Add_Inventory(string key, int ItemType)
+{
 	if (ItemType == CItem::NormalHammer)
 	{
 		if (m_Normal_Inventory.size() > 0)
@@ -323,13 +334,15 @@ void CPlayer::Refresh_Inventory(int ItemType)
 void CPlayer::DecideAnimationState(float fLength)
 {
 	CAnimationController* pController = m_pAnimationController;
-	if (fLength == 0.0f 
-		&& (pController->GetAnimationState() != CAnimationController::ATTACK 
-		&& pController->GetAnimationState() != CAnimationController::DIGGING
-		&& pController->GetAnimationState() != CAnimationController::JUMP		
-		&& pController->GetAnimationState() != CAnimationController::RAISEHAND
-		&& pController->GetAnimationState() != CAnimationController::DIE
-		&& pController->GetAnimationState() != CAnimationController::ICE ))
+
+	if (fLength == 0.0f
+		&& (pController->GetAnimationState() != CAnimationController::ATTACK
+			&& pController->GetAnimationState() != CAnimationController::DIGGING
+			&& pController->GetAnimationState() != CAnimationController::JUMP
+			&& pController->GetAnimationState() != CAnimationController::RAISEHAND
+			&& pController->GetAnimationState() != CAnimationController::DIE
+			&& pController->GetAnimationState() != CAnimationController::ICE
+			&& pController->GetAnimationState() != CAnimationController::SLIDE))
 	{
 		if (pController->GetAnimationState() == CAnimationController::RUNFAST)
 		{
@@ -340,14 +353,14 @@ void CPlayer::DecideAnimationState(float fLength)
 		SetTrackAnimationSet(0, CAnimationController::IDLE);
 		m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
 	}
-	else 
+	else
 	{
-		if (GetAsyncKeyState(VK_UP) & 0x8000 
-			&& pController->GetAnimationState() != CAnimationController::ATTACK 
+		if (GetAsyncKeyState(VK_UP) & 0x8000
+			&& pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::JUMP
 			&& pController->GetAnimationState() != CAnimationController::ICE
 			&& pController->GetAnimationState() != CAnimationController::RAISEHAND
-
+			&& pController->GetAnimationState() != CAnimationController::DIE
 			)
 		{
 			SetTrackAnimationSet(0, CAnimationController::RUNFAST);
@@ -355,19 +368,20 @@ void CPlayer::DecideAnimationState(float fLength)
 			//m_pAnimationController->SetTrackSpeed(0, 1.3f);
 			//m_pAnimationController->SetTrackPosition(0, 0.0f);
 		}
-	
+
 		if (GetAsyncKeyState(VK_DOWN) & 0x8000
 			&& pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::JUMP
 			&& pController->GetAnimationState() != CAnimationController::ICE
 			&& pController->GetAnimationState() != CAnimationController::RAISEHAND
+			&& pController->GetAnimationState() != CAnimationController::DIE
 			)
 		{
 			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
 			SetTrackAnimationSet(0, CAnimationController::RUNBACKWARD);
 		}
 	}
-	if (GetAsyncKeyState(VK_SPACE) & 0x8000 
+	if (GetAsyncKeyState(VK_SPACE) & 0x8000
 		&& pController->GetAnimationState() != CAnimationController::JUMP
 		&& pController->GetAnimationState() != CAnimationController::ICE
 		)
@@ -378,7 +392,7 @@ void CPlayer::DecideAnimationState(float fLength)
 		//pController->SetTrackSpeed(0, 1.5f);
 	}
 
-	if (GetAsyncKeyState(VK_Z) & 0x8000 
+	if (GetAsyncKeyState(VK_Z) & 0x8000
 		&& pController->GetAnimationState() != CAnimationController::DIGGING
 		&& pController->GetAnimationState() != CAnimationController::ICE
 		)
@@ -394,20 +408,26 @@ void CPlayer::DecideAnimationState(float fLength)
 		m_bBomb = !m_bBomb;
 		m_bHammer = !m_bHammer;
 	}
-	if(GetAsyncKeyState(VK_RSHIFT) & 0x0001 && pController->GetAnimationState() != CAnimationController::DIE )
-	{	
+	if(GetAsyncKeyState(VK_X) & 0X0001)
+	{
+		pController->SetTrackAnimationSet(0, CAnimationController::SLIDE);
+		pController->SetAnimationState(CAnimationController::SLIDE);
+		//pController->SetTrackSpeed(0, 10.0f);
+	}
+	if (GetAsyncKeyState(VK_RSHIFT) & 0x0001 && pController->GetAnimationState() != CAnimationController::DIE)
+	{
 		pController->SetTrackPosition(0, 0.0f);
-		pController->SetTrackAnimationSet(0,CAnimationController::DIE);
+		pController->SetTrackAnimationSet(0, CAnimationController::DIE);
 		pController->SetAnimationState(CAnimationController::DIE);
 	}
 
 	////얼음으로 변신
-	if(GetAsyncKeyState(VK_LSHIFT) & 0x0001
+	if (GetAsyncKeyState(VK_LSHIFT) & 0x0001
 		&& pController->GetAnimationState() != CAnimationController::ICE
 		)
 	{
 		m_bIce = !m_bIce;
-		pController->SetTrackAnimationSet(0,CAnimationController::IDLE);
+		pController->SetTrackAnimationSet(0, CAnimationController::IDLE);
 		pController->SetAnimationState(CAnimationController::ICE);
 	}
 
@@ -417,7 +437,7 @@ void CPlayer::DecideAnimationState(float fLength)
 		&& pController->GetAnimationState() != CAnimationController::ICE)
 	{
 		SetTrackAnimationSet(0, CAnimationController::ATTACK);
-		SetTrackAnimationPosition(0, 0);
+		SetTrackAnimationPosition(0, 0.0f);
 
 		pController->SetAnimationState(CAnimationController::ATTACK);
 
@@ -446,6 +466,37 @@ void CPlayer::DecideAnimationState(float fLength)
 				}
 			}
 			Refresh_Inventory(CItem::GoldHammer);
+		}
+	}
+
+	//// 폭탄이 있을 때,
+	if (m_bBomb == true)
+	{
+		if (m_pShaderManager)
+		{
+			if (pController->GetAnimationState() != CAnimationController::DIE)
+			{
+				auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
+				if (iter != m_pShaderManager->getShaderMap().end())
+				{
+					if (((CTimerUIShader*)((*iter).second))->getTimer() <= 0.f)
+					{
+						auto iter2 = m_pShaderManager->getShaderMap().find("Bomb");
+						if (iter2 != m_pShaderManager->getShaderMap().end())
+						{
+							m_BombParticle = ((CBombParticleShader*)(*iter2).second)->getBomb();
+							m_BombParticle->setIsBlowing(true);
+							m_bBomb = false;
+
+							pController->SetTrackPosition(0, 0.0f);
+							pController->SetTrackAnimationSet(0, CAnimationController::DIE);
+							pController->SetAnimationState(CAnimationController::DIE);
+						}
+					}
+				}
+
+
+			}
 		}
 	}
 }
@@ -477,61 +528,93 @@ void CPlayer::InitializeSound()
 {
 	m_pSound = new CSoundSystem;
 
-	m_SoundCount = 2;
-	
+	m_SoundCount = 4;
+
 	m_SoundList = new const char*[m_SoundCount];
 
 	m_SoundList[0] = "../Resource/Sound/BtnDown03.wav";
 	m_SoundList[1] = "../Resource/Sound/bell1.wav";
-	
+	//m_SoundList[2] = "../Resource/Sound/Bomb.mp3";
+	m_SoundList[2] = "../Resource/Sound/BombExplode2.wav";
+	m_SoundList[3] = "../Resource/Sound/Effect/HammerSwing.wav";
+
+
 	std::string s0(m_SoundList[0]);
 	std::string s1(m_SoundList[1]);
+	std::string s2(m_SoundList[2]);
+	std::string s3(m_SoundList[3]);
+
 	////m_SoundList[1] = "../Resource/Sound/bell1.wav";
 
 	m_mapMusicList.emplace(FOOTSTEP, s0);
 	m_mapMusicList.emplace(ATTACK, s1);
+	m_mapMusicList.emplace(DIE, s2);
+	m_mapMusicList.emplace(ATTACK, s3);
 
-	if(m_pSound)
-		m_pSound->Initialize(m_SoundCount, m_SoundList,FMOD_LOOP_OFF);
+
+	if (m_pSound)
+		m_pSound->Initialize(m_SoundCount, m_SoundList, FMOD_LOOP_OFF);
 }
 
 void CPlayer::ReleaseSound()
 {
-	if(m_pSound)
+	if (m_pSound)
 		m_pSound->Release();
 }
 
-CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID ,void *pContext)
+CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, int matID, void *pContext)
 {
 	CLoadedModelInfo* pEvilBearModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
 		"../Resource/Models/EvilBear.bin", NULL, true, "Player");
-
-
 
 	SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);
 
 	m_pAnimationController = new CAnimationController(1, pEvilBearModel->m_pAnimationSets);
 	m_pAnimationController->SetTrackAnimationSet(0, m_pAnimationController->IDLE);
-	
+
 	// RUNFAST번 애니메이션 동작에 사운드 2개를 Set해준다.
 	m_pAnimationController->SetCallbackKeys(m_pAnimationController->RUNFAST, 2);
-
 
 	// 애니메이션 1번동작 0.1초일때 Footstep01 소리를 재생, 1번동작 0.5초일때 Footstep02 소리를 재생, 1번동작 0.9초일때 Footstep03 소리를 재생
 	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 0, 0.1f, (void*)CPlayer::MUSIC_ENUM::FOOTSTEP);
 	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 1, 0.5f, (void*)CPlayer::MUSIC_ENUM::FOOTSTEP);
 
 
+	m_pAnimationController->SetCallbackKeys(m_pAnimationController->RUNBACKWARD, 2);
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNBACKWARD, 0, 0.1f, (void*)CPlayer::MUSIC_ENUM::FOOTSTEP);
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNBACKWARD, 1, 0.3f, (void*)CPlayer::MUSIC_ENUM::FOOTSTEP);
+
+
 	m_pAnimationController->SetCallbackKeys(m_pAnimationController->RAISEHAND, 1);
 	m_pAnimationController->SetCallbackKey(m_pAnimationController->RAISEHAND, 0, 0.3f, (void*)CPlayer::MUSIC_ENUM::USETIMER);
+
+	m_pAnimationController->SetCallbackKeys(m_pAnimationController->DIE, 1);
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->DIE, 0, 0.1f, (void*)CPlayer::MUSIC_ENUM::DIE);
+
+	m_pAnimationController->SetCallbackKeys(m_pAnimationController->ATTACK, 1);
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->ATTACK, 0, 0.2f, (void*)CPlayer::MUSIC_ENUM::ATTACK);
+
+
 
 	CAnimationCallbackHandler* pRunAnimationCallbackHandler = new CSoundCallbackHandler();
 	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RUNFAST, pRunAnimationCallbackHandler,
 		GetSoundData());
 
+	CAnimationCallbackHandler* pBackRunAnimationCallbackHandler = new CSoundCallbackHandler();
+	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RUNBACKWARD, pBackRunAnimationCallbackHandler,
+		GetSoundData());
+
 	CAnimationCallbackHandler* pRaiseHandAnimationCallbackHandler = new CSoundCallbackHandler();
 	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RAISEHAND, pRaiseHandAnimationCallbackHandler,
+		GetSoundData());
+	
+	CAnimationCallbackHandler* pDieAnimationCallbackHandler = new CSoundCallbackHandler();
+	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->DIE, pDieAnimationCallbackHandler,
+		GetSoundData());
+
+	CAnimationCallbackHandler* pAttackAnimationCallbackHandler = new CSoundCallbackHandler();
+	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->ATTACK, pAttackAnimationCallbackHandler,
 		GetSoundData());
 
 
@@ -628,7 +711,7 @@ CCamera *CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		break;
 	case THIRD_PERSON_CAMERA:
 		SetFriction(250.0f);
-		SetGravity(XMFLOAT3(0.0f, -250.0f,0.0f));
+		SetGravity(XMFLOAT3(0.0f, -250.0f, 0.0f));
 		SetMaxVelocityXZ(40.0f);
 		SetMaxVelocityY(400.0f);
 		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
@@ -683,6 +766,7 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 			CThirdPersonCamera *p3rdPersonCamera = (CThirdPersonCamera *)m_pCamera;
 			p3rdPersonCamera->SetLookAt(GetPosition());
 		}
+		
 	}
 }
 

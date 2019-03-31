@@ -13,6 +13,7 @@
 class CItem;
 class CShadow;
 class CShaderManager;
+class CBomb;
 class CPlayer : public CGameObject
 {
 public:
@@ -34,15 +35,23 @@ public:
 	void SetGravity(const XMFLOAT3& xmf3Gravity) { m_xmf3Gravity = xmf3Gravity; }
 	void SetMaxVelocityXZ(float fMaxVelocity) { m_fMaxVelocityXZ = fMaxVelocity; }
 	void SetMaxVelocityY(float fMaxVelocity) { m_fMaxVelocityY = fMaxVelocity; }
+
+	float GetVelocityX() { return m_xmf3Velocity.x; }
+	float GetVelocityZ() { return m_xmf3Velocity.z; }
+
 	void SetVelocity(const XMFLOAT3& xmf3Velocity) { m_xmf3Velocity = xmf3Velocity; }
+	void SetVelocity(const float& velX, const float& velY, const float& velZ) { m_xmf3Velocity.x = velX; m_xmf3Velocity.y = velY, m_xmf3Velocity.z = velZ; }
 	void SetPosition(const XMFLOAT3& xmf3Position) { Move(XMFLOAT3(xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z), false); }
 
+	//사운드 볼륨 조절을 위해 가장 가까운 적과의 거리를 멤버 변수로 저장한다.
+	void SetMinDistanceWithEnemy(float fDistance) { m_fMinDistance = fDistance; }
 	void SetScale(XMFLOAT3& xmf3Scale) { m_xmf3Scale = xmf3Scale; }
 
 	const XMFLOAT3& GetVelocity() const { return(m_xmf3Velocity); }
 	float GetYaw() const { return(m_fYaw); }
 	float GetPitch() const { return(m_fPitch); }
 	float GetRoll() const { return(m_fRoll); }
+	float GetMaxVelocity() const { return m_fMaxVelocityXZ; }
 
 	CCamera *GetCamera() { return(m_pCamera); }
 	void SetCamera(CCamera *pCamera) { m_pCamera = pCamera; }
@@ -88,17 +97,20 @@ public:
 	void ReleaseSound();
 
 	void* GetSoundData() const { return static_cast<void*>(m_pSound); }
-
-public:
+	
 	DWORD				m_dwDirection = 0x00;
 
 	enum MUSIC_ENUM
 	{
 		FOOTSTEP=1,
 		USETIMER,
+		DIE,
 		ATTACK
 	};
 	std::map<MUSIC_ENUM, std::string> m_mapMusicList;
+
+	void setScore(short score) { m_Score = score; }
+	short getScore()		const { return m_Score; }
 
 protected:
 
@@ -121,6 +133,8 @@ protected:
 	float           			m_fMaxVelocityY = 0.0f;
 	float           			m_fFriction = 0.0f;
 
+	float						m_fMinDistance = 0.0f;
+
 	LPVOID				m_pPlayerUpdatedContext{ nullptr };
 	LPVOID				m_pCameraUpdatedContext{ nullptr };
 
@@ -136,13 +150,19 @@ protected:
 
 	CSoundSystem*	m_pSound{ nullptr };
 	const char**	m_SoundList;
-	int			m_SoundCount;
+	int					m_SoundCount;
+
+	short				m_Score = 0;
+	float				m_Time = 0.f;
+
+	CBomb	*		m_BombParticle{ nullptr };
 };
 
 class CSoundSystem;
 
 class CTerrainPlayer : public CPlayer
 {
+	//카메라 무빙
 public:
 	CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID, void *pContext=NULL);
 	virtual ~CTerrainPlayer();
@@ -152,6 +172,7 @@ public:
 	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed);
 	virtual void OnCameraUpdateCallback(float fTimeElapsed);
+
 
 	void RotateAxisY(float fTimeElapsed);
 

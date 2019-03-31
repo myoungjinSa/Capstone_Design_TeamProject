@@ -9,6 +9,8 @@
 #include "../Shader/StandardShader/MapObjectShader/MapObjectShader.h"
 #include "../Shader/StandardShader/ItemShader/ItemShader.h"
 #include "../SoundSystem/SoundSystem.h"
+#include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
+
 
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -93,7 +95,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	nObjects = 67;		//DeadTrees(15),PineTrees(34),Rocks(14),Deer(2),Pond(2)
 #endif
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 
-		SkyBox + Terrain + MapObjects + Item + EvilBear + Particle + TimerUI + ItemUI + Player);
+		SkyBox + Terrain + MapObjects + Item + EvilBear + Particle + TimerUI + ItemUI + Player + BombExplosion);
 	// Model을 로드할 때, 셰이더 없이 로드할 경우 이것을 사용함!
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
@@ -135,7 +137,7 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 {
 	ID3D12RootSignature *pd3dGraphicsRootSignature = NULL;
 
-	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[14];
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[15];
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[0].NumDescriptors = 1;
@@ -221,7 +223,13 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dDescriptorRanges[13].RegisterSpace = 0;
 	pd3dDescriptorRanges[13].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[22];
+	pd3dDescriptorRanges[14].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	pd3dDescriptorRanges[14].NumDescriptors = 1;
+	pd3dDescriptorRanges[14].BaseShaderRegister = 19; // t19: gtxtBombParticleTexture
+	pd3dDescriptorRanges[14].RegisterSpace = 0;
+	pd3dDescriptorRanges[14].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_ROOT_PARAMETER pd3dRootParameters[24];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 1;	// b1 : Camera
@@ -334,6 +342,16 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[21].Constants.ShaderRegister = 9; // b9 :
 	pd3dRootParameters[21].Constants.RegisterSpace = 0;
 	pd3dRootParameters[21].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	pd3dRootParameters[22].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[22].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[22].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[14]);
+	pd3dRootParameters[22].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	pd3dRootParameters[23].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	pd3dRootParameters[23].Descriptor.ShaderRegister = 6;	// b6 : AnimationClip
+	pd3dRootParameters[23].Descriptor.RegisterSpace = 0;
+	pd3dRootParameters[23].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
 
@@ -523,9 +541,12 @@ bool CScene::ProcessInput(UCHAR *pKeysBuffer)
 
 void CScene::AnimateObjects(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed)
 {
-	if (m_pShaderManager)
+	if (m_pShaderManager) {
 		m_pShaderManager->AnimateObjects(fTimeElapsed, m_pPlayer->GetCamera(), m_pPlayer);
+		CheckWarningTimer();
+	}
 
+	
 	if (m_pLights)
 	{
 		m_pLights[1].m_xmf3Position = m_pPlayer->GetPosition();
@@ -559,21 +580,39 @@ void CScene::CheckObjectByObjectCollisions()
 {
 	if (m_pPlayer)
 	{
+		// 플레이어와 충돌 된 오브젝트 정보를 초기화
+		//m_pPlayer->SetObjectCollided(nullptr);
+
 		// 플레이어와 정적인 오브젝트 충돌검사
 		map<string, CShader*> m = m_pShaderManager->getShaderMap();
 		auto iter = m.find("MapObjects");
 		if (iter != m.end())
 		{
 			int i = 0;
-			auto MapObjectsList = dynamic_cast<CMapObjectsShader*>((*iter).second)->getSurroundingList();
+			auto MapObjectsList = ((CMapObjectsShader*)((*iter).second))->getSurroundingList();
+
+			// 맵 오브젝트의 충돌 된 오브젝트를 초기화해줌
+			for (auto iter2 = MapObjectsList.begin(); iter2 != MapObjectsList.end(); ++iter2)
+				(*iter2)->SetObjectCollided(nullptr);
+
 			for (auto iter2 = MapObjectsList.begin(); iter2 != MapObjectsList.end(); ++iter2)
 			{
 				if((*iter2)->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
+					m_pPlayer->SetObjectCollided((*iter2));
+					XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize((*iter2)->GetPosition() ,m_pPlayer->GetPosition());
+					xmf3CollisionDir=Vector3::ScalarProduct(xmf3CollisionDir, m_pPlayer->GetMaxVelocity()*0.3f);
+					m_pPlayer->SetVelocity(-xmf3CollisionDir.x,-xmf3CollisionDir.y,-xmf3CollisionDir.z);
 					cout << i << "번째 정적인 오브젝트와 충돌" << endl;
 				}
 				++i;
 			}
+
+			//// 플레이어가 맵 오브젝트와 충돌했다면
+			//if (m_pPlayer->GetObjectCollided() != nullptr)
+			//{
+
+			//}
 		}
 
 		// 플레이어와 다른 곰돌이 오브젝트 충돌검사
@@ -594,15 +633,31 @@ void CScene::CheckObjectByObjectCollisions()
 		iter = m.find("곰돌이");
 		if (iter != m.end())
 		{
+			float minDistance = 1000.0f;
 			for (int i = 0; i < (*iter).second->m_nObjects; ++i)
 			{
 				if ((*iter).second->m_ppObjects[i]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
 					//(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
 					//m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
+					//이쪽에 일단 클라이언트단에서 못움직이게 구현. 추후에 서버에서 해야함
+					//플레이어와 오브젝트의 원점에서의 거리를 구한다음 방향을 구하여 그 방향으로는 진행을 못하게 해야할듯
+
+					XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize((*iter).second->m_ppObjects[i]->GetPosition() ,m_pPlayer->GetPosition());
+					xmf3CollisionDir=Vector3::ScalarProduct(xmf3CollisionDir, (m_pPlayer->GetMaxVelocity()*0.3f));
+					m_pPlayer->SetVelocity(-xmf3CollisionDir.x,-xmf3CollisionDir.y,-xmf3CollisionDir.z);
+			
 					cout << i << "번째 애니메이션 오브젝트와 충돌" << endl;
 				}
+
+				//각 캐릭터는 플레이어와의 거리 변수를 저장한다.
+				//사운드 볼륩 조절에 필요.
+				float dist = Vector3::Length(Vector3::SubtractNormalize( (*iter).second->m_ppObjects[i]->GetPosition(),m_pPlayer->GetPosition()));
+				(*iter).second->m_ppObjects[i]->SetDistanceToTarget(dist);
+				//m_pPlayer->SetMinDistanceWithEnemy(minDistance);
 			}
+			
+			//cout<< "최소 거리:" << minDistance << "\n";
 
 			if (m_pPlayer->AnimationCollision(CAnimationController::ATTACK))
 			{
@@ -618,7 +673,13 @@ void CScene::CheckObjectByObjectCollisions()
 						}
 					}
 				}
-			}			
+			}		
+
+
+			
+			/*sort(begin(m), end(m), [&](const CGameObject& enmey1,const CGameObject& enemy2)->float {
+				float fDistamce = m_pPlayer->
+			});*/
 		}
 
 		// 플레이어와 아이템 오브젝트 충돌검사
@@ -647,23 +708,46 @@ void CScene::CheckObjectByObjectCollisions()
 	}
 }
 
+void CScene::SetWarningTimer()
+{
+	m_pSound->PlayIndex(TIMERWARNING);
+}
+void CScene::CheckWarningTimer()
+{
+	if (m_pSound) {
+		map<string, CShader*> m = m_pShaderManager->getShaderMap();
+
+		auto iter = m.find("TimerUI");
+		float sec = dynamic_cast<CTimerUIShader*>((*iter).second)->getTimer();
+		
+		if(sec < 10.0f)
+		{
+			if (m_bWarningSet == false) {
+				m_bWarningSet = true;
+				SetWarningTimer();
+			}
+		}
+	}
+}
+
 
 void CScene::CreateSoundSystem()
 {
 		//사운드 생성
 	m_pSound = new CSoundSystem;
 
-	m_musicCount = 1;
+	m_musicCount = 2;
 	m_musicList = new const char*[m_musicCount];
 
 	m_musicList[0] = "../Resource/Sound/SnowyVillage.wav";
+	m_musicList[1] = "../Resource/Sound/Effect/TimerWarning.wav";
 //	m_musicList[1] = "../Resource/Sound/town.wav";
 
 	//2개 동시에 재생도 가능하다
 	if (m_pSound)
 	{
 		m_pSound->Initialize(m_musicCount, m_musicList,FMOD_LOOP_NORMAL);
-		m_pSound->Play(m_musicCount);
+		m_pSound->PlayIndex(BACKGROUNDMUSIC);
 	}
 
 	//PlaySound(_T("../Resource/Sound/town.wav"), GetModuleHandle(NULL), SND_MEMORY | SND_ASYNC | SND_LOOP);

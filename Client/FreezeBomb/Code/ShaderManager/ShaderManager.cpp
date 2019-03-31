@@ -19,6 +19,8 @@
 #include "../Shader/CubeParticleShader/IceParticleShader/IceParticleShader.h"
 //#include "../Shader/PostProcessShader/CartoonShader/SobelCartoonShader.h"
 
+#include "../Shader/BillboardShader/BombParticleShader/BombParticleShader.h"
+
 #include "../GameObject/Player/Player.h"
 
 CShaderManager::CShaderManager()
@@ -34,7 +36,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_pResourceManager = new CResourceManager;
 	m_pResourceManager->Initialize(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	m_nShaders = 8;
+	m_nShaders = 9;
 
 	//맵툴 모드일때는 맵의 오브젝트들을 그리지 않게 하기 위해 
 	// 그래야 맵툴모드에서 적용해서 배치한 오브젝트들만 볼 수 있다.
@@ -87,7 +89,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 
 	CSkinnedAnimationObjectShader* pAnimationObjectShader = new CSkinnedAnimationObjectShader;
 	//pAnimationObjectShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pAnimationObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getBoundMap(),nPlayerCount,pTerrainShader->getTerrain());
+	pAnimationObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getModelMap(), m_pResourceManager->getBoundMap(),nPlayerCount,pTerrainShader->getTerrain());
 	m_ppShaders[index++] = pAnimationObjectShader;
 	m_ShaderMap.emplace("곰돌이", pAnimationObjectShader);
 
@@ -114,6 +116,12 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	pItemUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
 	m_ppShaders[index++] = pItemUIShader;
 	m_ShaderMap.emplace("ItemUI", pItemUIShader);
+
+	CBombParticleShader* pBombParticleShader = new CBombParticleShader;
+	pBombParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pBombParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
+	m_ppShaders[index++] = pBombParticleShader;
+	m_ShaderMap.emplace("Bomb", pBombParticleShader);
 
 	m_pResourceManager->ReleaseModel();
 }
@@ -157,15 +165,8 @@ void CShaderManager::Render(ID3D12GraphicsCommandList* pd3dCommandList,float fTi
 {
 	for (int i = 0; i < m_nShaders; i++)
 	{
-		if (m_ppShaders[i]) {
-			if (i == 4) 
-			{
-				dynamic_cast<CSkinnedAnimationObjectShader*>(m_ppShaders[i])->Render(pd3dCommandList, pCamera, GameObject, fTimeElapsed);
-			}
-			else {
-				m_ppShaders[i]->Render(pd3dCommandList, pCamera, GameObject);
-			}
-		}
+		if (m_ppShaders[i]) 
+			m_ppShaders[i]->Render(pd3dCommandList, pCamera, GameObject);
 	}
 
 	if (m_pPlayer)

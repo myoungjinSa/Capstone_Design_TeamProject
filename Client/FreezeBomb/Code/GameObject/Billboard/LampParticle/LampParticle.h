@@ -2,10 +2,7 @@
 
 #include "../Billboard.h"
 
-struct CB_ANIMATIONCLIP
-{
-	UINT		m_AnimationClip = 0;
-};
+struct CB_ANIMATIONCLIP;
 
 class CLampParticle : public CBillboard
 {

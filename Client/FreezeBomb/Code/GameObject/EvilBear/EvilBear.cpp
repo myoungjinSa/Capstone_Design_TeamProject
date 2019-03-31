@@ -27,21 +27,28 @@ void CEvilBear::InitializeSound()
 	m_pSound = new CSoundSystem;
 
 
-	m_SoundCount = 2;
+	m_SoundCount = 4;
 	
 	
 	m_SoundList = new const char*[m_SoundCount];
 
 	m_SoundList[0] = "../Resource/Sound/BtnDown03.wav";
 	m_SoundList[1] = "../Resource/Sound/bell1.wav";
+	m_SoundList[2] = "../Resource/Sound/Bomb.mp3";
+	m_SoundList[3] = "../Resource/Sound/Effect/HammerSwing.wav";
 	
+
 	std::string s0(m_SoundList[0]);
 	std::string s1(m_SoundList[1]);
+	std::string s2(m_SoundList[2]);
+	std::string s3(m_SoundList[3]);
 	////m_SoundList[1] = "../Resource/Sound/bell1.wav";
 
 
 	m_mapMusicList.emplace(FOOTSTEP, s0);
 	m_mapMusicList.emplace(USETIMER, s1);
+	m_mapMusicList.emplace(DIE, s2);
+	m_mapMusicList.emplace(ATTACK, s3);
 
 
 	if(m_pSound)
@@ -72,4 +79,19 @@ void CEvilBear::ReleaseSound()
 		m_pSound->Release();
 	}
 	
+}
+
+void CEvilBear::Animate(float fTimeElapsed)
+{
+	// 루트 오브젝트를 제외한 나머지는 모두 nullptr이다. 왜냐하면, 루트 오브젝트를 제어하기 위함이므로
+	if (m_pAnimationController) 
+		m_pAnimationController->AdvanceTime(fTimeElapsed,(float*)&m_fDistanceToTarget);
+
+	m_xmOOBBTransformed.Transform(m_xmOOBB, XMLoadFloat4x4(&m_xmf4x4World));
+	XMStoreFloat4(&m_xmOOBBTransformed.Orientation, XMQuaternionNormalize(XMLoadFloat4(&m_xmOOBBTransformed.Orientation)));
+
+	if (m_pSibling) 
+		m_pSibling->Animate(fTimeElapsed);
+	if (m_pChild) 
+		m_pChild->Animate(fTimeElapsed);
 }
