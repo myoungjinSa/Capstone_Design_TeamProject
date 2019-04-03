@@ -556,7 +556,7 @@ void CScene::AnimateObjects(ID3D12GraphicsCommandList *pd3dCommandList,float fTi
 	}
 }
 
-void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed, CCamera *pCamera)
+void CScene::PreRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed, CCamera *pCamera)
 {
 	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 	if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
@@ -571,9 +571,19 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapse
 
 	if (m_pShaderManager)
 	{
-		m_pShaderManager->Render(pd3dCommandList,fTimeElapsed, pCamera);
+		m_pShaderManager->PreRender(pd3dCommandList,fTimeElapsed, pCamera);
 	}
 
+}
+void CScene::PostRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed, CCamera *pCamera)
+{
+	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
+	if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+
+	if (m_pShaderManager)
+	{
+		m_pShaderManager->PostRender(pd3dCommandList,fTimeElapsed, pCamera);
+	}
 }
 
 void CScene::CheckObjectByObjectCollisions()
