@@ -76,7 +76,7 @@ public:
 
 	void CheckWarningTimer();
 	void SetWarningTimer();
-
+	void StopWarningTimer();
 protected:
 	ID3D12RootSignature*						m_pd3dGraphicsRootSignature = NULL;
 

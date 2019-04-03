@@ -712,6 +712,11 @@ void CScene::SetWarningTimer()
 {
 	m_pSound->PlayIndex(TIMERWARNING);
 }
+
+void CScene::StopWarningTimer()
+{
+	m_pSound->StopIndex(TIMERWARNING);
+}
 void CScene::CheckWarningTimer()
 {
 	if (m_pSound) {
@@ -725,6 +730,14 @@ void CScene::CheckWarningTimer()
 			if (m_bWarningSet == false) {
 				m_bWarningSet = true;
 				SetWarningTimer();
+			}
+		}
+		else
+		{
+			if(m_bWarningSet == true)
+			{
+				m_bWarningSet = false;
+				StopWarningTimer();
 			}
 		}
 	}
