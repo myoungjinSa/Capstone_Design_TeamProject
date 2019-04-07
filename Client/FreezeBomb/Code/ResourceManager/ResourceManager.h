@@ -33,9 +33,6 @@ public:
 	void LoadBound(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 
 	void ReleaseModel();
-
-	//void CreateOffScreenRenderTargeViews(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList,int clientWidth,int clientHeight);
-
 	void Release();
 
 	const map<string, CTexture*>& getTextureMap()	const { return m_TextureMap; }
@@ -44,10 +41,7 @@ public:
 	const multimap<string, MapObjectInfo*>& getMapObjectInfo()	const { return m_MapObjectInfoMultiMap; }
 
 private:
-	//static const UINT				m_nCartoonScreenRenderTargetBuffers = 2;
-	//ID3D12Resource*					m_ppd3dCartoonScreenRenderTargetBuffers[m_nCartoonScreenRenderTargetBuffers];
-	//D3D12_CPU_DESCRIPTOR_HANDLE		m_pd3dCarttonScreenRenderTargetBufferCPUHandles[m_nCartoonScreenRenderTargetBuffers];
-
+	
 	map<string, CTexture*>					m_TextureMap;
 	map<string, CLoadedModelInfo*>	m_ModelMap;
 	map<string, Bounds*>						m_BoundMap;

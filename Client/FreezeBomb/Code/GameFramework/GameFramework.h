@@ -8,6 +8,7 @@ class CScene;
 class CPlayer;
 class CPlayerShadowShader;
 
+class CSnowShader;
 class CCamera;
 class CMapToolShader;
 class CSobelCartoonShader;
@@ -116,8 +117,8 @@ private:
 	D3D12_CPU_DESCRIPTOR_HANDLE				m_pd3dCarttonScreenRenderTargetBufferCPUHandles[m_nCartoonScreenRenderTargetBuffers];
 
 
-	CSobelCartoonShader*					m_pCartoonShader =nullptr;
-	bool									m_bCartoon =true;
+
+	CSobelCartoonShader*					m_pCartoonShader{ nullptr };
 #ifdef _MAPTOOL_MODE_
 	CMapToolShader*  m_pMapToolShader = nullptr;
 #endif

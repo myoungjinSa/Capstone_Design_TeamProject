@@ -67,6 +67,7 @@ protected:
 	XMFLOAT3									m_xmf3AABBCenter = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3									m_xmf3AABBExtents = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
+
 public:
 	UINT GetType() { return(m_nType); }
 
@@ -86,7 +87,7 @@ public:
 	virtual void OnPostRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);
 
 	XMFLOAT3 getBoundCenter()	const { return m_xmf3AABBCenter; }
-	XMFLOAT3 getBoundExtent()	const { return m_xmf3AABBExtents; }
+	XMFLOAT3& getBoundExtent()	{ return m_xmf3AABBExtents; }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

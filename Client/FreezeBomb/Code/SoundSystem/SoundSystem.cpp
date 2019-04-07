@@ -60,6 +60,17 @@ void CSoundSystem::PlayIndex(unsigned int index,float volume)
 	}
 }
 
+void CSoundSystem::StopIndex(unsigned int index)
+{
+	if(pSystem)
+	{
+		if(pSound[index])
+		{
+			pSystem->playSound(pSound[index], nullptr, true, &pChannel[index]);
+
+		}
+	}
+}
 void CSoundSystem::Release()
 {
 	for (int i = 0; i < m_soundCount; i++)

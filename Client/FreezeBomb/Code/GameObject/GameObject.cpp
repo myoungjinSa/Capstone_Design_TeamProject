@@ -1062,7 +1062,7 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 	int nFrame = 0, nTextures = 0;
 
 	CGameObject* pGameObject = NULL;
-
+	XMFLOAT3 xmf3Position, xmf3Rotation, xmf3Scale;
 	for ( ; ; )
 	{
 		nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
@@ -1088,11 +1088,12 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 		}
 		else if (!strcmp(pstrToken, "<Transform>:"))
 		{
-			XMFLOAT3 xmf3Position, xmf3Rotation, xmf3Scale;
+			
 			XMFLOAT4 xmf4Rotation;
 			nReads = (UINT)::fread(&xmf3Position, sizeof(float), 3, pInFile);
 			nReads = (UINT)::fread(&xmf3Rotation, sizeof(float), 3, pInFile); //Euler Angle
 			nReads = (UINT)::fread(&xmf3Scale, sizeof(float), 3, pInFile);
+			pGameObject->m_xmf3Scale = xmf3Scale;
 			nReads = (UINT)::fread(&xmf4Rotation, sizeof(float), 4, pInFile); //Quaternion
 
 		}
@@ -1108,7 +1109,7 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 			pGameObject->SetMesh(pMesh);
 
 			// 각 바운드 크기 셋
-			pGameObject->SetOOBB(pMesh->getBoundCenter(), pMesh->getBoundExtent(), XMFLOAT4(0, 0, 0, 1));
+			pGameObject->SetOOBB(pMesh->getBoundCenter(),pMesh->getBoundExtent() /*Vector3::Multiply(Vector3::ScalarProduct(pMesh->getBoundExtent(),1000,false) , xmf3Scale)*/, XMFLOAT4(0, 0, 0, 1));
 		}
 		else if (!strcmp(pstrToken, "<SkinningInfo>:"))
 		{

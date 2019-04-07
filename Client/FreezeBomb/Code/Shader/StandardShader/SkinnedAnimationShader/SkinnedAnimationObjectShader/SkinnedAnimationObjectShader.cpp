@@ -144,7 +144,7 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		m_ppObjects[i]->SetPosition(Position);
 		m_ppObjects[i]->SetScale(10, 10, 10);
 
-		m_ppObjects[i]->setID("<EvilBear>");
+		m_ppObjects[i]->setID("EvilBear");
 		auto iter = Context.find(m_ppObjects[i]->getID());
 		if (iter != Context.end())
 			m_ppObjects[i]->SetOOBB((*iter).second->m_xmf3Center, (*iter).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));

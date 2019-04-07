@@ -1,5 +1,5 @@
 <Frame>: 0 2 SM_Deer
-	<Transform>: 0 0 0 0 180 0 5 5 5 0 -1 0 0  
+	<Transform>: 0 0 0 0 180 0 5 5 5 0 1 0 0  
 	<TransformMatrix>: -5 0 0 0 0 5 0 0 0 0 -5 0 0 0 0 1  
 	<Mesh>: 1268 polySurface1
 		<Bounds>: 0.01083577 1.601403 0.5396753 1.542158 1.601403 1.463584
@@ -15,14 +15,14 @@
 	</Mesh>
 	<Materials>: 1
 		<Material>: 0
-			<AlbedoColor>: 0.5 0.5 0.5 1
+			<AlbedoColor>: 1 1 1 1
 			<EmissiveColor>: 0 0 0 1
+			<SpecularColor>: 0.2 0.2 0.2 1
 			<Glossiness>: 0.5
-			<Metallic>: 0
 			<SpecularHighlight>: 1
 			<GlossyReflection>: 1
 			<AlbedoMap>: T_Deer_D
-			<MetallicMap>: T_Deer_S
+			<SpecularMap>: T_Deer_S
 			<NormalMap>: null
 			<EmissionMap>: null
 			<DetailAlbedoMap>: null

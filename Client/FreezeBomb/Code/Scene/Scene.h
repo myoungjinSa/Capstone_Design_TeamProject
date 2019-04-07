@@ -62,7 +62,9 @@ public:
 
 	bool ProcessInput(UCHAR *pKeysBuffer);
     void AnimateObjects(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed);
-    void Render(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed, CCamera *pCamera=NULL);
+    void PreRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed, CCamera *pCamera=NULL);
+	void PostRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed, CCamera *pCamera=NULL);
+
 
 	void ReleaseUploadBuffers();
 
@@ -76,7 +78,7 @@ public:
 
 	void CheckWarningTimer();
 	void SetWarningTimer();
-
+	void StopWarningTimer();
 protected:
 	ID3D12RootSignature*						m_pd3dGraphicsRootSignature = NULL;
 

@@ -31,12 +31,17 @@ CShaderManager::~CShaderManager()
 {
 }
 
+
+
 void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,const int& nPlayerCount)
 {
 	m_pResourceManager = new CResourceManager;
 	m_pResourceManager->Initialize(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	m_nShaders = 9;
+
+	//카툰렌더링 해야될 쉐이더 개수
+	m_nPostShaders = m_nShaders - 3;
 
 	//맵툴 모드일때는 맵의 오브젝트들을 그리지 않게 하기 위해 
 	// 그래야 맵툴모드에서 적용해서 배치한 오브젝트들만 볼 수 있다.
@@ -93,17 +98,23 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ppShaders[index++] = pAnimationObjectShader;
 	m_ShaderMap.emplace("곰돌이", pAnimationObjectShader);
 
-	CSnowShader * pSnowShader = new CSnowShader;
-	pSnowShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pSnowShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), pTerrainShader->getTerrain());
-	m_ppShaders[index++] = pSnowShader;
-	m_ShaderMap.emplace("Snow", pSnowShader);
 
 	CCubeIceShader* pIceParticleShader = new CCubeIceShader;
 	pIceParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pIceParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
 	m_ppShaders[index++] = pIceParticleShader;
 	m_ShaderMap.emplace("IceParticle", pIceParticleShader);
+
+
+
+	CBombParticleShader* pBombParticleShader = new CBombParticleShader;
+	pBombParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pBombParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
+	m_ppShaders[index++] = pBombParticleShader;
+	m_ShaderMap.emplace("Bomb", pBombParticleShader);
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////
+	//아래 shader들은 카툰처리가 되면 안되는 shader
 
 	CTimerUIShader* pTimerUIShader = new CTimerUIShader;
 	pTimerUIShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -116,12 +127,12 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	pItemUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
 	m_ppShaders[index++] = pItemUIShader;
 	m_ShaderMap.emplace("ItemUI", pItemUIShader);
-
-	CBombParticleShader* pBombParticleShader = new CBombParticleShader;
-	pBombParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pBombParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
-	m_ppShaders[index++] = pBombParticleShader;
-	m_ShaderMap.emplace("Bomb", pBombParticleShader);
+	
+	CSnowShader * pSnowShader = new CSnowShader;
+	pSnowShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pSnowShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), pTerrainShader->getTerrain());
+	m_ppShaders[index++] = pSnowShader;
+	m_ShaderMap.emplace("Snow", pSnowShader);
 
 	m_pResourceManager->ReleaseModel();
 }
@@ -138,6 +149,7 @@ void CShaderManager::ReleaseObjects()
 		}
 		delete[] m_ppShaders;
 	}
+	
 
 	if (m_pResourceManager)
 	{
@@ -161,9 +173,21 @@ void CShaderManager::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer
 	}
 }
 
-void CShaderManager::Render(ID3D12GraphicsCommandList* pd3dCommandList,float fTimeElapsed, CCamera* pCamera)
+
+//카툰 렌더링 하지 않고 그려야할 쉐이더 
+void CShaderManager::PostRender(ID3D12GraphicsCommandList* pd3dCommandList,float fTimeElapsed, CCamera* pCamera)
 {
-	for (int i = 0; i < m_nShaders; i++)
+	for (int i = m_nPostShaders; i <m_nShaders; i++)
+	{
+		if (m_ppShaders[i]) 
+			m_ppShaders[i]->Render(pd3dCommandList, pCamera, GameObject);
+	}
+	
+}
+
+void CShaderManager::PreRender(ID3D12GraphicsCommandList* pd3dCommandList,float fTimeElapsed, CCamera* pCamera)
+{
+	for (int i = 0; i < m_nPostShaders; i++)
 	{
 		if (m_ppShaders[i]) 
 			m_ppShaders[i]->Render(pd3dCommandList, pCamera, GameObject);

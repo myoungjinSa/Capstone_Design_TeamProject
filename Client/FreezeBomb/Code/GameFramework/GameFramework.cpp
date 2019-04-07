@@ -8,6 +8,7 @@
 
 #include "../ShaderManager/ShaderManager.h"
 #include "../Shader/TerrainShader/TerrainShader.h"
+#include "../Shader/BillboardShader/SnowShader/SnowShader.h"
 #include "../GameObject/Terrain/Terrain.h"
 #include "../ResourceManager/ResourceManager.h"
 #include "../Shader/StandardShader/MapToolShader/MapToolShader.h"
@@ -550,9 +551,6 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				case VK_F3:
 					m_pCamera = m_pPlayer->ChangeCamera((DWORD)(wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
 					break;
-				case VK_F4:
-					m_bCartoon = !m_bCartoon;
-					break;
 				case VK_F9:
 					ChangeSwapChainState();
 					break;
@@ -814,7 +812,7 @@ bool CGameFramework::BuildObjects()
 			pPlayer->setScore(100);
 
 			map<string, Bounds*> BoundMap = m_pScene->getShaderManager()->getResourceManager()->getBoundMap();
-			auto iter2 = BoundMap.find(pPlayer->getID());
+			auto iter2 = BoundMap.find("EvilBear");
 			if (iter2 != BoundMap.end())
 				pPlayer->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
 			//pPlayer->SetOOBB(XMFLOAT3(-0.1304445, 0.003544204, -7.450581E-09), XMFLOAT3(0.2756854, 0.1529771, 0.2030513), XMFLOAT4(0, 0, 0, 1));
@@ -823,7 +821,12 @@ bool CGameFramework::BuildObjects()
 			m_pMapToolShader->CreateShader(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
 			m_pMapToolShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), pTerrain);
 #endif
+
 		}
+
+		
+	
+
 	}
 
 	m_pPlayer = pPlayer;
@@ -877,6 +880,7 @@ void CGameFramework::ReleaseObjects()
 		m_pCartoonShader->ReleaseObjects();
 		delete m_pCartoonShader;
 	}
+
 }
 
 void CGameFramework::ProcessInput()
@@ -950,6 +954,8 @@ void CGameFramework::AnimateObjects()
 	if (m_pScene) 
 		m_pScene->AnimateObjects(m_pd3dCommandList,fTimeElapsed);
 
+
+	
 	m_pPlayer->Animate(fTimeElapsed);
 	m_pPlayer->UpdateTransform(NULL);
 }
@@ -1009,9 +1015,11 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3dCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBufferIndex], TRUE, &d3dDsvDepthStencilBufferCPUHandle);
 
+
+	//카툰 렌더링 해야할 쉐이더들은 PreRender에서 그린다.
 	if (m_pScene)
 	{
-		m_pScene->Render(m_pd3dCommandList, m_GameTimer.GetTimeElapsed(),m_pCamera);
+		m_pScene->PreRender(m_pd3dCommandList, m_GameTimer.GetTimeElapsed(),m_pCamera);
 	}
 
 #ifdef _MAPTOOL_MODE_
@@ -1034,11 +1042,16 @@ void CGameFramework::FrameAdvance()
 
 	if (m_pCartoonShader)
 	{
-		if (m_bCartoon)
-		{
-			m_pCartoonShader->SobelFilter(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
-			m_pCartoonShader->Render(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
-		}
+		m_pCartoonShader->SobelFilter(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
+		m_pCartoonShader->Render(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
+	}
+
+	//카툰 렌더링 하지 않고 그려야할 쉐이더는 PostRender에서 그린다.
+	if(m_pScene->getShaderManager())
+	{
+		m_pd3dCommandList->ClearDepthStencilView(d3dDsvDepthStencilBufferCPUHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+		m_pd3dCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBufferIndex], TRUE, &d3dDsvDepthStencilBufferCPUHandle);
+		m_pScene->PostRender(m_pd3dCommandList, m_GameTimer.GetTimeElapsed(), m_pCamera);
 	}
 	//Direct2D를 사용하면 스왑체인 버퍼 리소스 전이를 Present로 바꿔주면 안된다. 
 #ifndef _WITH_DIRECT2D_
