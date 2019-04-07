@@ -2,7 +2,6 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <WinSock2.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <iostream>
 #include <vector>
 
