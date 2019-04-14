@@ -192,6 +192,7 @@
     <ClInclude Include="..\Code\Network\Network.h" />
     <ClInclude Include="..\Code\Network\PacketDefine.h" />
     <ClInclude Include="..\Code\ResourceManager\ResourceManager.h" />
+    <ClInclude Include="..\Code\Scene\LoadingScene\LoadingScene.h" />
     <ClInclude Include="..\Code\Scene\Scene.h" />
     <ClInclude Include="..\Code\ShaderManager\ShaderManager.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\BillboardShader.h" />
@@ -199,6 +200,7 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\LampParticleShader\LampParticleShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\SnowShader\SnowShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\ItemUIShader\ItemUIShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\LoadingShader\LoadingShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\UIShader.h" />
     <ClInclude Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.h" />
@@ -247,6 +249,7 @@
     <ClCompile Include="..\Code\Mesh\Mesh.cpp" />
     <ClCompile Include="..\Code\Network\Network.cpp" />
     <ClCompile Include="..\Code\ResourceManager\ResourceManager.cpp" />
+    <ClCompile Include="..\Code\Scene\LoadingScene\LoadingScene.cpp" />
     <ClCompile Include="..\Code\Scene\Scene.cpp" />
     <ClCompile Include="..\Code\ShaderManager\ShaderManager.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\BillboardShader.cpp" />
@@ -254,6 +257,7 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\LampParticleShader\LampParticleShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\SnowShader\SnowShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\ItemUIShader\ItemUIShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\LoadingShader\LoadingShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\UIShader.cpp" />
     <ClCompile Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.cpp" />

@@ -13,7 +13,7 @@ class CCamera;
 class CMapToolShader;
 class CSobelCartoonShader;
 class Network;
-
+class CLoadingScene;
 class CGameFramework
 {
 public:
@@ -63,8 +63,10 @@ public:
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 private:
-	HINSTANCE					m_hInstance;
+	HINSTANCE						m_hInstance;
 	HWND							m_hWnd;
+
+	bool							m_bStart = false;
 
 	int								m_nWndClientWidth;
 	int								m_nWndClientHeight;
@@ -101,6 +103,7 @@ private:
 #endif
 	CGameTimer								m_GameTimer;
 
+	CLoadingScene*							m_pLoadingScene = nullptr;
 	CScene*									m_pScene = nullptr;
 	CPlayer*								m_pPlayer = nullptr;
 	CPlayerShadowShader*					m_pPlayerShadowShader = nullptr;

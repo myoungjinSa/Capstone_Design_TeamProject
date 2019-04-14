@@ -43,7 +43,7 @@ public:
 private:
 	
 	map<string, CTexture*>					m_TextureMap;
-	map<string, CLoadedModelInfo*>	m_ModelMap;
+	map<string, CLoadedModelInfo*>			m_ModelMap;
 	map<string, Bounds*>						m_BoundMap;
 
 	multimap<string, MapObjectInfo*>	m_MapObjectInfoMultiMap;

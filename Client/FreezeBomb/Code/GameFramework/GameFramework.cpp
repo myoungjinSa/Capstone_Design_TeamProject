@@ -6,6 +6,7 @@
 #include "../GameObject/Player/Player.h"
 #include "../GameObject/Shadow/Shadow.h"
 
+#include "../Scene/LoadingScene/LoadingScene.h"
 #include "../ShaderManager/ShaderManager.h"
 #include "../Shader/TerrainShader/TerrainShader.h"
 #include "../Shader/BillboardShader/SnowShader/SnowShader.h"
@@ -68,6 +69,8 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CreateDepthStencilView();
 
 	CoInitialize(NULL);
+
+	
 
 	if (!BuildObjects())
 		return false;
@@ -543,9 +546,10 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				case VK_ESCAPE:
 					::PostQuitMessage(0);
 					break;
-			//	case VK_RETURN:
-
-				//	break;
+				case VK_RETURN:
+					if (m_bStart == false)
+						m_bStart = true;
+					break;
 				case VK_F1:
 				case VK_F2:
 				case VK_F3:
@@ -787,6 +791,9 @@ bool CGameFramework::BuildObjects()
 	//	::PostQuitMessage(0);
 	//	return false;
 	//}
+	m_pLoadingScene = new CLoadingScene();
+	if (m_pLoadingScene)
+		m_pLoadingScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 
 	////////////////////////////////////////////////////////////////////////////
 	const int nPlayerCount = 6;		//임시로 플레이어 개수 지정. 
@@ -1053,6 +1060,12 @@ void CGameFramework::FrameAdvance()
 		m_pd3dCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBufferIndex], TRUE, &d3dDsvDepthStencilBufferCPUHandle);
 		m_pScene->PostRender(m_pd3dCommandList, m_GameTimer.GetTimeElapsed(), m_pCamera);
 	}
+	
+	if(m_pLoadingScene && m_bStart == false)
+	{
+		m_pLoadingScene->Render(m_pd3dCommandList);
+	}
+
 	//Direct2D를 사용하면 스왑체인 버퍼 리소스 전이를 Present로 바꿔주면 안된다. 
 #ifndef _WITH_DIRECT2D_
 	::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);

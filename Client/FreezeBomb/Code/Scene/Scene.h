@@ -9,7 +9,6 @@
 #define SPOT_LIGHT						2
 #define DIRECTIONAL_LIGHT			3
 
-D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3dResourceDesc, UINT nTextureType);
 
 struct LIGHT
 {
