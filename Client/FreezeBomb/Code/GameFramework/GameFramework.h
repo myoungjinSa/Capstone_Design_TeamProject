@@ -52,7 +52,10 @@ public:
 
 	void CreateOffScreenRenderTargetViews();
 
+	void SetNamecard();
+	void ShowScoreboard();
 
+	void ProcessDirect2D();
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 

@@ -741,3 +741,48 @@ void CScene::CreateSoundSystem()
 	//PlaySound(MAKEINTRESOURCE(IDR_WAVE3), ::ghAppInstance, SND_RESOURCE | SND_ASYNC | SND_LOOP);
 
 }
+bool CScene::DistanceToTarget(XMFLOAT3& pos)
+{
+	bool ret = false;
+
+	XMFLOAT3 distance = Vector3::Subtract(m_pPlayer->GetPosition(), pos);
+	float dis = Vector3::Length(distance);
+
+	if (dis < 100.0f)
+		ret = true;
+
+	return ret;
+}
+
+XMFLOAT2& CScene::ProcessNameCard(const int& objNum)
+{
+
+	map<string, CShader*> m = getShaderManager()->getShaderMap();
+	XMFLOAT4X4 viewProj = Matrix4x4::Multiply(m_pPlayer->GetCamera()->GetViewMatrix(), m_pPlayer->GetCamera()->GetProjectionMatrix());
+	XMFLOAT2 res{50000.0f,50000.0f};
+	auto iter = m.find("°õµ¹ÀÌ");
+	if(iter != m.end())
+	{
+
+		XMFLOAT3 pos = Vector3::Add((*iter).second->m_ppObjects[objNum]->GetPosition(), XMFLOAT3(0.0f, 5.0f, 0.0f));
+		if (DistanceToTarget(pos) == true)
+		{
+			float viewX = pos.x * viewProj._11 + pos.y * viewProj._21 + pos.z * viewProj._31 + viewProj._41;
+			float viewY = pos.x * viewProj._12 + pos.y * viewProj._22 + pos.z * viewProj._32 + viewProj._42;
+			float viewZ = pos.x * viewProj._13 + pos.y * viewProj._23 + pos.z * viewProj._33 + viewProj._43;
+
+			XMFLOAT2 screen;
+			screen.x = (float)(viewX / viewZ + 1.0f) * (m_pPlayer->GetCamera()->GetViewport().Width * 0.5f);
+			screen.y = (float)(-viewY / viewZ + 1.0f) * (m_pPlayer->GetCamera()->GetViewport().Height * 0.5f);
+			res = screen;
+		}
+		
+
+	}
+	//int viewLeft =0, viewTop = 0;
+	
+
+
+	return res;
+}
+

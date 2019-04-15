@@ -640,7 +640,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bHammer
 			if (m_ppMaterials[1])
 			{
 				if (m_ppMaterials[1]->m_pShader) 
-					m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+					m_ppMaterials[1]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
 				m_ppMaterials[1]->UpdateShaderVariables(pd3dCommandList);
 			}
 		}
@@ -665,7 +665,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bHammer
 					{
 						m_ppMaterials[matID]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
 					}
-						m_ppMaterials[matID]->UpdateShaderVariables(pd3dCommandList);
+					m_ppMaterials[matID]->UpdateShaderVariables(pd3dCommandList);
 				}
 			}
 		}
