@@ -285,3 +285,60 @@ float4 PSUI(VS_UI_OUTPUT input) : SV_TARGET
 	float4 cColor = gtxtUITexture.Sample(gssWrap, input.uv);
 	return(cColor);
 }
+
+
+
+
+VS_UI_OUTPUT VSLoadingScene(uint nVertexID : SV_VertexID)
+{
+	VS_UI_OUTPUT output;
+
+	if (nVertexID == 0)
+	{
+		output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f);
+		output.uv = float2(0.0f, 0.0f);
+
+	}
+	if (nVertexID == 1)
+	{
+		output.position = float4(+1.0f, +1.0f, 0.0f, 1.0f);
+		output.uv = float2(1.0f, 0.0f);
+
+	}
+	if (nVertexID == 2)
+	{
+		output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f);
+		output.uv = float2(1.0f, 1.0f);
+		
+	}
+	if (nVertexID == 3)
+	{
+		output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f);
+		output.uv = float2(0.0f, 0.0f);
+		
+	}
+	if (nVertexID == 4)
+	{
+		output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f);
+		output.uv = float2(1.0f, 1.0f);
+		
+	}
+	if (nVertexID == 5)
+	{
+		output.position = float4(-1.0f, -1.0f, 0.0f, 1.0f);
+		output.uv = float2(0.0f, 1.0f);
+		
+	}
+	return (output);
+	
+}
+Texture2D gtxtLoadingTexture : register(t20);
+
+SamplerState gssLoading						: register(s2);
+
+float4 PSLoadingScene(VS_UI_OUTPUT input) : SV_TARGET
+{
+	float4 cColor = gtxtLoadingTexture.Sample(gssLoading, input.uv);
+	return(cColor);
+}
+

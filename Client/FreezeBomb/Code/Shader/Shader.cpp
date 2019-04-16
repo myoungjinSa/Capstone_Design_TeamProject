@@ -220,6 +220,11 @@ void CShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 	OnPrepareRender(pd3dCommandList);
 }
 
+void CShader::Render(ID3D12GraphicsCommandList *pd3dCommandList,  int nPipelineState)
+{	
+	OnPrepareRender(pd3dCommandList);
+}
+
 void CShader::ReleaseObjects()
 {
 	if (m_ppObjects)

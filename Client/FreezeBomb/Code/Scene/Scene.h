@@ -9,7 +9,6 @@
 #define SPOT_LIGHT						2
 #define DIRECTIONAL_LIGHT			3
 
-D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3dResourceDesc, UINT nTextureType);
 
 struct LIGHT
 {
@@ -65,6 +64,9 @@ public:
     void PreRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed, CCamera *pCamera=NULL);
 	void PostRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed, CCamera *pCamera=NULL);
 
+	//네임 카드를 위해서는 월드 좌표계에서 화면좌표계로 대응되는 위치벡터가 필요하다
+	//XMFLOAT3& CalculateNDCSpace();
+	XMFLOAT2& ProcessNameCard(const int& objNum);
 
 	void ReleaseUploadBuffers();
 
@@ -76,6 +78,7 @@ public:
 	CShaderManager* getShaderManager()	const { return m_pShaderManager; }
 	void CheckObjectByObjectCollisions();
 
+	bool DistanceToTarget(XMFLOAT3& pos);
 	void CheckWarningTimer();
 	void SetWarningTimer();
 	void StopWarningTimer();

@@ -93,6 +93,9 @@ enum PIPELINESTATE_TYPE { GameObject, GameObject_Shadow };
 
 // TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
 
+D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3dResourceDesc, UINT nTextureType);
+
+
 extern UINT gnCbvSrvDescriptorIncrementSize;
 
 extern ID3D12Resource *CreateBufferResource(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, void *pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType = D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, ID3D12Resource **ppd3dUploadBuffer = NULL);
@@ -267,6 +270,12 @@ namespace Vector4
 		return(xmf4Result);
 	}
 
+	//inline XMFLOAT4 Multiply(XMFLOAT4& xmf4Vector1, XMFLOAT4X4& xmf4Matrix)
+	//{
+	//	XMFLOAT4 xmf4Result;
+	//	XMStoreFloat4(&xmf4Result, XMLoadFloat4(&xmf4Vector1) * XMLoadFloat4x4(&xmf4Matrix));
+	//	return(xmf4Result);
+	//}
 	inline XMFLOAT4 Multiply(float fScalar, XMFLOAT4& xmf4Vector)
 	{
 		XMFLOAT4 xmf4Result;

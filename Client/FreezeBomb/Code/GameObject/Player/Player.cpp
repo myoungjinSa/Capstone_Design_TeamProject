@@ -441,10 +441,10 @@ void CPlayer::DecideAnimationState(float fLength)
 
 		pController->SetAnimationState(CAnimationController::ATTACK);
 
-		if (m_Normal_Inventory.size() > 0)
-		{
-			Refresh_Inventory(CItem::NormalHammer);
-		}
+		//if (m_Normal_Inventory.size() > 0)
+		//{
+		//	Refresh_Inventory(CItem::NormalHammer);
+		//}
 	}
 
 	// 특수 아이템 사용 버튼(ALT)
@@ -465,7 +465,7 @@ void CPlayer::DecideAnimationState(float fLength)
 					dynamic_cast<CTimerUIShader*>((*iter).second)->setTimer(90.f);
 				}
 			}
-			Refresh_Inventory(CItem::GoldHammer);
+			Refresh_Inventory(CItem::GoldTimer);
 		}
 	}
 
