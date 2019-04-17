@@ -5,6 +5,7 @@
 #include "../../../../GameObject/Terrain/Terrain.h"
 #include "../../../../GameObject/EvilBear/EvilBear.h"
 #include "../../../../GameObject/Shadow/Shadow.h"
+#include "../../../../FrameTransform/FrameTransform.h"
 
 CSkinnedAnimationObjectShader::CSkinnedAnimationObjectShader()
 {
@@ -36,8 +37,10 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 	//	m_ppObjects[0]->m_pAnimationController->SetTrackWeight(0, 0.8f);
 		// 1번 트랙에 가중치를 20% 
 		//m_ppObjects[0]->m_pAnimationController->SetTrackWeight(1, 0.2f);
+
 		m_ppObjects[0]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
 		dynamic_cast<CEvilBear*>(m_ppObjects[0])->SetPlayerName(L"이우상");
+
 
 		m_ppObjects[1] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::BLACK);
 		m_ppObjects[1]->SetChild((*Model).second->m_pModelRootObject, true);
@@ -49,8 +52,10 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		//m_ppObjects[1]->m_pAnimationController->SetTrackWeight(1, 0.1);
 		// 애니메이션의 속도를 0.25로 주어서 느리게 애니메이션 동작을 하도록 Set
 		//m_ppObjects[1]->m_pAnimationController->SetTrackSpeed(0, 0.25f);
+
 		m_ppObjects[1]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
 		dynamic_cast<CEvilBear*>(m_ppObjects[1])->SetPlayerName(L"염혜린");
+
 
 
 		m_ppObjects[2] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::BROWN);
@@ -59,16 +64,20 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		m_ppObjects[2]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[2]->m_pAnimationController->ATTACK);
 		// 애니메이션의 시작위치를 다르게 준다. 그러면 같은 동작이더라도 다르게 애니메이션함
 		//m_ppObjects[2]->m_pAnimationController->SetTrackPosition(0, 0.95f);
+
 		m_ppObjects[2]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
 		dynamic_cast<CEvilBear*>(m_ppObjects[2])->SetPlayerName(L"송혜교");
+
 
 
 		m_ppObjects[3] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::BLUE);
 		m_ppObjects[3]->SetChild((*Model).second->m_pModelRootObject, true);
 		m_ppObjects[3]->m_pAnimationController = new CAnimationController(1, (*Model).second->m_pAnimationSets);
 		m_ppObjects[3]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[3]->m_pAnimationController->RAISEHAND);
+
 		m_ppObjects[3]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
 		dynamic_cast<CEvilBear*>(m_ppObjects[3])->SetPlayerName(L"김태희");
+
 
 
 		m_ppObjects[4] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::ICEMAT);
@@ -77,6 +86,16 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		m_ppObjects[4]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[4]->m_pAnimationController->RUNBACKWARD);
 		m_ppObjects[4]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
 		dynamic_cast<CEvilBear*>(m_ppObjects[4])->SetPlayerName(L"전지현");
+
+
+		
+		for (int i = 0; i < m_nObjects; ++i)
+		{
+			// 애니메이션 Transform을 각자 갖고있게 하기위해
+			m_ppObjects[i]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
+			// 메쉬의 월드행렬을 각자 갖고있게 하기위해
+			m_ppObjects[i]->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*Model).second);
+		}
 
 	}
 
@@ -149,6 +168,8 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 	{
 		Position.x = Random(0.f, 500.f);
 		Position.z = Random(0.f, 300.f);
+		Position.x = i * 10;
+		Position.z = 0;
 		Position.y = pTerrain->GetHeight(Position.x, Position.z);
 		m_ppObjects[i]->SetPosition(Position);
 		m_ppObjects[i]->SetScale(10, 10, 10);
@@ -176,6 +197,7 @@ void CSkinnedAnimationObjectShader::Render(ID3D12GraphicsCommandList* pd3dComman
 			m_ppObjects[i]->Animate(m_elapsedTime);
 			m_ppObjects[i]->UpdateTransform(NULL);
 			m_ppObjects[i]->Render(pd3dCommandList, m_ppObjects[i]->GetIsHammer(), m_ppObjects[i]->GetIsBomb(), m_ppObjects[i]->GetBoolIce(), m_ppObjects[i]->GetMaterialID(), pCamera, nPipelineState);
+			//m_ppObjects[i]->Render(pd3dCommandList, pCamera, nPipelineState);
 		}
 	}
 }

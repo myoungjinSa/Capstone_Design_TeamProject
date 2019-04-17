@@ -11,6 +11,7 @@
 #include "../../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
 #include "../../Shader/BillboardShader/BombParticleShader/BombParticleShader.h"
 #include "../Billboard/Bomb/Bomb.h"
+#include "../../FrameTransform/FrameTransform.h"
 
 CPlayer::CPlayer()
 {
@@ -59,6 +60,7 @@ CPlayer::~CPlayer()
 	m_Special_Inventory.clear();
 
 	ReleaseSound();
+
 	//if (m_pShadow)
 	//	delete m_pShadow;
 }
@@ -569,6 +571,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 	SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);
+	m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, pEvilBearModel);
 
 	m_pAnimationController = new CAnimationController(1, pEvilBearModel->m_pAnimationSets);
 	m_pAnimationController->SetTrackAnimationSet(0, m_pAnimationController->IDLE);
@@ -616,7 +619,6 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	CAnimationCallbackHandler* pAttackAnimationCallbackHandler = new CSoundCallbackHandler();
 	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->ATTACK, pAttackAnimationCallbackHandler,
 		GetSoundData());
-
 
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 

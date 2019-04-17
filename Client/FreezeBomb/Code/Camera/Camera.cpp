@@ -124,6 +124,16 @@ void CCamera::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
 	XMStoreFloat4x4(&xmf4x4Projection, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4Projection)));
 	::memcpy(&m_pcbMappedCamera->m_xmf4x4Projection, &xmf4x4Projection, sizeof(XMFLOAT4X4));
 
+	// 그림자 행렬 루트상수로 넘김
+	XMFLOAT4 xmf4Light(0.57735f, -0.57735f, 0.57735f, 0);
+	// Plane의 w 벡터가 그림자의 y에 영향을 준다.
+	XMFLOAT4 xmf4Plane(0.f, 1.f, 0.f, 0.f);
+	// 그림자 행렬 생성
+	XMMATRIX xmmtxPlane = XMMatrixShadow(XMLoadFloat4(&xmf4Plane), -XMLoadFloat4(&xmf4Light));
+	XMFLOAT4X4 ShadowWorld;
+	XMStoreFloat4x4(&ShadowWorld, XMMatrixTranspose(xmmtxPlane));
+	::memcpy(&m_pcbMappedCamera->m_Shadow, &ShadowWorld, sizeof(XMFLOAT4X4));
+
 	::memcpy(&m_pcbMappedCamera->m_xmf3Position, &m_xmf3Position, sizeof(XMFLOAT3));
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbCamera->GetGPUVirtualAddress();

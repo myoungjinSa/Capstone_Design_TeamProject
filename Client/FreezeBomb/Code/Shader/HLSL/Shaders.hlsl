@@ -10,7 +10,8 @@ cbuffer cbCameraInfo			: register(b1)
 {
 	matrix			gmtxView					: packoffset(c0);
 	matrix			gmtxProjection			: packoffset(c4);
-	float3			gvCameraPosition	: packoffset(c8);
+	matrix			gmtxShadow			: packoffset(c8);
+	float3			gvCameraPosition	: packoffset(c12);
 };
 
 cbuffer cbGameObjectInfo	: register(b2)
@@ -22,6 +23,16 @@ cbuffer cbMaterialInfo			: register(b3)
 {
 	MATERIAL	gMaterial					: packoffset(c0);
 	uint				gnTexturesMask		: packoffset(c4);
+};
+
+cbuffer cbWorld			: register(b10)
+{
+	matrix			gmtxWorld		: packoffset(c0);
+};
+
+cbuffer cbWorld			: register(b11)
+{
+	matrix			gmtxSnowWorld		: packoffset(c0);
 };
 
 #include "Light.hlsl"
@@ -71,10 +82,15 @@ VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
 {
 	VS_STANDARD_OUTPUT output;
 
-	output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
-	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
-	output.tangentW = mul(input.tangent, (float3x3)gmtxGameObject);
-	output.bitangentW = mul(input.bitangent, (float3x3)gmtxGameObject);
+	output.positionW = mul(float4(input.position, 1.0f), gmtxWorld).xyz;
+	output.normalW = mul(input.normal, (float3x3)gmtxWorld);
+	output.tangentW = mul(input.tangent, (float3x3)gmtxWorld);
+	output.bitangentW = mul(input.bitangent, (float3x3)gmtxWorld);
+
+	//output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
+	//output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
+	//output.tangentW = mul(input.tangent, (float3x3)gmtxGameObject);
+	//output.bitangentW = mul(input.bitangent, (float3x3)gmtxGameObject);
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
 	output.uv = input.uv;
 
@@ -153,7 +169,8 @@ float4 PSFoliage(VS_STANDARD_OUTPUT input) : SV_TARGET
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define MAX_VERTEX_INFLUENCES			4
-#define SKINNED_ANIMATION_BONES	128
+//#define SKINNED_ANIMATION_BONES	128
+#define SKINNED_ANIMATION_BONES	72
 
 cbuffer cbBoneOffsets : register(b7)
 {
@@ -225,7 +242,7 @@ VS_TERRAIN_OUTPUT VSTerrain(VS_TERRAIN_INPUT input)
 {
 	VS_TERRAIN_OUTPUT output;
 
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection);
 	output.color = input.color;
 	output.uv0 = input.uv0;
 	output.uv1 = input.uv1;
@@ -261,7 +278,7 @@ VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
 {
 	VS_SKYBOX_CUBEMAP_OUTPUT output;
 
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection);
 	output.positionL = input.position;
 
 	return(output);
@@ -290,12 +307,17 @@ struct VS_SNOW_OUTPUT
 };
 
 Texture2D gtxtBillboardTexture : register (t15);
+struct InstanceData
+{
+	matrix m_InstanceWorld;
+};
+StructuredBuffer<InstanceData> g_InstanceData : register(t0);
 
-VS_SNOW_OUTPUT VSSnow(VS_SNOW_INPUT input)
+VS_SNOW_OUTPUT VSSnow(VS_SNOW_INPUT input, uint nInstanceID : SV_InstanceID)
 {
 	VS_SNOW_OUTPUT output;
 
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.position = mul(mul(mul(float4(input.position, 1.0f), g_InstanceData[nInstanceID].m_InstanceWorld), gmtxView), gmtxProjection);
 	output.uv = input.uv;
 
 	return(output);
@@ -392,11 +414,6 @@ struct VS_SHADOW_OUTPUT
 	float3 positionW		: POSITION;
 };
 
-cbuffer cbShadow : register(b9)
-{
-	matrix gmtxShadow : packoffset(c0);
-};
-
 VS_SHADOW_OUTPUT VSShadow(VS_SHADOW_INPUT input)
 {
 	VS_SHADOW_OUTPUT output;
@@ -463,7 +480,7 @@ struct VS_BOMBPARTICLE_OUTPUT
 	float2 uv			: TEXCOORD;
 };
 
-cbuffer cbBombAnimationClip	: register(b6)
+cbuffer cbBombAnimationClip	: register(b9)
 {
 	uint	gBombAnimationClip	: packoffset(c0);
 };

@@ -4,6 +4,7 @@
 #include "../../../GameObject/Shadow/Shadow.h"
 #include "../../../GameObject/Terrain/Terrain.h"
 #include "../../../ResourceManager/ResourceManager.h"
+#include "../../../FrameTransform/FrameTransform.h"
 
 CItemShader::CItemShader()
 {
@@ -36,15 +37,13 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 			auto iter2 = Context.find(pItem->getID());
 			if (iter2 != Context.end())
 				pItem->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
+
+			pItem->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter).second);
 			pItem->Initialize_Shadow((*iter).second, pItem);
 
 			m_ItemMap.emplace("NormalHammer" + to_string(i), dynamic_cast<CItem*>(pItem));
 		}
-	}
-
-	iter = ModelMap.find("Hammer");
-	if (iter != ModelMap.end())
-	{
+	
 		for (int i = 0; i < nGoldHammer; ++i)
 		{
 			CItem* pItem = new CItem;
@@ -56,8 +55,10 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 			auto iter2 = Context.find(pItem->getID());
 			if (iter2 != Context.end())
 				pItem->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
-			pItem->Initialize_Shadow((*iter).second, pItem);
 
+			pItem->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter).second);
+			// 그림자 생성
+			pItem->Initialize_Shadow((*iter).second, pItem);
 			m_ItemMap.emplace("GoldHammer" + to_string(i), dynamic_cast<CItem*>(pItem));
 		}
 	}
@@ -76,6 +77,8 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 			auto iter2 = Context.find(pItem->getID());
 			if (iter2 != Context.end())
 				pItem->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
+
+			pItem->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter).second);
 			pItem->Initialize_Shadow((*iter).second, pItem);
 
 			m_ItemMap.emplace("GoldTimer" + to_string(i), dynamic_cast<CItem*>(pItem));
@@ -86,15 +89,13 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 void CItemShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer* pPlayer)
 {
 	m_fElapsedTime += fTimeElapsed;
-
-	for (auto iter = m_ItemMap.begin(); iter != m_ItemMap.end(); ++iter)
-		(*iter).second->Animate(m_fElapsedTime);
 }
 
 void CItemShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
 	for (auto iter = m_ItemMap.begin(); iter != m_ItemMap.end(); ++iter)
 	{
+		(*iter).second->Animate(m_fElapsedTime);
 		(*iter).second->UpdateTransform(nullptr);
 		(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
 	}

@@ -168,6 +168,7 @@
     <ClInclude Include="..\Code\DirectX12\d3dx12.h" />
     <ClInclude Include="..\Code\DirectX12\DDSTextureLoader\DDSTextureLoader12.h" />
     <ClInclude Include="..\Code\DirectX12\WICTextureLoader\WICTextureLoader12.h" />
+    <ClInclude Include="..\Code\FrameTransform\FrameTransform.h" />
     <ClInclude Include="..\Code\GameFramework\GameFramework.h" />
     <ClInclude Include="..\Code\GameObject\Billboard\Billboard.h" />
     <ClInclude Include="..\Code\GameObject\Billboard\Bomb\Bomb.h" />
@@ -225,6 +226,7 @@
     <ClCompile Include="..\Code\Cube\Cube.cpp" />
     <ClCompile Include="..\Code\DirectX12\DDSTextureLoader\DDSTextureLoader12.cpp" />
     <ClCompile Include="..\Code\DirectX12\WICTextureLoader\WICTextureLoader12.cpp" />
+    <ClCompile Include="..\Code\FrameTransform\FrameTransform.cpp" />
     <ClCompile Include="..\Code\FreezeBomb.cpp" />
     <ClCompile Include="..\Code\GameFramework\GameFramework.cpp" />
     <ClCompile Include="..\Code\GameObject\Billboard\Billboard.cpp" />

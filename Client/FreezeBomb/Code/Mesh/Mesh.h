@@ -35,9 +35,9 @@ private:
 public:
 	void AddRef() { m_nReferences++; }
 	void Release() { if (--m_nReferences <= 0) delete this; }
-
-protected:
 	char												m_pstrMeshName[64] = { 0 };
+protected:
+
 
 	UINT												m_LodLevel{ 0 };
 
@@ -83,7 +83,9 @@ public:
 	virtual void OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, int nSubSet);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, int nSubSet, UINT lodLevel) {}
-	
+	// 인스턴싱용
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, int nSubSet, int nInstance) {}
+
 	virtual void OnPostRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);
 
 	XMFLOAT3 getBoundCenter()	const { return m_xmf3AABBCenter; }
@@ -227,17 +229,21 @@ protected:
 	ID3D12Resource					*m_pd3dBiTangentUploadBuffer = NULL;
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dBiTangentBufferView;
 
-
-	
-
 public:
 
 
 	void LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, FILE *pInFile);
-
 	virtual void ReleaseUploadBuffers();
-
 	virtual void OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);
+
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
+
+	ID3D12Resource*	m_ppd3dcbWorld = nullptr;
+	XMFLOAT4X4*		m_ppcbxmf4x4World = nullptr;
+
+	// 메쉬 개수를 저장
+	int							m_nFrameMeshes = 1;
+	CGameObject**	m_ppFrameMeshCaches = nullptr;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -46,7 +46,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	//맵툴 모드일때는 맵의 오브젝트들을 그리지 않게 하기 위해 
 	// 그래야 맵툴모드에서 적용해서 배치한 오브젝트들만 볼 수 있다.
 #ifndef _MAPTOOL_MODE_
-	m_nShaders = m_nShaders + 1;
+	//m_nShaders = m_nShaders + 1;
 #endif
 	m_ppShaders = new CShader*[m_nShaders];
 
@@ -65,7 +65,6 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 
 #ifndef _MAPTOOL_MODE_
 	CMapObjectsShader *pMapShader = new CMapObjectsShader;
-	pMapShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pMapShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
 		m_pResourceManager->getModelMap(), m_pResourceManager->getMapObjectInfo(), m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
 	m_ppShaders[index++] = pMapShader;
@@ -98,14 +97,11 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ppShaders[index++] = pAnimationObjectShader;
 	m_ShaderMap.emplace("곰돌이", pAnimationObjectShader);
 
-
-	CCubeIceShader* pIceParticleShader = new CCubeIceShader;
-	pIceParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pIceParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
-	m_ppShaders[index++] = pIceParticleShader;
-	m_ShaderMap.emplace("IceParticle", pIceParticleShader);
-
-
+	//CCubeIceShader* pIceParticleShader = new CCubeIceShader;
+	//pIceParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	//pIceParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
+	//m_ppShaders[index++] = pIceParticleShader;
+	//m_ShaderMap.emplace("IceParticle", pIceParticleShader);
 
 	CBombParticleShader* pBombParticleShader = new CBombParticleShader;
 	pBombParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -172,7 +168,6 @@ void CShaderManager::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer
 		m_ppShaders[i]->AnimateObjects(elapsedTime, pCamera, pPlayer);
 	}
 }
-
 
 //카툰 렌더링 하지 않고 그려야할 쉐이더 
 void CShaderManager::PostRender(ID3D12GraphicsCommandList* pd3dCommandList,float fTimeElapsed, CCamera* pCamera)

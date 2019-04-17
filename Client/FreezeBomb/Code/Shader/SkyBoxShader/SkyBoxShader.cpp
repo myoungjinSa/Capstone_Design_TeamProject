@@ -3,7 +3,6 @@
 #include "../../GameObject/SkyBox/SkyBox.h"
 #include "../../Material/Material.h"
 #include "../../Texture/Texture.h"
-#include "../../Scene/Scene.h"
 
 CSkyBoxShader::CSkyBoxShader()
 {
@@ -61,32 +60,61 @@ D3D12_SHADER_BYTECODE CSkyBoxShader::CreatePixelShader()
 void CSkyBoxShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
 	const map<string, CTexture*>& Context, void* pContext)
 {
-	m_nObjects = 1;
-	m_ppObjects = new CGameObject*[m_nObjects];
-
-	CSkyBox* pSkyBox = new CSkyBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pSkyBox = new CSkyBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	CSkyBoxMesh *pSkyBoxMesh = new CSkyBoxMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 2.0f);
-	pSkyBox->SetMesh(pSkyBoxMesh);
+	m_pSkyBox->SetMesh(pSkyBoxMesh);
 
 	CMaterial *pSkyBoxMaterial = new CMaterial(1);
 	auto iter = Context.find("SkyBox");
 	if(iter != Context.end())
 		pSkyBoxMaterial->SetTexture((*iter).second);
-	pSkyBox->SetMaterial(0, pSkyBoxMaterial);
+	m_pSkyBox->SetMaterial(0, pSkyBoxMaterial);
 
-	m_ppObjects[0] = pSkyBox;
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void CSkyBoxShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
 	CShader::Render(pd3dCommandList, pCamera, nPipelineState);
 
-	for (int i = 0; i < m_nObjects; ++i)
+	UpdateShaderVariables(pd3dCommandList);
+	D3D12_GPU_VIRTUAL_ADDRESS GpuVirtualAddress = m_pd3dcbWorld->GetGPUVirtualAddress();
+	pd3dCommandList->SetGraphicsRootConstantBufferView(23, GpuVirtualAddress);
+	if (m_pSkyBox)
+		m_pSkyBox->Render(pd3dCommandList, pCamera, nPipelineState);
+}
+
+void CSkyBoxShader::ReleaseObjects()
+{
+	if (m_pSkyBox)
+		delete m_pSkyBox;
+}
+
+void CSkyBoxShader::ReleaseUploadBuffers()
+{
+	if (m_pSkyBox)
+		m_pSkyBox->ReleaseUploadBuffers();
+}
+
+void CSkyBoxShader::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+{
+	UINT ncbElementBytes = ((sizeof(CB_World) + 255) & ~255); //256ÀÇ ¹è¼ö
+	m_pd3dcbWorld = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pd3dcbWorld->Map(0, nullptr, (void**)&m_pcbMappedWorld);
+}
+
+void CSkyBoxShader::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
+{
+	if (m_pd3dcbWorld)
+		XMStoreFloat4x4(&m_pcbMappedWorld->m_World, XMMatrixTranspose(XMLoadFloat4x4(&m_pSkyBox->m_xmf4x4World)));
+}
+
+void CSkyBoxShader::ReleaseShaderVariables()
+{
+	if (m_pd3dcbWorld)
 	{
-		if (m_ppObjects[i])
-		{
-			m_ppObjects[i]->Render(pd3dCommandList, pCamera, nPipelineState);
-		}
+		m_pd3dcbWorld->Unmap(0, nullptr);
+		m_pd3dcbWorld->Release();
 	}
 }

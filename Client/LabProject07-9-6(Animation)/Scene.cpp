@@ -107,7 +107,8 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 //
 //	m_ppShaders[1] = pAngrybotObjectsShader;
 
-	CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/EvilbearA.bin", NULL, true);
+	CLoadedModelInfo *pAngrybotModel = 
+		CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/EvilbearAScale.bin", NULL, true);
 
 	m_nGameObjects = 6;
 	m_ppGameObjects = new CGameObject*[m_nGameObjects];
@@ -121,7 +122,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppGameObjects[0]->m_pAnimationController->SetTrackWeight(1, 0.4f);													//1번 트랙에 애니메이션은 20퍼센트
 	m_ppGameObjects[0]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);		//각 오브젝트마다 스킨메쉬 트랜스폼 행렬을 생성
 	m_ppGameObjects[0]->SetPosition(400.0f, m_pTerrain->GetHeight(400.0f, 700.0f), 700.0f);
-	m_ppGameObjects[0]->SetScale(20.0f, 20.0f, 20.0f);
+	//m_ppGameObjects[0]->SetScale(20.0f, 20.0f, 20.0f);
 
 	m_ppGameObjects[1] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,CGameObject::eMaterials::BLACK);
 	m_ppGameObjects[1]->SetChild(pAngrybotModel->m_pModelRootObject, true);
@@ -130,7 +131,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppGameObjects[1]->m_pAnimationController->SetTrackSpeed(0, 0.25f);													//0번 트랙의 스피드를 0.25배
 	m_ppGameObjects[1]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
 	m_ppGameObjects[1]->SetPosition(450.0f, m_pTerrain->GetHeight(450.0f, 680.0f), 680.0f);
-	m_ppGameObjects[1]->SetScale(20.0f, 20.0f, 20.0f);
+	//m_ppGameObjects[1]->SetScale(20.0f, 20.0f, 20.0f);
 
 	m_ppGameObjects[2] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,CGameObject::eMaterials::BLUE);
 	m_ppGameObjects[2]->SetChild(pAngrybotModel->m_pModelRootObject, true);
@@ -139,7 +140,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppGameObjects[2]->m_pAnimationController->SetTrackPosition(0, 0.95f);
 	m_ppGameObjects[2]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
 	m_ppGameObjects[2]->SetPosition(420.0f, m_pTerrain->GetHeight(420.0f, 750.0f), 750.0f);
-	m_ppGameObjects[2]->SetScale(20.0f, 20.0f, 20.0f);
+	//m_ppGameObjects[2]->SetScale(20.0f, 20.0f, 20.0f);
 
 	m_ppGameObjects[3] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,CGameObject::eMaterials::PANDA);
 	m_ppGameObjects[3]->SetChild(pAngrybotModel->m_pModelRootObject, true);
@@ -147,7 +148,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppGameObjects[3]->m_pAnimationController->SetTrackAnimationSet(0, 0);
 	m_ppGameObjects[3]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
 	m_ppGameObjects[3]->SetPosition(410.0f, m_pTerrain->GetHeight(410.0f, 735.0f), 735.0f);
-	m_ppGameObjects[3]->SetScale(20.0f, 20.0f, 20.0f);
+	//m_ppGameObjects[3]->SetScale(20.0f, 20.0f, 20.0f);
 
 
 	m_ppGameObjects[4] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, CGameObject::eMaterials::BROWN);
@@ -159,7 +160,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppGameObjects[4]->m_pAnimationController->SetTrackWeight(1, 0.5f);
 	m_ppGameObjects[4]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
 	m_ppGameObjects[4]->SetPosition(470.0f, m_pTerrain->GetHeight(470.0f, 700.0f), 700.0f);
-	m_ppGameObjects[4]->SetScale(20.0f, 20.0f, 20.0f);
+	//m_ppGameObjects[4]->SetScale(20.0f, 20.0f, 20.0f);
 
 	m_ppGameObjects[5] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, CGameObject::eMaterials::ICE);
 	m_ppGameObjects[5]->SetChild(pAngrybotModel->m_pModelRootObject, true);
@@ -168,7 +169,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppGameObjects[5]->m_pAnimationController->SetTrackWeight(0, 0.5f);
 	m_ppGameObjects[5]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pAngrybotModel);
 	m_ppGameObjects[5]->SetPosition(500.0f, m_pTerrain->GetHeight(500.0f, 740.0f), 740.0f);
-	m_ppGameObjects[5]->SetScale(20.0f, 20.0f, 20.0f);
+	//m_ppGameObjects[5]->SetScale(20.0f, 20.0f, 20.0f);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 

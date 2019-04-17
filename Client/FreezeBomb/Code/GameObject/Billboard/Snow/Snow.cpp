@@ -1,5 +1,7 @@
 #include "../../../Stdafx/Stdafx.h"
 #include "Snow.h"
+#include "../../../Material/Material.h"
+#include "../../../Shader/Shader.h"
 
 CSnow::CSnow(int nMaterial) : CBillboard(nMaterial)
 {
@@ -10,12 +12,32 @@ CSnow::~CSnow()
 }
 
 void CSnow::Animate(float fTimeElapsed, CCamera *pCamera)
-{
-	
+{	
 	this->SetPosition(this->GetPosition().x - (fTimeElapsed * 100.0f), this->GetPosition().y - (fTimeElapsed * 30.0f) * m_speed, this->GetPosition().z);
 
 	XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
 	SetLookAt(xmf3CameraPosition);
+}
+
+void CSnow::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState, int nInstance)
+{
+	if (m_pMesh)
+	{
+		if (m_nMaterials > 0)
+		{
+			for (int i = 0; i < m_nMaterials; i++)
+			{
+				if (m_ppMaterials[i])
+				{
+					if (m_ppMaterials[i]->m_pShader)
+						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+
+					m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
+				}
+				m_pMesh->Render(pd3dCommandList, i, nInstance);
+			}
+		}
+	}
 }
 
 void CSnow::SetLookAt(XMFLOAT3& xmfTarget)

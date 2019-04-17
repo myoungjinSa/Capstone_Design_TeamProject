@@ -183,6 +183,9 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\LoadingShader\LoadingShader.cpp">
       <Filter>Code\Shader\BillboardShader\UIShader\LoadingShader</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\FrameTransform\FrameTransform.cpp">
+      <Filter>Code\FrameTransform</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h">
@@ -359,6 +362,9 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\LoadingShader\LoadingShader.h">
       <Filter>Code\Shader\BillboardShader\UIShader\LoadingShader</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\FrameTransform\FrameTransform.h">
+      <Filter>Code\FrameTransform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Code">
@@ -534,6 +540,9 @@
     </Filter>
     <Filter Include="Code\Shader\ComputeShader\SobelCartoonShader">
       <UniqueIdentifier>{203a2fe4-ad37-41ff-8cd0-1bdfc5546cc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\FrameTransform">
+      <UniqueIdentifier>{8cf04451-aeea-437c-b479-921fa2bec7eb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

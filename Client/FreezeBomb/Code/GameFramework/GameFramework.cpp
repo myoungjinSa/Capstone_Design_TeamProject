@@ -995,6 +995,7 @@ void CGameFramework::MoveToNextFrame()
 }
 
 #ifdef _WITH_DIRECT2D_
+
 void CGameFramework::SetNamecard()
 {
 	if (m_pScene)
@@ -1056,11 +1057,9 @@ void CGameFramework::ShowScoreboard()
 	
 }
 
-//#define _WITH_PLAYER_TOP
 
 void CGameFramework::ProcessDirect2D()
 {
-
 	//AcquireWrappedResources() D3D11On12 디바이스에서 사용될 수 있는 D3D11 리소스들을 얻게해준다.
 	//이 함수는 렌더링 할 Wrapped Resource 들을 다시 사용할 수 있다고 암시해준다. 
 	m_pd3d11On12Device->AcquireWrappedResources(&m_ppd3d11WrappedBackBuffers[m_nSwapChainBufferIndex], 1);
@@ -1157,29 +1156,30 @@ void CGameFramework::FrameAdvance()
 
 	if (m_pCartoonShader)
 	{
-		m_pCartoonShader->SobelFilter(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
-		m_pCartoonShader->Render(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
+		//m_pCartoonShader->SobelFilter(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
+		//m_pCartoonShader->Render(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
 	}
 
 	//카툰 렌더링 하지 않고 그려야할 쉐이더는 PostRender에서 그린다.
 	if(m_pScene->getShaderManager())
 	{
 		m_pd3dCommandList->ClearDepthStencilView(d3dDsvDepthStencilBufferCPUHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
-		
+
 		//m_pd3dCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBufferIndex], TRUE, &d3dDsvDepthStencilBufferCPUHandle);
 		m_pScene->PostRender(m_pd3dCommandList, m_GameTimer.GetTimeElapsed(), m_pCamera);
 	}
 	
 	if(m_pLoadingScene && m_bStart == false)
 	{
-		m_pLoadingScene->Render(m_pd3dCommandList);
+		//m_pLoadingScene->Render(m_pd3dCommandList);
 	}
 
 	//Direct2D를 사용하면 스왑체인 버퍼 리소스 전이를 Present로 바꿔주면 안된다. 
 
-	if(m_bStart ==false)
+//#ifndef _WITH_DIRECT2D_
+	if(m_bStart == false)
 		::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-
+//#endif
 
 	hResult = m_pd3dCommandList->Close();
 	

@@ -90,38 +90,38 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/HeightMap.raw"), 257, 257, xmf3Scale, xmf4Color);
 
-	m_nShaders = 6;
-	m_ppShaders = new CShader*[m_nShaders];
+	//m_nShaders = 6;
+	//m_ppShaders = new CShader*[m_nShaders];
 
-	CSnowBillboardShader *pSnowShader = new CSnowBillboardShader();
-	pSnowShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	pSnowShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
-	m_ppShaders[0] = pSnowShader;
+	//CSnowBillboardShader *pSnowShader = new CSnowBillboardShader();
+	//pSnowShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	//pSnowShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
+	//m_ppShaders[0] = pSnowShader;
 
-	CPineTreesObjectsShader *pPineTreeShader = new CPineTreesObjectsShader();
-	pPineTreeShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	pPineTreeShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
-	m_ppShaders[1] = pPineTreeShader;
+	//CPineTreesObjectsShader *pPineTreeShader = new CPineTreesObjectsShader();
+	//pPineTreeShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	//pPineTreeShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
+	//m_ppShaders[1] = pPineTreeShader;
 
-	CDeerObjectsShader *pDeerShader = new CDeerObjectsShader();
-	pDeerShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	pDeerShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,m_pTerrain);
-	m_ppShaders[2] = pDeerShader;
+	//CDeerObjectsShader *pDeerShader = new CDeerObjectsShader();
+	//pDeerShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	//pDeerShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,m_pTerrain);
+	//m_ppShaders[2] = pDeerShader;
 
-	CIceShader *pIceParticleShader = new CIceShader();
-	pIceParticleShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	pIceParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, NULL);
-	m_ppShaders[3] = pIceParticleShader;
+	//CIceShader *pIceParticleShader = new CIceShader();
+	//pIceParticleShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	//pIceParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, NULL);
+	//m_ppShaders[3] = pIceParticleShader;
 
-	CFoliageShader *pFoliageShader = new CFoliageShader();
-	pFoliageShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	pFoliageShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
-	m_ppShaders[4] = pFoliageShader;
+	//CFoliageShader *pFoliageShader = new CFoliageShader();
+	//pFoliageShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	//pFoliageShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
+	//m_ppShaders[4] = pFoliageShader;
 
-	CFenceShader *pFenceShader = new CFenceShader();
-	pFenceShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	pFenceShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
-	m_ppShaders[5] = pFenceShader;
+	//CFenceShader *pFenceShader = new CFenceShader();
+	//pFenceShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	//pFenceShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, m_pTerrain);
+	//m_ppShaders[5] = pFenceShader;
 
 	//CHellicopterObjectsShader *pHellicopterObjectsShader = new CHellicopterObjectsShader();
 	//pHellicopterObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
@@ -137,7 +137,8 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 //
 //	m_ppShaders[1] = pAngrybotObjectsShader;
 
-	CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Evilbear.bin", NULL, true);
+	CLoadedModelInfo *pAngrybotModel 
+		= CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Evilbear.bin", NULL, true);
 
 	m_nGameObjects =6;
 	m_ppGameObjects = new CGameObject*[m_nGameObjects];
@@ -681,6 +682,14 @@ void CScene::AnimateObjects(float fTimeElapsed)
 			m_ppShaders[i]->AnimateObjects(fTimeElapsed,m_pPlayer->GetCamera(),m_pPlayer);
 		}
 	}
+	for (int i = 0; i < m_nGameObjects; i++)
+	{
+		if (m_ppGameObjects[i])
+		{
+			m_ppGameObjects[i]->UpdateTransform(NULL);				//animateObject와 UpdateTransform의 순서가 바뀌면 애니메이션을 하는 캐릭터가 바뀐다.	
+			m_ppGameObjects[i]->Animate(m_fElapsedTime, m_pPlayer->GetCamera());
+		}
+	}
 
 	if (m_pLights)
 	{
@@ -720,9 +729,9 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 			m_ppGameObjects[i]->Animate(m_fElapsedTime, m_pPlayer->GetCamera());
 			//Collision함수 여기에? 
 			
-			m_ppGameObjects[i]->m_xmf4x4ToParent._11;
-			m_ppGameObjects[i]->m_xmf4x4ToParent._22;
-			m_ppGameObjects[i]->m_xmf4x4ToParent._33;
+			//m_ppGameObjects[i]->m_xmf4x4ToParent._11;
+			//m_ppGameObjects[i]->m_xmf4x4ToParent._22;
+			//m_ppGameObjects[i]->m_xmf4x4ToParent._33;
 
 			m_ppGameObjects[i]->Render(pd3dCommandList,false,m_ppGameObjects[i]->GetMatID(),pCamera);
 		}
