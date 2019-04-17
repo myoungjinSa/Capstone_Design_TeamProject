@@ -35,6 +35,8 @@ public:
 	std::map<MUSIC_ENUM, std::string> m_mapMusicList;
 private:
 	
+
+
 	const char**	m_SoundList;
 	int			m_SoundCount;
 	CSoundSystem* m_pSound;

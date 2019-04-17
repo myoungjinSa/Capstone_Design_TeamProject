@@ -301,6 +301,10 @@ public:
 	void SetShader(CShader *pShader);
 	void SetShader(int nMaterial, CShader *pShader);
 	void SetMaterial(int nMaterial, CMaterial *pMaterial);
+	void SetPlayerName(const _TCHAR* nPlayerName) { wcscpy_s(m_playerName, nPlayerName); }
+
+	_TCHAR* GetPlayerName() { return m_playerName; }
+
 
 	void SetChild(CGameObject *pChild, bool bReferenceUpdate=false);
 	
@@ -398,6 +402,8 @@ public:
 
 	UINT GetLodLevel() { return m_lodLevel; }
 protected:
+	_TCHAR				m_playerName[256];
+
 	CLampParticle*				m_pLampParticle{ nullptr };	
 
 	string							m_ID;													

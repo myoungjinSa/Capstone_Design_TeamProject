@@ -35,6 +35,10 @@ public:
 #ifdef _WITH_DIRECT2D_
 	void CreateDirect2DRenderTargetViews();
 	void CreateDirect2DDevice();
+	void SetNamecard();
+	void ShowScoreboard();
+
+	void ProcessDirect2D();
 #endif
 	void CreateDepthStencilView();
 	
@@ -52,10 +56,7 @@ public:
 
 	void CreateOffScreenRenderTargetViews();
 
-	void SetNamecard();
-	void ShowScoreboard();
 
-	void ProcessDirect2D();
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 

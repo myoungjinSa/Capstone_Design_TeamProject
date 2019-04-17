@@ -994,6 +994,7 @@ void CGameFramework::MoveToNextFrame()
 	}
 }
 
+#ifdef _WITH_DIRECT2D_
 void CGameFramework::SetNamecard()
 {
 	if (m_pScene)
@@ -1010,7 +1011,8 @@ void CGameFramework::SetNamecard()
 				nameCard = D2D1::RectF(screenSpace.x - 60.0f, screenSpace.y - 60.0f, screenSpace.x + 60.0f, screenSpace.y + 60.0f);
 
 				//	//nameCard = D2D1::RectF(540.0f, 140.0f,  660.0f, 260.0f);		
-				m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[1], &nameCard, m_pd2dbrText[1]);
+				m_pd2dDeviceContext->DrawTextW((*iter).second->m_ppObjects[i]->GetPlayerName(),
+					(UINT32)wcslen((*iter).second->m_ppObjects[i]->GetPlayerName()), m_pdwFont[i], &nameCard, m_pd2dbrText[i]);
 			}
 		}
 	}
@@ -1042,20 +1044,20 @@ void CGameFramework::ShowScoreboard()
 		m_pd2dDeviceContext->DrawTextW(L"염혜린", (UINT32)wcslen(L"염혜린"), m_pdwFont[2], &rcText, m_pd2dbrText[2]);
 	
 		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/825.0f);
-		m_pd2dDeviceContext->DrawTextW(L"라마바", (UINT32)wcslen(L"라마바"), m_pdwFont[3], &rcText, m_pd2dbrText[3]);
+		m_pd2dDeviceContext->DrawTextW(L"송혜교", (UINT32)wcslen(L"송혜교"), m_pdwFont[3], &rcText, m_pd2dbrText[3]);
 
 		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/980.0f);
-		m_pd2dDeviceContext->DrawTextW(L"사아자", (UINT32)wcslen(L"사아자"), m_pdwFont[4], &rcText, m_pd2dbrText[4]);
+		m_pd2dDeviceContext->DrawTextW(L"김태희", (UINT32)wcslen(L"김태희"), m_pdwFont[4], &rcText, m_pd2dbrText[4]);
 	
 		//cout << index << endl;
 		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/1135.0f);
-		m_pd2dDeviceContext->DrawTextW(L"타파하", (UINT32)wcslen(L"타파하"), m_pdwFont[5], &rcText, m_pd2dbrText[5]);
+		m_pd2dDeviceContext->DrawTextW(L"전지현", (UINT32)wcslen(L"전지현"), m_pdwFont[5], &rcText, m_pd2dbrText[5]);
 	}
 	
 }
+
 //#define _WITH_PLAYER_TOP
 
-#ifdef _WITH_DIRECT2D_
 void CGameFramework::ProcessDirect2D()
 {
 
@@ -1163,7 +1165,8 @@ void CGameFramework::FrameAdvance()
 	if(m_pScene->getShaderManager())
 	{
 		m_pd3dCommandList->ClearDepthStencilView(d3dDsvDepthStencilBufferCPUHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
-		m_pd3dCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBufferIndex], TRUE, &d3dDsvDepthStencilBufferCPUHandle);
+		
+		//m_pd3dCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBufferIndex], TRUE, &d3dDsvDepthStencilBufferCPUHandle);
 		m_pScene->PostRender(m_pd3dCommandList, m_GameTimer.GetTimeElapsed(), m_pCamera);
 	}
 	
@@ -1173,9 +1176,10 @@ void CGameFramework::FrameAdvance()
 	}
 
 	//Direct2D를 사용하면 스왑체인 버퍼 리소스 전이를 Present로 바꿔주면 안된다. 
-#ifndef _WITH_DIRECT2D_
-	::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-#endif
+
+	if(m_bStart ==false)
+		::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+
 
 	hResult = m_pd3dCommandList->Close();
 	
@@ -1197,6 +1201,7 @@ void CGameFramework::FrameAdvance()
 	dxgiPresentParameters.pScrollOffset = NULL;
 	m_pdxgiSwapChain->Present1(1, 0, &dxgiPresentParameters);
 #else
+
 #ifdef _WITH_SYNCH_SWAPCHAIN
 	m_pdxgiSwapChain->Present(1, 0);
 #else
