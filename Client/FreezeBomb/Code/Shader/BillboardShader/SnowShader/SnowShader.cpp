@@ -64,6 +64,8 @@ void CSnowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 		pSnow->setSpeed(Random(0.5f, 1.5f));
 		m_ppObjects[i] = pSnow;
 	}
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void CSnowShader::AnimateObjects(float fTimeElapsed, CCamera *pCamera, CPlayer *pPlayer)
@@ -95,14 +97,39 @@ void CSnowShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 {
 	OnPrepareRender(pd3dCommandList);
 
+	UpdateShaderVariables(pd3dCommandList);
+
 	if (m_ppObjects)
 	{
+		m_ppObjects[0]->Render(pd3dCommandList, pCamera, nPipelineState, m_nObjects);
+	}
+}
+
+void CSnowShader::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+{
+	m_pd3dInstancingData = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, m_nObjects * sizeof(InstancingData), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pd3dInstancingData->Map(0, nullptr, (void**)&m_pMappedInstancingData);
+}
+
+void CSnowShader::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
+{
+	if (m_pd3dInstancingData)
+	{
+		D3D12_GPU_VIRTUAL_ADDRESS GPUVirtualAddress = m_pd3dInstancingData->GetGPUVirtualAddress();
+		pd3dCommandList->SetGraphicsRootShaderResourceView(24, GPUVirtualAddress);
+
 		for (int i = 0; i < m_nObjects; i++)
 		{
-			if (m_ppObjects[i])
-			{
-				m_ppObjects[i]->Render(pd3dCommandList, pCamera, nPipelineState);
-			}
+			XMStoreFloat4x4(&m_pMappedInstancingData[i].m_World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
 		}
+	}
+}
+
+void CSnowShader::ReleaseShaderVariables()
+{
+	if (m_pd3dInstancingData)
+	{
+		m_pd3dInstancingData->Unmap(0, nullptr);
+		m_pd3dInstancingData->Release();
 	}
 }

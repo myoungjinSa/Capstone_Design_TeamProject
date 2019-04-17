@@ -192,7 +192,7 @@ public:
     CAnimationTrack*	m_pAnimationTracks = NULL;
 
 	UINT					m_state ;
-	const enum ANIMATIONTYPE { IDLE=0, JUMP, RUNFAST, RUNBACKWARD, ATTACK, DIGGING,DIE,RAISEHAND/*아이템 사용동작*/,ICE,VICTORY,AERT/*준비 동작*/};
+	const enum ANIMATIONTYPE { IDLE=0, JUMP, RUNFAST, RUNBACKWARD, ATTACK, DIGGING,DIE,RAISEHAND/*아이템 사용동작*/,ICE,VICTORY,AERT/*준비 동작*/,SLIDE};
 
 public:
 	void SetAnimationSets(CAnimationSets *pAnimationSets);
@@ -264,6 +264,7 @@ class CTexture;
 class CMaterial;
 class CShader;
 class CLampParticle;
+class CFrameTransform;
 class CGameObject
 {
 private:
@@ -289,6 +290,8 @@ public:
 	XMFLOAT4X4	m_xmf4x4ToParent;
 	XMFLOAT4X4	m_xmf4x4World;
 
+	XMFLOAT3    m_xmf3Scale;
+	
 	CGameObject*	m_pParent = NULL;
 	CGameObject*	m_pChild = NULL;
 	CGameObject*	m_pSibling = NULL;
@@ -317,6 +320,7 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int nPipelineState = GameObject);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bHammer,bool bBomb ,bool bIce, int matID, CCamera *pCamera, int nPipelineState = GameObject);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lodlevel, CCamera *pCamera, int nPipelineState = GameObject);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState, int nInstance) {}
 
 	virtual void ReleaseShaderVariables();
 
@@ -387,7 +391,7 @@ public:
 
 	static CAnimationSets *LoadAnimationFromFile(FILE *pInFile, CGameObject *pRootFrame);
 	static CGameObject *LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
-		CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes, string type);
+		CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes, int* pnFrameMeshes, string type);
 
 	static CLoadedModelInfo* LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
 		char *pstrFileName, CShader *pShader, bool bHasAnimation, string type);
@@ -429,6 +433,13 @@ public:
 
 	CGameObject* GetObjectCollided() { return m_pObjectCollided; }
 	void SetObjectCollided(CGameObject* value) { m_pObjectCollided = value; }
+
+	void CacheFrameMeshObject(CGameObject* pRootFrame);
+
+	// 해당하는 프레임메쉬를 찾아서 셋해줌
+	void FindAndSetFrameMesh(int* nFrameMeshIndex, CFrameTransform* pFrameTransform);
+	CFrameTransform* m_pFrameTransform{ nullptr };
+
 };
 
 class CCubeObject : public CGameObject

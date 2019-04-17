@@ -11,7 +11,7 @@ public:
 	virtual void ReleaseUploadBuffers();
 	virtual void OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, int nSubSet);
-
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, int nSubSet, int nInstance);
 	//void SetLodLevel(UINT lodlevel) { m_LodLevel = lodlevel; }
 	//UINT GetLodLevel()	const { return m_LodLevel; }
 

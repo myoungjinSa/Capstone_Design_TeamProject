@@ -161,3 +161,10 @@ void CBillboardMesh::Render(ID3D12GraphicsCommandList *pd3dCommandList, int nSub
 	OnPreRender(pd3dCommandList, nullptr);
 	pd3dCommandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
 }
+
+void CBillboardMesh::Render(ID3D12GraphicsCommandList *pd3dCommandList, int nSubSet, int nInstance)
+{
+	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
+	OnPreRender(pd3dCommandList, nullptr);
+	pd3dCommandList->DrawInstanced(m_nVertices, nInstance, m_nOffset, 0);
+}

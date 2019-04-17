@@ -162,6 +162,7 @@ class CSoundSystem;
 
 class CTerrainPlayer : public CPlayer
 {
+	//Ä«¸Þ¶ó ¹«ºù
 public:
 	CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID, void *pContext=NULL);
 	virtual ~CTerrainPlayer();
@@ -171,6 +172,7 @@ public:
 	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed);
 	virtual void OnCameraUpdateCallback(float fTimeElapsed);
+
 
 	void RotateAxisY(float fTimeElapsed);
 

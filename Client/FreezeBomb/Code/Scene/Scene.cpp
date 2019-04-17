@@ -229,7 +229,7 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dDescriptorRanges[14].RegisterSpace = 0;
 	pd3dDescriptorRanges[14].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[24];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[25];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 1;	// b1 : Camera
@@ -337,10 +337,9 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[20].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[13]);
 	pd3dRootParameters[20].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	pd3dRootParameters[21].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	pd3dRootParameters[21].Constants.Num32BitValues = 17;
-	pd3dRootParameters[21].Constants.ShaderRegister = 9; // b9 :
-	pd3dRootParameters[21].Constants.RegisterSpace = 0;
+	pd3dRootParameters[21].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	pd3dRootParameters[21].Descriptor.ShaderRegister = 9; // b9 : BombExplosion Clip
+	pd3dRootParameters[21].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[21].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[22].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
@@ -349,9 +348,14 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[22].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	pd3dRootParameters[23].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[23].Descriptor.ShaderRegister = 6;	// b6 : AnimationClip
+	pd3dRootParameters[23].Descriptor.ShaderRegister = 10;	// b10 : 게임오브젝트 월드좌표(상수버퍼)
 	pd3dRootParameters[23].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[23].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	pd3dRootParameters[24].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+	pd3dRootParameters[24].Descriptor.ShaderRegister = 0; // t0
+	pd3dRootParameters[24].Descriptor.RegisterSpace = 0;	// space0
+	pd3dRootParameters[24].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
 
@@ -461,46 +465,6 @@ D3D12_GPU_DESCRIPTOR_HANDLE CScene::CreateConstantBufferViews(ID3D12Device *pd3d
 	return(d3dCbvGPUDescriptorHandle);
 }
 
-D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3dResourceDesc, UINT nTextureType)
-{
-	D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc;
-	d3dShaderResourceViewDesc.Format = d3dResourceDesc.Format;
-	d3dShaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	switch (nTextureType)
-	{
-	case RESOURCE_TEXTURE2D: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize == 1)
-	case RESOURCE_TEXTURE2D_ARRAY:
-		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		d3dShaderResourceViewDesc.Texture2D.MipLevels = -1;
-		d3dShaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-		d3dShaderResourceViewDesc.Texture2D.PlaneSlice = 0;
-		d3dShaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-		break;
-	case RESOURCE_TEXTURE2DARRAY: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize != 1)
-		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
-		d3dShaderResourceViewDesc.Texture2DArray.MipLevels = -1;
-		d3dShaderResourceViewDesc.Texture2DArray.MostDetailedMip = 0;
-		d3dShaderResourceViewDesc.Texture2DArray.PlaneSlice = 0;
-		d3dShaderResourceViewDesc.Texture2DArray.ResourceMinLODClamp = 0.0f;
-		d3dShaderResourceViewDesc.Texture2DArray.FirstArraySlice = 0;
-		d3dShaderResourceViewDesc.Texture2DArray.ArraySize = d3dResourceDesc.DepthOrArraySize;
-		break;
-	case RESOURCE_TEXTURE_CUBE: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize == 6)
-		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-		d3dShaderResourceViewDesc.TextureCube.MipLevels = -1;
-		d3dShaderResourceViewDesc.TextureCube.MostDetailedMip = 0;
-		d3dShaderResourceViewDesc.TextureCube.ResourceMinLODClamp = 0.0f;
-		break;
-	case RESOURCE_BUFFER: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
-		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-		d3dShaderResourceViewDesc.Buffer.FirstElement = 0;
-		d3dShaderResourceViewDesc.Buffer.NumElements = 0;
-		d3dShaderResourceViewDesc.Buffer.StructureByteStride = 0;
-		d3dShaderResourceViewDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-		break;
-	}
-	return(d3dShaderResourceViewDesc);
-}
 
 D3D12_GPU_DESCRIPTOR_HANDLE CScene::CreateShaderResourceViews(ID3D12Device *pd3dDevice, CTexture *pTexture, UINT nRootParameter, bool bAutoIncrement)
 {
@@ -556,7 +520,7 @@ void CScene::AnimateObjects(ID3D12GraphicsCommandList *pd3dCommandList,float fTi
 	}
 }
 
-void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed, CCamera *pCamera)
+void CScene::PreRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed, CCamera *pCamera)
 {
 	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 	if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
@@ -571,9 +535,19 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapse
 
 	if (m_pShaderManager)
 	{
-		m_pShaderManager->Render(pd3dCommandList,fTimeElapsed, pCamera);
+		m_pShaderManager->PreRender(pd3dCommandList,fTimeElapsed, pCamera);
 	}
 
+}
+void CScene::PostRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed, CCamera *pCamera)
+{
+	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
+	if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+
+	if (m_pShaderManager)
+	{
+		m_pShaderManager->PostRender(pd3dCommandList,fTimeElapsed, pCamera);
+	}
 }
 
 void CScene::CheckObjectByObjectCollisions()
@@ -668,6 +642,10 @@ void CScene::CheckObjectByObjectCollisions()
 					{
 						if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[i]->GetBoundingBox()))
 						{
+							if (m_pPlayer->get_Normal_InventorySize() > 0)
+							{
+								m_pPlayer->Refresh_Inventory(CItem::NormalHammer);
+							}
 							m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
 							cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
 						}
@@ -712,6 +690,11 @@ void CScene::SetWarningTimer()
 {
 	m_pSound->PlayIndex(TIMERWARNING);
 }
+
+void CScene::StopWarningTimer()
+{
+	m_pSound->StopIndex(TIMERWARNING);
+}
 void CScene::CheckWarningTimer()
 {
 	if (m_pSound) {
@@ -725,6 +708,14 @@ void CScene::CheckWarningTimer()
 			if (m_bWarningSet == false) {
 				m_bWarningSet = true;
 				SetWarningTimer();
+			}
+		}
+		else
+		{
+			if(m_bWarningSet == true)
+			{
+				m_bWarningSet = false;
+				StopWarningTimer();
 			}
 		}
 	}
@@ -754,3 +745,48 @@ void CScene::CreateSoundSystem()
 	//PlaySound(MAKEINTRESOURCE(IDR_WAVE3), ::ghAppInstance, SND_RESOURCE | SND_ASYNC | SND_LOOP);
 
 }
+bool CScene::DistanceToTarget(XMFLOAT3& pos)
+{
+	bool ret = false;
+
+	XMFLOAT3 distance = Vector3::Subtract(m_pPlayer->GetPosition(), pos);
+	float dis = Vector3::Length(distance);
+
+	if (dis < 100.0f)
+		ret = true;
+
+	return ret;
+}
+
+XMFLOAT2& CScene::ProcessNameCard(const int& objNum)
+{
+
+	map<string, CShader*> m = getShaderManager()->getShaderMap();
+	XMFLOAT4X4 viewProj = Matrix4x4::Multiply(m_pPlayer->GetCamera()->GetViewMatrix(), m_pPlayer->GetCamera()->GetProjectionMatrix());
+	XMFLOAT2 res{50000.0f,50000.0f};
+	auto iter = m.find("곰돌이");
+	if(iter != m.end())
+	{
+
+		XMFLOAT3 pos = Vector3::Add((*iter).second->m_ppObjects[objNum]->GetPosition(), XMFLOAT3(0.0f, 5.0f, 0.0f));
+		if (DistanceToTarget(pos) == true)
+		{
+			float viewX = pos.x * viewProj._11 + pos.y * viewProj._21 + pos.z * viewProj._31 + viewProj._41;
+			float viewY = pos.x * viewProj._12 + pos.y * viewProj._22 + pos.z * viewProj._32 + viewProj._42;
+			float viewZ = pos.x * viewProj._13 + pos.y * viewProj._23 + pos.z * viewProj._33 + viewProj._43;
+
+			XMFLOAT2 screen;
+			screen.x = (float)(viewX / viewZ + 1.0f) * (m_pPlayer->GetCamera()->GetViewport().Width * 0.5f);
+			screen.y = (float)(-viewY / viewZ + 1.0f) * (m_pPlayer->GetCamera()->GetViewport().Height * 0.5f);
+			res = screen;
+		}
+		
+
+	}
+	//int viewLeft =0, viewTop = 0;
+	
+
+
+	return res;
+}
+

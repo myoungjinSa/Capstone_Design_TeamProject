@@ -147,11 +147,11 @@ void CFoliageShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlaye
 		{
 			lodlevel = CGameObject::LOD_LEVEL0;
 		}
-		else if (distance >= 30.0f && distance < 150.0f)
+		else if (distance >= 30.0f && distance < 100.0f)
 		{
 			lodlevel = CGameObject::LOD_LEVEL1;
 		}
-		else if (distance > 150 && distance < 300.0f)
+		else if (distance > 100 && distance < 200.0f)
 		{
 			lodlevel = CGameObject::LOD_LEVEL2;
 		}

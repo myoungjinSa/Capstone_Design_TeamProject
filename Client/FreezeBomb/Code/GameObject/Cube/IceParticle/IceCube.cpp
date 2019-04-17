@@ -109,7 +109,6 @@ void CIceCube::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCame
 
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////
 //static ÇÔ¼ö
 void CIceCube::PrepareExplosion(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)

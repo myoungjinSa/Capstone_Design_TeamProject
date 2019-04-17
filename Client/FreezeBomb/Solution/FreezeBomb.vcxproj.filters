@@ -177,6 +177,15 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\BombParticleShader\BombParticleShader.cpp">
       <Filter>Code\Shader\BillboardShader\BombParticleShader</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\Scene\LoadingScene\LoadingScene.cpp">
+      <Filter>Code\Scene\LoadingScene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\LoadingShader\LoadingShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\LoadingShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\FrameTransform\FrameTransform.cpp">
+      <Filter>Code\FrameTransform</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h">
@@ -347,6 +356,15 @@
     <ClInclude Include="..\Code\Default\targetver.h">
       <Filter>Code\Default</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\Scene\LoadingScene\LoadingScene.h">
+      <Filter>Code\Scene\LoadingScene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\LoadingShader\LoadingShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\LoadingShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\FrameTransform\FrameTransform.h">
+      <Filter>Code\FrameTransform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Code">
@@ -379,38 +397,8 @@
     <Filter Include="Code\ShaderManager">
       <UniqueIdentifier>{e616acf8-173d-42a0-937d-b6375ff68683}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Shader">
-      <UniqueIdentifier>{4c2abcee-71c6-4a06-9d12-6f7ddb1def36}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\Stdafx">
       <UniqueIdentifier>{414e4748-1faa-44ba-a157-684aa1249c1b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\StandardShader">
-      <UniqueIdentifier>{9067a751-803d-4d43-9b26-cb5f01db8579}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\TerrainShader">
-      <UniqueIdentifier>{7b0a77e7-f670-4021-be2d-19b6c546ff01}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\SkyBoxShader">
-      <UniqueIdentifier>{206cd247-0c57-47a1-9272-f985a023400b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\HLSL">
-      <UniqueIdentifier>{51cce8cf-6449-4981-a478-4463f2103d48}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\BillboardShader">
-      <UniqueIdentifier>{5276bd61-7ba0-49dc-9a14-b6d5c75f953d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\CubeParticleShader">
-      <UniqueIdentifier>{97e2bf61-6c0b-4c25-9297-79218a335fd4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\BillboardShader\LampParticleShader">
-      <UniqueIdentifier>{4162547e-c4b4-47b4-ab35-601fbdaae69f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\BillboardShader\SnowShader">
-      <UniqueIdentifier>{dd45b974-450f-4ef2-b084-743ccd0a0011}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\BillboardShader\UIShader">
-      <UniqueIdentifier>{f05f1214-142f-4808-82f0-7b7ef66ca09c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\Mesh\BillboardMesh">
       <UniqueIdentifier>{b65f6c1f-77c5-4622-a15f-08ca235ac91b}</UniqueIdentifier>
@@ -445,9 +433,6 @@
     <Filter Include="Code\GameObject\IceCube">
       <UniqueIdentifier>{6923770d-d22e-4787-9024-798ed53a93b3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Shader\StandardShader\ItemShader">
-      <UniqueIdentifier>{3cae2560-9d99-4883-be38-6283d8d14075}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\GameObject\Player">
       <UniqueIdentifier>{300b68a8-2ba7-44de-add9-41298c785036}</UniqueIdentifier>
     </Filter>
@@ -463,24 +448,6 @@
     <Filter Include="Code\GameObject\Surrounding">
       <UniqueIdentifier>{67aaf2b2-9056-4a3f-8236-89eabc16faa0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Shader\StandardShader\MapToolShader">
-      <UniqueIdentifier>{70ac25c7-8d48-4f66-9307-6ea5d99560d1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\BillboardShader\UIShader\ItemUIShader">
-      <UniqueIdentifier>{81aa17cb-ae31-4f59-a893-a603ac7c50ce}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\BillboardShader\UIShader\TimerUIShader">
-      <UniqueIdentifier>{5b22cc38-0f6a-4296-a438-21d83d984888}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\StandardShader\MapObjectShader">
-      <UniqueIdentifier>{8906eb79-67e6-4aa3-a1ba-122853d70ed8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\ComputeShader">
-      <UniqueIdentifier>{44a0d9bf-0fc4-4f5d-ade8-0f2b406642ef}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\ComputeShader\SobelCartoonShader">
-      <UniqueIdentifier>{203a2fe4-ad37-41ff-8cd0-1bdfc5546cc7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\GameObject\Shadow">
       <UniqueIdentifier>{a5710e34-5a27-49c6-b1aa-182e574c7056}</UniqueIdentifier>
     </Filter>
@@ -493,15 +460,6 @@
     <Filter Include="Code\Mesh\LODMesh">
       <UniqueIdentifier>{d5587de3-cb58-45ba-b592-d50c4cb87e61}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Shader\StandardShader\SkinnedAnimationShader">
-      <UniqueIdentifier>{5dd3635d-8da6-42ac-9f1c-3b362eb55a1f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationObjectShader">
-      <UniqueIdentifier>{abf594bf-9a0e-46af-aef9-b9b86e3a28d8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\StandardShader\FoliageShader">
-      <UniqueIdentifier>{4a082e72-24b2-4ae0-ace0-edb616d1687c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\Network">
       <UniqueIdentifier>{1b26d7f8-52f8-4a93-8f94-f19be495dabb}</UniqueIdentifier>
     </Filter>
@@ -511,11 +469,80 @@
     <Filter Include="Code\GameObject\Billboard\Bomb">
       <UniqueIdentifier>{be8f0a9a-9605-446c-97e9-f90e5d63342c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Default">
+      <UniqueIdentifier>{4e9044f3-d610-4eeb-b2fa-e2fa633d2587}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Scene\LoadingScene">
+      <UniqueIdentifier>{adc21ef9-f82f-444f-9e45-a5653399517b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader">
+      <UniqueIdentifier>{4c2abcee-71c6-4a06-9d12-6f7ddb1def36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader">
+      <UniqueIdentifier>{9067a751-803d-4d43-9b26-cb5f01db8579}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader\ItemShader">
+      <UniqueIdentifier>{3cae2560-9d99-4883-be38-6283d8d14075}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader\MapToolShader">
+      <UniqueIdentifier>{70ac25c7-8d48-4f66-9307-6ea5d99560d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader\MapObjectShader">
+      <UniqueIdentifier>{8906eb79-67e6-4aa3-a1ba-122853d70ed8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader\SkinnedAnimationShader">
+      <UniqueIdentifier>{5dd3635d-8da6-42ac-9f1c-3b362eb55a1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationObjectShader">
+      <UniqueIdentifier>{abf594bf-9a0e-46af-aef9-b9b86e3a28d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader\FoliageShader">
+      <UniqueIdentifier>{4a082e72-24b2-4ae0-ace0-edb616d1687c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\TerrainShader">
+      <UniqueIdentifier>{7b0a77e7-f670-4021-be2d-19b6c546ff01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\SkyBoxShader">
+      <UniqueIdentifier>{206cd247-0c57-47a1-9272-f985a023400b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\HLSL">
+      <UniqueIdentifier>{51cce8cf-6449-4981-a478-4463f2103d48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader">
+      <UniqueIdentifier>{5276bd61-7ba0-49dc-9a14-b6d5c75f953d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\LampParticleShader">
+      <UniqueIdentifier>{4162547e-c4b4-47b4-ab35-601fbdaae69f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\SnowShader">
+      <UniqueIdentifier>{dd45b974-450f-4ef2-b084-743ccd0a0011}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader">
+      <UniqueIdentifier>{f05f1214-142f-4808-82f0-7b7ef66ca09c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\ItemUIShader">
+      <UniqueIdentifier>{81aa17cb-ae31-4f59-a893-a603ac7c50ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\TimerUIShader">
+      <UniqueIdentifier>{5b22cc38-0f6a-4296-a438-21d83d984888}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\LoadingShader">
+      <UniqueIdentifier>{c1757b31-19a9-4371-8b8b-3ae603f3bdf3}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Code\Shader\BillboardShader\BombParticleShader">
       <UniqueIdentifier>{a5851b9a-9a01-4937-a5bc-0c659566a20d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Default">
-      <UniqueIdentifier>{4e9044f3-d610-4eeb-b2fa-e2fa633d2587}</UniqueIdentifier>
+    <Filter Include="Code\Shader\CubeParticleShader">
+      <UniqueIdentifier>{97e2bf61-6c0b-4c25-9297-79218a335fd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\ComputeShader">
+      <UniqueIdentifier>{44a0d9bf-0fc4-4f5d-ade8-0f2b406642ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\ComputeShader\SobelCartoonShader">
+      <UniqueIdentifier>{203a2fe4-ad37-41ff-8cd0-1bdfc5546cc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\FrameTransform">
+      <UniqueIdentifier>{8cf04451-aeea-437c-b479-921fa2bec7eb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -525,19 +552,10 @@
     <Image Include="..\Code\Default\bear.ico">
       <Filter>Code\Default</Filter>
     </Image>
-    <Image Include="BEARICON.ico" />
-    <Image Include="..\Code\Default\small.ico" />
-    <Image Include="..\Code\Default\BEARICON.ico" />
-    <Image Include="..\Code\Default\bear_panda.PNG" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Code\Default\FreezeBomb.rc">
       <Filter>Code\Default</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Media Include="..\Code\Default\BtnDown01.wav" />
-    <Media Include="..\Code\Default\BtnDown03.wav" />
-    <Media Include="..\Code\Default\town.wav" />
   </ItemGroup>
 </Project>

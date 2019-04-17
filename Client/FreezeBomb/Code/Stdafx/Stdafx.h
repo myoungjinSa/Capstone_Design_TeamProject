@@ -1,6 +1,7 @@
 #pragma once
 
 #define WIN32_LEAN_AND_MEAN             // 거의 사용되지 않는 내용은 Windows 헤더에서 제외합니다.
+#define _CRT_SECURE_NO_WARNINGS
 
 #include "../Default/Resource.h"
 #include "../Default/targetver.h"
@@ -92,6 +93,9 @@ enum PIPELINESTATE_TYPE { GameObject, GameObject_Shadow };
 #pragma comment(lib, "windowscodecs.lib")
 
 // TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
+
+D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3dResourceDesc, UINT nTextureType);
+
 
 extern UINT gnCbvSrvDescriptorIncrementSize;
 
@@ -267,6 +271,12 @@ namespace Vector4
 		return(xmf4Result);
 	}
 
+	//inline XMFLOAT4 Multiply(XMFLOAT4& xmf4Vector1, XMFLOAT4X4& xmf4Matrix)
+	//{
+	//	XMFLOAT4 xmf4Result;
+	//	XMStoreFloat4(&xmf4Result, XMLoadFloat4(&xmf4Vector1) * XMLoadFloat4x4(&xmf4Matrix));
+	//	return(xmf4Result);
+	//}
 	inline XMFLOAT4 Multiply(float fScalar, XMFLOAT4& xmf4Vector)
 	{
 		XMFLOAT4 xmf4Result;
@@ -297,6 +307,7 @@ namespace Matrix4x4
 		XMStoreFloat4x4(&xmf4x4Result, XMLoadFloat4x4(&xmmtx4x4Matrix1) * XMLoadFloat4x4(&xmmtx4x4Matrix2));
 		return(xmf4x4Result);
 	}
+
 
 	inline XMFLOAT4X4 Multiply(XMFLOAT4X4& xmmtx4x4Matrix1, XMMATRIX& xmmtxMatrix2)
 	{

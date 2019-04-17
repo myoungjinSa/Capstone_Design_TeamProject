@@ -8,11 +8,12 @@ class CScene;
 class CPlayer;
 class CPlayerShadowShader;
 
+class CSnowShader;
 class CCamera;
 class CMapToolShader;
 class CSobelCartoonShader;
 class Network;
-
+class CLoadingScene;
 class CGameFramework
 {
 public:
@@ -51,7 +52,10 @@ public:
 
 	void CreateOffScreenRenderTargetViews();
 
+	void SetNamecard();
+	void ShowScoreboard();
 
+	void ProcessDirect2D();
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
@@ -62,8 +66,10 @@ public:
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 private:
-	HINSTANCE					m_hInstance;
+	HINSTANCE						m_hInstance;
 	HWND							m_hWnd;
+
+	bool							m_bStart = false;
 
 	int								m_nWndClientWidth;
 	int								m_nWndClientHeight;
@@ -100,6 +106,7 @@ private:
 #endif
 	CGameTimer								m_GameTimer;
 
+	CLoadingScene*							m_pLoadingScene = nullptr;
 	CScene*									m_pScene = nullptr;
 	CPlayer*								m_pPlayer = nullptr;
 	CPlayerShadowShader*					m_pPlayerShadowShader = nullptr;
@@ -116,8 +123,8 @@ private:
 	D3D12_CPU_DESCRIPTOR_HANDLE				m_pd3dCarttonScreenRenderTargetBufferCPUHandles[m_nCartoonScreenRenderTargetBuffers];
 
 
-	CSobelCartoonShader*					m_pCartoonShader =nullptr;
-	bool									m_bCartoon =true;
+
+	CSobelCartoonShader*					m_pCartoonShader{ nullptr };
 #ifdef _MAPTOOL_MODE_
 	CMapToolShader*  m_pMapToolShader = nullptr;
 #endif

@@ -5,6 +5,7 @@
 #include "../Shadow/Shadow.h"
 #include "../../Material/Material.h"
 #include "../../Shader/Shader.h"
+#include "../../FrameTransform/FrameTransform.h"
 
 CEvilBear::CEvilBear(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID)
 	:m_pSound{nullptr},
@@ -69,6 +70,46 @@ void CEvilBear::Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bHammer,
 
 	if (m_pShadow)
 		m_pShadow->Render(pd3dCommandList, bHammer, bBomb, bIce, matID, pCamera, GameObject_Shadow);
+}
+
+void CEvilBear::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int nPipelineState)
+{
+	OnPrepareRender();
+
+	//if (m_pSkinningBoneTransforms)
+	//	m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
+
+	//if (m_pFrameTransform)
+	//	m_pFrameTransform->SetFrameMeshWorldConstantBuffer();
+
+	//if (m_pMesh)
+	//{
+	//	//if (!m_pSkinningBoneTransforms)
+	//	//	UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+
+	//	if (m_nMaterials > 0)
+	//	{
+	//		for (int i = 0; i < m_nMaterials; i++)
+	//		{
+	//			if (m_ppMaterials[i])
+	//			{
+	//				if (m_ppMaterials[i]->m_pShader)
+	//					m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+
+	//				m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
+	//			}
+	//			m_pMesh->Render(pd3dCommandList, i);
+	//		}
+	//	}
+	//}
+
+	//if (m_pSibling)
+	//	((CEvilBear*)m_pSibling)->CEvilBear::Render(pd3dCommandList, pCamera, nPipelineState);
+	//if (m_pChild)
+	//	((CEvilBear*)m_pChild)->CEvilBear::Render(pd3dCommandList, pCamera, nPipelineState);
+
+	//if (m_pShadow)
+		//m_pShadow->Render(pd3dCommandList, bHammer, bBomb, bIce, matID, pCamera, GameObject_Shadow);
 }
 
 

@@ -2,10 +2,7 @@
 
 #include "../BillboardShader.h"
 
-struct CB_ANIMATIONCLIP
-{
-	UINT		m_AnimationClip = 0;
-};
+
 
 class CBomb;
 class CTexture;

@@ -77,13 +77,15 @@ void CTerrainShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 
 	CMaterial* pTerrainMaterial = new CMaterial(2);
 	auto iter = Context.find("BaseTerrain");
-	if(iter != Context.end())
+	if (iter != Context.end())
 		pTerrainMaterial->SetTexture((*iter).second, 0);
 	iter = Context.find("SpecularTerrain");
-	if(iter != Context.end())
+	if (iter != Context.end())
 		pTerrainMaterial->SetTexture((*iter).second, 1);
-	
+
 	m_pTerrain->SetMaterial(0, pTerrainMaterial);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void CTerrainShader::ReleaseObjects()
@@ -102,6 +104,31 @@ void CTerrainShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera 
 {
 	CShader::Render(pd3dCommandList, pCamera, nPipelineState);
 
+	UpdateShaderVariables(pd3dCommandList);
+	D3D12_GPU_VIRTUAL_ADDRESS GpuVirtualAddress = m_pd3dcbWorld->GetGPUVirtualAddress();
+	pd3dCommandList->SetGraphicsRootConstantBufferView(23, GpuVirtualAddress);
 	if (m_pTerrain)
 		m_pTerrain->Render(pd3dCommandList, pCamera);
+}
+
+void CTerrainShader::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+{
+	UINT ncbElementBytes = ((sizeof(CB_World) + 255) & ~255); //256ÀÇ ¹è¼ö
+	m_pd3dcbWorld = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pd3dcbWorld->Map(0, nullptr, (void**)&m_pcbMappedWorld);
+}
+
+void CTerrainShader::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
+{
+	if(m_pd3dcbWorld)
+		XMStoreFloat4x4(&m_pcbMappedWorld->m_World, XMMatrixTranspose(XMLoadFloat4x4(&m_pTerrain->m_xmf4x4World)));
+}
+
+void CTerrainShader::ReleaseShaderVariables()
+{
+	if (m_pd3dcbWorld)
+	{
+		m_pd3dcbWorld->Unmap(0, nullptr);
+		m_pd3dcbWorld->Release();
+	}
 }

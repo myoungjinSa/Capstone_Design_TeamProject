@@ -3,6 +3,7 @@
 #include "../Shader.h"
 
 class CTexture;
+class CSkyBox;
 class CSkyBoxShader : public CShader
 {
 public:
@@ -17,4 +18,20 @@ public:
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
 		const map<string, CTexture*>& Context, void* pContext);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState);
+
+	virtual void ReleaseObjects();
+	virtual void ReleaseUploadBuffers();
+
+	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void ReleaseShaderVariables();
+
+private:
+	struct CB_World
+	{
+		XMFLOAT4X4 m_World;
+	};
+	CSkyBox*					m_pSkyBox{ nullptr };
+	ID3D12Resource*		m_pd3dcbWorld{ nullptr };
+	CB_World*				m_pcbMappedWorld{ nullptr };
 };

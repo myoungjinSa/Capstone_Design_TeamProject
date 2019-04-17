@@ -53,10 +53,8 @@ void CBombParticleShader::AnimateObjects(float elapsedTime, CCamera *pCamera, CP
 		// 곰돌이의 프레임을 찾는다.
 		CGameObject* p = pPlayer->FindFrame("black-handbomb");
 		if (p != nullptr)
-		{
 			// 곰돌이의 프레임에 월드를 얻어온다.
 			m_BombParticle->m_xmf4x4World = p->m_xmf4x4World;
-		}
 
 		m_BombParticle->Animate(elapsedTime);
 	}
@@ -101,7 +99,7 @@ void CBombParticleShader::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCo
 		m_pcbMappedAnimationClip->m_AnimationClip = m_BombParticle->m_AnimationClip;
 
 		D3D12_GPU_VIRTUAL_ADDRESS d3dParticleGPUVirtualAddress = m_pd3dcbAnimationClip->GetGPUVirtualAddress();
-		pd3dCommandList->SetGraphicsRootConstantBufferView(23, d3dParticleGPUVirtualAddress);
+		pd3dCommandList->SetGraphicsRootConstantBufferView(21 , d3dParticleGPUVirtualAddress);
 	}
 }
 

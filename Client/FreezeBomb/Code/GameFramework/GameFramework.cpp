@@ -6,8 +6,10 @@
 #include "../GameObject/Player/Player.h"
 #include "../GameObject/Shadow/Shadow.h"
 
+#include "../Scene/LoadingScene/LoadingScene.h"
 #include "../ShaderManager/ShaderManager.h"
 #include "../Shader/TerrainShader/TerrainShader.h"
+#include "../Shader/BillboardShader/SnowShader/SnowShader.h"
 #include "../GameObject/Terrain/Terrain.h"
 #include "../ResourceManager/ResourceManager.h"
 #include "../Shader/StandardShader/MapToolShader/MapToolShader.h"
@@ -67,6 +69,8 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CreateDepthStencilView();
 
 	CoInitialize(NULL);
+
+	
 
 	if (!BuildObjects())
 		return false;
@@ -542,16 +546,14 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				case VK_ESCAPE:
 					::PostQuitMessage(0);
 					break;
-			//	case VK_RETURN:
-
-				//	break;
+				case VK_RETURN:
+					if (m_bStart == false)
+						m_bStart = true;
+					break;
 				case VK_F1:
 				case VK_F2:
 				case VK_F3:
 					m_pCamera = m_pPlayer->ChangeCamera((DWORD)(wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
-					break;
-				case VK_F4:
-					m_bCartoon = !m_bCartoon;
 					break;
 				case VK_F9:
 					ChangeSwapChainState();
@@ -789,6 +791,9 @@ bool CGameFramework::BuildObjects()
 	//	::PostQuitMessage(0);
 	//	return false;
 	//}
+	m_pLoadingScene = new CLoadingScene();
+	if (m_pLoadingScene)
+		m_pLoadingScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 
 	////////////////////////////////////////////////////////////////////////////
 	const int nPlayerCount = 6;		//임시로 플레이어 개수 지정. 
@@ -814,7 +819,7 @@ bool CGameFramework::BuildObjects()
 			pPlayer->setScore(100);
 
 			map<string, Bounds*> BoundMap = m_pScene->getShaderManager()->getResourceManager()->getBoundMap();
-			auto iter2 = BoundMap.find(pPlayer->getID());
+			auto iter2 = BoundMap.find("EvilBear");
 			if (iter2 != BoundMap.end())
 				pPlayer->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
 			//pPlayer->SetOOBB(XMFLOAT3(-0.1304445, 0.003544204, -7.450581E-09), XMFLOAT3(0.2756854, 0.1529771, 0.2030513), XMFLOAT4(0, 0, 0, 1));
@@ -823,7 +828,12 @@ bool CGameFramework::BuildObjects()
 			m_pMapToolShader->CreateShader(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
 			m_pMapToolShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), pTerrain);
 #endif
+
 		}
+
+		
+	
+
 	}
 
 	m_pPlayer = pPlayer;
@@ -877,6 +887,7 @@ void CGameFramework::ReleaseObjects()
 		m_pCartoonShader->ReleaseObjects();
 		delete m_pCartoonShader;
 	}
+
 }
 
 void CGameFramework::ProcessInput()
@@ -950,6 +961,8 @@ void CGameFramework::AnimateObjects()
 	if (m_pScene) 
 		m_pScene->AnimateObjects(m_pd3dCommandList,fTimeElapsed);
 
+
+	
 	m_pPlayer->Animate(fTimeElapsed);
 	m_pPlayer->UpdateTransform(NULL);
 }
@@ -981,7 +994,112 @@ void CGameFramework::MoveToNextFrame()
 	}
 }
 
-//#define _WITH_PLAYER_TOP
+#ifdef _WITH_DIRECT2D_
+
+void CGameFramework::SetNamecard()
+{
+	if (m_pScene)
+	{
+		map<string, CShader*> m = m_pScene->getShaderManager()->getShaderMap();
+		auto iter = m.find("곰돌이");
+		if (iter != m.end())
+		{
+			for (int i = 0; i < (*iter).second->m_nObjects; ++i)
+			{
+				XMFLOAT2& screenSpace = m_pScene->ProcessNameCard(i);
+				//	
+				D2D1_RECT_F nameCard{ 0.0f,0.0f,0.0f,0.0f };
+				nameCard = D2D1::RectF(screenSpace.x - 60.0f, screenSpace.y - 60.0f, screenSpace.x + 60.0f, screenSpace.y + 60.0f);
+
+				//	//nameCard = D2D1::RectF(540.0f, 140.0f,  660.0f, 260.0f);		
+				m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[1], &nameCard, m_pd2dbrText[1]);
+			}
+		}
+	}
+	
+
+}
+
+void CGameFramework::ShowScoreboard()
+{
+	D2D1_RECT_F rcText{0,0,0,0};
+	if (m_pd2dfxBitmapSource && GetAsyncKeyState(VK_TAB) & 0x8000)
+	{
+		m_pd2dDeviceContext->DrawImage(m_pd2dfxBitmapSource);
+		D2D1_RECT_F rcText = D2D1::RectF(0, 0, 240.f, 360.f);
+		
+		
+		// 이름
+		rcText = D2D1::RectF(0.0f, 0.0f, /*szRenderTarget.width * 0.2f*/ /*1150.0f*/1150.0f,/* szRenderTarget.height * 0.45f*/360.0f);		
+		m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
+
+		// Score
+		rcText = D2D1::RectF(0, 0, 1900.0f, 360.0f);
+		m_pd2dDeviceContext->DrawTextW((to_wstring(m_pPlayer->getScore())).c_str(), (UINT32)(to_wstring(m_pPlayer->getScore())).length(), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
+
+		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/515.0f);
+		m_pd2dDeviceContext->DrawTextW(L"이우상", (UINT32)wcslen(L"이우상"), m_pdwFont[1], &rcText, m_pd2dbrText[1]);
+	
+		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/670.0f);
+		m_pd2dDeviceContext->DrawTextW(L"염혜린", (UINT32)wcslen(L"염혜린"), m_pdwFont[2], &rcText, m_pd2dbrText[2]);
+	
+		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/825.0f);
+		m_pd2dDeviceContext->DrawTextW(L"라마바", (UINT32)wcslen(L"라마바"), m_pdwFont[3], &rcText, m_pd2dbrText[3]);
+
+		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/980.0f);
+		m_pd2dDeviceContext->DrawTextW(L"사아자", (UINT32)wcslen(L"사아자"), m_pdwFont[4], &rcText, m_pd2dbrText[4]);
+	
+		//cout << index << endl;
+		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/1135.0f);
+		m_pd2dDeviceContext->DrawTextW(L"타파하", (UINT32)wcslen(L"타파하"), m_pdwFont[5], &rcText, m_pd2dbrText[5]);
+	}
+	
+}
+
+void CGameFramework::ProcessDirect2D()
+{
+	//AcquireWrappedResources() D3D11On12 디바이스에서 사용될 수 있는 D3D11 리소스들을 얻게해준다.
+	//이 함수는 렌더링 할 Wrapped Resource 들을 다시 사용할 수 있다고 암시해준다. 
+	m_pd3d11On12Device->AcquireWrappedResources(&m_ppd3d11WrappedBackBuffers[m_nSwapChainBufferIndex], 1);
+	
+	//Direct2D 디바이스가 렌더 할 비트맵이나 커맨드 리스트를 설정한다.
+	m_pd2dDeviceContext->SetTarget(m_ppd2dRenderTargets[m_nSwapChainBufferIndex]);
+
+	m_pd2dDeviceContext->BeginDraw();
+
+	// Apply the rotation transform to the render target
+	m_pd2dDeviceContext->SetTransform(D2D1::Matrix3x2F::Identity());
+
+	//D2D1_SIZE_F : float형태의 가로 세로 쌍을 저장한 구조체
+	D2D1_SIZE_F szRenderTarget = m_ppd2dRenderTargets[m_nSwapChainBufferIndex]->GetSize();
+	
+	
+	//이름 
+	SetNamecard();
+
+
+	//스코어 보드
+	ShowScoreboard();
+	////////////////////////////////////////////////////////////////////////
+	//WITH_DIRECT2D_IMAGE_EFFECT
+
+	////////////////////////////////////////////////////////////////////////
+
+	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
+	//D2D1_RECT_F rcUpperText = D2D1::RectF(0, 0, 200.0f, 1400.0f);
+	
+	//IDWriteTextFormat (interface) : 텍스트 형식에 사용되는 폰트를 서술함. 
+	//m_pd2dDeviceContext->DrawTextW(m_pszFrameRate, (UINT32)wcslen(m_pszFrameRate), m_pdwFont[0], &rcUpperText, m_pd2dbrText[0]);
+	m_pd2dDeviceContext->EndDraw();
+
+	//Releases D3D11 resources that were wrapped for D3D 11on12
+	m_pd3d11On12Device->ReleaseWrappedResources(&m_ppd3d11WrappedBackBuffers[m_nSwapChainBufferIndex], 1);
+
+	//,커맨드 버퍼에 대기중인 커맨드를 gpu로 전송
+	m_pd3d11DeviceContext->Flush();
+
+}
+#endif
 
 void CGameFramework::FrameAdvance()
 {    
@@ -1009,9 +1127,11 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3dCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBufferIndex], TRUE, &d3dDsvDepthStencilBufferCPUHandle);
 
+
+	//카툰 렌더링 해야할 쉐이더들은 PreRender에서 그린다.
 	if (m_pScene)
 	{
-		m_pScene->Render(m_pd3dCommandList, m_GameTimer.GetTimeElapsed(),m_pCamera);
+		m_pScene->PreRender(m_pd3dCommandList, m_GameTimer.GetTimeElapsed(),m_pCamera);
 	}
 
 #ifdef _MAPTOOL_MODE_
@@ -1034,17 +1154,28 @@ void CGameFramework::FrameAdvance()
 
 	if (m_pCartoonShader)
 	{
-		if (m_bCartoon)
-		{
-			m_pCartoonShader->SobelFilter(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
-			m_pCartoonShader->Render(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
-		}
+		//m_pCartoonShader->SobelFilter(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
+		//m_pCartoonShader->Render(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
 	}
-	//Direct2D를 사용하면 스왑체인 버퍼 리소스 전이를 Present로 바꿔주면 안된다. 
-#ifndef _WITH_DIRECT2D_
-	::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-#endif
 
+	//카툰 렌더링 하지 않고 그려야할 쉐이더는 PostRender에서 그린다.
+	if(m_pScene->getShaderManager())
+	{
+		m_pd3dCommandList->ClearDepthStencilView(d3dDsvDepthStencilBufferCPUHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+		//m_pd3dCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBufferIndex], TRUE, &d3dDsvDepthStencilBufferCPUHandle);
+		m_pScene->PostRender(m_pd3dCommandList, m_GameTimer.GetTimeElapsed(), m_pCamera);
+	}
+	
+	if(m_pLoadingScene && m_bStart == false)
+	{
+		//m_pLoadingScene->Render(m_pd3dCommandList);
+	}
+
+	//Direct2D를 사용하면 스왑체인 버퍼 리소스 전이를 Present로 바꿔주면 안된다. 
+//#ifndef _WITH_DIRECT2D_
+	if(m_bStart == false)
+		::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+//#endif
 	hResult = m_pd3dCommandList->Close();
 	
 	ID3D12CommandList *ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -1053,69 +1184,8 @@ void CGameFramework::FrameAdvance()
 	WaitForGpuComplete();
 
 #ifdef _WITH_DIRECT2D_
-	//AcquireWrappedResources() D3D11On12 디바이스에서 사용될 수 있는 D3D11 리소스들을 얻게해준다.
-	//이 함수는 렌더링 할 Wrapped Resource 들을 다시 사용할 수 있다고 암시해준다. 
-	m_pd3d11On12Device->AcquireWrappedResources(&m_ppd3d11WrappedBackBuffers[m_nSwapChainBufferIndex], 1);
-	
-	//Direct2D 디바이스가 렌더 할 비트맵이나 커맨드 리스트를 설정한다.
-	m_pd2dDeviceContext->SetTarget(m_ppd2dRenderTargets[m_nSwapChainBufferIndex]);
-
-	m_pd2dDeviceContext->BeginDraw();
-
-	// Apply the rotation transform to the render target
-	m_pd2dDeviceContext->SetTransform(D2D1::Matrix3x2F::Identity());
-
-	//D2D1_SIZE_F : float형태의 가로 세로 쌍을 저장한 구조체
-	D2D1_SIZE_F szRenderTarget = m_ppd2dRenderTargets[m_nSwapChainBufferIndex]->GetSize();
-	
-	D2D1_RECT_F rcText{0,0,0,0};
-	if (m_pd2dfxBitmapSource && GetAsyncKeyState(VK_TAB) & 0x8000)
-	{
-		m_pd2dDeviceContext->DrawImage(m_pd2dfxBitmapSource);
-		D2D1_RECT_F rcText = D2D1::RectF(0, 0, 240.f, 360.f);
-		
-		// 이름
-		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/360.0f);		
-		m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
-
-		// Score
-		rcText = D2D1::RectF(0, 0, 1900.0f, 360.0f);
-		m_pd2dDeviceContext->DrawTextW((to_wstring(m_pPlayer->getScore())).c_str(), (UINT32)(to_wstring(m_pPlayer->getScore())).length(), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
-
-		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/515.0f);
-		m_pd2dDeviceContext->DrawTextW(L"이우상", (UINT32)wcslen(L"이우상"), m_pdwFont[1], &rcText, m_pd2dbrText[1]);
-	
-		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/670.0f);
-		m_pd2dDeviceContext->DrawTextW(L"가나다", (UINT32)wcslen(L"가나다"), m_pdwFont[2], &rcText, m_pd2dbrText[2]);
-	
-		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/825.0f);
-		m_pd2dDeviceContext->DrawTextW(L"라마바", (UINT32)wcslen(L"라마바"), m_pdwFont[3], &rcText, m_pd2dbrText[3]);
-
-		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/980.0f);
-		m_pd2dDeviceContext->DrawTextW(L"사아자", (UINT32)wcslen(L"사아자"), m_pdwFont[4], &rcText, m_pd2dbrText[4]);
-	
-		//cout << index << endl;
-		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/1135.0f);
-		m_pd2dDeviceContext->DrawTextW(L"타파하", (UINT32)wcslen(L"타파하"), m_pdwFont[5], &rcText, m_pd2dbrText[5]);
-	}
-	////////////////////////////////////////////////////////////////////////
-	//WITH_DIRECT2D_IMAGE_EFFECT
-
-	////////////////////////////////////////////////////////////////////////
-
-	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
-	D2D1_RECT_F rcUpperText = D2D1::RectF(0, 0, 200.0f, 1400.0f);
-	
-	//IDWriteTextFormat (interface) : 텍스트 형식에 사용되는 폰트를 서술함. 
-	m_pd2dDeviceContext->DrawTextW(m_pszFrameRate, (UINT32)wcslen(m_pszFrameRate), m_pdwFont[0], &rcUpperText, m_pd2dbrText[0]);
-	m_pd2dDeviceContext->EndDraw();
-
-	//Releases D3D11 resources that were wrapped for D3D 11on12
-	m_pd3d11On12Device->ReleaseWrappedResources(&m_ppd3d11WrappedBackBuffers[m_nSwapChainBufferIndex], 1);
-
-	//,커맨드 버퍼에 대기중인 커맨드를 gpu로 전송
-	m_pd3d11DeviceContext->Flush();
-
+	if(m_bStart == true)
+		ProcessDirect2D();
 #endif
 
 #ifdef _WITH_PRESENT_PARAMETERS

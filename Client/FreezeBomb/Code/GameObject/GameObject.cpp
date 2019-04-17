@@ -5,6 +5,7 @@
 #include "../Shader/Shader.h"
 #include "Billboard/LampParticle/LampParticle.h"
 #include "../SoundSystem/SoundSystem.h"
+#include "../FrameTransform/FrameTransform.h"
 
 //int CGameObject::m_AnimationType = CGameObject::ANIMATIONTYPE::IDLE;
 
@@ -423,6 +424,8 @@ CGameObject::~CGameObject()
 		delete m_pAnimationController;
 	if (m_pSkinningBoneTransforms) 
 		delete m_pSkinningBoneTransforms;
+	if (m_pFrameTransform)
+		delete m_pFrameTransform;
 }
 
 void CGameObject::AddRef() 
@@ -581,6 +584,8 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 
 	if (m_pSkinningBoneTransforms)
 		m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
+	if (m_pFrameTransform)
+		m_pFrameTransform->SetFrameMeshWorldConstantBuffer();
 
 	if (m_pMesh)
 	{
@@ -618,6 +623,8 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bHammer
 	OnPrepareRender();
 	if (m_pSkinningBoneTransforms)
 		m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
+	if (m_pFrameTransform)
+		m_pFrameTransform->SetFrameMeshWorldConstantBuffer();
 
 	if (m_pMesh)
 	{
@@ -640,7 +647,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bHammer
 			if (m_ppMaterials[1])
 			{
 				if (m_ppMaterials[1]->m_pShader) 
-					m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+					m_ppMaterials[1]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
 				m_ppMaterials[1]->UpdateShaderVariables(pd3dCommandList);
 			}
 		}
@@ -665,7 +672,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bHammer
 					{
 						m_ppMaterials[matID]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
 					}
-						m_ppMaterials[matID]->UpdateShaderVariables(pd3dCommandList);
+					m_ppMaterials[matID]->UpdateShaderVariables(pd3dCommandList);
 				}
 			}
 		}
@@ -750,16 +757,6 @@ void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandLis
 	XMFLOAT4X4 xmf4x4World;
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World, 0);
-
-	// 그림자 행렬 루트상수로 넘김
-	XMFLOAT4 xmf4Light(0.57735f, -0.57735f, 0.57735f, 0);
-	// Plane의 w 벡터가 그림자의 y에 영향을 준다.
-	XMFLOAT4 xmf4Plane(0.f, 1.f, 0.f, 0.f);
-	// 그림자 행렬 생성
-	XMMATRIX xmmtxPlane = XMMatrixShadow(XMLoadFloat4(&xmf4Plane), -XMLoadFloat4(&xmf4Light));
-	XMFLOAT4X4 ShadowWorld;
-	XMStoreFloat4x4(&ShadowWorld, XMMatrixTranspose(xmmtxPlane));
-	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 16, &ShadowWorld, 0);
 }
 
 void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, CMaterial* pMaterial)
@@ -1052,7 +1049,7 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 }
 
 CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
-	CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes, string type)
+	CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes, int* pnFrameMeshes, string type)
 {
 	char pstrToken[64] = { '\0' };
 
@@ -1062,7 +1059,7 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 	int nFrame = 0, nTextures = 0;
 
 	CGameObject* pGameObject = NULL;
-
+	XMFLOAT3 xmf3Position, xmf3Rotation, xmf3Scale;
 	for ( ; ; )
 	{
 		nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
@@ -1088,11 +1085,12 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 		}
 		else if (!strcmp(pstrToken, "<Transform>:"))
 		{
-			XMFLOAT3 xmf3Position, xmf3Rotation, xmf3Scale;
+			
 			XMFLOAT4 xmf4Rotation;
 			nReads = (UINT)::fread(&xmf3Position, sizeof(float), 3, pInFile);
 			nReads = (UINT)::fread(&xmf3Rotation, sizeof(float), 3, pInFile); //Euler Angle
 			nReads = (UINT)::fread(&xmf3Scale, sizeof(float), 3, pInFile);
+			pGameObject->m_xmf3Scale = xmf3Scale;
 			nReads = (UINT)::fread(&xmf4Rotation, sizeof(float), 4, pInFile); //Quaternion
 
 		}
@@ -1102,18 +1100,23 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 		}
 		else if (!strcmp(pstrToken, "<Mesh>:"))
 		{
+			if (pnFrameMeshes)
+				(*pnFrameMeshes)++;
+
 			CStandardMesh* pMesh = new CStandardMesh(pd3dDevice, pd3dCommandList);
 			pMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
 
 			pGameObject->SetMesh(pMesh);
 
 			// 각 바운드 크기 셋
-			pGameObject->SetOOBB(pMesh->getBoundCenter(), pMesh->getBoundExtent(), XMFLOAT4(0, 0, 0, 1));
+			pGameObject->SetOOBB(pMesh->getBoundCenter(),pMesh->getBoundExtent() /*Vector3::Multiply(Vector3::ScalarProduct(pMesh->getBoundExtent(),1000,false) , xmf3Scale)*/, XMFLOAT4(0, 0, 0, 1));
 		}
 		else if (!strcmp(pstrToken, "<SkinningInfo>:"))
 		{
 			if (pnSkinnedMeshes) 
 				(*pnSkinnedMeshes)++;
+			if (pnFrameMeshes)
+				(*pnFrameMeshes)++;
 
 			CSkinnedMesh *pSkinnedMesh = new CSkinnedMesh(pd3dDevice, pd3dCommandList);
 			pSkinnedMesh->CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -1139,7 +1142,7 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 				for (int i = 0; i < nChilds; i++)
 				{
 					CGameObject *pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 
-						pGameObject, pInFile, pShader, pnSkinnedMeshes, type);
+						pGameObject, pInFile, pShader, pnSkinnedMeshes, pnFrameMeshes, type);
 					if (pChild) pGameObject->SetChild(pChild);
 #ifdef _WITH_DEBUG_FRAME_HIERARCHY
 					TCHAR pstrDebug[256] = { 0 };
@@ -1280,7 +1283,7 @@ void CGameObject::CacheSkinningBoneFrames(CGameObject *pRootFrame)
 {
 	if (m_pMesh && (m_pMesh->GetType() & VERTEXT_BONE_INDEX_WEIGHT))
 	{
-		CSkinnedMesh *pSkinnedMesh = (CSkinnedMesh *)m_pMesh;
+		CSkinnedMesh *pSkinnedMesh = (CSkinnedMesh*)m_pMesh;
 		for (int i = 0; i < pSkinnedMesh->m_nSkinningBones; i++)
 		{
 			pSkinnedMesh->m_ppSkinningBoneFrameCaches[i] = pRootFrame->FindFrame(pSkinnedMesh->m_ppstrSkinningBoneNames[i]);
@@ -1307,13 +1310,52 @@ void CGameObject::FindAndSetSkinnedMesh(int *pnSkinMesh, CSkinningBoneTransforms
 {
 	if (m_pMesh && (m_pMesh->GetType() & VERTEXT_BONE_INDEX_WEIGHT))
 	{
-		CSkinnedMesh *pSkinnedMesh = (CSkinnedMesh *)m_pMesh;
+		CSkinnedMesh *pSkinnedMesh = (CSkinnedMesh*)m_pMesh;
 		pSkinningBoneTransforms->SetSkinnedMesh((*pnSkinMesh)++, pSkinnedMesh);
 	}
 	if (m_pSibling) 
 		m_pSibling->FindAndSetSkinnedMesh(pnSkinMesh, pSkinningBoneTransforms);
 	if (m_pChild) 
 		m_pChild->FindAndSetSkinnedMesh(pnSkinMesh, pSkinningBoneTransforms);
+}
+
+void CGameObject::CacheFrameMeshObject(CGameObject* pRootFrame)
+{
+	if (m_pMesh)
+	{
+		CStandardMesh* pMesh = (CStandardMesh*)m_pMesh;
+		if (strcmp(pMesh->m_pstrMeshName, "") != 0)
+		{
+			// 메쉬에 해당하는 이름을 찾아서 연결해줌
+			for (int i = 0; i < pMesh->m_nFrameMeshes; i++)
+			{
+				CGameObject* p = pRootFrame->FindFrame(pMesh->m_pstrMeshName);
+				if (p != nullptr)
+				{
+					pMesh->m_ppFrameMeshCaches[i] = p;
+				}
+			}
+		}
+	}
+	if (m_pSibling)
+		m_pSibling->CacheFrameMeshObject(pRootFrame);
+	if (m_pChild)
+		m_pChild->CacheFrameMeshObject(pRootFrame);
+}
+
+void CGameObject::FindAndSetFrameMesh(int* nFrameMeshIndex, CFrameTransform* pFrameTransform)
+{
+	if (m_pMesh)
+	{
+		// 몇번째 메쉬인가 인덱스를 저장해야댐
+		CStandardMesh* pMesh = (CStandardMesh*)m_pMesh;
+		if (strcmp(pMesh->m_pstrMeshName, "") != 0)
+			pFrameTransform->SetFrameMesh((*nFrameMeshIndex)++, pMesh);
+	}
+	if (m_pSibling)
+		m_pSibling->FindAndSetFrameMesh(nFrameMeshIndex, pFrameTransform);
+	if (m_pChild)
+		m_pChild->FindAndSetFrameMesh(nFrameMeshIndex, pFrameTransform);
 }
 
 CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
@@ -1326,12 +1368,13 @@ CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device *pd
 
 	CLoadedModelInfo* pLoadedModel = new CLoadedModelInfo;
 	pLoadedModel->m_pModelRootObject = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 
-		NULL, pInFile, pShader, &pLoadedModel->m_nSkinnedMeshes, type);
+		NULL, pInFile, pShader, &pLoadedModel->m_nSkinnedMeshes, &pLoadedModel->m_nFrameMeshes, type);
 
 	if (bHasAnimation) 
 		pLoadedModel->m_pAnimationSets = CGameObject::LoadAnimationFromFile(pInFile, pLoadedModel->m_pModelRootObject);
 	
 	pLoadedModel->m_pModelRootObject->CacheSkinningBoneFrames(pLoadedModel->m_pModelRootObject);
+	pLoadedModel->m_pModelRootObject->CacheFrameMeshObject(pLoadedModel->m_pModelRootObject);
 
 #ifdef _WITH_DEBUG_FRAME_HIERARCHY
 	TCHAR pstrDebug[256] = { 0 };

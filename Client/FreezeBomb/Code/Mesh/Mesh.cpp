@@ -602,6 +602,10 @@ void CStandardMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 	nReads = (UINT)::fread(m_pstrMeshName, sizeof(char), nStrLength, pInFile);
 	m_pstrMeshName[nStrLength] = '\0';
 
+	m_ppFrameMeshCaches = new CGameObject*[m_nFrameMeshes];
+	for (int i = 0; i < m_nFrameMeshes; ++i)
+		m_ppFrameMeshCaches[i] = nullptr;
+
 	for ( ; ; )
 	{
 		nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
@@ -768,6 +772,21 @@ void CStandardMesh::OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void
 
 	pd3dCommandList->IASetVertexBuffers(m_nSlot, 5, pVertexBufferViews);
 }
+
+void CStandardMesh::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
+{
+	if (m_ppd3dcbWorld)
+	{
+		D3D12_GPU_VIRTUAL_ADDRESS GpuVirtualAddress = m_ppd3dcbWorld->GetGPUVirtualAddress();
+		pd3dCommandList->SetGraphicsRootConstantBufferView(23, GpuVirtualAddress);
+
+		for (int i = 0; i < m_nFrameMeshes; i++)
+		{
+			XMStoreFloat4x4(&m_ppcbxmf4x4World[i], XMMatrixTranspose(XMLoadFloat4x4(&m_ppFrameMeshCaches[i]->m_xmf4x4World)));
+		}
+	}
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 CSkinnedMesh::CSkinnedMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) : CStandardMesh(pd3dDevice, pd3dCommandList)
@@ -797,6 +816,8 @@ void CSkinnedMesh::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12Graphic
 
 void CSkinnedMesh::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
 {
+	CStandardMesh::UpdateShaderVariables(pd3dCommandList);
+
 	if (m_pd3dcbBoneOffsets)
 	{
 		D3D12_GPU_VIRTUAL_ADDRESS d3dcbBoneOffsetsGpuVirtualAddress = m_pd3dcbBoneOffsets->GetGPUVirtualAddress();

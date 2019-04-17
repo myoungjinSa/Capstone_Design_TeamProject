@@ -9,6 +9,7 @@ public:
 	virtual ~CSnow();
 
 	virtual void Animate(float fTimeElapsed, CCamera *pCamera = NULL);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState, int nInstance);
 
 	void SetOffsetX(float offset) { m_offsetX = offset; }
 	float GetOffsetX()	const { return m_offsetX; }
