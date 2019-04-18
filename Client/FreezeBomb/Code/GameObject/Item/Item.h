@@ -3,7 +3,6 @@
 #include "../GameObject.h"
 
 class CLoadedModelInfo;
-class CShadow;
 class CItem : public CGameObject
 {
 public:
@@ -25,5 +24,4 @@ private:
 	byte m_ItemType = 0;
 
 	bool m_DeleteItem = false;
-	CShadow*	m_pShadow{ nullptr };
 };

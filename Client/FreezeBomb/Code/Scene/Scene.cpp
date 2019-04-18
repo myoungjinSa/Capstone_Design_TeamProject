@@ -676,7 +676,6 @@ void CScene::CheckObjectByObjectCollisions()
 					m_pPlayer->Add_Inventory((*iter2).first, (*iter2).second->getItemType());
 					if((*iter2).second->getItemType() == CItem::NormalHammer)
 						m_pPlayer->SetIsHammer(true);
-
 					// 맵에 있는 아이템 삭제
 					pItemShader->ItemDelete((*iter2).first);
 					break;

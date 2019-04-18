@@ -3,7 +3,6 @@
 #include "../GameObject.h"
 
 // 주변 정적인 오브젝트
-class CShadow;
 class CSurrounding : public CGameObject
 {
 public:
@@ -13,7 +12,4 @@ public:
 	void Initialize_Shadow(CLoadedModelInfo* pLoadedModel, CGameObject* pGameObject);
 
 	void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState);
-
-private:
-	CShadow*	m_pShadow{ nullptr };
 };

@@ -12,6 +12,8 @@ CSurrounding::CSurrounding(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 
 CSurrounding::~CSurrounding()
 {
+	if (m_pShadow)
+		delete m_pShadow;
 }
 
 void CSurrounding::Initialize_Shadow(CLoadedModelInfo* pLoadedModel, CGameObject* pGameObject)

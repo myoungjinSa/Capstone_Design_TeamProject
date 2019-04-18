@@ -3,6 +3,7 @@
 #include "../Texture/Texture.h"
 #include "../Material/Material.h"
 #include "../Shader/Shader.h"
+#include "Shadow/Shadow.h"
 #include "Billboard/LampParticle/LampParticle.h"
 #include "../SoundSystem/SoundSystem.h"
 #include "../FrameTransform/FrameTransform.h"
@@ -440,6 +441,9 @@ void CGameObject::AddRef()
 
 void CGameObject::Release() 
 { 
+	//if (m_pAnimationController)
+	//	delete m_pAnimationController;
+
 	if (m_pChild) 
 		m_pChild->Release();
 	if (m_pSibling) 

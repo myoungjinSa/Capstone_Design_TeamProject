@@ -59,10 +59,17 @@ CPlayer::~CPlayer()
 	}
 	m_Special_Inventory.clear();
 
-	ReleaseSound();
+	for (auto iter = m_RemovedItemList.begin(); iter != m_RemovedItemList.end(); )
+	{
+		(*iter)->Release();
+		iter = m_RemovedItemList.erase(iter);
+	}
+	m_RemovedItemList.clear();
 
-	//if (m_pShadow)
-	//	delete m_pShadow;
+	if (m_pShadow)
+		delete m_pShadow;
+
+	ReleaseSound();
 }
 
 void CPlayer::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
@@ -318,7 +325,7 @@ void CPlayer::Refresh_Inventory(int ItemType)
 	{
 		for (auto iter = m_Normal_Inventory.begin(); iter != m_Normal_Inventory.end();)
 		{
-			delete (*iter).second;
+			m_RemovedItemList.emplace_back((*iter).second);
 			iter = m_Normal_Inventory.erase(iter);
 		}
 	}
@@ -326,7 +333,7 @@ void CPlayer::Refresh_Inventory(int ItemType)
 	{
 		for (auto iter = m_Special_Inventory.begin(); iter != m_Special_Inventory.end();)
 		{
-			delete (*iter).second;
+			m_RemovedItemList.emplace_back((*iter).second);
 			iter = m_Special_Inventory.erase(iter);
 		}
 	}
@@ -443,10 +450,10 @@ void CPlayer::DecideAnimationState(float fLength)
 
 		pController->SetAnimationState(CAnimationController::ATTACK);
 
-		//if (m_Normal_Inventory.size() > 0)
-		//{
-		//	Refresh_Inventory(CItem::NormalHammer);
-		//}
+		if (m_Normal_Inventory.size() > 0)
+		{
+			Refresh_Inventory(CItem::NormalHammer);
+		}
 	}
 
 	// 특수 아이템 사용 버튼(ALT)

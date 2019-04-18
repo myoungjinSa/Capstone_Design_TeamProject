@@ -70,7 +70,11 @@ void CMapObjectsShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCame
 void CMapObjectsShader::ReleaseObjects()
 {
 	for (auto iter = m_SurroundingList.begin(); iter != m_SurroundingList.end(); ++iter)
+	{
 		(*iter)->Release();
+		iter = m_SurroundingList.erase(iter);
+	}
+	m_SurroundingList.clear();
 }
 
 void CMapObjectsShader::ReleaseUploadBuffers()

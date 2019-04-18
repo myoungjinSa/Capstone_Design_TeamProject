@@ -105,10 +105,17 @@ void CItemShader::ReleaseObjects()
 {
 	for (auto iter = m_ItemMap.begin(); iter != m_ItemMap.end(); )
 	{
-		delete (*iter).second;
+		(*iter).second->Release();
 		iter = m_ItemMap.erase(iter);
 	}
 	m_ItemMap.clear();
+
+	for (auto iter = m_RemovedItemList.begin(); iter != m_RemovedItemList.end(); )
+	{
+		(*iter)->Release();
+		iter = m_RemovedItemList.erase(iter);
+	}
+	m_RemovedItemList.clear();
 }
 
 void CItemShader::ReleaseUploadBuffers()
@@ -123,7 +130,8 @@ void CItemShader::ItemDelete(string key)
 	if (iter != m_ItemMap.end())
 	{
 		cout << (*iter).first << " È¹µæ" << endl;
-		delete (*iter).second;
+		// Á¦°ÅµÈ ¾ÆÀÌÅÛ ¸®½ºÆ®¿¡ ³Ö¾îÁÜ
+		m_RemovedItemList.emplace_back((*iter).second);
 		iter = m_ItemMap.erase(iter);
 	}
 }

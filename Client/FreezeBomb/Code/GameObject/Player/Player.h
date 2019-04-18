@@ -11,7 +11,6 @@
 #include "../../Camera/Camera.h"
 
 class CItem;
-class CShadow;
 class CShaderManager;
 class CBomb;
 class CPlayer : public CGameObject
@@ -82,12 +81,9 @@ public:
 	void DecideAnimationState(float fLength);
 	bool AnimationCollision(byte AnimationType);
 
-	CItem* getItem()	const { return m_pItem; }
 	const map<string, CItem*> get_Special_Inventory()	const { return m_Special_Inventory; }
 	size_t get_Normal_InventorySize() const { return m_Normal_Inventory.size(); }
 	size_t get_Special_InventorySize() const { return m_Special_Inventory.size(); }
-
-	CShadow*	getShadow()		const { return m_pShadow; }
 	
 	void setShaderManager(CShaderManager* pShaderManager) { m_pShaderManager = pShaderManager; }
 
@@ -137,11 +133,9 @@ protected:
 
 	CCamera*				m_pCamera{ nullptr };
 
-	CItem*							m_pItem{ nullptr };
 	map<string, CItem*>	m_Normal_Inventory;
 	map<string, CItem*>	m_Special_Inventory;
-
-	CShadow*	m_pShadow{ nullptr };
+	list<CItem*>					m_RemovedItemList;
 
 	CShaderManager* m_pShaderManager{ nullptr };
 
@@ -169,10 +163,6 @@ public:
 	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed);
 	virtual void OnCameraUpdateCallback(float fTimeElapsed);
-
-
 	void RotateAxisY(float fTimeElapsed);
-
-
 };
 

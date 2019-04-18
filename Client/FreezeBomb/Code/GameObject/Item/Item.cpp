@@ -8,6 +8,8 @@ CItem::CItem()
 
 CItem::~CItem()
 {
+	if (m_pShadow)
+		delete m_pShadow;
 }
 
 void CItem::Initialize_Shadow(CLoadedModelInfo* pLoadedModel, CGameObject* pGameObject)

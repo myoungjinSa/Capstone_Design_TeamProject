@@ -830,10 +830,6 @@ bool CGameFramework::BuildObjects()
 #endif
 
 		}
-
-		
-	
-
 	}
 
 	m_pPlayer = pPlayer;
@@ -956,15 +952,13 @@ void CGameFramework::ProcessInput()
 
 void CGameFramework::AnimateObjects()
 {
-	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
+	m_elapsedTime = m_GameTimer.GetTimeElapsed();
 
 	if (m_pScene) 
-		m_pScene->AnimateObjects(m_pd3dCommandList,fTimeElapsed);
+		m_pScene->AnimateObjects(m_pd3dCommandList, m_elapsedTime);
 
-
-	
-	m_pPlayer->Animate(fTimeElapsed);
-	m_pPlayer->UpdateTransform(NULL);
+	//m_pPlayer->Animate(fTimeElapsed);
+	//m_pPlayer->UpdateTransform(NULL);
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -1148,11 +1142,18 @@ void CGameFramework::FrameAdvance()
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 #endif
 
-	if (m_pPlayer)
+	if (m_pPlayer) 
+	{
+		m_pPlayer->Animate(m_elapsedTime);
+		m_pPlayer->UpdateTransform(NULL);
 		m_pPlayer->Render(m_pd3dCommandList, m_pCamera, GameObject);
+	}
 
 	if (m_pScene)
 		m_pScene->CheckObjectByObjectCollisions();
+
+	//if (m_pScene)
+	//	m_pScene->CheckObjectByObjectCollisions();
 
 	if (m_pCartoonShader)
 	{

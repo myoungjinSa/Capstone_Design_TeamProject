@@ -24,15 +24,14 @@ public:
 		ATTACK
 	};
 
-	
-	
 	void* GetSoundData() const { return static_cast<void*>(m_pSound); }
 	void InitializeSound();
 	void ReleaseSound();
 	void Initialize_Shadow(CLoadedModelInfo* pLoadedModel, CGameObject* pGameObject);	
-public:
 
+public:
 	std::map<MUSIC_ENUM, std::string> m_mapMusicList;
+
 private:
 	
 
@@ -45,5 +44,10 @@ private:
 
 	
 
+
+private:
+	const char**			m_SoundList;
+	int							m_SoundCount;
+	CSoundSystem*	m_pSound;
 };
 
