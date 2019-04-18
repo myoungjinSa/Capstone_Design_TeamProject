@@ -62,28 +62,46 @@ void CLampParticle::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* 
 
 void CLampParticle::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
-	UINT ncbElementBytes = ((sizeof(CB_ANIMATIONCLIP) + 255) &~255);
+	UINT ncbElementBytes = ((sizeof(CB_World) + 255) &~255);
+	m_pd3dcbWorld = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pd3dcbWorld->Map(0, NULL, (void**)&m_pcbMappedWorld);
+
+	ncbElementBytes = ((sizeof(CB_ANIMATIONCLIP) + 255) &~255);
 	m_pd3dcbAnimationClip = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 	m_pd3dcbAnimationClip->Map(0, NULL, (void**)&m_pcbMappedAnimationClip);
 }
 
 void CLampParticle::ReleaseShaderVariables()
 {
+	if (m_pd3dcbWorld)
+	{
+		m_pd3dcbWorld->Unmap(0, nullptr);
+		m_pd3dcbWorld->Release();
+	}
+
 	if (m_pd3dcbAnimationClip)
 	{
-		m_pd3dcbAnimationClip->Unmap(0, NULL);
+		m_pd3dcbAnimationClip->Unmap(0, nullptr);
 		m_pd3dcbAnimationClip->Release();
 	}
 }
 
 void CLampParticle::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World)
 {
-	CGameObject::UpdateShaderVariable(pd3dCommandList, pxmf4x4World);
+	if (m_pd3dcbWorld)
+	{
+		XMFLOAT4X4 world = m_xmf4x4World;
+		XMStoreFloat4x4(&m_pcbMappedWorld->m_World, XMMatrixTranspose(XMLoadFloat4x4(&world)));
+		D3D12_GPU_VIRTUAL_ADDRESS GpuVirtualAddress = m_pd3dcbWorld->GetGPUVirtualAddress();
+		pd3dCommandList->SetGraphicsRootConstantBufferView(23, GpuVirtualAddress);
+	}
 
-	m_pcbMappedAnimationClip->m_AnimationClip = m_AnimationClip;
-
-	D3D12_GPU_VIRTUAL_ADDRESS d3dParticleGPUVirtualAddress = m_pd3dcbAnimationClip->GetGPUVirtualAddress();
-	pd3dCommandList->SetGraphicsRootConstantBufferView(19, d3dParticleGPUVirtualAddress);
+	if (m_pd3dcbAnimationClip)
+	{
+		m_pcbMappedAnimationClip->m_AnimationClip = m_AnimationClip;
+		D3D12_GPU_VIRTUAL_ADDRESS GpuVirtualAddress = m_pd3dcbAnimationClip->GetGPUVirtualAddress();
+		pd3dCommandList->SetGraphicsRootConstantBufferView(19, GpuVirtualAddress);
+	}
 }
 
 void CLampParticle::SetLookAt(XMFLOAT3& xmfTarget)
