@@ -146,7 +146,8 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		Position.z = Random(0.f, 300.f);
 		Position.x = i * 10;
 		Position.z = 0;
-		Position.y = pTerrain->GetHeight(Position.x, Position.z);
+		//Position.y = pTerrain->GetHeight(Position.x, Position.z);
+		Position.y = 0.f;
 		m_ppObjects[i]->SetPosition(Position);
 		m_ppObjects[i]->SetScale(10, 10, 10);
 

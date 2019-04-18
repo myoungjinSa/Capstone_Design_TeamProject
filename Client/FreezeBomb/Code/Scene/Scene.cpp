@@ -229,7 +229,7 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dDescriptorRanges[14].RegisterSpace = 0;
 	pd3dDescriptorRanges[14].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[25];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[26];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 1;	// b1 : Camera
@@ -353,9 +353,14 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[23].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[24].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
-	pd3dRootParameters[24].Descriptor.ShaderRegister = 0; // t0
+	pd3dRootParameters[24].Descriptor.ShaderRegister = 3; // t0 : Snow
 	pd3dRootParameters[24].Descriptor.RegisterSpace = 0;	// space0
 	pd3dRootParameters[24].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	pd3dRootParameters[25].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+	pd3dRootParameters[25].Descriptor.ShaderRegister = 4; // t1 : CubeParticle
+	pd3dRootParameters[25].Descriptor.RegisterSpace = 0;	// space0
+	pd3dRootParameters[25].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
 

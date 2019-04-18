@@ -441,9 +441,6 @@ void CGameObject::AddRef()
 
 void CGameObject::Release() 
 { 
-	//if (m_pAnimationController)
-	//	delete m_pAnimationController;
-
 	if (m_pChild) 
 		m_pChild->Release();
 	if (m_pSibling) 
@@ -755,12 +752,19 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lodLev
 		m_pChild->Render(pd3dCommandList, lodLevel, pCamera, nPipelineState);
 }
 
+void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState, int nInstance)
+{
+	if (m_pMesh)
+	{
+		m_pMesh->Render(pd3dCommandList, 0, nInstance);
+	}
+}
 
 void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4* pxmf4x4World)
 {
-	//XMFLOAT4X4 xmf4x4World;
-	//XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
-	//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World, 0);
+	XMFLOAT4X4 xmf4x4World;
+	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World, 0);
 }
 
 void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, CMaterial* pMaterial)

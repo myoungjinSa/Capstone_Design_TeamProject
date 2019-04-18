@@ -175,7 +175,7 @@
     <ClInclude Include="..\Code\GameObject\Billboard\LampParticle\LampParticle.h" />
     <ClInclude Include="..\Code\GameObject\Billboard\Snow\Snow.h" />
     <ClInclude Include="..\Code\GameObject\Billboard\UI\UI.h" />
-    <ClInclude Include="..\Code\GameObject\Cube\IceParticle\IceCube.h" />
+    <ClInclude Include="..\Code\GameObject\CubeParticle\CubeParticle.h" />
     <ClInclude Include="..\Code\GameObject\EvilBear\EvilBear.h" />
     <ClInclude Include="..\Code\GameObject\Foliage\Foliage.h" />
     <ClInclude Include="..\Code\GameObject\GameObject.h" />
@@ -204,7 +204,7 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\LoadingShader\LoadingShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\UIShader.h" />
-    <ClInclude Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.h" />
+    <ClInclude Include="..\Code\Shader\CubeParticleShader\CubeParticleShader.h" />
     <ClInclude Include="..\Code\Shader\PostProcessShader\CartoonShader\SobelCartoonShader.h" />
     <ClInclude Include="..\Code\Shader\PostProcessShader\ComputeShader\ComputeShader.h" />
     <ClInclude Include="..\Code\Shader\Shader.h" />
@@ -234,7 +234,7 @@
     <ClCompile Include="..\Code\GameObject\Billboard\LampParticle\LampParticle.cpp" />
     <ClCompile Include="..\Code\GameObject\Billboard\Snow\Snow.cpp" />
     <ClCompile Include="..\Code\GameObject\Billboard\UI\UI.cpp" />
-    <ClCompile Include="..\Code\GameObject\Cube\IceParticle\IceCube.cpp" />
+    <ClCompile Include="..\Code\GameObject\CubeParticle\CubeParticle.cpp" />
     <ClCompile Include="..\Code\GameObject\EvilBear\EvilBear.cpp" />
     <ClCompile Include="..\Code\GameObject\Foliage\Foliage.cpp" />
     <ClCompile Include="..\Code\GameObject\GameObject.cpp" />
@@ -262,7 +262,7 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\LoadingShader\LoadingShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\UIShader.cpp" />
-    <ClCompile Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.cpp" />
+    <ClCompile Include="..\Code\Shader\CubeParticleShader\CubeParticleShader.cpp" />
     <ClCompile Include="..\Code\Shader\PostProcessShader\CartoonShader\SobelCartoonShader.cpp" />
     <ClCompile Include="..\Code\Shader\PostProcessShader\ComputeShader\ComputeShader.cpp" />
     <ClCompile Include="..\Code\Shader\Shader.cpp" />

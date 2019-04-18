@@ -96,17 +96,11 @@
     <ClCompile Include="..\Code\Shader\StandardShader\StandardShader.cpp">
       <Filter>Code\Shader\StandardShader</Filter>
     </ClCompile>
-    <ClCompile Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.cpp">
-      <Filter>Code\Shader\CubeParticleShader</Filter>
-    </ClCompile>
     <ClCompile Include="..\Code\ResourceManager\ResourceManager.cpp">
       <Filter>Code\ResourceManager</Filter>
     </ClCompile>
     <ClCompile Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.cpp">
       <Filter>Code\Shader\StandardShader\ItemShader</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Code\GameObject\Cube\IceParticle\IceCube.cpp">
-      <Filter>Code\GameObject\IceCube</Filter>
     </ClCompile>
     <ClCompile Include="..\Code\GameObject\Billboard\LampParticle\LampParticle.cpp">
       <Filter>Code\GameObject\Billboard\LampParticle</Filter>
@@ -186,6 +180,12 @@
     <ClCompile Include="..\Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationShader.cpp">
       <Filter>Code\Shader\StandardShader\SkinnedAnimationShader</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\GameObject\CubeParticle\CubeParticle.cpp">
+      <Filter>Code\GameObject\CubeParticle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\CubeParticleShader\CubeParticleShader.cpp">
+      <Filter>Code\Shader\CubeParticleShader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h">
@@ -263,17 +263,11 @@
     <ClInclude Include="..\Code\Shader\StandardShader\StandardShader.h">
       <Filter>Code\Shader\StandardShader</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\Shader\CubeParticleShader\IceParticleShader\IceParticleShader.h">
-      <Filter>Code\Shader\CubeParticleShader</Filter>
-    </ClInclude>
     <ClInclude Include="..\Code\ResourceManager\ResourceManager.h">
       <Filter>Code\ResourceManager</Filter>
     </ClInclude>
     <ClInclude Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.h">
       <Filter>Code\Shader\StandardShader\ItemShader</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Code\GameObject\Cube\IceParticle\IceCube.h">
-      <Filter>Code\GameObject\IceCube</Filter>
     </ClInclude>
     <ClInclude Include="..\Code\GameObject\Billboard\LampParticle\LampParticle.h">
       <Filter>Code\GameObject\Billboard\LampParticle</Filter>
@@ -365,6 +359,12 @@
     <ClInclude Include="..\Code\FrameTransform\FrameTransform.h">
       <Filter>Code\FrameTransform</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\GameObject\CubeParticle\CubeParticle.h">
+      <Filter>Code\GameObject\CubeParticle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\CubeParticleShader\CubeParticleShader.h">
+      <Filter>Code\Shader\CubeParticleShader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Code">
@@ -429,9 +429,6 @@
     </Filter>
     <Filter Include="Code\GameObject\Terrain">
       <UniqueIdentifier>{89ea758f-46ba-41ef-aa18-c2eb6e6f5309}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\GameObject\IceCube">
-      <UniqueIdentifier>{6923770d-d22e-4787-9024-798ed53a93b3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\GameObject\Player">
       <UniqueIdentifier>{300b68a8-2ba7-44de-add9-41298c785036}</UniqueIdentifier>
@@ -543,6 +540,9 @@
     </Filter>
     <Filter Include="Code\FrameTransform">
       <UniqueIdentifier>{8cf04451-aeea-437c-b479-921fa2bec7eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\CubeParticle">
+      <UniqueIdentifier>{1c2f2d57-22a8-4531-b37d-8205227ab137}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

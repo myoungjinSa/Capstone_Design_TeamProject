@@ -222,31 +222,3 @@ void CStandardShader::ReleaseUploadBuffers()
 		if (m_ppObjects[i])
 			m_ppObjects[i]->ReleaseUploadBuffers();
 }
-
-XMFLOAT4X4 CStandardShader::UpdateShadow(int index)
-{
-	// 점 광원
-	// 빛의 위치를 나타내는 4D 벡터. 광원의 w- 성분이 0.0f이면 원점에서 빛까지의 광선이 방향성을 나타냅니다. 1.0f이면 점등입니다.
-	// Light의 w 벡터가 그림자의 크기를 결정?
-	float x, y, z, w;
-	x = 0;
-	y = 1.;
-	z = 0;
-	w = 1.0;
-	//XMFLOAT4 xmf4Light(x, y, z, w);
-	//XMFLOAT4 xmf4Light(35.f, 35.f,35.f, 10.f);
-	XMFLOAT4 xmf4Light(0.57735f, -0.57735f, 0.57735f, 0);
-
-	// Plane의 w 벡터가 그림자의 y에 영향을 준다.
-	XMFLOAT4 xmf4Plane(0.f, 1.f, 0.f, 0.f);
-	//XMFLOAT4 xmf4Plane(0.f, 1.f, 0.f, 0.f);
-
-	// 그림자 행렬 생성
-	//XMMATRIX xmmtxPlane = XMMatrixShadow(XMLoadFloat4(&xmf4Plane), XMLoadFloat4(&xmf4Light));
-	XMMATRIX xmmtxPlane = XMMatrixShadow(XMLoadFloat4(&xmf4Plane), -XMLoadFloat4(&xmf4Light));
-
-	// 그림자 행렬에 객체의 월드행렬을 곱해서 그림자의 월드행렬을 만들어 준다.
-	XMFLOAT4X4 ShadowWorld = Matrix4x4::Multiply(xmmtxPlane, m_ppObjects[index]->m_xmf4x4World);
-
-	return ShadowWorld;
-}
