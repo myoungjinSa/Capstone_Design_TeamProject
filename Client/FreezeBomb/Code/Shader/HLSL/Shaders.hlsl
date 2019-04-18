@@ -14,10 +14,10 @@ cbuffer cbCameraInfo			: register(b1)
 	float3			gvCameraPosition	: packoffset(c12);
 };
 
-cbuffer cbGameObjectInfo	: register(b2)
-{
-	matrix			gmtxGameObject		: packoffset(c0);
-};
+//cbuffer cbGameObjectInfo	: register(b2)
+//{
+//	matrix			gmtxGameObject		: packoffset(c0);
+//};
 
 cbuffer cbMaterialInfo			: register(b3)
 {
@@ -311,7 +311,7 @@ struct InstanceData
 {
 	matrix m_InstanceWorld;
 };
-StructuredBuffer<InstanceData> g_InstanceData : register(t0);
+StructuredBuffer<InstanceData> g_InstanceData : register(t3);
 
 VS_SNOW_OUTPUT VSSnow(VS_SNOW_INPUT input, uint nInstanceID : SV_InstanceID)
 {
@@ -353,7 +353,7 @@ VS_LAMPPARTICLE_OUTPUT VSLampParticle(VS_LAMPPARTICLE_INPUT input)
 {
 	VS_LAMPPARTICLE_OUTPUT output;
 
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection);
 	output.uv = input.uv;
 
 	return (output);
@@ -370,37 +370,53 @@ float4 PSLampParticle(VS_LAMPPARTICLE_OUTPUT input) : SV_TARGET
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct VS_ICE_CUBE_INPUT
+struct VS_CUBEPARTICLE_INPUT
 {
 	float3 position : POSITION;
 	float2 uv		: TEXCOORD;
 
 };
 
-struct VS_ICE_CUBE_OUTPUT
+struct VS_CUBEPARTICLE_OUTPUT
 {
 	float4 position :SV_POSITION;
 	float2 uv		:TEXCOORD;
 };
 
-Texture2D gtxtIceCube : register(t18);
-VS_ICE_CUBE_OUTPUT VSIceCube(VS_ICE_CUBE_INPUT input)
+Texture2D gtxtCubeParticleTexture : register(t18);
+StructuredBuffer<InstanceData> g_InstanceCubeData : register(t4);
+VS_CUBEPARTICLE_OUTPUT VSCubeParticle(VS_CUBEPARTICLE_INPUT input, uint nInstanceID : SV_InstanceID)
 {
-	VS_ICE_CUBE_OUTPUT output;
+	VS_CUBEPARTICLE_OUTPUT output;
 
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.position = mul(mul(mul(float4(input.position, 1.0f), g_InstanceCubeData[nInstanceID].m_InstanceWorld), gmtxView), gmtxProjection);
 	output.uv = input.uv;
-
 
 	return(output);
 }
 
-float4 PSIceCube(VS_ICE_CUBE_OUTPUT input) : SV_Target
+float4 PSCubeParticle(VS_CUBEPARTICLE_OUTPUT input) : SV_Target
 {
-	float4 cColor = gtxtIceCube.Sample(gssWrap, input.uv);
-	//cColor = cColor + float4(0.0f, 0.0f, 0.5f, 1.0f);
+	float4 cColor = gtxtCubeParticleTexture.Sample(gssWrap, input.uv);
 
 	return(cColor);
+}
+
+VS_CUBEPARTICLE_OUTPUT VSCubeParticleShadow(VS_CUBEPARTICLE_INPUT input, uint nInstanceID : SV_InstanceID)
+{
+	VS_CUBEPARTICLE_OUTPUT output;
+
+	float4 position = mul(float4(input.position, 1.0f), g_InstanceCubeData[nInstanceID].m_InstanceWorld);
+
+	output.position = mul(mul(mul(position, gmtxShadow), gmtxView), gmtxProjection);
+	output.uv = input.uv;
+
+	return(output);
+}
+
+float4 PSCubeParticleShadow(VS_CUBEPARTICLE_OUTPUT input) : SV_Target
+{
+	return(float4(0.7f, 0.7f, 0.7f, 1.f));
 }
 
 struct VS_SHADOW_INPUT
@@ -422,7 +438,8 @@ VS_SHADOW_OUTPUT VSShadow(VS_SHADOW_INPUT input)
 	//output.position = mul(mul(mul(float4(input.position, 1.0f), ShadowWorld), gmtxView), gmtxProjection);
 
 	// 모델좌표계의 점을 월드좌표계의 점으로 변환
-	output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject);
+	//output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject);
+		output.positionW = mul(float4(input.position, 1.0f), gmtxWorld);
 	// 월드좌표계의 점을 그림자 행렬로 변환
 	output.position = mul(mul(mul(float4(output.positionW, 1.0f), gmtxShadow), gmtxView), gmtxProjection);
 	
@@ -490,8 +507,9 @@ Texture2D gtxtBombParticleTexture : register (t19);
 VS_BOMBPARTICLE_OUTPUT VSBombParticle(VS_BOMBPARTICLE_INPUT input)
 {
 	VS_LAMPPARTICLE_OUTPUT output;
-
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	
+	//output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection);
 	output.uv = input.uv;
 
 	return (output);

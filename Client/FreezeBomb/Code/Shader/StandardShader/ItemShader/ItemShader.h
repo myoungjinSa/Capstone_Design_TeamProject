@@ -19,7 +19,6 @@ public:
 	virtual void ReleaseObjects();
 	virtual void ReleaseUploadBuffers();
 	void ItemDelete(string key);
-	
 
 	const map<string, CItem*>& getItemMap()	const { return m_ItemMap; }
 

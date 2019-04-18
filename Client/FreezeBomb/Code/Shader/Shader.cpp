@@ -247,9 +247,10 @@ float CShader::Random(float min, float max)
 {
 	random_device rd;
 	default_random_engine dre(rd());
+	//default_random_engine dre;
 	uniform_real_distribution<double> urd(min, max);
 
-	return urd(dre);
+	return (float)urd(dre);
 }
 
 float CShader::Random()

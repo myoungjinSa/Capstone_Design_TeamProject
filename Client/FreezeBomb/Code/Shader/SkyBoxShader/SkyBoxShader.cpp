@@ -79,8 +79,7 @@ void CSkyBoxShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *
 	CShader::Render(pd3dCommandList, pCamera, nPipelineState);
 
 	UpdateShaderVariables(pd3dCommandList);
-	D3D12_GPU_VIRTUAL_ADDRESS GpuVirtualAddress = m_pd3dcbWorld->GetGPUVirtualAddress();
-	pd3dCommandList->SetGraphicsRootConstantBufferView(23, GpuVirtualAddress);
+
 	if (m_pSkyBox)
 		m_pSkyBox->Render(pd3dCommandList, pCamera, nPipelineState);
 }
@@ -107,7 +106,11 @@ void CSkyBoxShader::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12Graphi
 void CSkyBoxShader::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	if (m_pd3dcbWorld)
+	{
 		XMStoreFloat4x4(&m_pcbMappedWorld->m_World, XMMatrixTranspose(XMLoadFloat4x4(&m_pSkyBox->m_xmf4x4World)));
+		D3D12_GPU_VIRTUAL_ADDRESS GpuVirtualAddress = m_pd3dcbWorld->GetGPUVirtualAddress();
+		pd3dCommandList->SetGraphicsRootConstantBufferView(23, GpuVirtualAddress);
+	}
 }
 
 void CSkyBoxShader::ReleaseShaderVariables()

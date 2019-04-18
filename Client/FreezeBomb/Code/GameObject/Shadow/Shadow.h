@@ -6,10 +6,11 @@ class CShadow : public CGameObject
 {
 public:
 	CShadow(CLoadedModelInfo* pLoadedModel, CGameObject* pGameObject);
-	~CShadow();
+	virtual ~CShadow();
 
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bHammer, bool bBomb, bool bIce, int matID, CCamera *pCamera, int nPipelineState);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState, int nInstance);
 
 private:
 	CGameObject* m_pTruth{ nullptr };

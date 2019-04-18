@@ -67,8 +67,6 @@ void CMesh::Render(ID3D12GraphicsCommandList *pd3dCommandList, int nSubSet)
 	}
 }
 
-
-
 void CMesh::OnPostRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext)
 {
 }
@@ -459,7 +457,6 @@ CCubeMeshTextured::CCubeMeshTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 	m_pxmf3Positions[34] = XMFLOAT3(+fx, -fy, +fz);
 	m_pxmf3Positions[35] = XMFLOAT3(+fx, -fy, -fz);
 
-
 	m_pd3dPositionBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3Positions, sizeof(XMFLOAT3)*m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dPositionUploadBuffer);
 	m_d3dPositionBufferView.BufferLocation = m_pd3dPositionBuffer->GetGPUVirtualAddress();
 	m_d3dPositionBufferView.StrideInBytes = sizeof(XMFLOAT3);
@@ -541,16 +538,29 @@ void CCubeMeshTextured::ReleaseUploadBuffers()
 	m_pd3dTexturedCoord0UploadBuffer = NULL;
 }
 
-
 void CCubeMeshTextured::OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext)
 {
 	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[2] = { m_d3dPositionBufferView, m_d3dTextureCoord0BufferView };
 	pd3dCommandList->IASetVertexBuffers(m_nSlot, 2, pVertexBufferViews);
-
-	//D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews = { m_d3dPositionBufferView };
-	//pd3dCommandList->IASetVertexBuffers(m_nSlot, 1, &pVertexBufferViews);
 }
 
+void CCubeMeshTextured::Render(ID3D12GraphicsCommandList *pd3dCommandList, int nSubSet, int nInstance)
+{
+	UpdateShaderVariables(pd3dCommandList);
+	OnPreRender(pd3dCommandList, NULL);
+
+	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
+
+	if ((m_nSubMeshes > 0) && (nSubSet < m_nSubMeshes))
+	{
+		pd3dCommandList->IASetIndexBuffer(&(m_pd3dSubSetIndexBufferViews[nSubSet]));
+		pd3dCommandList->DrawIndexedInstanced(m_pnSubSetIndices[nSubSet], 1, 0, 0, 0);
+	}
+	else
+	{
+		pd3dCommandList->DrawInstanced(m_nVertices, nInstance, m_nOffset, 0);
+	}
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 //

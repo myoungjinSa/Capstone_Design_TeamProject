@@ -23,8 +23,6 @@ public:
 	virtual void ReleaseObjects();
 	virtual void ReleaseUploadBuffers();
 
-	XMFLOAT4X4 UpdateShadow(int index);
-
 protected:
 
 	ID3D12PipelineState**				m_ppd3dPipelineStates{ nullptr };

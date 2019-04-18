@@ -9,17 +9,16 @@
 #include "../Shader/StandardShader/MapObjectShader/MapObjectShader.h"
 #include "../Shader/StandardShader/FoliageShader/FoliageShader.h"
 #include "../Shader/StandardShader/ItemShader/ItemShader.h"
-
 #include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
 
+#include "../Shader/CubeParticleShader/CubeParticleShader.h"
+#include "../Shader/BillboardShader/BombParticleShader/BombParticleShader.h"
 #include "../Shader/BillboardShader/SnowShader/SnowShader.h"
+
 #include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
 #include "../Shader/BillboardShader/UIShader/ItemUIShader/ItemUIShader.h"
 
-#include "../Shader/CubeParticleShader/IceParticleShader/IceParticleShader.h"
 //#include "../Shader/PostProcessShader/CartoonShader/SobelCartoonShader.h"
-
-#include "../Shader/BillboardShader/BombParticleShader/BombParticleShader.h"
 
 #include "../GameObject/Player/Player.h"
 
@@ -38,7 +37,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_pResourceManager = new CResourceManager;
 	m_pResourceManager->Initialize(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	m_nShaders = 9;
+	m_nShaders = 10;
 
 	//Ä«Å÷·»´õ¸µ ÇØ¾ßµÉ ½¦ÀÌ´õ °³¼ö
 	m_nPostShaders = m_nShaders - 2;
@@ -97,11 +96,11 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ppShaders[index++] = pAnimationObjectShader;
 	m_ShaderMap.emplace("°õµ¹ÀÌ", pAnimationObjectShader);
 
-	//CCubeIceShader* pIceParticleShader = new CCubeIceShader;
-	//pIceParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//pIceParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
-	//m_ppShaders[index++] = pIceParticleShader;
-	//m_ShaderMap.emplace("IceParticle", pIceParticleShader);
+	CCubeParticleShader* pCubeParticleShader = new CCubeParticleShader;
+	pCubeParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pCubeParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
+	m_ppShaders[index++] = pCubeParticleShader;
+	m_ShaderMap.emplace("CubeParticle", pCubeParticleShader);
 
 	CBombParticleShader* pBombParticleShader = new CBombParticleShader;
 	pBombParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -200,11 +199,7 @@ void CShaderManager::PreRender(ID3D12GraphicsCommandList* pd3dCommandList,float 
 
 void CShaderManager::ProcessCollision(XMFLOAT3& position)
 {
-	auto iter = m_ShaderMap.find("IceParticle");
-
+	auto iter = m_ShaderMap.find("CubeParticle");
 	if(iter!= m_ShaderMap.end())
-	{
-		
-		dynamic_cast<CCubeIceShader*>((*iter).second)->SetParticleBlowUp(position);
-	}
+		dynamic_cast<CCubeParticleShader*>((*iter).second)->SetParticleBlowUp(position);
 }
