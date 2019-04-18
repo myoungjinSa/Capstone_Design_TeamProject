@@ -66,7 +66,7 @@ public:
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 private:
-	HINSTANCE						m_hInstance;
+	HINSTANCE					m_hInstance;
 	HWND							m_hWnd;
 
 	bool							m_bStart = false;
@@ -98,13 +98,14 @@ private:
 	ID3D12GraphicsCommandList*				m_pd3dCommandList = nullptr;
 
 	ID3D12Fence*							m_pd3dFence = nullptr;
-	UINT64									m_nFenceValues[m_nSwapChainBuffers];
+	UINT64										m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE									m_hFenceEvent;
 
 #if defined(_DEBUG)
 	ID3D12Debug*							m_pd3dDebugController;
 #endif
 	CGameTimer								m_GameTimer;
+	float m_elapsedTime = 0.f;
 
 	CLoadingScene*							m_pLoadingScene = nullptr;
 	CScene*									m_pScene = nullptr;

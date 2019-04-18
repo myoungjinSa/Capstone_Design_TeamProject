@@ -159,9 +159,6 @@
     <ClCompile Include="..\Code\Mesh\LODMesh\LODMesh.cpp">
       <Filter>Code\Mesh\LODMesh</Filter>
     </ClCompile>
-    <ClCompile Include="..\Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationShader.cpp">
-      <Filter>Code\Shader\StandardShader\SkinnedAnimationShader</Filter>
-    </ClCompile>
     <ClCompile Include="..\Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationObjectShader\SkinnedAnimationObjectShader.cpp">
       <Filter>Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationObjectShader</Filter>
     </ClCompile>
@@ -185,6 +182,9 @@
     </ClCompile>
     <ClCompile Include="..\Code\FrameTransform\FrameTransform.cpp">
       <Filter>Code\FrameTransform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationShader.cpp">
+      <Filter>Code\Shader\StandardShader\SkinnedAnimationShader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

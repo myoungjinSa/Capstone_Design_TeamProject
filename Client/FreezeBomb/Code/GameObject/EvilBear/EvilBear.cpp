@@ -8,18 +8,18 @@
 #include "../../FrameTransform/FrameTransform.h"
 
 CEvilBear::CEvilBear(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID)
-	:m_pSound{nullptr},
-	m_pShadow{nullptr},
-	m_SoundCount{0}
+	:m_pSound{nullptr}, m_SoundCount{0}
 {
 	m_matID = matID;
 	InitializeSound();
-
 }
 
 CEvilBear::~CEvilBear()
 {
 	m_pSound->Release();
+
+	if (m_pShadow)
+		delete m_pShadow;
 }
 
 
@@ -27,10 +27,8 @@ void CEvilBear::InitializeSound()
 {
 	m_pSound = new CSoundSystem;
 
-
 	m_SoundCount = 4;
-	
-	
+		
 	m_SoundList = new const char*[m_SoundCount];
 
 	m_SoundList[0] = "../Resource/Sound/BtnDown03.wav";
@@ -55,7 +53,6 @@ void CEvilBear::InitializeSound()
 	if(m_pSound)
 	{
 		m_pSound->Initialize(m_SoundCount, m_SoundList,FMOD_LOOP_OFF);
-
 	}
 }
 

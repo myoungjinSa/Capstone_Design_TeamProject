@@ -5,16 +5,38 @@ CShadow::CShadow(CLoadedModelInfo* pLoadedModel, CGameObject* pGameObject)
 {
 	SetChild(pLoadedModel->m_pModelRootObject, true);
 
-	if(pGameObject->m_pAnimationController)
-		m_pAnimationController = pGameObject->m_pAnimationController;
-	if (pGameObject->m_pSkinningBoneTransforms)
-		m_pSkinningBoneTransforms = pGameObject->m_pSkinningBoneTransforms;
-	if (pGameObject->m_pFrameTransform)
-		m_pFrameTransform = pGameObject->m_pFrameTransform;
+	m_pTruth = pGameObject;
+
+	if(m_pTruth->m_pAnimationController)
+		m_pAnimationController = m_pTruth->m_pAnimationController;
+	if (m_pTruth->m_pSkinningBoneTransforms)
+		m_pSkinningBoneTransforms = m_pTruth->m_pSkinningBoneTransforms;
+	if (m_pTruth->m_pFrameTransform)
+		m_pFrameTransform = m_pTruth->m_pFrameTransform;
 }
 
 CShadow::~CShadow()
 {
+	if (m_pAnimationController)
+	{
+		m_pTruth->m_pAnimationController = nullptr;
+		delete m_pAnimationController;
+		m_pAnimationController = nullptr;
+	}
+
+	if (m_pSkinningBoneTransforms)
+	{
+		m_pTruth->m_pSkinningBoneTransforms = nullptr;
+		delete m_pSkinningBoneTransforms;
+		m_pSkinningBoneTransforms = nullptr;
+	}
+
+	if (m_pFrameTransform)
+	{
+		m_pTruth->m_pFrameTransform = nullptr;
+		delete m_pFrameTransform;
+		m_pFrameTransform = nullptr;
+	}
 }
 
 void CShadow::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)

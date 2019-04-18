@@ -88,7 +88,7 @@ void CSkyBoxShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *
 void CSkyBoxShader::ReleaseObjects()
 {
 	if (m_pSkyBox)
-		delete m_pSkyBox;
+		m_pSkyBox->Release();
 }
 
 void CSkyBoxShader::ReleaseUploadBuffers()

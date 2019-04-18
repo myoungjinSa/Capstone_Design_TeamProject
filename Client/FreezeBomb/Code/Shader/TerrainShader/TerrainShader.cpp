@@ -91,7 +91,7 @@ void CTerrainShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 void CTerrainShader::ReleaseObjects()
 {
 	if (m_pTerrain)
-		delete m_pTerrain;
+		m_pTerrain->Release();
 }
 
 void CTerrainShader::ReleaseUploadBuffers()

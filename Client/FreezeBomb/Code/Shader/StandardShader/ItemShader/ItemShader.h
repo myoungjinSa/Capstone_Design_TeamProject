@@ -25,4 +25,6 @@ public:
 
 private:
 	map<string, CItem*> m_ItemMap;
+
+	list<CItem*> m_RemovedItemList;
 };

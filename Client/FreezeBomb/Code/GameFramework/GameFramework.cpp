@@ -830,10 +830,6 @@ bool CGameFramework::BuildObjects()
 #endif
 
 		}
-
-		
-	
-
 	}
 
 	m_pPlayer = pPlayer;
@@ -956,15 +952,13 @@ void CGameFramework::ProcessInput()
 
 void CGameFramework::AnimateObjects()
 {
-	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
+	m_elapsedTime = m_GameTimer.GetTimeElapsed();
 
 	if (m_pScene) 
-		m_pScene->AnimateObjects(m_pd3dCommandList,fTimeElapsed);
+		m_pScene->AnimateObjects(m_pd3dCommandList, m_elapsedTime);
 
-
-	
-	m_pPlayer->Animate(fTimeElapsed);
-	m_pPlayer->UpdateTransform(NULL);
+	//m_pPlayer->Animate(fTimeElapsed);
+	//m_pPlayer->UpdateTransform(NULL);
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -1146,16 +1140,23 @@ void CGameFramework::FrameAdvance()
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 #endif
 
-	if (m_pPlayer)
+	if (m_pPlayer) 
+	{
+		m_pPlayer->Animate(m_elapsedTime);
+		m_pPlayer->UpdateTransform(NULL);
 		m_pPlayer->Render(m_pd3dCommandList, m_pCamera, GameObject);
+	}
 
 	if (m_pScene)
 		m_pScene->CheckObjectByObjectCollisions();
 
+	//if (m_pScene)
+	//	m_pScene->CheckObjectByObjectCollisions();
+
 	if (m_pCartoonShader)
 	{
-		//m_pCartoonShader->SobelFilter(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
-		//m_pCartoonShader->Render(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
+		m_pCartoonShader->SobelFilter(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
+		m_pCartoonShader->Render(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
 	}
 
 	//카툰 렌더링 하지 않고 그려야할 쉐이더는 PostRender에서 그린다.

@@ -101,7 +101,7 @@ void CUIShader::ReleaseObjects()
 {
 	for (auto iter = m_UIMap.begin(); iter != m_UIMap.end(); )
 	{
-		delete (*iter).second;
+		(*iter).second->Release();
 		iter = m_UIMap.erase(iter);
 	}
 	m_UIMap.clear();
