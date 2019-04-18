@@ -34,20 +34,11 @@ public:
 
 private:
 	
-
-
 	const char**	m_SoundList;
 	int			m_SoundCount;
 	CSoundSystem* m_pSound;
 
 	CShadow*	m_pShadow;
-
 	
-
-
-private:
-	const char**			m_SoundList;
-	int							m_SoundCount;
-	CSoundSystem*	m_pSound;
 };
 

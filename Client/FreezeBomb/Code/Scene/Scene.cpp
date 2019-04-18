@@ -582,27 +582,8 @@ void CScene::CheckObjectByObjectCollisions()
 				++i;
 			}
 
-			//// 플레이어가 맵 오브젝트와 충돌했다면
-			//if (m_pPlayer->GetObjectCollided() != nullptr)
-			//{
-
-			//}
 		}
 
-		// 플레이어와 다른 곰돌이 오브젝트 충돌검사
-		//iter = m.find("곰돌이");
-		//if (iter != m.end())
-		//{
-		//	for (int i = 0; i < (*iter).second->m_nObjects; ++i)
-		//	{
-		//		if ((*iter).second->m_ppObjects[i]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
-		//		{
-		//			//(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
-		//			//m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
-		//			cout << i << "번째 애니메이션 오브젝트와 충돌" << endl;
-		//		}
-		//	}
-		//}
 
 		iter = m.find("곰돌이");
 		if (iter != m.end())
@@ -620,7 +601,7 @@ void CScene::CheckObjectByObjectCollisions()
 					XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize((*iter).second->m_ppObjects[i]->GetPosition() ,m_pPlayer->GetPosition());
 					xmf3CollisionDir=Vector3::ScalarProduct(xmf3CollisionDir, (m_pPlayer->GetMaxVelocity()*0.3f));
 					m_pPlayer->SetVelocity(-xmf3CollisionDir.x,-xmf3CollisionDir.y,-xmf3CollisionDir.z);
-			
+					
 					cout << i << "번째 애니메이션 오브젝트와 충돌" << endl;
 				}
 
@@ -647,6 +628,7 @@ void CScene::CheckObjectByObjectCollisions()
 								m_pPlayer->Refresh_Inventory(CItem::NormalHammer);
 							}
 							m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
+							//m_pSound->PlayIndex(ICEBREAK);
 							cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
 						}
 					}
@@ -726,12 +708,14 @@ void CScene::CreateSoundSystem()
 		//사운드 생성
 	m_pSound = new CSoundSystem;
 
-	m_musicCount = 2;
+	m_musicCount = 3;
 	m_musicList = new const char*[m_musicCount];
 
 	m_musicList[0] = "../Resource/Sound/SnowyVillage.wav";
 	m_musicList[1] = "../Resource/Sound/Effect/TimerWarning.wav";
-//	m_musicList[1] = "../Resource/Sound/town.wav";
+	m_musicList[2] = "../Resource/Sound/Effect/ICEBreak.wav";
+
+	//	m_musicList[1] = "../Resource/Sound/town.wav";
 
 	//2개 동시에 재생도 가능하다
 	if (m_pSound)

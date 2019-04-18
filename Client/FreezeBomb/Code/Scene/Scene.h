@@ -132,8 +132,9 @@ protected:
 
 	enum MucicEnum
 	{
-		BACKGROUNDMUSIC=0,
-		TIMERWARNING
+		BACKGROUNDMUSIC = 0,
+		TIMERWARNING,
+		ICEBREAK
 	};
 
 private:

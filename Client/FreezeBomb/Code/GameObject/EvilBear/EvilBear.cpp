@@ -41,6 +41,7 @@ void CEvilBear::InitializeSound()
 	std::string s1(m_SoundList[1]);
 	std::string s2(m_SoundList[2]);
 	std::string s3(m_SoundList[3]);
+	
 	////m_SoundList[1] = "../Resource/Sound/bell1.wav";
 
 
@@ -48,7 +49,7 @@ void CEvilBear::InitializeSound()
 	m_mapMusicList.emplace(USETIMER, s1);
 	m_mapMusicList.emplace(DIE, s2);
 	m_mapMusicList.emplace(ATTACK, s3);
-
+	
 
 	if(m_pSound)
 	{

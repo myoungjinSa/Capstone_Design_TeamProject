@@ -1172,7 +1172,7 @@ void CGameFramework::FrameAdvance()
 	
 	if(m_pLoadingScene && m_bStart == false)
 	{
-		//m_pLoadingScene->Render(m_pd3dCommandList);
+		m_pLoadingScene->Render(m_pd3dCommandList);
 	}
 
 	//Direct2D를 사용하면 스왑체인 버퍼 리소스 전이를 Present로 바꿔주면 안된다. 

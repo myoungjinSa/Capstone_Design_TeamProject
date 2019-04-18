@@ -543,15 +543,15 @@ void CPlayer::InitializeSound()
 
 	m_SoundList[0] = "../Resource/Sound/BtnDown03.wav";
 	m_SoundList[1] = "../Resource/Sound/bell1.wav";
-	//m_SoundList[2] = "../Resource/Sound/Bomb.mp3";
 	m_SoundList[2] = "../Resource/Sound/BombExplode2.wav";
 	m_SoundList[3] = "../Resource/Sound/Effect/HammerSwing.wav";
-
+	
 
 	std::string s0(m_SoundList[0]);
 	std::string s1(m_SoundList[1]);
 	std::string s2(m_SoundList[2]);
 	std::string s3(m_SoundList[3]);
+
 
 	////m_SoundList[1] = "../Resource/Sound/bell1.wav";
 
@@ -559,6 +559,7 @@ void CPlayer::InitializeSound()
 	m_mapMusicList.emplace(ATTACK, s1);
 	m_mapMusicList.emplace(DIE, s2);
 	m_mapMusicList.emplace(ATTACK, s3);
+	
 
 
 	if (m_pSound)

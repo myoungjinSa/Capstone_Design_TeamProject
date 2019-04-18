@@ -29,7 +29,10 @@ void CSoundSystem::Initialize(const int soundNum ,const char** musicList,int nFl
 
 		for (int i = 0; i < soundNum; i++) 
 		{
-			pSystem->createSound(musicList[i] , nFlags | FMOD_DEFAULT, nullptr, &pSound[i]);
+			if(i == 2)
+				pSystem->createSound(musicList[i] , FMOD_DEFAULT, nullptr, &pSound[i]);
+			else
+				pSystem->createSound(musicList[i] , nFlags | FMOD_DEFAULT, nullptr, &pSound[i]);
 		}
 	}
 
