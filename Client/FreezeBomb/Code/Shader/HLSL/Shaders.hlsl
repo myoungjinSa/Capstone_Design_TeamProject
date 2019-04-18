@@ -14,10 +14,10 @@ cbuffer cbCameraInfo			: register(b1)
 	float3			gvCameraPosition	: packoffset(c12);
 };
 
-cbuffer cbGameObjectInfo	: register(b2)
-{
-	matrix			gmtxGameObject		: packoffset(c0);
-};
+//cbuffer cbGameObjectInfo	: register(b2)
+//{
+//	matrix			gmtxGameObject		: packoffset(c0);
+//};
 
 cbuffer cbMaterialInfo			: register(b3)
 {
@@ -438,7 +438,8 @@ VS_SHADOW_OUTPUT VSShadow(VS_SHADOW_INPUT input)
 	//output.position = mul(mul(mul(float4(input.position, 1.0f), ShadowWorld), gmtxView), gmtxProjection);
 
 	// 모델좌표계의 점을 월드좌표계의 점으로 변환
-	output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject);
+	//output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject);
+		output.positionW = mul(float4(input.position, 1.0f), gmtxWorld);
 	// 월드좌표계의 점을 그림자 행렬로 변환
 	output.position = mul(mul(mul(float4(output.positionW, 1.0f), gmtxShadow), gmtxView), gmtxProjection);
 	
@@ -506,8 +507,9 @@ Texture2D gtxtBombParticleTexture : register (t19);
 VS_BOMBPARTICLE_OUTPUT VSBombParticle(VS_BOMBPARTICLE_INPUT input)
 {
 	VS_LAMPPARTICLE_OUTPUT output;
-
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	
+	//output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection);
 	output.uv = input.uv;
 
 	return (output);

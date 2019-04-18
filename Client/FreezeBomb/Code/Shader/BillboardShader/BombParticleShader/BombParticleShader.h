@@ -2,8 +2,6 @@
 
 #include "../BillboardShader.h"
 
-
-
 class CBomb;
 class CTexture;
 class CBombParticleShader : public CBillboardShader
@@ -32,6 +30,16 @@ public:
 public:
 	CBomb*	m_BombParticle{ nullptr };
 
-	CB_ANIMATIONCLIP*							m_pcbMappedAnimationClip = NULL;
-	ID3D12Resource*									m_pd3dcbAnimationClip = NULL;
+	struct CB_World
+	{
+		XMFLOAT4X4 m_World;
+	};
+
+	ID3D12Resource*				m_pd3dcbWorld{ nullptr };
+	CB_World*						m_pcbMappedWorld{ nullptr };
+
+	CB_ANIMATIONCLIP*		m_pcbMappedAnimationClip = NULL;
+	ID3D12Resource*				m_pd3dcbAnimationClip = NULL;
+
+	float m_elapsedTime = 0.f;
 };

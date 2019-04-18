@@ -39,8 +39,6 @@ void CBomb::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,
 {
 	if (m_IsBlowing)
 	{
-		XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
-		SetLookAt(xmf3CameraPosition);
 		CGameObject::Render(pd3dCommandList, pCamera, nPipelineState);
 	}
 }

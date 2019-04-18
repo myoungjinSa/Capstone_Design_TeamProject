@@ -191,7 +191,7 @@ void CCubeParticleShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dC
 	if (m_pd3dInstancingData)
 	{
 		D3D12_GPU_VIRTUAL_ADDRESS GPUVirtualAddress = m_pd3dInstancingData->GetGPUVirtualAddress();
-		pd3dCommandList->SetGraphicsRootShaderResourceView(25, GPUVirtualAddress);
+		pd3dCommandList->SetGraphicsRootShaderResourceView(1, GPUVirtualAddress);
 
 		int i = 0;
 		for (auto iter = m_CubeParticleList.begin(); iter != m_CubeParticleList.end(); ++iter)
