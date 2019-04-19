@@ -6,7 +6,7 @@ struct MATERIAL
 	float4			m_cEmissive;
 };
 
-cbuffer cbCameraInfo			: register(b1)
+cbuffer cbCameraInfo						: register(b1)
 {
 	matrix			gmtxView					: packoffset(c0);
 	matrix			gmtxProjection			: packoffset(c4);
@@ -14,33 +14,94 @@ cbuffer cbCameraInfo			: register(b1)
 	float3			gvCameraPosition	: packoffset(c12);
 };
 
-//cbuffer cbGameObjectInfo	: register(b2)
-//{
-//	matrix			gmtxGameObject		: packoffset(c0);
-//};
+cbuffer cbWorld								: register(b2)
+{
+	matrix			gmtxWorld				: packoffset(c0);
+};
 
-cbuffer cbMaterialInfo			: register(b3)
+cbuffer cbMaterialInfo						: register(b3)
 {
 	MATERIAL	gMaterial					: packoffset(c0);
 	uint				gnTexturesMask		: packoffset(c4);
 };
 
-cbuffer cbWorld			: register(b10)
-{
-	matrix			gmtxWorld		: packoffset(c0);
-};
-
-cbuffer cbWorld			: register(b11)
-{
-	matrix			gmtxSnowWorld		: packoffset(c0);
-};
-
 #include "Light.hlsl"
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SamplerState gssWrap		: register(s0);
+SamplerState gssClamp	: register(s1);
 
+TextureCube gtxtSkyCubeTexture : register(t3);
+
+struct VS_SKYBOX_CUBEMAP_INPUT
+{
+	float3 position : POSITION;
+};
+
+struct VS_SKYBOX_CUBEMAP_OUTPUT
+{
+	float3	positionL : POSITION;
+	float4	position : SV_POSITION;
+};
+
+VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
+{
+	VS_SKYBOX_CUBEMAP_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection);
+	output.positionL = input.position;
+
+	return(output);
+}
+
+float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
+{
+	float4 cColor = gtxtSkyCubeTexture.Sample(gssClamp, input.positionL);
+
+	return(cColor);
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Texture2D gtxtTerrainBaseTexture : register(t4);
+Texture2D gtxtTerrainDetailTexture : register(t5);
+
+struct VS_TERRAIN_INPUT
+{
+	float3 position : POSITION;
+	float4 color : COLOR;
+	float2 uv0 : TEXCOORD0;
+	float2 uv1 : TEXCOORD1;
+};
+
+struct VS_TERRAIN_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float4 color : COLOR;
+	float2 uv0 : TEXCOORD0;
+	float2 uv1 : TEXCOORD1;
+};
+
+VS_TERRAIN_OUTPUT VSTerrain(VS_TERRAIN_INPUT input)
+{
+	VS_TERRAIN_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection);
+	output.color = input.color;
+	output.uv0 = input.uv0;
+	output.uv1 = input.uv1;
+
+	return(output);
+}
+
+float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
+{
+	float4 cBaseTexColor = gtxtTerrainBaseTexture.Sample(gssWrap, input.uv0);
+	float4 cDetailTexColor = gtxtTerrainDetailTexture.Sample(gssWrap, input.uv1);
+	float4 cColor = input.color * saturate((cBaseTexColor * 0.5f) + (cDetailTexColor * 0.5f));
+
+	//return(cColor);
+	return cBaseTexColor;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //#define _WITH_VERTEX_LIGHTING
-
 #define MATERIAL_ALBEDO_MAP				0x01
 #define MATERIAL_SPECULAR_MAP				0x02
 #define MATERIAL_NORMAL_MAP				0x04
@@ -56,8 +117,6 @@ Texture2D gtxtMetallicTexture			: register(t9);
 Texture2D gtxtEmissionTexture			: register(t10);
 Texture2D gtxtDetailAlbedoTexture	: register(t11);
 Texture2D gtxtDetailNormalTexture	: register(t12);
-
-SamplerState gssWrap						: register(s0);
 
 struct VS_STANDARD_INPUT
 {
@@ -86,11 +145,6 @@ VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
 	output.normalW = mul(input.normal, (float3x3)gmtxWorld);
 	output.tangentW = mul(input.tangent, (float3x3)gmtxWorld);
 	output.bitangentW = mul(input.bitangent, (float3x3)gmtxWorld);
-
-	//output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
-	//output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
-	//output.tangentW = mul(input.tangent, (float3x3)gmtxGameObject);
-	//output.bitangentW = mul(input.bitangent, (float3x3)gmtxGameObject);
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
 	output.uv = input.uv;
 
@@ -133,6 +187,34 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 	//return cColor;
 }
 
+struct VS_SHADOW_INPUT
+{
+	float3 position			: POSITION;
+};
+
+struct VS_SHADOW_OUTPUT
+{
+	float4 position			: SV_POSITION;
+	float3 positionW		: POSITION;
+};
+
+VS_SHADOW_OUTPUT VSShadow(VS_SHADOW_INPUT input)
+{
+	VS_SHADOW_OUTPUT output;
+
+	// 모델좌표계의 점을 월드좌표계의 점으로 변환
+	output.positionW = mul(float4(input.position, 1.0f), gmtxWorld);
+	// 월드좌표계의 점을 그림자 행렬로 변환
+	output.position = mul(mul(mul(float4(output.positionW, 1.0f), gmtxShadow), gmtxView), gmtxProjection);
+
+	return output;
+}
+
+float4 PSShadow(VS_SHADOW_OUTPUT input) : SV_TARGET
+{
+	return(float4(0.7f, 0.7f, 0.7f, 1.f));
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 float4 PSFoliage(VS_STANDARD_OUTPUT input) : SV_TARGET
 {
 	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -164,20 +246,17 @@ float4 PSFoliage(VS_STANDARD_OUTPUT input) : SV_TARGET
 	float4 cIllumination = Lighting(input.positionW, normalW);
 	return(lerp(cColor, cIllumination, 0.5f));
 }
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #define MAX_VERTEX_INFLUENCES			4
 //#define SKINNED_ANIMATION_BONES	128
 #define SKINNED_ANIMATION_BONES	72
 
-cbuffer cbBoneOffsets : register(b7)
+cbuffer cbBoneOffsets : register(b5)
 {
 	float4x4 gpmtxBoneOffsets[SKINNED_ANIMATION_BONES];
 };
 
-cbuffer cbBoneTransforms : register(b8)
+cbuffer cbBoneTransforms : register(b6)
 {
 	float4x4 gpmtxBoneTransforms[SKINNED_ANIMATION_BONES];
 };
@@ -217,247 +296,9 @@ VS_STANDARD_OUTPUT VSSkinnedAnimationStandard(VS_SKINNED_STANDARD_INPUT input)
 	return(output);
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-Texture2D gtxtTerrainBaseTexture : register(t1);
-Texture2D gtxtTerrainDetailTexture : register(t2);
-
-struct VS_TERRAIN_INPUT
-{
-	float3 position : POSITION;
-	float4 color : COLOR;
-	float2 uv0 : TEXCOORD0;
-	float2 uv1 : TEXCOORD1;
-};
-
-struct VS_TERRAIN_OUTPUT
-{
-	float4 position : SV_POSITION;
-	float4 color : COLOR;
-	float2 uv0 : TEXCOORD0;
-	float2 uv1 : TEXCOORD1;
-};
-
-VS_TERRAIN_OUTPUT VSTerrain(VS_TERRAIN_INPUT input)
-{
-	VS_TERRAIN_OUTPUT output;
-
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection);
-	output.color = input.color;
-	output.uv0 = input.uv0;
-	output.uv1 = input.uv1;
-
-	return(output);
-}
-
-float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
-{
-	float4 cBaseTexColor = gtxtTerrainBaseTexture.Sample(gssWrap, input.uv0);
-	float4 cDetailTexColor = gtxtTerrainDetailTexture.Sample(gssWrap, input.uv1);
-	float4 cColor = input.color * saturate((cBaseTexColor * 0.5f) + (cDetailTexColor * 0.5f));
-
-	//return(cColor);
-
-	return cBaseTexColor;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-struct VS_SKYBOX_CUBEMAP_INPUT
-{
-	float3 position : POSITION;
-};
-
-struct VS_SKYBOX_CUBEMAP_OUTPUT
-{
-	float3	positionL : POSITION;
-	float4	position : SV_POSITION;
-};
-
-VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
-{
-	VS_SKYBOX_CUBEMAP_OUTPUT output;
-
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection);
-	output.positionL = input.position;
-
-	return(output);
-}
-
-TextureCube gtxtSkyCubeTexture : register(t13);
-SamplerState gssClamp : register(s1);
-
-float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
-{
-	float4 cColor = gtxtSkyCubeTexture.Sample(gssClamp, input.positionL);
-
-	return(cColor);
-}
-
-struct VS_SNOW_INPUT
-{
-	float3 position	: POSITION;
-	float2 uv			: TEXCOORD;
-};
-
-struct VS_SNOW_OUTPUT
-{
-	float4 position	: SV_POSITION;
-	float2 uv			: TEXCOORD;
-};
-
-Texture2D gtxtBillboardTexture : register (t15);
-struct InstanceData
-{
-	matrix m_InstanceWorld;
-};
-StructuredBuffer<InstanceData> g_InstanceData : register(t3);
-
-VS_SNOW_OUTPUT VSSnow(VS_SNOW_INPUT input, uint nInstanceID : SV_InstanceID)
-{
-	VS_SNOW_OUTPUT output;
-
-	output.position = mul(mul(mul(float4(input.position, 1.0f), g_InstanceData[nInstanceID].m_InstanceWorld), gmtxView), gmtxProjection);
-	output.uv = input.uv;
-
-	return(output);
-}
-
-float4 PSSnow(VS_SNOW_OUTPUT input) : SV_TARGET
-{
-	float4 cColor = gtxtBillboardTexture.Sample(gssWrap, input.uv);
-
-	return(cColor);
-}
-
-struct VS_LAMPPARTICLE_INPUT
-{
-	float3 position	: POSITION;
-	float2 uv			: TEXCOORD;
-};
-
-struct VS_LAMPPARTICLE_OUTPUT
-{
-	float4 position	: SV_POSITION;
-	float2 uv			: TEXCOORD;
-};
-
-cbuffer cbAnimationClip	: register(b5)
-{
-	uint	gAnimationClip	: packoffset(c0);
-};
-
-Texture2D gtxtLampParticleTexture : register (t16);
-
-VS_LAMPPARTICLE_OUTPUT VSLampParticle(VS_LAMPPARTICLE_INPUT input)
-{
-	VS_LAMPPARTICLE_OUTPUT output;
-
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection);
-	output.uv = input.uv;
-
-	return (output);
-}
-
-float4 PSLampParticle(VS_LAMPPARTICLE_OUTPUT input) : SV_TARGET
-{
-	float2 texcoord = input.uv;
-	texcoord.x = texcoord.x / 6.0f + (1.0f / 6.0f) * gAnimationClip;
-	float4 cColor = gtxtLampParticleTexture.Sample(gssWrap, texcoord);
-
-	return (cColor);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct VS_CUBEPARTICLE_INPUT
-{
-	float3 position : POSITION;
-	float2 uv		: TEXCOORD;
-
-};
-
-struct VS_CUBEPARTICLE_OUTPUT
-{
-	float4 position :SV_POSITION;
-	float2 uv		:TEXCOORD;
-};
-
-Texture2D gtxtCubeParticleTexture : register(t18);
-StructuredBuffer<InstanceData> g_InstanceCubeData : register(t4);
-VS_CUBEPARTICLE_OUTPUT VSCubeParticle(VS_CUBEPARTICLE_INPUT input, uint nInstanceID : SV_InstanceID)
-{
-	VS_CUBEPARTICLE_OUTPUT output;
-
-	output.position = mul(mul(mul(float4(input.position, 1.0f), g_InstanceCubeData[nInstanceID].m_InstanceWorld), gmtxView), gmtxProjection);
-	output.uv = input.uv;
-
-	return(output);
-}
-
-float4 PSCubeParticle(VS_CUBEPARTICLE_OUTPUT input) : SV_Target
-{
-	float4 cColor = gtxtCubeParticleTexture.Sample(gssWrap, input.uv);
-
-	return(cColor);
-}
-
-VS_CUBEPARTICLE_OUTPUT VSCubeParticleShadow(VS_CUBEPARTICLE_INPUT input, uint nInstanceID : SV_InstanceID)
-{
-	VS_CUBEPARTICLE_OUTPUT output;
-
-	float4 position = mul(float4(input.position, 1.0f), g_InstanceCubeData[nInstanceID].m_InstanceWorld);
-
-	output.position = mul(mul(mul(position, gmtxShadow), gmtxView), gmtxProjection);
-	output.uv = input.uv;
-
-	return(output);
-}
-
-float4 PSCubeParticleShadow(VS_CUBEPARTICLE_OUTPUT input) : SV_Target
-{
-	return(float4(0.7f, 0.7f, 0.7f, 1.f));
-}
-
-struct VS_SHADOW_INPUT
-{
-	float3 position			: POSITION;
-};
-
-struct VS_SHADOW_OUTPUT
-{
-	float4 position			: SV_POSITION;
-	float3 positionW		: POSITION;
-};
-
-VS_SHADOW_OUTPUT VSShadow(VS_SHADOW_INPUT input)
-{
-	VS_SHADOW_OUTPUT output;
-	//matrix ShadowWorld = mul(gmtxShadow, gmtxGameObject);
-	// 모델좌표계에서 그림자행렬을 계산
-	//output.position = mul(mul(mul(float4(input.position, 1.0f), ShadowWorld), gmtxView), gmtxProjection);
-
-	// 모델좌표계의 점을 월드좌표계의 점으로 변환
-	//output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject);
-		output.positionW = mul(float4(input.position, 1.0f), gmtxWorld);
-	// 월드좌표계의 점을 그림자 행렬로 변환
-	output.position = mul(mul(mul(float4(output.positionW, 1.0f), gmtxShadow), gmtxView), gmtxProjection);
-	
-	return output;
-}
-
-float4 PSShadow(VS_SHADOW_OUTPUT input) : SV_TARGET
-{
-	//return(float4(0.6f, 0.6f, 0.6f, 1.f));
-	return(float4(0.7f, 0.7f, 0.7f, 1.f));
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////
-
 struct VS_ANIMATION_SHADOW_INPUT
 {
 	float3 position : POSITION;
-
 	float2 uv : TEXCOORD;
 	float3 normal : NORMAL;
 	float3 tangent : TANGENT;
@@ -484,6 +325,44 @@ VS_SHADOW_OUTPUT VSAnimationShadow(VS_ANIMATION_SHADOW_INPUT input)
 
 	return output;
 }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+cbuffer cbAnimationClip	: register(b7)
+{
+	uint	gAnimationClip	: packoffset(c0);
+};
+
+Texture2D FireTexture : register (t13);
+
+struct VS_LAMPPARTICLE_INPUT
+{
+	float3 position	: POSITION;
+	float2 uv			: TEXCOORD;
+};
+
+struct VS_LAMPPARTICLE_OUTPUT
+{
+	float4 position	: SV_POSITION;
+	float2 uv			: TEXCOORD;
+};
+
+VS_LAMPPARTICLE_OUTPUT VSLampParticle(VS_LAMPPARTICLE_INPUT input)
+{
+	VS_LAMPPARTICLE_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection);
+	output.uv = input.uv;
+
+	return (output);
+}
+
+float4 PSLampParticle(VS_LAMPPARTICLE_OUTPUT input) : SV_TARGET
+{
+	float2 texcoord = input.uv;
+	texcoord.x = texcoord.x / 6.0f + (1.0f / 6.0f) * gAnimationClip;
+	float4 cColor = FireTexture.Sample(gssWrap, texcoord);
+
+	return (cColor);
+}
 
 struct VS_BOMBPARTICLE_INPUT
 {
@@ -497,18 +376,10 @@ struct VS_BOMBPARTICLE_OUTPUT
 	float2 uv			: TEXCOORD;
 };
 
-cbuffer cbBombAnimationClip	: register(b9)
-{
-	uint	gBombAnimationClip	: packoffset(c0);
-};
-
-Texture2D gtxtBombParticleTexture : register (t19);
-
 VS_BOMBPARTICLE_OUTPUT VSBombParticle(VS_BOMBPARTICLE_INPUT input)
 {
 	VS_LAMPPARTICLE_OUTPUT output;
-	
-	//output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+
 	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection);
 	output.uv = input.uv;
 
@@ -518,8 +389,94 @@ VS_BOMBPARTICLE_OUTPUT VSBombParticle(VS_BOMBPARTICLE_INPUT input)
 float4 PSBombParticle(VS_BOMBPARTICLE_OUTPUT input) : SV_TARGET
 {
 	float2 texcoord = input.uv;
-	texcoord.x = texcoord.x / 6.0f + (1.0f / 6.0f) * gBombAnimationClip;
-	float4 cColor = gtxtBombParticleTexture.Sample(gssWrap, texcoord);
+	texcoord.x = texcoord.x / 6.0f + (1.0f / 6.0f) * gAnimationClip;
+	float4 cColor = FireTexture.Sample(gssWrap, texcoord);
 
 	return (cColor);
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct InstanceData
+{
+	matrix m_InstanceWorld;
+};
+StructuredBuffer<InstanceData> g_InstanceCubeData : register(t1);
+Texture2D IceTexture : register(t14);
+
+struct VS_CUBEPARTICLE_INPUT
+{
+	float3 position : POSITION;
+	float2 uv		: TEXCOORD;
+
+};
+
+struct VS_CUBEPARTICLE_OUTPUT
+{
+	float4 position :SV_POSITION;
+	float2 uv		:TEXCOORD;
+};
+
+VS_CUBEPARTICLE_OUTPUT VSCubeParticle(VS_CUBEPARTICLE_INPUT input, uint nInstanceID : SV_InstanceID)
+{
+	VS_CUBEPARTICLE_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), g_InstanceCubeData[nInstanceID].m_InstanceWorld), gmtxView), gmtxProjection);
+	output.uv = input.uv;
+
+	return(output);
+}
+
+float4 PSCubeParticle(VS_CUBEPARTICLE_OUTPUT input) : SV_Target
+{
+	float4 cColor = IceTexture.Sample(gssWrap, input.uv);
+
+	return(cColor);
+}
+
+VS_CUBEPARTICLE_OUTPUT VSCubeParticleShadow(VS_CUBEPARTICLE_INPUT input, uint nInstanceID : SV_InstanceID)
+{
+	VS_CUBEPARTICLE_OUTPUT output;
+
+	float4 position = mul(float4(input.position, 1.0f), g_InstanceCubeData[nInstanceID].m_InstanceWorld);
+
+	output.position = mul(mul(mul(position, gmtxShadow), gmtxView), gmtxProjection);
+	output.uv = input.uv;
+
+	return(output);
+}
+
+float4 PSCubeParticleShadow(VS_CUBEPARTICLE_OUTPUT input) : SV_Target
+{
+	return(float4(0.7f, 0.7f, 0.7f, 1.f));
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+StructuredBuffer<InstanceData> g_InstanceData : register(t2);
+Texture2D SnowTexture : register (t15);
+
+struct VS_SNOW_INPUT
+{
+	float3 position	: POSITION;
+	float2 uv			: TEXCOORD;
+};
+
+struct VS_SNOW_OUTPUT
+{
+	float4 position	: SV_POSITION;
+	float2 uv			: TEXCOORD;
+};
+
+VS_SNOW_OUTPUT VSSnow(VS_SNOW_INPUT input, uint nInstanceID : SV_InstanceID)
+{
+	VS_SNOW_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), g_InstanceData[nInstanceID].m_InstanceWorld), gmtxView), gmtxProjection);
+	output.uv = input.uv;
+
+	return(output);
+}
+
+float4 PSSnow(VS_SNOW_OUTPUT input) : SV_TARGET
+{
+	float4 cColor = SnowTexture.Sample(gssWrap, input.uv);
+
+	return(cColor);
 }

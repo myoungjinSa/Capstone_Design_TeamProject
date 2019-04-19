@@ -112,14 +112,14 @@ void CBombParticleShader::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCo
 	{
 		XMStoreFloat4x4(&m_pcbMappedWorld->m_World, XMMatrixTranspose(XMLoadFloat4x4(&m_BombParticle->m_xmf4x4World)));
 		D3D12_GPU_VIRTUAL_ADDRESS GpuVirtualAddress = m_pd3dcbWorld->GetGPUVirtualAddress();
-		pd3dCommandList->SetGraphicsRootConstantBufferView(23, GpuVirtualAddress);
+		pd3dCommandList->SetGraphicsRootConstantBufferView(1, GpuVirtualAddress);
 	}
 
 	if (m_BombParticle)
 	{
 		m_pcbMappedAnimationClip->m_AnimationClip = m_BombParticle->m_AnimationClip;
 		D3D12_GPU_VIRTUAL_ADDRESS GpuVirtualAddress = m_pd3dcbAnimationClip->GetGPUVirtualAddress();
-		pd3dCommandList->SetGraphicsRootConstantBufferView(21 , GpuVirtualAddress);
+		pd3dCommandList->SetGraphicsRootConstantBufferView(6 , GpuVirtualAddress);
 	}
 }
 

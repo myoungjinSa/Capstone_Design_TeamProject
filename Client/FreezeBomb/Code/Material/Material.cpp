@@ -117,7 +117,7 @@ void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 		::memcpy(&m_pcbMappedMaterial->m_nType, &m_nType, sizeof(UINT));
 
 		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbMaterial->GetGPUVirtualAddress();
-		pd3dCommandList->SetGraphicsRootConstantBufferView(15, d3dGpuVirtualAddress);
+		pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dGpuVirtualAddress);
 	}
 	for (int i = 0; i < m_nTextures; i++)
 	{

@@ -2,13 +2,10 @@
 
 #include "../GameObject/GameObject.h"
 
-
 #define MAX_LIGHTS						16 
-
 #define POINT_LIGHT						1
 #define SPOT_LIGHT						2
 #define DIRECTIONAL_LIGHT			3
-
 
 struct LIGHT
 {
@@ -30,8 +27,8 @@ struct LIGHT
 struct LIGHTS							
 {										
 	LIGHT				m_pLights[MAX_LIGHTS];
-	XMFLOAT4			m_xmf4GlobalAmbient;
-	int					m_nLights;
+	XMFLOAT4		m_xmf4GlobalAmbient;
+	int						m_nLights;
 };
 
 class CPlayer;
@@ -154,15 +151,15 @@ private:
 	// Hammer : 3, Pocket_Watch : 5 => Item = 8
 	// EvilBear : 18, LampParticle : 1 => 19
 	// Player : 18, LampParticle : 1 => 19
-	// Snow : 1, IceParticle : 1 => Particle = 2 
+	// BombParticle => 1
+	// CubeParticle : 1
+	// Snow : 1, 
 	// Number : 10, Colon : 1 => TimerUI = 11
 	// ItemBox = 1, Hammer_Item : 1, GoldHammer_Item : 1, GoldTimer_Item : 1=> ItemUI : 4
-	// BombExplosion : 2
 
-	
 	enum nShaderResourceView
 	{
 		SkyBox = 1, Terrain = 2, MapObjects = 67, Item = 8,
-		EvilBear = 19, Player = 19, Particle = 2, TimerUI = 11, ItemUI = 4, BombExplosion = 2
+		EvilBear = 19, Player = 19, BombParticle = 1, CubeParticle = 1, Snow = 1, TimerUI = 11, ItemUI = 4
 	};
 };

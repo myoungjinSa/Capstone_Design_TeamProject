@@ -46,21 +46,31 @@ void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 	CTexture* pSkyBoxTexture = new CTexture(1, RESOURCE_TEXTURE_CUBE, 0);
 	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/SkyBox/SkyBox_1.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pSkyBoxTexture, 10, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pSkyBoxTexture, 9, false);
 	m_TextureMap.emplace("SkyBox", pSkyBoxTexture);
 
 	CTexture* pTerrainBaseTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pTerrainBaseTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Terrain/BaseTerrain.dds", 0);
 	CTexture* pTerrainSpecularTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pTerrainSpecularTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Terrain/SpecularTerrain.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainBaseTexture, 13, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainSpecularTexture, 14, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainBaseTexture, 10, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainSpecularTexture, 11, false);
 	m_TextureMap.emplace("BaseTerrain", pTerrainBaseTexture);
 	m_TextureMap.emplace("SpecularTerrain", pTerrainSpecularTexture);
 
+	CTexture *pParticleTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Effect/LampParticle.dds", 0);
+	CScene::CreateShaderResourceViews(pd3dDevice, pParticleTexture, 19, false);
+	m_TextureMap.emplace("Particle", pParticleTexture);
+
+	CTexture* pIceCubeTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pIceCubeTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Model/texture2.dds", 0);
+	CScene::CreateShaderResourceViews(pd3dDevice, pIceCubeTexture, 20, false);
+	m_TextureMap.emplace("IceTexture", pIceCubeTexture);
+
 	CTexture* pSnowTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pSnowTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Effect/Snow.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pSnowTexture, 16, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pSnowTexture, 21, false);
 	m_TextureMap.emplace("Snow", pSnowTexture);
 
 	CTexture* pNumber0Texture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
@@ -84,16 +94,16 @@ void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	CTexture* pNumber9Texture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pNumber9Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Number/Blue_9.dds", 0);
 
-	CScene::CreateShaderResourceViews(pd3dDevice, pNumber0Texture, 17, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pNumber1Texture, 17, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pNumber2Texture, 17, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pNumber3Texture, 17, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pNumber4Texture, 17, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pNumber5Texture, 17, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pNumber6Texture, 17, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pNumber7Texture, 17, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pNumber8Texture, 17, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pNumber9Texture, 17, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pNumber0Texture, 22, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pNumber1Texture, 22, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pNumber2Texture, 22, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pNumber3Texture, 22, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pNumber4Texture, 22, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pNumber5Texture, 22, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pNumber6Texture, 22, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pNumber7Texture, 22, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pNumber8Texture, 22, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pNumber9Texture, 22, false);
 
 	int i = 0;
 	m_TextureMap.emplace(to_string(i++), pNumber0Texture);
@@ -109,37 +119,28 @@ void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 	CTexture* pColonTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pColonTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Number/Blue_Colon.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pColonTexture, 17, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pColonTexture, 22, false);
 	m_TextureMap.emplace("Colon", pColonTexture);
 
 	CTexture* pItemBoxTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pItemBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Item/Item_Box.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pItemBoxTexture, 17, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pItemBoxTexture, 22, false);
 	m_TextureMap.emplace("ItemBox", pItemBoxTexture);
 
 	CTexture* pHammer_ItemTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pHammer_ItemTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Item/Hammer_Item.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pHammer_ItemTexture, 17, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pHammer_ItemTexture, 22, false);
 	m_TextureMap.emplace("NormalHammer", pHammer_ItemTexture);
 
 	CTexture* pGoldHammer_ItemTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pGoldHammer_ItemTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Item/GoldHammer_Item.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pGoldHammer_ItemTexture, 17, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pGoldHammer_ItemTexture, 22, false);
 	m_TextureMap.emplace("GoldHammer", pGoldHammer_ItemTexture);
+
 	CTexture* pGoldTimer_ItemTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pGoldTimer_ItemTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Item/GoldTimer_Item.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pGoldTimer_ItemTexture, 17, false);
+	CScene::CreateShaderResourceViews(pd3dDevice, pGoldTimer_ItemTexture, 22, false);
 	m_TextureMap.emplace("GoldTimer", pGoldTimer_ItemTexture);
-
-	CTexture* pIceCubeTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pIceCubeTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Model/texture2.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pIceCubeTexture, 20, false);
-	m_TextureMap.emplace("IceTexture", pIceCubeTexture);
-
-	CTexture *pParticleTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Effect/LampParticle.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pParticleTexture, 22, false);
-	m_TextureMap.emplace("Particle", pParticleTexture);
 }
 
 void CResourceManager::LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)

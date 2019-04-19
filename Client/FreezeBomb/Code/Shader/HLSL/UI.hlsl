@@ -12,7 +12,7 @@ struct VS_UI_OUTPUT
 	float2 uv : TEXCOORD;
 };
 
-Texture2D gtxtUITexture			: register(t17);
+Texture2D gtxtUITexture			: register(t16);
 
 VS_UI_OUTPUT VSOneSecUI(uint nVertexID : SV_VertexID)
 {

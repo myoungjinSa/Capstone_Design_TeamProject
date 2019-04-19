@@ -28,28 +28,6 @@ D3D12_SHADER_BYTECODE CLampParticleShader::CreatePixelShader()
 void CLampParticleShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
 	const map<string, CTexture*>& Context, void *pContext)
 {
-	//m_nObjects = 1;
-	//m_ppObjects = new CGameObject*[m_nObjects];
-
-	//CWickParticle* pWickParticle = new CWickParticle(1);
-	//CBillboardMesh* pBillboardMesh = new CBillboardMesh(pd3dDevice, pd3dCommandList, 5.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-
-	//pWickParticle->SetMesh(pBillboardMesh);
-
-	//CTexture *pParticleTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	//pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Model/Textures/fire.dds", 0);
-
-	////UINT ncbElementBytes = ((sizeof(CB_PARTICLE_INFO) + 255)&~255);
-
-	////CScene::CreateConstantBufferViews(pd3dDevice, pd3dCommandList, 1, m_pd3dcbParticleObjects, ncbElementBytes);
-	//CScene::CreateShaderResourceViews(pd3dDevice, pParticleTexture, 17, false);
-
-	//CMaterial *pParticleMaterial = new CMaterial(1);
-	//pParticleMaterial->SetTexture(pParticleTexture);
-
-	//pWickParticle->SetMaterial(0, pParticleMaterial);
-
-	//m_ppObjects[0] = pWickParticle;
 }
 
 void CLampParticleShader::AnimateObjects(float elapsedTime, CCamera *pCamera, CPlayer *pPlayer)

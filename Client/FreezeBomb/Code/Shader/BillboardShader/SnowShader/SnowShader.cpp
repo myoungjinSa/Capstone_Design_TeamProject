@@ -116,7 +116,7 @@ void CSnowShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLi
 	if (m_pd3dInstancingData)
 	{
 		D3D12_GPU_VIRTUAL_ADDRESS GPUVirtualAddress = m_pd3dInstancingData->GetGPUVirtualAddress();
-		pd3dCommandList->SetGraphicsRootShaderResourceView(24, GPUVirtualAddress);
+		pd3dCommandList->SetGraphicsRootShaderResourceView(8, GPUVirtualAddress);
 
 		for (int i = 0; i < m_nObjects; i++)
 		{

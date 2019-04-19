@@ -123,7 +123,7 @@ void CTerrainShader::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dComman
 	{
 		XMStoreFloat4x4(&m_pcbMappedWorld->m_World, XMMatrixTranspose(XMLoadFloat4x4(&m_pTerrain->m_xmf4x4World)));
 		D3D12_GPU_VIRTUAL_ADDRESS GpuVirtualAddress = m_pd3dcbWorld->GetGPUVirtualAddress();
-		pd3dCommandList->SetGraphicsRootConstantBufferView(23, GpuVirtualAddress);
+		pd3dCommandList->SetGraphicsRootConstantBufferView(1, GpuVirtualAddress);
 	}
 }
 

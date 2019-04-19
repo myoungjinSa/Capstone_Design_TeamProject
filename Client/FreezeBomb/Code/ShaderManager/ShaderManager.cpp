@@ -96,17 +96,17 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ppShaders[index++] = pAnimationObjectShader;
 	m_ShaderMap.emplace("°õµ¹ÀÌ", pAnimationObjectShader);
 
-	CCubeParticleShader* pCubeParticleShader = new CCubeParticleShader;
-	pCubeParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pCubeParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
-	m_ppShaders[index++] = pCubeParticleShader;
-	m_ShaderMap.emplace("CubeParticle", pCubeParticleShader);
-
 	CBombParticleShader* pBombParticleShader = new CBombParticleShader;
 	pBombParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pBombParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
 	m_ppShaders[index++] = pBombParticleShader;
 	m_ShaderMap.emplace("Bomb", pBombParticleShader);
+
+	CCubeParticleShader* pCubeParticleShader = new CCubeParticleShader;
+	pCubeParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pCubeParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
+	m_ppShaders[index++] = pCubeParticleShader;
+	m_ShaderMap.emplace("CubeParticle", pCubeParticleShader);
 
 	CSnowShader * pSnowShader = new CSnowShader;
 	pSnowShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
