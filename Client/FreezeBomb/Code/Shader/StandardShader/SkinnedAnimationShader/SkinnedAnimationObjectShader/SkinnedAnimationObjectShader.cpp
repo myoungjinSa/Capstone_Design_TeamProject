@@ -38,6 +38,10 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		// 1번 트랙에 가중치를 20% 
 		//m_ppObjects[0]->m_pAnimationController->SetTrackWeight(1, 0.2f);
 
+		m_ppObjects[0]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
+		dynamic_cast<CEvilBear*>(m_ppObjects[0])->SetPlayerName(L"이우상");
+
+
 		m_ppObjects[1] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::BLACK);
 		m_ppObjects[1]->SetChild((*Model).second->m_pModelRootObject, true);
 		m_ppObjects[1]->m_pAnimationController = new CAnimationController(1, (*Model).second->m_pAnimationSets);
@@ -49,6 +53,11 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		// 애니메이션의 속도를 0.25로 주어서 느리게 애니메이션 동작을 하도록 Set
 		//m_ppObjects[1]->m_pAnimationController->SetTrackSpeed(0, 0.25f);
 
+		m_ppObjects[1]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
+		dynamic_cast<CEvilBear*>(m_ppObjects[1])->SetPlayerName(L"염혜린");
+
+
+
 		m_ppObjects[2] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::BROWN);
 		m_ppObjects[2]->SetChild((*Model).second->m_pModelRootObject, true);
 		m_ppObjects[2]->m_pAnimationController = new CAnimationController(1, (*Model).second->m_pAnimationSets);
@@ -56,15 +65,29 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		// 애니메이션의 시작위치를 다르게 준다. 그러면 같은 동작이더라도 다르게 애니메이션함
 		//m_ppObjects[2]->m_pAnimationController->SetTrackPosition(0, 0.95f);
 
+		m_ppObjects[2]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
+		dynamic_cast<CEvilBear*>(m_ppObjects[2])->SetPlayerName(L"송혜교");
+
+
+
 		m_ppObjects[3] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::BLUE);
 		m_ppObjects[3]->SetChild((*Model).second->m_pModelRootObject, true);
 		m_ppObjects[3]->m_pAnimationController = new CAnimationController(1, (*Model).second->m_pAnimationSets);
 		m_ppObjects[3]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[3]->m_pAnimationController->RAISEHAND);
 
+		m_ppObjects[3]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
+		dynamic_cast<CEvilBear*>(m_ppObjects[3])->SetPlayerName(L"김태희");
+
+
+
 		m_ppObjects[4] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::ICEMAT);
 		m_ppObjects[4]->SetChild((*Model).second->m_pModelRootObject, true);
 		m_ppObjects[4]->m_pAnimationController = new CAnimationController(1, (*Model).second->m_pAnimationSets);
 		m_ppObjects[4]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[4]->m_pAnimationController->RUNBACKWARD);
+		m_ppObjects[4]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
+		dynamic_cast<CEvilBear*>(m_ppObjects[4])->SetPlayerName(L"전지현");
+
+
 		
 		for (int i = 0; i < m_nObjects; ++i)
 		{
@@ -73,6 +96,7 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 			// 메쉬의 월드행렬을 각자 갖고있게 하기위해
 			m_ppObjects[i]->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*Model).second);
 		}
+
 	}
 
 	CAnimationCallbackHandler* pRunAnimationCallback = new CSoundCallbackHandler();

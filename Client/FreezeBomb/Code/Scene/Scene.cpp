@@ -10,6 +10,7 @@
 #include "../Shader/StandardShader/ItemShader/ItemShader.h"
 #include "../SoundSystem/SoundSystem.h"
 #include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
+#include "../Shader/CubeParticleShader/CubeParticleShader.h"
 
 
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
@@ -533,10 +534,11 @@ void CScene::PostRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeEl
 	}
 }
 
-void CScene::CheckObjectByObjectCollisions()
+void CScene::CheckObjectByObjectCollisions(float fElapsedTime)
 {
 	if (m_pPlayer)
 	{
+		
 		// 플레이어와 충돌 된 오브젝트 정보를 초기화
 		//m_pPlayer->SetObjectCollided(nullptr);
 
@@ -565,27 +567,8 @@ void CScene::CheckObjectByObjectCollisions()
 				++i;
 			}
 
-			//// 플레이어가 맵 오브젝트와 충돌했다면
-			//if (m_pPlayer->GetObjectCollided() != nullptr)
-			//{
-
-			//}
 		}
 
-		// 플레이어와 다른 곰돌이 오브젝트 충돌검사
-		//iter = m.find("곰돌이");
-		//if (iter != m.end())
-		//{
-		//	for (int i = 0; i < (*iter).second->m_nObjects; ++i)
-		//	{
-		//		if ((*iter).second->m_ppObjects[i]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
-		//		{
-		//			//(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
-		//			//m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
-		//			cout << i << "번째 애니메이션 오브젝트와 충돌" << endl;
-		//		}
-		//	}
-		//}
 
 		iter = m.find("곰돌이");
 		if (iter != m.end())
@@ -603,7 +586,7 @@ void CScene::CheckObjectByObjectCollisions()
 					XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize((*iter).second->m_ppObjects[i]->GetPosition() ,m_pPlayer->GetPosition());
 					xmf3CollisionDir=Vector3::ScalarProduct(xmf3CollisionDir, (m_pPlayer->GetMaxVelocity()*0.3f));
 					m_pPlayer->SetVelocity(-xmf3CollisionDir.x,-xmf3CollisionDir.y,-xmf3CollisionDir.z);
-			
+					
 					cout << i << "번째 애니메이션 오브젝트와 충돌" << endl;
 				}
 
@@ -615,7 +598,10 @@ void CScene::CheckObjectByObjectCollisions()
 			}
 			
 			//cout<< "최소 거리:" << minDistance << "\n";
-
+			
+			
+			static bool bBreak = false;
+			
 			if (m_pPlayer->AnimationCollision(CAnimationController::ATTACK))
 			{
 				CGameObject* pHammer = m_pPlayer->FindFrame("Hammer");
@@ -627,16 +613,40 @@ void CScene::CheckObjectByObjectCollisions()
 						{
 							if (m_pPlayer->get_Normal_InventorySize() > 0)
 							{
+								
+								if(bBreak == false)
+									bBreak = true;
+								
 								m_pPlayer->Refresh_Inventory(CItem::NormalHammer);
 							}
 							m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
+							PlayIceBreakEffect(fElapsedTime,bBreak);
 							cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
 						}
 					}
 				}
-			}		
+			}	
+			if(m_pPlayer->IsCameraVibe())
+			{
+		
+				m_bVibeTime += fElapsedTime;
 
-
+				if(m_bVibeTime >1.0f)
+				{
+					m_pPlayer->SetCameraVibe(false);
+					m_bVibeTime = 0.0f;
+					if (bBreak)
+					{
+					bBreak = false;
+				
+					}
+				}
+		
+			}
+			
+		
+			
+				
 			
 			/*sort(begin(m), end(m), [&](const CGameObject& enmey1,const CGameObject& enemy2)->float {
 				float fDistamce = m_pPlayer->
@@ -668,6 +678,24 @@ void CScene::CheckObjectByObjectCollisions()
 	}
 }
 
+void CScene::PlayIceBreakEffect(float fElapsedTime,bool& bBreak)
+{
+	
+	
+	if (bBreak)
+	{
+
+		m_pSound->PlayIndex(ICEBREAK,1.0f);
+		if (m_pPlayer->IsCameraVibe() == false)
+			m_pPlayer->SetCameraVibe(true);
+	
+		//m_pPlayer->SetCameraVibe(true);
+		cout << "ICEBREAK" << endl;
+
+	}
+
+	
+}
 void CScene::SetWarningTimer()
 {
 	m_pSound->PlayIndex(TIMERWARNING);
@@ -709,12 +737,14 @@ void CScene::CreateSoundSystem()
 		//사운드 생성
 	m_pSound = new CSoundSystem;
 
-	m_musicCount = 2;
+	m_musicCount = 3;
 	m_musicList = new const char*[m_musicCount];
 
 	m_musicList[0] = "../Resource/Sound/SnowyVillage.wav";
 	m_musicList[1] = "../Resource/Sound/Effect/TimerWarning.wav";
-//	m_musicList[1] = "../Resource/Sound/town.wav";
+	m_musicList[2] = "../Resource/Sound/Effect/ICEBreak.wav";
+
+	//	m_musicList[1] = "../Resource/Sound/town.wav";
 
 	//2개 동시에 재생도 가능하다
 	if (m_pSound)

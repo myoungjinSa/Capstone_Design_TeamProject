@@ -25,10 +25,8 @@ public:
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 	DWORD    GetDirection() { return m_dwDirection; }
 
-	_TCHAR* GetPlayerName() { return m_playerName; }
 
-	void SetPlayerName(const _TCHAR* nPlayerName) { wcscpy_s(m_playerName, nPlayerName); }
-
+	
 	void SetDirection(DWORD direction) { m_dwDirection = direction; }
 	void SetFriction(float fFriction) { m_fFriction = fFriction; }
 	void SetGravity(const XMFLOAT3& xmf3Gravity) { m_xmf3Gravity = xmf3Gravity; }
@@ -107,11 +105,13 @@ public:
 
 	void setScore(short score) { m_Score = score; }
 	short getScore()		const { return m_Score; }
-
+	bool IsCameraVibe() const { return m_bCameraVibe; }
+	void SetCameraVibe(bool vibe) {  m_bCameraVibe = vibe; }
+	bool IsSpike() const { return m_bSpike; }
+	void SetSpike(bool spike) { m_bSpike = spike; }
 protected:
 
-	_TCHAR				m_playerName[256];
-
+	
 	XMFLOAT3			m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3			m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	XMFLOAT3			m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
@@ -149,6 +149,8 @@ protected:
 	short				m_Score = 0;
 	float				m_Time = 0.f;
 
+	bool			m_bSpike{ false };
+	bool			m_bCameraVibe{ false };
 	CBomb	*		m_BombParticle{ nullptr };
 };
 
