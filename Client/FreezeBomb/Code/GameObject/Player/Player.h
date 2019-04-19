@@ -105,7 +105,10 @@ public:
 
 	void setScore(short score) { m_Score = score; }
 	short getScore()		const { return m_Score; }
-
+	bool IsCameraVibe() const { return m_bCameraVibe; }
+	void SetCameraVibe(bool vibe) {  m_bCameraVibe = vibe; }
+	bool IsSpike() const { return m_bSpike; }
+	void SetSpike(bool spike) { m_bSpike = spike; }
 protected:
 
 	
@@ -146,6 +149,8 @@ protected:
 	short				m_Score = 0;
 	float				m_Time = 0.f;
 
+	bool			m_bSpike{ false };
+	bool			m_bCameraVibe{ false };
 	CBomb	*		m_BombParticle{ nullptr };
 };
 

@@ -10,6 +10,7 @@
 #include "../Shader/StandardShader/ItemShader/ItemShader.h"
 #include "../SoundSystem/SoundSystem.h"
 #include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
+#include "../Shader/CubeParticleShader/CubeParticleShader.h"
 
 
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
@@ -554,10 +555,11 @@ void CScene::PostRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeEl
 	}
 }
 
-void CScene::CheckObjectByObjectCollisions()
+void CScene::CheckObjectByObjectCollisions(float fElapsedTime)
 {
 	if (m_pPlayer)
 	{
+		
 		// 플레이어와 충돌 된 오브젝트 정보를 초기화
 		//m_pPlayer->SetObjectCollided(nullptr);
 
@@ -617,7 +619,10 @@ void CScene::CheckObjectByObjectCollisions()
 			}
 			
 			//cout<< "최소 거리:" << minDistance << "\n";
-
+			
+			
+			static bool bBreak = false;
+			
 			if (m_pPlayer->AnimationCollision(CAnimationController::ATTACK))
 			{
 				CGameObject* pHammer = m_pPlayer->FindFrame("Hammer");
@@ -629,17 +634,40 @@ void CScene::CheckObjectByObjectCollisions()
 						{
 							if (m_pPlayer->get_Normal_InventorySize() > 0)
 							{
+								
+								if(bBreak == false)
+									bBreak = true;
+								
 								m_pPlayer->Refresh_Inventory(CItem::NormalHammer);
 							}
 							m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
-							//m_pSound->PlayIndex(ICEBREAK);
+							PlayIceBreakEffect(fElapsedTime,bBreak);
 							cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
 						}
 					}
 				}
-			}		
+			}	
+			if(m_pPlayer->IsCameraVibe())
+			{
+		
+				m_bVibeTime += fElapsedTime;
 
-
+				if(m_bVibeTime >1.0f)
+				{
+					m_pPlayer->SetCameraVibe(false);
+					m_bVibeTime = 0.0f;
+					if (bBreak)
+					{
+					bBreak = false;
+				
+					}
+				}
+		
+			}
+			
+		
+			
+				
 			
 			/*sort(begin(m), end(m), [&](const CGameObject& enmey1,const CGameObject& enemy2)->float {
 				float fDistamce = m_pPlayer->
@@ -671,6 +699,24 @@ void CScene::CheckObjectByObjectCollisions()
 	}
 }
 
+void CScene::PlayIceBreakEffect(float fElapsedTime,bool& bBreak)
+{
+	
+	
+	if (bBreak)
+	{
+
+		m_pSound->PlayIndex(ICEBREAK,1.0f);
+		if (m_pPlayer->IsCameraVibe() == false)
+			m_pPlayer->SetCameraVibe(true);
+	
+		//m_pPlayer->SetCameraVibe(true);
+		cout << "ICEBREAK" << endl;
+
+	}
+
+	
+}
 void CScene::SetWarningTimer()
 {
 	m_pSound->PlayIndex(TIMERWARNING);

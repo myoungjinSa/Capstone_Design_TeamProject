@@ -288,7 +288,7 @@ CThirdPersonCamera::CThirdPersonCamera(CCamera *pCamera) : CCamera(pCamera)
 	}
 }
 
-void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed)
+void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed,bool bVibe)
 {
 	if (m_pPlayer)
 	{
@@ -303,13 +303,13 @@ void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed)
 		
 		//Debug 모드는 잘 실행됨.
 		//Release 컴파일러 옵션 od(최적화 실행 안함)시에만 적용됨
-		if(GetAsyncKeyState(VK_F6) & 0x0001)
+		if(bVibe)
 		{
 
 			XMFLOAT4X4 xmf4x4ViberateMatrix = Matrix4x4::Identity();
 			XMFLOAT4X4 xmf4x4R = Matrix4x4::Identity();
 
-			xmf4x4ViberateMatrix = ViberateCamera(fTimeElapsed,30.0f,50.0f);
+			xmf4x4ViberateMatrix = ViberateCamera(fTimeElapsed,45.0f,80.0f);
 
 			xmf4x4Rotate = Matrix4x4::Multiply(xmf4x4Rotate,xmf4x4ViberateMatrix);
 		}

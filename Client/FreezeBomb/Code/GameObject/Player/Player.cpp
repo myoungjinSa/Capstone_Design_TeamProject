@@ -208,7 +208,7 @@ void CPlayer::Update(float fTimeElapsed)
 		OnPlayerUpdateCallback(fTimeElapsed);
 
 	DWORD nCurrentCameraMode = m_pCamera->GetMode();
-	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->Update(m_xmf3Position, fTimeElapsed);
+	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->Update(m_xmf3Position, fTimeElapsed,IsCameraVibe());
 	if (m_pCameraUpdatedContext) OnCameraUpdateCallback(fTimeElapsed);
 	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(m_xmf3Position);
 
@@ -323,6 +323,8 @@ void CPlayer::Refresh_Inventory(int ItemType)
 {
 	if (ItemType == CItem::NormalHammer)
 	{
+		if(m_bHammer)
+			m_bHammer = false;
 		for (auto iter = m_Normal_Inventory.begin(); iter != m_Normal_Inventory.end();)
 		{
 			m_RemovedItemList.emplace_back((*iter).second);
@@ -450,10 +452,10 @@ void CPlayer::DecideAnimationState(float fLength)
 
 		pController->SetAnimationState(CAnimationController::ATTACK);
 
-		if (m_Normal_Inventory.size() > 0)
-		{
-			Refresh_Inventory(CItem::NormalHammer);
-		}
+	//	if (m_Normal_Inventory.size() > 0)
+		//{
+			//Refresh_Inventory(CItem::NormalHammer);
+	//	}
 	}
 
 	// 특수 아이템 사용 버튼(ALT)
@@ -521,8 +523,10 @@ bool CPlayer::AnimationCollision(byte AnimationType)
 			if (m_pAnimationController->GetAnimationState() == AnimationType)
 			{
 				// 망치로 내려 찍는 애니메이션의 위치 근사 값
-				if (0.5 <= GetTrackAnimationPosition(0) && GetTrackAnimationPosition(0) <= 0.65)
+				if (0.5 <= GetTrackAnimationPosition(0) && GetTrackAnimationPosition(0) <= 0.65) 
+				{
 					return true;
+				}
 			}
 		}
 		break;

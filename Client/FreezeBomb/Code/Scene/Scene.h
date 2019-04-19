@@ -44,6 +44,7 @@ public:
     ~CScene();
 	
 	void CreateSoundSystem();
+	void PlayIceBreakEffect(float fTimeElapsed,bool& bBreak);
 
 	bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
@@ -76,7 +77,7 @@ public:
 	UINT GetPlayerCount() { return m_playerCount; }
 
 	CShaderManager* getShaderManager()	const { return m_pShaderManager; }
-	void CheckObjectByObjectCollisions();
+	void CheckObjectByObjectCollisions(float fElapsedTime);
 
 	bool DistanceToTarget(XMFLOAT3& pos);
 	void CheckWarningTimer();
@@ -141,6 +142,7 @@ private:
 	CPlayer*					m_pPlayer = NULL;
 
 
+	float						m_bVibeTime{ 0.0f };
 	bool						m_bWarningSet{ false };		//경고음 울리는지 여부 
 
 	//게임 플레이어 수

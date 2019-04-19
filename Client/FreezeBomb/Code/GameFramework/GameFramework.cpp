@@ -558,6 +558,8 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				case VK_F9:
 					ChangeSwapChainState();
 					break;
+				
+			
 				//case '1':
 				//	//AddFileData(m_pPlayer, wParam);
 				//	
@@ -571,8 +573,19 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					break;
 			}
 			break;
-		default:
+		/*case VK_DOWN:
+			switch (wParam) 
+			{
+			case VK_CONTROL:
+				m_pPlayer->SetSpike(true);
+				break;
+				
+			default :
+				break;
+			}
 			break;
+		default:
+			break;*/
 	}
 }
 #ifdef _MAPTOOL_MODE_
@@ -1150,10 +1163,7 @@ void CGameFramework::FrameAdvance()
 	}
 
 	if (m_pScene)
-		m_pScene->CheckObjectByObjectCollisions();
-
-	//if (m_pScene)
-	//	m_pScene->CheckObjectByObjectCollisions();
+		m_pScene->CheckObjectByObjectCollisions(m_elapsedTime);
 
 	if (m_pCartoonShader)
 	{
