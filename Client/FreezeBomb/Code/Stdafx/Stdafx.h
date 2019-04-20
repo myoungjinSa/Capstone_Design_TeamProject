@@ -38,6 +38,9 @@ using namespace std;
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
 
+//쓰레드
+#include <thread>
+
 
 //다이렉트 2D 헤더
 #include <d2d1_3.h>		//This header is used by Direct2D. 

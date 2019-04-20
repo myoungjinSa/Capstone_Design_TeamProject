@@ -89,10 +89,13 @@ void CLoadingScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	pLoadingShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	m_ppShaders[0] = pLoadingShader;
 
+
+
 }
 
 void CLoadingScene::Render(ID3D12GraphicsCommandList *pd3dCommandList)
 {
+
 	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 
 

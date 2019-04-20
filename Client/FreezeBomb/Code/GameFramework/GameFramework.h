@@ -164,5 +164,9 @@ private:
 #endif
 
 	Network*	m_pNetwork{ nullptr };
+
+	//사운드 쓰레드 풀
+	vector<thread> soundThreads;
+	vector<thread> loadingThread;
 };
 
