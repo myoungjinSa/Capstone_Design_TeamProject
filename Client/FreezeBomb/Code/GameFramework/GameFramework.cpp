@@ -61,9 +61,11 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	
 	CreateDirect3DDevice();
 	CreateCommandQueueAndList();
+
 #ifdef _WITH_DIRECT2D_
 	CreateDirect2DDevice();
 #endif
+
 	CreateRtvAndDsvDescriptorHeaps();
 	CreateSwapChain();
 	CreateDepthStencilView();
@@ -806,15 +808,19 @@ bool CGameFramework::BuildObjects()
 	//}
 	m_pLoadingScene = new CLoadingScene();
 	if (m_pLoadingScene)
-		m_pLoadingScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
+		loadingThread.emplace_back(thread{ &CLoadingScene::BuildObjects,m_pLoadingScene,m_pd3dDevice,m_pd3dCommandList });
+		//m_pLoadingScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 
 	////////////////////////////////////////////////////////////////////////////
 	const int nPlayerCount = 6;		//임시로 플레이어 개수 지정. 
 	//추후에 서버에서 접속 인원을 씬 BuildObject 호출 전에 받아와서 세팅하면 될듯함.
 	m_pScene = new CScene();
-	if (m_pScene) 
-		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList,nPlayerCount-1); //GameFramework에서 관리하는 CPlayer를 제외한 나머지 넘겨준다.
-
+	if (m_pScene)
+	{
+		soundThreads.emplace_back(thread{ &CScene::CreateSoundSystem, m_pScene });
+		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, nPlayerCount - 1); //GameFramework에서 관리하는 CPlayer를 제외한 나머지 넘겨준다.
+		
+	}
 	CTerrainPlayer* pPlayer{ nullptr };
 
 	if (m_pScene->getShaderManager())
@@ -848,6 +854,17 @@ bool CGameFramework::BuildObjects()
 	m_pPlayer = pPlayer;
 	m_pScene->setPlayer(m_pPlayer);
 	m_pCamera = m_pPlayer->GetCamera();
+
+
+	for(auto& th : loadingThread)
+	{
+		th.join();
+	}
+	//사운드 스레드 조인
+	for (auto & th : soundThreads)
+	{
+		th.join();
+	}
 
 	m_pd3dCommandList->Close();
 	ID3D12CommandList *ppd3dCommandLists[] = { m_pd3dCommandList };

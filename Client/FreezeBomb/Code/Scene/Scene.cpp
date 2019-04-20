@@ -107,7 +107,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 
 	//사운드 생성
-	CreateSoundSystem();
+	//CreateSoundSystem();
 	
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
