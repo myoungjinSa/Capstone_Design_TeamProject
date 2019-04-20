@@ -159,7 +159,6 @@ void CCubeParticleShader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommand
 void CCubeParticleShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
 	UpdateShaderVariables(pd3dCommandList);
-
 	auto iter = m_CubeParticleList.begin();
 
 	OnPrepareRender(pd3dCommandList, GameObject);

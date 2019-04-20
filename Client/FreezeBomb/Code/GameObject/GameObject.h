@@ -406,9 +406,8 @@ public:
 	UINT GetLodLevel() { return m_lodLevel; }
 protected:
 
-	_TCHAR				m_playerName[256];
+	_TCHAR		m_playerName[256];
 	CShadow*	m_pShadow{ nullptr };
-
 
 	CLampParticle*				m_pLampParticle{ nullptr };	
 
@@ -445,11 +444,12 @@ public:
 	void SetObjectCollided(CGameObject* value) { m_pObjectCollided = value; }
 
 	void CacheFrameMeshObject(CGameObject* pRootFrame);
-
 	// 해당하는 프레임메쉬를 찾아서 셋해줌
 	void FindAndSetFrameMesh(int* nFrameMeshIndex, CFrameTransform* pFrameTransform);
 	CFrameTransform* m_pFrameTransform{ nullptr };
 
+	//게임 객체가 카메라에 보인는 가를 검사한다
+	bool IsVisible(CCamera* pCamera = nullptr);
 };
 
 class CCubeObject : public CGameObject

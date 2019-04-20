@@ -64,52 +64,18 @@ void CEvilBear::Initialize_Shadow(CLoadedModelInfo* pLoadedModel, CGameObject* p
 
 void CEvilBear::Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bHammer, bool bBomb, bool bIce, int matID, CCamera* pCamera, int nPipelineState)
 {
-	CGameObject::Render(pd3dCommandList, bHammer, bBomb, bIce, matID, pCamera, GameObject);
+	if (IsVisible(pCamera) == true)
+	{
+		CGameObject::Render(pd3dCommandList, bHammer, bBomb, bIce, matID, pCamera, GameObject);
 
-	if (m_pShadow)
-		m_pShadow->Render(pd3dCommandList, bHammer, bBomb, bIce, matID, pCamera, GameObject_Shadow);
+		if (m_pShadow)
+			m_pShadow->Render(pd3dCommandList, bHammer, bBomb, bIce, matID, pCamera, GameObject_Shadow);
+	}
 }
 
 void CEvilBear::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int nPipelineState)
 {
-	OnPrepareRender();
-
-	//if (m_pSkinningBoneTransforms)
-	//	m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
-
-	//if (m_pFrameTransform)
-	//	m_pFrameTransform->SetFrameMeshWorldConstantBuffer();
-
-	//if (m_pMesh)
-	//{
-	//	//if (!m_pSkinningBoneTransforms)
-	//	//	UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
-
-	//	if (m_nMaterials > 0)
-	//	{
-	//		for (int i = 0; i < m_nMaterials; i++)
-	//		{
-	//			if (m_ppMaterials[i])
-	//			{
-	//				if (m_ppMaterials[i]->m_pShader)
-	//					m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
-
-	//				m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
-	//			}
-	//			m_pMesh->Render(pd3dCommandList, i);
-	//		}
-	//	}
-	//}
-
-	//if (m_pSibling)
-	//	((CEvilBear*)m_pSibling)->CEvilBear::Render(pd3dCommandList, pCamera, nPipelineState);
-	//if (m_pChild)
-	//	((CEvilBear*)m_pChild)->CEvilBear::Render(pd3dCommandList, pCamera, nPipelineState);
-
-	//if (m_pShadow)
-		//m_pShadow->Render(pd3dCommandList, bHammer, bBomb, bIce, matID, pCamera, GameObject_Shadow);
 }
-
 
 void CEvilBear::ReleaseSound()
 {

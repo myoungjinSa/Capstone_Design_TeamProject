@@ -37,8 +37,6 @@ public:
 	void Release() { if (--m_nReferences <= 0) delete this; }
 	char												m_pstrMeshName[64] = { 0 };
 protected:
-
-
 	UINT												m_LodLevel{ 0 };
 
 	UINT												m_nType = 0x00;
@@ -67,6 +65,8 @@ protected:
 	XMFLOAT3									m_xmf3AABBCenter = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3									m_xmf3AABBExtents = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
+	//모델 좌표계의 OOBB 바운딩 박스. 
+	BoundingOrientedBox					m_BoundingBox;
 
 public:
 	UINT GetType() { return(m_nType); }
@@ -90,6 +90,7 @@ public:
 
 	XMFLOAT3 getBoundCenter()	const { return m_xmf3AABBCenter; }
 	XMFLOAT3& getBoundExtent()	{ return m_xmf3AABBExtents; }
+	BoundingOrientedBox GetBoundingBox() const { return m_BoundingBox; }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

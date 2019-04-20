@@ -720,8 +720,8 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bHammer
 		}
 	}	
 }
-//LOD 오브젝트 렌더 
 
+//LOD 오브젝트 렌더 
 void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lodLevel, CCamera *pCamera, int nPipelineState)
 {
 	OnPrepareRender();
@@ -1393,6 +1393,28 @@ CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device *pd
 #endif
 
 	return(pLoadedModel);
+}
+
+bool CGameObject::IsVisible(CCamera* pCamera)
+{
+	if (m_pMesh)
+	{
+		bool isVisible = false;
+		BoundingOrientedBox boundingBox = m_pMesh->GetBoundingBox();
+		
+		//모델 좌표계의 바운딩 박스를 월드 좌표계로 변환한다. 
+		boundingBox.Transform(boundingBox, XMLoadFloat4x4(&m_xmf4x4World)); 
+		
+		if (pCamera) 
+			isVisible = pCamera->IsInFrustum(boundingBox); 
+		
+		return isVisible; 
+	}
+
+	if (m_pSibling)
+		m_pSibling->IsVisible(pCamera);
+	if (m_pChild)
+		m_pChild->IsVisible(pCamera);
 }
 
 CCubeObject::CCubeObject(int nMaterial) : CGameObject(nMaterial)

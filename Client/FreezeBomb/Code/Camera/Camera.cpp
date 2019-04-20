@@ -104,6 +104,9 @@ void CCamera::RegenerateViewMatrix()
 	m_xmf4x4View._41 = -Vector3::DotProduct(m_xmf3Position, m_xmf3Right);
 	m_xmf4x4View._42 = -Vector3::DotProduct(m_xmf3Position, m_xmf3Up);
 	m_xmf4x4View._43 = -Vector3::DotProduct(m_xmf3Position, m_xmf3Look);
+
+	//카메라 변환 행렬이 바뀔 때마다 절두체를 다시 생성한다(절두체는 월드 좌표계로 생성한다).
+	Initialize_Frustum();
 }
 
 void CCamera::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
@@ -161,18 +164,29 @@ XMFLOAT4X4& CCamera::ViberateCamera(const float& elapsedTime,const float& maxAng
 
 	XMFLOAT4X4 xmf4x4ViberateMatrix = Matrix4x4::Identity();
 
-
 	xmf4x4ViberateMatrix=Matrix4x4::RotationAxis(m_xmf3Up, maxAngle*sinf(m_fCameraMovingTime));
 
-
 	return xmf4x4ViberateMatrix;
-
 }
 
 //카메라 구형  선형 보간
 void CCamera::SphericalLinearInterpolation(float angle, float time, float speed)
 {
-	
+}
+
+void CCamera::Initialize_Frustum()
+{
+	//원근 투영 변환 행렬에서 절두체를 생성한다(절두체는 카메라 좌표계로 표현된다). 
+	m_Frustum.CreateFromMatrix(m_Frustum, XMLoadFloat4x4(&m_xmf4x4Projection)); 
+	//카메라 변환 행렬의 역행렬을 구한다. 
+	XMMATRIX xmmtxInversView = XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_xmf4x4View)); 
+	//절두체를 카메라 변환 행렬의 역행렬로 변환한다(이제 절두체는 월드 좌표계로 표현된다). 
+	m_Frustum.Transform(m_Frustum, xmmtxInversView);
+}
+
+bool CCamera::IsInFrustum(BoundingOrientedBox& BoundingBox)
+{
+	return m_Frustum.Intersects(BoundingBox);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
