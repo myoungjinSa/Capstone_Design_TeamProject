@@ -15,6 +15,8 @@
 #include "../Shader/BillboardShader/BombParticleShader/BombParticleShader.h"
 #include "../Shader/BillboardShader/SnowShader/SnowShader.h"
 
+#include "../Shader/BillboardShader/UIShader/ProgressBarUIShader/ProgressBarUIShader.h"
+
 #include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
 #include "../Shader/BillboardShader/UIShader/ItemUIShader/ItemUIShader.h"
 
@@ -37,7 +39,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_pResourceManager = new CResourceManager;
 	m_pResourceManager->Initialize(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	m_nShaders = 10;
+	m_nShaders = 11;
 
 	//카툰렌더링 해야될 쉐이더 개수
 	m_nPostShaders = m_nShaders - 2;
@@ -113,6 +115,12 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	pSnowShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), pTerrainShader->getTerrain());
 	m_ppShaders[index++] = pSnowShader;
 	m_ShaderMap.emplace("Snow", pSnowShader);
+
+	CProgressBarUIShader* pProgressBarUIShader = new CProgressBarUIShader;
+	pProgressBarUIShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pProgressBarUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
+	m_ppShaders[index++] = pProgressBarUIShader;
+	m_ShaderMap.emplace("ProgressBarUI", pProgressBarUIShader);
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	//아래 shader들은 카툰처리가 되면 안되는 shader

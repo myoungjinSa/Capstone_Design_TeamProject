@@ -141,6 +141,11 @@ void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	pGoldTimer_ItemTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Item/GoldTimer_Item.dds", 0);
 	CScene::CreateShaderResourceViews(pd3dDevice, pGoldTimer_ItemTexture, 22, false);
 	m_TextureMap.emplace("GoldTimer", pGoldTimer_ItemTexture);
+
+	CTexture* pProgressBar_Texture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pProgressBar_Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Green_ProgressBar.dds", 0);
+	CScene::CreateShaderResourceViews(pd3dDevice, pProgressBar_Texture, 22, false);
+	m_TextureMap.emplace("ProgressBar", pProgressBar_Texture);
 }
 
 void CResourceManager::LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
