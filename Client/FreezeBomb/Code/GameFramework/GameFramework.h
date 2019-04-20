@@ -2,13 +2,8 @@
 
 #include "../GameTimer/GameTimer.h"
 
-
-
 class CScene;
 class CPlayer;
-class CPlayerShadowShader;
-
-class CSnowShader;
 class CCamera;
 class CMapToolShader;
 class CSobelCartoonShader;
@@ -27,7 +22,8 @@ public:
 
 	void CreateDirect3DDevice();
 	void CreateCommandQueueAndList();
-	
+	void CreateLoadingCommandList();
+
 	void CreateRtvAndDsvDescriptorHeaps();
 
 	void CreateRenderTargetViews();
@@ -55,7 +51,6 @@ public:
 	void MoveToNextFrame();
 
 	void CreateOffScreenRenderTargetViews();
-
 
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
@@ -98,6 +93,9 @@ private:
 	ID3D12CommandQueue*						m_pd3dCommandQueue = nullptr;
 	ID3D12GraphicsCommandList*				m_pd3dCommandList = nullptr;
 
+	ID3D12CommandAllocator*					m_pLoadingCommandAllocator = nullptr;
+	ID3D12GraphicsCommandList*				m_pLoadingCommandList = nullptr;
+
 	ID3D12Fence*							m_pd3dFence = nullptr;
 	UINT64										m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE									m_hFenceEvent;
@@ -111,7 +109,6 @@ private:
 	CLoadingScene*							m_pLoadingScene = nullptr;
 	CScene*									m_pScene = nullptr;
 	CPlayer*								m_pPlayer = nullptr;
-	CPlayerShadowShader*					m_pPlayerShadowShader = nullptr;
 
 	CCamera*								m_pCamera = nullptr;
 
@@ -119,12 +116,9 @@ private:
 
 	_TCHAR									m_pszFrameRate[70];
 
-
 	static const UINT						m_nCartoonScreenRenderTargetBuffers = 2;
 	ID3D12Resource*							m_ppd3dCartoonScreenRenderTargetBuffers[m_nCartoonScreenRenderTargetBuffers];
 	D3D12_CPU_DESCRIPTOR_HANDLE				m_pd3dCarttonScreenRenderTargetBufferCPUHandles[m_nCartoonScreenRenderTargetBuffers];
-
-
 
 	CSobelCartoonShader*					m_pCartoonShader{ nullptr };
 #ifdef _MAPTOOL_MODE_
@@ -151,12 +145,9 @@ private:
 	const int								m_nNameFont=6;
 	//const int								m_nNameFont = 7;
 
-
 	IDWriteTextLayout				*m_pdwTextLayout{ nullptr };//
 	ID2D1SolidColorBrush			**m_pd2dbrText{ nullptr };//
 	
-
-
 	IWICImagingFactory				*m_pwicImagingFactory{ nullptr };
 	ID2D1Effect						*m_pd2dfxBitmapSource{ nullptr };
 	ID2D1DrawingStateBlock1			*m_pd2dsbDrawingState{ nullptr };
@@ -168,5 +159,7 @@ private:
 	//사운드 쓰레드 풀
 	vector<thread> soundThreads;
 	vector<thread> loadingThread;
+
+	void Worker_Thread();
 };
 
