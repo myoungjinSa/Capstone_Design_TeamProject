@@ -159,10 +159,11 @@ private:
 	// Snow : 1, 
 	// Number : 10, Colon : 1 => TimerUI = 11
 	// ItemBox = 1, Hammer_Item : 1, GoldHammer_Item : 1, GoldTimer_Item : 1=> ItemUI : 4
+	// ProgressBar = 1
 
 	enum nShaderResourceView
 	{
 		SkyBox = 1, Terrain = 2, MapObjects = 67, Item = 8,
-		EvilBear = 19, Player = 19, BombParticle = 1, CubeParticle = 1, Snow = 1, TimerUI = 11, ItemUI = 4
+		EvilBear = 19, Player = 19, BombParticle = 1, CubeParticle = 1, Snow = 1, TimerUI = 11, ItemUI = 4, ProgressBar = 1
 	};
 };

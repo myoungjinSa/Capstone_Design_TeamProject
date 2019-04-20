@@ -186,6 +186,9 @@
     <ClCompile Include="..\Code\Shader\CubeParticleShader\CubeParticleShader.cpp">
       <Filter>Code\Shader\CubeParticleShader</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\ProgressBarUIShader\ProgressBarUIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\ProgressBarUIShader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h">
@@ -365,6 +368,9 @@
     <ClInclude Include="..\Code\Shader\CubeParticleShader\CubeParticleShader.h">
       <Filter>Code\Shader\CubeParticleShader</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\ProgressBarUIShader\ProgressBarUIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\ProgressBarUIShader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Code">
@@ -543,6 +549,9 @@
     </Filter>
     <Filter Include="Code\GameObject\CubeParticle">
       <UniqueIdentifier>{1c2f2d57-22a8-4531-b37d-8205227ab137}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\ProgressBarUIShader">
+      <UniqueIdentifier>{de75bb0c-442c-4016-9eb0-18aa3a25971a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
