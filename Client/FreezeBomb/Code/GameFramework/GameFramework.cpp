@@ -58,7 +58,6 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	m_hInstance = hInstance;
 	m_hWnd = hMainWnd;
 
-	
 	CreateDirect3DDevice();
 	CreateCommandQueueAndList();
 #ifdef _WITH_DIRECT2D_
@@ -68,9 +67,7 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CreateSwapChain();
 	CreateDepthStencilView();
 
-	CoInitialize(NULL);
-
-	
+	//CoInitialize(NULL);
 
 	if (!BuildObjects())
 		return false;
