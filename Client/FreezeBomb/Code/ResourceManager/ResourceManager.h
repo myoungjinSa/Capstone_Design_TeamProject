@@ -27,6 +27,7 @@ public:
 
 	void Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
 
+	void LoadResourceSize();
 	void LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	void LoadMapObjectInfo(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
@@ -43,8 +44,10 @@ public:
 private:
 	
 	map<string, CTexture*>					m_TextureMap;
-	map<string, CLoadedModelInfo*>			m_ModelMap;
+	map<string, CLoadedModelInfo*>	m_ModelMap;
 	map<string, Bounds*>						m_BoundMap;
 
 	multimap<string, MapObjectInfo*>	m_MapObjectInfoMultiMap;
+
+	map<string, wstring> m_FileNameMap;
 };

@@ -3,6 +3,8 @@
 #include "../Texture/Texture.h"
 #include "../Scene/Scene.h"
 
+volatile size_t g_TotalSize = 12994707;
+volatile size_t g_FileSize = 0;
 CResourceManager::CResourceManager()
 {
 }
@@ -13,6 +15,7 @@ CResourceManager::~CResourceManager()
 
 void CResourceManager::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
+	//LoadResourceSize();
 	LoadTexture(pd3dDevice, pd3dCommandList);
 	
 	LoadModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -20,6 +23,45 @@ void CResourceManager::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 
 	LoadBound(pd3dDevice, pd3dCommandList);
 
+}
+
+void CResourceManager::LoadResourceSize()
+{
+	auto start = chrono::high_resolution_clock::now();
+	//wstring wfileName = L"../Resource/Textures/SkyBox/SkyBox_1.dds";
+	//string sfileName;
+	//sfileName.assign(wfileName.begin(), wfileName.end());
+	////m_FileNameMap.emplace("SkyBox", wfileName);
+
+	////ifstream in("../Resource/Textures/SkyBox/SkyBox_1.dds", ios::binary);
+	//ifstream in(sfileName, ios::binary);
+	//if (!in)
+	//	return;
+	//in.seekg(0, ios::end);
+	//size_t fileSize = in.tellg();
+	//in.seekg(0, ios::beg);
+	//cout << "파일이름 : " << sfileName << " - "<< fileSize << "바이트" << endl;
+
+	//in.close();
+	//in.clear();
+	//
+	//wfileName = L"../Resource/Textures/Terrain/BaseTerrain.dds";
+	//sfileName.clear();
+	//sfileName.assign(wfileName.begin(), wfileName.end());
+	//in.open(sfileName, ios::binary);
+	//if (!in)
+	//	return;
+	//in.seekg(0, ios::end);
+	//fileSize = in.tellg();
+	//in.seekg(0, ios::beg);
+	//cout << "파일이름 : " << sfileName << " - " << fileSize << "바이트" << endl;
+
+	//{
+	//	string wfilename[] = {"1", "2"};
+	//	for (int i = 0; i < 2; ++i)
+	//		cout << wfilename[i] << endl;
+	//}
+	auto elapsedTime = chrono::high_resolution_clock::now() - start;
 }
 
 //void CResourceManager::CreateOffScreenRenderTargeViews(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList,int clientWidth,int clientHeight)

@@ -14,6 +14,10 @@
 #include "../Shader/PostProcessShader/CartoonShader/SobelCartoonShader.h"
 
 volatile bool g_Finish = true;
+
+extern volatile size_t g_TotalSize;
+extern volatile size_t g_FileSize;
+
 CGameFramework::CGameFramework()
 {
 	m_pdxgiFactory = NULL;
@@ -862,7 +866,6 @@ bool CGameFramework::BuildObjects()
 			m_pMapToolShader->CreateShader(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
 			m_pMapToolShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), pTerrain);
 #endif
-
 		}
 	}
 
@@ -1061,8 +1064,6 @@ void CGameFramework::SetNamecard()
 			}
 		}
 	}
-
-
 }
 
 void CGameFramework::ShowScoreboard()
@@ -1118,10 +1119,8 @@ void CGameFramework::ProcessDirect2D()
 	//D2D1_SIZE_F : float형태의 가로 세로 쌍을 저장한 구조체
 	D2D1_SIZE_F szRenderTarget = m_ppd2dRenderTargets[m_nSwapChainBufferIndex]->GetSize();
 
-
 	//이름 
 	SetNamecard();
-
 
 	//스코어 보드
 	ShowScoreboard();
@@ -1275,8 +1274,15 @@ void CGameFramework::Worker_Thread()
 	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
 
-	while (g_Finish)
+	m_GameTimer.Reset();
+
+	while (true)
 	{
+		m_GameTimer.Tick(60.0f);
+		float elapsedTime = m_GameTimer.GetTimeElapsed();
+
+		m_pLoadingScene->AnimateObjects(m_pLoadingCommandList, elapsedTime);
+
 		float pfClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 		HRESULT hResult = m_pLoadingCommandAllocator->Reset();
@@ -1305,7 +1311,7 @@ void CGameFramework::Worker_Thread()
 		D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 		m_pLoadingCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, FALSE, &d3dDsvCPUDescriptorHandle);
 
-		m_pLoadingCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor/*Colors::Azure*/, 0, NULL);
+		m_pLoadingCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor, 0, NULL);
 
 		m_pLoadingCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 
@@ -1324,5 +1330,10 @@ void CGameFramework::Worker_Thread()
 		m_pdxgiSwapChain->Present(0, 0);
 
 		MoveToNextFrame();
+
+		double totalSize = g_TotalSize;
+		double fileSize = g_FileSize;
+		if (fileSize / totalSize >= 1)
+			break;
 	}
 }

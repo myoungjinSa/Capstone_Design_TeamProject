@@ -9,6 +9,7 @@
 #include "../FrameTransform/FrameTransform.h"
 
 //int CGameObject::m_AnimationType = CGameObject::ANIMATIONTYPE::IDLE;
+extern volatile size_t g_FileSize;
 
 class CSoundSystem;
 CAnimationSet::CAnimationSet()
@@ -910,8 +911,6 @@ void CGameObject::Rotate(XMFLOAT4 *pxmf4Quaternion)
 	UpdateTransform(NULL);
 }
 
-
-
 //#define _WITH_DEBUG_FRAME_HIERARCHY
 
 CTexture *CGameObject::FindReplicatedTexture(_TCHAR *pstrTextureName)
@@ -950,7 +949,9 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 	BYTE nStrLength = 0;
 
 	UINT nReads = (UINT)::fread(&m_nMaterials, sizeof(int), 1, pInFile);
-
+	
+	g_FileSize += sizeof(int) * nReads;
+	
 	m_ppMaterials = new CMaterial*[m_nMaterials];
 	for (int i = 0; i < m_nMaterials; i++)
 		m_ppMaterials[i] = NULL;
@@ -960,12 +961,20 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 	for ( ; ; )
 	{
 		nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+
+		g_FileSize += sizeof(BYTE) * nReads;
+
 		nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pInFile); 
+
+		g_FileSize += sizeof(char) * nReads;
+
 		pstrToken[nStrLength] = '\0';
 
 		if (!strcmp(pstrToken, "<Material>:"))
 		{
 			nReads = (UINT)::fread(&nMaterial, sizeof(int), 1, pInFile);
+
+			g_FileSize += sizeof(int) * nReads;
 
 			pMaterial = new CMaterial(7); //0:Albedo, 1:Specular, 2:Metallic, 3:Normal, 4:Emission, 5:DetailAlbedo, 6:DetailNormal
 
@@ -989,34 +998,50 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 		else if (!strcmp(pstrToken, "<AlbedoColor>:"))
 		{
 			nReads = (UINT)::fread(&(pMaterial->m_xmf4AlbedoColor), sizeof(float), 4, pInFile);
+
+			g_FileSize += sizeof(float) * nReads;
 		}
 		else if (!strcmp(pstrToken, "<EmissiveColor>:"))
 		{
 			nReads = (UINT)::fread(&(pMaterial->m_xmf4EmissiveColor), sizeof(float), 4, pInFile);
+
+			g_FileSize += sizeof(float) * nReads;
 		}
 		else if (!strcmp(pstrToken, "<SpecularColor>:"))
 		{
 			nReads = (UINT)::fread(&(pMaterial->m_xmf4SpecularColor), sizeof(float), 4, pInFile);
+
+			g_FileSize += sizeof(float) * nReads;
 		}
 		else if (!strcmp(pstrToken, "<Glossiness>:"))
 		{
 			nReads = (UINT)::fread(&(pMaterial->m_fGlossiness), sizeof(float), 1, pInFile);
+
+			g_FileSize += sizeof(float) * nReads;
 		}
 		else if (!strcmp(pstrToken, "<Smoothness>:"))
 		{
 			nReads = (UINT)::fread(&(pMaterial->m_fSmoothness), sizeof(float), 1, pInFile);
+
+			g_FileSize += sizeof(float) * nReads;
 		}
 		else if (!strcmp(pstrToken, "<Metallic>:"))
 		{
 			nReads = (UINT)::fread(&(pMaterial->m_fSpecularHighlight), sizeof(float), 1, pInFile);
+
+			g_FileSize += sizeof(float) * nReads;
 		}
 		else if (!strcmp(pstrToken, "<SpecularHighlight>:"))
 		{
 			nReads = (UINT)::fread(&(pMaterial->m_fMetallic), sizeof(float), 1, pInFile);
+
+			g_FileSize += sizeof(float) * nReads;
 		}
 		else if (!strcmp(pstrToken, "<GlossyReflection>:"))
 		{
 			nReads = (UINT)::fread(&(pMaterial->m_fGlossyReflection), sizeof(float), 1, pInFile);
+
+			g_FileSize += sizeof(float) * nReads;
 		}
 		else if (!strcmp(pstrToken, "<AlbedoMap>:"))
 		{
@@ -1071,7 +1096,13 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 	for ( ; ; )
 	{
 		nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+
+		g_FileSize += sizeof(BYTE) * nReads;
+
 		nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pInFile);
+
+		g_FileSize += sizeof(char) * nReads;
+
 		pstrToken[nStrLength] = '\0';
 
 		if (!strcmp(pstrToken, "<Frame>:"))
@@ -1079,10 +1110,21 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 			pGameObject = new CGameObject();
 
 			nReads = (UINT)::fread(&nFrame, sizeof(int), 1, pInFile);
+			
+			g_FileSize += sizeof(int) * nReads;
+
 			nReads = (UINT)::fread(&nTextures, sizeof(int), 1, pInFile);
 
+			g_FileSize += sizeof(int) * nReads;
+
 			nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+
+			g_FileSize += sizeof(BYTE) * nReads;
+
 			nReads = (UINT)::fread(pGameObject->m_pstrFrameName, sizeof(char), nStrLength, pInFile);
+
+			g_FileSize += sizeof(char) * nReads;
+
 			pGameObject->m_pstrFrameName[nStrLength] = '\0';
 
 			if (!strcmp(pGameObject->m_pstrFrameName, "Lamp"))
@@ -1093,18 +1135,30 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 		}
 		else if (!strcmp(pstrToken, "<Transform>:"))
 		{
-			
 			XMFLOAT4 xmf4Rotation;
 			nReads = (UINT)::fread(&xmf3Position, sizeof(float), 3, pInFile);
+
+			g_FileSize += sizeof(float) * nReads;
+
 			nReads = (UINT)::fread(&xmf3Rotation, sizeof(float), 3, pInFile); //Euler Angle
+
+			g_FileSize += sizeof(float) * nReads;
+
 			nReads = (UINT)::fread(&xmf3Scale, sizeof(float), 3, pInFile);
+
+			g_FileSize += sizeof(float) * nReads;
+
 			pGameObject->m_xmf3Scale = xmf3Scale;
+
 			nReads = (UINT)::fread(&xmf4Rotation, sizeof(float), 4, pInFile); //Quaternion
 
+			g_FileSize += sizeof(float) * nReads;
 		}
 		else if (!strcmp(pstrToken, "<TransformMatrix>:"))
 		{
 			nReads = (UINT)::fread(&pGameObject->m_xmf4x4ToParent, sizeof(float), 16, pInFile);
+
+			g_FileSize += sizeof(float) * nReads;
 		}
 		else if (!strcmp(pstrToken, "<Mesh>:"))
 		{
@@ -1132,7 +1186,13 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 			pSkinnedMesh->LoadSkinInfoFromFile(pd3dDevice, pd3dCommandList, pInFile);
 
 			nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+
+			g_FileSize += sizeof(BYTE) * nReads;
+
 			nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pInFile); //<Mesh>:
+
+			g_FileSize += sizeof(char) * nReads;
+
 			pSkinnedMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
 
 			pGameObject->SetMesh(pSkinnedMesh);
@@ -1145,6 +1205,9 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 		{
 			int nChilds = 0;
 			nReads = (UINT)::fread(&nChilds, sizeof(int), 1, pInFile);
+
+			g_FileSize += sizeof(int) * nReads;
+
 			if (nChilds > 0)
 			{
 				for (int i = 0; i < nChilds; i++)
@@ -1194,24 +1257,41 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 	for ( ; ; )
 	{
 		nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+
+		g_FileSize += sizeof(BYTE) * nReads;
+
 		nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pInFile);
+
+		g_FileSize += sizeof(char) * nReads;
+
 		pstrToken[nStrLength] = '\0';
 
 		if (!strcmp(pstrToken, "<AnimationSets>:"))
 		{
 			nReads = (UINT)::fread(&pAnimationSets->m_nAnimationSets, sizeof(int), 1, pInFile);
 
+			g_FileSize += sizeof(int) * nReads;
+
 			pAnimationSets->m_pAnimationSets = new CAnimationSet[pAnimationSets->m_nAnimationSets];
 		}
 		else if (!strcmp(pstrToken, "<FrameNames>:"))
 		{
 			nReads = (UINT)::fread(&pAnimationSets->m_nAnimationFrames, sizeof(int), 1, pInFile);
+
+			g_FileSize += sizeof(int) * nReads;
+
 			pAnimationSets->m_ppAnimationFrameCaches = new CGameObject*[pAnimationSets->m_nAnimationFrames];
 
 			for (int i = 0; i < pAnimationSets->m_nAnimationFrames; i++)
 			{
 				nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+
+				g_FileSize += sizeof(BYTE) * nReads;
+
 				nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pInFile);
+
+				g_FileSize += sizeof(char) * nReads;
+
 				pstrToken[nStrLength] = '\0';
 
 				pAnimationSets->m_ppAnimationFrameCaches[i] = pRootFrame->FindFrame(pstrToken);
@@ -1232,10 +1312,19 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 		{
 			int nAnimationSet = 0;
 			nReads = (UINT)::fread(&nAnimationSet, sizeof(int), 1, pInFile);
+
+			g_FileSize += sizeof(int) * nReads;
+
 			CAnimationSet *pAnimationSet = &pAnimationSets->m_pAnimationSets[nAnimationSet];
 
 			nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+
+			g_FileSize += sizeof(BYTE) * nReads;
+
 			nReads = (UINT)::fread(pAnimationSet->m_pstrName, sizeof(char), nStrLength, pInFile);
+
+			g_FileSize += sizeof(char) * nReads;
+
 			pAnimationSet->m_pstrName[nStrLength] = '\0';
 
 			// 애니메이션이 안되는 문제해결해야댐
@@ -1249,9 +1338,17 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 			}
 
 			nReads = (UINT)::fread(&pAnimationSet->m_fLength, sizeof(float), 1, pInFile);
+
+			g_FileSize += sizeof(float) * nReads;
+
 			nReads = (UINT)::fread(&pAnimationSet->m_nFramesPerSecond, sizeof(int), 1, pInFile);
 
+			g_FileSize += sizeof(int) * nReads;
+
 			nReads = (UINT)::fread(&pAnimationSet->m_nKeyFrameTransforms, sizeof(int), 1, pInFile);
+
+			g_FileSize += sizeof(int) * nReads;
+
 			pAnimationSet->m_pfKeyFrameTransformTimes = new float[pAnimationSet->m_nKeyFrameTransforms];
 			pAnimationSet->m_ppxmf4x4KeyFrameTransforms = new XMFLOAT4X4*[pAnimationSet->m_nKeyFrameTransforms];
 			for (int i = 0; i < pAnimationSet->m_nKeyFrameTransforms; i++) pAnimationSet->m_ppxmf4x4KeyFrameTransforms[i] = new XMFLOAT4X4[pAnimationSets->m_nAnimationFrames];
@@ -1259,7 +1356,13 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 			for (int i = 0; i < pAnimationSet->m_nKeyFrameTransforms; i++)
 			{
 				nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+
+				g_FileSize += sizeof(BYTE) * nReads;
+
 				nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pInFile);
+
+				g_FileSize += sizeof(char) * nReads;
+
 				pstrToken[nStrLength] = '\0';
 
 				if (!strcmp(pstrToken, "<Transforms>:"))
@@ -1267,8 +1370,15 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 					int nKeyFrame = 0;
 					nReads = (UINT)::fread(&nKeyFrame, sizeof(int), 1, pInFile); //i
 
+					g_FileSize += sizeof(int) * nReads;
+
 					nReads = (UINT)::fread(&pAnimationSet->m_pfKeyFrameTransformTimes[i], sizeof(float), 1, pInFile);
+
+					g_FileSize += sizeof(float) * nReads;
+
 					nReads = (UINT)::fread(pAnimationSet->m_ppxmf4x4KeyFrameTransforms[i], sizeof(float), 16 * pAnimationSets->m_nAnimationFrames, pInFile);
+
+					g_FileSize += sizeof(float) * nReads;
 				}
 			}
 #ifdef _WITH_ANIMATION_SRT

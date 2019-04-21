@@ -9,6 +9,8 @@
 CShader* CMaterial::m_pSkinnedAnimationShader{ nullptr };
 CShader* CMaterial::m_pStandardShader{ nullptr };
 
+extern volatile size_t g_FileSize;
+
 CMaterial::CMaterial()
 {
 	m_nTextures = 1;
@@ -137,7 +139,13 @@ void CMaterial::LoadTextureFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsComm
 
 	BYTE nStrLength = 64;
 	UINT nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+
+	g_FileSize += sizeof(BYTE) * nReads;
+
 	nReads = (UINT)::fread(pstrTextureName, sizeof(char), nStrLength, pInFile);
+
+	g_FileSize += sizeof(char) * nReads;
+
 	pstrTextureName[nStrLength] = '\0';
 
 	bool bDuplicated = false;
