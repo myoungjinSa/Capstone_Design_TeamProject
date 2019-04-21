@@ -47,7 +47,8 @@ void CLoadingShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 
 	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
-void CLoadingShader::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList,int nConstantBufferViews,int nShaderResourceViews)
+
+void CLoadingShader::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)
 {
 	//리소스를 사용하려면 뷰를 만들어야한다. 
 	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
@@ -81,9 +82,7 @@ void CLoadingShader::CreateConstantBufferViews(ID3D12Device *pd3dDevice, ID3D12G
 	}
 }
 
-
-
-void CLoadingShader::CreateShaderResourceViews(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList* pd3dCommandList, CTexture *pTexture, UINT nRootParameter, bool bAutoIncrement)
+void CLoadingShader::CreateShaderResourceViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CTexture *pTexture, UINT nRootParameter, bool bAutoIncrement)
 {
 	int nTextures = pTexture->GetTextures();
 	int nTextureType = pTexture->GetTextureType();
@@ -113,7 +112,6 @@ D3D12_SHADER_BYTECODE CLoadingShader::CreatePixelShader()
 
 void CLoadingShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
 {
-	
 	CTexture* pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/GameStart.dds", 0);
@@ -148,7 +146,8 @@ void CLoadingShader::AnimateObjects(float fTimeElapsed)
 
 void CLoadingShader::Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipelineState)
 {
-	if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+	if (m_pd3dCbvSrvDescriptorHeap) 
+		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
 	CUIShader::OnPrepareRender(pd3dCommandList, 0);
 	for (int i = 0; i < m_nObjects; ++i) {
@@ -162,6 +161,7 @@ void CLoadingShader::ReleaseObjects()
 {
 	if (m_pd3dCbvSrvDescriptorHeap)
 		m_pd3dCbvSrvDescriptorHeap->Release();
+
 	CUIShader::ReleaseObjects();
 
 	vTexture.clear();

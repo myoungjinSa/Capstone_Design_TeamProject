@@ -1,7 +1,8 @@
 #include "../../Stdafx/Stdafx.h"
 #include "LoadingScene.h"
-#include "../../Shader/BillboardShader/UIShader/LoadingShader/LoadingShader.h"
 #include "../../Texture/Texture.h"
+#include "../../Shader/BillboardShader/UIShader/LoadingShader/LoadingShader.h"
+#include "../../Shader/BillboardShader/UIShader/ProgressBarUIShader/ProgressBarUIShader.h"
 
 CLoadingScene::CLoadingScene()
 {
@@ -24,12 +25,17 @@ ID3D12RootSignature *CLoadingScene::CreateGraphicsRootSignature(ID3D12Device *pd
 	pd3dDescriptorRanges[0].RegisterSpace = 0;
 	pd3dDescriptorRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[1];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[2];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	pd3dRootParameters[0].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[0].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[0]);
 	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	pd3dRootParameters[1].Descriptor.ShaderRegister = 8;	// b8 : g_UV
+	pd3dRootParameters[1].Descriptor.RegisterSpace = 0;
+	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[1];
 
@@ -69,26 +75,48 @@ void CLoadingScene::ReleaseObjects()
 	if (m_pd3dGraphicsRootSignature)
 		m_pd3dGraphicsRootSignature->Release();
 
+	for (int i = 0; i < m_nShaders; i++)
+	{
+		m_ppShaders[i]->ReleaseShaderVariables();
+		m_ppShaders[i]->ReleaseObjects();
+	}
+	delete[] m_ppShaders;
 }
 
 void CLoadingScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	m_nShaders = 1;
+	int index = 0;
+	m_nShaders = 2;
 	m_ppShaders = new CShader*[m_nShaders];
 
 	CLoadingShader* pLoadingShader = new CLoadingShader;
 	pLoadingShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nullptr);
 	pLoadingShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	m_ppShaders[0] = pLoadingShader;
+	m_ppShaders[index++] = pLoadingShader;
 
+	CProgressBarUIShader* pProgressBarUIShader = new CProgressBarUIShader;
+	pProgressBarUIShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	pProgressBarUIShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nullptr);	
+	m_ppShaders[index++] = pProgressBarUIShader;
+}
+
+void CLoadingScene::AnimateObjects(ID3D12GraphicsCommandList* pd3dCommandList, float elapsedTime)
+{
+	for (int i = 0; i < m_nShaders; ++i)
+	{
+		if (m_ppShaders[i])
+		{
+			m_ppShaders[i]->AnimateObjects(elapsedTime, nullptr, nullptr);
+		}
+	}
 }
 
 void CLoadingScene::Render(ID3D12GraphicsCommandList *pd3dCommandList)
 {
-
-	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
+	if (m_pd3dGraphicsRootSignature) 
+		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 
 	for(int i = 0; i < m_nShaders; ++i)
 	{

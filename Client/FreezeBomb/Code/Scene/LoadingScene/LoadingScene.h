@@ -12,7 +12,7 @@ public:
 	ID3D12RootSignature *CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	
 	void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
-	 void AnimateObjects(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed);
+	void AnimateObjects(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed);
 	void Render(ID3D12GraphicsCommandList *pd3dCommandList);
 	void ReleaseObjects();
 
@@ -20,10 +20,6 @@ public:
 
 	ID3D12RootSignature *GetGraphicsRootSignature() { return(m_pd3dGraphicsRootSignature); }
 	
-	
-	
-
-
 protected:
 	ID3D12RootSignature						*m_pd3dGraphicsRootSignature = NULL;
 	

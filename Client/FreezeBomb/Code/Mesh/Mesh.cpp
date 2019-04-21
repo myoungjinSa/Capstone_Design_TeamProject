@@ -2,6 +2,8 @@
 #include "Mesh.h"
 #include "../GameObject/GameObject.h"
 
+extern volatile size_t g_FileSize;
+
 CMesh::CMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
 }
@@ -608,8 +610,17 @@ void CStandardMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 	int nPositions = 0, nColors = 0, nNormals = 0, nTangents = 0, nBiTangents = 0, nTextureCoords = 0, nIndices = 0, nSubMeshes = 0, nSubIndices = 0;
 
 	UINT nReads = (UINT)::fread(&m_nVertices, sizeof(int), 1, pInFile);
+
+	g_FileSize += sizeof(int) * nReads;
+
 	nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+
+	g_FileSize += sizeof(BYTE) * nReads;
+
 	nReads = (UINT)::fread(m_pstrMeshName, sizeof(char), nStrLength, pInFile);
+
+	g_FileSize += sizeof(char) * nReads;
+
 	m_pstrMeshName[nStrLength] = '\0';
 
 	m_ppFrameMeshCaches = new CGameObject*[m_nFrameMeshes];
@@ -619,13 +630,24 @@ void CStandardMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 	for ( ; ; )
 	{
 		nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+
+		g_FileSize += sizeof(BYTE) * nReads;
+
 		nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pInFile);
+
+		g_FileSize += sizeof(char) * nReads;
+
 		pstrToken[nStrLength] = '\0';
 
 		if (!strcmp(pstrToken, "<Bounds>:"))
 		{
 			nReads = (UINT)::fread(&m_xmf3AABBCenter, sizeof(XMFLOAT3), 1, pInFile);
+
+			g_FileSize += sizeof(XMFLOAT3) * nReads;
+
 			nReads = (UINT)::fread(&m_xmf3AABBExtents, sizeof(XMFLOAT3), 1, pInFile);
+
+			g_FileSize += sizeof(XMFLOAT3) * nReads;
 
 			// 메쉬의 바운딩박스 생성
 			m_BoundingBox = BoundingOrientedBox(m_xmf3AABBCenter, m_xmf3AABBExtents, XMFLOAT4(0.f, 0.f, 0.f, 1.0f));
@@ -633,11 +655,16 @@ void CStandardMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 		else if (!strcmp(pstrToken, "<Positions>:"))
 		{
 			nReads = (UINT)::fread(&nPositions, sizeof(int), 1, pInFile);
+
+			g_FileSize += sizeof(int) * nReads;
+
 			if (nPositions > 0)
 			{
 				m_nType |= VERTEXT_POSITION;
 				m_pxmf3Positions = new XMFLOAT3[nPositions];
 				nReads = (UINT)::fread(m_pxmf3Positions, sizeof(XMFLOAT3), nPositions, pInFile);
+
+				g_FileSize += sizeof(XMFLOAT3) * nReads;
 
 				m_pd3dPositionBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3Positions, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dPositionUploadBuffer);
 
@@ -649,21 +676,31 @@ void CStandardMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 		else if (!strcmp(pstrToken, "<Colors>:"))
 		{
 			nReads = (UINT)::fread(&nColors, sizeof(int), 1, pInFile);
+
+			g_FileSize += sizeof(int) * nReads;
+
 			if (nColors > 0)
 			{
 				m_nType |= VERTEXT_COLOR;
 				m_pxmf4Colors = new XMFLOAT4[nColors];
 				nReads = (UINT)::fread(m_pxmf4Colors, sizeof(XMFLOAT4), nColors, pInFile);
+
+				g_FileSize += sizeof(XMFLOAT4) * nReads;
 			}
 		}
 		else if (!strcmp(pstrToken, "<TextureCoords0>:"))
 		{
 			nReads = (UINT)::fread(&nTextureCoords, sizeof(int), 1, pInFile);
+
+			g_FileSize += sizeof(int) * nReads;
+
 			if (nTextureCoords > 0)
 			{
 				m_nType |= VERTEXT_TEXTURE_COORD0;
 				m_pxmf2TextureCoords0 = new XMFLOAT2[nTextureCoords];
 				nReads = (UINT)::fread(m_pxmf2TextureCoords0, sizeof(XMFLOAT2), nTextureCoords, pInFile);
+
+				g_FileSize += sizeof(XMFLOAT2) * nReads;
 
 				m_pd3dTextureCoord0Buffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords0, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord0UploadBuffer);
 
@@ -675,11 +712,16 @@ void CStandardMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 		else if (!strcmp(pstrToken, "<TextureCoords1>:"))
 		{
 			nReads = (UINT)::fread(&nTextureCoords, sizeof(int), 1, pInFile);
+
+			g_FileSize += sizeof(int) * nReads;
+
 			if (nTextureCoords > 0)
 			{
 				m_nType |= VERTEXT_TEXTURE_COORD1;
 				m_pxmf2TextureCoords1 = new XMFLOAT2[nTextureCoords];
 				nReads = (UINT)::fread(m_pxmf2TextureCoords1, sizeof(XMFLOAT2), nTextureCoords, pInFile);
+
+				g_FileSize += sizeof(XMFLOAT2) * nReads;
 
 				m_pd3dTextureCoord1Buffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords1, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord1UploadBuffer);
 
@@ -691,11 +733,16 @@ void CStandardMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 		else if (!strcmp(pstrToken, "<Normals>:"))
 		{
 			nReads = (UINT)::fread(&nNormals, sizeof(int), 1, pInFile);
+
+			g_FileSize += sizeof(int) * nReads;
+
 			if (nNormals > 0)
 			{
 				m_nType |= VERTEXT_NORMAL;
 				m_pxmf3Normals = new XMFLOAT3[nNormals];
 				nReads = (UINT)::fread(m_pxmf3Normals, sizeof(XMFLOAT3), nNormals, pInFile);
+
+				g_FileSize += sizeof(XMFLOAT3) * nReads;
 
 				m_pd3dNormalBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3Normals, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dNormalUploadBuffer);
 
@@ -707,11 +754,16 @@ void CStandardMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 		else if (!strcmp(pstrToken, "<Tangents>:"))
 		{
 			nReads = (UINT)::fread(&nTangents, sizeof(int), 1, pInFile);
+
+			g_FileSize += sizeof(int) * nReads;
+
 			if (nTangents > 0)
 			{
 				m_nType |= VERTEXT_TANGENT;
 				m_pxmf3Tangents = new XMFLOAT3[nTangents];
 				nReads = (UINT)::fread(m_pxmf3Tangents, sizeof(XMFLOAT3), nTangents, pInFile);
+
+				g_FileSize += sizeof(XMFLOAT3) * nReads;
 
 				m_pd3dTangentBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3Tangents, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTangentUploadBuffer);
 
@@ -723,10 +775,15 @@ void CStandardMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 		else if (!strcmp(pstrToken, "<BiTangents>:"))
 		{
 			nReads = (UINT)::fread(&nBiTangents, sizeof(int), 1, pInFile);
+
+			g_FileSize += sizeof(int) * nReads;
+
 			if (nBiTangents > 0)
 			{
 				m_pxmf3BiTangents = new XMFLOAT3[nBiTangents];
 				nReads = (UINT)::fread(m_pxmf3BiTangents, sizeof(XMFLOAT3), nBiTangents, pInFile);
+
+				g_FileSize += sizeof(XMFLOAT3) * nReads;
 
 				m_pd3dBiTangentBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3BiTangents, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dBiTangentUploadBuffer);
 
@@ -738,6 +795,9 @@ void CStandardMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 		else if (!strcmp(pstrToken, "<SubMeshes>:"))
 		{
 			nReads = (UINT)::fread(&(m_nSubMeshes), sizeof(int), 1, pInFile);
+			
+			g_FileSize += sizeof(int) * nReads;
+
 			if (m_nSubMeshes > 0)
 			{
 				m_pnSubSetIndices = new int[m_nSubMeshes];
@@ -750,17 +810,31 @@ void CStandardMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 				for (int i = 0; i < m_nSubMeshes; i++)
 				{
 					nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+
+					g_FileSize += sizeof(BYTE) * nReads;
+
 					nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pInFile);
+
+					g_FileSize += sizeof(char) * nReads;
+
 					pstrToken[nStrLength] = '\0';
 					if (!strcmp(pstrToken, "<SubMesh>:"))
 					{
 						int nIndex = 0;
 						nReads = (UINT)::fread(&nIndex, sizeof(int), 1, pInFile);
+
+						g_FileSize += sizeof(int) * nReads;
+
 						nReads = (UINT)::fread(&(m_pnSubSetIndices[i]), sizeof(int), 1, pInFile);
+
+						g_FileSize += sizeof(int) * nReads;
+
 						if (m_pnSubSetIndices[i] > 0)
 						{
 							m_ppnSubSetIndices[i] = new UINT[m_pnSubSetIndices[i]];
-							nReads = (UINT)::fread(m_ppnSubSetIndices[i], sizeof(UINT)*m_pnSubSetIndices[i], 1, pInFile);
+							nReads = (UINT)::fread(m_ppnSubSetIndices[i], sizeof(UINT) * m_pnSubSetIndices[i], 1, pInFile);
+
+							g_FileSize += sizeof(UINT) * m_pnSubSetIndices[i] * nReads;
 
 							m_ppd3dSubSetIndexBuffers[i] = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_ppnSubSetIndices[i], sizeof(UINT) * m_pnSubSetIndices[i], D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_ppd3dSubSetIndexUploadBuffers[i]);
 
@@ -875,23 +949,42 @@ void CSkinnedMesh::LoadSkinInfoFromFile(ID3D12Device *pd3dDevice, ID3D12Graphics
 	BYTE nStrLength = 0;
 
 	UINT nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+
+	g_FileSize += sizeof(BYTE) * nReads;
+
 	nReads = (UINT)::fread(m_pstrSkinnedMeshName, sizeof(char), nStrLength, pInFile);
+
+	g_FileSize += sizeof(char) * nReads;
+
 	m_pstrSkinnedMeshName[nStrLength] = '\0';
 
 	for ( ; ; )
 	{
 		nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+
+		g_FileSize += sizeof(BYTE) * nReads;
+
 		nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pInFile);
+
+		g_FileSize += sizeof(char) * nReads;
+
 		pstrToken[nStrLength] = '\0';
 
 		if (!strcmp(pstrToken, "<BonesPerVertex>:"))
 		{
 			nReads = (UINT)::fread(&m_nBonesPerVertex, sizeof(int), 1, pInFile);
+
+			g_FileSize += sizeof(int) * nReads;
 		}
 		else if (!strcmp(pstrToken, "<Bounds>:"))
 		{
 			nReads = (UINT)::fread(&m_xmf3AABBCenter, sizeof(XMFLOAT3), 1, pInFile);
+
+			g_FileSize += sizeof(XMFLOAT3) * nReads;
+
 			nReads = (UINT)::fread(&m_xmf3AABBExtents, sizeof(XMFLOAT3), 1, pInFile);
+
+			g_FileSize += sizeof(XMFLOAT3) * nReads;
 
 			// 메쉬의 바운딩박스 생성
 			m_BoundingBox = BoundingOrientedBox(m_xmf3AABBCenter, m_xmf3AABBExtents, XMFLOAT4(0.f, 0.f, 0.f, 1.0f));
@@ -899,6 +992,9 @@ void CSkinnedMesh::LoadSkinInfoFromFile(ID3D12Device *pd3dDevice, ID3D12Graphics
 		else if (!strcmp(pstrToken, "<BoneNames>:"))
 		{
 			nReads = (UINT)::fread(&m_nSkinningBones, sizeof(int), 1, pInFile);
+	
+			g_FileSize += sizeof(int) * nReads;
+
 			if (m_nSkinningBones > 0)
 			{
 				m_ppstrSkinningBoneNames = new char[m_nSkinningBones][64];
@@ -906,7 +1002,13 @@ void CSkinnedMesh::LoadSkinInfoFromFile(ID3D12Device *pd3dDevice, ID3D12Graphics
 				for (int i = 0; i < m_nSkinningBones; i++)
 				{
 					nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+
+					g_FileSize += sizeof(BYTE) * nReads;
+
 					nReads = (UINT)::fread(m_ppstrSkinningBoneNames[i], sizeof(char), nStrLength, pInFile);
+
+					g_FileSize += sizeof(char) * nReads;
+
 					m_ppstrSkinningBoneNames[i][nStrLength] = '\0';
 
 					m_ppSkinningBoneFrameCaches[i] = NULL;
@@ -916,10 +1018,15 @@ void CSkinnedMesh::LoadSkinInfoFromFile(ID3D12Device *pd3dDevice, ID3D12Graphics
 		else if (!strcmp(pstrToken, "<BoneOffsets>:"))
 		{
 			nReads = (UINT)::fread(&m_nSkinningBones, sizeof(int), 1, pInFile);
+
+			g_FileSize += sizeof(int) * nReads;
+
 			if (m_nSkinningBones > 0)
 			{
 				m_pxmf4x4BindPoseBoneOffsets = new XMFLOAT4X4[m_nSkinningBones];
 				nReads = (UINT)::fread(m_pxmf4x4BindPoseBoneOffsets, sizeof(float), 16 * m_nSkinningBones, pInFile);
+
+				g_FileSize += sizeof(float) * nReads;
 			}
 		}
 		else if (!strcmp(pstrToken, "<BoneWeights>:"))
@@ -927,12 +1034,18 @@ void CSkinnedMesh::LoadSkinInfoFromFile(ID3D12Device *pd3dDevice, ID3D12Graphics
 			m_nType |= VERTEXT_BONE_INDEX_WEIGHT;
 
 			nReads = (UINT)::fread(&m_nVertices, sizeof(int), 1, pInFile);
+
+			g_FileSize += sizeof(int) * nReads;
+
 			if (m_nVertices > 0)
 			{
 				m_pxmu4BoneIndices = new XMUINT4[m_nVertices];
 				m_pxmf4BoneWeights = new XMFLOAT4[m_nVertices];
 
 				nReads = (UINT)::fread(m_pxmu4BoneIndices, sizeof(XMUINT4), m_nVertices, pInFile);
+
+				g_FileSize += sizeof(XMUINT4) * nReads;
+
 				m_pd3dBoneIndexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmu4BoneIndices, sizeof(XMUINT4) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dBoneIndexUploadBuffer);
 
 				m_d3dBoneIndexBufferView.BufferLocation = m_pd3dBoneIndexBuffer->GetGPUVirtualAddress();
@@ -940,6 +1053,9 @@ void CSkinnedMesh::LoadSkinInfoFromFile(ID3D12Device *pd3dDevice, ID3D12Graphics
 				m_d3dBoneIndexBufferView.SizeInBytes = sizeof(XMUINT4) * m_nVertices;
 
 				nReads = (UINT)::fread(m_pxmf4BoneWeights, sizeof(XMFLOAT4), m_nVertices, pInFile);
+
+				g_FileSize += sizeof(XMFLOAT4) * nReads;
+
 				m_pd3dBoneWeightBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf4BoneWeights, sizeof(XMFLOAT4) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dBoneWeightUploadBuffer);
 
 				m_d3dBoneWeightBufferView.BufferLocation = m_pd3dBoneWeightBuffer->GetGPUVirtualAddress();
