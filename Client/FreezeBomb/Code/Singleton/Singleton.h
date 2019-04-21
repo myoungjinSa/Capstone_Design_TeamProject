@@ -16,6 +16,13 @@ public:
 			_instance = new T();
 		return _instance;
 	}
+
+	static void DeleteInstance()
+	{
+		if (_instance) 
+			delete _instance;		
+		
+	}
 };
 
 

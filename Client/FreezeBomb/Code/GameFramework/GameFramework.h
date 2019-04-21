@@ -9,6 +9,7 @@ class CMapToolShader;
 class CSobelCartoonShader;
 class Network;
 class CLoadingScene;
+class ChattingSystem;
 class CGameFramework
 {
 public:
@@ -38,6 +39,7 @@ public:
 #endif
 	void CreateDepthStencilView();
 	
+
 	void ChangeSwapChainState();
 
 	bool BuildObjects();
@@ -142,16 +144,19 @@ private:
 
 	
 	IDWriteTextFormat				**m_pdwFont{ nullptr };//
-	const int								m_nNameFont=6;
+	const int						m_nNameFont=6;
 	//const int								m_nNameFont = 7;
-
 	IDWriteTextLayout				*m_pdwTextLayout{ nullptr };//
 	ID2D1SolidColorBrush			**m_pd2dbrText{ nullptr };//
+	
 	
 	IWICImagingFactory				*m_pwicImagingFactory{ nullptr };
 	ID2D1Effect						*m_pd2dfxBitmapSource{ nullptr };
 	ID2D1DrawingStateBlock1			*m_pd2dsbDrawingState{ nullptr };
 	IWICFormatConverter				*m_pwicFormatConverter{ nullptr };
+
+	//VK_RETURN 누르면 채팅모드 ON/OFF
+	bool m_bChattingMode{ false };
 #endif
 
 	Network*	m_pNetwork{ nullptr };

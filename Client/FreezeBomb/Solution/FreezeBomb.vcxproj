@@ -162,6 +162,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h" />
+    <ClInclude Include="..\Code\Chatting\Chatting.h" />
     <ClInclude Include="..\Code\Cube\Cube.h" />
     <ClInclude Include="..\Code\Default\Resource.h" />
     <ClInclude Include="..\Code\Default\targetver.h" />
@@ -225,6 +226,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Code\Camera\Camera.cpp" />
+    <ClCompile Include="..\Code\Chatting\Chatting.cpp" />
     <ClCompile Include="..\Code\Cube\Cube.cpp" />
     <ClCompile Include="..\Code\DirectX12\DDSTextureLoader\DDSTextureLoader12.cpp" />
     <ClCompile Include="..\Code\DirectX12\WICTextureLoader\WICTextureLoader12.cpp" />

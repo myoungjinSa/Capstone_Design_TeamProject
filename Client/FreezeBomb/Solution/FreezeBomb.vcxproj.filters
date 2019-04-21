@@ -189,6 +189,9 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\ProgressBarUIShader\ProgressBarUIShader.cpp">
       <Filter>Code\Shader\BillboardShader\UIShader\ProgressBarUIShader</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\Chatting\Chatting.cpp">
+      <Filter>Code\ChattingSystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h">
@@ -374,6 +377,9 @@
     <ClInclude Include="..\Code\Singleton\Singleton.h">
       <Filter>Code\Singleton</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\Chatting\Chatting.h">
+      <Filter>Code\ChattingSystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Code">
@@ -558,6 +564,9 @@
     </Filter>
     <Filter Include="Code\Singleton">
       <UniqueIdentifier>{6c6a43e4-2c2f-46ff-b85a-64c1441800aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\ChattingSystem">
+      <UniqueIdentifier>{3bb79922-3f63-4722-bc7c-6ea27e3bd4f4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

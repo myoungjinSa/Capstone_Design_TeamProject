@@ -12,6 +12,7 @@
 #include "../Shader/StandardShader/MapToolShader/MapToolShader.h"
 #include "../Texture/Texture.h"
 #include "../Shader/PostProcessShader/CartoonShader/SobelCartoonShader.h"
+#include "../Chatting/Chatting.h"
 
 
 volatile bool g_Finish = true;
@@ -233,6 +234,9 @@ void CGameFramework::CreateLoadingCommandList()
 }
 
 #ifdef _WITH_DIRECT2D_
+
+
+
 void CGameFramework::CreateDirect2DDevice()
 {
 	UINT nD3D11DeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
@@ -299,6 +303,11 @@ void CGameFramework::CreateDirect2DDevice()
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightCoral, 1.0f), &m_pd2dbrText[index++]);
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LavenderBlush, 1.0f), &m_pd2dbrText[index++]);
 
+
+	//채팅 시스템 객체 생성
+	ChattingSystem::GetInstance()->Initialize(m_pdWriteFactory, m_pd2dDeviceContext);
+
+	
 	//Initializes the COM library on the current thread and identifies the concurrency model as single-thread apartment 
 	CoInitialize(NULL);
 	hResult = CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory), (void**)&m_pwicImagingFactory);
@@ -563,17 +572,20 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_ESCAPE:
 			::PostQuitMessage(0);
 			break;
-		case VK_RETURN:
-			if (m_bStart == false)
-				m_bStart = true;
-			break;
 		case VK_F1:
 		case VK_F2:
 		case VK_F3:
 			m_pCamera = m_pPlayer->ChangeCamera((DWORD)(wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
 			break;
-		case VK_F9:
-			ChangeSwapChainState();
+		//case VK_F9:
+		//	ChangeSwapChainState();
+			//break;
+		case VK_RETURN:
+			if (m_bChattingMode == false)
+				m_bChattingMode = true;
+			else
+				m_bChattingMode = false;
+			
 			break;
 
 
@@ -744,6 +756,7 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 	return(0);
 }
 
+
 void CGameFramework::OnDestroy()
 {
 	ReleaseObjects();
@@ -764,6 +777,9 @@ void CGameFramework::OnDestroy()
 	m_pd2dbrText = nullptr;
 
 	if (m_pdwTextLayout) m_pdwTextLayout->Release();
+
+	ChattingSystem::GetInstance()->Destroy();
+	ChattingSystem::GetInstance()->DeleteInstance();
 
 	//Direct11
 	if (m_pd2dDeviceContext) m_pd2dDeviceContext->Release();
@@ -923,6 +939,7 @@ void CGameFramework::ReleaseObjects()
 #endif
 
 	
+
 	if (m_pScene)
 	{
 		m_pScene->ReleaseObjects();
@@ -948,6 +965,13 @@ void CGameFramework::ProcessInput()
 	static UCHAR pKeysBuffer[256];
 	bool bProcessedByScene = false;
 
+#ifdef _WITH_DIRECT2D_
+	//채팅 input처리
+	if (m_bChattingMode)
+	{
+		ChattingSystem::GetInstance()->ProcessInput(pKeysBuffer);
+	}
+#endif
 
 	if (GetKeyboardState(pKeysBuffer) && m_pScene) bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
 	if (!bProcessedByScene)
