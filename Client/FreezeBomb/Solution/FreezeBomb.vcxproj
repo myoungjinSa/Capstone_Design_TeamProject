@@ -218,6 +218,7 @@
     <ClInclude Include="..\Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationShader.h" />
     <ClInclude Include="..\Code\Shader\StandardShader\StandardShader.h" />
     <ClInclude Include="..\Code\Shader\TerrainShader\TerrainShader.h" />
+    <ClInclude Include="..\Code\Singleton\Singleton.h" />
     <ClInclude Include="..\Code\SoundSystem\SoundSystem.h" />
     <ClInclude Include="..\Code\Stdafx\Stdafx.h" />
     <ClInclude Include="..\Code\Texture\Texture.h" />

@@ -371,6 +371,9 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\ProgressBarUIShader\ProgressBarUIShader.h">
       <Filter>Code\Shader\BillboardShader\UIShader\ProgressBarUIShader</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\Singleton\Singleton.h">
+      <Filter>Code\Singleton</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Code">
@@ -552,6 +555,9 @@
     </Filter>
     <Filter Include="Code\Shader\BillboardShader\UIShader\ProgressBarUIShader">
       <UniqueIdentifier>{de75bb0c-442c-4016-9eb0-18aa3a25971a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Singleton">
+      <UniqueIdentifier>{6c6a43e4-2c2f-46ff-b85a-64c1441800aa}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -52,6 +52,8 @@ using namespace std;
 #include <pix.h>
 #include <Mmsystem.h>
 
+
+
 #ifdef _DEBUG
 #include <dxgidebug.h>
 #endif

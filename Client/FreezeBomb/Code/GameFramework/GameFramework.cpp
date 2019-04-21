@@ -13,6 +13,7 @@
 #include "../Texture/Texture.h"
 #include "../Shader/PostProcessShader/CartoonShader/SobelCartoonShader.h"
 
+
 volatile bool g_Finish = true;
 CGameFramework::CGameFramework()
 {
@@ -53,6 +54,7 @@ CGameFramework::~CGameFramework()
 {
 }
 
+
 bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 {
 	m_hInstance = hInstance;
@@ -79,6 +81,8 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 
 	return(true);
 }
+
+
 
 void CGameFramework::CreateSwapChain()
 {
@@ -827,6 +831,7 @@ bool CGameFramework::BuildObjects()
 	loadingThread.emplace_back(thread{ &CGameFramework::Worker_Thread, this });
 
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
+
 	const int nPlayerCount = 6;		//임시로 플레이어 개수 지정. 
 	//추후에 서버에서 접속 인원을 씬 BuildObject 호출 전에 받아와서 세팅하면 될듯함.
 	m_pScene = new CScene;
@@ -914,8 +919,7 @@ void CGameFramework::ReleaseObjects()
 	}
 #endif
 
-	//ReleaseDirectSound();
-
+	
 	if (m_pScene)
 	{
 		m_pScene->ReleaseObjects();
@@ -940,6 +944,8 @@ void CGameFramework::ProcessInput()
 {
 	static UCHAR pKeysBuffer[256];
 	bool bProcessedByScene = false;
+
+
 	if (GetKeyboardState(pKeysBuffer) && m_pScene) bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
 	if (!bProcessedByScene)
 	{
@@ -1216,10 +1222,10 @@ void CGameFramework::FrameAdvance()
 
 	//Direct2D를 사용하면 스왑체인 버퍼 리소스 전이를 Present로 바꿔주면 안된다. 
 
-//#ifndef _WITH_DIRECT2D_
-	if (m_bStart == false)
+#ifndef _WITH_DIRECT2D_
+	//if (m_bStart == false)
 		::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-	//#endif
+#endif
 
 	hResult = m_pd3dCommandList->Close();
 
@@ -1229,7 +1235,7 @@ void CGameFramework::FrameAdvance()
 	WaitForGpuComplete();
 
 #ifdef _WITH_DIRECT2D_
-	if (m_bStart == true)
+	//if (m_bStart == true)
 		ProcessDirect2D();
 #endif
 
@@ -1283,7 +1289,7 @@ void CGameFramework::Worker_Thread()
 		hResult = m_pLoadingCommandList->Reset(m_pLoadingCommandAllocator, NULL);
 
 		D3D12_VIEWPORT	d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
-		D3D12_RECT				d3dScissorRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
+		D3D12_RECT		d3dScissorRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
 		m_pLoadingCommandList->RSSetViewports(1, &d3dViewport);
 		m_pLoadingCommandList->RSSetScissorRects(1, &d3dScissorRect);
 
