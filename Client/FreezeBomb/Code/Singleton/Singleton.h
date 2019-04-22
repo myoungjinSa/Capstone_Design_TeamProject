@@ -1,7 +1,5 @@
 #pragma once
 
-//추후에 SoundSystem을 싱글톤으로 변경해서 
-//객체 하나만 생성하게 수정할 예정 - 명진
 
 template<class T>
 class Singleton

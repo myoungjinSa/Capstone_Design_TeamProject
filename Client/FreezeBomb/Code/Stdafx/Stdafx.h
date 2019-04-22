@@ -276,12 +276,6 @@ namespace Vector4
 		return(xmf4Result);
 	}
 
-	//inline XMFLOAT4 Multiply(XMFLOAT4& xmf4Vector1, XMFLOAT4X4& xmf4Matrix)
-	//{
-	//	XMFLOAT4 xmf4Result;
-	//	XMStoreFloat4(&xmf4Result, XMLoadFloat4(&xmf4Vector1) * XMLoadFloat4x4(&xmf4Matrix));
-	//	return(xmf4Result);
-	//}
 	inline XMFLOAT4 Multiply(float fScalar, XMFLOAT4& xmf4Vector)
 	{
 		XMFLOAT4 xmf4Result;
