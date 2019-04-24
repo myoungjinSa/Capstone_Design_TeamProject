@@ -350,26 +350,22 @@ VS_UI_OUTPUT VSProgressBarUI(uint nVertexID : SV_VertexID)
 	else if (nVertexID == 1)
 	{
 		output.position = float4(g_Position.x, g_Position.w, 0.f, 1.f);
-		//output.position = float4(-0.25f, 0.f, 0.f, 1.f);
 		output.uv = float2(0.f, 1.f);
 	}
 	else if (nVertexID == 2)
 	{
 		output.position = float4(g_Position.z, g_Position.w, 0.f, 1.f);
-		//output.position = float4(1.f, 0.f, 0.f, 1.f);
 		output.uv = float2(1.f, 1.f);
 
 	}
 	else if (nVertexID == 3)
 	{
 		output.position = float4(g_Position.z, g_Position.w, 0.f, 1.f);
-		//output.position = float4(1.f, 0.f, 0.f, 1.f);
 		output.uv = float2(1.f, 1.f);
 	}
 	else if (nVertexID == 4)
 	{
 		output.position = float4(g_Position.z, g_Position.y, 0.f, 1.f);
-		//output.position = float4(1.f, 0.25f, 0.f, 1.f);
 		output.uv = float2(1.f, 0.f);
 	}
 	else if (nVertexID == 5)

@@ -744,7 +744,8 @@ void CScene::CreateSoundSystem()
 	m_musicCount = 3;
 	m_musicList = new const char*[m_musicCount];
 
-	m_musicList[0] = "../Resource/Sound/SnowyVillage.wav";
+	//m_musicList[0] = "../Resource/Sound/SnowyVillage.wav";
+	m_musicList[0] = "../Resource/Sound/SnowDrop.wav";
 	m_musicList[1] = "../Resource/Sound/Effect/TimerWarning.wav";
 	m_musicList[2] = "../Resource/Sound/Effect/ICEBreak.wav";
 

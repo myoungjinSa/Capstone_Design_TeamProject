@@ -134,7 +134,9 @@ void CGameFramework::CreateSwapChain()
 	dxgiSwapChainDesc.OutputWindow = m_hWnd;
 	dxgiSwapChainDesc.SampleDesc.Count = (m_bMsaa4xEnable) ? 4 : 1;
 	dxgiSwapChainDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
-	dxgiSwapChainDesc.Windowed = TRUE;
+	dxgiSwapChainDesc.Windowed = true;
+	//dxgiSwapChainDesc.Windowed = false;
+
 	dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 	HRESULT hResult = m_pdxgiFactory->CreateSwapChain(m_pd3dCommandQueue, &dxgiSwapChainDesc, (IDXGISwapChain **)&m_pdxgiSwapChain);
@@ -474,15 +476,11 @@ void CGameFramework::ChangeSwapChainState()
 	BOOL bFullScreenState = FALSE;
 	HRESULT hResult = m_pdxgiSwapChain->GetFullscreenState(&bFullScreenState, NULL);
 	if (hResult == E_FAIL)
-	{
 		return;
-	}
 
 	hResult = m_pdxgiSwapChain->SetFullscreenState(!bFullScreenState, NULL);
 	if (hResult == E_FAIL)
-	{
 		return;
-	}
 
 	DXGI_MODE_DESC dxgiTargetParameters;
 	dxgiTargetParameters.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -579,9 +577,9 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_F3:
 			m_pCamera = m_pPlayer->ChangeCamera((DWORD)(wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
 			break;
-		//case VK_F9:
-		//	ChangeSwapChainState();
-			//break;
+		case VK_F9:
+			//ChangeSwapChainState();
+			break;
 		case VK_RETURN:
 			if (m_bChattingMode == false)
 				m_bChattingMode = true;
@@ -850,7 +848,7 @@ bool CGameFramework::BuildObjects()
 	::ShowWindow(m_hWnd, SW_SHOWDEFAULT);
 	::UpdateWindow(m_hWnd);
 
-	// 워커 스레드
+
 	loadingThread.emplace_back(thread{ &CGameFramework::Worker_Thread, this });
 
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
