@@ -1,6 +1,7 @@
 #include "../Stdafx/Stdafx.h"
 #include "Chatting.h"
 
+#ifdef _WITH_DIRECT2D_
 
 ChattingSystem::ChattingSystem()
 {
@@ -45,3 +46,4 @@ void ChattingSystem::Destroy()
 	delete[]m_pd2dbrChatText;
 	m_pd2dbrChatText = nullptr;
 }
+#endif

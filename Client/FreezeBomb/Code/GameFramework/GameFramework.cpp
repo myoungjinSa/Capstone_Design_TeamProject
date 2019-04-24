@@ -88,13 +88,14 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 }
 
 
-#define _WITH_CREATE_SWAPCHAIN_FOR_HWND
+//#define _WITH_CREATE_SWAPCHAIN_FOR_HWND
 void CGameFramework::CreateSwapChain()
 {
 	RECT rcClient;
 	::GetClientRect(m_hWnd, &rcClient);
 	m_nWndClientWidth = rcClient.right - rcClient.left;
 	m_nWndClientHeight = rcClient.bottom - rcClient.top;
+
 
 #ifdef _WITH_CREATE_SWAPCHAIN_FOR_HWND
 	DXGI_SWAP_CHAIN_DESC1 dxgiSwapChainDesc;
@@ -121,6 +122,8 @@ void CGameFramework::CreateSwapChain()
 
 	HRESULT hResult = m_pdxgiFactory->CreateSwapChainForHwnd(m_pd3dCommandQueue, m_hWnd, &dxgiSwapChainDesc, &dxgiSwapChainFullScreenDesc, NULL, (IDXGISwapChain1 **)&m_pdxgiSwapChain);
 #else
+
+	
 	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
 	::ZeroMemory(&dxgiSwapChainDesc, sizeof(dxgiSwapChainDesc));
 	dxgiSwapChainDesc.BufferCount = m_nSwapChainBuffers;
@@ -134,18 +137,30 @@ void CGameFramework::CreateSwapChain()
 	dxgiSwapChainDesc.OutputWindow = m_hWnd;
 	dxgiSwapChainDesc.SampleDesc.Count = (m_bMsaa4xEnable) ? 4 : 1;
 	dxgiSwapChainDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
-	dxgiSwapChainDesc.Windowed = true;
+	dxgiSwapChainDesc.Windowed = TRUE;
 	//dxgiSwapChainDesc.Windowed = false;
 
 	dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 	HRESULT hResult = m_pdxgiFactory->CreateSwapChain(m_pd3dCommandQueue, &dxgiSwapChainDesc, (IDXGISwapChain **)&m_pdxgiSwapChain);
+	
+	//전체 모드로 시작
+	hResult = m_pdxgiSwapChain->SetFullscreenState(TRUE, NULL);
+	if (hResult == E_FAIL)
+		return;
 
+
+	m_pdxgiSwapChain->GetDesc(&dxgiSwapChainDesc);
+	//SetFullScreenState함수를 호출해주었기 때문에 ResizeBuffers함수를 호출해줘야함.
+	m_pdxgiSwapChain->ResizeBuffers(m_nSwapChainBuffers, m_nWndClientWidth, m_nWndClientHeight, dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
+	
 #endif
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
 
+
 	hResult = m_pdxgiFactory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER);
 
+	
 #ifndef _WITH_SWAPCHAIN_FULLSCREEN_STATE
 	CreateRenderTargetViews();
 #endif
@@ -577,9 +592,10 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_F3:
 			m_pCamera = m_pPlayer->ChangeCamera((DWORD)(wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
 			break;
-		case VK_F9:
+		//case VK_F9:
 			//ChangeSwapChainState();
-			break;
+			//break;
+#ifdef _WITH_DIRECT2D_
 		case VK_RETURN:
 			if (m_bChattingMode == false)
 				m_bChattingMode = true;
@@ -587,7 +603,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				m_bChattingMode = false;
 			
 			break;
-
+#endif
 
 			//case '1':
 			//	//AddFileData(m_pPlayer, wParam);
