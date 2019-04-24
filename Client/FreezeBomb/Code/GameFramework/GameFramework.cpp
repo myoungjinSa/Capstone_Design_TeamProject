@@ -88,7 +88,7 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 }
 
 
-
+#define _WITH_CREATE_SWAPCHAIN_FOR_HWND
 void CGameFramework::CreateSwapChain()
 {
 	RECT rcClient;
@@ -117,7 +117,7 @@ void CGameFramework::CreateSwapChain()
 	dxgiSwapChainFullScreenDesc.RefreshRate.Denominator = 1;
 	dxgiSwapChainFullScreenDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	dxgiSwapChainFullScreenDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-	dxgiSwapChainFullScreenDesc.Windowed = TRUE;
+	dxgiSwapChainFullScreenDesc.Windowed = FALSE;
 
 	HRESULT hResult = m_pdxgiFactory->CreateSwapChainForHwnd(m_pd3dCommandQueue, m_hWnd, &dxgiSwapChainDesc, &dxgiSwapChainFullScreenDesc, NULL, (IDXGISwapChain1 **)&m_pdxgiSwapChain);
 #else
@@ -223,10 +223,12 @@ void CGameFramework::CreateCommandQueueAndList()
 void CGameFramework::CreateLoadingCommandList()
 {
 	HRESULT Result;
-	D3D12_COMMAND_QUEUE_DESC d3dCommandQueueDesc;
-	::ZeroMemory(&d3dCommandQueueDesc, sizeof(D3D12_COMMAND_QUEUE_DESC));
-	d3dCommandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-	d3dCommandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+
+	//커맨드 큐 사용하지 않아서 주석 처리
+	//D3D12_COMMAND_QUEUE_DESC d3dCommandQueueDesc;
+	//::ZeroMemory(&d3dCommandQueueDesc, sizeof(D3D12_COMMAND_QUEUE_DESC));
+	//d3dCommandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+	//d3dCommandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
 	Result = m_pd3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), (void **)&m_pLoadingCommandAllocator);
 	Result = m_pd3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pLoadingCommandAllocator, nullptr, __uuidof(ID3D12GraphicsCommandList), (void **)&m_pLoadingCommandList);
@@ -847,6 +849,7 @@ bool CGameFramework::BuildObjects()
 	// 윈도우 창 띄우기
 	::ShowWindow(m_hWnd, SW_SHOWDEFAULT);
 	::UpdateWindow(m_hWnd);
+
 	// 워커 스레드
 	loadingThread.emplace_back(thread{ &CGameFramework::Worker_Thread, this });
 

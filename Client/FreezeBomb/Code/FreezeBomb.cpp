@@ -92,8 +92,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		::PostQuitMessage(0);
 	}
 
-	::ShowWindow(hMainWnd, nCmdShow);
-	::UpdateWindow(hMainWnd);
+	//::ShowWindow(hMainWnd, nCmdShow);
+	//::UpdateWindow(hMainWnd);
 
 	return(TRUE);
 }
