@@ -10,8 +10,6 @@ TCHAR							szWindowClass[MAX_LOADSTRING];
 
 CGameFramework		gGameFramework;
 
-
-
 ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -76,9 +74,6 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	ghAppInstance = hInstance;
-
-
-
 	//
 	RECT rc = { 0, 0,FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT };
 	DWORD dwStyle = WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU |WS_BORDER;
@@ -91,9 +86,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	{
 		::PostQuitMessage(0);
 	}
-
-	::ShowWindow(hMainWnd, nCmdShow);
-	::UpdateWindow(hMainWnd);
+	//gGameFramework.ChangeSwapChainState();
+	//::ShowWindow(hMainWnd, nCmdShow);
+	//::UpdateWindow(hMainWnd);
 
 	return(TRUE);
 }
