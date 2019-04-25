@@ -155,6 +155,8 @@ private:
 	ID2D1DrawingStateBlock1			*m_pd2dsbDrawingState{ nullptr };
 	IWICFormatConverter				*m_pwicFormatConverter{ nullptr };
 
+	//한글인지 영어 인지
+	bool m_bHangeul{ false };
 	//VK_RETURN 누르면 채팅모드 ON/OFF
 	bool m_bChattingMode{ false };
 #endif
@@ -166,5 +168,8 @@ private:
 	vector<thread> loadingThread;
 
 	void Worker_Thread();
+
+
+
 };
 

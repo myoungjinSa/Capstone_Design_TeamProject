@@ -1,6 +1,9 @@
 #pragma once
 #include "../Singleton/Singleton.h"
 
+#pragma comment(lib,"imm32.lib")
+#include <imm.h>
+
 template<class T> T* Singleton<T>::_instance = nullptr;
 
 
@@ -14,13 +17,17 @@ protected:
 	IDWriteTextLayout				*m_pdwChattingLayout{ nullptr };
 	ID2D1SolidColorBrush			**m_pd2dbrChatText{ nullptr };//
 #endif
-
+	DWORD							m_conv;
 	TCHAR							m_chat[512];
 public:
 	ChattingSystem();
 	virtual ~ChattingSystem();
 	void Initialize(IDWriteFactory*,ID2D1DeviceContext2*);
-	void ProcessInput(UCHAR* key);
+	void ProcessChatting(UCHAR* key);
 
+
+	DWORD GetIMEMode() const { return m_conv; }
+	void SetIMEMode(HWND hWnd, bool bHanMode);
+	
 	void Destroy();
 };

@@ -29,8 +29,28 @@ void ChattingSystem::Initialize(IDWriteFactory* writeFactory,ID2D1DeviceContext2
 	}
 }
 
-void ChattingSystem::ProcessInput(UCHAR* key)
+void ChattingSystem::ProcessChatting(UCHAR* key)
 {
+	TCHAR		localChat[512];
+	
+	//현재 영문이 활성화 됐을 경우
+	if (GetIMEMode() == IME_CMODE_ALPHANUMERIC)
+	{
+		if (key[VK_C] & 0xF0)
+		{
+
+		}
+
+	}
+	else if(GetIMEMode() == IME_CMODE_NATIVE)
+	{
+		//현재 한글이 활성화 됐을 경우
+		if (key[VK_C] & 0xF0)
+		{
+
+		}
+	}
+
 	
 }
 
@@ -47,3 +67,29 @@ void ChattingSystem::Destroy()
 	m_pd2dbrChatText = nullptr;
 }
 #endif
+
+//프로그램 내에서 한영 전환
+void ChattingSystem::SetIMEMode(HWND hWnd,bool bHanMode)
+{
+	HIMC hIMC = ImmGetContext(hWnd);
+	DWORD dwSent;
+	DWORD dwTemp;
+
+	ImmGetConversionStatus(hIMC, &m_conv, &dwSent);
+
+	dwTemp = m_conv & ~IME_CMODE_LANGUAGE;
+
+	//상태를 바꾼다
+	if (bHanMode)
+		dwTemp |= IME_CMODE_NATIVE;	//한글
+	else
+		dwTemp |= IME_CMODE_ALPHANUMERIC;	// 영문
+
+	m_conv = dwTemp;
+
+	ImmSetConversionStatus(hIMC, m_conv, dwSent);
+	ImmReleaseContext(hWnd, hIMC);
+
+	
+}
+

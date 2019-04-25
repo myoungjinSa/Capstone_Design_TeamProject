@@ -145,7 +145,7 @@ void CGameFramework::CreateSwapChain()
 	HRESULT hResult = m_pdxgiFactory->CreateSwapChain(m_pd3dCommandQueue, &dxgiSwapChainDesc, (IDXGISwapChain **)&m_pdxgiSwapChain);
 	
 	//전체 모드로 시작
-	hResult = m_pdxgiSwapChain->SetFullscreenState(TRUE, NULL);
+	hResult = m_pdxgiSwapChain->SetFullscreenState(FALSE, NULL);
 	if (hResult == E_FAIL)
 		return;
 
@@ -603,6 +603,11 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				m_bChattingMode = false;
 			
 			break;
+		case VK_HANGEUL:
+			(m_bHangeul) ? m_bHangeul = false : m_bHangeul = true;
+			ChattingSystem::GetInstance()->SetIMEMode(hWnd, m_bHangeul);
+
+			break;
 #endif
 
 			//case '1':
@@ -986,7 +991,7 @@ void CGameFramework::ProcessInput()
 	//채팅 input처리
 	if (m_bChattingMode)
 	{
-		ChattingSystem::GetInstance()->ProcessInput(pKeysBuffer);
+		ChattingSystem::GetInstance()->ProcessChatting(pKeysBuffer);
 	}
 #endif
 
