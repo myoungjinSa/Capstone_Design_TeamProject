@@ -10,7 +10,7 @@ public:
 	CMapToolShader();
 	virtual ~CMapToolShader();
 
-	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext = NULL);
+	virtual void BuildObjects(const map<string, CLoadedModelInfo*>& ModelMap);
 	virtual void ReleaseObjects();
 	
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState);
@@ -30,7 +30,6 @@ public:
 	int GetPondModelCount() { return m_nPondModelCount; }
 	int GetFenceModelCount() { return m_nFenceModelCount; }
 
-
 	int GetCurrDeerIndex() { return m_nCurrDeerModelIndex; }
 	int GetCurrDeadTreeIndex() { return m_nCurrDeadTreeModelIndex; }
 	int GetCurrPineTreeIndex() { return m_nCurrPineTreeModelIndex; }
@@ -47,10 +46,8 @@ public:
 	void SetCurrPondIndex(int index) { m_nCurrPondModelIndex = index; }
 	void SetCurrFenceIndex(int index) { m_nCurrFenceModelIndex = index; }
 
-
 protected:
-	CTerrain*			m_pTerrain;
-	map<string, CLoadedModelInfo*> m_ModelsList; // 모델들을 관리하는 맵 
+	map<string, CLoadedModelInfo*> m_ModelsList;			// 모델들을 관리하는 맵 
 
 	vector<pair<string,CGameObject*>> m_Objects;			//실제 파일에 쓸 오브젝트;
 

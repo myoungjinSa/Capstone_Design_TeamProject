@@ -158,7 +158,7 @@ void CCamera::SetViewportsAndScissorRects(ID3D12GraphicsCommandList *pd3dCommand
 	pd3dCommandList->RSSetScissorRects(1, &m_d3dScissorRect);
 }
 
-XMFLOAT4X4& CCamera::ViberateCamera(const float& elapsedTime,const float& maxAngle,const float& fVibeSpeed)
+XMFLOAT4X4 CCamera::ViberateCamera(const float& elapsedTime,const float& maxAngle,const float& fVibeSpeed)
 {
 	m_fCameraMovingTime += elapsedTime * fVibeSpeed;
 

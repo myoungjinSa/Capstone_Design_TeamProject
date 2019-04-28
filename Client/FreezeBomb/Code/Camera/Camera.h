@@ -77,7 +77,7 @@ public:
 	virtual void Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed,bool bVibe){}
 	virtual void SetLookAt(XMFLOAT3& xmf3LookAt) { }
 
-	virtual XMFLOAT4X4& ViberateCamera(const float& elapsedTime,const float& maxAngle,const float& fVibeSpeed);
+	virtual XMFLOAT4X4 ViberateCamera(const float& elapsedTime,const float& maxAngle,const float& fVibeSpeed);
 	virtual void SphericalLinearInterpolation(float angle,float time, float speed);
 
 	//절두체(월드 좌표계)를 생성한다. 
