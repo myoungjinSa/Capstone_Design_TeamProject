@@ -150,7 +150,7 @@ private:
 	// [ ShaderResourceView ÃÑ °³¼ö ]
 	// SkyBox : 1
 	// Terrain : 2, 
-	// DeadTrees : 23, PineTrees : 35, Rocks : 25, Deer : 2, Pond : 2=> MapObjects : 67
+	// DeadTrees : 15, PineTrees : 34, Rocks : 14, Deer : 2, Pond : 2=> MapObjects : 67
 	// Hammer : 3, Pocket_Watch : 5 => Item = 8
 	// EvilBear : 18, LampParticle : 1 => 19
 	// Player : 18, LampParticle : 1 => 19
@@ -159,11 +159,10 @@ private:
 	// Snow : 1, 
 	// Number : 10, Colon : 1 => TimerUI = 11
 	// ItemBox = 1, Hammer_Item : 1, GoldHammer_Item : 1, GoldTimer_Item : 1=> ItemUI : 4
-	// ProgressBar = 1
 
 	enum nShaderResourceView
 	{
 		SkyBox = 1, Terrain = 2, MapObjects = 67, Item = 8,
-		EvilBear = 19, Player = 19, BombParticle = 1, CubeParticle = 1, Snow = 1, TimerUI = 11, ItemUI = 4, ProgressBar = 1
+		EvilBear = 19, Player = 19, BombParticle = 1, CubeParticle = 1, Snow = 1, TimerUI = 11, ItemUI = 4
 	};
 };

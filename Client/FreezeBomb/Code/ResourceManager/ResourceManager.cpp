@@ -3,7 +3,8 @@
 #include "../Texture/Texture.h"
 #include "../Scene/Scene.h"
 
-volatile size_t g_TotalSize = 12994707;
+//volatile size_t g_TotalSize = 12994707;
+volatile size_t g_TotalSize = 30062795;
 volatile size_t g_FileSize = 0;
 CResourceManager::CResourceManager()
 {
@@ -15,9 +16,8 @@ CResourceManager::~CResourceManager()
 
 void CResourceManager::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
-	//LoadResourceSize();
+	PrepareLoad();
 	LoadTexture(pd3dDevice, pd3dCommandList);
-	
 	LoadModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	LoadMapObjectInfo(pd3dDevice, pd3dCommandList);
 
@@ -25,43 +25,86 @@ void CResourceManager::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 
 }
 
-void CResourceManager::LoadResourceSize()
+void CResourceManager::PrepareLoad()
 {
-	auto start = chrono::high_resolution_clock::now();
-	//wstring wfileName = L"../Resource/Textures/SkyBox/SkyBox_1.dds";
-	//string sfileName;
-	//sfileName.assign(wfileName.begin(), wfileName.end());
-	////m_FileNameMap.emplace("SkyBox", wfileName);
+	m_TextureInfoMap.emplace("SkyBox", TextureInfo(RESOURCE_TEXTURE_CUBE, L"../Resource/Textures/SkyBox/SkyBox_1.dds", 9));
 
-	////ifstream in("../Resource/Textures/SkyBox/SkyBox_1.dds", ios::binary);
-	//ifstream in(sfileName, ios::binary);
-	//if (!in)
-	//	return;
-	//in.seekg(0, ios::end);
-	//size_t fileSize = in.tellg();
-	//in.seekg(0, ios::beg);
-	//cout << "파일이름 : " << sfileName << " - "<< fileSize << "바이트" << endl;
+	m_TextureInfoMap.emplace("BaseTerrain", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Terrain/BaseTerrain.dds", 10));
+	m_TextureInfoMap.emplace("SpecularTerrain", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Terrain/SpecularTerrain.dds", 11));
 
-	//in.close();
-	//in.clear();
-	//
-	//wfileName = L"../Resource/Textures/Terrain/BaseTerrain.dds";
-	//sfileName.clear();
-	//sfileName.assign(wfileName.begin(), wfileName.end());
-	//in.open(sfileName, ios::binary);
-	//if (!in)
-	//	return;
-	//in.seekg(0, ios::end);
-	//fileSize = in.tellg();
-	//in.seekg(0, ios::beg);
-	//cout << "파일이름 : " << sfileName << " - " << fileSize << "바이트" << endl;
+	m_TextureInfoMap.emplace("Particle", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Effect/LampParticle.dds", 19));
+	m_TextureInfoMap.emplace("IceTexture", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Model/texture2.dds", 20));
+	m_TextureInfoMap.emplace("Snow", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Effect/Snow.dds", 21));
 
-	//{
-	//	string wfilename[] = {"1", "2"};
-	//	for (int i = 0; i < 2; ++i)
-	//		cout << wfilename[i] << endl;
-	//}
-	auto elapsedTime = chrono::high_resolution_clock::now() - start;
+	int i = 0;
+	m_TextureInfoMap.emplace(to_string(i++), TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Number/Blue_0.dds", 22));
+	m_TextureInfoMap.emplace(to_string(i++), TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Number/Blue_1.dds", 22));
+	m_TextureInfoMap.emplace(to_string(i++), TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Number/Blue_2.dds", 22));
+	m_TextureInfoMap.emplace(to_string(i++), TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Number/Blue_3.dds", 22));
+	m_TextureInfoMap.emplace(to_string(i++), TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Number/Blue_4.dds", 22));
+	m_TextureInfoMap.emplace(to_string(i++), TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Number/Blue_5.dds", 22));
+	m_TextureInfoMap.emplace(to_string(i++), TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Number/Blue_6.dds", 22));
+	m_TextureInfoMap.emplace(to_string(i++), TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Number/Blue_7.dds", 22));
+	m_TextureInfoMap.emplace(to_string(i++), TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Number/Blue_8.dds", 22));
+	m_TextureInfoMap.emplace(to_string(i++), TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Number/Blue_9.dds", 22));
+
+	m_TextureInfoMap.emplace("Colon", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Number/Blue_Colon.dds", 22));
+
+	m_TextureInfoMap.emplace("ItemBox", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Item/Item_Box.dds", 22));
+	m_TextureInfoMap.emplace("NormalHammer", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Item/Hammer_Item.dds", 22));
+	m_TextureInfoMap.emplace("GoldHammer", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Item/GoldHammer_Item.dds", 22));
+	m_TextureInfoMap.emplace("GoldTimer", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Item/GoldTimer_Item.dds", 22));
+
+	size_t total = 0;
+	for (auto iter = m_TextureInfoMap.begin(); iter != m_TextureInfoMap.end(); ++iter)
+	{
+		wifstream in((*iter).second.m_Filename, ios::binary);
+		if (!in)
+		{
+			cout << (*iter).first << " - 파일 없음" << endl;
+			break;
+		}
+
+		in.seekg(0, ios::end);
+		(*iter).second.m_FileSize = in.tellg();
+		in.seekg(0, ios::beg);
+		in.close();
+	}
+
+	// 15
+	m_ModelInfoMap.emplace("SM_DeadTrunk_01", ModelInfo("../Resource/Models/SM_DeadTrunk_01.bin", false));
+	m_ModelInfoMap.emplace("SM_DeadTrunk_02", ModelInfo("../Resource/Models/SM_DeadTrunk_02.bin", false));
+	m_ModelInfoMap.emplace("SM_DeadTrunk_03", ModelInfo("../Resource/Models/SM_DeadTrunk_03.bin", false));
+	m_ModelInfoMap.emplace("SM_DeadTrunk_04", ModelInfo("../Resource/Models/SM_DeadTrunk_04.bin", false));
+	m_ModelInfoMap.emplace("SM_DeadTrunk_05", ModelInfo("../Resource/Models/SM_DeadTrunk_05.bin", false));
+	// 34
+	m_ModelInfoMap.emplace("SM_PineTree_Snow_01", ModelInfo("../Resource/Models/SM_PineTree_Snow_01.bin", false));
+	m_ModelInfoMap.emplace("SM_PineTree_Snow_02", ModelInfo("../Resource/Models/SM_PineTree_Snow_02.bin", false));
+	m_ModelInfoMap.emplace("SM_PineTree_Snow_03", ModelInfo("../Resource/Models/SM_PineTree_Snow_03.bin", false));
+	m_ModelInfoMap.emplace("SM_PineTree_Snow_04", ModelInfo("../Resource/Models/SM_PineTree_Snow_04.bin", false));
+	m_ModelInfoMap.emplace("SM_PineTree_Snow_05", ModelInfo("../Resource/Models/SM_PineTree_Snow_05.bin", false));
+	m_ModelInfoMap.emplace("SM_PineTree_Snow_06", ModelInfo("../Resource/Models/SM_PineTree_Snow_06.bin", false));
+	m_ModelInfoMap.emplace("SM_PineTree_Snow_07", ModelInfo("../Resource/Models/SM_PineTree_Snow_07.bin", false));
+	m_ModelInfoMap.emplace("SM_PineTree_Snow_08", ModelInfo("../Resource/Models/SM_PineTree_Snow_08.bin", false));
+	// 14
+	m_ModelInfoMap.emplace("SM_BigPlainRock_Snow_01", ModelInfo("../Resource/Models/SM_BigPlainRock_Snow_01.bin", false));
+	m_ModelInfoMap.emplace("SM_BigPlainRock_Snow_02", ModelInfo("../Resource/Models/SM_BigPlainRock_Snow_02.bin", false));
+	m_ModelInfoMap.emplace("SM_BigPlainRock_Snow_03", ModelInfo("../Resource/Models/SM_BigPlainRock_Snow_03.bin", false));
+	m_ModelInfoMap.emplace("SM_BigPlainRock_Snow_04", ModelInfo("../Resource/Models/SM_BigPlainRock_Snow_04.bin", false));
+	// 2
+	m_ModelInfoMap.emplace("SM_Deer", ModelInfo("../Resource/Models/SM_Deer.bin", false));
+	// 2
+	m_ModelInfoMap.emplace("PondSquare", ModelInfo("../Resource/Models/Frozen_Road.bin", false));
+	// 0
+	m_ModelInfoMap.emplace("LowPoly_-_Fence_A", ModelInfo("../Resource/Models/LowPolyFence_01.bin", false));
+	// 0
+	m_ModelInfoMap.emplace("LowPoly_-_Fence_B", ModelInfo("../Resource/Models/LowPolyFence_02.bin", false));
+
+	m_ModelInfoMap.emplace("Hammer", ModelInfo("../Resource/Models/Hammer.bin", false));
+
+	m_ModelInfoMap.emplace("GoldTimer", ModelInfo("../Resource/Models/Pocket_Watch.bin", false));
+
+	m_ModelInfoMap.emplace("EvilBear", ModelInfo("../Resource/Models/EvilBear.bin", true));
 }
 
 //void CResourceManager::CreateOffScreenRenderTargeViews(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList,int clientWidth,int clientHeight)
@@ -86,170 +129,24 @@ void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 {
 	//CreateOffScreenRenderTargeViews(pd3dDevice,pd3dCommandList,clientWidth,clientHeight); //OffScreen RenderTarget 생성
 
-	CTexture* pSkyBoxTexture = new CTexture(1, RESOURCE_TEXTURE_CUBE, 0);
-	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/SkyBox/SkyBox_1.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pSkyBoxTexture, 9, false);
-	m_TextureMap.emplace("SkyBox", pSkyBoxTexture);
+	for (auto iter = m_TextureInfoMap.begin(); iter != m_TextureInfoMap.end(); ++iter)
+	{
+		CTexture* pTexture = new CTexture(1, (*iter).second.m_ResourceType, 0);
+		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, const_cast<wchar_t*>((*iter).second.m_Filename.c_str()), 0);
+		CScene::CreateShaderResourceViews(pd3dDevice, pTexture, (*iter).second.m_RootParameter, false);
+		g_FileSize += (*iter).second.m_FileSize;
 
-	CTexture* pTerrainBaseTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pTerrainBaseTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Terrain/BaseTerrain.dds", 0);
-	CTexture* pTerrainSpecularTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pTerrainSpecularTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Terrain/SpecularTerrain.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainBaseTexture, 10, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pTerrainSpecularTexture, 11, false);
-	m_TextureMap.emplace("BaseTerrain", pTerrainBaseTexture);
-	m_TextureMap.emplace("SpecularTerrain", pTerrainSpecularTexture);
-
-	CTexture *pParticleTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Effect/LampParticle.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pParticleTexture, 19, false);
-	m_TextureMap.emplace("Particle", pParticleTexture);
-
-	CTexture* pIceCubeTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pIceCubeTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Model/texture2.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pIceCubeTexture, 20, false);
-	m_TextureMap.emplace("IceTexture", pIceCubeTexture);
-
-	CTexture* pSnowTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pSnowTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Effect/Snow.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pSnowTexture, 21, false);
-	m_TextureMap.emplace("Snow", pSnowTexture);
-
-	CTexture* pNumber0Texture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pNumber0Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Number/Blue_0.dds", 0);
-	CTexture* pNumber1Texture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pNumber1Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Number/Blue_1.dds", 0);
-	CTexture* pNumber2Texture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pNumber2Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Number/Blue_2.dds", 0);
-	CTexture* pNumber3Texture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pNumber3Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Number/Blue_3.dds", 0);
-	CTexture* pNumber4Texture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pNumber4Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Number/Blue_4.dds", 0);
-	CTexture* pNumber5Texture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pNumber5Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Number/Blue_5.dds", 0);
-	CTexture* pNumber6Texture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pNumber6Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Number/Blue_6.dds", 0);
-	CTexture* pNumber7Texture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pNumber7Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Number/Blue_7.dds", 0);
-	CTexture* pNumber8Texture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pNumber8Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Number/Blue_8.dds", 0);
-	CTexture* pNumber9Texture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pNumber9Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Number/Blue_9.dds", 0);
-
-	CScene::CreateShaderResourceViews(pd3dDevice, pNumber0Texture, 22, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pNumber1Texture, 22, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pNumber2Texture, 22, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pNumber3Texture, 22, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pNumber4Texture, 22, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pNumber5Texture, 22, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pNumber6Texture, 22, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pNumber7Texture, 22, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pNumber8Texture, 22, false);
-	CScene::CreateShaderResourceViews(pd3dDevice, pNumber9Texture, 22, false);
-
-	int i = 0;
-	m_TextureMap.emplace(to_string(i++), pNumber0Texture);
-	m_TextureMap.emplace(to_string(i++), pNumber1Texture);
-	m_TextureMap.emplace(to_string(i++), pNumber2Texture);
-	m_TextureMap.emplace(to_string(i++), pNumber3Texture);
-	m_TextureMap.emplace(to_string(i++), pNumber4Texture);
-	m_TextureMap.emplace(to_string(i++), pNumber5Texture);
-	m_TextureMap.emplace(to_string(i++), pNumber6Texture);
-	m_TextureMap.emplace(to_string(i++), pNumber7Texture);
-	m_TextureMap.emplace(to_string(i++), pNumber8Texture);
-	m_TextureMap.emplace(to_string(i++), pNumber9Texture);
-
-	CTexture* pColonTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pColonTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Number/Blue_Colon.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pColonTexture, 22, false);
-	m_TextureMap.emplace("Colon", pColonTexture);
-
-	CTexture* pItemBoxTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pItemBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Item/Item_Box.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pItemBoxTexture, 22, false);
-	m_TextureMap.emplace("ItemBox", pItemBoxTexture);
-
-	CTexture* pHammer_ItemTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pHammer_ItemTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Item/Hammer_Item.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pHammer_ItemTexture, 22, false);
-	m_TextureMap.emplace("NormalHammer", pHammer_ItemTexture);
-
-	CTexture* pGoldHammer_ItemTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pGoldHammer_ItemTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Item/GoldHammer_Item.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pGoldHammer_ItemTexture, 22, false);
-	m_TextureMap.emplace("GoldHammer", pGoldHammer_ItemTexture);
-
-	CTexture* pGoldTimer_ItemTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pGoldTimer_ItemTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Item/GoldTimer_Item.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pGoldTimer_ItemTexture, 22, false);
-	m_TextureMap.emplace("GoldTimer", pGoldTimer_ItemTexture);
-
-	CTexture* pProgressBar_Texture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pProgressBar_Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Green_ProgressBar.dds", 0);
-	CScene::CreateShaderResourceViews(pd3dDevice, pProgressBar_Texture, 22, false);
-	m_TextureMap.emplace("ProgressBar", pProgressBar_Texture);
+		m_TextureMap.emplace((*iter).first, pTexture);
+	}
 }
 
 void CResourceManager::LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
-	int nDeadTrees = 5, nPineTrees = 8, nBigRocks = 4, nDeers = 1, nPond = 1, nFence = 2;
-	// 15
-	CLoadedModelInfo* pDeadTreeModel01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_01.bin", nullptr, false, "Surrounding");
-	m_ModelMap.emplace("SM_DeadTrunk_01", pDeadTreeModel01);
-	CLoadedModelInfo* pDeadTreeModel02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_02.bin", nullptr, false, "Surrounding");
-	m_ModelMap.emplace("SM_DeadTrunk_02", pDeadTreeModel02);
-	CLoadedModelInfo* pDeadTreeModel03 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_03.bin", nullptr, false, "Surrounding");
-	m_ModelMap.emplace("SM_DeadTrunk_03", pDeadTreeModel03);
-	CLoadedModelInfo* pDeadTreeModel04 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_04.bin", nullptr, false, "Surrounding");
-	m_ModelMap.emplace("SM_DeadTrunk_04", pDeadTreeModel04);
-	CLoadedModelInfo* pDeadTreeModel05 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_05.bin", nullptr, false, "Surrounding");
-	m_ModelMap.emplace("SM_DeadTrunk_05", pDeadTreeModel05);
-	// 34
-	CLoadedModelInfo* pPineTreeModel01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_01.bin", nullptr, false, "Surrounding");
-	m_ModelMap.emplace("SM_PineTree_Snow_01", pPineTreeModel01);
-	CLoadedModelInfo* pPineTreeModel02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_02.bin", nullptr, false, "Surrounding");
-	m_ModelMap.emplace("SM_PineTree_Snow_02", pPineTreeModel02);
-	CLoadedModelInfo* pPineTreeModel03 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_03.bin", nullptr, false, "Surrounding");
-	m_ModelMap.emplace("SM_PineTree_Snow_03", pPineTreeModel03);
-	CLoadedModelInfo* pPineTreeModel04 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_04.bin", nullptr, false, "Surrounding");
-	m_ModelMap.emplace("SM_PineTree_Snow_04", pPineTreeModel04);
-	CLoadedModelInfo* pPineTreeModel05 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_05.bin", nullptr, false, "Surrounding");
-	m_ModelMap.emplace("SM_PineTree_Snow_05", pPineTreeModel05);
-	CLoadedModelInfo* pPineTreeModel06 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_06.bin", nullptr, false, "Surrounding");
-	m_ModelMap.emplace("SM_PineTree_Snow_06", pPineTreeModel06);
-	CLoadedModelInfo* pPineTreeModel07 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_07.bin", nullptr, false, "Surrounding");
-	m_ModelMap.emplace("SM_PineTree_Snow_07", pPineTreeModel07);
-	CLoadedModelInfo* pPineTreeModel08 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_PineTree_Snow_08.bin", nullptr, false, "Surrounding");
-	m_ModelMap.emplace("SM_PineTree_Snow_08", pPineTreeModel08);
-	// 14
-	CLoadedModelInfo* pRock01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_01.bin", nullptr, false, "Surrounding");
-	m_ModelMap.emplace("SM_BigPlainRock_Snow_01", pRock01);
-	CLoadedModelInfo* pRock02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_02.bin", nullptr, false, "Surrounding");
-	m_ModelMap.emplace("SM_BigPlainRock_Snow_02", pRock02);
-	CLoadedModelInfo* pRock03 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_03.bin", nullptr, false, "Surrounding");
-	m_ModelMap.emplace("SM_BigPlainRock_Snow_03", pRock03);
-	CLoadedModelInfo* pRock04 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_BigPlainRock_Snow_04.bin", nullptr, false, "Surrounding");
-	m_ModelMap.emplace("SM_BigPlainRock_Snow_04", pRock04);
-	// 2
-	CLoadedModelInfo* pDeer = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_Deer.bin", nullptr, false, "Surrounding");
-	m_ModelMap.emplace("SM_Deer", pDeer);
-	// 2
-	CLoadedModelInfo* pPond = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Frozen_Road.bin", nullptr, false, "Surrounding");
-	m_ModelMap.emplace("PondSquare", pPond);
-	// 0
-	CLoadedModelInfo* pFence01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/LowPolyFence_01.bin", nullptr, false, "Surrounding");
-	m_ModelMap.emplace("LowPoly_-_Fence_A", pFence01);
-	CLoadedModelInfo* pFence02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/LowPolyFence_02.bin", nullptr, false, "Surrounding");
-	m_ModelMap.emplace("LowPoly_-_Fence_B", pFence02);
-
-	CLoadedModelInfo* pHammer = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Hammer.bin", nullptr, false, "Hammer");
-	m_ModelMap.emplace("Hammer", pHammer);
-
-	CLoadedModelInfo* pGoldTimer = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Pocket_Watch.bin", nullptr, false, "GoldTimer");
-	m_ModelMap.emplace("GoldTimer", pGoldTimer);
-
-	CLoadedModelInfo* pEvilBearModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/EvilBear.bin", nullptr, true, "Enemy");
-	m_ModelMap.emplace("EvilBear", pEvilBearModel);
+	for (auto iter = m_ModelInfoMap.begin(); iter != m_ModelInfoMap.end(); ++iter)
+	{
+		CLoadedModelInfo* pModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, const_cast<char*>((*iter).second.m_Filename.c_str()), nullptr, (*iter).second.m_HasAnimation);
+		m_ModelMap.emplace((*iter).first, pModel);
+	}
 }
 
 void CResourceManager::LoadMapObjectInfo(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
@@ -403,6 +300,12 @@ void CResourceManager::Release()
 		iter = m_MapObjectInfoMultiMap.erase(iter);
 	}
 	m_MapObjectInfoMultiMap.clear();
+
+	for (auto iter = m_TextureInfoMap.begin(); iter != m_TextureInfoMap.end(); )
+	{
+		iter = m_TextureInfoMap.erase(iter);
+	}
+	m_TextureInfoMap.clear();
 }
 
 void CResourceManager::ReleaseModel()

@@ -43,7 +43,7 @@
       <Filter>Code\Cube</Filter>
     </ClCompile>
     <ClCompile Include="..\Code\DirectX12\DDSTextureLoader\DDSTextureLoader12.cpp">
-      <Filter>Code\DirectX\DDSTextureLoader</Filter>
+      <Filter>Code\DirectX12\DDSTextureLoader</Filter>
     </ClCompile>
     <ClCompile Include="..\Code\GameObject\EvilBear\EvilBear.cpp">
       <Filter>Code\GameObject\EvilBear</Filter>
@@ -67,7 +67,7 @@
       <Filter>Code\Shader</Filter>
     </ClCompile>
     <ClCompile Include="..\Code\DirectX12\WICTextureLoader\WICTextureLoader12.cpp">
-      <Filter>Code\DirectX\WICTextureLoader</Filter>
+      <Filter>Code\DirectX12\WICTextureLoader</Filter>
     </ClCompile>
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\UIShader.cpp">
       <Filter>Code\Shader\BillboardShader\UIShader</Filter>
@@ -219,10 +219,10 @@
       <Filter>Code\Cube</Filter>
     </ClInclude>
     <ClInclude Include="..\Code\DirectX12\d3dx12.h">
-      <Filter>Code\DirectX</Filter>
+      <Filter>Code\DirectX12</Filter>
     </ClInclude>
     <ClInclude Include="..\Code\DirectX12\DDSTextureLoader\DDSTextureLoader12.h">
-      <Filter>Code\DirectX\DDSTextureLoader</Filter>
+      <Filter>Code\DirectX12\DDSTextureLoader</Filter>
     </ClInclude>
     <ClInclude Include="..\Code\GameObject\Item\Item.h">
       <Filter>Code\GameObject\Item</Filter>
@@ -240,7 +240,7 @@
       <Filter>Code\Stdafx</Filter>
     </ClInclude>
     <ClInclude Include="..\Code\DirectX12\WICTextureLoader\WICTextureLoader12.h">
-      <Filter>Code\DirectX\WICTextureLoader</Filter>
+      <Filter>Code\DirectX12\WICTextureLoader</Filter>
     </ClInclude>
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\UIShader.h">
       <Filter>Code\Shader\BillboardShader\UIShader</Filter>
@@ -341,9 +341,6 @@
     <ClInclude Include="..\Code\Network\Network.h">
       <Filter>Code\Network</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\Network\PacketDefine.h">
-      <Filter>Code\Network</Filter>
-    </ClInclude>
     <ClInclude Include="..\Code\GameObject\Billboard\Bomb\Bomb.h">
       <Filter>Code\GameObject\Billboard\Bomb</Filter>
     </ClInclude>
@@ -379,6 +376,9 @@
     </ClInclude>
     <ClInclude Include="..\Code\Chatting\Chatting.h">
       <Filter>Code\ChattingSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Network\Protocol.h">
+      <Filter>Code\Network</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -423,15 +423,6 @@
     </Filter>
     <Filter Include="Code\Cube">
       <UniqueIdentifier>{501d02d4-206c-43b2-b870-17bac6187e03}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\DirectX">
-      <UniqueIdentifier>{83129f93-d2d0-46f2-acd9-9316b54ccd11}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\DirectX\DDSTextureLoader">
-      <UniqueIdentifier>{f9fb39a4-20a1-4488-af68-d65bbd6b9603}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\DirectX\WICTextureLoader">
-      <UniqueIdentifier>{a1fd3b4d-15c3-4a27-96ea-41cbacdbd570}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\GameObject\Item">
       <UniqueIdentifier>{12826b99-9b30-4d50-a5d9-2cfbcabbd9cc}</UniqueIdentifier>
@@ -567,6 +558,15 @@
     </Filter>
     <Filter Include="Code\ChattingSystem">
       <UniqueIdentifier>{3bb79922-3f63-4722-bc7c-6ea27e3bd4f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\DirectX12">
+      <UniqueIdentifier>{83129f93-d2d0-46f2-acd9-9316b54ccd11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\DirectX12\DDSTextureLoader">
+      <UniqueIdentifier>{f9fb39a4-20a1-4488-af68-d65bbd6b9603}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\DirectX12\WICTextureLoader">
+      <UniqueIdentifier>{a1fd3b4d-15c3-4a27-96ea-41cbacdbd570}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

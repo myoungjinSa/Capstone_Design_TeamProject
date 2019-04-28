@@ -452,10 +452,8 @@ void CPlayer::DecideAnimationState(float fLength)
 
 		pController->SetAnimationState(CAnimationController::ATTACK);
 
-	//	if (m_Normal_Inventory.size() > 0)
-		//{
+		//if (m_Normal_Inventory.size() != 0)
 			//Refresh_Inventory(CItem::NormalHammer);
-	//	}
 	}
 
 	// 특수 아이템 사용 버튼(ALT)
@@ -579,7 +577,7 @@ void CPlayer::ReleaseSound()
 CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, int matID, void *pContext)
 {
 	CLoadedModelInfo* pEvilBearModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
-		"../Resource/Models/EvilBear.bin", NULL, true, "Player");
+		"../Resource/Models/EvilBear.bin", NULL, true);
 
 	SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);
