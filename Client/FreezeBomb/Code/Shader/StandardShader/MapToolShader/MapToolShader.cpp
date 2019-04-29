@@ -24,30 +24,30 @@ void CMapToolShader::InstallMapObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 {
 	switch (MapObjectType)
 	{
-		// 0
+		// 1
 	case DeadTree:		
 		m_nCurrDeadTreeModelIndex = (m_nCurrDeadTreeModelIndex) % (m_nDeadTreeModelCount) + 1;
 		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "SM_DeadTrunk_0" + to_string(m_nCurrDeadTreeModelIndex));
 		break;
-		// 1
+		// 2
 	case PineTree:
 		m_nCurrPineTreeModelIndex = (m_nCurrPineTreeModelIndex) % (m_nPineTreeModelCount) + 1;
 		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "SM_PineTree_Snow_0" + to_string(m_nCurrPineTreeModelIndex));
 		break;
-		// 2
+		// 3
 	case BigRock:
 		m_nCurrBigRockModelIndex = (m_nCurrBigRockModelIndex) % (m_nBigRockModelCount) + 1;
 		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "SM_BigPlainRock_Snow_0" + to_string(m_nCurrBigRockModelIndex));
 		break;
-		// 3
+		// 4
 	case Deer:
 		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "SM_Deer");
 		break;
-		// 4
+		// 5
 	case Frozen_Road:
 		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "FrozenRoad");
 		break;
-		// 5
+		// 6
 	case Fence:
 		m_nCurrFenceModelIndex = (m_nCurrFenceModelIndex) % (m_nFenceModelCount) + 1;
 		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "LowPolyFence_0" + to_string(m_nCurrFenceModelIndex));

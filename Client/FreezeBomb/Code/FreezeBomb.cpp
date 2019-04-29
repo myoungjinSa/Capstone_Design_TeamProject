@@ -99,8 +99,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;
 	HDC hdc;
-	static BOOL hanFlag = FALSE;
-	TCHAR Han[5];
+	
 	switch (message)
 	{
 	case WM_SIZE:
@@ -182,8 +181,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//한글 입력중 한글키가 아닌 키를 누를때(숫자키,Enter키,한영 변환키,방향키 등)
 		//마우스로 클릭하거나 포커스를 잃을때 발생(즉, 한글 입력중에는 검정상자가 생기는데
 		//그 검정상자가 없어질때 반환)
-		if(ChattingSystem::GetInstance()->IsChattingActive())
-			hanFlag = false;
+	
 		break;
 	//case WM_SETFOCUS:
 	//	CreateCaret(hWnd, NULL, 4, 32);

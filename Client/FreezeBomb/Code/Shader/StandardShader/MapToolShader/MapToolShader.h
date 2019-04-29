@@ -39,7 +39,7 @@ public:
 	void SetCurrBigRockIndex(int index) { m_nCurrBigRockModelIndex = index; }
 	void SetCurrFenceIndex(int index) { m_nCurrFenceModelIndex = index; }
 
-	enum MapObjectType { DeadTree = 0x30, PineTree = 0x31, BigRock = 0x32, Deer = 0x33, Frozen_Road = 0x34, Fence = 0x35, OutputFile = 0x4F };
+	enum MapObjectType { DeadTree = 0x31, PineTree = 0x32, BigRock = 0x33, Deer = 0x34, Frozen_Road = 0x35, Fence = 0x36, OutputFile = 0x4F };
 
 private:
 	map<string, CLoadedModelInfo*> m_ModelsList;			// ¸ðµ¨µéÀ» °ü¸®ÇÏ´Â ¸Ê 

@@ -15,7 +15,7 @@
 #include "../Chatting/Chatting.h"
 
 // 전체모드할경우 주석풀으셈
-//#define FullScreenMode
+#define FullScreenMode
 
 extern volatile size_t g_TotalSize;
 extern volatile size_t g_FileSize;
