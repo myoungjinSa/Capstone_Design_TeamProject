@@ -1,6 +1,7 @@
 ﻿#include "Stdafx/Stdafx.h"
 #include "Default\Resource.h"
 #include "GameFramework/GameFramework.h"
+#include "Chatting\Chatting.h"
 
 #define MAX_LOADSTRING 100
 
@@ -98,7 +99,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;
 	HDC hdc;
-
+	static BOOL hanFlag = FALSE;
+	char Han[5];
 	switch (message)
 	{
 	case WM_SIZE:
@@ -113,6 +115,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_KEYDOWN:
 	case WM_KEYUP:
 		gGameFramework.OnProcessingWindowMessage(hWnd, message, wParam, lParam);
+
 		break;
 	case WM_COMMAND:
 		wmId = LOWORD(wParam);
@@ -129,6 +132,39 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return(::DefWindowProc(hWnd, message, wParam, lParam));
 		}
 		break;
+
+
+	case WM_CHAR:
+		if(gGameFramework.IsChattingOn())
+			//ChattingSystem::GetInstance()->ProcessChatting()
+		break;
+		//한글 조합 시작
+	case WM_IME_STARTCOMPOSITION:
+		if(gGameFramework.IsChattingOn())
+			//ChattingSystem::GetInstance()-
+		break;
+		//한글 조합중
+	case WM_IME_COMPOSITION:
+		
+		//비완성된 문자를 Han에 받는다.
+		Han[0] = (BYTE)(wParam / 256);
+		Han[1] = (BYTE)(wParam % 256);
+		Han[2] = 0x00;
+
+		break;
+
+	case WM_IME_ENDCOMPOSITION:
+		hanFlag = false;
+		break;
+	//case WM_SETFOCUS:
+	//	CreateCaret(hWnd, NULL, 4, 32);
+	//	SetCaretPos(10,10);
+	//	ShowCaret(hWnd);
+	//	return 0;
+	//case WM_KILLFOCUS:
+	//	DestroyCaret();
+	//	return 0;
+
 	case WM_PAINT:
 		hdc = ::BeginPaint(hWnd, &ps);
 		EndPaint(hWnd, &ps);

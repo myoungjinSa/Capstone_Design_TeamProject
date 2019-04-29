@@ -345,6 +345,12 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[23].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[23].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
+	//pd3dRootParameters[24].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+	//pd3dRootParameters[24].Descriptor.ShaderRegister = 17;	 //t17 : FoliageShader
+	//pd3dRootParameters[24].Descriptor.RegisterSpace = 0;
+	//pd3dRootParameters[24].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
 
 	pd3dSamplerDescs[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
@@ -624,7 +630,7 @@ void CScene::CheckObjectByObjectCollisions(float fElapsedTime)
 								m_pPlayer->Refresh_Inventory(CItem::NormalHammer);
 							}
 							m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
-							PlayIceBreakEffect(fElapsedTime,bBreak);
+							PlayIceBreakEffect(bBreak);
 							cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
 						}
 					}
@@ -674,6 +680,7 @@ void CScene::CheckObjectByObjectCollisions(float fElapsedTime)
 					if((*iter2).second->getItemType() == CItem::NormalHammer)
 						m_pPlayer->SetIsHammer(true);
 					// 맵에 있는 아이템 삭제
+					PlayGetItemEffect();
 					pItemShader->ItemDelete((*iter2).first);
 					break;
 				}
@@ -682,14 +689,20 @@ void CScene::CheckObjectByObjectCollisions(float fElapsedTime)
 	}
 }
 
-void CScene::PlayIceBreakEffect(float fElapsedTime,bool& bBreak)
+void CScene::PlayGetItemEffect()
+{
+	if (m_pSound)
+		m_pSound->PlayIndex(ITEMGET);
+	//cout << "PlayGetItem\n";
+}
+void CScene::PlayIceBreakEffect(bool& bBreak)
 {
 	
 	
 	if (bBreak)
 	{
 
-		m_pSound->PlayIndex(ICEBREAK,1.0f);
+		m_pSound->PlayIndex(ICEBREAK);
 		if (m_pPlayer->IsCameraVibe() == false)
 			m_pPlayer->SetCameraVibe(true);
 	
@@ -741,13 +754,14 @@ void CScene::CreateSoundSystem()
 		//사운드 생성
 	m_pSound = new CSoundSystem;
 
-	m_musicCount = 3;
+	m_musicCount = 4;
 	m_musicList = new const char*[m_musicCount];
 
 	//m_musicList[0] = "../Resource/Sound/SnowyVillage.wav";
 	m_musicList[0] = "../Resource/Sound/SnowDrop.wav";
 	m_musicList[1] = "../Resource/Sound/Effect/TimerWarning.wav";
 	m_musicList[2] = "../Resource/Sound/Effect/ICEBreak.wav";
+	m_musicList[3] = "../Resource/Sound/MP3/GetItem.mp3";
 
 	//	m_musicList[1] = "../Resource/Sound/town.wav";
 

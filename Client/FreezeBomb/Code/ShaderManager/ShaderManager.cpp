@@ -70,10 +70,10 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ShaderMap.emplace("MapObjects", pMapShader);
 #endif
 
-	//Foliage는 충돌처리가 필요 없음.. 따라서 Bound 박스 필요  없다. 그림자도 필요업음
+	//////Foliage는 충돌처리가 필요 없음.. 따라서 Bound 박스 필요  없다. 그림자도 필요업음
 	//CFoliageShader* pFoliageShader = new CFoliageShader;
 	//pFoliageShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//pFoliageShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pTerrainShader->getTerrain());
+	//pFoliageShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getModelMap(),pTerrainShader->getTerrain());
 	//m_ppShaders[index++] = pFoliageShader;
 	//m_ShaderMap.emplace("Foliage", pFoliageShader);
 

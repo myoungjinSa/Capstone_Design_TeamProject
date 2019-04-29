@@ -1,4 +1,5 @@
 #include "../Stdafx/Stdafx.h"
+#include <string>
 #include "Chatting.h"
 
 #ifdef _WITH_DIRECT2D_
@@ -32,14 +33,27 @@ void ChattingSystem::Initialize(IDWriteFactory* writeFactory,ID2D1DeviceContext2
 void ChattingSystem::ProcessChatting(UCHAR* key)
 {
 	TCHAR		localChat[512];
+	static bool bCapital = false;	// true : 대문자 , false  = 소문자
 	
+	//n_tcscpy_s()
 	//현재 영문이 활성화 됐을 경우
 	if (GetIMEMode() == IME_CMODE_ALPHANUMERIC)
 	{
-		if (key[VK_C] & 0xF0)
+		if (GetKeyState(VK_CAPITAL) & 0x8001 && bCapital == true)
 		{
-
+			if (GetKeyState(VK_C) & 0x8000)
+			{
+				m_sChat += 'C';
+			}
 		}
+		else
+		{
+			if(GetKeyState(VK_C) & 0x8000)
+			{
+				m_sChat += 'c';
+			}
+		}
+		
 
 	}
 	else if(GetIMEMode() == IME_CMODE_NATIVE)
@@ -71,10 +85,15 @@ void ChattingSystem::Destroy()
 //프로그램 내에서 한영 전환
 void ChattingSystem::SetIMEMode(HWND hWnd,bool bHanMode)
 {
+	//해당 윈도우의 Input Context 를 가져오는 함수.
+	//리턴값으로 Input Context의 핸들을 반환한다.
 	HIMC hIMC = ImmGetContext(hWnd);
 	DWORD dwSent;
 	DWORD dwTemp;
 
+	//hIMC => 정보를 알고싶은 input context의 핸들
+	//lpfwdConversion => IME Conversion Mode 값
+	//lpfwdSentence => Sentence mode 값
 	ImmGetConversionStatus(hIMC, &m_conv, &dwSent);
 
 	dwTemp = m_conv & ~IME_CMODE_LANGUAGE;
@@ -87,7 +106,12 @@ void ChattingSystem::SetIMEMode(HWND hWnd,bool bHanMode)
 
 	m_conv = dwTemp;
 
+	//hIMC - input context 핸들, NULL이면 현재 active 상태인 context를 설정
+
 	ImmSetConversionStatus(hIMC, m_conv, dwSent);
+	
+	//Input Context를 릴리즈 하고, Context에 할당된 메모리를 unlock 한다.
+	//ImmGetContext()를 사용했다면, 반드시 ImmReleaseContext()를 사용해주어야 한다.
 	ImmReleaseContext(hWnd, hIMC);
 
 	

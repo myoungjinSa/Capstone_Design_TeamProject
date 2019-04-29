@@ -34,7 +34,9 @@ public:
 	void CreateDirect2DDevice();
 	void SetNamecard();
 	void ShowScoreboard();
-
+	//HRESULT BindDC();
+	//HRESULT CreateDCRenderTarget();
+	
 	void ProcessDirect2D();
 #endif
 	void CreateDepthStencilView();
@@ -57,6 +59,10 @@ public:
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
+	//채팅 활성화 여부 set
+	bool IsChattingOn() { return m_bChattingMode; }
+	bool IsHangeul() { return m_bHangeul; }
+	void SetHangeul(bool han) { m_bHangeul = han; }
 #ifdef _MAPTOOL_MODE_
 	void OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 #endif	
@@ -141,7 +147,7 @@ private:
 
 	ID2D1SolidColorBrush			*m_pd2dbrBackground{ nullptr };//
 	ID2D1SolidColorBrush			*m_pd2dbrBorder{ nullptr };//
-
+	ID2D1SolidColorBrush			*m_pBlackBrush{ nullptr };
 	
 	IDWriteTextFormat				**m_pdwFont{ nullptr };//
 	const int						m_nNameFont=6;
@@ -154,6 +160,8 @@ private:
 	ID2D1Effect						*m_pd2dfxBitmapSource{ nullptr };
 	ID2D1DrawingStateBlock1			*m_pd2dsbDrawingState{ nullptr };
 	IWICFormatConverter				*m_pwicFormatConverter{ nullptr };
+
+	ID2D1DCRenderTarget				*m_pDCRT;
 
 	//한글인지 영어 인지
 	bool m_bHangeul{ false };

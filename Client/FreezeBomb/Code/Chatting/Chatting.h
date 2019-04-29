@@ -19,6 +19,7 @@ protected:
 #endif
 	DWORD							m_conv;
 	TCHAR							m_chat[512];
+	string							m_sChat;
 public:
 	ChattingSystem();
 	virtual ~ChattingSystem();
@@ -26,6 +27,7 @@ public:
 	void ProcessChatting(UCHAR* key);
 
 
+	TCHAR* GetChatText() { return m_chat; };
 	DWORD GetIMEMode() const { return m_conv; }
 	void SetIMEMode(HWND hWnd, bool bHanMode);
 	

@@ -2,6 +2,7 @@
 #include "../../Material/Material.h"
 #include "../../Shader/Shader.h"
 #include "../../Mesh/LODMesh/LODMesh.h.h"
+#include "../../FrameTransform/FrameTransform.h"
 #include "Foliage.h"
 
 CFoliageObject::CFoliageObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
@@ -16,6 +17,10 @@ void CFoliageObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lod
 {
 	OnPrepareRender();
 
+	if (m_pSkinningBoneTransforms)
+		m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
+	if (m_pFrameTransform)
+		m_pFrameTransform->SetFrameMeshWorldConstantBuffer();
 	if (m_pMesh)
 	{
 		if (!m_pSkinningBoneTransforms) UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
@@ -26,7 +31,8 @@ void CFoliageObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lod
 			{
 				if (m_ppMaterials[i])
 				{
-					if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+					if (m_ppMaterials[i]->m_pShader)
+						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
 					m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
 				}
 				if (m_pMesh->GetLodLevel() == lodlevel) 

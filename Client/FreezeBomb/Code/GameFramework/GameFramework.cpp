@@ -402,8 +402,71 @@ void CGameFramework::CreateRenderTargetViews()
 #ifdef _WITH_DIRECT2D_
 
 	CreateDirect2DRenderTargetViews();
+	
 #endif
 }
+
+//HRESULT CGameFramework::BindDC()
+//{
+//	HRESULT hr;
+//	RECT rc;
+//	static PAINTSTRUCT ps;
+//	GetClientRect(m_hWnd, &rc);
+//
+//	////////////////////////////////////////
+//	BeginPaint(m_hWnd, &ps);
+//	hr = CreateDCRenderTarget();
+//
+//	if (SUCCEEDED(hr))
+//	{
+//		//Bind the DC to the DC render target.
+//		hr = m_pDCRT->BindDC(ps.hdc, &rc);
+//
+//		m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF(0x9ACD32, 1.0f)), &m_pBlackBrush);
+//
+//
+//		m_pDCRT->BeginDraw();
+//
+//		m_pDCRT->SetTransform(D2D1::Matrix3x2F::Identity());
+//
+//		m_pDCRT->Clear(D2D1::ColorF(D2D1::ColorF::White));
+//		m_pDCRT->DrawEllipse( D2D1::Ellipse(D2D1::Point2F(150.0f, 150.0f),
+//                100.0f, 100.0f),  m_pBlackBrush,3.0);
+//
+//		hr = m_pDCRT->EndDraw();
+//		if (SUCCEEDED(hr))
+//		{
+//			//Draw the pie Chart with GDI.
+//			
+//			//Draw Direct2D.
+//			
+//			// Save the original object;
+//			HGDIOBJ original = NULL;
+//			original = SelectObject(ps.hdc, GetStockObject(DC_PEN));
+//
+//			HPEN blackPen = CreatePen(PS_SOLID, 3, 0);
+//			SelectObject(ps.hdc, blackPen);
+//
+//			Ellipse(ps.hdc, 300, 50, 500, 250);
+//
+//			DeleteObject(blackPen);
+//
+//            // Restore the original object.
+//            SelectObject(ps.hdc, original);
+//			
+//		}
+//
+//	}
+//	if (hr == D2DERR_RECREATE_TARGET)
+//	{
+//		hr = S_OK;
+//		if (m_pDCRT) m_pDCRT->Release();
+//	}
+//	EndPaint(m_hWnd, &ps);
+//
+//
+//	return hr;
+//}
 
 #ifdef _WITH_DIRECT2D_
 // D3D12가 스왑체인을 소유한다. 그렇기 때문에 우리가 사용하는 11On12 Device에 백버퍼에 우리가 원하는것을 그리려면 
@@ -417,16 +480,17 @@ void CGameFramework::CreateDirect2DRenderTargetViews()
 	float fxDPI, fyDPI;
 
 	m_pd2dFactory->GetDesktopDpi(&fxDPI, &fyDPI); // 현재 데스크톱에 dots per inch(DPI)를 검색하고 ,각 변수들에 할당해준다.
+	
 
 	//D2D1_BITMAP_PROPERTIES1	 : 
 	//1. D2D1_BITMAP_OPTIONS     : 비트맵의 용도 옵션.  EX> D2D1_BITMAP_OPTIONS_TARGET : the bitmap can be used as a device context target.
 	//												   EX> D2D1_BITMAP_OPTIONS_CANNOT_DRAW : the bitmap cannot be used an input.
 	//2. const D2D1_PIXEL_FORMAT : 비트맵의 픽셀 형식과 알파 모드.  EX> D2D1_ALPHA_MODE_PREMULTIPLIED :  알파값이 미리 곱해진다.
-	D2D1_BITMAP_PROPERTIES1 d2dBitmapProperties = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW, D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED), fxDPI, fxDPI);
+	D2D1_BITMAP_PROPERTIES1 d2dBitmapProperties = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET  |  D2D1_BITMAP_OPTIONS_CANNOT_DRAW, D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED), fxDPI, fxDPI);
 
 	for (UINT i = 0; i < m_nSwapChainBuffers; i++)
 	{
-
+		
 		D3D11_RESOURCE_FLAGS d3d11Flags = { D3D11_BIND_RENDER_TARGET };
 		//CreateWrappedResource-> 이 함수는 D3D11On12 에서 사용가능한  D3D11 리소스들을 만들어준다.
 		m_pd3d11On12Device->CreateWrappedResource(m_ppd3dSwapChainBackBuffers[i], &d3d11Flags, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, __uuidof(ID3D11Resource), (void**)&m_ppd3d11WrappedBackBuffers[i]);
@@ -441,7 +505,21 @@ void CGameFramework::CreateDirect2DRenderTargetViews()
 		}
 	}
 
+
 }
+
+//HRESULT CGameFramework::CreateDCRenderTarget()
+//{
+//	
+//	D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(
+//		D2D1_RENDER_TARGET_TYPE_DEFAULT, D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE), 0, 0,
+//		D2D1_RENDER_TARGET_USAGE_NONE, D2D1_FEATURE_LEVEL_DEFAULT);
+//
+//	HRESULT hr = m_pd2dFactory->CreateDCRenderTarget(&props,&m_pDCRT);
+//
+//	return hr;
+//
+//}
 
 #endif
 void CGameFramework::CreateDepthStencilView()
@@ -821,6 +899,7 @@ void CGameFramework::OnDestroy()
 	if (m_pwicFormatConverter) m_pwicFormatConverter->Release();
 	if (m_pwicImagingFactory) m_pwicImagingFactory->Release();
 
+	if (m_pDCRT) m_pDCRT->Release();
 #endif
 	if (m_pd3dDepthStencilBuffer) m_pd3dDepthStencilBuffer->Release();
 	if (m_pd3dDsvDescriptorHeap) m_pd3dDsvDescriptorHeap->Release();
@@ -882,6 +961,7 @@ bool CGameFramework::BuildObjects()
 		soundThreads.emplace_back(thread{ &CScene::CreateSoundSystem, m_pScene });
 		//GameFramework에서 관리하는 CPlayer를 제외한 나머지 넘겨준다.
 		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, nPlayerCount - 1);
+
 	}
 	CTerrainPlayer* pPlayer{ nullptr };
 
@@ -1194,6 +1274,8 @@ void CGameFramework::ProcessDirect2D()
 	//,커맨드 버퍼에 대기중인 커맨드를 gpu로 전송
 	m_pd3d11DeviceContext->Flush();
 
+	//HRESULT hr = BindDC();
+	
 }
 #endif
 void CGameFramework::FrameAdvance()

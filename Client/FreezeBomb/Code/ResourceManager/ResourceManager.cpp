@@ -2,6 +2,7 @@
 #include "ResourceManager.h"
 #include "../Texture/Texture.h"
 #include "../Scene/Scene.h"
+#include "../GameObject/Foliage/Foliage.h"
 
 volatile size_t g_TotalSize = 12994707;
 volatile size_t g_FileSize = 0;
@@ -192,7 +193,7 @@ void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 void CResourceManager::LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
-	int nDeadTrees = 5, nPineTrees = 8, nBigRocks = 4, nDeers = 1, nPond = 1, nFence = 2;
+	int nDeadTrees = 5, nPineTrees = 8, nBigRocks = 4, nDeers = 1, nPond = 1, nFence = 2 , nFolage = 3;
 	// 15
 	CLoadedModelInfo* pDeadTreeModel01 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/SM_DeadTrunk_01.bin", nullptr, false, "Surrounding");
 	m_ModelMap.emplace("SM_DeadTrunk_01", pDeadTreeModel01);
@@ -242,12 +243,24 @@ void CResourceManager::LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	CLoadedModelInfo* pFence02 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/LowPolyFence_02.bin", nullptr, false, "Surrounding");
 	m_ModelMap.emplace("LowPoly_-_Fence_B", pFence02);
 
+
+	////foliage 는 텍스쳐를 사용하지 않음
+	//CLoadedModelInfo* pFoliageModel01 = CFoliageObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Grass_C_01.bin", nullptr, false, "Foliage");
+	//m_ModelMap.emplace("Grass_C_01", pFoliageModel01);
+
+	//CLoadedModelInfo* pFoliageModel02 = CFoliageObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Grass_D_01.bin", nullptr, false, "Foliage");
+	//m_ModelMap.emplace("Grass_D_01", pFoliageModel02);
+
+	//CLoadedModelInfo* pFoliageModel03 = CFoliageObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Plant_c_01.bin", nullptr, false, "Foliage");
+	//m_ModelMap.emplace("Plant_c_01", pFoliageModel03);
+
 	CLoadedModelInfo* pHammer = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Hammer.bin", nullptr, false, "Hammer");
 	m_ModelMap.emplace("Hammer", pHammer);
 
 	CLoadedModelInfo* pGoldTimer = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Pocket_Watch.bin", nullptr, false, "GoldTimer");
 	m_ModelMap.emplace("GoldTimer", pGoldTimer);
 
+	
 	CLoadedModelInfo* pEvilBearModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/EvilBear.bin", nullptr, true, "Enemy");
 	m_ModelMap.emplace("EvilBear", pEvilBearModel);
 }

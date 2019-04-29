@@ -215,6 +215,29 @@ float4 PSShadow(VS_SHADOW_OUTPUT input) : SV_TARGET
 	return(float4(0.7f, 0.7f, 0.7f, 1.f));
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct InstanceData
+{
+	matrix m_InstanceWorld;
+};
+
+//StructuredBuffer<InstanceData> g_InstanceFoliageData : register(t17);
+//VS_STANDARD_OUTPUT VSFoliage(VS_STANDARD_INPUT input,uint nInstanceID: SV_InstanceID)
+//{
+//	VS_STANDARD_OUTPUT output;
+//
+//	//output.position = mul(mul(mul(float4(input.position, 1.0f), g_InstanceData[nInstanceID].m_InstanceWorld), gmtxView), gmtxProjection);
+//	
+//	output.positionW = mul(float4(input.position, 1.0f), g_InstanceFoliageData[nInstanceID].m_InstanceWorld).xyz;
+//	output.normalW = mul(input.normal, (float3x3)g_InstanceFoliageData[nInstanceID].m_InstanceWorld);
+//	output.tangentW = mul(input.tangent, (float3x3)g_InstanceFoliageData[nInstanceID].m_InstanceWorld);
+//	output.bitangentW = mul(input.bitangent, (float3x3)g_InstanceFoliageData[nInstanceID].m_InstanceWorld);
+//	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+//	output.uv = input.uv;
+//
+//	return(output);
+//}
+//
+
 float4 PSFoliage(VS_STANDARD_OUTPUT input) : SV_TARGET
 {
 	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -395,10 +418,7 @@ float4 PSBombParticle(VS_BOMBPARTICLE_OUTPUT input) : SV_TARGET
 	return (cColor);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct InstanceData
-{
-	matrix m_InstanceWorld;
-};
+
 StructuredBuffer<InstanceData> g_InstanceCubeData : register(t1);
 Texture2D IceTexture : register(t14);
 

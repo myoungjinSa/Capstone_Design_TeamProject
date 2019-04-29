@@ -6,6 +6,8 @@ CSoundSystem::CSoundSystem() : m_soundCount(0), pSystem(nullptr), pSound(nullptr
 	pChannel[1] = nullptr;
 	pChannel[2] = nullptr;
 	pChannel[3] = nullptr;
+	pChannel[4] = nullptr;
+
 }
 
 CSoundSystem::~CSoundSystem()
@@ -29,7 +31,7 @@ void CSoundSystem::Initialize(const int soundNum ,const char** musicList,int nFl
 
 		for (int i = 0; i < soundNum; i++) 
 		{
-			if(i == 2)
+			if(i == 2 || i == 3)
 				pSystem->createSound(musicList[i] , FMOD_DEFAULT, nullptr, &pSound[i]);
 			else
 				pSystem->createSound(musicList[i] , nFlags | FMOD_DEFAULT, nullptr, &pSound[i]);

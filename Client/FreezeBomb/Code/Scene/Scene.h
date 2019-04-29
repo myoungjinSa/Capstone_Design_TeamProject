@@ -41,7 +41,8 @@ public:
     ~CScene();
 	
 	void CreateSoundSystem();
-	void PlayIceBreakEffect(float fTimeElapsed,bool& bBreak);
+	void PlayIceBreakEffect(bool& bBreak);
+	void PlayGetItemEffect();
 
 	bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
@@ -132,7 +133,8 @@ protected:
 	{
 		BACKGROUNDMUSIC = 0,
 		TIMERWARNING,
-		ICEBREAK
+		ICEBREAK,
+		ITEMGET
 	};
 
 private:

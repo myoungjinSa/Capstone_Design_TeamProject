@@ -26,5 +26,5 @@ private:
 	System* pSystem;
 	Sound**	pSound;
 	int m_soundCount;
-	Channel* pChannel[4];		//»ç¿îµå ¹Í½Ì¿¡ ÇÊ¿ä
+	Channel* pChannel[5];		//»ç¿îµå ¹Í½Ì¿¡ ÇÊ¿ä
 };

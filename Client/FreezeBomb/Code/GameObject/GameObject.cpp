@@ -727,6 +727,12 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lodLev
 {
 	OnPrepareRender();
 
+	if (m_pSkinningBoneTransforms)
+		m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
+	if (m_pFrameTransform)
+		m_pFrameTransform->SetFrameMeshWorldConstantBuffer();
+
+
 	if (m_pMesh)
 	{
 		if (!m_pSkinningBoneTransforms) UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
