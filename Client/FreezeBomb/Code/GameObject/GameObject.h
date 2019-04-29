@@ -425,7 +425,6 @@ protected:
 	bool								m_bHammer = false;  //망치 소지 여부
 	bool								m_bTimer = false;		//타이머 아이템 소지 여부
 
-
 	//플레이어와의 거리
 	float		m_fDistanceToTarget = 0.0f;
 public:
@@ -450,13 +449,4 @@ public:
 
 	//게임 객체가 카메라에 보인는 가를 검사한다
 	bool IsVisible(CCamera* pCamera = nullptr);
-};
-
-class CCubeObject : public CGameObject
-{
-public:
-	CCubeObject(int nMaterial);
-	virtual ~CCubeObject();
-
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL);
 };

@@ -71,19 +71,17 @@ extern HINSTANCE						ghAppInstance;
 //#define _WITH_SYNCH_SWAPCHAIN
 #define _WITH_DIRECT2D_
 
+//맵툴 모드
+//#define _MAPTOOL_MODE_
+
 #define FRAME_BUFFER_WIDTH		1200
 #define FRAME_BUFFER_HEIGHT		800
 
 enum PIPELINESTATE_TYPE { GameObject, GameObject_Shadow };
 
-//맵툴 모드
-//#define _MAPTOOL_MODE_
-
 //#define _WITH_CB_GAMEOBJECT_32BIT_CONSTANTS
 //#define _WITH_CB_GAMEOBJECT_ROOT_DESCRIPTOR
 #define _WITH_CB_WORLD_MATRIX_DESCRIPTOR_TABLE
-
-
 
 
 
@@ -100,7 +98,6 @@ enum PIPELINESTATE_TYPE { GameObject, GameObject_Shadow };
 // TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
 
 D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3dResourceDesc, UINT nTextureType);
-
 
 extern UINT gnCbvSrvDescriptorIncrementSize;
 

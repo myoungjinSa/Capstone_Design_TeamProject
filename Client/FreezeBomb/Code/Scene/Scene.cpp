@@ -92,9 +92,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
 	int nObjects = 0;
-#ifdef _MAPTOOL_MODE_
-	nObjects = 67;		//DeadTrees(15),PineTrees(34),Rocks(14),Deer(2),Pond(2)
-#endif
+
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 
 		SkyBox + Terrain + MapObjects + Item + EvilBear + BombParticle + CubeParticle + Snow + TimerUI + ItemUI + Player);
 	// Model을 로드할 때, 셰이더 없이 로드할 경우 이것을 사용함!
@@ -631,7 +629,6 @@ void CScene::CheckObjectByObjectCollisions(float fElapsedTime)
 			}	
 			if(m_pPlayer->IsCameraVibe())
 			{
-		
 				m_bVibeTime += fElapsedTime;
 
 				if(m_bVibeTime >1.0f)
@@ -639,17 +636,9 @@ void CScene::CheckObjectByObjectCollisions(float fElapsedTime)
 					m_pPlayer->SetCameraVibe(false);
 					m_bVibeTime = 0.0f;
 					if (bBreak)
-					{
-					bBreak = false;
-				
-					}
+						bBreak = false;
 				}
-		
 			}
-			
-		
-			
-				
 			
 			/*sort(begin(m), end(m), [&](const CGameObject& enmey1,const CGameObject& enemy2)->float {
 				float fDistamce = m_pPlayer->
@@ -690,18 +679,16 @@ void CScene::PlayGetItemEffect()
 }
 void CScene::PlayIceBreakEffect(bool& bBreak)
 {
-	
-	
 	if (bBreak)
 	{
 
 		m_pSound->PlayIndex(ICEBREAK);
+
 		if (m_pPlayer->IsCameraVibe() == false)
 			m_pPlayer->SetCameraVibe(true);
 	
 		//m_pPlayer->SetCameraVibe(true);
 		cout << "ICEBREAK" << endl;
-
 	}
 
 	
@@ -784,7 +771,6 @@ bool CScene::DistanceToTarget(XMFLOAT3& pos)
 
 XMFLOAT2& CScene::ProcessNameCard(const int& objNum)
 {
-
 	map<string, CShader*> m = getShaderManager()->getShaderMap();
 	XMFLOAT4X4 viewProj = Matrix4x4::Multiply(m_pPlayer->GetCamera()->GetViewMatrix(), m_pPlayer->GetCamera()->GetProjectionMatrix());
 	XMFLOAT2 res{NAN,NAN};
@@ -806,13 +792,9 @@ XMFLOAT2& CScene::ProcessNameCard(const int& objNum)
 			screen.y = (float)(-viewY / viewZ + 1.0f) * (m_pPlayer->GetCamera()->GetViewport().Height * 0.5f);
 			res = screen;
 		}
-		
-
 	}
 	//int viewLeft =0, viewTop = 0;
 	
-
-
 	return res;
 }
 

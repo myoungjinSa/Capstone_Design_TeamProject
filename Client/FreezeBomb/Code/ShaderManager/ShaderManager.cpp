@@ -30,8 +30,6 @@ CShaderManager::~CShaderManager()
 {
 }
 
-
-
 void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,const int& nPlayerCount)
 {
 	m_pResourceManager = new CResourceManager;
@@ -39,14 +37,14 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 
 	m_nShaders = 9;
 
-	//카툰렌더링 해야될 쉐이더 개수
-	m_nPostShaders = m_nShaders - 2;
-
 	//맵툴 모드일때는 맵의 오브젝트들을 그리지 않게 하기 위해 
 	// 그래야 맵툴모드에서 적용해서 배치한 오브젝트들만 볼 수 있다.
-#ifndef _MAPTOOL_MODE_
-	m_nShaders = m_nShaders + 1;
+
+#ifdef _MAPTOOL_MODE_
+	m_nShaders = m_nShaders - 1;
 #endif
+	//카툰렌더링 해야될 쉐이더 개수
+	m_nPostShaders = m_nShaders - 2;
 
 	m_ppShaders = new CShader*[m_nShaders];
 
@@ -116,12 +114,6 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ppShaders[index++] = pSnowShader;
 	m_ShaderMap.emplace("Snow", pSnowShader);
 
-	//CProgressBarUIShader* pProgressBarUIShader = new CProgressBarUIShader;
-	//pProgressBarUIShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//pProgressBarUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
-	//m_ppShaders[index++] = pProgressBarUIShader;
-	//m_ShaderMap.emplace("ProgressBarUI", pProgressBarUIShader);
-
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	//아래 shader들은 카툰처리가 되면 안되는 shader
 
@@ -138,8 +130,9 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ShaderMap.emplace("ItemUI", pItemUIShader);
 	
 
-
+#ifndef _MAPTOOL_MODE_
 	m_pResourceManager->ReleaseModel();
+#endif
 }
 
 void CShaderManager::ReleaseObjects()
@@ -154,7 +147,10 @@ void CShaderManager::ReleaseObjects()
 		}
 		delete[] m_ppShaders;
 	}
-	
+
+#ifdef _MAPTOOL_MODE_
+	m_pResourceManager->ReleaseModel();
+#endif
 
 	if (m_pResourceManager)
 	{

@@ -3,7 +3,7 @@
 #include "../../../GameObject/Surrounding/Surrounding.h"
 #include "../../../GameObject/Terrain/Terrain.h"
 #include "../../../GameObject/Player/Player.h"
-
+#include "../../../FrameTransform/FrameTransform.h"
 
 bool operator<(pair<string, CGameObject*> &p1, pair< string, CGameObject> &p2)
 {
@@ -20,6 +20,48 @@ CMapToolShader::~CMapToolShader()
 {
 }
 
+void CMapToolShader::InstallMapObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CPlayer* pPlayer, char MapObjectType)
+{
+	switch (MapObjectType)
+	{
+		// 0
+	case DeadTree:		
+		m_nCurrDeadTreeModelIndex = (m_nCurrDeadTreeModelIndex) % (m_nDeadTreeModelCount) + 1;
+		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "SM_DeadTrunk_0" + to_string(m_nCurrDeadTreeModelIndex));
+		break;
+		// 1
+	case PineTree:
+		m_nCurrPineTreeModelIndex = (m_nCurrPineTreeModelIndex) % (m_nPineTreeModelCount) + 1;
+		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "SM_PineTree_Snow_0" + to_string(m_nCurrPineTreeModelIndex));
+		break;
+		// 2
+	case BigRock:
+		m_nCurrBigRockModelIndex = (m_nCurrBigRockModelIndex) % (m_nBigRockModelCount) + 1;
+		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "SM_BigPlainRock_Snow_0" + to_string(m_nCurrBigRockModelIndex));
+		break;
+		// 3
+	case Deer:
+		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "SM_Deer");
+		break;
+		// 4
+	case Frozen_Road:
+		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "FrozenRoad");
+		break;
+		// 5
+	case Fence:
+		m_nCurrFenceModelIndex = (m_nCurrFenceModelIndex) % (m_nFenceModelCount) + 1;
+		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "LowPolyFence_0" + to_string(m_nCurrFenceModelIndex));
+		break;
+		// O(영어)
+	case OutputFile:
+		MakeMapFile();
+		break;
+	
+	default:
+		break;
+	}
+}
+
 void CMapToolShader::InsertObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CPlayer* pPlayer, const string& model)
 {
 	auto iter = m_ModelsList.find(model);
@@ -29,28 +71,24 @@ void CMapToolShader::InsertObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 		if (pPlayer == nullptr)
 			return;
 
-		XMFLOAT3 position = pPlayer->GetPosition(); 
+		CSurrounding* pGameObject = new CSurrounding(pd3dDevice, pd3dCommandList, nullptr);
+		pGameObject->SetChild((*iter).second->m_pModelRootObject, true);
+		pGameObject->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter).second);
+
+		XMFLOAT3 position = pPlayer->GetPosition();
 		XMFLOAT3 lookVec = pPlayer->GetLookVector();
 		XMFLOAT3 upVec = pPlayer->GetUpVector();
 		XMFLOAT3 rightVec = pPlayer->GetRightVector();
 
-		CSurrounding* pGameObject = new CSurrounding(pd3dDevice, pd3dCommandList, nullptr);
 		//Object 위치 설정
 		pGameObject->SetPosition(position);
-
 		//Object 방향 설정
 		pGameObject->SetLookVector(lookVec);
 		pGameObject->SetUpVector(upVec);
 		pGameObject->SetRightVector(rightVec);
-		pGameObject->SetChild((*iter).second->m_pModelRootObject, true);
-
 
 		m_Objects.emplace_back(make_pair((*iter).first, pGameObject));
 	}
-}
-
-void CMapToolShader::DeleteObject()
-{
 }
 
 void CMapToolShader::SortDescByName()
@@ -61,14 +99,78 @@ void CMapToolShader::SortDescByName()
 	}
 }
 
-void CMapToolShader::MakeMapBinaryFile(const string& filename)
+void CMapToolShader::MakeMapFile()
 {
-	ofstream out(filename + ".bin", ios::binary);
+	OutputMapTextFile();
+	OutputMapBinaryFile();
+}
+
+void CMapToolShader::OutputMapTextFile()
+{
+	string filePath;
+	int index = 0;
+	// 같은 파일 있는지 확인
+	while(true)
+	{
+		filePath = "../Resource/Position/Surrounding/MapVer" + to_string(index++) + ".txt";
+		ifstream in(filePath);
+		if (!in)
+			break;
+	}
+
+	//파일에 출력하기전에 이름의 내림차순으로 정렬
+	SortDescByName();		
+
+	ofstream out(filePath);
+	out << "Objects Count:" << m_Objects.size() << "\n";
+
+	for (auto iter = m_Objects.begin(); iter != m_Objects.end(); iter++)
+	{
+		string str;
+
+		str = "<" + iter->first + ">\n";			//write Objects Name
+		out.write(str.c_str(), str.size());
+		str = "<Position>: ";
+		out.write(str.c_str(), str.size());
+		out << iter->second->GetPosition().x << " " << iter->second->GetPosition().y << " " << iter->second->GetPosition().z << "\n";
+
+		str = "<Look>: ";
+		out.write(str.c_str(), str.size());
+		out << iter->second->GetLook().x << " " << iter->second->GetLook().y << " " << iter->second->GetLook().z << "\n";
+
+		str = "<Up>: ";
+		out.write(str.c_str(), str.size());
+		out << iter->second->GetUp().x << " " << iter->second->GetUp().y << " " << iter->second->GetUp().z << "\n";
+
+		str = "<Right>: ";
+		out.write(str.c_str(), str.size());
+		out << iter->second->GetRight().x << " " << iter->second->GetRight().y << " " << iter->second->GetRight().z << "\n";
+		out << "\n";
+
+	}
+	out.close();
+}
+
+void CMapToolShader::OutputMapBinaryFile()
+{
+	string filePath;
+	int index = 0;
+	// 같은 파일 있는지 확인
+	while (true)
+	{
+		filePath = "../Resource/Position/Surrounding/MapVer" + to_string(index++) + ".bin";
+		ifstream in(filePath);
+		if (!in)
+			break;
+	}
+
+	//파일에 출력하기전에 이름의 내림차순으로 정렬
+	SortDescByName();		
+
+	ofstream out(filePath, ios::binary);
 
 	int objCount = m_Objects.size();
 	out.write(reinterpret_cast<const char*>(&objCount), sizeof(int));
-
-	cout << objCount;
 
 	for (int i = 0 ; i < objCount ; i++)
 	{
@@ -81,8 +183,6 @@ void CMapToolShader::MakeMapBinaryFile(const string& filename)
 		stringLength = pos.length();
 		out.write(reinterpret_cast<const char*>(&stringLength), sizeof(size_t));
 		out.write(pos.c_str(), sizeof(char)*stringLength);
-		//out.write(reinterpret_cast<const char*>(&m_Objects[i].second->GetPosition()),sizeof(XMFLOAT3));
-		//out.write(reinterpret_cast<const char*>(&(m_Objects[i].second)->GetPosition().x), sizeof(float));
 
 		float posX = m_Objects[i].second->GetPosition().x;
 		float posY = m_Objects[i].second->GetPosition().y;
@@ -105,7 +205,6 @@ void CMapToolShader::MakeMapBinaryFile(const string& filename)
 		out.write(reinterpret_cast<const char*>(&lookY), sizeof(float));
 		out.write(reinterpret_cast<const char*>(&lookZ), sizeof(float));
 
-
 		string up = "<Up>";
 		stringLength = up.length();
 		out.write(reinterpret_cast<const char*>(&stringLength), sizeof(size_t));
@@ -117,7 +216,6 @@ void CMapToolShader::MakeMapBinaryFile(const string& filename)
 		out.write(reinterpret_cast<const char*>(&upX), sizeof(float));
 		out.write(reinterpret_cast<const char*>(&upY), sizeof(float));
 		out.write(reinterpret_cast<const char*>(&upZ), sizeof(float));
-
 
 		string right = "<Right>";
 		stringLength = right.length();
@@ -131,60 +229,25 @@ void CMapToolShader::MakeMapBinaryFile(const string& filename)
 		out.write(reinterpret_cast<const char*>(&rightX), sizeof(float));
 		out.write(reinterpret_cast<const char*>(&rightY), sizeof(float));
 		out.write(reinterpret_cast<const char*>(&rightZ), sizeof(float));
-
 	}
-
 	out.close();
-
-}
-
-void CMapToolShader::MakeMapFile()
-{
-	ofstream fout;
-
-	string str;
-
-	SortDescByName();		//파일에 출력하기전에 이름의 내림차순으로 정렬
-	
-	fout.open("../Resource/Position/Surrounding/MapVer1.txt");
-	fout <<"Objects Count:"<< m_Objects.size()<<"\n";
-	
-	for (auto iter = m_Objects.begin(); iter != m_Objects.end();iter++)
-	{
-		str = "<" + iter->first + ">\n";			//write Objects Name
-		fout.write(str.c_str(), str.size());
-		str = "<Position>: ";
-		fout.write(str.c_str(), str.size());
-		fout << iter->second->GetPosition().x << " " << iter->second->GetPosition().y << " " << iter->second->GetPosition().z << "\n";
-		//fout << "\n";
-
-		str = "<Look>: ";
-		fout.write(str.c_str(), str.size());
-		fout << iter->second->GetLook().x << " " << iter->second->GetLook().y << " " << iter->second->GetLook().z << "\n";
-
-		str = "<Up>: ";
-		fout.write(str.c_str(), str.size());
-		fout << iter->second->GetUp().x << " " << iter->second->GetUp().y << " " << iter->second->GetUp().z << "\n";
-
-		str = "<Right>: ";
-		fout.write(str.c_str(), str.size());
-		fout << iter->second->GetRight().x << " " << iter->second->GetRight().y << " " << iter->second->GetRight().z << "\n";
-		fout << "\n";
-
-	}
-	fout.close();
 }
 
 void CMapToolShader::BuildObjects(const map<string, CLoadedModelInfo*>& ModelMap)
 {
 	m_ModelsList = ModelMap;
-}
 
+	m_nDeadTreeModelCount = 5;
+	m_nPineTreeModelCount = 8;
+	m_nBigRockModelCount = 4;
+	m_nFenceModelCount = 2;
+}
 
 void CMapToolShader::ReleaseObjects()
 {
 	for (auto iter = m_Objects.begin(); iter != m_Objects.end(); )
 	{
+		(*iter).second->Release();
 		iter = m_Objects.erase(iter);
 	}
 	m_Objects.clear();
@@ -194,6 +257,7 @@ void CMapToolShader::ReleaseObjects()
 	m_ModelsList.clear();
 
 }
+
 void CMapToolShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
 	CShader::Render(pd3dCommandList, pCamera, nPipelineState);
@@ -203,7 +267,7 @@ void CMapToolShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera 
 		if (iter->second)
 		{
 			iter->second->Animate(m_fElapsedTime);
-			iter->second->UpdateTransform(NULL);
+			iter->second->UpdateTransform(nullptr);
 			iter->second->Render(pd3dCommandList, pCamera, nPipelineState);
 		}
 	}
