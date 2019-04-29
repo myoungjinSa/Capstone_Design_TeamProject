@@ -123,10 +123,6 @@ private:
 	D3D12_CPU_DESCRIPTOR_HANDLE				m_pd3dCarttonScreenRenderTargetBufferCPUHandles[m_nCartoonScreenRenderTargetBuffers];
 
 	CSobelCartoonShader*					m_pCartoonShader{ nullptr };
-#ifdef _MAPTOOL_MODE_
-	CMapToolShader*  m_pMapToolShader = nullptr;
-#endif
-
 
 #ifdef _WITH_DIRECT2D_
 	ID3D11On12Device				*m_pd3d11On12Device{ nullptr };//
@@ -169,7 +165,8 @@ private:
 
 	void Worker_Thread();
 
-
-
+#ifdef _MAPTOOL_MODE_
+	CMapToolShader*  m_pMapToolShader = nullptr;
+#endif
 };
 

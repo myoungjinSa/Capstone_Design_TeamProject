@@ -598,33 +598,10 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 
 			break;
 #endif
-
-			//case '1':
-			//	//AddFileData(m_pPlayer, wParam);
-			//	
-			//	break;
-			//case '2':
-			//	//AddFileData(m_pPlayer, wParam);
-			//	break;
-			//case '3':
-			//	break;
 		default:
 			break;
 		}
 		break;
-		/*case VK_DOWN:
-			switch (wParam)
-			{
-			case VK_CONTROL:
-				m_pPlayer->SetSpike(true);
-				break;
-
-			default :
-				break;
-			}
-			break;
-		default:
-			break;*/
 	}
 }
 #ifdef _MAPTOOL_MODE_
@@ -635,94 +612,21 @@ void CGameFramework::OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM w
 	case WM_KEYUP:
 		switch (wParam)
 		{
-		case '1':
-			if (m_pMapToolShader)
-			{
-				if (m_pPlayer)
-				{
-					int modelIndex = m_pMapToolShader->GetCurrPineTreeIndex();
-					m_pMapToolShader->SetCurrPineTreeIndex((modelIndex + 1) % m_pMapToolShader->GetPineTreeModelCount() + 1);
-					m_pMapToolShader->InsertObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, string("SM_PineTree_Snow_0") + to_string(m_pMapToolShader->GetCurrPineTreeIndex()));
-				}
-			}
+		case CMapToolShader::DeadTree:
+		case CMapToolShader::PineTree:
+		case CMapToolShader::BigRock:
+		case CMapToolShader::Deer:
+		case CMapToolShader::Frozen_Road:
+		case CMapToolShader::Fence:
+			if (m_pMapToolShader != nullptr && m_pPlayer != nullptr)
+				m_pMapToolShader->InstallMapObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, wParam);
 			break;
-		case '2':
-			if (m_pMapToolShader)
-			{
-				if (m_pPlayer)
-				{
-					int modelIndex = m_pMapToolShader->GetCurrDeadTreeIndex();
-					m_pMapToolShader->SetCurrDeadTreeIndex((modelIndex + 1) % m_pMapToolShader->GetDeadTreeModelCount() + 1);
-					m_pMapToolShader->InsertObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, string("SM_DeadTrunk_0") + to_string(m_pMapToolShader->GetCurrDeadTreeIndex()));
-				}
-			}
-			break;
-		case '3':
-			if (m_pMapToolShader)
-			{
-				if (m_pPlayer)
-				{
-					int modelIndex = m_pMapToolShader->GetCurrBigRockIndex();
-					m_pMapToolShader->SetCurrBigRockIndex((modelIndex + 1) % m_pMapToolShader->GetBigRockModelCount() + 1);
-					m_pMapToolShader->InsertObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, string("SM_BigPlainRock_Snow_0") + to_string(m_pMapToolShader->GetCurrBigRockIndex()));
-				}
-			}
-			break;
-		case '4':
-			if (m_pMapToolShader)
-			{
-				if (m_pPlayer)
-				{
-					int modelIndex = m_pMapToolShader->GetCurrPondModelIndex();
-					m_pMapToolShader->SetCurrPondIndex((modelIndex + 1) % m_pMapToolShader->GetPondModelCount() + 1);
-					m_pMapToolShader->InsertObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, string("PondSquare"));
-				}
-			}
-			break;
-		case '5':
-			if (m_pMapToolShader)
-			{
-				if (m_pPlayer)
-				{
-					int modelIndex = m_pMapToolShader->GetCurrDeerIndex();
-					m_pMapToolShader->SetCurrDeerIndex((modelIndex + 1) % m_pMapToolShader->GetDeerModelCount() + 1);
-					m_pMapToolShader->InsertObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, string("SM_Deer"));
-				}
-			}
-			break;
-		case '6':
-			if (m_pMapToolShader)
-			{
-				if (m_pPlayer)
-				{
-					string s;
-					int modelIndex = m_pMapToolShader->GetCurrFenceIndex();
-					m_pMapToolShader->SetCurrFenceIndex((modelIndex + 1) % m_pMapToolShader->GetFenceModelCount());
-					if (m_pMapToolShader->GetCurrFenceIndex() % 2 == 0)
-					{
-						s = 'A';
-					}
-					else
-					{
-						s = 'B';
-					}
-					m_pMapToolShader->InsertObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, string("LowPoly_-_Fence_") + s);
-				}
-			}
 
-			break;
-		case 'S':
+		case CMapToolShader::OutputFile:
 			if (m_pMapToolShader)
-			{
 				m_pMapToolShader->MakeMapFile();
-			}
 			break;
-		case 'B':
-			if (m_pMapToolShader)
-			{
-				m_pMapToolShader->MakeMapBinaryFile(string("../Resource/Position/Surrounding/MapVer1"));
-			}
-			break;
+
 		default:
 			break;
 		}
@@ -765,7 +669,6 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 	}
 	return(0);
 }
-
 
 void CGameFramework::OnDestroy()
 {
@@ -858,7 +761,6 @@ bool CGameFramework::BuildObjects()
 	::ShowWindow(m_hWnd, SW_SHOWDEFAULT);
 	::UpdateWindow(m_hWnd);
 
-
 	loadingThread.emplace_back(thread{ &CGameFramework::Worker_Thread, this });
 
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
@@ -895,7 +797,7 @@ bool CGameFramework::BuildObjects()
 			//pPlayer->SetOOBB(XMFLOAT3(-0.1304445, 0.003544204, -7.450581E-09), XMFLOAT3(0.2756854, 0.1529771, 0.2030513), XMFLOAT4(0, 0, 0, 1));
 #ifdef _MAPTOOL_MODE_
 			m_pMapToolShader = new CMapToolShader;
-			m_pMapToolShader->CreateShader(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
+			//m_pMapToolShader->CreateShader(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
 			m_pMapToolShader->BuildObjects(m_pScene->getShaderManager()->getResourceManager()->getModelMap());
 #endif
 		}
@@ -1216,7 +1118,7 @@ void CGameFramework::FrameAdvance()
 #ifdef _MAPTOOL_MODE_
 	if (m_pMapToolShader)
 	{
-		m_pMapToolShader->Render(m_pd3dCommandList, m_pCamera, 0);
+		m_pMapToolShader->Render(m_pd3dCommandList, m_pCamera, GameObject);
 	}
 
 #endif

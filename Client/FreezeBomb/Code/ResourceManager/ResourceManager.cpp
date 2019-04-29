@@ -3,7 +3,6 @@
 #include "../Texture/Texture.h"
 #include "../Scene/Scene.h"
 
-//volatile size_t g_TotalSize = 12994707;
 volatile size_t g_TotalSize = 30062795;
 volatile size_t g_FileSize = 0;
 CResourceManager::CResourceManager()
@@ -95,10 +94,13 @@ void CResourceManager::PrepareLoad()
 	m_ModelInfoMap.emplace("SM_Deer", ModelInfo("../Resource/Models/SM_Deer.bin", false));
 	// 2
 	m_ModelInfoMap.emplace("PondSquare", ModelInfo("../Resource/Models/Frozen_Road.bin", false));
+	//m_ModelInfoMap.emplace("Frozen_Road", ModelInfo("../Resource/Models/Frozen_Road.bin", false));
 	// 0
 	m_ModelInfoMap.emplace("LowPoly_-_Fence_A", ModelInfo("../Resource/Models/LowPolyFence_01.bin", false));
+	//m_ModelInfoMap.emplace("LowPolyFence_01", ModelInfo("../Resource/Models/LowPolyFence_01.bin", false));
 	// 0
 	m_ModelInfoMap.emplace("LowPoly_-_Fence_B", ModelInfo("../Resource/Models/LowPolyFence_02.bin", false));
+	//m_ModelInfoMap.emplace("LowPolyFence_02", ModelInfo("../Resource/Models/LowPolyFence_02.bin", false));
 
 	m_ModelInfoMap.emplace("Hammer", ModelInfo("../Resource/Models/Hammer.bin", false));
 
@@ -135,7 +137,6 @@ void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, const_cast<wchar_t*>((*iter).second.m_Filename.c_str()), 0);
 		CScene::CreateShaderResourceViews(pd3dDevice, pTexture, (*iter).second.m_RootParameter, false);
 		g_FileSize += (*iter).second.m_FileSize;
-
 		m_TextureMap.emplace((*iter).first, pTexture);
 	}
 }
@@ -151,7 +152,7 @@ void CResourceManager::LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 
 void CResourceManager::LoadMapObjectInfo(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	string filename = "../Resource/Position/Surrounding/MapVer1.bin";
+	string filename = "../Resource/Position/Surrounding/MapVer.bin";
 
 	ifstream in(filename, ios::binary);
 

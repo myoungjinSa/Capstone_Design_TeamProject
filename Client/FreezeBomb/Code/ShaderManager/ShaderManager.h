@@ -4,7 +4,6 @@ class CShader;
 class CPlayer;
 class CCamera;
 class CResourceManager;
-class CTextureManager;
 class CSobelCartoonShader;
 class CShaderManager
 {
@@ -18,9 +17,8 @@ public:
 	void ReleaseObjects();
 	void ReleaseUploadBuffers();
 	
-	void PostRender(ID3D12GraphicsCommandList* pd3dCommandList, float fTimeElapsed, CCamera* pCamera);
-	void PreRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed, CCamera *pCamera = nullptr);
-
+	void PostRender(ID3D12GraphicsCommandList* pd3dCommandList, float fTimeElapsed, CCamera* pCamera = nullptr);
+	void PreRender(ID3D12GraphicsCommandList* pd3dCommandList, float fTimeElapsed, CCamera *pCamera = nullptr);
 
 	void ProcessCollision(XMFLOAT3& position);				//面倒 咯何 贸府 窃荐
 
@@ -35,6 +33,8 @@ private:
 	CShader**					m_ppShaders{ nullptr };
 
 	map<string, CShader*>	m_ShaderMap;
+
+	map<string, CShader*>	m_PostShaderMap;
 
 	CResourceManager*			m_pResourceManager{ nullptr };
 
