@@ -59,8 +59,6 @@ public:
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
-	//채팅 활성화 여부 set
-	bool IsChattingOn() { return m_bChattingMode; }
 	bool IsHangeul() { return m_bHangeul; }
 	void SetHangeul(bool han) { m_bHangeul = han; }
 #ifdef _MAPTOOL_MODE_
@@ -96,6 +94,7 @@ private:
 	ID3D12Resource*								m_pd3dDepthStencilBuffer = nullptr;
 	ID3D12DescriptorHeap*					m_pd3dDsvDescriptorHeap = nullptr;
 	UINT													m_nDsvDescriptorIncrementSize;
+
 
 	ID3D12CommandAllocator*					m_pd3dCommandAllocator = nullptr;
 	ID3D12CommandQueue*						m_pd3dCommandQueue = nullptr;
@@ -142,6 +141,7 @@ private:
 	ID2D1Device2					*m_pd2dDevice{ nullptr };//
 	ID2D1DeviceContext2				*m_pd2dDeviceContext{ nullptr };//
 
+
 	ID3D11Resource					*m_ppd3d11WrappedBackBuffers[m_nSwapChainBuffers];//
 	ID2D1Bitmap1					*m_ppd2dRenderTargets[m_nSwapChainBuffers];//
 
@@ -161,12 +161,9 @@ private:
 	ID2D1DrawingStateBlock1			*m_pd2dsbDrawingState{ nullptr };
 	IWICFormatConverter				*m_pwicFormatConverter{ nullptr };
 
-	ID2D1DCRenderTarget				*m_pDCRT;
-
+	
 	//한글인지 영어 인지
 	bool m_bHangeul{ false };
-	//VK_RETURN 누르면 채팅모드 ON/OFF
-	bool m_bChattingMode{ false };
 #endif
 
 	Network*	m_pNetwork{ nullptr };

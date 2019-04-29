@@ -529,6 +529,7 @@ void CScene::PostRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeEl
 	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 	if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
+
 	if (m_pShaderManager)
 	{
 		m_pShaderManager->PostRender(pd3dCommandList,fTimeElapsed, pCamera);
@@ -786,13 +787,15 @@ XMFLOAT2& CScene::ProcessNameCard(const int& objNum)
 
 	map<string, CShader*> m = getShaderManager()->getShaderMap();
 	XMFLOAT4X4 viewProj = Matrix4x4::Multiply(m_pPlayer->GetCamera()->GetViewMatrix(), m_pPlayer->GetCamera()->GetProjectionMatrix());
-	XMFLOAT2 res{50000.0f,50000.0f};
+	XMFLOAT2 res{NAN,NAN};
 	auto iter = m.find("°õµ¹ÀÌ");
 	if(iter != m.end())
 	{
-
-		XMFLOAT3 pos = Vector3::Add((*iter).second->m_ppObjects[objNum]->GetPosition(), XMFLOAT3(0.0f, 5.0f, 0.0f));
-		if (DistanceToTarget(pos) == true)
+		CGameObject *obj = (*iter).second->m_ppObjects[objNum];
+		XMFLOAT3 s = XMFLOAT3(obj->m_xmf4x4ToParent._41, obj->m_xmf4x4ToParent._42, obj->m_xmf4x4ToParent._43);
+		XMFLOAT3 pos = Vector3::Add(s, XMFLOAT3(0.0f, 8.0f, 0.0f));
+		
+		if (DistanceToTarget(pos) == true && m_pPlayer->GetCamera()->IsInFrustum(obj->GetBoundingBox()))
 		{
 			float viewX = pos.x * viewProj._11 + pos.y * viewProj._21 + pos.z * viewProj._31 + viewProj._41;
 			float viewY = pos.x * viewProj._12 + pos.y * viewProj._22 + pos.z * viewProj._32 + viewProj._42;

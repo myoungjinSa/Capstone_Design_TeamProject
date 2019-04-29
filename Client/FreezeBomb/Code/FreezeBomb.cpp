@@ -100,7 +100,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	PAINTSTRUCT ps;
 	HDC hdc;
 	static BOOL hanFlag = FALSE;
-	char Han[5];
+	TCHAR Han[5];
 	switch (message)
 	{
 	case WM_SIZE:
@@ -135,26 +135,55 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 	case WM_CHAR:
-		if(gGameFramework.IsChattingOn())
-			//ChattingSystem::GetInstance()->ProcessChatting()
+		
+#ifdef _WITH_DIRECT2D_
+		if (ChattingSystem::GetInstance()->IsChattingActive())
+			ChattingSystem::GetInstance()->ProcessChatting(hWnd,wParam,lParam,false);
+#endif
 		break;
 		//한글 조합 시작
 	case WM_IME_STARTCOMPOSITION:
-		if(gGameFramework.IsChattingOn())
+		if(ChattingSystem::GetInstance()->IsChattingActive())
 			//ChattingSystem::GetInstance()-
 		break;
-		//한글 조합중
-	case WM_IME_COMPOSITION:
-		
-		//비완성된 문자를 Han에 받는다.
-		Han[0] = (BYTE)(wParam / 256);
-		Han[1] = (BYTE)(wParam % 256);
-		Han[2] = 0x00;
-
+	case WM_IME_SETCONTEXT:
+		//응용 프로그램이 활성/비활성될 때 메세지 발생
+		//wPram이 True이면 활성화,False이면 비활성화
+		break;
+	case WM_IME_NOTIFY:
+		//IME 윈도우가 변경되었다는 통지 메세지. 응용 프로그램이 활성/비활성화될 때 보내짐
+		//wParam에 어떤 변경인지 전달됨.
 		break;
 
+		//한글 조합중
+	case WM_IME_COMPOSITION:
+		if (ChattingSystem::GetInstance()->IsChattingActive()) 
+		{
+			//IME가 조립 상태가 변경될 때마다 보내짐.
+			//한글의 경우 한 음소가 입력될 때마다 메세지가 발생함.
+				//조립중인 문자를 보여주고 싶을때 사용하면 됨.
+			//wParam에는 조립중인 문자의 코드가 전달됨.(2바이트의 DBSC문자로 조립중인 중간 문자 코드)
+			//lParam에는 조립 상태가 어떻게 변경되었는지를 나타내는 플래그의 집합.
+				//-GCS_COMPSTR : 문자 조립중
+				//-GCS_RESULTSTR : 한 음절을 조립 완료
+			ChattingSystem::GetInstance()->ProcessChatting(hWnd, wParam, lParam, true);
+			//ChattingSystem::GetInstance()->ComposeHangeul(hWnd, wParam,lParam);
+		}
+		break;
+	//case WM_IME_CHAR:
+	//	//문자 하나가 완성되었을때 보내짐.
+	//	//'wParam'에는 완성된 문자의 코드가 전달됨.
+	//	//1바이트 문자만 전달되는 WM_CHAR메시지와는 달리 이 코드는 DBCS일 수 도 있다.
+	//	if (gGameFramework.IsChattingOn())
+	//		ChattingSystem::GetInstance()->ProcessChatting(hWnd,wParam,lParam,true);
+	//	break;
 	case WM_IME_ENDCOMPOSITION:
-		hanFlag = false;
+		//한글 입력을 종료할때 발생한다.
+		//한글 입력중 한글키가 아닌 키를 누를때(숫자키,Enter키,한영 변환키,방향키 등)
+		//마우스로 클릭하거나 포커스를 잃을때 발생(즉, 한글 입력중에는 검정상자가 생기는데
+		//그 검정상자가 없어질때 반환)
+		if(ChattingSystem::GetInstance()->IsChattingActive())
+			hanFlag = false;
 		break;
 	//case WM_SETFOCUS:
 	//	CreateCaret(hWnd, NULL, 4, 32);
