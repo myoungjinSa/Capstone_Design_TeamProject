@@ -96,7 +96,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	nObjects = 67;		//DeadTrees(15),PineTrees(34),Rocks(14),Deer(2),Pond(2)
 #endif
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 
-		SkyBox + Terrain + MapObjects + Item + EvilBear + BombParticle + CubeParticle + Snow + TimerUI + ItemUI + Player + ProgressBar);
+		SkyBox + Terrain + MapObjects + Item + EvilBear + BombParticle + CubeParticle + Snow + TimerUI + ItemUI + Player);
 	// Model을 로드할 때, 셰이더 없이 로드할 경우 이것을 사용함!
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
@@ -223,7 +223,7 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dDescriptorRanges[13].RegisterSpace = 0;
 	pd3dDescriptorRanges[13].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[24];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[23];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 1;	// b1 : Camera
@@ -340,15 +340,6 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[22].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[13]);
 	pd3dRootParameters[22].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	pd3dRootParameters[23].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[23].Descriptor.ShaderRegister = 8;	// b8 : g_UV
-	pd3dRootParameters[23].Descriptor.RegisterSpace = 0;
-	pd3dRootParameters[23].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-
-	//pd3dRootParameters[24].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
-	//pd3dRootParameters[24].Descriptor.ShaderRegister = 17;	 //t17 : FoliageShader
-	//pd3dRootParameters[24].Descriptor.RegisterSpace = 0;
-	//pd3dRootParameters[24].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
@@ -547,8 +538,7 @@ void CScene::PostRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeEl
 void CScene::CheckObjectByObjectCollisions(float fElapsedTime)
 {
 	if (m_pPlayer)
-	{
-		
+	{		
 		// 플레이어와 충돌 된 오브젝트 정보를 초기화
 		//m_pPlayer->SetObjectCollided(nullptr);
 
@@ -622,16 +612,18 @@ void CScene::CheckObjectByObjectCollisions(float fElapsedTime)
 						if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[i]->GetBoundingBox()))
 						{
 							if (m_pPlayer->get_Normal_InventorySize() > 0)
-							{
-								
+							{					
 								if(bBreak == false)
 									bBreak = true;
 								
 								m_pPlayer->Refresh_Inventory(CItem::NormalHammer);
 							}
 							m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
+
 							PlayIceBreakEffect(bBreak);
+
 							cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
+							break;
 						}
 					}
 				}

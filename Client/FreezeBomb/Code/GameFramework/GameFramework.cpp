@@ -14,8 +14,8 @@
 #include "../Shader/PostProcessShader/CartoonShader/SobelCartoonShader.h"
 #include "../Chatting/Chatting.h"
 
-
-volatile bool g_Finish = true;
+// 전체모드할경우 주석풀으셈
+//#define FullScreenMode
 
 extern volatile size_t g_TotalSize;
 extern volatile size_t g_FileSize;
@@ -87,7 +87,6 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	return(true);
 }
 
-
 //#define _WITH_CREATE_SWAPCHAIN_FOR_HWND
 void CGameFramework::CreateSwapChain()
 {
@@ -122,8 +121,6 @@ void CGameFramework::CreateSwapChain()
 
 	HRESULT hResult = m_pdxgiFactory->CreateSwapChainForHwnd(m_pd3dCommandQueue, m_hWnd, &dxgiSwapChainDesc, &dxgiSwapChainFullScreenDesc, NULL, (IDXGISwapChain1 **)&m_pdxgiSwapChain);
 #else
-
-	
 	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
 	::ZeroMemory(&dxgiSwapChainDesc, sizeof(dxgiSwapChainDesc));
 	dxgiSwapChainDesc.BufferCount = m_nSwapChainBuffers;
@@ -138,29 +135,27 @@ void CGameFramework::CreateSwapChain()
 	dxgiSwapChainDesc.SampleDesc.Count = (m_bMsaa4xEnable) ? 4 : 1;
 	dxgiSwapChainDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
 	dxgiSwapChainDesc.Windowed = TRUE;
-	//dxgiSwapChainDesc.Windowed = false;
 
 	dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 	HRESULT hResult = m_pdxgiFactory->CreateSwapChain(m_pd3dCommandQueue, &dxgiSwapChainDesc, (IDXGISwapChain **)&m_pdxgiSwapChain);
 	
+#ifdef FullScreenMode
 	//전체 모드로 시작
-	hResult = m_pdxgiSwapChain->SetFullscreenState(FALSE, NULL);
+	hResult = m_pdxgiSwapChain->SetFullscreenState(true, NULL);
+#else
+	hResult = m_pdxgiSwapChain->SetFullscreenState(false, NULL);
+#endif
 	if (hResult == E_FAIL)
 		return;
-
-
 	m_pdxgiSwapChain->GetDesc(&dxgiSwapChainDesc);
 	//SetFullScreenState함수를 호출해주었기 때문에 ResizeBuffers함수를 호출해줘야함.
 	m_pdxgiSwapChain->ResizeBuffers(m_nSwapChainBuffers, m_nWndClientWidth, m_nWndClientHeight, dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
 	
 #endif
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
-
-
 	hResult = m_pdxgiFactory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER);
 
-	
 #ifndef _WITH_SWAPCHAIN_FULLSCREEN_STATE
 	CreateRenderTargetViews();
 #endif
@@ -240,12 +235,6 @@ void CGameFramework::CreateCommandQueueAndList()
 void CGameFramework::CreateLoadingCommandList()
 {
 	HRESULT Result;
-
-	//커맨드 큐 사용하지 않아서 주석 처리
-	//D3D12_COMMAND_QUEUE_DESC d3dCommandQueueDesc;
-	//::ZeroMemory(&d3dCommandQueueDesc, sizeof(D3D12_COMMAND_QUEUE_DESC));
-	//d3dCommandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-	//d3dCommandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
 	Result = m_pd3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), (void **)&m_pLoadingCommandAllocator);
 	Result = m_pd3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pLoadingCommandAllocator, nullptr, __uuidof(ID3D12GraphicsCommandList), (void **)&m_pLoadingCommandList);
@@ -985,9 +974,9 @@ bool CGameFramework::BuildObjects()
 				pPlayer->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
 			//pPlayer->SetOOBB(XMFLOAT3(-0.1304445, 0.003544204, -7.450581E-09), XMFLOAT3(0.2756854, 0.1529771, 0.2030513), XMFLOAT4(0, 0, 0, 1));
 #ifdef _MAPTOOL_MODE_
-			m_pMapToolShader = new CMapToolShader();
+			m_pMapToolShader = new CMapToolShader;
 			m_pMapToolShader->CreateShader(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
-			m_pMapToolShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), pTerrain);
+			m_pMapToolShader->BuildObjects(m_pScene->getShaderManager()->getResourceManager()->getModelMap());
 #endif
 		}
 	}
@@ -999,7 +988,6 @@ bool CGameFramework::BuildObjects()
 		m_pCamera = m_pPlayer->GetCamera();
 	}
 
-	g_Finish = false;
 	for (auto& thread : loadingThread)
 		thread.join();
 
@@ -1028,9 +1016,6 @@ void CGameFramework::ReleaseObjects()
 	if (m_pNetwork)
 		delete m_pNetwork;
 
-	if (m_pPlayer)
-		m_pPlayer->Release();
-
 #ifdef _MAPTOOL_MODE_
 	if (m_pMapToolShader)
 	{
@@ -1040,7 +1025,8 @@ void CGameFramework::ReleaseObjects()
 	}
 #endif
 
-	
+	if (m_pPlayer)
+		m_pPlayer->Release();
 
 	if (m_pScene)
 	{
@@ -1205,7 +1191,6 @@ void CGameFramework::ShowScoreboard()
 	{
 		m_pd2dDeviceContext->DrawImage(m_pd2dfxBitmapSource);
 		D2D1_RECT_F rcText = D2D1::RectF(0, 0, 240.f, 360.f);
-
 
 		// 이름
 		rcText = D2D1::RectF(0.0f, 0.0f, /*szRenderTarget.width * 0.2f*/ /*1150.0f*/1150.0f,/* szRenderTarget.height * 0.45f*/360.0f);

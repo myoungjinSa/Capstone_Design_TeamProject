@@ -392,14 +392,14 @@ public:
 	void FindAndSetSkinnedMesh(int *pnSkinMesh, CSkinningBoneTransforms *pSkinningBoneTransforms);
 
 	void LoadMaterialsFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, 
-		CGameObject *pParent, FILE *pInFile, CShader *pShader, string type);
+		CGameObject *pParent, FILE *pInFile, CShader *pShader);
 
 	static CAnimationSets *LoadAnimationFromFile(FILE *pInFile, CGameObject *pRootFrame);
 	static CGameObject *LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
-		CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes, int* pnFrameMeshes, string type);
+		CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes, int* pnFrameMeshes);
 
 	static CLoadedModelInfo* LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
-		char *pstrFileName, CShader *pShader, bool bHasAnimation, string type);
+		char *pstrFileName, CShader *pShader, bool bHasAnimation);
 
 	static void PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent);
 
