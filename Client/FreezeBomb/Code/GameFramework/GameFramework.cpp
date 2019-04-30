@@ -796,7 +796,7 @@ bool CGameFramework::BuildObjects()
 		{
 			CTerrain* pTerrain = dynamic_cast<CTerrainShader*>((*iter).second)->getTerrain();
 			pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), CGameObject::MATERIALTYPE::PANDA, pTerrain);
-			pPlayer->SetPosition(XMFLOAT3(40.f, pTerrain->GetHeight(0.f, 0.f), 40.f));
+			pPlayer->SetPosition(XMFLOAT3(40.f, 0.f, 40.f));
 			pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
 			pPlayer->SetPlayerName(L"사명진");
 
@@ -806,10 +806,9 @@ bool CGameFramework::BuildObjects()
 			auto iter2 = BoundMap.find("EvilBear");
 			if (iter2 != BoundMap.end())
 				pPlayer->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
-			//pPlayer->SetOOBB(XMFLOAT3(-0.1304445, 0.003544204, -7.450581E-09), XMFLOAT3(0.2756854, 0.1529771, 0.2030513), XMFLOAT4(0, 0, 0, 1));
+
 #ifdef _MAPTOOL_MODE_
 			m_pMapToolShader = new CMapToolShader;
-			//m_pMapToolShader->CreateShader(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
 			m_pMapToolShader->BuildObjects(m_pScene->getShaderManager()->getResourceManager()->getModelMap());
 #endif
 		}
@@ -1003,7 +1002,8 @@ void CGameFramework::SetNamecard()
 		auto iter = m.find("곰돌이");
 		if (iter != m.end())
 		{
-			for (int i = 0; i < (*iter).second->m_nObjects; ++i)
+			//for (int i = 0; i < (*iter).second->m_nObjects; ++i)
+			for (int i = 0; i < 1; ++i)
 			{
 				XMFLOAT2& screenSpace = m_pScene->ProcessNameCard(i);
 				//	

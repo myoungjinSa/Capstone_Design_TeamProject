@@ -490,12 +490,12 @@ bool CScene::ProcessInput(UCHAR *pKeysBuffer)
 
 void CScene::AnimateObjects(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed)
 {
-	if (m_pShaderManager) {
+	if (m_pShaderManager) 
+	{
 		m_pShaderManager->AnimateObjects(fTimeElapsed, m_pPlayer->GetCamera(), m_pPlayer);
 		CheckWarningTimer();
 	}
 
-	
 	if (m_pLights)
 	{
 		m_pLights[1].m_xmf3Position = m_pPlayer->GetPosition();
@@ -659,7 +659,7 @@ void CScene::CheckObjectByObjectCollisions(float fElapsedTime)
 
 					// 충돌 된 아이템을 플레이어 인벤토리에 추가한다.
 					m_pPlayer->Add_Inventory((*iter2).first, (*iter2).second->getItemType());
-					if((*iter2).second->getItemType() == CItem::NormalHammer)
+					if((*iter2).second->getItemType() == CItem::NormalHammer || (*iter2).second->getItemType() == CItem::GoldHammer)
 						m_pPlayer->SetIsHammer(true);
 					// 맵에 있는 아이템 삭제
 					PlayGetItemEffect();
@@ -769,10 +769,11 @@ bool CScene::DistanceToTarget(XMFLOAT3& pos)
 	return ret;
 }
 
-XMFLOAT2& CScene::ProcessNameCard(const int& objNum)
+XMFLOAT2 CScene::ProcessNameCard(const int& objNum)
 {
 	map<string, CShader*> m = getShaderManager()->getShaderMap();
 	XMFLOAT4X4 viewProj = Matrix4x4::Multiply(m_pPlayer->GetCamera()->GetViewMatrix(), m_pPlayer->GetCamera()->GetProjectionMatrix());
+
 	XMFLOAT2 res{NAN,NAN};
 	auto iter = m.find("곰돌이");
 	if(iter != m.end())
@@ -793,8 +794,7 @@ XMFLOAT2& CScene::ProcessNameCard(const int& objNum)
 			res = screen;
 		}
 	}
-	//int viewLeft =0, viewTop = 0;
-	
+
 	return res;
 }
 

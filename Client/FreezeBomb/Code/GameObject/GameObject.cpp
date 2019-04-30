@@ -646,11 +646,11 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bHammer
 		}
 		else if (m_nMaterials == 2)		//¸ÁÄ¡ÀÇ ÀçÁú °³¼ö 2°³ , ÀÏ¹Ý ¸ÁÄ¡, È²±Ý ¸ÁÄ¡
 		{
-			if (m_ppMaterials[1])
+			if (m_ppMaterials[0])
 			{
-				if (m_ppMaterials[1]->m_pShader) 
-					m_ppMaterials[1]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
-				m_ppMaterials[1]->UpdateShaderVariables(pd3dCommandList);
+				if (m_ppMaterials[0]->m_pShader) 
+					m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+				m_ppMaterials[0]->UpdateShaderVariables(pd3dCommandList);
 			}
 		}
 		else if (m_nMaterials == 7)		
