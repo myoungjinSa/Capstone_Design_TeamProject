@@ -1,5 +1,6 @@
 #include "../Stdafx/Stdafx.h"
-#include <string>
+#include <algorithm>
+
 #include "Chatting.h"
 
 #ifdef _WITH_DIRECT2D_
@@ -91,7 +92,8 @@ void ChattingSystem::ShowChatting(ID2D1DeviceContext2* pd2dDeviceContext)
 	}
 }
 
-void ChattingSystem::ProcessChatting(HWND hWnd,WPARAM wParam,LPARAM lParam,bool bHangeul)
+
+void ChattingSystem::ProcessChatting(HWND hWnd,WPARAM wParam,LPARAM lParam)
 {
 	
 	//n_tcscpy_s()
@@ -100,35 +102,51 @@ void ChattingSystem::ProcessChatting(HWND hWnd,WPARAM wParam,LPARAM lParam,bool 
 		m_wsChat.clear();
 		m_wsChat.shrink_to_fit();
 	}
-	if (wParam == VK_BACK) 
-	{
-		if (m_wsChat.size() > 0)
-			m_wsChat.pop_back();
-	}
+	
+	
 	//현재 영문이 활성화 됐을 경우
 	if (GetIMEMode() == IME_CMODE_ALPHANUMERIC)
 	{
 		if (wParam != VK_RETURN && wParam != VK_BACK)
 		{
-			m_wsChat += (TCHAR)wParam;
+			if (m_wsChat.size() <= (size_t)SENTENCE_LENGTH::ENG) 
+			{
+				m_wsChat += (TCHAR)wParam;
+			}
 
 		}
 	}
 	else if(GetIMEMode() == IME_CMODE_NATIVE)
 	{
-		if (wParam != VK_RETURN && wParam != VK_BACK)
+		if (wParam != VK_RETURN)
 		{
-			if (bHangeul) 
+			
+			if (m_wsChat.size() <= (size_t)SENTENCE_LENGTH::KOR)
 			{
-				//m_wsChat += (TCHAR)wParam;
+					//m_wsChat += (TCHAR)wParam;
 				ComposeHangeul(hWnd, wParam, lParam);
 			}
+			
 				
 
 		}
 	
 	}
-
+	if( GetKeyState(VK_BACK) & 0x8000)
+	{
+	
+		if (m_wsChat.size() > 0)
+		{
+				m_wsChat.pop_back();
+		}
+		if (GetIMEMode() == IME_CMODE_NATIVE)
+		{
+			SetIMEMode(hWnd, IME_CMODE_ALPHANUMERIC);
+			SetIMEMode(hWnd, IME_CMODE_NATIVE);
+		}
+		m_composeCount = 0;
+		//return;
+	}
 
 	
 }
@@ -195,13 +213,13 @@ bool ChattingSystem::ComposeHangeul(HWND hWnd,WPARAM wParam,LPARAM lParam)
 	if (hImc == nullptr)
 		return false;
 
-	static int ComposeCount = 0;
+	
 	int nLength = 0;
 	TCHAR wszComp[4] = { 0, };
 
 	//IME 문자 조합이 완료
 	if(lParam & GCS_RESULTSTR)
-	{
+	{		
 		nLength = ImmGetCompositionStringW(hImc, GCS_RESULTSTR, nullptr, 0);
 		if(nLength > 0)
 		{
@@ -211,12 +229,18 @@ bool ChattingSystem::ComposeHangeul(HWND hWnd,WPARAM wParam,LPARAM lParam)
 			{
 				if(wszComp[i]!=0)
 				{
+				
 					//조합된 문자 보여지게 하기
 					wstring s(wszComp);
-					//for (int i = 0; i < ComposeCount; ++i)
-					//	m_wsChat.pop_back();
+					if (m_wsChat.size() > 0 && m_composeCount > 0) 
+					{
+							m_wsChat.pop_back();
+					}
 					m_wsChat += s;
-					//ComposeCount = 0;
+
+				//	m_iter = m_wsChat.rbegin();
+					
+					m_composeCount = 0;
 					//return wszComp;
 				}
 			}
@@ -226,17 +250,28 @@ bool ChattingSystem::ComposeHangeul(HWND hWnd,WPARAM wParam,LPARAM lParam)
 	{
 		nLength = ImmGetCompositionStringW(hImc, GCS_COMPSTR, nullptr, 0);
 
+		
 		if(nLength > 0)
 		{
 			ImmGetCompositionStringW(hImc, GCS_COMPSTR, wszComp, nLength);
+
 
 			for(int i=0;i<nLength;++i)
 			{
 				if(wszComp[i] != 0)
 				{
-					
-					
+				
+					wstring s(wszComp);
+					if (m_composeCount > 0 && m_wsChat.size() > 0)
+					{
+						m_wsChat.pop_back();
+						m_composeCount--;
+					}
+					m_wsChat += s;
+
+					m_composeCount++;
 					//조합 중인 문자가 보여지는 코드 삽입
+					
 					
 				}				
 			}

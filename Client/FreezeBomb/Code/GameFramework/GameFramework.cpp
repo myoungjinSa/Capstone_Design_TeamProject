@@ -15,7 +15,7 @@
 #include "../Chatting/Chatting.h"
 
 // 전체모드할경우 주석풀으셈
-//#define FullScreenMode
+#define FullScreenMode
 
 extern volatile size_t g_TotalSize;
 extern volatile size_t g_FileSize;
@@ -603,6 +603,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		
 			
 			break;
+	
 		case VK_HANGEUL:
 			(m_bHangeul) ? m_bHangeul = false : m_bHangeul = true;
 			ChattingSystem::GetInstance()->SetIMEMode(hWnd, m_bHangeul);
@@ -1002,8 +1003,7 @@ void CGameFramework::SetNamecard()
 		auto iter = m.find("곰돌이");
 		if (iter != m.end())
 		{
-			//for (int i = 0; i < (*iter).second->m_nObjects; ++i)
-			for (int i = 0; i < 1; ++i)
+			for (int i = 0; i < (*iter).second->m_nObjects; ++i)
 			{
 				XMFLOAT2& screenSpace = m_pScene->ProcessNameCard(i);
 				//	

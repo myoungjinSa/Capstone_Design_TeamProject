@@ -3,6 +3,7 @@
 
 #pragma comment(lib,"imm32.lib")
 #include <imm.h>
+#include <iterator>
 
 template<class T> T* Singleton<T>::_instance = nullptr;
 
@@ -25,14 +26,21 @@ protected:
 	DWORD							m_conv;
 	TCHAR							m_chat[512];
 	//string							m_sChat;
+	wstring::reverse_iterator		m_iter;
 	wstring							m_wsChat;
 	bool							m_bActive{ false };
+
+	int								m_composeCount{ 0 };
+
+	enum class SENTENCE_LENGTH		{ENG=40,KOR=20};
+	
 public:
 	ChattingSystem();
 	virtual ~ChattingSystem();
 	void Initialize(IDWriteFactory*,ID2D1DeviceContext2*,IWICImagingFactory*);
-	void ProcessChatting(HWND hWnd,WPARAM wParam,LPARAM lParam,bool bHangeul);
+	void ProcessChatting(HWND hWnd,WPARAM wParam,LPARAM lParam);
 
+	
 	//string -> TCHAR
 	TCHAR* StringToTCHAR(string& s);
 	string TCHARToString(const TCHAR* ptsz);
