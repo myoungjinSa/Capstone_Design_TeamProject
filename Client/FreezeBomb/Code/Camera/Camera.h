@@ -85,6 +85,8 @@ public:
 	//바운딩 박스(OOBB, 월드 좌표계)가 절두체에 포함되는 가를 검사한다. 
 	bool IsInFrustum(BoundingOrientedBox& xmBoundingBox);
 
+	void GenerateOrthoProjectionMatrix();
+
 protected:
 	XMFLOAT3				m_xmf3Position;
 	XMFLOAT3				m_xmf3Right;
@@ -105,8 +107,10 @@ protected:
 	XMFLOAT4X4				m_xmf4x4View;
 	XMFLOAT4X4				m_xmf4x4Projection;
 
-	D3D12_VIEWPORT			m_d3dViewport;
-	D3D12_RECT				m_d3dScissorRect;
+	XMFLOAT4X4				m_xmf4x4OrthoProjection = Matrix4x4::Identity();
+
+	D3D12_VIEWPORT		m_d3dViewport;
+	D3D12_RECT					m_d3dScissorRect;
 
 	CPlayer*				m_pPlayer = NULL;
 

@@ -64,7 +64,7 @@ public:
 
 	//네임 카드를 위해서는 월드 좌표계에서 화면좌표계로 대응되는 위치벡터가 필요하다
 	//XMFLOAT3& CalculateNDCSpace();
-	XMFLOAT2& ProcessNameCard(const int& objNum);
+	XMFLOAT2 ProcessNameCard(const int& objNum);
 
 	void ReleaseUploadBuffers();
 

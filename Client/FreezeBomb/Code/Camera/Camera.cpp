@@ -189,6 +189,13 @@ bool CCamera::IsInFrustum(BoundingOrientedBox& BoundingBox)
 	return m_Frustum.Intersects(BoundingBox);
 }
 
+void CCamera::GenerateOrthoProjectionMatrix()
+{
+	XMMATRIX orthoProjection = XMMatrixOrthographicLH(m_d3dViewport.Width, m_d3dViewport.Height, 0.f, 1.f);
+
+	XMStoreFloat4x4(&m_xmf4x4OrthoProjection, orthoProjection);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CSpaceShipCamera
 

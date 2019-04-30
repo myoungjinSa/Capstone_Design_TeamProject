@@ -121,6 +121,10 @@ void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 		// 3. 
 		m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
 
+		m_xmf4x4World._41 = m_xmf3Position.x;
+		m_xmf4x4World._42 = m_xmf3Position.y;
+		m_xmf4x4World._43 = m_xmf3Position.z;
+
 		m_pCamera->Move(xmf3Shift);
 	}
 }
@@ -461,20 +465,30 @@ void CPlayer::DecideAnimationState(float fLength)
 	{
 		if (m_Special_Inventory.size() > 0)
 		{
-			SetTrackAnimationSet(0, CAnimationController::RAISEHAND);
-			SetTrackAnimationPosition(0, 0.0f);
-			pController->SetAnimationState(CAnimationController::RAISEHAND);
-
-			if (m_pShaderManager)
-			{
-				auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
-				if (iter != m_pShaderManager->getShaderMap().end())
-				{
-					// 90초 증가
-					dynamic_cast<CTimerUIShader*>((*iter).second)->setTimer(90.f);
-				}
+			auto iter = m_Special_Inventory.begin();
+			if ((*iter).second->getItemType() == CItem::GoldHammer)
+			{	
+				SetTrackAnimationSet(0, CAnimationController::ATTACK);
+				SetTrackAnimationPosition(0, 0.0f);
+				pController->SetAnimationState(CAnimationController::ATTACK);
 			}
-			Refresh_Inventory(CItem::GoldTimer);
+			else
+			{
+				SetTrackAnimationSet(0, CAnimationController::RAISEHAND);
+				SetTrackAnimationPosition(0, 0.0f);
+				pController->SetAnimationState(CAnimationController::RAISEHAND);
+
+				if (m_pShaderManager)
+				{
+					auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
+					if (iter != m_pShaderManager->getShaderMap().end())
+					{
+						// 90초 증가
+						dynamic_cast<CTimerUIShader*>((*iter).second)->setTimer(90.f);
+					}
+				}
+			}	
+			Refresh_Inventory((*iter).second->getItemType());
 		}
 	}
 
@@ -688,6 +702,9 @@ void CTerrainPlayer::Animate(float fTimeElapsed)
 {
 	RotateAxisY(fTimeElapsed);
 	CGameObject::Animate(fTimeElapsed);
+	//CGameObject* p = FindFrame("ToesEnd_R");
+	//if (p != nullptr)
+	//	cout << p->m_xmf4x4World._41 << ", " << p->m_xmf4x4World._42 << ", " << p->m_xmf4x4World._43 << endl;
 }
 
 

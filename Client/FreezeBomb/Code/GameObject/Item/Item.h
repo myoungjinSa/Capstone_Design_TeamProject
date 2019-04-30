@@ -14,9 +14,10 @@ public:
 	bool getDeleteItem()	const { return m_DeleteItem; }
 	void setDeleteItem(bool value) { m_DeleteItem = value; }
 
-	void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState);
+	//virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int ItemType, int nPipelineState);
 
-	enum ItemType { Empty, NormalHammer, GoldHammer, GoldTimer };
+	enum ItemType { NormalHammer, GoldHammer, GoldTimer, Empty };
 	byte getItemType()	const { return m_ItemType; }
 	void setItemType(byte value) { m_ItemType = value; }
 

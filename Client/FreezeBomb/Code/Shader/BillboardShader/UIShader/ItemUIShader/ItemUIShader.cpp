@@ -75,25 +75,25 @@ void CItemUIShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 
 	m_ppUIMaterial = new CMaterial*[m_nObjects];
 
-	m_ppUIMaterial[0] = new CMaterial(1);
+	m_ppUIMaterial[CItem::Empty] = new CMaterial(1);
 	auto iter = Context.find("ItemBox");
 	if (iter != Context.end())
-		m_ppUIMaterial[0]->SetTexture((*iter).second, 0);
+		m_ppUIMaterial[CItem::Empty]->SetTexture((*iter).second, 0);
 
-	m_ppUIMaterial[1] = new CMaterial(1);
+	m_ppUIMaterial[CItem::NormalHammer] = new CMaterial(1);
 	iter = Context.find("NormalHammer");
 	if (iter != Context.end())
-		m_ppUIMaterial[1]->SetTexture((*iter).second, 0);
+		m_ppUIMaterial[CItem::NormalHammer]->SetTexture((*iter).second, 0);
 
-	m_ppUIMaterial[2] = new CMaterial(1);
+	m_ppUIMaterial[CItem::GoldHammer] = new CMaterial(1);
 	iter = Context.find("GoldHammer");
 	if (iter != Context.end())
-		m_ppUIMaterial[2]->SetTexture((*iter).second, 0);
+		m_ppUIMaterial[CItem::GoldHammer]->SetTexture((*iter).second, 0);
 
-	m_ppUIMaterial[3] = new CMaterial(1);
+	m_ppUIMaterial[CItem::GoldTimer] = new CMaterial(1);
 	iter = Context.find("GoldTimer");
 	if (iter != Context.end())
-		m_ppUIMaterial[3]->SetTexture((*iter).second, 0);
+		m_ppUIMaterial[CItem::GoldTimer]->SetTexture((*iter).second, 0);
 
 	for (int i = 0; i < m_nObjects; ++i)
 	{

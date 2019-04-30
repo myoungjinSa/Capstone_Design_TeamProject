@@ -109,9 +109,9 @@ public:
 	void SetCameraVibe(bool vibe) {  m_bCameraVibe = vibe; }
 	bool IsSpike() const { return m_bSpike; }
 	void SetSpike(bool spike) { m_bSpike = spike; }
+
 protected:
 
-	
 	XMFLOAT3			m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3			m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	XMFLOAT3			m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
