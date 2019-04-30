@@ -39,12 +39,15 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 
 	//맵툴 모드일때는 맵의 오브젝트들을 그리지 않게 하기 위해 
 	// 그래야 맵툴모드에서 적용해서 배치한 오브젝트들만 볼 수 있다.
+
 #ifdef _MAPTOOL_MODE_
 	m_nShaders = m_nShaders - 1;
 #endif
 	//카툰렌더링 해야될 쉐이더 개수
 	m_nPostShaders = m_nShaders - 2;
+
 	m_ppShaders = new CShader*[m_nShaders];
+
 
 	int index = 0;
 	CSkyBoxShader* pSkyBoxShader = new CSkyBoxShader;
@@ -67,10 +70,10 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ShaderMap.emplace("MapObjects", pMapShader);
 #endif
 
-	//Foliage는 충돌처리가 필요 없음.. 따라서 Bound 박스 필요  없다. 그림자도 필요업음
+	//////Foliage는 충돌처리가 필요 없음.. 따라서 Bound 박스 필요  없다. 그림자도 필요업음
 	//CFoliageShader* pFoliageShader = new CFoliageShader;
 	//pFoliageShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	//pFoliageShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pTerrainShader->getTerrain());
+	//pFoliageShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getModelMap(),pTerrainShader->getTerrain());
 	//m_ppShaders[index++] = pFoliageShader;
 	//m_ShaderMap.emplace("Foliage", pFoliageShader);
 
@@ -105,14 +108,15 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ppShaders[index++] = pCubeParticleShader;
 	m_ShaderMap.emplace("CubeParticle", pCubeParticleShader);
 
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////
+	//아래 shader들은 카툰처리가 되면 안되는 shader
 	CSnowShader * pSnowShader = new CSnowShader;
 	pSnowShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pSnowShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), pTerrainShader->getTerrain());
 	m_ppShaders[index++] = pSnowShader;
 	m_ShaderMap.emplace("Snow", pSnowShader);
 
-	/////////////////////////////////////////////////////////////////////////////////////////////////
-	//아래 shader들은 카툰처리가 되면 안되는 shader
 
 	CTimerUIShader* pTimerUIShader = new CTimerUIShader;
 	pTimerUIShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -126,6 +130,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ppShaders[index++] = pItemUIShader;
 	m_ShaderMap.emplace("ItemUI", pItemUIShader);
 	
+
 #ifndef _MAPTOOL_MODE_
 	m_pResourceManager->ReleaseModel();
 #endif

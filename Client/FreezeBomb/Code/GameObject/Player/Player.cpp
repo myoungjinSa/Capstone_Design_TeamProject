@@ -12,6 +12,7 @@
 #include "../../Shader/BillboardShader/BombParticleShader/BombParticleShader.h"
 #include "../Billboard/Bomb/Bomb.h"
 #include "../../FrameTransform/FrameTransform.h"
+#include "../../Chatting/Chatting.h"
 
 CPlayer::CPlayer()
 {
@@ -190,6 +191,7 @@ void CPlayer::Rotate(float x, float y, float z)
 
 void CPlayer::Update(float fTimeElapsed)
 {
+	
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Gravity); // 중력과 속도와 합
 	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 	float fMaxVelocityXZ = m_fMaxVelocityXZ;
@@ -223,8 +225,9 @@ void CPlayer::Update(float fTimeElapsed)
 	if (fDeceleration > fLength) fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 
+	
 	DecideAnimationState(fLength);
-
+	
 	m_Time += fTimeElapsed;
 	if (m_Time > 1.f)
 	{
@@ -399,6 +402,7 @@ void CPlayer::DecideAnimationState(float fLength)
 	if (GetAsyncKeyState(VK_SPACE) & 0x8000
 		&& pController->GetAnimationState() != CAnimationController::JUMP
 		&& pController->GetAnimationState() != CAnimationController::ICE
+		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
 		)
 	{
 		SetTrackAnimationSet(0, CAnimationController::JUMP);
@@ -410,6 +414,7 @@ void CPlayer::DecideAnimationState(float fLength)
 	if (GetAsyncKeyState(VK_Z) & 0x8000
 		&& pController->GetAnimationState() != CAnimationController::DIGGING
 		&& pController->GetAnimationState() != CAnimationController::ICE
+		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
 		)
 	{
 		SetTrackAnimationSet(0, CAnimationController::DIGGING);
@@ -418,18 +423,24 @@ void CPlayer::DecideAnimationState(float fLength)
 		pController->SetAnimationState(CAnimationController::DIGGING);
 	}
 	//추후에 아이템과 충돌여부 및 아이템 획득 여부로 변경해서 하면 될듯
-	if (GetAsyncKeyState(VK_C) & 0x0001)
+	if (GetAsyncKeyState(VK_C) & 0x0001
+		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
+		)
 	{
 		m_bBomb = !m_bBomb;
 		m_bHammer = !m_bHammer;
 	}
-	if(GetAsyncKeyState(VK_X) & 0X0001)
+	if(GetAsyncKeyState(VK_X) & 0X0001
+		&& ChattingSystem::GetInstance()->IsChattingActive() ==false)
 	{
 		pController->SetTrackAnimationSet(0, CAnimationController::SLIDE);
 		pController->SetAnimationState(CAnimationController::SLIDE);
 		//pController->SetTrackSpeed(0, 10.0f);
 	}
-	if (GetAsyncKeyState(VK_RSHIFT) & 0x0001 && pController->GetAnimationState() != CAnimationController::DIE)
+	if (GetAsyncKeyState(VK_RSHIFT) & 0x0001 
+		&& pController->GetAnimationState() != CAnimationController::DIE
+		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
+		)
 	{
 		pController->SetTrackPosition(0, 0.0f);
 		pController->SetTrackAnimationSet(0, CAnimationController::DIE);
@@ -439,6 +450,7 @@ void CPlayer::DecideAnimationState(float fLength)
 	////얼음으로 변신
 	if (GetAsyncKeyState(VK_LSHIFT) & 0x0001
 		&& pController->GetAnimationState() != CAnimationController::ICE
+		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
 		)
 	{
 		m_bIce = !m_bIce;
@@ -449,7 +461,9 @@ void CPlayer::DecideAnimationState(float fLength)
 	// 망치로 때리기 애니메이션
 	if (GetAsyncKeyState(VK_CONTROL) & 0x0001
 		&& pController->GetAnimationState() != CAnimationController::ATTACK
-		&& pController->GetAnimationState() != CAnimationController::ICE)
+		&& pController->GetAnimationState() != CAnimationController::ICE
+		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
+		)
 	{
 		SetTrackAnimationSet(0, CAnimationController::ATTACK);
 		SetTrackAnimationPosition(0, 0.0f);

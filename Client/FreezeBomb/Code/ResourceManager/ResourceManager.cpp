@@ -2,6 +2,7 @@
 #include "ResourceManager.h"
 #include "../Texture/Texture.h"
 #include "../Scene/Scene.h"
+#include "../GameObject/Foliage/Foliage.h"
 
 volatile size_t g_TotalSize = 30062795;
 volatile size_t g_FileSize = 0;
@@ -143,11 +144,13 @@ void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 void CResourceManager::LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
+
 	for (auto iter = m_ModelInfoMap.begin(); iter != m_ModelInfoMap.end(); ++iter)
 	{
 		CLoadedModelInfo* pModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, const_cast<char*>((*iter).second.m_Filename.c_str()), nullptr, (*iter).second.m_HasAnimation);
 		m_ModelMap.emplace((*iter).first, pModel);
 	}
+
 }
 
 void CResourceManager::LoadMapObjectInfo(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)

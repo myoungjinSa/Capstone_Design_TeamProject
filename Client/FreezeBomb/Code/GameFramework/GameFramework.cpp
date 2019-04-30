@@ -15,7 +15,7 @@
 #include "../Chatting/Chatting.h"
 
 // 전체모드할경우 주석풀으셈
-//#define FullScreenMode
+#define FullScreenMode
 
 extern volatile size_t g_TotalSize;
 extern volatile size_t g_FileSize;
@@ -227,8 +227,10 @@ void CGameFramework::CreateCommandQueueAndList()
 	hResult = m_pd3dDevice->CreateCommandQueue(&d3dCommandQueueDesc, _uuidof(ID3D12CommandQueue), (void **)&m_pd3dCommandQueue);
 
 	hResult = m_pd3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), (void **)&m_pd3dCommandAllocator);
+	
 
 	hResult = m_pd3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pd3dCommandAllocator, NULL, __uuidof(ID3D12GraphicsCommandList), (void **)&m_pd3dCommandList);
+	
 	hResult = m_pd3dCommandList->Close();
 }
 
@@ -312,13 +314,16 @@ void CGameFramework::CreateDirect2DDevice()
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LavenderBlush, 1.0f), &m_pd2dbrText[index++]);
 
 
-	//채팅 시스템 객체 생성
-	ChattingSystem::GetInstance()->Initialize(m_pdWriteFactory, m_pd2dDeviceContext);
 
 	
 	//Initializes the COM library on the current thread and identifies the concurrency model as single-thread apartment 
 	CoInitialize(NULL);
 	hResult = CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory), (void**)&m_pwicImagingFactory);
+
+	//채팅 시스템 객체 생성
+	ChattingSystem::GetInstance()->Initialize(m_pdWriteFactory, m_pd2dDeviceContext,m_pwicImagingFactory);
+
+	
 
 	hResult = m_pd2dFactory->CreateDrawingStateBlock(&m_pd2dsbDrawingState);
 	hResult = m_pd2dDeviceContext->CreateEffect(CLSID_D2D1BitmapSource, &m_pd2dfxBitmapSource);
@@ -391,8 +396,11 @@ void CGameFramework::CreateRenderTargetViews()
 #ifdef _WITH_DIRECT2D_
 
 	CreateDirect2DRenderTargetViews();
+	
 #endif
 }
+
+
 
 #ifdef _WITH_DIRECT2D_
 // D3D12가 스왑체인을 소유한다. 그렇기 때문에 우리가 사용하는 11On12 Device에 백버퍼에 우리가 원하는것을 그리려면 
@@ -406,16 +414,17 @@ void CGameFramework::CreateDirect2DRenderTargetViews()
 	float fxDPI, fyDPI;
 
 	m_pd2dFactory->GetDesktopDpi(&fxDPI, &fyDPI); // 현재 데스크톱에 dots per inch(DPI)를 검색하고 ,각 변수들에 할당해준다.
+	
 
 	//D2D1_BITMAP_PROPERTIES1	 : 
 	//1. D2D1_BITMAP_OPTIONS     : 비트맵의 용도 옵션.  EX> D2D1_BITMAP_OPTIONS_TARGET : the bitmap can be used as a device context target.
 	//												   EX> D2D1_BITMAP_OPTIONS_CANNOT_DRAW : the bitmap cannot be used an input.
 	//2. const D2D1_PIXEL_FORMAT : 비트맵의 픽셀 형식과 알파 모드.  EX> D2D1_ALPHA_MODE_PREMULTIPLIED :  알파값이 미리 곱해진다.
-	D2D1_BITMAP_PROPERTIES1 d2dBitmapProperties = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW, D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED), fxDPI, fxDPI);
+	D2D1_BITMAP_PROPERTIES1 d2dBitmapProperties = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET  |  D2D1_BITMAP_OPTIONS_CANNOT_DRAW , D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED), fxDPI, fxDPI);
 
 	for (UINT i = 0; i < m_nSwapChainBuffers; i++)
 	{
-
+		
 		D3D11_RESOURCE_FLAGS d3d11Flags = { D3D11_BIND_RENDER_TARGET };
 		//CreateWrappedResource-> 이 함수는 D3D11On12 에서 사용가능한  D3D11 리소스들을 만들어준다.
 		m_pd3d11On12Device->CreateWrappedResource(m_ppd3dSwapChainBackBuffers[i], &d3d11Flags, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, __uuidof(ID3D11Resource), (void**)&m_ppd3d11WrappedBackBuffers[i]);
@@ -430,7 +439,10 @@ void CGameFramework::CreateDirect2DRenderTargetViews()
 		}
 	}
 
+
 }
+
+
 
 #endif
 void CGameFramework::CreateDepthStencilView()
@@ -586,10 +598,9 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			//break;
 #ifdef _WITH_DIRECT2D_
 		case VK_RETURN:
-			if (m_bChattingMode == false)
-				m_bChattingMode = true;
-			else
-				m_bChattingMode = false;
+			(ChattingSystem::GetInstance()->IsChattingActive()) ? ChattingSystem::GetInstance()->SetActive(false)
+				: ChattingSystem::GetInstance()->SetActive(true);
+		
 			
 			break;
 		case VK_HANGEUL:
@@ -773,6 +784,7 @@ bool CGameFramework::BuildObjects()
 		soundThreads.emplace_back(thread{ &CScene::CreateSoundSystem, m_pScene });
 		//GameFramework에서 관리하는 CPlayer를 제외한 나머지 넘겨준다.
 		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, nPlayerCount - 1);
+
 	}
 	CTerrainPlayer* pPlayer{ nullptr };
 
@@ -874,13 +886,13 @@ void CGameFramework::ProcessInput()
 	static UCHAR pKeysBuffer[256];
 	bool bProcessedByScene = false;
 
-#ifdef _WITH_DIRECT2D_
-	//채팅 input처리
-	if (m_bChattingMode)
-	{
-		ChattingSystem::GetInstance()->ProcessChatting(pKeysBuffer);
-	}
-#endif
+//#ifdef _WITH_DIRECT2D_
+//	//채팅 input처리
+//	if (m_bChattingMode)
+//	{
+//		ChattingSystem::GetInstance()->ProcessChatting(pKeysBuffer);
+//	}
+//#endif
 
 	if (GetKeyboardState(pKeysBuffer) && m_pScene) bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
 	if (!bProcessedByScene)
@@ -996,11 +1008,14 @@ void CGameFramework::SetNamecard()
 				XMFLOAT2& screenSpace = m_pScene->ProcessNameCard(i);
 				//	
 				D2D1_RECT_F nameCard{ 0.0f,0.0f,0.0f,0.0f };
+			
 				nameCard = D2D1::RectF(screenSpace.x - 60.0f, screenSpace.y - 60.0f, screenSpace.x + 60.0f, screenSpace.y + 60.0f);
 
-				//	//nameCard = D2D1::RectF(540.0f, 140.0f,  660.0f, 260.0f);		
+
+					//	//nameCard = D2D1::RectF(540.0f, 140.0f,  660.0f, 260.0f);		
 				m_pd2dDeviceContext->DrawTextW((*iter).second->m_ppObjects[i]->GetPlayerName(),
 					(UINT32)wcslen((*iter).second->m_ppObjects[i]->GetPlayerName()), m_pdwFont[i], &nameCard, m_pd2dbrText[i]);
+
 			}
 		}
 	}
@@ -1061,6 +1076,9 @@ void CGameFramework::ProcessDirect2D()
 	//이름 
 	SetNamecard();
 
+	//채팅
+	ChattingSystem::GetInstance()->ShowChatting(m_pd2dDeviceContext);
+
 	//스코어 보드
 	ShowScoreboard();
 	////////////////////////////////////////////////////////////////////////
@@ -1068,7 +1086,7 @@ void CGameFramework::ProcessDirect2D()
 
 	////////////////////////////////////////////////////////////////////////
 
-	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
+	//m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
 	//D2D1_RECT_F rcUpperText = D2D1::RectF(0, 0, 200.0f, 1400.0f);
 
 	//IDWriteTextFormat (interface) : 텍스트 형식에 사용되는 폰트를 서술함. 
@@ -1081,6 +1099,7 @@ void CGameFramework::ProcessDirect2D()
 	//,커맨드 버퍼에 대기중인 커맨드를 gpu로 전송
 	m_pd3d11DeviceContext->Flush();
 
+	
 }
 #endif
 void CGameFramework::FrameAdvance()
@@ -1148,7 +1167,7 @@ void CGameFramework::FrameAdvance()
 	{
 		m_pd3dCommandList->ClearDepthStencilView(d3dDsvDepthStencilBufferCPUHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 
-		//m_pd3dCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBufferIndex], TRUE, &d3dDsvDepthStencilBufferCPUHandle);
+		m_pd3dCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBufferIndex], TRUE, &d3dDsvDepthStencilBufferCPUHandle);
 		m_pScene->PostRender(m_pd3dCommandList, m_GameTimer.GetTimeElapsed(), m_pCamera);
 	}
 
@@ -1156,8 +1175,9 @@ void CGameFramework::FrameAdvance()
 
 #ifndef _WITH_DIRECT2D_
 	//if (m_bStart == false)
-		::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+	::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 #endif
+	
 
 	hResult = m_pd3dCommandList->Close();
 
@@ -1167,8 +1187,9 @@ void CGameFramework::FrameAdvance()
 	WaitForGpuComplete();
 
 #ifdef _WITH_DIRECT2D_
-	//if (m_bStart == true)
-		ProcessDirect2D();
+
+	ProcessDirect2D();
+
 #endif
 
 #ifdef _WITH_PRESENT_PARAMETERS

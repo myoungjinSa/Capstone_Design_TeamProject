@@ -3,6 +3,7 @@
 #include "../../../GameObject/GameObject.h"
 #include "../../../GameObject/Foliage/Foliage.h"
 #include "../../../GameObject/Terrain/Terrain.h"
+#include "../../../FrameTransform/FrameTransform.h"
 
 CFoliageShader::CFoliageShader()
 {
@@ -45,6 +46,11 @@ void CFoliageShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
 
+//D3D12_SHADER_BYTECODE CFoliageShader::CreateVertexShader(int nPipelineState)
+//{
+//	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSFoliage", "vs_5_1", &m_pd3dPixelShaderBlob));
+//}
+
 D3D12_SHADER_BYTECODE CFoliageShader::CreatePixelShader(int nPipelineState)
 {
 	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSFoliage", "ps_5_1", &m_pd3dPixelShaderBlob));
@@ -83,16 +89,17 @@ float CFoliageShader::GetDistanceToCamera(CGameObject* pObject, CCamera *pCamera
 }
 
 void CFoliageShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
-	void *pContext = NULL)
+	const map<string,CLoadedModelInfo*>& ModelMap,void *pContext = NULL)
 {
 	m_ppFoliageModel01 = CFoliageObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Grass_C_01.bin", this, false, "Surrounding");
 	m_ppFoliageModel02 = CFoliageObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Grass_D_01.bin", this, false, "Surrounding");
 	m_ppFoliageModel03 = CFoliageObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Plant_c_01.bin", this, false, "Surrounding");
 
+
 	CTerrain *pTerrain = (CTerrain *)pContext;
 
-	float fxPitch = 1.0f;
-	float fzPitch = 3.0f;
+	float fxPitch = 12.0f;
+	float fzPitch = 12.0f;
 
 	float fTerrainWidth = pTerrain->GetWidth();
 	float fTerrainLength = pTerrain->GetLength();
@@ -106,6 +113,7 @@ void CFoliageShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 	int xStart = 0.0f;
 	int zStart = 0.0f;
 
+	
 	for (int z = zStart, i = 0; z < zStart + zObjects; z++)
 	{
 		for (int x = xStart; x < xStart + xObjects; x++)
@@ -117,14 +125,25 @@ void CFoliageShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 			float fHeight = pTerrain->GetHeight(xPosition, zPosition);
 			m_ppObjects[i]->SetPosition(xPosition, fHeight, zPosition);
 
-			if (i % 3 == 0) 
-				m_ppObjects[i++]->SetChild(m_ppFoliageModel01->m_pModelRootObject, true);
-			else if (i % 3 == 1) 
-				m_ppObjects[i++]->SetChild(m_ppFoliageModel02->m_pModelRootObject, true);
-			else
-				m_ppObjects[i++]->SetChild(m_ppFoliageModel03->m_pModelRootObject, true);
+			if (i % 3 == 0) {
+
+				m_ppObjects[i]->SetChild(m_ppFoliageModel01->m_pModelRootObject, true);
+				m_ppObjects[i++]->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, m_ppFoliageModel01);
+			}
+			else if (i % 3 == 1)
+			{
+				m_ppObjects[i]->SetChild(m_ppFoliageModel02->m_pModelRootObject, true);
+				m_ppObjects[i++]->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, m_ppFoliageModel02);
+			}
+			else {
+				m_ppObjects[i]->SetChild(m_ppFoliageModel03->m_pModelRootObject, true);
+				m_ppObjects[i++]->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, m_ppFoliageModel03);
+			}
 		}
 	}
+
+	//CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
 
 	if (m_ppFoliageModel01)
 		delete m_ppFoliageModel01;
@@ -168,6 +187,7 @@ void CFoliageShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlaye
 
 void CFoliageShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
+	//UpdateShaderVariables(pd3dCommandList);
 	CStandardShader::Render(pd3dCommandList, pCamera, nPipelineState);
 	for (int i = 0; i < m_nObjects; i++)
 	{
@@ -178,4 +198,44 @@ void CFoliageShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera 
 			m_ppObjects[i]->Render(pd3dCommandList, m_ppObjects[i]->GetLodLevel(), pCamera, nPipelineState);
 		}
 	}
+}
+//void CFoliageShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+//{
+//	m_pd3dInstancingData = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, m_nObjects * sizeof(InstancingData), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+//	m_pd3dInstancingData->Map(0, nullptr, (void**)&m_pMappedInstancingData);
+//}
+//
+//void CFoliageShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+//{
+//	if (m_pd3dInstancingData)
+//	{
+//		D3D12_GPU_VIRTUAL_ADDRESS GPUVirtualAddress = m_pd3dInstancingData->GetGPUVirtualAddress();
+//		pd3dCommandList->SetGraphicsRootShaderResourceView(24, GPUVirtualAddress);
+//		for (int i=0; i < m_nObjects; ++i)
+//		{
+//			XMStoreFloat4x4(&m_pMappedInstancingData[i].m_World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
+//		}
+//	}
+//}
+
+//void CFoliageShader::ReleaseShaderVariables()
+//{
+//	if (m_pd3dInstancingData)
+	//{
+	//	m_pd3dInstancingData->Unmap(0, nullptr);
+	//	m_pd3dInstancingData->Release();
+	//}
+//}
+
+void CFoliageShader::ReleaseObjects()
+{
+	for (int i = 0; i < m_nObjects; ++i)
+		m_ppObjects[i]->Release();
+
+	//CStandardShader::ReleaseObjects();
+}
+void CFoliageShader::ReleaseUploadBuffers()
+{
+	//for (int i = 0; i < m_nObjects; ++i)
+		//m_ppObjects[i]->ReleaseUploadBuffers();
 }

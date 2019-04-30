@@ -52,6 +52,10 @@ using namespace std;
 #include <pix.h>
 #include <Mmsystem.h>
 
+
+#include "KeyDefine.h"
+
+
 #ifdef _DEBUG
 #include <dxgidebug.h>
 #endif
@@ -79,9 +83,7 @@ enum PIPELINESTATE_TYPE { GameObject, GameObject_Shadow };
 //#define _WITH_CB_GAMEOBJECT_ROOT_DESCRIPTOR
 #define _WITH_CB_WORLD_MATRIX_DESCRIPTOR_TABLE
 
-#define VK_C					0x43
-#define VK_X					0x58
-#define VK_Z					0x5A
+
 
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")

@@ -338,6 +338,8 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[22].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[13]);
 	pd3dRootParameters[22].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
+
+
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
 
 	pd3dSamplerDescs[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
@@ -525,6 +527,7 @@ void CScene::PostRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeEl
 	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 	if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
+
 	if (m_pShaderManager)
 	{
 		m_pShaderManager->PostRender(pd3dCommandList,fTimeElapsed, pCamera);
@@ -615,7 +618,9 @@ void CScene::CheckObjectByObjectCollisions(float fElapsedTime)
 								m_pPlayer->Refresh_Inventory(CItem::NormalHammer);
 							}
 							m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
-							PlayIceBreakEffect(fElapsedTime, bBreak);
+
+							PlayIceBreakEffect(bBreak);
+
 							cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
 							break;
 						}
@@ -657,6 +662,7 @@ void CScene::CheckObjectByObjectCollisions(float fElapsedTime)
 					if((*iter2).second->getItemType() == CItem::NormalHammer || (*iter2).second->getItemType() == CItem::GoldHammer)
 						m_pPlayer->SetIsHammer(true);
 					// 맵에 있는 아이템 삭제
+					PlayGetItemEffect();
 					pItemShader->ItemDelete((*iter2).first);
 					break;
 				}
@@ -665,11 +671,19 @@ void CScene::CheckObjectByObjectCollisions(float fElapsedTime)
 	}
 }
 
-void CScene::PlayIceBreakEffect(float fElapsedTime,bool& bBreak)
+void CScene::PlayGetItemEffect()
+{
+	if (m_pSound)
+		m_pSound->PlayIndex(ITEMGET);
+	//cout << "PlayGetItem\n";
+}
+void CScene::PlayIceBreakEffect(bool& bBreak)
 {
 	if (bBreak)
 	{
-		m_pSound->PlayIndex(ICEBREAK,1.0f);
+
+		m_pSound->PlayIndex(ICEBREAK);
+
 		if (m_pPlayer->IsCameraVibe() == false)
 			m_pPlayer->SetCameraVibe(true);
 	
@@ -720,13 +734,14 @@ void CScene::CreateSoundSystem()
 		//사운드 생성
 	m_pSound = new CSoundSystem;
 
-	m_musicCount = 3;
+	m_musicCount = 4;
 	m_musicList = new const char*[m_musicCount];
 
 	//m_musicList[0] = "../Resource/Sound/SnowyVillage.wav";
 	m_musicList[0] = "../Resource/Sound/SnowDrop.wav";
 	m_musicList[1] = "../Resource/Sound/Effect/TimerWarning.wav";
 	m_musicList[2] = "../Resource/Sound/Effect/ICEBreak.wav";
+	m_musicList[3] = "../Resource/Sound/MP3/GetItem.mp3";
 
 	//	m_musicList[1] = "../Resource/Sound/town.wav";
 
@@ -758,12 +773,16 @@ XMFLOAT2 CScene::ProcessNameCard(const int& objNum)
 {
 	map<string, CShader*> m = getShaderManager()->getShaderMap();
 	XMFLOAT4X4 viewProj = Matrix4x4::Multiply(m_pPlayer->GetCamera()->GetViewMatrix(), m_pPlayer->GetCamera()->GetProjectionMatrix());
-	XMFLOAT2 res = { 50000.0f, 50000.0f};
+
+	XMFLOAT2 res{NAN,NAN};
 	auto iter = m.find("곰돌이");
 	if(iter != m.end())
 	{
-		XMFLOAT3 pos = Vector3::Add((*iter).second->m_ppObjects[objNum]->GetPosition(), XMFLOAT3(0.0f, 10.0f, 0.0f));
-		if (DistanceToTarget(pos) == true)
+		CGameObject *obj = (*iter).second->m_ppObjects[objNum];
+		XMFLOAT3 s = XMFLOAT3(obj->m_xmf4x4ToParent._41, obj->m_xmf4x4ToParent._42, obj->m_xmf4x4ToParent._43);
+		XMFLOAT3 pos = Vector3::Add(s, XMFLOAT3(0.0f, 8.0f, 0.0f));
+		
+		if (DistanceToTarget(pos) == true && m_pPlayer->GetCamera()->IsInFrustum(obj->GetBoundingBox()))
 		{
 			float viewX = pos.x * viewProj._11 + pos.y * viewProj._21 + pos.z * viewProj._31 + viewProj._41;
 			float viewY = pos.x * viewProj._12 + pos.y * viewProj._22 + pos.z * viewProj._32 + viewProj._42;
