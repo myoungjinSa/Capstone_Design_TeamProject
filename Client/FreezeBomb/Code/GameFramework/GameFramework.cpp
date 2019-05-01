@@ -611,6 +611,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			(ChattingSystem::GetInstance()->IsChattingActive()) ? ChattingSystem::GetInstance()->SetActive(false)
 				: ChattingSystem::GetInstance()->SetActive(true);
 			break;
+	
 		case VK_HANGEUL:
 			(m_bHangeul) ? m_bHangeul = false : m_bHangeul = true;
 			ChattingSystem::GetInstance()->SetIMEMode(hWnd, m_bHangeul);
@@ -1009,8 +1010,7 @@ void CGameFramework::SetNamecard()
 		auto iter = m.find("∞ıµπ¿Ã");
 		if (iter != m.end())
 		{
-			//for (int i = 0; i < (*iter).second->m_nObjects; ++i)
-			for (int i = 0; i < 1; ++i)
+			for (int i = 0; i < (*iter).second->m_nObjects; ++i)
 			{
 				XMFLOAT2& screenSpace = m_pScene->ProcessNameCard(i);
 				//	
