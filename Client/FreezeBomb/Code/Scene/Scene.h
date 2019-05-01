@@ -44,8 +44,8 @@ public:
 	void PlayIceBreakEffect(bool& bBreak);
 	void PlayGetItemEffect();
 
-	bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
-	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
@@ -81,6 +81,19 @@ public:
 	void CheckWarningTimer();
 	void SetWarningTimer();
 	void StopWarningTimer();
+
+	XMFLOAT3 ScreenPosition(int x, int y);
+
+public:
+	enum MucicEnum
+	{
+		BACKGROUNDMUSIC = 0,
+		TIMERWARNING,
+		ICEBREAK,
+		ITEMGET,
+		MENU_INPUT
+	};
+
 protected:
 	ID3D12RootSignature*						m_pd3dGraphicsRootSignature = NULL;
 
@@ -124,18 +137,10 @@ protected:
 
 	//FMOD 사운드 시스템
 	//씬마다 음악이 달라져야 할수 있기 때문에 씬이 사운드를 관리함.
-	CSoundSystem*				m_pSound=NULL;
+	CSoundSystem*	m_pSound=NULL;
 
-	const char**				m_musicList = NULL;
+	const char**			m_musicList = NULL;
 	int							m_musicCount;
-
-	enum MucicEnum
-	{
-		BACKGROUNDMUSIC = 0,
-		TIMERWARNING,
-		ICEBREAK,
-		ITEMGET
-	};
 
 private:
 	CPlayer*					m_pPlayer = NULL;
@@ -161,10 +166,10 @@ private:
 	// Snow : 1, 
 	// Number : 10, Colon : 1 => TimerUI = 11
 	// ItemBox = 1, Hammer_Item : 1, GoldHammer_Item : 1, GoldTimer_Item : 1=> ItemUI : 4
-
+	// MenuUI : 1
 	enum nShaderResourceView
 	{
 		SkyBox = 1, Terrain = 2, MapObjects = 67, Item = 8,
-		EvilBear = 19, Player = 19, BombParticle = 1, CubeParticle = 1, Snow = 1, TimerUI = 11, ItemUI = 4
+		EvilBear = 19, Player = 19, BombParticle = 1, CubeParticle = 1, Snow = 1, TimerUI = 11, ItemUI = 4, MenuUI = 1
 	};
 };

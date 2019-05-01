@@ -5,6 +5,7 @@
 
 CUI::CUI(int nMaterial) : CBillboard(nMaterial)
 {
+
 }
 
 CUI::~CUI()

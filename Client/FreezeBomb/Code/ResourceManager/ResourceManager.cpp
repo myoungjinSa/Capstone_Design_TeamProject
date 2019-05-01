@@ -4,7 +4,7 @@
 #include "../Scene/Scene.h"
 #include "../GameObject/Foliage/Foliage.h"
 
-volatile size_t g_TotalSize = 30062795;
+volatile size_t g_TotalSize = 30062795 + 88336;
 volatile size_t g_FileSize = 0;
 CResourceManager::CResourceManager()
 {
@@ -54,6 +54,8 @@ void CResourceManager::PrepareLoad()
 	m_TextureInfoMap.emplace("NormalHammer", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Item/Hammer_Item.dds", 22));
 	m_TextureInfoMap.emplace("GoldHammer", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Item/GoldHammer_Item.dds", 22));
 	m_TextureInfoMap.emplace("GoldTimer", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Item/GoldTimer_Item.dds", 22));
+
+	m_TextureInfoMap.emplace("Menu", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Menu/Menu.dds", 22));
 
 	size_t total = 0;
 	for (auto iter = m_TextureInfoMap.begin(); iter != m_TextureInfoMap.end(); ++iter)

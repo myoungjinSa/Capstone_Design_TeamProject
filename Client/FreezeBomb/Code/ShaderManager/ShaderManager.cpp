@@ -17,6 +17,7 @@
 
 #include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
 #include "../Shader/BillboardShader/UIShader/ItemUIShader/ItemUIShader.h"
+#include "../Shader/BillboardShader/UIShader/MenuUIShader/MenuUIShader.h"
 
 //#include "../Shader/PostProcessShader/CartoonShader/SobelCartoonShader.h"
 
@@ -35,7 +36,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_pResourceManager = new CResourceManager;
 	m_pResourceManager->Initialize(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	m_nShaders = 10;
+	m_nShaders = 11;
 
 	//맵툴 모드일때는 맵의 오브젝트들을 그리지 않게 하기 위해 
 	// 그래야 맵툴모드에서 적용해서 배치한 오브젝트들만 볼 수 있다.
@@ -44,10 +45,8 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_nShaders = m_nShaders - 1;
 #endif
 	//카툰렌더링 해야될 쉐이더 개수
-	m_nPostShaders = m_nShaders - 2;
-
+	m_nPostShaders = m_nShaders - 3;
 	m_ppShaders = new CShader*[m_nShaders];
-
 
 	int index = 0;
 	CSkyBoxShader* pSkyBoxShader = new CSkyBoxShader;
@@ -117,7 +116,6 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ppShaders[index++] = pSnowShader;
 	m_ShaderMap.emplace("Snow", pSnowShader);
 
-
 	CTimerUIShader* pTimerUIShader = new CTimerUIShader;
 	pTimerUIShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pTimerUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
@@ -130,6 +128,11 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ppShaders[index++] = pItemUIShader;
 	m_ShaderMap.emplace("ItemUI", pItemUIShader);
 	
+	CMenuUIShader* pMenuUIShader = new CMenuUIShader;
+	pMenuUIShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pMenuUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
+	m_ppShaders[index++] = pMenuUIShader;
+	m_ShaderMap.emplace("MenuUI", pMenuUIShader);
 
 #ifndef _MAPTOOL_MODE_
 	m_pResourceManager->ReleaseModel();
@@ -183,7 +186,6 @@ void CShaderManager::PostRender(ID3D12GraphicsCommandList* pd3dCommandList,float
 		if (m_ppShaders[i]) 
 			m_ppShaders[i]->Render(pd3dCommandList, pCamera, GameObject);
 	}
-	
 }
 
 void CShaderManager::PreRender(ID3D12GraphicsCommandList* pd3dCommandList,float fTimeElapsed, CCamera* pCamera)
