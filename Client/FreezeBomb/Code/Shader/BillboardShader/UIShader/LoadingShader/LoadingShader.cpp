@@ -114,7 +114,7 @@ void CLoadingShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12GraphicsCommand
 {
 	CTexture* pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/GameStart.dds", 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Characters.dds", 0);
 
 	vTexture.emplace_back(pTexture);
 
