@@ -12,6 +12,7 @@
 #include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
 #include "../Shader/CubeParticleShader/CubeParticleShader.h"
 
+#include "../Shader/BillboardShader/UIShader/MenuUIShader/MenuUIShader.h"
 
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -25,12 +26,8 @@ D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dCbvGPUDescriptorNextHandle;
 D3D12_CPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvCPUDescriptorNextHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvGPUDescriptorNextHandle;
 
-CScene::CScene()
-	:m_musicCount(0),
-	m_playerCount(0)
-
+CScene::CScene() :m_musicCount(0), m_playerCount(0)
 {
-
 }
 
 CScene::~CScene()
@@ -94,7 +91,8 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	int nObjects = 0;
 
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 
-		SkyBox + Terrain + MapObjects + Item + EvilBear + BombParticle + CubeParticle + Snow + TimerUI + ItemUI + Player);
+		SkyBox + Terrain + MapObjects + Item + EvilBear + BombParticle + CubeParticle + Snow + TimerUI + ItemUI + Player
+	+ MenuUI);
 	// Model을 로드할 때, 셰이더 없이 로드할 경우 이것을 사용함!
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
@@ -122,9 +120,11 @@ void CScene::ReleaseObjects()
 
 	ReleaseShaderVariables();
 
-	if (m_pSound) {
+	if (m_pSound) 
 		m_pSound->Release();
-	}
+
+	if (m_musicList)
+		delete[] m_musicList;
 
 	if (m_pLights)
 		delete[] m_pLights;
@@ -338,8 +338,6 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[22].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[13]);
 	pd3dRootParameters[22].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-
-
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
 
 	pd3dSamplerDescs[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
@@ -473,14 +471,77 @@ D3D12_GPU_DESCRIPTOR_HANDLE CScene::CreateShaderResourceViews(ID3D12Device *pd3d
 	return(d3dSrvGPUDescriptorHandle);
 }
 
-bool CScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+void CScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	return false;
+	int mouseX = LOWORD(lParam);
+	int mouseY = HIWORD(lParam);
+	
+	switch (nMessageID)
+	{
+	case WM_LBUTTONDOWN:
+	{
+		if (m_pShaderManager)
+		{
+			auto iter = m_pShaderManager->getShaderMap().find("MenuUI");
+			if (iter != m_pShaderManager->getShaderMap().end())
+			{
+				if (((CMenuUIShader*)(*iter).second)->getIsRender() == true)
+				{
+					XMFLOAT3 position = ScreenPosition(mouseX, mouseY);
+					if (-0.5f <= position.x && position.x <= 0.5f && -0.25f <= position.y && position.y <= 0.25f)
+					{
+						if (m_pSound)
+						{
+							m_pSound->PlayIndex(MENU_INPUT);
+							cout << "마우스 왼쪽 클릭 - x : " << position.x << ", y : " << position.y << endl;
+						}
+					}
+				}
+			}
+		}
+		
+	}
+		break;
+	case WM_RBUTTONDOWN:
+		cout << "마우스 오른쪽 클릭 - x : " << mouseX << ", y : " << mouseY << endl;
+		break;
+	case WM_LBUTTONUP:
+		cout << "마우스 왼쪽 때짐" << endl;
+		break;
+	case WM_RBUTTONUP:
+		break;
+	case WM_MOUSEMOVE:
+		break;
+	default:
+		break;
+	}
 }
 
-bool CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+void CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	return false;
+	switch (nMessageID)
+	{
+	case WM_KEYUP:
+		switch (wParam)
+		{
+		case 'M':
+			{
+				if (m_pShaderManager)
+				{
+					auto iter = m_pShaderManager->getShaderMap().find("MenuUI");
+					if (iter != m_pShaderManager->getShaderMap().end())
+					{
+						if(((CMenuUIShader*)(*iter).second)->getIsRender() == false)
+							((CMenuUIShader*)(*iter).second)->setIsRender(true);
+						else
+							((CMenuUIShader*)(*iter).second)->setIsRender(false);
+					}
+				}
+			}
+			break;
+		}
+		break;
+	}
 }
 
 bool CScene::ProcessInput(UCHAR *pKeysBuffer)
@@ -522,6 +583,7 @@ void CScene::PreRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeEla
 	}
 
 }
+
 void CScene::PostRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed, CCamera *pCamera)
 {
 	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
@@ -677,11 +739,11 @@ void CScene::PlayGetItemEffect()
 		m_pSound->PlayIndex(ITEMGET);
 	//cout << "PlayGetItem\n";
 }
+
 void CScene::PlayIceBreakEffect(bool& bBreak)
 {
 	if (bBreak)
 	{
-
 		m_pSound->PlayIndex(ICEBREAK);
 
 		if (m_pPlayer->IsCameraVibe() == false)
@@ -690,9 +752,8 @@ void CScene::PlayIceBreakEffect(bool& bBreak)
 		//m_pPlayer->SetCameraVibe(true);
 		cout << "ICEBREAK" << endl;
 	}
-
-	
 }
+
 void CScene::SetWarningTimer()
 {
 	m_pSound->PlayIndex(TIMERWARNING);
@@ -702,6 +763,7 @@ void CScene::StopWarningTimer()
 {
 	m_pSound->StopIndex(TIMERWARNING);
 }
+
 void CScene::CheckWarningTimer()
 {
 	if (m_pSound) {
@@ -728,13 +790,12 @@ void CScene::CheckWarningTimer()
 	}
 }
 
-
 void CScene::CreateSoundSystem()
 {
-		//사운드 생성
+	//사운드 생성
 	m_pSound = new CSoundSystem;
 
-	m_musicCount = 4;
+	m_musicCount = 5;
 	m_musicList = new const char*[m_musicCount];
 
 	//m_musicList[0] = "../Resource/Sound/SnowyVillage.wav";
@@ -742,13 +803,14 @@ void CScene::CreateSoundSystem()
 	m_musicList[1] = "../Resource/Sound/Effect/TimerWarning.wav";
 	m_musicList[2] = "../Resource/Sound/Effect/ICEBreak.wav";
 	m_musicList[3] = "../Resource/Sound/MP3/GetItem.mp3";
+	m_musicList[4] = "../Resource/Sound/MP3/GetItem.mp3";
 
 	//	m_musicList[1] = "../Resource/Sound/town.wav";
 
 	//2개 동시에 재생도 가능하다
 	if (m_pSound)
 	{
-		m_pSound->Initialize(m_musicCount, m_musicList,FMOD_LOOP_NORMAL);
+		m_pSound->Initialize(m_musicCount, m_musicList, FMOD_LOOP_NORMAL);
 		m_pSound->PlayIndex(BACKGROUNDMUSIC);
 	}
 
@@ -756,6 +818,7 @@ void CScene::CreateSoundSystem()
 	//PlaySound(MAKEINTRESOURCE(IDR_WAVE3), ::ghAppInstance, SND_RESOURCE | SND_ASYNC | SND_LOOP);
 
 }
+
 bool CScene::DistanceToTarget(XMFLOAT3& pos)
 {
 	bool ret = false;
@@ -794,7 +857,23 @@ XMFLOAT2 CScene::ProcessNameCard(const int& objNum)
 			res = screen;
 		}
 	}
-
 	return res;
 }
 
+XMFLOAT3 CScene::ScreenPosition(int x, int y)
+{
+	CCamera* pCamera = m_pPlayer->GetCamera();
+	if (pCamera != nullptr)
+	{
+		D3D12_VIEWPORT Viewport = pCamera->GetViewport();
+
+		XMFLOAT3 screenPosition = XMFLOAT3(0.f, 0.f, 0.f);
+		screenPosition.x = (((2.0f * x) / Viewport.Width) - 1) / 1;
+		screenPosition.y = - (((2.0f * y) / Viewport.Height) - 1) / 1;
+		screenPosition.z = 0.0f;
+
+		return screenPosition;
+	}
+
+	return XMFLOAT3(0.f, 0.f, 0.f);
+}

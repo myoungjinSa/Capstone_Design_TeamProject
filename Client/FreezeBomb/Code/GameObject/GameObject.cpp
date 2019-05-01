@@ -321,7 +321,7 @@ void CSoundCallbackHandler::HandleCallback(void *pCallbackData,void* pAdditional
 
 			float fDistRate = *fDistance / 100.0f;
 			//사운드 배열은 0부터지만 넘어오는 데이터는 1부터 시작하기 때문에 인자에서 1빼서 넘겨준다.
-			pSound->PlayIndex((int)pCallbackData - 1,1-fDistRate);
+			pSound->PlayIndex((int)pCallbackData - 1, 1 - fDistRate);
 		}
 		else
 		{

@@ -15,7 +15,8 @@
 #include "../Chatting/Chatting.h"
 
 // 전체모드할경우 주석풀으셈
-#define FullScreenMode
+//#define FullScreenMode
+static bool OnCartoonShading = false;
 
 extern volatile size_t g_TotalSize;
 extern volatile size_t g_FileSize;
@@ -557,7 +558,9 @@ void CGameFramework::CreateOffScreenRenderTargetViews()
 
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	if (m_pScene) m_pScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+	if (m_pScene) 
+		m_pScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+
 	switch (nMessageID)
 	{
 	case WM_LBUTTONDOWN:
@@ -578,8 +581,9 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 
 void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
+	if (m_pScene) 
+		m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 
-	if (m_pScene) m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 	switch (nMessageID)
 	{
 	case WM_KEYUP:
@@ -593,6 +597,12 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_F3:
 			m_pCamera = m_pPlayer->ChangeCamera((DWORD)(wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
 			break;
+		case VK_F4:
+			if (OnCartoonShading == false)
+				OnCartoonShading = true;
+			else
+				OnCartoonShading = false;
+			break;
 		//case VK_F9:
 			//ChangeSwapChainState();
 			//break;
@@ -600,14 +610,11 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_RETURN:
 			(ChattingSystem::GetInstance()->IsChattingActive()) ? ChattingSystem::GetInstance()->SetActive(false)
 				: ChattingSystem::GetInstance()->SetActive(true);
-		
-			
 			break;
 	
 		case VK_HANGEUL:
 			(m_bHangeul) ? m_bHangeul = false : m_bHangeul = true;
 			ChattingSystem::GetInstance()->SetIMEMode(hWnd, m_bHangeul);
-
 			break;
 #endif
 		default:
@@ -1156,7 +1163,7 @@ void CGameFramework::FrameAdvance()
 	if (m_pScene)
 		m_pScene->CheckObjectByObjectCollisions(m_elapsedTime);
 
-	if (m_pCartoonShader)
+	if (m_pCartoonShader != nullptr && OnCartoonShading == true)
 	{
 		m_pCartoonShader->SobelFilter(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
 		m_pCartoonShader->Render(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);

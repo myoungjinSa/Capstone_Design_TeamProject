@@ -131,7 +131,7 @@ void CTimerUIShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_UIMap.emplace(Colon, pUI);
 
 	// 300ÃÊ
-	m_Timer = 300.f;
+	m_Timer = 100.f;
 }
 
 void CTimerUIShader::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer* pPlayer)
@@ -169,28 +169,28 @@ void CTimerUIShader::ReleaseObjects()
 {
 	for (auto iter = m_UIMap.begin(); iter != m_UIMap.end(); )
 	{
-		delete (*iter).second;
+		(*iter).second->Release();
 		iter = m_UIMap.erase(iter);
 	}
 	m_UIMap.clear();
 
 	for (auto iter = m_OneSecUIMap.begin(); iter != m_OneSecUIMap.end();)
 	{
-		delete (*iter).second;
+		(*iter).second->Release();
 		iter = m_OneSecUIMap.erase(iter);
 	}
 	m_OneSecUIMap.clear();
 
 	for (auto iter = m_TenSecUIMap.begin(); iter != m_TenSecUIMap.end();)
 	{
-		delete (*iter).second;
+		(*iter).second->Release();
 		iter = m_TenSecUIMap.erase(iter);
 	}
 	m_TenSecUIMap.clear();
 
 	for (auto iter = m_OneMinUIMap.begin(); iter != m_OneMinUIMap.end();)
 	{
-		delete (*iter).second;
+		(*iter).second->Release();
 		iter = m_OneMinUIMap.erase(iter);
 	}
 	m_OneMinUIMap.clear();
