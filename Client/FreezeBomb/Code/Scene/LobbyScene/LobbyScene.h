@@ -1,14 +1,13 @@
 #pragma once
 class CTexture;
 class CShader;
-class CLoadingShader;
+class CCharacterSelectionShader;
 
-
-class CLoadingScene
+class CLobbyScene
 {
 public:
-	CLoadingScene();
-	~CLoadingScene();
+	CLobbyScene();
+	~CLobbyScene();
 
 	ID3D12RootSignature *CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	

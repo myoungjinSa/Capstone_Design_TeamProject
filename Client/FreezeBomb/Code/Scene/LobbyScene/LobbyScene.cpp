@@ -1,20 +1,20 @@
 #include "../../Stdafx/Stdafx.h"
-#include "LoadingScene.h"
+#include "LobbyScene.h"
 #include "../../Texture/Texture.h"
-#include "../../Shader/BillboardShader/UIShader/LoadingShader/LoadingShader.h"
-#include "../../Shader/BillboardShader/UIShader/ProgressBarUIShader/ProgressBarUIShader.h"
+#include "../../Shader/BillboardShader/UIShader/CharacterSelShader/CharacterSelect.h"
 
 
-CLoadingScene::CLoadingScene()
+CLobbyScene::CLobbyScene()
 {
 }
 
 
-CLoadingScene::~CLoadingScene()
+CLobbyScene::~CLobbyScene()
 {
 }
 
-ID3D12RootSignature *CLoadingScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevice)
+
+ID3D12RootSignature *CLobbyScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevice)
 {
 	ID3D12RootSignature *pd3dGraphicsRootSignature = NULL;
 
@@ -22,21 +22,17 @@ ID3D12RootSignature *CLoadingScene::CreateGraphicsRootSignature(ID3D12Device *pd
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[0].NumDescriptors = 1;
-	pd3dDescriptorRanges[0].BaseShaderRegister = 20; // t20: LoadingSceneTexture
+	pd3dDescriptorRanges[0].BaseShaderRegister = 21; // t21: gtxtSelectTexture
 	pd3dDescriptorRanges[0].RegisterSpace = 0;
 	pd3dDescriptorRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[2];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[1];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	pd3dRootParameters[0].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[0].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[0]);
 	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[1].Descriptor.ShaderRegister = 8;	// b8 : g_UV
-	pd3dRootParameters[1].Descriptor.RegisterSpace = 0;
-	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[1];
 
@@ -71,7 +67,8 @@ ID3D12RootSignature *CLoadingScene::CreateGraphicsRootSignature(ID3D12Device *pd
 
 	return(pd3dGraphicsRootSignature);
 }
-void CLoadingScene::ReleaseObjects()
+
+void CLobbyScene::ReleaseObjects()
 {
 	if (m_pd3dGraphicsRootSignature)
 		m_pd3dGraphicsRootSignature->Release();
@@ -84,27 +81,22 @@ void CLoadingScene::ReleaseObjects()
 	delete[] m_ppShaders;
 }
 
-void CLoadingScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+void CLobbyScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
 	int index = 0;
-	m_nShaders = 2;
+	m_nShaders = 1;
 	m_ppShaders = new CShader*[m_nShaders];
 
-	CLoadingShader* pLoadingShader = new CLoadingShader;
-	pLoadingShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nullptr);
-	pLoadingShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	m_ppShaders[index++] = pLoadingShader;
-
-	CProgressBarUIShader* pProgressBarUIShader = new CProgressBarUIShader;
-	pProgressBarUIShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	pProgressBarUIShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nullptr);	
-	m_ppShaders[index++] = pProgressBarUIShader;
+	CCharacterSelectionShader* pSelectShader = new CCharacterSelectionShader;
+	pSelectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nullptr);
+	pSelectShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	m_ppShaders[index++] = pSelectShader;
 
 }
 
-void CLoadingScene::AnimateObjects(ID3D12GraphicsCommandList* pd3dCommandList, float elapsedTime)
+void CLobbyScene::AnimateObjects(ID3D12GraphicsCommandList* pd3dCommandList, float elapsedTime)
 {
 	for (int i = 0; i < m_nShaders; ++i)
 	{
@@ -115,11 +107,14 @@ void CLoadingScene::AnimateObjects(ID3D12GraphicsCommandList* pd3dCommandList, f
 	}
 }
 
-void CLoadingScene::Render(ID3D12GraphicsCommandList *pd3dCommandList)
-{
-	if (m_pd3dGraphicsRootSignature) 
-		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 
+
+void CLobbyScene::Render(ID3D12GraphicsCommandList *pd3dCommandList)
+{
+	if (m_pd3dGraphicsRootSignature)
+	{
+		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
+	}
 	for(int i = 0; i < m_nShaders; ++i)
 	{
 		

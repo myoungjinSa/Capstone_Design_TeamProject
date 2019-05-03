@@ -4,6 +4,7 @@
 
 #include "../Scene/Scene.h"
 #include "../GameObject/Player/Player.h"
+#include "../Scene/LobbyScene/LobbyScene.h"
 #include "../Scene/LoadingScene/LoadingScene.h"
 #include "../ShaderManager/ShaderManager.h"
 #include "../Shader/TerrainShader/TerrainShader.h"
@@ -14,8 +15,9 @@
 #include "../Shader/PostProcessShader/CartoonShader/SobelCartoonShader.h"
 #include "../Chatting/Chatting.h"
 
+
 // 전체모드할경우 주석풀으셈
-#define FullScreenMode
+//#define FullScreenMode
 static bool OnCartoonShading = false;
 
 extern volatile size_t g_TotalSize;
@@ -608,9 +610,19 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			//break;
 #ifdef _WITH_DIRECT2D_
 		case VK_RETURN:
-			(ChattingSystem::GetInstance()->IsChattingActive()) ? ChattingSystem::GetInstance()->SetActive(false)
-				: ChattingSystem::GetInstance()->SetActive(true);
+		{
+			if (m_nState == INGAME)
+			{
+				(ChattingSystem::GetInstance()->IsChattingActive()) ? ChattingSystem::GetInstance()->SetActive(false)
+					: ChattingSystem::GetInstance()->SetActive(true);
+			}
+			else if (m_nState == CHARACTER_SELECT)
+			{
+				m_nState = INGAME;
+			}
+
 			break;
+		}
 	
 		case VK_HANGEUL:
 			(m_bHangeul) ? m_bHangeul = false : m_bHangeul = true;
@@ -784,6 +796,14 @@ bool CGameFramework::BuildObjects()
 
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
+
+	m_pLobbyScene = new CLobbyScene;
+	if(m_pLobbyScene)
+	{
+		m_pLobbyScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
+		m_nState = CHARACTER_SELECT;
+	}
+
 	const int nPlayerCount = 6;		//임시로 플레이어 개수 지정. 
 	//추후에 서버에서 접속 인원을 씬 BuildObject 호출 전에 받아와서 세팅하면 될듯함.
 	m_pScene = new CScene;
@@ -792,7 +812,7 @@ bool CGameFramework::BuildObjects()
 		soundThreads.emplace_back(thread{ &CScene::CreateSoundSystem, m_pScene });
 		//GameFramework에서 관리하는 CPlayer를 제외한 나머지 넘겨준다.
 		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, nPlayerCount - 1);
-
+		//m_nState = INGAME;
 	}
 	CTerrainPlayer* pPlayer{ nullptr };
 
@@ -903,72 +923,79 @@ void CGameFramework::ProcessInput()
 //#endif
 
 	if (GetKeyboardState(pKeysBuffer) && m_pScene) bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
-	if (!bProcessedByScene)
+	if (m_nState == INGAME)
 	{
-		DWORD dwDirection = 0;
-		if (pKeysBuffer[VK_UP] & 0xF0)
+		if (!bProcessedByScene)
 		{
-			if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
+			DWORD dwDirection = 0;
+			if (pKeysBuffer[VK_UP] & 0xF0)
 			{
-				dwDirection |= DIR_FORWARD;
+				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
+				{
+					dwDirection |= DIR_FORWARD;
+					m_pPlayer->SetDirection(dwDirection);
+				}
+
+			}
+			if (pKeysBuffer[VK_DOWN] & 0xF0)
+			{
+				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
+				{
+					dwDirection |= DIR_BACKWARD;
+					m_pPlayer->SetDirection(dwDirection);
+				}
+			}
+			if (pKeysBuffer[VK_LEFT] & 0xF0)
+			{
+				dwDirection |= DIR_LEFT;
 				m_pPlayer->SetDirection(dwDirection);
 			}
-
-		}
-		if (pKeysBuffer[VK_DOWN] & 0xF0)
-		{
-			if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
+			if (pKeysBuffer[VK_RIGHT] & 0xF0)
 			{
-				dwDirection |= DIR_BACKWARD;
+				dwDirection |= DIR_RIGHT;
 				m_pPlayer->SetDirection(dwDirection);
 			}
-		}
-		if (pKeysBuffer[VK_LEFT] & 0xF0)
-		{
-			dwDirection |= DIR_LEFT;
-			m_pPlayer->SetDirection(dwDirection);
-		}
-		if (pKeysBuffer[VK_RIGHT] & 0xF0)
-		{
-			dwDirection |= DIR_RIGHT;
-			m_pPlayer->SetDirection(dwDirection);
-		}
-		if (pKeysBuffer[VK_PRIOR] & 0xF0) dwDirection |= DIR_UP;
-		if (pKeysBuffer[VK_NEXT] & 0xF0) dwDirection |= DIR_DOWN;
+			if (pKeysBuffer[VK_PRIOR] & 0xF0) dwDirection |= DIR_UP;
+			if (pKeysBuffer[VK_NEXT] & 0xF0) dwDirection |= DIR_DOWN;
 
-		float cxDelta = 0.0f, cyDelta = 0.0f;
-		POINT ptCursorPos;
-		if (GetCapture() == m_hWnd)
-		{
-			SetCursor(NULL);
-			GetCursorPos(&ptCursorPos);
-			cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
-			cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
-			SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
-		}
-
-		if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
-		{
-			if (cxDelta || cyDelta)
+			float cxDelta = 0.0f, cyDelta = 0.0f;
+			POINT ptCursorPos;
+			if (GetCapture() == m_hWnd)
 			{
-				if (pKeysBuffer[VK_RBUTTON] & 0xF0)
-					m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
-				else
-					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+				SetCursor(NULL);
+				GetCursorPos(&ptCursorPos);
+				cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
+				cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
+				SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
 			}
-			if (dwDirection) m_pPlayer->Move(dwDirection, 12.25f, true);
+
+			if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
+			{
+				if (cxDelta || cyDelta)
+				{
+					if (pKeysBuffer[VK_RBUTTON] & 0xF0)
+						m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
+					else
+						m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+				}
+				if (dwDirection) m_pPlayer->Move(dwDirection, 12.25f, true);
+			}
 		}
+		m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
 	}
-	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
 }
 
 void CGameFramework::AnimateObjects()
 {
-	m_elapsedTime = m_GameTimer.GetTimeElapsed();
+	if (m_nState == INGAME)
+	{
+		m_elapsedTime = m_GameTimer.GetTimeElapsed();
 
-	if (m_pScene)
-		m_pScene->AnimateObjects(m_pd3dCommandList, m_elapsedTime);
 
+
+		if (m_pScene)
+			m_pScene->AnimateObjects(m_pd3dCommandList, m_elapsedTime);
+	}
 	//m_pPlayer->Animate(fTimeElapsed);
 	//m_pPlayer->UpdateTransform(NULL);
 }
@@ -1109,6 +1136,94 @@ void CGameFramework::ProcessDirect2D()
 	
 }
 #endif
+
+void CGameFramework::ProcessInGame(D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvDepthStencilBufferCPUHandle)
+{
+		//카툰 렌더링 해야할 쉐이더들은 PreRender에서 그린다.
+		if (m_pScene)
+		{
+			m_pScene->PreRender(m_pd3dCommandList, m_GameTimer.GetTimeElapsed(), m_pCamera);
+		}
+
+#ifdef _MAPTOOL_MODE_
+		if (m_pMapToolShader)
+		{
+			m_pMapToolShader->Render(m_pd3dCommandList, m_pCamera, GameObject);
+		}
+
+#endif
+
+#ifdef _WITH_PLAYER_TOP
+		m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+#endif
+
+		if (m_pPlayer)
+		{
+			m_pPlayer->Animate(m_elapsedTime);
+			m_pPlayer->UpdateTransform(NULL);
+			m_pPlayer->Render(m_pd3dCommandList, m_pCamera, GameObject);
+		}
+
+		if (m_pScene)
+			m_pScene->CheckObjectByObjectCollisions(m_elapsedTime);
+
+		if (m_pCartoonShader != nullptr && OnCartoonShading == true)
+		{
+			m_pCartoonShader->SobelFilter(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
+			m_pCartoonShader->Render(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
+		}
+
+		//카툰 렌더링 하지 않고 그려야할 쉐이더는 PostRender에서 그린다.
+		if (m_pScene && m_pScene->getShaderManager())
+		{
+			m_pd3dCommandList->ClearDepthStencilView(d3dDsvDepthStencilBufferCPUHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+
+			m_pd3dCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBufferIndex], TRUE, &d3dDsvDepthStencilBufferCPUHandle);
+			m_pScene->PostRender(m_pd3dCommandList, m_GameTimer.GetTimeElapsed(), m_pCamera);
+		}
+
+		//Direct2D를 사용하면 스왑체인 버퍼 리소스 전이를 Present로 바꿔주면 안된다. 
+
+#ifndef _WITH_DIRECT2D_
+	//if (m_bStart == false)
+		::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+#endif
+
+
+		HRESULT hResult = m_pd3dCommandList->Close();
+
+		ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
+		m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+
+		WaitForGpuComplete();
+
+#ifdef _WITH_DIRECT2D_
+
+		ProcessDirect2D();
+
+#endif
+}
+
+void CGameFramework::ProcessLobby()
+{
+	D3D12_VIEWPORT	d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
+	D3D12_RECT		d3dScissorRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
+	m_pd3dCommandList->RSSetViewports(1, &d3dViewport);
+	m_pd3dCommandList->RSSetScissorRects(1, &d3dScissorRect);
+	if (m_pLobbyScene)
+	{
+		m_pLobbyScene->Render(m_pd3dCommandList);
+	}
+
+	::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+		
+	HRESULT hResult = m_pd3dCommandList->Close();
+
+	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
+	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+
+	WaitForGpuComplete();
+}
 void CGameFramework::FrameAdvance()
 {
 	m_GameTimer.Tick(60.0f);
@@ -1135,69 +1250,15 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3dCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBufferIndex], TRUE, &d3dDsvDepthStencilBufferCPUHandle);
 
-	//카툰 렌더링 해야할 쉐이더들은 PreRender에서 그린다.
-	if (m_pScene)
+	if (m_nState == INGAME)
 	{
-		m_pScene->PreRender(m_pd3dCommandList, m_GameTimer.GetTimeElapsed(), m_pCamera);
-	}
+		ProcessInGame(d3dDsvDepthStencilBufferCPUHandle);
 
-#ifdef _MAPTOOL_MODE_
-	if (m_pMapToolShader)
+	}
+	else if(m_nState == CHARACTER_SELECT)
 	{
-		m_pMapToolShader->Render(m_pd3dCommandList, m_pCamera, GameObject);
+		ProcessLobby();
 	}
-
-#endif
-
-#ifdef _WITH_PLAYER_TOP
-	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
-#endif
-
-	if (m_pPlayer)
-	{
-		m_pPlayer->Animate(m_elapsedTime);
-		m_pPlayer->UpdateTransform(NULL);
-		m_pPlayer->Render(m_pd3dCommandList, m_pCamera, GameObject);
-	}
-
-	if (m_pScene)
-		m_pScene->CheckObjectByObjectCollisions(m_elapsedTime);
-
-	if (m_pCartoonShader != nullptr && OnCartoonShading == true)
-	{
-		m_pCartoonShader->SobelFilter(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
-		m_pCartoonShader->Render(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
-	}
-
-	//카툰 렌더링 하지 않고 그려야할 쉐이더는 PostRender에서 그린다.
-	if (m_pScene && m_pScene->getShaderManager())
-	{
-		m_pd3dCommandList->ClearDepthStencilView(d3dDsvDepthStencilBufferCPUHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
-
-		m_pd3dCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBufferIndex], TRUE, &d3dDsvDepthStencilBufferCPUHandle);
-		m_pScene->PostRender(m_pd3dCommandList, m_GameTimer.GetTimeElapsed(), m_pCamera);
-	}
-
-	//Direct2D를 사용하면 스왑체인 버퍼 리소스 전이를 Present로 바꿔주면 안된다. 
-
-#ifndef _WITH_DIRECT2D_
-	//if (m_bStart == false)
-	::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-#endif
-	
-
-	hResult = m_pd3dCommandList->Close();
-
-	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
-	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
-
-	WaitForGpuComplete();
-
-#ifdef _WITH_DIRECT2D_
-
-	ProcessDirect2D();
-
-#endif
 
 #ifdef _WITH_PRESENT_PARAMETERS
 	DXGI_PRESENT_PARAMETERS dxgiPresentParameters;

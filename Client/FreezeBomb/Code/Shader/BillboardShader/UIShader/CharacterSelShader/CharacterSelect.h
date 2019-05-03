@@ -6,11 +6,11 @@ class CTexture;
 class CMaterial;
 class CUI;
 
-class CLoadingShader : public CUIShader
+class CCharacterSelectionShader: public CUIShader
 {
 public:
-	CLoadingShader();
-	virtual ~CLoadingShader();
+	CCharacterSelectionShader();
+	virtual ~CCharacterSelectionShader();
 
 	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
@@ -35,6 +35,7 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUCbvDescriptorStartHandle() { return(m_d3dCbvGPUDescriptorStartHandle); }
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvDescriptorStartHandle() { return(m_d3dSrvCPUDescriptorStartHandle); }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorStartHandle() { return(m_d3dSrvGPUDescriptorStartHandle); }
+
 protected:
 	
 	ID3D12DescriptorHeap					*m_pd3dCbvSrvDescriptorHeap = NULL;			//cbv,srv의 서술자 힙

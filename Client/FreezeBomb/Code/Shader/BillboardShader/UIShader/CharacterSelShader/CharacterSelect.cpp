@@ -1,22 +1,22 @@
 #include "../../../../Stdafx/Stdafx.h"
 #include "../../../../Texture/Texture.h"
-#include "../../../../Mesh/BillboardMesh/BillboardMesh.h"
 #include "../../../../Material/Material.h"
+#include "../../../../Mesh/BillboardMesh/BillboardMesh.h"
 #include "../../../../GameObject/Billboard/UI/UI.h"
-#include "LoadingShader.h"
+#include "CharacterSelect.h"
 
 
-CLoadingShader::CLoadingShader()
+CCharacterSelectionShader::CCharacterSelectionShader()
 {
 
 }
 
-CLoadingShader::~CLoadingShader()
+CCharacterSelectionShader::~CCharacterSelectionShader()
 {
 
 }
 
-void CLoadingShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
+void CCharacterSelectionShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
 	m_nPipelineStates = 1;
 	m_ppd3dPipelineStates = new ID3D12PipelineState*[m_nPipelineStates];
@@ -48,7 +48,7 @@ void CLoadingShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
 
-void CLoadingShader::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)
+void CCharacterSelectionShader::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)
 {
 	//리소스를 사용하려면 뷰를 만들어야한다. 
 	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
@@ -68,7 +68,7 @@ void CLoadingShader::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D1
 	m_d3dSrvGPUDescriptorStartHandle.ptr = m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * nConstantBufferViews);
 }
 
-void CLoadingShader::CreateConstantBufferViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, ID3D12Resource *pd3dConstantBuffers, UINT nStride)
+void CCharacterSelectionShader::CreateConstantBufferViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, ID3D12Resource *pd3dConstantBuffers, UINT nStride)
 {
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = pd3dConstantBuffers->GetGPUVirtualAddress();
 	D3D12_CONSTANT_BUFFER_VIEW_DESC d3dCBVDesc;
@@ -82,7 +82,7 @@ void CLoadingShader::CreateConstantBufferViews(ID3D12Device *pd3dDevice, ID3D12G
 	}
 }
 
-void CLoadingShader::CreateShaderResourceViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CTexture *pTexture, UINT nRootParameter, bool bAutoIncrement)
+void CCharacterSelectionShader::CreateShaderResourceViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CTexture *pTexture, UINT nRootParameter, bool bAutoIncrement)
 {
 	int nTextures = pTexture->GetTextures();
 	int nTextureType = pTexture->GetTextureType();
@@ -100,31 +100,30 @@ void CLoadingShader::CreateShaderResourceViews(ID3D12Device *pd3dDevice, ID3D12G
 	}
 }
 
-D3D12_SHADER_BYTECODE CLoadingShader::CreateVertexShader()
+D3D12_SHADER_BYTECODE CCharacterSelectionShader::CreateVertexShader()
 {
-	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "VSLoadingScene", "vs_5_1", &m_pd3dVertexShaderBlob));
+	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "VSCharacterSelect", "vs_5_1", &m_pd3dVertexShaderBlob));
 }
 
-D3D12_SHADER_BYTECODE CLoadingShader::CreatePixelShader()
+D3D12_SHADER_BYTECODE CCharacterSelectionShader::CreatePixelShader()
 {
-	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "PSLoadingScene", "ps_5_1", &m_pd3dVertexShaderBlob));
+	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "PSCharacterSelect", "ps_5_1", &m_pd3dVertexShaderBlob));
 }
-
-void CLoadingShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
+void CCharacterSelectionShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
 {
-	CTexture* pTitleTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	CTexture* pSelectTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 
-	pTitleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Title.dds", 0);
+	pSelectTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Characters.dds", 0);
 
 
-	vTexture.emplace_back(pTitleTexture);
+	vTexture.emplace_back(pSelectTexture);
 
 
 
 
 
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 1);
-	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTitleTexture, 0, true);
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pSelectTexture, 0, true);
 	
 	CBillboardMesh* pLoadingMesh = new CBillboardMesh(pd3dDevice, pd3dCommandList, 20.f, 20.f, 0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -145,12 +144,13 @@ void CLoadingShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12GraphicsCommand
 	}
 
 }
-void CLoadingShader::AnimateObjects(float fTimeElapsed)
+
+void CCharacterSelectionShader::AnimateObjects(float fTimeElapsed)
 {
 
 }
 
-void CLoadingShader::Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipelineState)
+void CCharacterSelectionShader::Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipelineState)
 {
 	if (m_pd3dCbvSrvDescriptorHeap) 
 		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
@@ -163,7 +163,7 @@ void CLoadingShader::Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipe
 	}
 
 }
-void CLoadingShader::ReleaseObjects()
+void CCharacterSelectionShader::ReleaseObjects()
 {
 	if (m_pd3dCbvSrvDescriptorHeap)
 		m_pd3dCbvSrvDescriptorHeap->Release();
