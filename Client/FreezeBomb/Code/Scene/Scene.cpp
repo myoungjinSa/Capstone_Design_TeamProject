@@ -793,7 +793,7 @@ void CScene::CheckWarningTimer()
 void CScene::PlayBackgroundMusic()
 {
 	if (m_pSound)
-		m_pSound->PlayIndex(BACKGROUNDMUSIC);
+		m_pSound->PlayIndex(BACKGROUNDMUSIC,0.5f);
 
 }
 
