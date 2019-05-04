@@ -17,7 +17,7 @@ CProgressBarUIShader::~CProgressBarUIShader()
 {
 }
 
-void CProgressBarUIShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
+void CProgressBarUIShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	m_nPipelineStates = 1;
 	m_ppd3dPipelineStates = new ID3D12PipelineState*[m_nPipelineStates];
@@ -64,7 +64,7 @@ D3D12_SHADER_BYTECODE CProgressBarUIShader::CreatePixelShader()
 	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "PSLoadingScene", "ps_5_1", &m_pd3dVertexShaderBlob));
 }
 
-void CProgressBarUIShader::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)
+void CProgressBarUIShader::CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)
 {
 	//리소스를 사용하려면 뷰를 만들어야한다. 
 	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
@@ -84,7 +84,7 @@ void CProgressBarUIShader::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice,
 	m_d3dSrvGPUDescriptorStartHandle.ptr = m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * nConstantBufferViews);
 }
 
-void CProgressBarUIShader::CreateConstantBufferViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, ID3D12Resource *pd3dConstantBuffers, UINT nStride)
+void CProgressBarUIShader::CreateConstantBufferViews(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int nConstantBufferViews, ID3D12Resource* pd3dConstantBuffers, UINT nStride)
 {
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = pd3dConstantBuffers->GetGPUVirtualAddress();
 	D3D12_CONSTANT_BUFFER_VIEW_DESC d3dCBVDesc;
@@ -98,7 +98,7 @@ void CProgressBarUIShader::CreateConstantBufferViews(ID3D12Device *pd3dDevice, I
 	}
 }
 
-void CProgressBarUIShader::CreateShaderResourceViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CTexture *pTexture, UINT nRootParameter, bool bAutoIncrement)
+void CProgressBarUIShader::CreateShaderResourceViews(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CTexture* pTexture, UINT nRootParameter, bool bAutoIncrement)
 {
 	int nTextures = pTexture->GetTextures();
 	int nTextureType = pTexture->GetTextureType();
@@ -116,10 +116,11 @@ void CProgressBarUIShader::CreateShaderResourceViews(ID3D12Device *pd3dDevice, I
 	}
 }
 
-void CProgressBarUIShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
+void CProgressBarUIShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
 {
 	CTexture* pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Green_ProgressBar.dds", 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Blue_ProgressBar.dds", 0);
+	//pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Yellow_ProgressBar.dds", 0);
 
 	UINT ncbElementBytes = ((sizeof(CB_Position) + 255) & ~255); //256의 배수
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 1, 1);
@@ -136,27 +137,6 @@ void CProgressBarUIShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12Graphics
 	m_ProgressBarPosition = XMFLOAT4(-1.f, -0.95f, -1.f, -1.f);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-}
-
-void CProgressBarUIShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,
-	const map<string, CTexture*>& Context, void* pContext)
-{
-	CBillboardMesh* pProgressBarMesh = new CBillboardMesh(pd3dDevice, pd3dCommandList, 20.f, 20.f, 0.0f, 0.0f, 0.0f, 0.0f);
-
-	auto iter = Context.find("ProgressBar");
-	if (iter != Context.end())
-	{
-		CUI* pUI = new CUI(1);
-		pUI->SetMesh(pProgressBarMesh);
-		CMaterial* pUIMaterial = new CMaterial(1);
-		pUIMaterial->SetTexture((*iter).second, 0);
-		pUI->SetMaterial(0, pUIMaterial);
-		m_UIMap.emplace(ProgressBar, pUI);
-
-		m_ProgressBarPosition = XMFLOAT4(-1.f, 1.f, -1.f, 0.85f);
-
-		CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	}
 }
 
 void CProgressBarUIShader::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer* pPlayer)

@@ -562,8 +562,24 @@ void CGameFramework::CreateOffScreenRenderTargetViews()
 
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	if (m_pScene) 
-		m_pScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+	switch (m_nState)
+	{
+	case INGAME:
+	{
+		if (m_pScene)
+			m_pScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+		break;
+	}
+	case CHARACTER_SELECT:
+	{
+		if (m_pLobbyScene)
+			m_pLobbyScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+		break;
+	}
+	default:
+		break;
+	}
+	
 
 	switch (nMessageID)
 	{
@@ -585,6 +601,20 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 
 void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
+	switch (m_nState)
+	{
+	
+	case INGAME:
+	{
+		break;
+	}
+	case CHARACTER_SELECT:
+	{
+		break;
+	}
+	default:
+		break;
+	}
 	if (m_pScene) 
 		m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 
@@ -618,8 +648,14 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				(ChattingSystem::GetInstance()->IsChattingActive()) ? ChattingSystem::GetInstance()->SetActive(false)
 					: ChattingSystem::GetInstance()->SetActive(true);
 			}
+
 			else if (m_nState == CHARACTER_SELECT)
 			{
+#elif
+			if(m_nState == CHARACTER_SELECT)
+			{
+#endif
+			
 				if(m_pLobbyScene)
 				{
 					m_pLobbyScene->SetMusicStart(false);
@@ -630,7 +666,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 
 			break;
 		}
-	
+#ifdef _WITH_DIRECT2D_
 		case VK_HANGEUL:
 			(m_bHangeul) ? m_bHangeul = false : m_bHangeul = true;
 			ChattingSystem::GetInstance()->SetIMEMode(hWnd, m_bHangeul);
@@ -1239,6 +1275,7 @@ void CGameFramework::ProcessLobby()
 		{
 			m_pLobbyScene->SetMusicStart(bStart);
 			m_pLobbyScene->PlayBackgroundMusic();
+			bStart=false;
 		}
 		m_pLobbyScene->Render(m_pd3dCommandList);
 	}

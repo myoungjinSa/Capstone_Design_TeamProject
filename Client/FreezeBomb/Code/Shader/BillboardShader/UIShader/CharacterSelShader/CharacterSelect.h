@@ -21,9 +21,11 @@ public:
 	void CreateConstantBufferViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, ID3D12Resource *pd3dConstantBuffers, UINT nStride);
 
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext);
-	virtual void AnimateObjects(float fTimeElapsed);
+//	virtual void AnimateObjects(float fTimeElapsed);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipelineStates);
 	virtual void ReleaseObjects();
+
+	void DecideTextureByCursorPosition(CSoundSystem* sound,float mouseX, float mouseY);
 
 
 		//cpu,gpu 디스크립터 핸들을 반환해주는 함수가 각각 필요 
@@ -46,5 +48,7 @@ protected:
 	D3D12_GPU_DESCRIPTOR_HANDLE				m_d3dSrvGPUDescriptorStartHandle;
 	std::vector<CTexture*> vTexture;
 
+private:
+	int									m_currentTexture;
 
 };
