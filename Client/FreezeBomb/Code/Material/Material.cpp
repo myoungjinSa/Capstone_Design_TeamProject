@@ -128,6 +128,32 @@ void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 	}
 }
 
+void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList,int nTexture)
+{
+	if (m_pcbMappedMaterial != nullptr)
+	{
+		// AmbientColor 복사
+		::memcpy(&m_pcbMappedMaterial->m_xmf4AmbientColor, &m_xmf4AmbientColor, sizeof(XMFLOAT4));
+		// AlbedoColor 복사
+		::memcpy(&m_pcbMappedMaterial->m_xmf4AlbedoColor, &m_xmf4AlbedoColor, sizeof(XMFLOAT4));
+		// SpecularColor 복사
+		::memcpy(&m_pcbMappedMaterial->m_xmf4SpecularColor, &m_xmf4SpecularColor, sizeof(XMFLOAT4));
+		// EmissiveColor 복사
+		::memcpy(&m_pcbMappedMaterial->m_xmf4EmissiveColor, &m_xmf4EmissiveColor, sizeof(XMFLOAT4));
+
+		// nType 복사;
+		::memcpy(&m_pcbMappedMaterial->m_nType, &m_nType, sizeof(UINT));
+
+		D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbMaterial->GetGPUVirtualAddress();
+		pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dGpuVirtualAddress);
+	}
+	
+	if (m_ppTextures[nTexture])
+		m_ppTextures[nTexture]->UpdateShaderVariable(pd3dCommandList, 0);
+	
+
+}
+
 void CMaterial::ReleaseShaderVariables()
 {
 

@@ -9,6 +9,7 @@ class CMapToolShader;
 class CSobelCartoonShader;
 class Network;
 class CLoadingScene;
+class CLobbyScene;
 class ChattingSystem;
 class CGameFramework
 {
@@ -50,6 +51,9 @@ public:
 	void ProcessInput();
 	void AnimateObjects();
 	void FrameAdvance();
+	void ProcessInGame(D3D12_CPU_DESCRIPTOR_HANDLE&);
+	void ProcessLobby();
+
 
 	void WaitForGpuComplete();
 	void MoveToNextFrame();
@@ -70,8 +74,11 @@ public:
 private:
 	HINSTANCE					m_hInstance;
 	HWND							m_hWnd;
+	
 
-	bool							m_bStart = false;
+	int 						m_nState{ GAMESTATE::INGAME };
+	//게임 상태 
+	enum GAMESTATE {LOBBY=0,CHARACTER_SELECT,INGAME,PAUSE,OPTION};
 
 	int								m_nWndClientWidth;
 	int								m_nWndClientHeight;
@@ -114,6 +121,7 @@ private:
 	float m_elapsedTime = 0.f;
 
 	CLoadingScene*							m_pLoadingScene = nullptr;
+	CLobbyScene*							m_pLobbyScene = nullptr;
 	CScene*									m_pScene = nullptr;
 	CPlayer*								m_pPlayer = nullptr;
 
@@ -128,6 +136,7 @@ private:
 	D3D12_CPU_DESCRIPTOR_HANDLE				m_pd3dCarttonScreenRenderTargetBufferCPUHandles[m_nCartoonScreenRenderTargetBuffers];
 
 	CSobelCartoonShader*					m_pCartoonShader{ nullptr };
+
 
 #ifdef _WITH_DIRECT2D_
 	ID3D11On12Device				*m_pd3d11On12Device{ nullptr };//

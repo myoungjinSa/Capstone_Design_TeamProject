@@ -112,14 +112,19 @@ D3D12_SHADER_BYTECODE CLoadingShader::CreatePixelShader()
 
 void CLoadingShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
 {
-	CTexture* pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	CTexture* pTitleTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Characters.dds", 0);
+	pTitleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Title.dds", 0);
 
-	vTexture.emplace_back(pTexture);
+
+	vTexture.emplace_back(pTitleTexture);
+
+
+
+
 
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 1);
-	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 0, true);
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTitleTexture, 0, true);
 	
 	CBillboardMesh* pLoadingMesh = new CBillboardMesh(pd3dDevice, pd3dCommandList, 20.f, 20.f, 0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -127,8 +132,9 @@ void CLoadingShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12GraphicsCommand
 	m_ppUIMaterial = new CMaterial*[m_nObjects];
 
 	m_ppUIMaterial[0] = new CMaterial(1);
-
 	m_ppUIMaterial[0]->SetTexture(vTexture[0], 0);
+
+	
 
 	for (int i = 0; i < m_nObjects; ++i)
 	{

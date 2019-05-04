@@ -1,9 +1,10 @@
 #pragma once
 #include "Scene.h"
-#include "MyInclude.h"
-#include "MyDefine.h"
+#include "Network.h"
+#include <memory>
 class SceneManager {
 private:
+	Network network;
 	Scene * pSceneList[10];
 	int PreIndex;
 public:
@@ -18,5 +19,9 @@ public:
 		return pSceneList[PreIndex];
 	}
 
-	
+	Network* getNetwork()
+	{
+		return &network;
+	}
+
 };

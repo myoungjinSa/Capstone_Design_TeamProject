@@ -7,6 +7,7 @@
 
 using namespace FMOD;
 
+
 class CSoundSystem
 {
 public:
@@ -18,13 +19,14 @@ public:
 	void Play(const int SoundNum,float volume =1.0f);
 	void PlayIndex(unsigned int index,float volume=1.0f);
 	void StopIndex(unsigned int index);
+	void Stop(const int sountNum);
 	void Release();
 
 	const int& GetSoundCount()const { return m_soundCount; }
 
 private:
 	System* pSystem;
-	Sound**	pSound;
+	Sound** pSound;
 	int m_soundCount;
 	Channel* pChannel[5];		//»ç¿îµå ¹Í½Ì¿¡ ÇÊ¿ä
 };

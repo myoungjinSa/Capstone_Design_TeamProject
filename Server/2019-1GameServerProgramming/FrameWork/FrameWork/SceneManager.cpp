@@ -20,5 +20,6 @@ void SceneManager::Warp(int index)
 {
 	pSceneList[PreIndex]->Destroy();
 	PreIndex = index;
+	pSceneList[PreIndex]->setNetwork(&network);
 	pSceneList[PreIndex]->Enter();
 }

@@ -1,20 +1,21 @@
 #include "../../Stdafx/Stdafx.h"
-#include "LoadingScene.h"
+#include "LobbyScene.h"
 #include "../../Texture/Texture.h"
-#include "../../Shader/BillboardShader/UIShader/LoadingShader/LoadingShader.h"
-#include "../../Shader/BillboardShader/UIShader/ProgressBarUIShader/ProgressBarUIShader.h"
+#include "../../Shader/BillboardShader/UIShader/CharacterSelShader/CharacterSelect.h"
+#include "../../SoundSystem/SoundSystem.h"
 
-
-CLoadingScene::CLoadingScene()
+CLobbyScene::CLobbyScene()
+	:m_musicCount{ 0 }
 {
 }
 
 
-CLoadingScene::~CLoadingScene()
+CLobbyScene::~CLobbyScene()
 {
 }
 
-ID3D12RootSignature *CLoadingScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevice)
+
+ID3D12RootSignature *CLobbyScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevice)
 {
 	ID3D12RootSignature *pd3dGraphicsRootSignature = NULL;
 
@@ -22,21 +23,22 @@ ID3D12RootSignature *CLoadingScene::CreateGraphicsRootSignature(ID3D12Device *pd
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[0].NumDescriptors = 1;
-	pd3dDescriptorRanges[0].BaseShaderRegister = 20; // t20: LoadingSceneTexture
+	pd3dDescriptorRanges[0].BaseShaderRegister = 21; // t21: gtxtSelectTexture
 	pd3dDescriptorRanges[0].RegisterSpace = 0;
 	pd3dDescriptorRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[2];
+
+
+	D3D12_ROOT_PARAMETER pd3dRootParameters[1];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	pd3dRootParameters[0].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[0].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[0]);
 	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[1].Descriptor.ShaderRegister = 8;	// b8 : g_UV
-	pd3dRootParameters[1].Descriptor.RegisterSpace = 0;
-	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	
+
+
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[1];
 
@@ -71,10 +73,17 @@ ID3D12RootSignature *CLoadingScene::CreateGraphicsRootSignature(ID3D12Device *pd
 
 	return(pd3dGraphicsRootSignature);
 }
-void CLoadingScene::ReleaseObjects()
+
+void CLobbyScene::ReleaseObjects()
 {
 	if (m_pd3dGraphicsRootSignature)
 		m_pd3dGraphicsRootSignature->Release();
+
+	
+	m_shaderMap.clear();
+
+	if (m_pSound)
+		m_pSound->Release();
 
 	for (int i = 0; i < m_nShaders; i++)
 	{
@@ -84,46 +93,126 @@ void CLoadingScene::ReleaseObjects()
 	delete[] m_ppShaders;
 }
 
-void CLoadingScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+void CLobbyScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
 	int index = 0;
-	m_nShaders = 2;
+	m_nShaders = 1;
 	m_ppShaders = new CShader*[m_nShaders];
 
-	CLoadingShader* pLoadingShader = new CLoadingShader;
-	pLoadingShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nullptr);
-	pLoadingShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	m_ppShaders[index++] = pLoadingShader;
+	CCharacterSelectionShader* pSelectShader = new CCharacterSelectionShader;
+	pSelectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nullptr);
+	pSelectShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	m_ppShaders[index++] = pSelectShader;
+	m_shaderMap.emplace("Select", pSelectShader);
 
-	CProgressBarUIShader* pProgressBarUIShader = new CProgressBarUIShader;
-	pProgressBarUIShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	pProgressBarUIShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nullptr);	
-	m_ppShaders[index++] = pProgressBarUIShader;
-
+	CreateSoundSystem();
+	m_musicStart = false;
 }
 
-void CLoadingScene::AnimateObjects(ID3D12GraphicsCommandList* pd3dCommandList, float elapsedTime)
+void CLobbyScene::AnimateObjects(ID3D12GraphicsCommandList* pd3dCommandList, float elapsedTime)
 {
-	for (int i = 0; i < m_nShaders; ++i)
+	/*for (int i = 0; i < m_nShaders; ++i)
 	{
 		if (m_ppShaders[i])
 		{
 			m_ppShaders[i]->AnimateObjects(elapsedTime, nullptr, nullptr);
 		}
-	}
+	}*/
+
 }
 
-void CLoadingScene::Render(ID3D12GraphicsCommandList *pd3dCommandList)
-{
-	if (m_pd3dGraphicsRootSignature) 
-		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 
+
+void CLobbyScene::Render(ID3D12GraphicsCommandList *pd3dCommandList)
+{
+	if (m_pd3dGraphicsRootSignature)
+	{
+		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
+	}
 	for(int i = 0; i < m_nShaders; ++i)
 	{
 		
 		m_ppShaders[i]->Render(pd3dCommandList, 0);
 	}
 
+}
+
+void CLobbyScene::CreateSoundSystem()
+{
+	//사운드 생성
+	m_pSound = new CSoundSystem;
+
+	m_musicCount = 3;
+	m_musicList = new const char*[m_musicCount];
+
+
+	m_musicList[0] = "../Resource/Sound/MP3/Remembrance.mp3";
+	m_musicList[1] = "../Resource/Sound/MP3/catureTheFlag.mp3";
+	m_musicList[2] = "../Resource/Sound/MP3/btAllow.mp3";
+
+	if(m_pSound)
+	{
+		m_pSound->Initialize(m_musicCount, m_musicList, FMOD_LOOP_NORMAL);
+
+	}
+}
+
+void CLobbyScene::StopBackgroundMusic()
+{
+	if (m_pSound)
+		m_pSound->Stop(m_musicCount);
+}
+void CLobbyScene::PlayBackgroundMusic()
+{
+	if (m_pSound)
+		m_pSound->PlayIndex(BACKGROUNDMUSIC);
+}
+bool CLobbyScene::IsMusicStart()
+{
+	return m_musicStart;
+}
+void CLobbyScene::SetMusicStart(bool bStart)
+{
+	m_musicStart = bStart;
+}
+
+XMFLOAT3 CLobbyScene::ScreenPosition(int x, int y)
+{
+	D3D12_VIEWPORT	d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
+
+	XMFLOAT3 screenPosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+	screenPosition.x = (((2.0f * x) / d3dViewport.Width) - 1) / 1;
+	screenPosition.y = - (((2.0f * y) / d3dViewport.Height) - 1) / 1;
+
+	screenPosition.z = 0.0f;
+
+	return screenPosition;
+}
+void CLobbyScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wParam,LPARAM lParam)
+{
+	float mouseX = LOWORD(lParam);
+	float mouseY = HIWORD(lParam);
+
+	switch(nMessageID)
+	{
+	case WM_MOUSEMOVE:
+	{
+		XMFLOAT3 position = ScreenPosition(mouseX, mouseY);
+		auto iter = m_shaderMap.find("Select");
+		if (iter != m_shaderMap.end())
+		{
+			dynamic_cast<CCharacterSelectionShader*>(m_ppShaders[0])->DecideTextureByCursorPosition(m_pSound,position.x, position.y);
+
+		}
+		cout << "x :" << position.x << ", y :" << position.y << "\n";
+
+		break;
+	}
+	case WM_LBUTTONDOWN:
+
+		break;
+	}
 }

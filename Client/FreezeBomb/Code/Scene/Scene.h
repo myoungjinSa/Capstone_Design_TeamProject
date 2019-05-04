@@ -44,6 +44,10 @@ public:
 	void PlayIceBreakEffect(bool& bBreak);
 	void PlayGetItemEffect();
 
+	bool GetBackgroundMusicOn() { return m_musicStart; }
+	void SetBackgroundMusicOn(bool bStart);
+	void PlayBackgroundMusic();
+
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
@@ -137,15 +141,17 @@ protected:
 
 	//FMOD 사운드 시스템
 	//씬마다 음악이 달라져야 할수 있기 때문에 씬이 사운드를 관리함.
-	CSoundSystem*	m_pSound=NULL;
+	CSoundSystem*				m_pSound=NULL;
 
-	const char**			m_musicList = NULL;
+
+	const char**				m_musicList = NULL;
 	int							m_musicCount;
 
+	bool						m_musicStart{ false };
 private:
 	CPlayer*					m_pPlayer = NULL;
 
-
+	
 	float						m_bVibeTime{ 0.0f };
 	bool						m_bWarningSet{ false };		//경고음 울리는지 여부 
 
