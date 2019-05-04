@@ -1,7 +1,5 @@
 #pragma once
 #include <string.h>
-#include "MyInclude.h"
-#include "MyDefine.h"
 #include "SceneManager.h"
 class FWWindows : public SceneManager
 {

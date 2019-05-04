@@ -1,5 +1,6 @@
 #pragma once
-#include <Windows.h>
+#include "MyInclude.h"
+#include "MyDefine.h"
 class Scene {
 public:
 	Scene() {}
@@ -12,4 +13,6 @@ public:
 	virtual void Enter() = 0;
 	virtual void Destroy() = 0;
 	virtual void Update() = 0;
+	virtual void ProcessPacket(char *ptr) = 0;
+	virtual void setNetwork(void* n) = 0;
 };

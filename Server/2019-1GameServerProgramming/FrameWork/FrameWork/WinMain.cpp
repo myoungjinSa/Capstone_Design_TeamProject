@@ -1,4 +1,3 @@
-#include "MyInclude.h"
 #include <crtdbg.h>
 #include "FWMain.h"
 #pragma comment(linker,"/entry:WinMainCRTStartup /subsystem:console")
@@ -40,6 +39,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 		NULL, (HMENU)NULL, hInstance, NULL);
 	ShowWindow(hWnd, nCmdShow);
 	
+	main->getNetwork()->connectToServer(hWnd);
 
 	while (GetMessage(&Message, 0, 0, 0)) {
 		TranslateMessage(&Message);
@@ -82,6 +82,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		DeleteDC(memdc);
 
 		EndPaint(hWnd, &ps);
+		break;
+	case WM_SOCKET:
+		if (WSAGETSELECTERROR(lParam))
+		{
+			closesocket((SOCKET)wParam);
+			PostQuitMessage(0);
+		}
+
+		switch (WSAGETSELECTEVENT(lParam))
+		{
+		case FD_READ:
+			main->getNetwork()->ReadPacket(main->getScene());
+			break;
+		case FD_CLOSE:
+			closesocket((SOCKET)wParam);
+			PostQuitMessage(0);
+			break;
+		}
 		break;
 	case WM_KEYDOWN:
 	case WM_KEYUP:
