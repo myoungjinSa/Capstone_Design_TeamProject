@@ -53,3 +53,24 @@ void CUI::Render(ID3D12GraphicsCommandList *pd3dCommandList, int nPipelineState)
 		}
 	}
 }
+
+void CUI::Render(ID3D12GraphicsCommandList *pd3dCommandList, int nPipelineState,int nTexture)
+{
+	if (m_pMesh)
+	{
+		if (m_nMaterials > 0)
+		{
+			for (int i = 0; i < m_nMaterials; i++)
+			{
+				if (m_ppMaterials[i])
+				{
+					if (m_ppMaterials[i]->m_pShader)
+						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, nPipelineState);
+
+					m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList,nTexture);
+				}
+				m_pMesh->Render(pd3dCommandList, 0);
+			}
+		}
+	}
+}
