@@ -803,9 +803,7 @@ void CScene::CreateSoundSystem()
 	m_musicList[1] = "../Resource/Sound/Effect/TimerWarning.wav";
 	m_musicList[2] = "../Resource/Sound/Effect/ICEBreak.wav";
 	m_musicList[3] = "../Resource/Sound/MP3/GetItem.mp3";
-	m_musicList[4] = "../Resource/Sound/MP3/GetItem.mp3";
-
-	//	m_musicList[1] = "../Resource/Sound/town.wav";
+	m_musicList[4] = "../Resource/Sound/Click.wav";
 
 	//2개 동시에 재생도 가능하다
 	if (m_pSound)
