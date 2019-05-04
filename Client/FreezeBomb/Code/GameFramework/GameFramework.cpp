@@ -17,7 +17,7 @@
 
 
 // 전체모드할경우 주석풀으셈
-#define FullScreenMode
+//#define FullScreenMode
 static bool OnCartoonShading = false;
 
 extern volatile size_t g_TotalSize;
