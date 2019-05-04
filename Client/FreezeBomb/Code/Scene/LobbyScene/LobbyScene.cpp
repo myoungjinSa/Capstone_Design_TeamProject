@@ -2,9 +2,10 @@
 #include "LobbyScene.h"
 #include "../../Texture/Texture.h"
 #include "../../Shader/BillboardShader/UIShader/CharacterSelShader/CharacterSelect.h"
-
+#include "../../SoundSystem/SoundSystem.h"
 
 CLobbyScene::CLobbyScene()
+	:m_musicCount{ 0 }
 {
 }
 
@@ -94,6 +95,8 @@ void CLobbyScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	pSelectShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	m_ppShaders[index++] = pSelectShader;
 
+	CreateSoundSystem();
+	m_musicStart = false;
 }
 
 void CLobbyScene::AnimateObjects(ID3D12GraphicsCommandList* pd3dCommandList, float elapsedTime)
@@ -121,4 +124,41 @@ void CLobbyScene::Render(ID3D12GraphicsCommandList *pd3dCommandList)
 		m_ppShaders[i]->Render(pd3dCommandList, 0);
 	}
 
+}
+
+void CLobbyScene::CreateSoundSystem()
+{
+	//사운드 생성
+	m_pSound = new CSoundSystem;
+
+	m_musicCount = 1;
+	m_musicList = new const char*[m_musicCount];
+
+
+	m_musicList[0] = "../Resource/Sound/MP3/Remembrance.mp3";
+
+	if(m_pSound)
+	{
+		m_pSound->Initialize(m_musicCount, m_musicList, FMOD_LOOP_NORMAL);
+
+	}
+}
+
+void CLobbyScene::StopBackgroundMusic()
+{
+	if (m_pSound)
+		m_pSound->StopIndex(BACKGROUNDMUSIC);
+}
+void CLobbyScene::PlayBackgroundMusic()
+{
+	if (m_pSound)
+		m_pSound->PlayIndex(BACKGROUNDMUSIC);
+}
+bool CLobbyScene::IsMusicStart()
+{
+	return m_musicStart;
+}
+void CLobbyScene::SetMusicStart(bool bStart)
+{
+	m_musicStart = bStart;
 }

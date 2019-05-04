@@ -790,6 +790,23 @@ void CScene::CheckWarningTimer()
 	}
 }
 
+void CScene::PlayBackgroundMusic()
+{
+	if (m_pSound)
+		m_pSound->PlayIndex(BACKGROUNDMUSIC);
+
+}
+
+void CScene::SetBackgroundMusicOn(bool bStart)
+{
+	if (bStart)
+		m_musicStart = bStart;
+
+}
+
+
+
+
 void CScene::CreateSoundSystem()
 {
 	//사운드 생성
@@ -811,7 +828,8 @@ void CScene::CreateSoundSystem()
 	if (m_pSound)
 	{
 		m_pSound->Initialize(m_musicCount, m_musicList, FMOD_LOOP_NORMAL);
-		m_pSound->PlayIndex(BACKGROUNDMUSIC);
+		m_musicStart = false;
+		//m_pSound->PlayIndex(BACKGROUNDMUSIC);
 	}
 
 	//PlaySound(_T("../Resource/Sound/town.wav"), GetModuleHandle(NULL), SND_MEMORY | SND_ASYNC | SND_LOOP);

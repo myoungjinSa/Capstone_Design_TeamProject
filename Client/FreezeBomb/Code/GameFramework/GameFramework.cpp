@@ -17,7 +17,7 @@
 
 
 // 전체모드할경우 주석풀으셈
-//#define FullScreenMode
+#define FullScreenMode
 static bool OnCartoonShading = false;
 
 extern volatile size_t g_TotalSize;
@@ -86,6 +86,7 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 		return false;
 
 	CreateOffScreenRenderTargetViews();
+
 
 	return(true);
 }
@@ -618,6 +619,11 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			}
 			else if (m_nState == CHARACTER_SELECT)
 			{
+				if(m_pLobbyScene)
+				{
+					m_pLobbyScene->SetMusicStart(false);
+					m_pLobbyScene->StopBackgroundMusic();
+				}
 				m_nState = INGAME;
 			}
 
@@ -801,6 +807,7 @@ bool CGameFramework::BuildObjects()
 	if(m_pLobbyScene)
 	{
 		m_pLobbyScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
+		
 		m_nState = CHARACTER_SELECT;
 	}
 
@@ -889,11 +896,19 @@ void CGameFramework::ReleaseObjects()
 	if (m_pPlayer)
 		m_pPlayer->Release();
 
+	if (m_pLobbyScene)
+	{
+		m_pLobbyScene->ReleaseObjects();
+		delete m_pLobbyScene;
+	}
+
+
 	if (m_pScene)
 	{
 		m_pScene->ReleaseObjects();
 		delete m_pScene;
 	}
+
 
 	if (m_pCartoonShader)
 	{
@@ -987,15 +1002,14 @@ void CGameFramework::ProcessInput()
 
 void CGameFramework::AnimateObjects()
 {
+	m_elapsedTime = m_GameTimer.GetTimeElapsed();
 	if (m_nState == INGAME)
 	{
-		m_elapsedTime = m_GameTimer.GetTimeElapsed();
-
-
-
+		
 		if (m_pScene)
 			m_pScene->AnimateObjects(m_pd3dCommandList, m_elapsedTime);
 	}
+
 	//m_pPlayer->Animate(fTimeElapsed);
 	//m_pPlayer->UpdateTransform(NULL);
 }
@@ -1139,11 +1153,19 @@ void CGameFramework::ProcessDirect2D()
 
 void CGameFramework::ProcessInGame(D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvDepthStencilBufferCPUHandle)
 {
-		//카툰 렌더링 해야할 쉐이더들은 PreRender에서 그린다.
-		if (m_pScene)
+	//카툰 렌더링 해야할 쉐이더들은 PreRender에서 그린다.
+	if (m_pScene)
+	{
+		static bool bStart = true;
+
+		if (m_pScene->GetBackgroundMusicOn() == false)
 		{
-			m_pScene->PreRender(m_pd3dCommandList, m_GameTimer.GetTimeElapsed(), m_pCamera);
+			m_pScene->SetBackgroundMusicOn(bStart);
+			m_pScene->PlayBackgroundMusic();
 		}
+
+		m_pScene->PreRender(m_pd3dCommandList, m_GameTimer.GetTimeElapsed(), m_pCamera);
+	}
 
 #ifdef _MAPTOOL_MODE_
 		if (m_pMapToolShader)
@@ -1210,8 +1232,15 @@ void CGameFramework::ProcessLobby()
 	D3D12_RECT		d3dScissorRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
 	m_pd3dCommandList->RSSetViewports(1, &d3dViewport);
 	m_pd3dCommandList->RSSetScissorRects(1, &d3dScissorRect);
+
+	static bool bStart = true;
 	if (m_pLobbyScene)
 	{
+		if (m_pLobbyScene->IsMusicStart() == false)
+		{
+			m_pLobbyScene->SetMusicStart(bStart);
+			m_pLobbyScene->PlayBackgroundMusic();
+		}
 		m_pLobbyScene->Render(m_pd3dCommandList);
 	}
 
