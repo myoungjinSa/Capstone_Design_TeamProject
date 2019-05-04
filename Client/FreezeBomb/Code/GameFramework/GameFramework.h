@@ -51,7 +51,7 @@ public:
 	void ProcessInput();
 	void AnimateObjects();
 	void FrameAdvance();
-	void ProcessInGame(D3D12_CPU_DESCRIPTOR_HANDLE);
+	void ProcessInGame(D3D12_CPU_DESCRIPTOR_HANDLE&);
 	void ProcessLobby();
 
 

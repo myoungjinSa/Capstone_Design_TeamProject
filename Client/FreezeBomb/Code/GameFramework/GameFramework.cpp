@@ -17,7 +17,7 @@
 
 
 // 전체모드할경우 주석풀으셈
-#define FullScreenMode
+//#define FullScreenMode
 static bool OnCartoonShading = false;
 
 extern volatile size_t g_TotalSize;
@@ -1151,7 +1151,7 @@ void CGameFramework::ProcessDirect2D()
 }
 #endif
 
-void CGameFramework::ProcessInGame(D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvDepthStencilBufferCPUHandle)
+void CGameFramework::ProcessInGame(D3D12_CPU_DESCRIPTOR_HANDLE& d3dDsvDepthStencilBufferCPUHandle)
 {
 	//카툰 렌더링 해야할 쉐이더들은 PreRender에서 그린다.
 	if (m_pScene)
@@ -1279,15 +1279,21 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3dCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBufferIndex], TRUE, &d3dDsvDepthStencilBufferCPUHandle);
 
-	if (m_nState == INGAME)
+	switch(m_nState)
+	{
+	case INGAME:
 	{
 		ProcessInGame(d3dDsvDepthStencilBufferCPUHandle);
 
+		break;
 	}
-	else if(m_nState == CHARACTER_SELECT)
+	case CHARACTER_SELECT:
 	{
 		ProcessLobby();
 	}
+		break;
+	}
+	
 
 #ifdef _WITH_PRESENT_PARAMETERS
 	DXGI_PRESENT_PARAMETERS dxgiPresentParameters;
