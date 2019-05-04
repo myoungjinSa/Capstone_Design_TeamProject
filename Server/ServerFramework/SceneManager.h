@@ -1,7 +1,9 @@
 #pragma once
-#include "Scene.h"
 #include "MyInclude.h"
 #include "MyDefine.h"
+#include "Network.h"
+#include "Scene.h"
+
 class SceneManager
 {
 private:
@@ -16,9 +18,9 @@ public:
 public:
 	Scene * GetScene(){return pSceneList[preIndex];}
 
-private:
+public:
 	// 복사생성과 복사대입이 되지 않도록 방지.
-	SceneManager(const SceneManager&);
-	SceneManager& operator=(const SceneManager&);
+	SceneManager(const SceneManager&) = delete;
+	SceneManager& operator=(const SceneManager&) = delete;
 };
 

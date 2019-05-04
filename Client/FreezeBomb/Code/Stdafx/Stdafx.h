@@ -68,6 +68,8 @@ using Microsoft::WRL::ComPtr;
 
 extern HINSTANCE						ghAppInstance;
 
+#define WM_SOCKET WM_USER + 1
+
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 //#define _WITH_SYNCH_SWAPCHAIN
 #define _WITH_DIRECT2D_

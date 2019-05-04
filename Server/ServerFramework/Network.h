@@ -1,4 +1,5 @@
 #pragma once
+#include <WinSock2.h>
 #include <Windows.h>
 #include <vector>
 // 012345 รั 6ธํ
