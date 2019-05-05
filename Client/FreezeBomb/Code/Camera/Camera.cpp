@@ -117,8 +117,11 @@ void CCamera::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsComm
 	m_pd3dcbCamera->Map(0, NULL, (void **)&m_pcbMappedCamera);
 }
 
-void CCamera::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
+void CCamera::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList, float elapsedTime)
 {
+	//m_elapsedTime += elapsedTime * 0.01;
+	//cout << m_elapsedTime << endl;
+
 	XMFLOAT4X4 xmf4x4View;
 	XMStoreFloat4x4(&xmf4x4View, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4View)));
 	::memcpy(&m_pcbMappedCamera->m_xmf4x4View, &xmf4x4View, sizeof(XMFLOAT4X4));
@@ -129,6 +132,8 @@ void CCamera::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
 
 	// 그림자 행렬 루트상수로 넘김
 	XMFLOAT4 xmf4Light(0.57735f, -0.57735f, 0.57735f, 0);
+	//XMFLOAT4 xmf4Light(0.57735f, -0.57735f, m_elapsedTime, 0);
+
 	// Plane의 w 벡터가 그림자의 y에 영향을 준다.
 	XMFLOAT4 xmf4Plane(0.f, 1.f, 0.f, 0.f);
 	// 그림자 행렬 생성

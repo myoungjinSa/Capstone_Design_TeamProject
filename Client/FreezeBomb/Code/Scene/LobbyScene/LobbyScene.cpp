@@ -1,19 +1,19 @@
 #include "../../Stdafx/Stdafx.h"
 #include "LobbyScene.h"
 #include "../../Texture/Texture.h"
-#include "../../Shader/BillboardShader/UIShader/CharacterSelShader/CharacterSelect.h"
+#include "../../Shader/BillboardShader/UIShader/CharacterSelectUIShader/CharacterSelectUIShader.h"
 #include "../../SoundSystem/SoundSystem.h"
+
+extern byte g_PlayerCharacter;
 
 CLobbyScene::CLobbyScene()
 	:m_musicCount{ 0 }
 {
 }
 
-
 CLobbyScene::~CLobbyScene()
 {
 }
-
 
 ID3D12RootSignature *CLobbyScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevice)
 {
@@ -27,18 +27,12 @@ ID3D12RootSignature *CLobbyScene::CreateGraphicsRootSignature(ID3D12Device *pd3d
 	pd3dDescriptorRanges[0].RegisterSpace = 0;
 	pd3dDescriptorRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-
-
 	D3D12_ROOT_PARAMETER pd3dRootParameters[1];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	pd3dRootParameters[0].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[0].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[0]);
 	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-	
-
-
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[1];
 
@@ -79,7 +73,6 @@ void CLobbyScene::ReleaseObjects()
 	if (m_pd3dGraphicsRootSignature)
 		m_pd3dGraphicsRootSignature->Release();
 
-	
 	m_shaderMap.clear();
 
 	if (m_pSound)
@@ -101,7 +94,7 @@ void CLobbyScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_nShaders = 1;
 	m_ppShaders = new CShader*[m_nShaders];
 
-	CCharacterSelectionShader* pSelectShader = new CCharacterSelectionShader;
+	CCharacterSelectUIShader* pSelectShader = new CCharacterSelectUIShader;
 	pSelectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nullptr);
 	pSelectShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	m_ppShaders[index++] = pSelectShader;
@@ -120,7 +113,6 @@ void CLobbyScene::AnimateObjects(ID3D12GraphicsCommandList* pd3dCommandList, flo
 			m_ppShaders[i]->AnimateObjects(elapsedTime, nullptr, nullptr);
 		}
 	}*/
-
 }
 
 
@@ -133,10 +125,8 @@ void CLobbyScene::Render(ID3D12GraphicsCommandList *pd3dCommandList)
 	}
 	for(int i = 0; i < m_nShaders; ++i)
 	{
-		
 		m_ppShaders[i]->Render(pd3dCommandList, 0);
 	}
-
 }
 
 void CLobbyScene::CreateSoundSystem()
@@ -147,7 +137,6 @@ void CLobbyScene::CreateSoundSystem()
 	m_musicCount = 3;
 	m_musicList = new const char*[m_musicCount];
 
-
 	m_musicList[0] = "../Resource/Sound/MP3/Remembrance.mp3";
 	m_musicList[1] = "../Resource/Sound/MP3/catureTheFlag.mp3";
 	m_musicList[2] = "../Resource/Sound/MP3/btAllow.mp3";
@@ -155,7 +144,6 @@ void CLobbyScene::CreateSoundSystem()
 	if(m_pSound)
 	{
 		m_pSound->Initialize(m_musicCount, m_musicList, FMOD_LOOP_NORMAL);
-
 	}
 }
 
@@ -180,7 +168,7 @@ void CLobbyScene::SetMusicStart(bool bStart)
 
 XMFLOAT3 CLobbyScene::ScreenPosition(int x, int y)
 {
-	D3D12_VIEWPORT	d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
+	D3D12_VIEWPORT d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
 
 	XMFLOAT3 screenPosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
@@ -199,20 +187,20 @@ void CLobbyScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wPar
 	switch(nMessageID)
 	{
 	case WM_MOUSEMOVE:
+	case WM_LBUTTONDOWN:
 	{
 		XMFLOAT3 position = ScreenPosition(mouseX, mouseY);
 		auto iter = m_shaderMap.find("Select");
 		if (iter != m_shaderMap.end())
 		{
-			dynamic_cast<CCharacterSelectionShader*>(m_ppShaders[0])->DecideTextureByCursorPosition(m_pSound,position.x, position.y);
-
+			dynamic_cast<CCharacterSelectUIShader*>(m_ppShaders[0])->DecideTextureByCursorPosition(m_pSound, position.x, position.y);
+			g_PlayerCharacter = dynamic_cast<CCharacterSelectUIShader*>(m_ppShaders[0])->SelectedCharacter();
+			//cout << "x :" << position.x << ", y :" << position.y << endl;
 		}
-		cout << "x :" << position.x << ", y :" << position.y << "\n";
-
 		break;
 	}
-	case WM_LBUTTONDOWN:
 
-		break;
+
+		//break;
 	}
 }

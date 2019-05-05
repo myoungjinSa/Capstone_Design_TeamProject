@@ -25,7 +25,7 @@ public:
 
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void ReleaseShaderVariables();
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList, float elapsedTime);
 
 	void GenerateViewMatrix();
 	void GenerateViewMatrix(XMFLOAT3 xmf3Position, XMFLOAT3 xmf3LookAt, XMFLOAT3 xmf3Up);
@@ -118,6 +118,8 @@ protected:
 	VS_CB_CAMERA_INFO*		m_pcbMappedCamera = nullptr;
 
 	BoundingFrustum					m_Frustum;
+	
+	float m_elapsedTime = 0.f;
 };
 
 class CSpaceShipCamera : public CCamera
