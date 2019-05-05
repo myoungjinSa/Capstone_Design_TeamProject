@@ -87,6 +87,7 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 
 	CreateOffScreenRenderTargetViews();
 
+	m_Network.connectToServer(hMainWnd);
 
 	return(true);
 }
@@ -920,8 +921,6 @@ bool CGameFramework::BuildObjects()
 
 void CGameFramework::ReleaseObjects()
 {
-	if (m_pNetwork)
-		delete m_pNetwork;
 
 #ifdef _MAPTOOL_MODE_
 	if (m_pMapToolShader)
