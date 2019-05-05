@@ -126,6 +126,7 @@ private:
 	CLobbyScene*							m_pLobbyScene = nullptr;
 	CScene*									m_pScene = nullptr;
 	CPlayer*								m_pPlayer = nullptr;
+	CPlayer*								m_pePlayer = nullptr;
 
 	CCamera*								m_pCamera = nullptr;
 

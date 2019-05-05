@@ -16,9 +16,9 @@
 #include "../Chatting/Chatting.h"
 
 //서버 연동을 할 경우 
-//#define _WITH_SERVER_
+#define _WITH_SERVER_
 // 전체모드할경우 주석풀으셈
-#define FullScreenMode
+//#define FullScreenMode
 static bool OnCartoonShading = false;
 
 extern volatile size_t g_TotalSize;
@@ -55,6 +55,7 @@ CGameFramework::CGameFramework()
 
 	m_pScene = NULL;
 	m_pPlayer = NULL;
+	m_pePlayer = NULL;
 
 	_tcscpy_s(m_pszFrameRate, _T("FreezeBomb ("));
 }
@@ -984,6 +985,7 @@ void CGameFramework::ProcessInput()
 			DWORD dwDirection = 0;
 			if (pKeysBuffer[VK_UP] & 0xF0)
 			{
+				m_Network.SendPacket(VK_UP);
 				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
 				{
 					dwDirection |= DIR_FORWARD;
@@ -993,6 +995,7 @@ void CGameFramework::ProcessInput()
 			}
 			if (pKeysBuffer[VK_DOWN] & 0xF0)
 			{
+				m_Network.SendPacket(VK_DOWN);
 				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
 				{
 					dwDirection |= DIR_BACKWARD;
@@ -1001,11 +1004,13 @@ void CGameFramework::ProcessInput()
 			}
 			if (pKeysBuffer[VK_LEFT] & 0xF0)
 			{
+				m_Network.SendPacket(VK_LEFT);
 				dwDirection |= DIR_LEFT;
 				m_pPlayer->SetDirection(dwDirection);
 			}
 			if (pKeysBuffer[VK_RIGHT] & 0xF0)
 			{
+				m_Network.SendPacket(VK_RIGHT);
 				dwDirection |= DIR_RIGHT;
 				m_pPlayer->SetDirection(dwDirection);
 			}

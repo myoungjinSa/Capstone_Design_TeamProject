@@ -82,6 +82,7 @@ public:
 	void ClientDisconnect(char client);
 public:
 	void SendAcessComplete(char client);
+	void SendPutPlayer(char toClient, char fromClient);
 	void SendRemovePlayer(char toClient, char fromClient);
 public:
 	bool InitServer();
