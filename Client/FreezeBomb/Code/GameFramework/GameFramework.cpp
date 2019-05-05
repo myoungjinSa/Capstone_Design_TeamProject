@@ -17,7 +17,7 @@
 
 
 // 전체모드할경우 주석풀으셈
-//#define FullScreenMode
+#define FullScreenMode
 static bool OnCartoonShading = false;
 
 extern volatile size_t g_TotalSize;
@@ -157,7 +157,10 @@ void CGameFramework::CreateSwapChain()
 	m_pdxgiSwapChain->ResizeBuffers(m_nSwapChainBuffers, m_nWndClientWidth, m_nWndClientHeight, dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
 	
 #endif
+
+
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
+
 	hResult = m_pdxgiFactory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER);
 
 #ifndef _WITH_SWAPCHAIN_FULLSCREEN_STATE
