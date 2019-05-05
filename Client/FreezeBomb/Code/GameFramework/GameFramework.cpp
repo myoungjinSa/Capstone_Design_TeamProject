@@ -985,9 +985,9 @@ void CGameFramework::ProcessInput()
 			DWORD dwDirection = 0;
 			if (pKeysBuffer[VK_UP] & 0xF0)
 			{
-				m_Network.SendPacket(VK_UP);
 				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
 				{
+					m_Network.SendPacket(VK_UP);
 					dwDirection |= DIR_FORWARD;
 					m_pPlayer->SetDirection(dwDirection);
 				}
@@ -995,9 +995,9 @@ void CGameFramework::ProcessInput()
 			}
 			if (pKeysBuffer[VK_DOWN] & 0xF0)
 			{
-				m_Network.SendPacket(VK_DOWN);
 				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
 				{
+					m_Network.SendPacket(VK_DOWN);
 					dwDirection |= DIR_BACKWARD;
 					m_pPlayer->SetDirection(dwDirection);
 				}

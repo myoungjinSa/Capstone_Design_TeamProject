@@ -53,6 +53,8 @@ public:
 		normalItem = ITEM::NONEITEM;
 		specialItem = ITEM::NONEITEM;
 		role = ROLE::RUNNER;
+		ZeroMemory(&over_ex.messageBuffer, sizeof(over_ex.messageBuffer));
+		ZeroMemory(&packet_buffer, sizeof(packet_buffer));
 		over_ex.dataBuffer.len = MAX_BUFFER;
 		over_ex.dataBuffer.buf = over_ex.messageBuffer;
 		over_ex.is_recv = true;
@@ -65,7 +67,9 @@ private:
 	SOCKET listenSocket;
 	HANDLE iocp;
 	mutex myLock;
-	vector<SOCKETINFO> clients;
+	// vector로 했을 때 over_ex.messagebuffer에 값이 들어오질 않는다.
+	// 배열로 바꾸니 제대로 동작함. 왜? 무슨 차이?
+	SOCKETINFO clients[MAX_USER];
 	vector<thread> workerThreads;
 public:
 	Server();

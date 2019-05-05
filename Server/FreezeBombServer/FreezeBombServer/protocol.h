@@ -61,35 +61,30 @@ struct CS_PACKET_RIGHT_KEY
 {
 	char size;
 	char type;
-	char id;		// 플레이어 번호
 };
 
 struct CS_PACKET_LEFT_KEY
 {
 	char size;
 	char type;
-	char id;		// 플레이어 번호
 };
 
 struct CS_PACKET_UP_KEY
 {
 	char size;
 	char type;
-	char id;		// 플레이어 번호
 };
 
 struct CS_PACKET_DOWN_KEY
 {
 	char size;
 	char type;
-	char id;		// 플레이어 번호
 };
 
 struct CS_PACKET_BOMBER_TOUCH
 {
 	char size;
 	char type;
-	char id;
 	char touchedId;	// 터치한 플레이어 번호
 };
 
