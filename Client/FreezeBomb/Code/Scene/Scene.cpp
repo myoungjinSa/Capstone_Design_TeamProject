@@ -572,7 +572,7 @@ void CScene::PreRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeEla
 	if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
-	pCamera->UpdateShaderVariables(pd3dCommandList);
+	pCamera->UpdateShaderVariables(pd3dCommandList, fTimeElapsed);
 
 	//Lights
 	UpdateShaderVariables(pd3dCommandList);
@@ -803,9 +803,6 @@ void CScene::SetBackgroundMusicOn(bool bStart)
 		m_musicStart = bStart;
 
 }
-
-
-
 
 void CScene::CreateSoundSystem()
 {
