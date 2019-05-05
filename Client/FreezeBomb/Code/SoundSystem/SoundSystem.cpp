@@ -45,7 +45,7 @@ void CSoundSystem::Play(const int Sound_num,float volume)
 		{
 			if (pSound[i]) 
 			{
-				pSystem->playSound(pSound[i], nullptr, 0, &pChannel[i]);
+				pSystem->playSound(pSound[i], nullptr, false, &pChannel[i]);
 				pChannel[i]->setVolume(volume);
 			}
 		}
@@ -63,13 +63,27 @@ void CSoundSystem::PlayIndex(unsigned int index,float volume)
 	}
 }
 
+void CSoundSystem::Stop(const int Sound_num)
+{
+	if (pSystem) 
+	{
+		for (int i = 0; i < Sound_num; i++)
+		{
+			if (pChannel[i]) 
+			{
+				pChannel[i]->stop();
+				
+			}
+		}
+	}
+}
 void CSoundSystem::StopIndex(unsigned int index)
 {
 	if(pSystem)
 	{
-		if(pSound[index])
+		if(pChannel[index])
 		{
-			pSystem->playSound(pSound[index], nullptr, true, &pChannel[index]);
+			pChannel[index]->stop();
 		}
 	}
 }

@@ -1,13 +1,13 @@
 #pragma once
 
 #include "../GameTimer/GameTimer.h"
+#include "../Network/Network.h"
 
 class CScene;
 class CPlayer;
 class CCamera;
 class CMapToolShader;
 class CSobelCartoonShader;
-class Network;
 class CLoadingScene;
 class CLobbyScene;
 class ChattingSystem;
@@ -65,6 +65,8 @@ public:
 
 	bool IsHangeul() { return m_bHangeul; }
 	void SetHangeul(bool han) { m_bHangeul = han; }
+
+	Network*getNetwork() { return &m_Network; }
 #ifdef _MAPTOOL_MODE_
 	void OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 #endif	
@@ -171,7 +173,7 @@ private:
 	bool m_bHangeul{ false };
 #endif
 
-	Network*	m_pNetwork{ nullptr };
+	Network	m_Network;
 
 	//사운드 쓰레드 풀
 	vector<thread> soundThreads;

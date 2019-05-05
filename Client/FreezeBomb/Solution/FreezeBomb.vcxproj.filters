@@ -159,9 +159,6 @@
     <ClCompile Include="..\Code\Shader\StandardShader\FoliageShader\FoliageShader.cpp">
       <Filter>Code\Shader\StandardShader\FoliageShader</Filter>
     </ClCompile>
-    <ClCompile Include="..\Code\Network\Network.cpp">
-      <Filter>Code\Network</Filter>
-    </ClCompile>
     <ClCompile Include="..\Code\GameObject\Billboard\Bomb\Bomb.cpp">
       <Filter>Code\GameObject\Billboard\Bomb</Filter>
     </ClCompile>
@@ -198,6 +195,9 @@
     </ClCompile>
     <ClCompile Include="..\Code\Scene\LobbyScene\LobbyScene.cpp">
       <Filter>Code\Scene\LobbyScene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Network\Network.cpp">
+      <Filter>Code\Network</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -345,9 +345,6 @@
     <ClInclude Include="..\Code\GameObject\EvilBear\EvilBear.h">
       <Filter>Code\GameObject\EvilBear</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\Network\Network.h">
-      <Filter>Code\Network</Filter>
-    </ClInclude>
     <ClInclude Include="..\Code\GameObject\Billboard\Bomb\Bomb.h">
       <Filter>Code\GameObject\Billboard\Bomb</Filter>
     </ClInclude>
@@ -384,9 +381,6 @@
     <ClInclude Include="..\Code\Chatting\Chatting.h">
       <Filter>Code\ChattingSystem</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\Network\Protocol.h">
-      <Filter>Code\Network</Filter>
-    </ClInclude>
     <ClInclude Include="..\Code\Stdafx\KeyDefine.h">
       <Filter>Code\Stdafx</Filter>
     </ClInclude>
@@ -396,6 +390,12 @@
     </ClInclude>
     <ClInclude Include="..\Code\Scene\LobbyScene\LobbyScene.h">
       <Filter>Code\Scene\LobbyScene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Network\Network.h">
+      <Filter>Code\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Network\protocol.h">
+      <Filter>Code\Network</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

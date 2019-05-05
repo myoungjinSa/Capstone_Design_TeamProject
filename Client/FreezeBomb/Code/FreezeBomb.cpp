@@ -188,7 +188,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	//case WM_KILLFOCUS:
 	//	DestroyCaret();
 	//	return 0;
-
+	case WM_SOCKET:
+		if (WSAGETSELECTERROR(lParam))
+		{
+			closesocket((SOCKET)wParam);
+			PostQuitMessage(0);
+		}
+		switch (WSAGETSELECTEVENT(lParam))
+		{
+		case FD_READ:
+			gGameFramework.getNetwork()->ReadPacket();
+			break;
+		case FD_CLOSE:
+			closesocket((SOCKET)wParam);
+			PostQuitMessage(0);
+			break;
+		}
+		break;
 	case WM_PAINT:
 		hdc = ::BeginPaint(hWnd, &ps);
 		EndPaint(hWnd, &ps);

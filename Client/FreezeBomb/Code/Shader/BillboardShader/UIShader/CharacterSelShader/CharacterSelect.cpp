@@ -4,6 +4,9 @@
 #include "../../../../Mesh/BillboardMesh/BillboardMesh.h"
 #include "../../../../GameObject/Billboard/UI/UI.h"
 #include "CharacterSelect.h"
+#include "../../../../SoundSystem/SoundSystem.h"
+#include "../../../../Scene/LobbyScene/LobbyScene.h"
+
 
 
 CCharacterSelectionShader::CCharacterSelectionShader()
@@ -111,42 +114,97 @@ D3D12_SHADER_BYTECODE CCharacterSelectionShader::CreatePixelShader()
 }
 void CCharacterSelectionShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
 {
-	CTexture* pSelectTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 
-	pSelectTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Characters.dds", 0);
-
-
-	vTexture.emplace_back(pSelectTexture);
-
-
-
-
-
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 1);
-	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pSelectTexture, 0, true);
 	
-	CBillboardMesh* pLoadingMesh = new CBillboardMesh(pd3dDevice, pd3dCommandList, 20.f, 20.f, 0.0f, 0.0f, 0.0f, 0.0f);
+	const int m_nTextures = 7;
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_nTextures);
+	CTexture ** pSelectTextures = new CTexture*[m_nTextures];
+	pSelectTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pSelectTextures[0]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Characters.dds", 0);
+	
+	pSelectTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pSelectTextures[1]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Characters1.dds", 0);
 
-	m_nObjects = 1;
+	pSelectTextures[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pSelectTextures[2]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Characters2.dds", 0);
+	
+	pSelectTextures[3] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pSelectTextures[3]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Characters3.dds", 0);
+
+	pSelectTextures[4] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pSelectTextures[4]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Characters4.dds", 0);
+	
+	pSelectTextures[5] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pSelectTextures[5]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Characters5.dds", 0);
+	
+	pSelectTextures[6] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pSelectTextures[6]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Characters6.dds", 0);
+	
+
+	for (int i = 0; i < m_nTextures; ++i) {
+		vTexture.emplace_back(pSelectTextures[i]);
+		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pSelectTextures[i], 0,false);
+	}
+	
+	CBillboardMesh* pSelectMesh = new CBillboardMesh(pd3dDevice, pd3dCommandList, 20.f, 20.f, 0.0f, 0.0f, 0.0f, 0.0f);
+
+	m_nObjects = m_nTextures;	
 	m_ppUIMaterial = new CMaterial*[m_nObjects];
 
-	m_ppUIMaterial[0] = new CMaterial(1);
-	m_ppUIMaterial[0]->SetTexture(vTexture[0], 0);
-
-	
+	m_ppUIMaterial[0] = new CMaterial(m_nObjects);
+	for(int i=0;i<m_nObjects;++i)
+	{
+		m_ppUIMaterial[0]->SetTexture(vTexture[i], i);
+	}
 
 	for (int i = 0; i < m_nObjects; ++i)
 	{
 		CUI* pUI = new CUI(1);
-		pUI->SetMesh(pLoadingMesh);
-		pUI->SetMaterial(0, m_ppUIMaterial[i]);
+		pUI->SetMesh(pSelectMesh);
+		pUI->SetMaterial(0, m_ppUIMaterial[0]);
 		m_UIMap.emplace(i, pUI);
 	}
 
 }
 
-void CCharacterSelectionShader::AnimateObjects(float fTimeElapsed)
+void CCharacterSelectionShader::DecideTextureByCursorPosition(CSoundSystem* sound,float mouseX,float mouseY)
 {
+	if (-0.93f <= mouseX && mouseX <= -0.36f && 0.05f <= mouseY && mouseY <= 0.865f)
+	{
+		m_currentTexture = 1;
+		sound->PlayIndex(CLobbyScene::emusic::BUTTON);
+		
+	}
+	else if (-0.3f <= mouseX && mouseX <= 0.28f && 0.05f <= mouseY && mouseY <= 0.865f)
+	{
+		m_currentTexture = 2;
+		sound->PlayIndex(CLobbyScene::emusic::BUTTON);
+	}
+	else if (0.34f <= mouseX && mouseX <= 0.92f && 0.05f <= mouseY && mouseY <= 0.865f)
+	{
+		m_currentTexture = 3;
+		sound->PlayIndex(CLobbyScene::emusic::BUTTON);
+	}
+	else if (-0.93f <= mouseX && mouseX <= -0.36f && -0.88f <= mouseY && mouseY <= -0.05f)
+	{
+		m_currentTexture = 4;
+		sound->PlayIndex(CLobbyScene::emusic::BUTTON);
+	}
+	else if (-0.3f <= mouseX && mouseX <= 0.28f && -0.88f <= mouseY && mouseY <= -0.05f)
+	{
+		m_currentTexture = 5;
+		sound->PlayIndex(CLobbyScene::emusic::BUTTON);
+	}
+	else if (0.34f <= mouseX && mouseX <= 0.92f && -0.88f <= mouseY && mouseY <= -0.05f)
+	{
+		m_currentTexture = 6;
+		sound->PlayIndex(CLobbyScene::emusic::BUTTON);
+	}
+	else
+	{
+		m_currentTexture = 0;
+	}
+	
 
 }
 
@@ -156,11 +214,11 @@ void CCharacterSelectionShader::Render(ID3D12GraphicsCommandList *pd3dCommandLis
 		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
 	CUIShader::OnPrepareRender(pd3dCommandList, 0);
-	for (int i = 0; i < m_nObjects; ++i) {
-		auto iter = m_UIMap.find(i);
-		if (iter != m_UIMap.end())
-			(*iter).second->Render(pd3dCommandList, nPipelineState);
-	}
+	
+	auto iter = m_UIMap.find(m_currentTexture);
+	if (iter != m_UIMap.end())
+		(*iter).second->Render(pd3dCommandList, nPipelineState,m_currentTexture);
+
 
 }
 void CCharacterSelectionShader::ReleaseObjects()
