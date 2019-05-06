@@ -196,6 +196,7 @@
     <ClCompile Include="..\Code\Network\Network.cpp">
       <Filter>Code\Network</Filter>
     </ClCompile>
+
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\CharacterSelectUIShader\CharacterSelectUIShader.cpp">
       <Filter>Code\Shader\BillboardShader\UIShader\ChracterSelectShader</Filter>
     </ClCompile>
@@ -397,6 +398,7 @@
     <ClInclude Include="..\Code\Network\protocol.h">
       <Filter>Code\Network</Filter>
     </ClInclude>
+
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\CharacterSelectUIShader\CharacterSelectUIShader.h">
       <Filter>Code\Shader\BillboardShader\UIShader\ChracterSelectShader</Filter>
     </ClInclude>

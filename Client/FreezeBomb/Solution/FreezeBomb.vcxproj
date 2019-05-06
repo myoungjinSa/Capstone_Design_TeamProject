@@ -73,24 +73,25 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>../Excutable/</OutDir>
-    <TargetName>$(ProjectName)_x86_Debug</TargetName>
+    <TargetName>FreezeBomb_Debug</TargetName>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>../Excutable/</OutDir>
     <LibraryPath>$(LibraryPath)</LibraryPath>
+    <TargetName>FreezeBomb_Debug</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>../Excutable/</OutDir>
-    <TargetName>$(ProjectName)_x86_Release</TargetName>
+    <TargetName>FreezeBomb_Release</TargetName>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>../Excutable/</OutDir>
-    <TargetName>$(ProjectName)_x64_Release</TargetName>
+    <TargetName>FreezeBomb_Release</TargetName>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
