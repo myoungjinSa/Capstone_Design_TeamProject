@@ -18,7 +18,7 @@
 
 
 // 전체모드할경우 주석풀으셈
-//#define FullScreenMode
+#define FullScreenMode
 static bool OnCartoonShading = false;
 
 byte g_PlayerCharacter = CGameObject::BROWN;
