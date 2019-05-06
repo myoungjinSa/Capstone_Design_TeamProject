@@ -11,6 +11,12 @@ enum ITEM { NONEITEM = 0, HAMMER, GOLD_HAMMER, GOLD_TIMER, BOMB };
 enum PLAYER_NUM { P1, P2, P3, P4, P5, P6 };						// 몇번 플레이어 인지 
 enum PLAYER_STATE { NONESTATE, ICE, BREAK };							// 플레이어 상태
 enum STATE_TYPE { Init, Run, Over };
+//각 클라이언트마다 동일한 캐릭터 재질이 그려져야하기 때문에
+//서버는 MATERIAL정보를 가지고 각 클라이언트들에게 PUT_PLAYER패킷을 보내면서 
+// 알려줘야 한다. -> 그래야 클라이언트는 그 정보를 받아 Evilbear들을 해당 재질로 초기화 해줄 수 있음
+//EX> 1번 클라이언트는 PINK - 2번 클라이언트는 PANDA 
+enum MATERIAL{PINK, BROWN, WHITE, BLACK, BLUE, PANDA, ICEMAT};
+
 
 constexpr int SC_ACCESS_COMPLETE = 1;
 constexpr int SC_PUT_PLAYER = 2;
@@ -43,14 +49,21 @@ struct SC_PACKET_PUT_PLAYER
 	char size;
 	char type;
 	char myId;
-	char xPos;		// 오브젝트들 위치
-	char yPos;
-	char zPos;
-	char xDir;		// 방향(쿼터니언)
-	char yDir;
-	char zDir;
-	char wDir;
 	char score;		// 플레이어 점수
+	float xPos;		// 오브젝트들 위치
+	float yPos;
+	float zPos;
+	//이렇게 바뀌어야 될듯
+	float lookX;
+	float lookY;
+	float lookZ;
+	float upX;
+	float upY;
+	float upZ;
+	float rightX;
+	float rightY;
+	float rightZ;
+	char matID;			//유저가 원하는 캐릭터는 재질정보가 필요하다.
 };
 
 //////////////////////////////////////////////////////

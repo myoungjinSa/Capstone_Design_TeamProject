@@ -1,6 +1,9 @@
 #include "Network.h"
+#include "../GameFramework/GameFramework.h"
+
 #pragma warning(disable : 4996)
 
+#ifdef _WITH_SERVER_
 Network::Network()
 {
 	sock = NULL;
@@ -11,7 +14,7 @@ Network::Network()
 
 Network::~Network()
 {
-
+	m_pGameClient = nullptr;
 }
 
 void Network::connectToServer(HWND hWnd)
@@ -78,8 +81,13 @@ void Network::ReadPacket()
 		if (iobyte + saved_packet_size >= in_packet_size)
 		{// 완성할 수 있을 때
 			memcpy(packet_buffer + saved_packet_size, ptr, required);
+			
+			if (m_pGameClient)
+			{
+				m_pGameClient->ProcessPacket(packet_buffer);
+			}
 			// 각 Scene의 ProcessPacket으로 처리를 넘김
-			ProcessPacket(packet_buffer);
+			//ProcessPacket(packet_buffer);
 			ptr += required;
 			iobyte -= required;
 			in_packet_size = 0;
@@ -94,29 +102,30 @@ void Network::ReadPacket()
 	}
 }
 
-void Network::ProcessPacket(char* packet)
-{
-	switch (packet[1])
-	{
-	case SC_ACCESS_COMPLETE:
-		pAC = reinterpret_cast<SC_PACKET_ACCESS_COMPLETE*>(packet);
-		myId = pAC->myId;
-		printf("Access Complete! My ID : %d\n", pAC->myId);
-		break;
-	case SC_PUT_PLAYER:
-		pPP = reinterpret_cast<SC_PACKET_PUT_PLAYER*>(packet);
-		printf("Put Player ID: %d\tx: %d, y: %D, z: %d\n", pPP->myId ,pPP->xPos, pPP->yPos, pPP->zPos);
-		break;
-	case SC_MOVE_PLAYER:
-		pMP = reinterpret_cast<SC_PACKET_MOVE_PLAYER*>(packet);
-		printf("Move Player ID: %d\tx: %d, y: %D, z: %d\n", pMP->id, pMP->xPos, pMP->yPos, pMP->zPos);
-		break;
-	case SC_REMOVE_PLAYER:
-		pRP = reinterpret_cast<SC_PACKET_REMOVE_PLAYER*>(packet);
-		printf("Player Disconnected ID : %d\n", pRP->id);
-		break;
-	}
-}
+
+//void Network::ProcessPacket(char* packet)
+//{
+//	switch (packet[1])
+//	{
+//	case SC_ACCESS_COMPLETE:
+//		pAC = reinterpret_cast<SC_PACKET_ACCESS_COMPLETE*>(packet);
+//		myId = pAC->myId;
+//		printf("Access Complete! My ID : %d\n", pAC->myId);
+//		break;
+//	case SC_PUT_PLAYER:
+//		pPP = reinterpret_cast<SC_PACKET_PUT_PLAYER*>(packet);
+//		printf("Put Player ID: %d\tx: %d, y: %D, z: %d\n", pPP->myId ,pPP->xPos, pPP->yPos, pPP->zPos);
+//		break;
+//	case SC_MOVE_PLAYER:
+//		pMP = reinterpret_cast<SC_PACKET_MOVE_PLAYER*>(packet);
+//		printf("Move Player ID: %d\tx: %d, y: %D, z: %d\n", pMP->id, pMP->xPos, pMP->yPos, pMP->zPos);
+//		break;
+//	case SC_REMOVE_PLAYER:
+//		pRP = reinterpret_cast<SC_PACKET_REMOVE_PLAYER*>(packet);
+//		printf("Player Disconnected ID : %d\n", pRP->id);
+//		break;
+//	}
+//}
 
 void Network::SendPacket(int wParam)
 {
@@ -159,6 +168,14 @@ void Network::SendPacket(int wParam)
 	}
 }
 
+
+void Network::SetGameFrameworkPtr(HWND hWnd,CGameFramework* client)
+{
+	if (client) 
+	{
+		m_pGameClient = client;
+	}
+}
 // 소켓 함수 오류 출력 후 종료
 void Network::err_quit(const char *msg)
 {
@@ -185,3 +202,5 @@ void Network::err_display(const char *msg)
 	printf("[%s] %s", msg, (char *)lpMsgBuf);
 	LocalFree(lpMsgBuf);
 }
+
+#endif
