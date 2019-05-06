@@ -17,10 +17,10 @@ Network::~Network()
 void Network::connectToServer(HWND hWnd)
 {
 	// 서버 IP주소 입력받기
-	std::string s;
-	printf("서버IP입력 : ");
-	std::cin >> s;
-	const char *serverIp = s.c_str();
+	//std::string s;
+	//printf("서버IP입력 : ");
+	//std::cin >> s;
+	//const char *serverIp = s.c_str();
 
 	// 윈속 초기화
 	WSADATA wsa;
@@ -35,7 +35,7 @@ void Network::connectToServer(HWND hWnd)
 	SOCKADDR_IN serveraddr;
 	ZeroMemory(&serveraddr, sizeof(serveraddr));
 	serveraddr.sin_family = AF_INET;
-	serveraddr.sin_addr.s_addr = inet_addr(serverIp);
+	serveraddr.sin_addr.s_addr = inet_addr(SERVER_IP);
 	serveraddr.sin_port = htons(SERVER_PORT);
 	int retval = WSAConnect(sock, (SOCKADDR *)&serveraddr, sizeof(serveraddr), NULL, NULL, NULL, NULL);
 	if (retval == SOCKET_ERROR)
@@ -94,42 +94,58 @@ void Network::ReadPacket()
 	}
 }
 
-void Network::ProcessPacket(void* packet)
+void Network::ProcessPacket(char* packet)
 {
-
+	switch (packet[1])
+	{
+	case SC_ACCESS_COMPLETE:
+		pAC = reinterpret_cast<SC_PACKET_ACCESS_COMPLETE*>(packet);
+		myId = pAC->myId;
+		printf("Access Complete! My ID : %d\n", pAC->myId);
+		break;
+	case SC_PUT_PLAYER:
+		pPP = reinterpret_cast<SC_PACKET_PUT_PLAYER*>(packet);
+		printf("Put Player ID: %d\tx: %d, y: %D, z: %d\n", pPP->myId ,pPP->xPos, pPP->yPos, pPP->zPos);
+		break;
+	case SC_MOVE_PLAYER:
+		pMP = reinterpret_cast<SC_PACKET_MOVE_PLAYER*>(packet);
+		printf("Move Player ID: %d\tx: %d, y: %D, z: %d\n", pMP->id, pMP->xPos, pMP->yPos, pMP->zPos);
+		break;
+	case SC_REMOVE_PLAYER:
+		pRP = reinterpret_cast<SC_PACKET_REMOVE_PLAYER*>(packet);
+		printf("Player Disconnected ID : %d\n", pRP->id);
+		break;
+	}
 }
 
 void Network::SendPacket(int wParam)
 {
-	CS_PACKET_UP_KEY *packet = NULL;
-	CS_PACKET_DOWN_KEY *packet1 = NULL;
-	CS_PACKET_RIGHT_KEY *packet2 = NULL;
-	CS_PACKET_LEFT_KEY *packet3 = NULL;
+	
 	switch (wParam)
 	{
 	case VK_UP:
-		packet = reinterpret_cast<CS_PACKET_UP_KEY *>(send_buffer);
-		packet->size = sizeof(packet);
-		send_wsabuf.len = sizeof(packet);
-		packet->type = CS_UP_KEY;
+		pUp = reinterpret_cast<CS_PACKET_UP_KEY *>(send_buffer);
+		pUp->size = sizeof(pUp);
+		send_wsabuf.len = sizeof(pUp);
+		pUp->type = CS_UP_KEY;
 		break;
 	case VK_DOWN:
-		packet1 = reinterpret_cast<CS_PACKET_DOWN_KEY *>(send_buffer);
-		packet1->size = sizeof(packet1);
-		send_wsabuf.len = sizeof(packet1);
-		packet1->type = CS_DOWN_KEY;
+		pDown = reinterpret_cast<CS_PACKET_DOWN_KEY *>(send_buffer);
+		pDown->size = sizeof(pDown);
+		send_wsabuf.len = sizeof(pDown);
+		pDown->type = CS_DOWN_KEY;
 		break;
 	case VK_RIGHT:
-		packet2 = reinterpret_cast<CS_PACKET_RIGHT_KEY *>(send_buffer);
-		packet2->size = sizeof(packet2);
-		send_wsabuf.len = sizeof(packet2);
-		packet2->type = CS_RIGHT_KEY;
+		pRight = reinterpret_cast<CS_PACKET_RIGHT_KEY *>(send_buffer);
+		pRight->size = sizeof(pRight);
+		send_wsabuf.len = sizeof(pRight);
+		pRight->type = CS_RIGHT_KEY;
 		break;
 	case VK_LEFT:
-		packet3 = reinterpret_cast<CS_PACKET_LEFT_KEY *>(send_buffer);
-		packet3->size = sizeof(packet3);
-		send_wsabuf.len = sizeof(packet3);
-		packet3->type = CS_LEFT_KEY;
+		pLeft = reinterpret_cast<CS_PACKET_LEFT_KEY *>(send_buffer);
+		pLeft->size = sizeof(pLeft);
+		send_wsabuf.len = sizeof(pLeft);
+		pLeft->type = CS_LEFT_KEY;
 		break;
 	}
 	DWORD iobyte = 0;

@@ -16,7 +16,7 @@
 #include "../Chatting/Chatting.h"
 
 //서버 연동을 할 경우 
-//#define _WITH_SERVER_
+#define _WITH_SERVER_
 // 전체모드할경우 주석풀으셈
 //#define FullScreenMode
 static bool OnCartoonShading = false;
@@ -57,6 +57,7 @@ CGameFramework::CGameFramework()
 
 	m_pScene = NULL;
 	m_pPlayer = NULL;
+	m_pePlayer = NULL;
 
 	_tcscpy_s(m_pszFrameRate, _T("FreezeBomb ("));
 }
@@ -972,6 +973,7 @@ void CGameFramework::ProcessInput()
 			{
 				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
 				{
+					m_Network.SendPacket(VK_UP);
 					dwDirection |= DIR_FORWARD;
 					m_pPlayer->SetDirection(dwDirection);
 				}
@@ -981,17 +983,20 @@ void CGameFramework::ProcessInput()
 			{
 				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
 				{
+					m_Network.SendPacket(VK_DOWN);
 					dwDirection |= DIR_BACKWARD;
 					m_pPlayer->SetDirection(dwDirection);
 				}
 			}
 			if (pKeysBuffer[VK_LEFT] & 0xF0)
 			{
+				m_Network.SendPacket(VK_LEFT);
 				dwDirection |= DIR_LEFT;
 				m_pPlayer->SetDirection(dwDirection);
 			}
 			if (pKeysBuffer[VK_RIGHT] & 0xF0)
 			{
+				m_Network.SendPacket(VK_RIGHT);
 				dwDirection |= DIR_RIGHT;
 				m_pPlayer->SetDirection(dwDirection);
 			}
