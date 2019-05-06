@@ -397,6 +397,12 @@
     <ClInclude Include="..\Code\Network\protocol.h">
       <Filter>Code\Network</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\Pysics\Precision.h">
+      <Filter>Code\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Pysics\CPhysics.h">
+      <Filter>Code\Physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Code">
@@ -590,6 +596,9 @@
     </Filter>
     <Filter Include="Code\Scene\LobbyScene">
       <UniqueIdentifier>{a158c54f-b601-49cf-89b5-7a3850223cc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Physics">
+      <UniqueIdentifier>{9c229cc5-4e80-4172-81c7-3d29e249c726}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

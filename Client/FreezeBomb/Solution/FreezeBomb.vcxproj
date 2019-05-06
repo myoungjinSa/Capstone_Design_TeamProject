@@ -195,6 +195,8 @@
     <ClInclude Include="..\Code\Mesh\Mesh.h" />
     <ClInclude Include="..\Code\Network\Network.h" />
     <ClInclude Include="..\Code\Network\protocol.h" />
+    <ClInclude Include="..\Code\Pysics\CPhysics.h" />
+    <ClInclude Include="..\Code\Pysics\Precision.h" />
     <ClInclude Include="..\Code\ResourceManager\ResourceManager.h" />
     <ClInclude Include="..\Code\Scene\LoadingScene\LoadingScene.h" />
     <ClInclude Include="..\Code\Scene\LobbyScene\LobbyScene.h" />
