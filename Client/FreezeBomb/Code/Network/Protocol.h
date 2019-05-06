@@ -50,20 +50,20 @@ struct SC_PACKET_PUT_PLAYER
 	char type;
 	char myId;
 	char score;		// 플레이어 점수
-	float xPos;		// 오브젝트들 위치
-	float yPos;
-	float zPos;
-	//이렇게 바뀌어야 될듯
-	float lookX;
-	float lookY;
-	float lookZ;
-	float upX;
-	float upY;
-	float upZ;
-	float rightX;
-	float rightY;
-	float rightZ;
 	char matID;			//유저가 원하는 캐릭터는 재질정보가 필요하다.
+	char xPos;		// 오브젝트들 위치
+	char yPos;
+	char zPos;
+	//이렇게 바뀌어야 될듯
+	char xLook;
+	char yLook;
+	char zLook;
+	char xUp;
+	char yUp;
+	char zUp;
+	char xRight;
+	char yRight;
+	char zRight;
 };
 
 //////////////////////////////////////////////////////
@@ -151,10 +151,15 @@ struct SC_PACKET_MOVE_PLAYER
 	char xPos;
 	char yPos;
 	char zPos;
-	char xDir;
-	char yDir;
-	char zDir;
-	char wDir;
+	char xLook;
+	char yLook;
+	char zLook;
+	char xUp;
+	char yUp;
+	char zUp;
+	char xRight;
+	char yRight;
+	char zRight;
 };
 
 // 플레이어가 아이템 사용 시

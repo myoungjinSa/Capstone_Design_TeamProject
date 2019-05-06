@@ -11,6 +11,7 @@ enum ITEM { NONEITEM = 0, HAMMER, GOLD_HAMMER, GOLD_TIMER, BOMB };
 enum PLAYER_NUM { P1, P2, P3, P4, P5, P6 };						// 몇번 플레이어 인지 
 enum PLAYER_STATE { NONESTATE, ICE, BREAK };							// 플레이어 상태
 enum STATE_TYPE { Init, Run, Over };
+enum MATERIAL { PINK, BROWN, WHITE, BLACK, BLUE, PANDA, ICEMAT };
 
 constexpr int SC_ACCESS_COMPLETE = 1;
 constexpr int SC_PUT_PLAYER = 2;
@@ -42,14 +43,20 @@ struct SC_PACKET_PUT_PLAYER
 	char size;
 	char type;
 	char myId;
+	char score;		// 플레이어 점수
+	char matID;			//유저가 원하는 캐릭터는 재질정보가 필요하다.
 	char xPos;		// 오브젝트들 위치
 	char yPos;
 	char zPos;
-	char xDir;		// 방향(쿼터니언)
-	char yDir;
-	char zDir;
-	char wDir;
-	char score;		// 플레이어 점수
+	char xLook;
+	char yLook;
+	char zLook;
+	char xUp;
+	char yUp;
+	char zUp;
+	char xRight;
+	char yRight;
+	char zRight;
 };
 
 //////////////////////////////////////////////////////
@@ -137,10 +144,15 @@ struct SC_PACKET_MOVE_PLAYER
 	char xPos;
 	char yPos;
 	char zPos;
-	char xDir;
-	char yDir;
-	char zDir;
-	char wDir;
+	char xLook;
+	char yLook;
+	char zLook;
+	char xUp;
+	char yUp;
+	char zUp;
+	char xRight;
+	char yRight;
+	char zRight;
 };
 
 // 플레이어가 아이템 사용 시
