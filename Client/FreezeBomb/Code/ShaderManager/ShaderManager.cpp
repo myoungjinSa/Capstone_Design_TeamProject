@@ -91,7 +91,11 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 
 	CSkinnedAnimationObjectShader* pAnimationObjectShader = new CSkinnedAnimationObjectShader;
 	//pAnimationObjectShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+#ifndef _WITH_SERVER_
+	//서버랑 연동 되어있을경우 여기서 BuildObjects를 하면 안된다.
+	//왜냐하면 서버에서 재질정보와 위치 정보등의 Evilbear의 정보를 받아와야함.
 	pAnimationObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getModelMap(), m_pResourceManager->getBoundMap(),nPlayerCount,pTerrainShader->getTerrain());
+#endif
 	m_ppShaders[index++] = pAnimationObjectShader;
 	m_ShaderMap.emplace("곰돌이", pAnimationObjectShader);
 

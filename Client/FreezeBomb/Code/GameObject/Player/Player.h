@@ -25,7 +25,8 @@ public:
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 	DWORD    GetDirection() { return m_dwDirection; }
 
-
+	void SetPlayerID(char id) { m_pPlayerID = id; }
+	char GetPlayerID() { return m_pPlayerID; }
 	
 	void SetDirection(DWORD direction) { m_dwDirection = direction; }
 	void SetFriction(float fFriction) { m_fFriction = fFriction; }
@@ -152,6 +153,9 @@ protected:
 	bool			m_bSpike{ false };
 	bool			m_bCameraVibe{ false };
 	CBomb	*		m_BombParticle{ nullptr };
+
+	//주인공 아이디
+	char			m_pPlayerID;
 };
 
 class CSoundSystem;

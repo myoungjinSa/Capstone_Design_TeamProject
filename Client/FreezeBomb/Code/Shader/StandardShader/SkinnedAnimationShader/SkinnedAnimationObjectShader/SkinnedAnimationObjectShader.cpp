@@ -8,11 +8,14 @@
 #include "../../../../FrameTransform/FrameTransform.h"
 
 CSkinnedAnimationObjectShader::CSkinnedAnimationObjectShader()
+	:m_userID{ 0 }
+	
 {
 }
 
 CSkinnedAnimationObjectShader::~CSkinnedAnimationObjectShader()
 {
+	m_vMaterial.clear();
 }
 
 void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
@@ -201,4 +204,10 @@ void CSkinnedAnimationObjectShader::Render(ID3D12GraphicsCommandList* pd3dComman
 			//m_ppObjects[i]->Render(pd3dCommandList, pCamera, nPipelineState);
 		}
 	}
+}
+
+void CSkinnedAnimationObjectShader::MappingUserToEvilbear(char id)
+{
+	
+
 }

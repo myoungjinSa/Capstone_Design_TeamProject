@@ -14,9 +14,9 @@
 #include "../Texture/Texture.h"
 #include "../Shader/PostProcessShader/CartoonShader/SobelCartoonShader.h"
 #include "../Chatting/Chatting.h"
+#include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
 
-//서버 연동을 할 경우 
-#define _WITH_SERVER_
+
 // 전체모드할경우 주석풀으셈
 //#define FullScreenMode
 static bool OnCartoonShading = false;
@@ -25,6 +25,7 @@ byte g_PlayerCharacter = CGameObject::BROWN;
 
 extern volatile size_t g_TotalSize;
 extern volatile size_t g_FileSize;
+
 
 CGameFramework::CGameFramework()
 {
@@ -91,6 +92,7 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CreateOffScreenRenderTargetViews();
 #ifdef _WITH_SERVER_
 	m_Network.connectToServer(hMainWnd);
+	m_Network.SetGameFrameworkPtr(hMainWnd,this);
 #endif 
 	return(true);
 }
@@ -606,6 +608,8 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 	
 	case INGAME:
 	{
+		if (m_pScene) 
+		m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 		break;
 	}
 	case CHARACTER_SELECT:
@@ -615,8 +619,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 	default:
 		break;
 	}
-	if (m_pScene) 
-		m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
+	
 
 	switch (nMessageID)
 	{
@@ -973,7 +976,10 @@ void CGameFramework::ProcessInput()
 			{
 				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
 				{
+//#ifdef 을 선언하지 않으면 무조건 서버가 켜있지 않을경우 무한 대기에 빠짐
+#ifdef _WITH_SERVER_
 					m_Network.SendPacket(VK_UP);
+#endif
 					dwDirection |= DIR_FORWARD;
 					m_pPlayer->SetDirection(dwDirection);
 				}
@@ -983,20 +989,26 @@ void CGameFramework::ProcessInput()
 			{
 				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
 				{
+#ifdef _WITH_SERVER_
 					m_Network.SendPacket(VK_DOWN);
+#endif
 					dwDirection |= DIR_BACKWARD;
 					m_pPlayer->SetDirection(dwDirection);
 				}
 			}
 			if (pKeysBuffer[VK_LEFT] & 0xF0)
 			{
+#ifdef _WITH_SERVER_
 				m_Network.SendPacket(VK_LEFT);
+#endif
 				dwDirection |= DIR_LEFT;
 				m_pPlayer->SetDirection(dwDirection);
 			}
 			if (pKeysBuffer[VK_RIGHT] & 0xF0)
 			{
+#ifdef _WITH_SERVER_
 				m_Network.SendPacket(VK_RIGHT);
+#endif
 				dwDirection |= DIR_RIGHT;
 				m_pPlayer->SetDirection(dwDirection);
 			}
@@ -1178,6 +1190,194 @@ void CGameFramework::ProcessDirect2D()
 	m_pd3d11DeviceContext->Flush();
 
 	
+}
+#endif
+#ifdef _WITH_SERVER_
+//
+void CGameFramework::MappingUserToEvilbear(char id,int playerCount)
+{
+	//const int playerNum = MAX_USER;
+
+
+	//int enemyNum = MAX_USER - 1;	//플레이어를 제외한 나머지 적 캐릭터 수
+
+	
+	auto iter = m_pScene->getShaderManager()->getShaderMap().find("곰돌이");
+
+	if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+	{
+		//플레이어의 아이디에 따라 다른 Evilbear는 다른 재질을 set해줘야함
+		switch(m_pPlayer->GetPlayerID())
+		{
+		case PINK:
+		{
+			//플레이어를 제외한 EVILBEAR 재질 목록을 벡터에 넣어준다.
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(BROWN);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(WHITE);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(BLACK);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(BLUE);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(PANDA);
+			cout << "플레이어는 PINK\n";
+			break;
+		}
+		case BROWN:
+		{
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(PINK);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(WHITE);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(BLACK);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(BLUE);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(PANDA);
+			cout << "플레이어는 BROWN\n";
+			break;
+		}
+		case WHITE:
+		{
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(BROWN);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(PINK);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(BLACK);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(BLUE);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(PANDA);
+			cout << "플레이어는 WHITE\n";
+			break;
+		}
+		case BLACK:
+		{
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(PINK);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(WHITE);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(BROWN);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(BLUE);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(PANDA);
+			cout << "플레이어는 BLACK\n";
+			break;
+		}
+		case BLUE:
+		{
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(BROWN);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(WHITE);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(BLACK);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(PINK);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(PANDA);
+			cout << "플레이어는 BLUE\n";
+			break;
+		}
+		case PANDA:
+		{
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(BROWN);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(WHITE);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(BLACK);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(BLUE);
+			dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial.emplace_back(PINK);
+			cout << "플레이어는 PANDA\n";
+			break;
+		}
+		default:
+			cout << "플레이어 ID가 올바르지 않습니다.\n";
+			break;
+		}
+	}
+
+}
+void CGameFramework::ProcessPacket(char *packet)
+{
+	switch (packet[1])
+	{
+	case SC_ACCESS_COMPLETE:
+	{
+		SC_PACKET_ACCESS_COMPLETE* pAC = m_Network.GetAC();
+		pAC = reinterpret_cast<SC_PACKET_ACCESS_COMPLETE*>(packet);
+		//플레이어 아이디 Set
+		m_pPlayer->SetPlayerID(pAC->myId);
+		cout << "플레이어 ID -" << (int)m_pPlayer->GetPlayerID() << "\n";
+		printf("Access Complete! My ID : %d\n", pAC->myId);
+		break;
+	}
+	case SC_PUT_PLAYER:
+	{
+		SC_PACKET_PUT_PLAYER* pPP = m_Network.GetPP();
+		pPP = reinterpret_cast<SC_PACKET_PUT_PLAYER*>(packet);
+
+		if (pPP->myId == m_pPlayer->GetPlayerID())
+		{
+			MappingUserToEvilbear(pPP->myId, 5/*현재 접속한 유저 수를 받아야함 */);
+
+		}
+
+		else if (pPP->myId < MAX_USER)
+		{
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("곰돌이");
+
+
+			auto vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+
+			for (int i = 0; i < vec.size(); ++i)
+				cout << "적 캐릭터 id - " << vec[i] << "\n";
+		
+		}
+		//if (pPP->myId == m_pPlayer->GetPlayerID())
+		//{
+		//	XMFLOAT3 pos = XMFLOAT3(pPP->xPos,pPP->yPos, pPP->zPos);
+		//	XMFLOAT3 look = XMFLOAT3(pPP->lookX, pPP->lookY, pPP->lookZ);
+		//	XMFLOAT3 up = XMFLOAT3(pPP->upX, pPP->upY, pPP->upZ);
+		//	XMFLOAT3 right = XMFLOAT3(pPP->rightX, pPP->rightY, pPP->rightZ);
+		//	
+		//	MappingUserToEvilbear(pPP->myId, 5/*현재 접속한 유저 수를 받아야함 */);
+
+		//	m_pPlayer->SetPosition(pos);
+		//	m_pPlayer->SetLookVector(look);
+		//	m_pPlayer->SetUpVector(up);
+		//	m_pPlayer->SetRightVector(right);
+		//	//m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
+		//	//m_pPlayer->SetDirection()
+		//}
+		//else if(pPP->myId < MAX_USER)
+		//{
+		//	char id = pPP->myId;
+		//	
+		//	XMFLOAT3 pos = XMFLOAT3(pPP->xPos,pPP->yPos, pPP->zPos);
+		//	XMFLOAT3 look = XMFLOAT3(pPP->lookX, pPP->lookY, pPP->lookZ);
+		//	XMFLOAT3 up = XMFLOAT3(pPP->upX, pPP->upY, pPP->upZ);
+		//	XMFLOAT3 right = XMFLOAT3(pPP->rightX, pPP->rightY, pPP->rightZ);
+		//	
+
+		//	auto iter = m_pScene->getShaderManager()->getShaderMap().find("곰돌이");
+
+		//	auto terrainIter = m_pScene->getShaderManager()->getShaderMap().find("Terrain");
+
+		//	if (iter != m_pScene->getShaderManager()->getShaderMap().end()
+		//		&& terrainIter != m_pScene->getShaderManager()->getShaderMap().end())
+		//	{
+		//		
+		//		//적 캐릭터 BuildObjects 부분
+		//		dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),
+		//			m_pScene->getShaderManager()->getResourceManager()->getModelMap(), m_pScene->getShaderManager()->getResourceManager()->getBoundMap(),
+		//			6/*적 캐릭터 수*/, dynamic_cast<CTerrainShader*>((*terrainIter).second)->getTerrain());
+		//		(*iter).second->m_ppObjects[id]->SetPosition(pos);
+		//		(*iter).second->m_ppObjects[id]->SetLookVector(look);
+		//		(*iter).second->m_ppObjects[id]->SetRightVector(right);
+		//		(*iter).second->m_ppObjects[id]->SetUpVector(up);
+		//		//(*iter).second->m_ppObjects[id]->SetScale(10, 10, 10);
+		//		
+		//	}
+		//}
+		
+		printf("Put Player ID: %d\tx: %d, y: %D, z: %d\n", pPP->myId, pPP->xPos, pPP->yPos, pPP->zPos);
+		break;
+	}
+	case SC_MOVE_PLAYER:
+	{
+		SC_PACKET_MOVE_PLAYER* pMP = m_Network.GetMP();
+		pMP = reinterpret_cast<SC_PACKET_MOVE_PLAYER*>(packet);
+		printf("Move Player ID: %d\tx: %d, y: %D, z: %d\n", pMP->id, pMP->xPos, pMP->yPos, pMP->zPos);
+		break;
+	}
+	case SC_REMOVE_PLAYER:
+	{
+		SC_PACKET_REMOVE_PLAYER* pRP = m_Network.GetRP();
+		pRP = reinterpret_cast<SC_PACKET_REMOVE_PLAYER*>(packet);
+		printf("Player Disconnected ID : %d\n", pRP->id);
+		break;
+	}
+	}
 }
 #endif
 
@@ -1430,4 +1630,4 @@ void CGameFramework::Worker_Thread()
 		if (fileSize / totalSize >= 1)
 			break;
 	}
-}
+};

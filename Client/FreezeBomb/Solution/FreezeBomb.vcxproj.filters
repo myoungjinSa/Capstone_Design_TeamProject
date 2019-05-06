@@ -190,14 +190,17 @@
       <Filter>Code\ChattingSystem</Filter>
     </ClCompile>
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\MenuUIShader\MenuUIShader.cpp" />
-    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\CharacterSelShader\CharacterSelect.cpp">
-      <Filter>Code\Shader\BillboardShader\UIShader\ChracterSelectShader</Filter>
-    </ClCompile>
     <ClCompile Include="..\Code\Scene\LobbyScene\LobbyScene.cpp">
       <Filter>Code\Scene\LobbyScene</Filter>
     </ClCompile>
     <ClCompile Include="..\Code\Network\Network.cpp">
       <Filter>Code\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\CharacterSelectUIShader\CharacterSelectUIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\ChracterSelectShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Physics\CPhysics.cpp">
+      <Filter>Code\Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -385,9 +388,6 @@
       <Filter>Code\Stdafx</Filter>
     </ClInclude>
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\MenuUIShader\MenuUIShader.h" />
-    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\CharacterSelShader\CharacterSelect.h">
-      <Filter>Code\Shader\BillboardShader\UIShader\ChracterSelectShader</Filter>
-    </ClInclude>
     <ClInclude Include="..\Code\Scene\LobbyScene\LobbyScene.h">
       <Filter>Code\Scene\LobbyScene</Filter>
     </ClInclude>
@@ -397,10 +397,13 @@
     <ClInclude Include="..\Code\Network\protocol.h">
       <Filter>Code\Network</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\Pysics\Precision.h">
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\CharacterSelectUIShader\CharacterSelectUIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\ChracterSelectShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Physics\Precision.h">
       <Filter>Code\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\Pysics\CPhysics.h">
+    <ClInclude Include="..\Code\Physics\CPhysics.h">
       <Filter>Code\Physics</Filter>
     </ClInclude>
   </ItemGroup>

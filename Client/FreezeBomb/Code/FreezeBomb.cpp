@@ -188,6 +188,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	//case WM_KILLFOCUS:
 	//	DestroyCaret();
 	//	return 0;
+
 	case WM_SOCKET:
 		if (WSAGETSELECTERROR(lParam))
 		{
@@ -197,7 +198,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (WSAGETSELECTEVENT(lParam))
 		{
 		case FD_READ:
+#ifdef _WITH_SERVER_
 			gGameFramework.getNetwork()->ReadPacket();
+#endif
 			break;
 		case FD_CLOSE:
 			closesocket((SOCKET)wParam);

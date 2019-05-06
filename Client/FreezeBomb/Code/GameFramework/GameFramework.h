@@ -11,6 +11,8 @@ class CSobelCartoonShader;
 class CLoadingScene;
 class CLobbyScene;
 class ChattingSystem;
+
+
 class CGameFramework
 {
 public:
@@ -42,7 +44,10 @@ public:
 #endif
 	void CreateDepthStencilView();
 	
-
+#ifdef _WITH_SERVER_
+	Network*getNetwork() { return &m_Network; }
+	void ProcessPacket(char *ptr);
+#endif
 	void ChangeSwapChainState();
 
 	bool BuildObjects();
@@ -60,13 +65,15 @@ public:
 
 	void CreateOffScreenRenderTargetViews();
 
+
+	void MappingUserToEvilbear(char id,int playerCount);
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 	bool IsHangeul() { return m_bHangeul; }
 	void SetHangeul(bool han) { m_bHangeul = han; }
 
-	Network*getNetwork() { return &m_Network; }
+	
 #ifdef _MAPTOOL_MODE_
 	void OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 #endif	
@@ -173,9 +180,9 @@ private:
 	//한글인지 영어 인지
 	bool m_bHangeul{ false };
 #endif
-
-	Network	m_Network;
-
+#ifdef _WITH_SERVER_
+	Network m_Network;
+#endif
 	//사운드 쓰레드 풀
 	vector<thread> soundThreads;
 	vector<thread> loadingThread;

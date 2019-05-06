@@ -32,6 +32,7 @@ protected:
 
 	int								m_composeCount{ 0 };
 
+	//채팅에서의 최대 길이
 	enum class SENTENCE_LENGTH		{ENG=40,KOR=20};
 	
 public:

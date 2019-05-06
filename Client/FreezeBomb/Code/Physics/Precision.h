@@ -1,4 +1,5 @@
 #pragma once
+#include <float.h>
 
 namespace Physics
 {
