@@ -3,14 +3,14 @@
 
 Server::Server()
 {
-	clients.reserve(MAX_USER);
+	//clients.reserve(MAX_USER);
 	workerThreads.reserve(MAX_WORKER_THREAD);
 }
 
 
 Server::~Server()
 {
-	clients.clear();
+	//clients.clear();
 }
 
 bool Server::InitServer()
@@ -66,6 +66,20 @@ bool Server::InitServer()
 void Server::RunServer()
 {
 	iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
+	for (int i = 0; i < MAX_USER; ++i)
+	{
+		//SOCKETINFO tmpClient;
+		clients[i].prev_size = 0;
+		clients[i].xPos = PLAYER_INIT_X_POS;
+		clients[i].yPos = PLAYER_INIT_Y_POS;
+		clients[i].zPos = PLAYER_INIT_Z_POS;
+		clients[i].xDir = PLAYER_INIT_X_DIR;
+		clients[i].yDir = PLAYER_INIT_Y_DIR;
+		clients[i].zDir = PLAYER_INIT_Z_DIR;
+		//clients.emplace_back(tmpClient);
+		//printf("Create Client ID: %d, PrevSize: %d, xPos: %d, yPos: %d, zPos: %d, xDir: %d, yDir: %d, zDir: %d\n", i, clients[i].prev_size, clients[i].xPos, clients[i].yPos, clients[i].zPos, clients[i].xDir, clients[i].yDir, clients[i].zDir);
+	}
+	
 	for (int i = 0; i < MAX_WORKER_THREAD; ++i)
 		workerThreads.emplace_back(thread{ WorkerThread, (LPVOID)this });
 	thread accpetThread{ AcceptThread, (LPVOID)this };
@@ -98,7 +112,7 @@ void Server::AcceptThreadFunc()
 			return;
 		}
 
-		// id를 0~9까지 사용할 예정
+		// id를 0~5까지 사용할 예정
 		int new_id = -1;
 		for (int i = 0; i < MAX_USER; ++i)
 		{
@@ -114,39 +128,34 @@ void Server::AcceptThreadFunc()
 			cout << "MAX USER overflow\n";
 			continue;
 		}
-		// 임시객체를 복사생성하므로 날아가버림
-		//clients[new_id] = SOCKETINFO{clientSocket};
-		// Solution 1. emplace로 생성 : 될 수도 있고 안 될 수도 있다. (복사할 수도 안 할 수도)
-		// Solution 2. over_ex를 new로 생성 : 코드가 복잡해짐.
-		// Solution 3. clients를 map이 아닌 배열로 관리 : null 생성자를 추가해야 한다.
-
-		// 마지막 방법 사용
-		// 이전에 접속하고 나간애가 쓰던 길이가 남아있으면 안되기 때문에 초기화
-		SOCKETINFO tmpClient;
-
-		tmpClient.socket = clientSocket;
-		tmpClient.prev_size = 0;
-		tmpClient.xPos = PLAYER_INIT_X_POS;
-		tmpClient.yPos = PLAYER_INIT_Y_POS;
-		tmpClient.zPos = PLAYER_INIT_Z_POS;
-		tmpClient.xDir = PLAYER_INIT_X_DIR;
-		tmpClient.yDir = PLAYER_INIT_Y_DIR;
-		tmpClient.zDir = PLAYER_INIT_Z_DIR;
-		ZeroMemory(&tmpClient.over_ex.over, sizeof(tmpClient.over_ex.over));
-
-		clients.emplace_back(move(tmpClient));
-
+		
+		///////////////////////////////////// 클라이언트 초기화 정보 수정 위치 /////////////////////////////////////
+		clients[new_id].socket = clientSocket;
+		///////////////////////////////////// 클라이언트 초기화 정보 수정 위치 /////////////////////////////////////
+		ZeroMemory(&clients[new_id].over_ex.over, sizeof(clients[new_id].over_ex.over));
+		
 		flags = 0;
 
 		CreateIoCompletionPort(reinterpret_cast<HANDLE>(clientSocket), iocp, new_id, 0);
 
-		// 얘만 늦게하는 이유는 true해주는 순간 send가 막 날아가는데
-		// IOCP연결 이전이므로 IOCP 콜백을 받지 못 해 메모리 누수가 일어나기 때문
-		// 따라서 IOCP를 통해 통신할 수 있도록 CICP함수 이후에 true로 설정
-		// CICP이전에 해주면 영원히 recv못 받음
 		clients[new_id].in_use = true;
 
 		SendAcessComplete(new_id);
+		printf("%d 클라이언트 접속 완료\n", new_id);
+		// 기존 유저들에게 이후 접속한 유저들 출력
+		for (int i = 0; i < MAX_USER; ++i)
+			if (true == clients[i].in_use)
+				SendPutPlayer(i, new_id);
+
+		// 처음 접속한 나에게 기존 유저들 출력
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (false == clients[i].in_use)
+				continue;
+			if (i == new_id)
+				continue;
+			SendPutPlayer(new_id, i);
+		}
 
 		RecvFunc(new_id);
 	}
@@ -189,7 +198,7 @@ void Server::WorkerThreadFunc()
 	while (true)
 	{
 		DWORD io_byte;
-		ULONG l_key;
+		ULONGLONG l_key;
 		// 포인터의 포인터를 넘겨줘야
 		OVER_EX *over_ex;
 
@@ -217,7 +226,7 @@ void Server::WorkerThreadFunc()
 		if (true == over_ex->is_recv)
 		{
 			// RECV 처리
-			wcout << "Packet from Client: " << key << "\n";
+			wcout << "Packet from Client: " << (int)key << "\n";
 			// 패킷조립
 			// 남은 크기
 			int rest = io_byte;
@@ -266,8 +275,34 @@ void Server::WorkerThreadFunc()
 
 void Server::ProcessPacket(char client, char *packet)
 {
+	CS_PACKET_UP_KEY *p = reinterpret_cast<CS_PACKET_UP_KEY *>(packet);
+	int x = clients[client].xPos;
+	int y = clients[client].yPos;
+	int z = clients[client].zPos;
 
-}
+	// 0번은 사이즈, 1번이 패킷타입
+	switch (p->type)
+	{
+	case CS_UP_KEY:
+		printf("Press UP Key ID: %d\n", client);
+		break;
+	case CS_DOWN_KEY:
+		printf("Press DOWN Key ID: %d\n", client);
+		break;
+	case CS_LEFT_KEY:
+		printf("Press LEFT Key ID: %d\n", client);
+		break;
+	case CS_RIGHT_KEY:
+		printf("Press RIGHT Key ID: %d\n", client);
+		break;
+	default:
+		wcout << L"정의되지 않은 패킷 도착 오류!!\n";
+		while (true);
+	}
+	clients[client].xPos = x;
+	clients[client].yPos = y;
+	clients[client].zPos = z;
+}	
 
 void Server::SendFunc(char client, void *packet)
 {
@@ -304,6 +339,19 @@ void Server::SendAcessComplete(char client)
 	SendFunc(client, &packet);
 }
 
+void Server::SendPutPlayer(char toClient, char fromClient)
+{
+	SC_PACKET_PUT_PLAYER packet;
+	packet.myId = fromClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_PUT_PLAYER;
+	packet.xPos = clients[fromClient].xPos;
+	packet.yPos = clients[fromClient].yPos;
+	packet.zPos = clients[fromClient].zPos;
+
+	SendFunc(toClient, &packet);
+}
+
 void Server::SendRemovePlayer(char toClient, char fromClient)
 {
 	SC_PACKET_REMOVE_PLAYER packet;
@@ -326,6 +374,7 @@ void Server::ClientDisconnect(char client)
 	}
 	closesocket(clients[client].socket);
 	clients[client].in_use = false;
+	printf("%d 클라이언트 접속 종료\n", (int)client);
 }
 
 void Server::err_quit(const char* msg)

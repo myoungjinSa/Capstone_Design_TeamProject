@@ -23,6 +23,20 @@ private:
 	char	packet_buffer[BUF_SIZE];
 	DWORD	in_packet_size = 0;
 	int		saved_packet_size = 0;
+private:
+	SC_PACKET_ACCESS_COMPLETE *pAC = NULL;
+	SC_PACKET_PUT_PLAYER *pPP = NULL;
+	SC_PACKET_MOVE_PLAYER *pMP = NULL;
+	SC_PACKET_USE_ITEM *pUI = NULL;
+	SC_PACKET_ROLL_CHANGE *pRC = NULL;
+	SC_PACKET_ROUND_END *pRE = NULL;
+	SC_PACKET_REMOVE_PLAYER *pRP = NULL;
+	SC_PACKET_COMPARE_TIME *pCT = NULL;
+private:
+	CS_PACKET_UP_KEY *pUp = NULL;
+	CS_PACKET_DOWN_KEY *pDown = NULL;
+	CS_PACKET_RIGHT_KEY *pRight = NULL;
+	CS_PACKET_LEFT_KEY *pLeft = NULL;
 public:
 	void err_quit(const char *msg);
 	void err_display(const char *msg);
@@ -33,7 +47,7 @@ public:
 	SOCKET getSock();
 	void connectToServer(HWND hWnd);
 	void ReadPacket();
-	void ProcessPacket(void* packet);
+	void ProcessPacket(char* packet);
 	void SendPacket(int data);
 };
 

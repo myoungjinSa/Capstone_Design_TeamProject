@@ -16,10 +16,12 @@
 #include "../Chatting/Chatting.h"
 
 //서버 연동을 할 경우 
-//#define _WITH_SERVER_
+#define _WITH_SERVER_
 // 전체모드할경우 주석풀으셈
-#define FullScreenMode
+//#define FullScreenMode
 static bool OnCartoonShading = false;
+
+byte g_PlayerCharacter = CGameObject::BROWN;
 
 extern volatile size_t g_TotalSize;
 extern volatile size_t g_FileSize;
@@ -55,6 +57,7 @@ CGameFramework::CGameFramework()
 
 	m_pScene = NULL;
 	m_pPlayer = NULL;
+	m_pePlayer = NULL;
 
 	_tcscpy_s(m_pszFrameRate, _T("FreezeBomb ("));
 }
@@ -62,7 +65,6 @@ CGameFramework::CGameFramework()
 CGameFramework::~CGameFramework()
 {
 }
-
 
 bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 {
@@ -322,9 +324,6 @@ void CGameFramework::CreateDirect2DDevice()
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightCoral, 1.0f), &m_pd2dbrText[index++]);
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LavenderBlush, 1.0f), &m_pd2dbrText[index++]);
 
-
-
-	
 	//Initializes the COM library on the current thread and identifies the concurrency model as single-thread apartment 
 	CoInitialize(NULL);
 	hResult = CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory), (void**)&m_pwicImagingFactory);
@@ -332,11 +331,8 @@ void CGameFramework::CreateDirect2DDevice()
 	//채팅 시스템 객체 생성
 	ChattingSystem::GetInstance()->Initialize(m_pdWriteFactory, m_pd2dDeviceContext,m_pwicImagingFactory);
 
-	
-
 	hResult = m_pd2dFactory->CreateDrawingStateBlock(&m_pd2dsbDrawingState);
 	hResult = m_pd2dDeviceContext->CreateEffect(CLSID_D2D1BitmapSource, &m_pd2dfxBitmapSource);
-
 
 	IWICBitmapDecoder *pwicBitmapDecoder;
 	hResult = m_pwicImagingFactory->CreateDecoderFromFilename(L"../Resource/Png/ScoreBoard.png", NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &pwicBitmapDecoder);
@@ -658,8 +654,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 #elif
 			if(m_nState == CHARACTER_SELECT)
 			{
-#endif
-			
+#endif		
 				if(m_pLobbyScene)
 				{
 					m_pLobbyScene->SetMusicStart(false);
@@ -827,14 +822,6 @@ void CGameFramework::OnDestroy()
 
 bool CGameFramework::BuildObjects()
 {
-	//m_pNetwork = new Network;
-	//if (!m_pNetwork->Initialize())
-	//{
-	//	OnDestroy();
-	//	::PostQuitMessage(0);
-	//	return false;
-	//}
-
 	// 윈도우 창 띄우기
 	::ShowWindow(m_hWnd, SW_SHOWDEFAULT);
 	::UpdateWindow(m_hWnd);
@@ -871,7 +858,7 @@ bool CGameFramework::BuildObjects()
 		if (iter != m.end())
 		{
 			CTerrain* pTerrain = dynamic_cast<CTerrainShader*>((*iter).second)->getTerrain();
-			pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), CGameObject::MATERIALTYPE::PANDA, pTerrain);
+			pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), g_PlayerCharacter, pTerrain);
 			pPlayer->SetPosition(XMFLOAT3(40.f, 0.f, 40.f));
 			pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
 			pPlayer->SetPlayerName(L"사명진");
@@ -986,6 +973,7 @@ void CGameFramework::ProcessInput()
 			{
 				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
 				{
+					m_Network.SendPacket(VK_UP);
 					dwDirection |= DIR_FORWARD;
 					m_pPlayer->SetDirection(dwDirection);
 				}
@@ -995,17 +983,20 @@ void CGameFramework::ProcessInput()
 			{
 				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
 				{
+					m_Network.SendPacket(VK_DOWN);
 					dwDirection |= DIR_BACKWARD;
 					m_pPlayer->SetDirection(dwDirection);
 				}
 			}
 			if (pKeysBuffer[VK_LEFT] & 0xF0)
 			{
+				m_Network.SendPacket(VK_LEFT);
 				dwDirection |= DIR_LEFT;
 				m_pPlayer->SetDirection(dwDirection);
 			}
 			if (pKeysBuffer[VK_RIGHT] & 0xF0)
 			{
+				m_Network.SendPacket(VK_RIGHT);
 				dwDirection |= DIR_RIGHT;
 				m_pPlayer->SetDirection(dwDirection);
 			}

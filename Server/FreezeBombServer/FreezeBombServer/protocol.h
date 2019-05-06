@@ -20,6 +20,10 @@ constexpr int SC_USE_ITEM = 5;
 constexpr int SC_ROLL_CHANGE = 6;
 constexpr int SC_ROUND_END = 7;
 
+constexpr int CS_UP_KEY = 0;
+constexpr int CS_DOWN_KEY = 1;
+constexpr int CS_RIGHT_KEY = 2;
+constexpr int CS_LEFT_KEY = 3;
 
 //[클라->서버]
 
@@ -57,35 +61,30 @@ struct CS_PACKET_RIGHT_KEY
 {
 	char size;
 	char type;
-	char id;		// 플레이어 번호
 };
 
 struct CS_PACKET_LEFT_KEY
 {
 	char size;
 	char type;
-	char id;		// 플레이어 번호
 };
 
-struct CS_PACKET_UP_KEYINGA
+struct CS_PACKET_UP_KEY
 {
 	char size;
 	char type;
-	char id;		// 플레이어 번호
 };
 
 struct CS_PACKET_DOWN_KEY
 {
 	char size;
 	char type;
-	char id;		// 플레이어 번호
 };
 
 struct CS_PACKET_BOMBER_TOUCH
 {
 	char size;
 	char type;
-	char id;
 	char touchedId;	// 터치한 플레이어 번호
 };
 

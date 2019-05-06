@@ -14,6 +14,8 @@
 #include "../../FrameTransform/FrameTransform.h"
 #include "../../Chatting/Chatting.h"
 
+extern byte g_PlayerCharacter;
+
 CPlayer::CPlayer()
 {
 	m_pCamera = NULL;
@@ -299,8 +301,7 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 
 	if (nCameraMode == THIRD_PERSON_CAMERA)
 	{
-		CGameObject::Render(pd3dCommandList, m_bHammer, m_bBomb, m_bIce, m_matID, pCamera, GameObject);		//재질별로 렌더 
-
+		CGameObject::Render(pd3dCommandList, m_bHammer, m_bBomb, m_bIce, (int)g_PlayerCharacter, pCamera, GameObject);		//재질별로 렌더 
 		if (m_pShadow)
 			m_pShadow->Render(pd3dCommandList, m_bHammer, m_bBomb, m_bIce, m_matID, pCamera, GameObject_Shadow);
 	}
@@ -590,8 +591,6 @@ void CPlayer::InitializeSound()
 	m_mapMusicList.emplace(DIE, s2);
 	m_mapMusicList.emplace(ATTACK, s3);
 	
-
-
 	if (m_pSound)
 		m_pSound->Initialize(m_SoundCount, m_SoundList, FMOD_LOOP_OFF);
 }

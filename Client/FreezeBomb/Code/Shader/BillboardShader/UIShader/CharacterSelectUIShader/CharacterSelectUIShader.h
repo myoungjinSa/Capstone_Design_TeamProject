@@ -5,12 +5,12 @@
 class CTexture;
 class CMaterial;
 class CUI;
-
-class CCharacterSelectionShader: public CUIShader
+class CSoundSystem;
+class CCharacterSelectUIShader: public CUIShader
 {
 public:
-	CCharacterSelectionShader();
-	virtual ~CCharacterSelectionShader();
+	CCharacterSelectUIShader();
+	virtual ~CCharacterSelectUIShader();
 
 	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
@@ -26,7 +26,8 @@ public:
 	virtual void ReleaseObjects();
 
 	void DecideTextureByCursorPosition(CSoundSystem* sound,float mouseX, float mouseY);
-
+	
+	byte SelectedCharacter() const { return (byte)m_currentTexture; };
 
 		//cpu,gpu 디스크립터 핸들을 반환해주는 함수가 각각 필요 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandleForHeapStart() { return(m_pd3dCbvSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart()); }
@@ -38,17 +39,19 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvDescriptorStartHandle() { return(m_d3dSrvCPUDescriptorStartHandle); }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorStartHandle() { return(m_d3dSrvGPUDescriptorStartHandle); }
 
-protected:
-	
-	ID3D12DescriptorHeap					*m_pd3dCbvSrvDescriptorHeap = NULL;			//cbv,srv의 서술자 힙
-
-	D3D12_CPU_DESCRIPTOR_HANDLE				m_d3dCbvCPUDescriptorStartHandle;
-	D3D12_GPU_DESCRIPTOR_HANDLE				m_d3dCbvGPUDescriptorStartHandle;
-	D3D12_CPU_DESCRIPTOR_HANDLE				m_d3dSrvCPUDescriptorStartHandle;
-	D3D12_GPU_DESCRIPTOR_HANDLE				m_d3dSrvGPUDescriptorStartHandle;
-	std::vector<CTexture*> vTexture;
+	enum CHARACTER { PINK, BROWN, WHITE, BLACK, BLUE, PANDA, NONE };
 
 private:
-	int									m_currentTexture;
+	CTexture** pSelectTextures;
 
+	ID3D12DescriptorHeap*						m_pd3dCbvSrvDescriptorHeap = nullptr;			//cbv,srv의 서술자 힙
+
+	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dCbvCPUDescriptorStartHandle;
+	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorStartHandle;
+	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dSrvCPUDescriptorStartHandle;
+	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dSrvGPUDescriptorStartHandle;
+	
+	vector<CTexture*> vTexture;
+
+	int								m_currentTexture;
 };
