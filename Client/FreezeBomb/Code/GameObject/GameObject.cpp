@@ -620,7 +620,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 //플레이어 Render로 부터 호출되서 플레이어의 프레임들을 호출하며 Render할때 호출되는 함수
 // 플레이어가 들고있는 폭탄이나 , 망치가 이 함수 Render로 호출된다.
 
-void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bHammer,bool bBomb, bool bIce, int matID, CCamera* pCamera, int nPipelineState)
+void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, bool bHammer, bool bBomb, bool bIce, int matID, CCamera* pCamera, int nPipelineState)
 {
 	OnPrepareRender();
 	if (m_pSkinningBoneTransforms)
@@ -680,6 +680,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bHammer
 		}
 		m_pMesh->Render(pd3dCommandList, 0);
 	}
+
 
 	if (!strcmp(this->m_pstrFrameName, "Lamp"))		//불꽅 파티클은 일반 GameObject Render하는 방식을 해야한다. 
 	{

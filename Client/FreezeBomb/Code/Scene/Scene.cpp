@@ -26,6 +26,8 @@ D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dCbvGPUDescriptorNextHandle;
 D3D12_CPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvCPUDescriptorNextHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvGPUDescriptorNextHandle;
 
+float CScene::m_TaggerCoolTime = 0.f;
+
 CScene::CScene() :m_musicCount(0), m_playerCount(0)
 {
 }
@@ -596,8 +598,16 @@ void CScene::PostRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeEl
 	}
 }
 
-void CScene::CheckObjectByObjectCollisions(float fElapsedTime)
+void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 {
+	if (m_TaggerCoolTime > 0.f)
+	{
+		m_TaggerCoolTime -= elapsedTime;
+		cout << m_TaggerCoolTime << endl;
+	}
+	else
+		m_TaggerCoolTime = 0.f;
+
 	if (m_pPlayer)
 	{		
 		// 플레이어와 충돌 된 오브젝트 정보를 초기화
@@ -630,7 +640,6 @@ void CScene::CheckObjectByObjectCollisions(float fElapsedTime)
 
 		}
 
-
 		iter = m.find("곰돌이");
 		if (iter != m.end())
 		{
@@ -639,6 +648,22 @@ void CScene::CheckObjectByObjectCollisions(float fElapsedTime)
 			{
 				if ((*iter).second->m_ppObjects[i]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
+					// 술래 체인지
+					if (m_pPlayer->GetIsBomb() == true && m_TaggerCoolTime <= 0.f)
+					{
+						(*iter).second->m_ppObjects[i]->SetIsBomb(true);
+						m_pPlayer->SetIsBomb(false);
+
+						m_TaggerCoolTime = 3.f;
+					}
+					else if ((*iter).second->m_ppObjects[i]->GetIsBomb() == true && m_TaggerCoolTime <= 0.f)
+					{
+						m_pPlayer->SetIsBomb(true);
+						(*iter).second->m_ppObjects[i]->SetIsBomb(false);
+
+						m_TaggerCoolTime = 3.f;
+					}
+
 					//(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
 					//m_pPlayer->SetObjectCollided((*iter).second->m_ppObjects[i]);
 					//이쪽에 일단 클라이언트단에서 못움직이게 구현. 추후에 서버에서 해야함
@@ -691,7 +716,7 @@ void CScene::CheckObjectByObjectCollisions(float fElapsedTime)
 			}	
 			if(m_pPlayer->IsCameraVibe())
 			{
-				m_bVibeTime += fElapsedTime;
+				m_bVibeTime += elapsedTime;
 
 				if(m_bVibeTime >1.0f)
 				{

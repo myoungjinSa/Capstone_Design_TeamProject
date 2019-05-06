@@ -79,7 +79,7 @@ public:
 	UINT GetPlayerCount() { return m_playerCount; }
 
 	CShaderManager* getShaderManager()	const { return m_pShaderManager; }
-	void CheckObjectByObjectCollisions(float fElapsedTime);
+	void CheckObjectByObjectCollisions(float elapsedTime);
 
 	bool DistanceToTarget(XMFLOAT3& pos);
 	void CheckWarningTimer();
@@ -88,7 +88,6 @@ public:
 
 	XMFLOAT3 ScreenPosition(int x, int y);
 
-public:
 	enum MucicEnum
 	{
 		BACKGROUNDMUSIC = 0,
@@ -178,4 +177,7 @@ private:
 		SkyBox = 1, Terrain = 2, MapObjects = 67, Item = 8,
 		EvilBear = 19, Player = 19, BombParticle = 1, CubeParticle = 1, Snow = 1, TimerUI = 11, ItemUI = 4, MenuUI = 1
 	};
+
+	// 술래 변경할 수 있는 시간
+	static float m_TaggerCoolTime;
 };

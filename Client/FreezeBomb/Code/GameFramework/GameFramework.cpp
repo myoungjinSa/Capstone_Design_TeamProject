@@ -28,7 +28,6 @@ byte g_PlayerCharacter = CGameObject::BROWN;
 extern volatile size_t g_TotalSize;
 extern volatile size_t g_FileSize;
 
-
 CGameFramework::CGameFramework()
 {
 	m_pdxgiFactory = NULL;

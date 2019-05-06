@@ -423,15 +423,20 @@ void CPlayer::DecideAnimationState(float fLength)
 
 		pController->SetAnimationState(CAnimationController::DIGGING);
 	}
+	// 치트키
 	//추후에 아이템과 충돌여부 및 아이템 획득 여부로 변경해서 하면 될듯
 	if (GetAsyncKeyState(VK_C) & 0x0001
 		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
 		)
 	{
 		m_bBomb = !m_bBomb;
+		Add_Inventory("치트_망치", CItem::NormalHammer);
+		Add_Inventory("치트_황금망치", CItem::GoldHammer);
+
 		m_bHammer = !m_bHammer;
 	}
-	if(GetAsyncKeyState(VK_X) & 0X0001
+
+	if(GetAsyncKeyState(VK_X) & 0x0001
 		&& ChattingSystem::GetInstance()->IsChattingActive() ==false)
 	{
 		pController->SetTrackAnimationSet(0, CAnimationController::SLIDE);
@@ -532,8 +537,6 @@ void CPlayer::DecideAnimationState(float fLength)
 						}
 					}
 				}
-
-
 			}
 		}
 	}

@@ -419,11 +419,11 @@ protected:
 	BoundingOrientedBox	m_xmOOBB;
 	BoundingOrientedBox	m_xmOOBBTransformed;
 
-	bool								m_bIce = false;			//얼음 여부 
-	int									m_matID;				//재질 정보
+	bool								m_bIce = false;				//얼음 여부 
+	int									m_matID;						//재질 정보
 	bool								m_bBomb = false;		//폭탄 소지 여부
-	bool								m_bHammer = false;		//망치 소지 여부
-	bool								m_bTimer = false;		//타이머 아이템 소지 여부
+	bool								m_bHammer = false;	//망치 소지 여부
+	bool								m_bTimer = false;			//타이머 아이템 소지 여부
 
 	//플레이어와의 거리
 	float		m_fDistanceToTarget = 0.0f;
