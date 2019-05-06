@@ -1313,6 +1313,8 @@ void CGameFramework::ProcessPacket(char *packet)
 				cout << "적 캐릭터 id - " << vec[i] << "\n";
 		
 		}
+		// 아래 주석 코드는 PUT_PLAYER 부분이 아닌 InGame이 시작됐다는 패킷이 들어오면
+		// 해줘야함- 명진.
 		//if (pPP->myId == m_pPlayer->GetPlayerID())
 		//{
 		//	XMFLOAT3 pos = XMFLOAT3(pPP->xPos,pPP->yPos, pPP->zPos);

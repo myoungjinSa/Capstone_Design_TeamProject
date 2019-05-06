@@ -73,6 +73,7 @@ extern HINSTANCE						ghAppInstance;
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 //#define _WITH_SYNCH_SWAPCHAIN
 #define _WITH_DIRECT2D_
+
 //서버 연동을 할 경우 
 //#define _WITH_SERVER_
 
