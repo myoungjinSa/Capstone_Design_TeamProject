@@ -6,6 +6,9 @@
 using namespace std;
 //using namespace DirectX;
 
+//#define SERVER_IP "127.0.0.1"
+#define SERVER_IP "192.168.204.68"
+
 enum ROLE { RUNNER, BOMBER };
 enum ITEM { NONEITEM = 0, HAMMER, GOLD_HAMMER, GOLD_TIMER, BOMB };
 enum PLAYER_NUM { P1, P2, P3, P4, P5, P6 };						// 몇번 플레이어 인지 

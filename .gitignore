@@ -34,3 +34,5 @@ Client/FreezeBomb/Solution/FreezeBomb.vcxproj.filters
 Client\FreezeBomb\Solution\Debug
 Server/2019_WT_SERVER/2019_WT_SERVER/Debug/
 Server/FreezeBombServer/FreezeBombServer/Debug/
+Client/FreezeBomb/Excutable/FreezeBomb_Release.iobj
+Client/FreezeBomb/Excutable/FreezeBomb_Release.ipdb

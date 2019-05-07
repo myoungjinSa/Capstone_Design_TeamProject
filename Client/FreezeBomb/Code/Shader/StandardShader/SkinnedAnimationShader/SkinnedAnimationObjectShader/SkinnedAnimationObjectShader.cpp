@@ -107,7 +107,8 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 	CAnimationCallbackHandler* pDieAnimationCallback = new CSoundCallbackHandler();
 	CAnimationCallbackHandler* pAttackAnimationCallback = new CSoundCallbackHandler();
 	CAnimationCallbackHandler* pBackRunAnimationCallback = new CSoundCallbackHandler();
-	for(UINT i=0;i<m_nObjects;i++)		//플레이어 수만큼 사운드 효과 설정해준다
+	
+	for(int i=0; i < m_nObjects; i++)		//플레이어 수만큼 사운드 효과 설정해준다
 	{
 		//m_ppObjects[i]->m_pAnimationController->SetCallbackKeys(m_ppObjects[i]->m_pAnimationController->RUNFAST, 2);
 		//m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNFAST, 0, 0.3f, (void*)CEvilBear::MUSIC_ENUM::FOOTSTEP/*MAKEINTRESOURCE(IDR_WAVE2)*/);

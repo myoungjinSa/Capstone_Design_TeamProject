@@ -2,8 +2,6 @@
 #include <math.h>
 #include "Precision.h"
 
-
-
 namespace Physics
 {
 	extern real sleepEpsilon;

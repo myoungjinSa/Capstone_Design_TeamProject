@@ -18,7 +18,8 @@
 
 
 // 전체모드할경우 주석풀으셈
-#define FullScreenMode
+//#define FullScreenMode
+
 static bool OnCartoonShading = false;
 
 byte g_PlayerCharacter = CGameObject::BROWN;
@@ -754,7 +755,7 @@ void CGameFramework::OnDestroy()
 	//Direct2D
 	if (m_pd2dbrBackground) m_pd2dbrBackground->Release();
 	if (m_pd2dbrBorder) m_pd2dbrBorder->Release();
-	for (UINT i = 0; i < m_nNameFont; ++i)
+	for (int i = 0; i < m_nNameFont; ++i)
 	{
 		if (m_pdwFont[i]) m_pdwFont[i]->Release();
 		if (m_pd2dbrText[i]) m_pd2dbrText[i]->Release();
@@ -1361,14 +1362,14 @@ void CGameFramework::ProcessPacket(char *packet)
 		//	}
 		//}
 		
-		printf("Put Player ID: %d\tx: %d, y: %D, z: %d\n", pPP->myId, pPP->xPos, pPP->yPos, pPP->zPos);
+		printf("Put Player ID: %d\tx: %d, y: %d, z: %d\n", pPP->myId, pPP->xPos, pPP->yPos, pPP->zPos);
 		break;
 	}
 	case SC_MOVE_PLAYER:
 	{
 		SC_PACKET_MOVE_PLAYER* pMP = m_Network.GetMP();
 		pMP = reinterpret_cast<SC_PACKET_MOVE_PLAYER*>(packet);
-		printf("Move Player ID: %d\tx: %d, y: %D, z: %d\n", pMP->id, pMP->xPos, pMP->yPos, pMP->zPos);
+		printf("Move Player ID: %d\tx: %d, y: %d, z: %d\n", pMP->id, pMP->xPos, pMP->yPos, pMP->zPos);
 		break;
 	}
 	case SC_REMOVE_PLAYER:

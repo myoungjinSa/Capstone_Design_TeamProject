@@ -189,19 +189,20 @@
     <ClCompile Include="..\Code\Chatting\Chatting.cpp">
       <Filter>Code\ChattingSystem</Filter>
     </ClCompile>
-    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\MenuUIShader\MenuUIShader.cpp" />
     <ClCompile Include="..\Code\Scene\LobbyScene\LobbyScene.cpp">
       <Filter>Code\Scene\LobbyScene</Filter>
     </ClCompile>
     <ClCompile Include="..\Code\Network\Network.cpp">
       <Filter>Code\Network</Filter>
     </ClCompile>
-
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\CharacterSelectUIShader\CharacterSelectUIShader.cpp">
       <Filter>Code\Shader\BillboardShader\UIShader\ChracterSelectShader</Filter>
     </ClCompile>
-    <ClCompile Include="..\Code\Physics\CPhysics.cpp">
+    <ClCompile Include="..\Code\Physics\Physics.cpp">
       <Filter>Code\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\MenuUIShader\MenuUIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\MenuUIShader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -388,25 +389,23 @@
     <ClInclude Include="..\Code\Stdafx\KeyDefine.h">
       <Filter>Code\Stdafx</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\MenuUIShader\MenuUIShader.h" />
     <ClInclude Include="..\Code\Scene\LobbyScene\LobbyScene.h">
       <Filter>Code\Scene\LobbyScene</Filter>
     </ClInclude>
     <ClInclude Include="..\Code\Network\Network.h">
       <Filter>Code\Network</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\Network\protocol.h">
-      <Filter>Code\Network</Filter>
-    </ClInclude>
-
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\CharacterSelectUIShader\CharacterSelectUIShader.h">
       <Filter>Code\Shader\BillboardShader\UIShader\ChracterSelectShader</Filter>
     </ClInclude>
     <ClInclude Include="..\Code\Physics\Precision.h">
       <Filter>Code\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\Physics\CPhysics.h">
+    <ClInclude Include="..\Code\Physics\Physics.h">
       <Filter>Code\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\MenuUIShader\MenuUIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\MenuUIShader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -604,6 +603,9 @@
     </Filter>
     <Filter Include="Code\Physics">
       <UniqueIdentifier>{9c229cc5-4e80-4172-81c7-3d29e249c726}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\MenuUIShader">
+      <UniqueIdentifier>{455c3907-511f-4790-b0d1-7df24d4d523f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

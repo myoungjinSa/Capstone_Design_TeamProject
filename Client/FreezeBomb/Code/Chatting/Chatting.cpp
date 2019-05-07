@@ -49,7 +49,7 @@ TCHAR* ChattingSystem::StringToTCHAR(string& s)
 {
 	tstring tstr;
 	const char* all = s.c_str();
-	int len = strlen(all) + 1;
+	size_t len = strlen(all) + 1;
 
 	wchar_t* t = new wchar_t[len];
 
@@ -64,8 +64,8 @@ TCHAR* ChattingSystem::StringToTCHAR(string& s)
 
 string ChattingSystem::TCHARToString(const TCHAR* ptsz)
 {
-	int len = wcslen((wchar_t*)ptsz);
-	const int charlen = 2 * len + 1;
+	size_t len = (int)wcslen((wchar_t*)ptsz);
+	const size_t charlen = 2 * len + 1;
 
 	char* psz = new char[charlen];
 	wcstombs(psz, (wchar_t*)ptsz, charlen);
@@ -155,7 +155,7 @@ void ChattingSystem::Destroy()
 {
 	m_wsChat.clear();
 	m_wsChat.shrink_to_fit();
-	for (UINT i = 0; i < m_maxChatSentenceCount; ++i)
+	for (int i = 0; i < m_maxChatSentenceCount; ++i)
 	{
 		if (m_pdwChattingFont[i]) m_pdwChattingFont[i]->Release();
 		if (m_pd2dbrChatText[i]) m_pd2dbrChatText[i]->Release();

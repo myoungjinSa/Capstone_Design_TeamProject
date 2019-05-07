@@ -181,8 +181,8 @@ XMFLOAT3 CLobbyScene::ScreenPosition(int x, int y)
 }
 void CLobbyScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wParam,LPARAM lParam)
 {
-	float mouseX = LOWORD(lParam);
-	float mouseY = HIWORD(lParam);
+	int mouseX = LOWORD(lParam);
+	int mouseY = HIWORD(lParam);
 
 	switch(nMessageID)
 	{
