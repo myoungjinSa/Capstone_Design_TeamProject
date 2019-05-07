@@ -13,9 +13,17 @@ constexpr float PLAYER_INIT_X_POS = 0;
 constexpr float PLAYER_INIT_Y_POS = 0;
 constexpr float PLAYER_INIT_Z_POS = 0;
 
-constexpr float PLAYER_INIT_X_DIR = 0;
-constexpr float PLAYER_INIT_Y_DIR = 0;
-constexpr float PLAYER_INIT_Z_DIR = 0;
+constexpr float PLAYER_INIT_X_LOOK = 0;
+constexpr float PLAYER_INIT_Y_LOOK = 0;
+constexpr float PLAYER_INIT_Z_LOOK = 0;
+
+constexpr float PLAYER_INIT_X_UP = 0;
+constexpr float PLAYER_INIT_Y_UP = 0;
+constexpr float PLAYER_INIT_Z_UP = 0;
+
+constexpr float PLAYER_INIT_X_RIGHT = 0;
+constexpr float PLAYER_INIT_Y_RIGHT = 0;
+constexpr float PLAYER_INIT_Z_RIGHT = 0;
 
 constexpr int MAX_WORKER_THREAD = 3;
 
@@ -40,8 +48,10 @@ public:
 	// 조립불가한 메모리를 다음번에 조립하기 위한 임시저장소
 	char packet_buffer[MAX_BUFFER];
 	int prev_size;
-	char xPos, yPos, zPos;
-	char xDir, yDir, zDir;
+	float xPos, yPos, zPos;
+	float xLook, yLook, zLook;
+	float xUp, yUp, zUp;
+	float xRight, yRight, zRight;
 	char score;
 	char normalItem;
 	char specialItem;
@@ -87,6 +97,7 @@ public:
 public:
 	void SendAcessComplete(char client);
 	void SendPutPlayer(char toClient, char fromClient);
+	void SendMovePlayer(char client);
 	void SendRemovePlayer(char toClient, char fromClient);
 public:
 	bool InitServer();

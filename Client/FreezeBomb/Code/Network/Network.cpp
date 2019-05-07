@@ -17,7 +17,7 @@ Network::~Network()
 	m_pGameClient = nullptr;
 }
 
-void Network::connectToServer(HWND hWnd)
+bool Network::connectToServer(HWND hWnd)
 {
 	// 서버 IP주소 입력받기
 	//std::string s;
@@ -32,7 +32,11 @@ void Network::connectToServer(HWND hWnd)
 
 	// socket()
 	sock = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, 0);
-	if (sock == INVALID_SOCKET) err_quit("socket()");
+	if (sock == INVALID_SOCKET)
+	{
+		err_quit("socket()");
+		return false;
+	}
 
 	// connect()
 	SOCKADDR_IN serveraddr;
@@ -45,6 +49,7 @@ void Network::connectToServer(HWND hWnd)
 	{
 		if (GetLastError() != WSAEWOULDBLOCK)
 			err_quit("connect()");
+		return false;
 	}
 
 	WSAAsyncSelect(sock, hWnd, WM_SOCKET, FD_CLOSE | FD_READ);
@@ -53,6 +58,8 @@ void Network::connectToServer(HWND hWnd)
 	send_wsabuf.len = BUF_SIZE;
 	recv_wsabuf.buf = recv_buffer;
 	recv_wsabuf.len = BUF_SIZE;
+
+	return true;
 }
 
 SOCKET Network::getSock()
