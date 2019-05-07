@@ -5,7 +5,8 @@
 #include <WinSock2.h>
 #include "..\Stdafx\Stdafx.h"
 //#include "protocol.h"
-#include "../../../../Server/MJFreezeBombServer/FREEZE~1/FreezeBombServer/protocol.h"
+//#include "../../../../Server/MJFreezeBombServer/FREEZE~1/FreezeBombServer/protocol.h"
+#include "../../../../Server/FreezeBombServer/FreezeBombServer/protocol.h"
 #include <string>
 
 constexpr int SERVER_PORT = 9000;
