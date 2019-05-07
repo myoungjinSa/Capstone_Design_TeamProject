@@ -3,6 +3,7 @@
 #include "../GameTimer/GameTimer.h"
 #include "../Network/Network.h"
 
+
 class CScene;
 class CPlayer;
 class CCamera;
@@ -11,7 +12,6 @@ class CSobelCartoonShader;
 class CLoadingScene;
 class CLobbyScene;
 class ChattingSystem;
-
 
 class CGameFramework
 {
@@ -180,6 +180,7 @@ private:
 	//한글인지 영어 인지
 	bool m_bHangeul{ false };
 #endif
+
 #ifdef _WITH_SERVER_
 	Network m_Network;
 #endif

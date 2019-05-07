@@ -17,7 +17,6 @@ enum STATE_TYPE { Init, Run, Over };
 //EX> 1번 클라이언트는 PINK - 2번 클라이언트는 PANDA 
 enum MATERIAL{PINK, BROWN, WHITE, BLACK, BLUE, PANDA, ICEMAT};
 
-
 constexpr int SC_ACCESS_COMPLETE = 1;
 constexpr int SC_PUT_PLAYER = 2;
 constexpr int SC_MOVE_PLAYER = 3;

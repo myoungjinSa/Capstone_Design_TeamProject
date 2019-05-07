@@ -633,7 +633,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 					XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize((*iter2)->GetPosition() ,m_pPlayer->GetPosition());
 					xmf3CollisionDir=Vector3::ScalarProduct(xmf3CollisionDir, m_pPlayer->GetMaxVelocity()*0.3f);
 					m_pPlayer->SetVelocity(-xmf3CollisionDir.x,-xmf3CollisionDir.y,-xmf3CollisionDir.z);
-					cout << i << "번째 정적인 오브젝트와 충돌" << endl;
+					//cout << i << "번째 정적인 오브젝트와 충돌" << endl;
 				}
 				++i;
 			}
@@ -673,7 +673,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 					xmf3CollisionDir=Vector3::ScalarProduct(xmf3CollisionDir, (m_pPlayer->GetMaxVelocity()*0.3f));
 					m_pPlayer->SetVelocity(-xmf3CollisionDir.x,-xmf3CollisionDir.y,-xmf3CollisionDir.z);
 					
-					cout << i << "번째 애니메이션 오브젝트와 충돌" << endl;
+					//cout << i << "번째 애니메이션 오브젝트와 충돌" << endl;
 				}
 
 				//각 캐릭터는 플레이어와의 거리 변수를 저장한다.
@@ -708,7 +708,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 
 							PlayIceBreakEffect(bBreak);
 
-							cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
+							//cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
 							break;
 						}
 					}
