@@ -4,10 +4,10 @@
 #pragma comment(lib, "ws2_32.lib")
 #include <WinSock2.h>
 #include "..\Stdafx\Stdafx.h"
-#include "protocol.h"
+//#include "protocol.h"
+#include "../../../../Server/MJFreezeBombServer/FREEZE~1/FreezeBombServer/protocol.h"
 #include <string>
 
-#define SERVER_IP "127.0.0.1"
 constexpr int SERVER_PORT = 9000;
 constexpr int BUF_SIZE = 1024;
 

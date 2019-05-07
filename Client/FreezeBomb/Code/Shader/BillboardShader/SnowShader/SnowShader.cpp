@@ -48,18 +48,18 @@ void CSnowShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_ppObjects = new CGameObject*[m_nObjects];
 	XMFLOAT3 xmf3RoatationAxis = XMFLOAT3(0.0f, 0.0, 1.0f);
 
-	int minX = -m_refCubeObject.GetWidth();
-	int maxX = m_refCubeObject.GetWidth();
-	int minZ = -m_refCubeObject.GetDepth();
-	int maxZ = m_refCubeObject.GetDepth();
+	int minX = - (int)m_refCubeObject.GetWidth();
+	int maxX = (int)m_refCubeObject.GetWidth();
+	int minZ = - (int)m_refCubeObject.GetDepth();
+	int maxZ = (int)m_refCubeObject.GetDepth();
 
 	for (int i = 0; i < m_nObjects; i++)
 	{
 		CSnow* pSnow = new CSnow(1);
 		pSnow->SetMesh(pSnowBillboardMesh);
 		pSnow->SetMaterial(0, m_pMaterial);
-		pSnow->SetOffsetX(Random(minX, maxX));
-		pSnow->SetOffsetZ(Random(minZ, maxZ));
+		pSnow->SetOffsetX(Random((float)minX, (float)maxX));
+		pSnow->SetOffsetZ(Random((float)minZ, (float)maxZ));
 		pSnow->SetPosition(0.0f, Random(300.0f, 400.0f), 0.0f);
 		pSnow->setSpeed(Random(0.5f, 1.5f));
 		m_ppObjects[i] = pSnow;
