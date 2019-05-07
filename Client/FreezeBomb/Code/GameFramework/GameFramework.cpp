@@ -17,8 +17,6 @@
 #include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
 
 
-//서버 연동을 할 경우 
-//#define _WITH_SERVER_
 // 전체모드할경우 주석풀으셈
 //#define FullScreenMode
 static bool OnCartoonShading = false;
@@ -1303,7 +1301,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		}
 
-		else if (pPP->myId < MAX_USER)
+		else /* if (pPP->myId < MAX_USER) */
 		{
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("곰돌이");
 
@@ -1319,9 +1317,9 @@ void CGameFramework::ProcessPacket(char *packet)
 		//if (pPP->myId == m_pPlayer->GetPlayerID())
 		//{
 		//	XMFLOAT3 pos = XMFLOAT3(pPP->xPos,pPP->yPos, pPP->zPos);
-		//	XMFLOAT3 look = XMFLOAT3(pPP->lookX, pPP->lookY, pPP->lookZ);
-		//	XMFLOAT3 up = XMFLOAT3(pPP->upX, pPP->upY, pPP->upZ);
-		//	XMFLOAT3 right = XMFLOAT3(pPP->rightX, pPP->rightY, pPP->rightZ);
+		//	XMFLOAT3 look = XMFLOAT3(pPP->xLook, pPP->yLook, pPP->zLook);
+		//	XMFLOAT3 up = XMFLOAT3(pPP->xUp, pPP->yUp, pPP->zUp);
+		//	XMFLOAT3 right = XMFLOAT3(pPP->xRight, pPP->yRight, pPP->zRight);
 		//	
 		//	MappingUserToEvilbear(pPP->myId, 5/*현재 접속한 유저 수를 받아야함 */);
 
@@ -1337,9 +1335,9 @@ void CGameFramework::ProcessPacket(char *packet)
 		//	char id = pPP->myId;
 		//	
 		//	XMFLOAT3 pos = XMFLOAT3(pPP->xPos,pPP->yPos, pPP->zPos);
-		//	XMFLOAT3 look = XMFLOAT3(pPP->lookX, pPP->lookY, pPP->lookZ);
-		//	XMFLOAT3 up = XMFLOAT3(pPP->upX, pPP->upY, pPP->upZ);
-		//	XMFLOAT3 right = XMFLOAT3(pPP->rightX, pPP->rightY, pPP->rightZ);
+		//	XMFLOAT3 look = XMFLOAT3(pPP->xLook, pPP->yLook, pPP->zLook);
+		//	XMFLOAT3 up = XMFLOAT3(pPP->xUp, pPP->yUp, pPP->zUp);
+		//	XMFLOAT3 right = XMFLOAT3(pPP->xRight, pPP->yRight, pPP->zRight);
 		//	
 
 		//	auto iter = m_pScene->getShaderManager()->getShaderMap().find("곰돌이");
@@ -1370,7 +1368,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	{
 		SC_PACKET_MOVE_PLAYER* pMP = m_Network.GetMP();
 		pMP = reinterpret_cast<SC_PACKET_MOVE_PLAYER*>(packet);
-		printf("Move Player ID: %d\tx: %d, y: %D, z: %d\n", pMP->id, pMP->xPos, pMP->yPos, pMP->zPos);
+		printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", pMP->id, pMP->xPos, pMP->yPos, pMP->zPos);
 		break;
 	}
 	case SC_REMOVE_PLAYER:
