@@ -75,7 +75,7 @@ extern HINSTANCE						ghAppInstance;
 #define _WITH_DIRECT2D_
 
 //서버 연동을 할 경우 
-//#define _WITH_SERVER_
+#define _WITH_SERVER_
 
 //맵툴 모드
 //#define _MAPTOOL_MODE_

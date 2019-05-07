@@ -17,10 +17,8 @@
 #include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
 
 
-//서버 연동을 할 경우 
-//#define _WITH_SERVER_
 // 전체모드할경우 주석풀으셈
-//#define FullScreenMode
+#define FullScreenMode
 static bool OnCartoonShading = false;
 
 byte g_PlayerCharacter = CGameObject::BROWN;
