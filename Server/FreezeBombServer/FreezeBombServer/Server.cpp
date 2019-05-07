@@ -73,9 +73,15 @@ void Server::RunServer()
 		clients[i].xPos = PLAYER_INIT_X_POS;
 		clients[i].yPos = PLAYER_INIT_Y_POS;
 		clients[i].zPos = PLAYER_INIT_Z_POS;
-		clients[i].xDir = PLAYER_INIT_X_DIR;
-		clients[i].yDir = PLAYER_INIT_Y_DIR;
-		clients[i].zDir = PLAYER_INIT_Z_DIR;
+		clients[i].xLook = PLAYER_INIT_X_LOOK;
+		clients[i].yLook = PLAYER_INIT_Y_LOOK;
+		clients[i].zLook = PLAYER_INIT_Z_LOOK;
+		clients[i].xUp = PLAYER_INIT_X_UP;
+		clients[i].yUp = PLAYER_INIT_Y_UP;
+		clients[i].zUp = PLAYER_INIT_Z_UP;
+		clients[i].xRight = PLAYER_INIT_X_RIGHT;
+		clients[i].yRight = PLAYER_INIT_Y_RIGHT;
+		clients[i].zRight = PLAYER_INIT_Z_RIGHT;
 		//clients.emplace_back(tmpClient);
 		//printf("Create Client ID: %d, PrevSize: %d, xPos: %d, yPos: %d, zPos: %d, xDir: %d, yDir: %d, zDir: %d\n", i, clients[i].prev_size, clients[i].xPos, clients[i].yPos, clients[i].zPos, clients[i].xDir, clients[i].yDir, clients[i].zDir);
 	}
@@ -182,8 +188,9 @@ void Server::RecvFunc(char client)
 	}
 	else {
 		// 비동기식으로 돌아가지 않고 동기식으로 돌아갔다는 오류.
+		// 키를 동시에 누를 때 발생(ex / UP키와 RIGHT키)
 		cout << "Non Overlapped Recv return.\n";
-		while (true);
+		//while (true);
 	}
 }
 
@@ -276,24 +283,28 @@ void Server::WorkerThreadFunc()
 void Server::ProcessPacket(char client, char *packet)
 {
 	CS_PACKET_UP_KEY *p = reinterpret_cast<CS_PACKET_UP_KEY *>(packet);
-	int x = clients[client].xPos;
-	int y = clients[client].yPos;
-	int z = clients[client].zPos;
+	float x = clients[client].xPos;
+	float y = clients[client].yPos;
+	float z = clients[client].zPos;
 
 	// 0번은 사이즈, 1번이 패킷타입
 	switch (p->type)
 	{
 	case CS_UP_KEY:
 		printf("Press UP Key ID: %d\n", client);
+		y += 12.25f;
 		break;
 	case CS_DOWN_KEY:
 		printf("Press DOWN Key ID: %d\n", client);
+		y -= 12.25f;
 		break;
 	case CS_LEFT_KEY:
 		printf("Press LEFT Key ID: %d\n", client);
+		x -= 12.25f;
 		break;
 	case CS_RIGHT_KEY:
 		printf("Press RIGHT Key ID: %d\n", client);
+		x += 12.25f;
 		break;
 	default:
 		wcout << L"정의되지 않은 패킷 도착 오류!!\n";
@@ -302,6 +313,9 @@ void Server::ProcessPacket(char client, char *packet)
 	clients[client].xPos = x;
 	clients[client].yPos = y;
 	clients[client].zPos = z;
+	printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
+
+	SendMovePlayer(client);
 }	
 
 void Server::SendFunc(char client, void *packet)
@@ -350,6 +364,19 @@ void Server::SendPutPlayer(char toClient, char fromClient)
 	packet.zPos = clients[fromClient].zPos;
 
 	SendFunc(toClient, &packet);
+}
+
+void Server::SendMovePlayer(char client)
+{
+	SC_PACKET_MOVE_PLAYER packet;
+	packet.id = client;
+	packet.size = sizeof(packet);
+	packet.type = SC_MOVE_PLAYER;
+	packet.xPos = clients[client].xPos;
+	packet.yPos = clients[client].yPos;
+	packet.zPos = clients[client].zPos;
+
+	SendFunc(client, &packet);
 }
 
 void Server::SendRemovePlayer(char toClient, char fromClient)
