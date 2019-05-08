@@ -7,7 +7,8 @@ using namespace std;
 //using namespace DirectX;
 
 //#define SERVER_IP "127.0.0.1"
-#define SERVER_IP "192.168.1.2"
+#define SERVER_IP "192.168.204.68"
+//#define SERVER_IP "119.195.232.145"
 
 enum ROLE { RUNNER, BOMBER };
 enum ITEM { NONEITEM = 0, HAMMER, GOLD_HAMMER, GOLD_TIMER, BOMB };

@@ -17,7 +17,7 @@
 #include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
 
 // 전체모드할경우 주석풀으셈
-//#define FullScreenMode
+#define FullScreenMode
 
 static bool OnCartoonShading = false;
 
@@ -68,6 +68,11 @@ CGameFramework::~CGameFramework()
 
 bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 {
+#ifdef _WITH_SERVER_
+	if (m_Network.connectToServer(hMainWnd) == false)
+		return false;
+#endif 
+
 	m_hInstance = hInstance;
 	m_hWnd = hMainWnd;
 
@@ -85,15 +90,15 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 
 	//CoInitialize(NULL);
 
-	if (!BuildObjects())
+	if (BuildObjects() == false)
 		return false;
 
 	CreateOffScreenRenderTargetViews();
 #ifdef _WITH_SERVER_
-	m_Network.connectToServer(hMainWnd);
 	m_Network.SetGameFrameworkPtr(hMainWnd,this);
 #endif 
-	return(true);
+
+	return true;
 }
 
 //#define _WITH_CREATE_SWAPCHAIN_FOR_HWND
@@ -143,7 +148,7 @@ void CGameFramework::CreateSwapChain()
 	dxgiSwapChainDesc.OutputWindow = m_hWnd;
 	dxgiSwapChainDesc.SampleDesc.Count = (m_bMsaa4xEnable) ? 4 : 1;
 	dxgiSwapChainDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
-	dxgiSwapChainDesc.Windowed = TRUE;
+	dxgiSwapChainDesc.Windowed = false;
 
 	dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
