@@ -152,7 +152,7 @@ void CGameFramework::CreateSwapChain()
 
 	dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-	HRESULT hResult = m_pdxgiFactory->CreateSwapChain(m_pd3dCommandQueue, &dxgiSwapChainDesc, (IDXGISwapChain **)&m_pdxgiSwapChain);
+	HRESULT hResult = m_pdxgiFactory->CreateSwapChain(m_pd3dCommandQueue, &dxgiSwapChainDesc, (IDXGISwapChain**)&m_pdxgiSwapChain);
 	
 #ifdef FullScreenMode
 	//전체 모드로 시작
@@ -690,27 +690,10 @@ void CGameFramework::OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM w
 	switch (nMessageID)
 	{
 	case WM_KEYUP:
-		switch (wParam)
-		{
-		case CMapToolShader::DeadTree:
-		case CMapToolShader::PineTree:
-		case CMapToolShader::BigRock:
-		case CMapToolShader::Deer:
-		case CMapToolShader::Frozen_Road:
-		case CMapToolShader::Fence:
-			if (m_pMapToolShader != nullptr && m_pPlayer != nullptr)
-				m_pMapToolShader->InstallMapObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, wParam);
-			break;
-
-		case CMapToolShader::OutputFile:
-			if (m_pMapToolShader)
-				m_pMapToolShader->MakeMapFile();
-			break;
-
-		default:
-			break;
-		}
+		if(m_pMapToolShader && m_pPlayer)
+			m_pMapToolShader->InstallMapObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, wParam);
 		break;
+
 	default:
 		break;
 	}
@@ -836,7 +819,6 @@ bool CGameFramework::BuildObjects()
 	loadingThread.emplace_back(thread{ &CGameFramework::Worker_Thread, this });
 
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
-
 
 	m_pLobbyScene = new CLobbyScene;
 	if(m_pLobbyScene)

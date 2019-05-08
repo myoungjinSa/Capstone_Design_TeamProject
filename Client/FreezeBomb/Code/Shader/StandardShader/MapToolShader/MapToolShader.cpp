@@ -44,13 +44,22 @@ void CMapToolShader::InstallMapObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "SM_Deer");
 		break;
 		// 5
-	case Frozen_Road:
-		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "FrozenRoad");
-		break;
-		// 6
 	case Fence:
-		m_nCurrFenceModelIndex = (m_nCurrFenceModelIndex) % (m_nFenceModelCount) + 1;
+		m_nCurrFenceModelIndex = (m_nCurrFenceModelIndex) % (m_nFenceModelCount)+1;
 		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "LowPolyFence_0" + to_string(m_nCurrFenceModelIndex));
+		break;
+
+		// 6
+	case Frozen_Road:
+		BuildWall(pd3dDevice, pd3dCommandList);
+		//InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "FrozenRoad");
+		break;
+	case DeleteAllObject:
+		DeleteAll();
+		break;
+
+	case DeleteObject:
+		Delete();
 		break;
 		// O(¿µ¾î)
 	case OutputFile:
@@ -240,7 +249,7 @@ void CMapToolShader::BuildObjects(const map<string, CLoadedModelInfo*>& ModelMap
 	m_nDeadTreeModelCount = 5;
 	m_nPineTreeModelCount = 8;
 	m_nBigRockModelCount = 4;
-	m_nFenceModelCount = 2;
+	m_nFenceModelCount = 2;	
 }
 
 void CMapToolShader::ReleaseObjects()
@@ -256,6 +265,12 @@ void CMapToolShader::ReleaseObjects()
 		iter = m_ModelsList.erase(iter);
 	m_ModelsList.clear();
 
+	for (auto iter = m_RemovedObjectList.begin(); iter != m_RemovedObjectList.end();)
+	{
+		(*iter)->Release();
+		iter = m_RemovedObjectList.erase(iter);
+	}
+	m_RemovedObjectList.clear();
 }
 
 void CMapToolShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
@@ -269,6 +284,82 @@ void CMapToolShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera 
 			iter->second->Animate(m_fElapsedTime);
 			iter->second->UpdateTransform(nullptr);
 			iter->second->Render(pd3dCommandList, pCamera, nPipelineState);
+		}
+	}
+}
+
+void CMapToolShader::DeleteAll()
+{
+	for (auto iter = m_Objects.begin(); iter != m_Objects.end(); ++iter)
+	{
+		m_RemovedObjectList.emplace_back((*iter).second);
+	}
+	for (auto iter = m_Objects.begin(); iter != m_Objects.end();)
+		iter = m_Objects.erase(iter);
+
+	m_Objects.clear();
+
+}
+
+void CMapToolShader::Delete()
+{
+	if (m_Objects.size() > 0)
+	{
+		auto iter = m_Objects.end();
+		--iter;
+		m_RemovedObjectList.emplace_back((*iter).second);
+		iter = m_Objects.erase(iter);
+	}
+}
+
+void CMapToolShader::BuildWall(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+{
+	string s = "LowPolyFence_01";
+	auto iter = m_ModelsList.find(s);
+	if (iter != m_ModelsList.end())
+	{
+		int size = 11;
+		for (int i = 0; i < 2; ++i)
+		{
+			for (int j = 1; j < 46; ++j)
+			{
+				CSurrounding* pGameObject = new CSurrounding(pd3dDevice, pd3dCommandList, nullptr);
+				pGameObject->SetChild((*iter).second->m_pModelRootObject, true);
+				pGameObject->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter).second);
+
+				if(i == 0)
+					pGameObject->SetPosition(j * size, 0, 2);
+				else
+					pGameObject->SetPosition(j * size, 0, 305);
+
+				m_Objects.emplace_back(make_pair("LowPolyFence_01", pGameObject));
+
+			}
+		
+			for (int i = 0; i < 2; ++i)
+			{
+				for (int j = 1; j < 27; ++j)
+				{
+					CSurrounding* pGameObject = new CSurrounding(pd3dDevice, pd3dCommandList, nullptr);
+					pGameObject->SetChild((*iter).second->m_pModelRootObject, true);
+					pGameObject->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter).second);
+
+					if (i == 0)
+					{
+						pGameObject->SetPosition(1, 0, j * size + 4);
+						XMFLOAT3 rotate = XMFLOAT3(0, 1, 0);
+						pGameObject->Rotate(&rotate, 90);
+					}
+					else
+					{
+						pGameObject->SetPosition(501, 0, j * size + 4);
+						XMFLOAT3 rotate = XMFLOAT3(0, 1, 0);
+						pGameObject->Rotate(&rotate, 90);
+					}
+
+					m_Objects.emplace_back(make_pair("LowPolyFence_01", pGameObject));
+				}
+			}
 		}
 	}
 }
