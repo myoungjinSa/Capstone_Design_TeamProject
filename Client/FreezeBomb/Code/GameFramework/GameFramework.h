@@ -87,7 +87,7 @@ private:
 
 	int 						m_nState{ GAMESTATE::INGAME };
 	//게임 상태 
-	enum GAMESTATE {LOBBY=0,CHARACTER_SELECT,INGAME,PAUSE,OPTION};
+	enum GAMESTATE {LOBBY=0,CHARACTER_SELECT, READY, INGAME,PAUSE,OPTION};
 
 	int								m_nWndClientWidth;
 	int								m_nWndClientHeight;
@@ -183,6 +183,18 @@ private:
 
 #ifdef _WITH_SERVER_
 	Network m_Network;
+	int hostId;
+	int clientCount = 0;
+	SC_PACKET_ACCESS_COMPLETE *pAC = NULL;
+	SC_PACKET_ACCESS_PLAYER *pAP = NULL;
+	SC_PACKET_PUT_PLAYER *pPP = NULL;
+	SC_PACKET_MOVE_PLAYER *pMP = NULL;
+	SC_PACKET_USE_ITEM *pUI = NULL;
+	SC_PACKET_ROLL_CHANGE *pRC = NULL;
+	SC_PACKET_ROUND_END *pRE = NULL;
+	SC_PACKET_REMOVE_PLAYER *pRP = NULL;
+	SC_PACKET_COMPARE_TIME *pCT = NULL;
+	SC_PACKET_ROUND_START *pRS = NULL;
 #endif
 	//사운드 쓰레드 풀
 	vector<thread> soundThreads;

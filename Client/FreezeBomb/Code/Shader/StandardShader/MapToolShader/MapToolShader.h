@@ -24,6 +24,9 @@ public:
 	virtual void ReleaseObjects();
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState);
 
+	void DeleteAll();
+	void Delete();
+
 	int GetPineTreeModelCount() { return m_nPineTreeModelCount; }
 	int GetDeadTreeModelCount() { return m_nDeadTreeModelCount; }
 	int GetBigRockModelCount() { return m_nBigRockModelCount; }
@@ -39,11 +42,15 @@ public:
 	void SetCurrBigRockIndex(int index) { m_nCurrBigRockModelIndex = index; }
 	void SetCurrFenceIndex(int index) { m_nCurrFenceModelIndex = index; }
 
-	enum MapObjectType { DeadTree = 0x31, PineTree = 0x32, BigRock = 0x33, Deer = 0x34, Frozen_Road = 0x35, Fence = 0x36, OutputFile = 0x4F };
+	enum MapObjectType { DeadTree = 0x31, PineTree = 0x32, BigRock = 0x33, Deer = 0x34, Fence = 0x35, Frozen_Road = 0x36, 
+		DeleteAllObject = 0x44, DeleteObject = 0x52, OutputFile = 0x4F };
+
+	void BuildWall(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 
 private:
 	map<string, CLoadedModelInfo*> m_ModelsList;			// 모델들을 관리하는 맵 
-	vector<pair<string,CGameObject*>> m_Objects;			//실제 파일에 쓸 오브젝트;
+	vector<pair<string, CGameObject*>> m_Objects;			//실제 파일에 쓸 오브젝트;
+	list<CGameObject*> m_RemovedObjectList;
 
 	int m_nObjects;
 
