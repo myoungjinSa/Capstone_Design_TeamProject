@@ -163,6 +163,19 @@ void Network::SendPacket(int wParam)
 		send_wsabuf.len = sizeof(pLeft);
 		pLeft->type = CS_LEFT_KEY;
 		break;
+	case VK_RETURN:
+		pReady = reinterpret_cast<CS_PACKET_READY *>(send_buffer);
+		pReady->size = sizeof(pReady);
+		send_wsabuf.len = sizeof(pReady);
+		pReady->type = CS_READY;
+		// matID 설정필요
+		break;
+	case VK_F5:
+		pRequestStart = reinterpret_cast<CS_PACKET_REQUEST_START *>(send_buffer);
+		pRequestStart->size = sizeof(pRequestStart);
+		send_wsabuf.len = sizeof(pRequestStart);
+		pRequestStart->type = CS_REQUEST_START;
+		break;
 	}
 	DWORD iobyte = 0;
 	int retval = WSASend(sock, &send_wsabuf, 1, &iobyte, 0, NULL, NULL);
