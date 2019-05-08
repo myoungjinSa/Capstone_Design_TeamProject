@@ -3,6 +3,8 @@
 
 Server::Server()
 {
+	clientCount = 0;
+	hostId = -1;
 	//clients.reserve(MAX_USER);
 	workerThreads.reserve(MAX_WORKER_THREAD);
 }
@@ -15,6 +17,8 @@ Server::~Server()
 
 bool Server::InitServer()
 {
+	clientCount = 0;
+	hostId = -1;
 	// Winsock Start - windock.dll 로드
 	WSADATA WSAData;
 	if (WSAStartup(MAKEWORD(2, 2), &WSAData) != 0)
@@ -137,6 +141,11 @@ void Server::AcceptThreadFunc()
 		
 		///////////////////////////////////// 클라이언트 초기화 정보 수정 위치 /////////////////////////////////////
 		clients[new_id].socket = clientSocket;
+		if (-1 == hostId)
+		{
+			hostId = new_id;
+			printf("현재 방장은 %d입니다.\n", hostId);
+		}
 		///////////////////////////////////// 클라이언트 초기화 정보 수정 위치 /////////////////////////////////////
 		ZeroMemory(&clients[new_id].over_ex.over, sizeof(clients[new_id].over_ex.over));
 		
@@ -146,12 +155,11 @@ void Server::AcceptThreadFunc()
 
 		clients[new_id].in_use = true;
 
-		SendAcessComplete(new_id);
-		printf("%d 클라이언트 접속 완료\n", new_id);
+		SendAccessComplete(new_id);
 		// 기존 유저들에게 이후 접속한 유저들 출력
 		for (int i = 0; i < MAX_USER; ++i)
 			if (true == clients[i].in_use)
-				SendPutPlayer(i, new_id);
+				SendAccessPlayer(i, new_id);
 
 		// 처음 접속한 나에게 기존 유저들 출력
 		for (int i = 0; i < MAX_USER; ++i)
@@ -160,9 +168,10 @@ void Server::AcceptThreadFunc()
 				continue;
 			if (i == new_id)
 				continue;
-			SendPutPlayer(new_id, i);
+			SendAccessPlayer(new_id, i);
 		}
-
+		++clientCount;
+		printf("%d 클라이언트 접속 완료, 현재 클라이언트 수: %d\n", new_id, clientCount);
 		RecvFunc(new_id);
 	}
 
@@ -282,40 +291,91 @@ void Server::WorkerThreadFunc()
 
 void Server::ProcessPacket(char client, char *packet)
 {
-	CS_PACKET_UP_KEY *p = reinterpret_cast<CS_PACKET_UP_KEY *>(packet);
 	float x = clients[client].xPos;
 	float y = clients[client].yPos;
 	float z = clients[client].zPos;
 
 	// 0번은 사이즈, 1번이 패킷타입
-	switch (p->type)
+	switch (packet[1])
 	{
 	case CS_UP_KEY:
 		printf("Press UP Key ID: %d\n", client);
 		y += 12.25f;
+		clients[client].xPos = x;
+		clients[client].yPos = y;
+		clients[client].zPos = z;
+		printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
+
+		SendMovePlayer(client);
 		break;
 	case CS_DOWN_KEY:
 		printf("Press DOWN Key ID: %d\n", client);
 		y -= 12.25f;
+		clients[client].xPos = x;
+		clients[client].yPos = y;
+		clients[client].zPos = z;
+		printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
+
+		SendMovePlayer(client);
 		break;
 	case CS_LEFT_KEY:
 		printf("Press LEFT Key ID: %d\n", client);
 		x -= 12.25f;
+		clients[client].xPos = x;
+		clients[client].yPos = y;
+		clients[client].zPos = z;
+		printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
+
+		SendMovePlayer(client);
 		break;
 	case CS_RIGHT_KEY:
 		printf("Press RIGHT Key ID: %d\n", client);
 		x += 12.25f;
+		clients[client].xPos = x;
+		clients[client].yPos = y;
+		clients[client].zPos = z;
+		printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
+
+		SendMovePlayer(client);
+		break;
+	case CS_READY:
+		printf("전체 클라 수: %d\n", clientCount);
+		printf("Ready한 클라 수: %d\n", ++readyCount);
+		clients[client].isReady = true;
+		clients[client].matID = packet[2];	// matID
+		break;
+	case CS_REQUEST_START:
+		if (clientCount == readyCount)
+		{
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (true == clients[i].in_use)
+				{
+					SendRoundStart(i);
+					for (int j = 0; j < MAX_USER; ++j)
+					{
+						if (true == clients[j].in_use)
+							SendPutPlayer(i, j);
+					}
+				}
+			}
+			printf("Round Start\n");
+		}
+		else
+		{
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (true == clients[i].in_use)
+					SendPleaseReady(i);
+			}
+			printf("Please Ready\n");
+		}
 		break;
 	default:
 		wcout << L"정의되지 않은 패킷 도착 오류!!\n";
 		while (true);
 	}
-	clients[client].xPos = x;
-	clients[client].yPos = y;
-	clients[client].zPos = z;
-	printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
-
-	SendMovePlayer(client);
+	
 }	
 
 void Server::SendFunc(char client, void *packet)
@@ -343,20 +403,31 @@ void Server::SendFunc(char client, void *packet)
 	}
 }
 
-void Server::SendAcessComplete(char client)
+void Server::SendAccessComplete(char client)
 {
 	SC_PACKET_ACCESS_COMPLETE packet;
 	packet.myId = client;
+	packet.hostId = hostId;
 	packet.size = sizeof(packet);
 	packet.type = SC_ACCESS_COMPLETE;
 
 	SendFunc(client, &packet);
 }
 
+void Server::SendAccessPlayer(char toClient, char fromClient)
+{
+	SC_PACKET_ACCESS_PLAYER packet;
+	packet.id = fromClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_ACCESS_PLAYER;
+
+	SendFunc(toClient, &packet);
+}
+
 void Server::SendPutPlayer(char toClient, char fromClient)
 {
 	SC_PACKET_PUT_PLAYER packet;
-	packet.myId = fromClient;
+	packet.id = fromClient;
 	packet.size = sizeof(packet);
 	packet.type = SC_PUT_PLAYER;
 	packet.xPos = clients[fromClient].xPos;
@@ -364,6 +435,26 @@ void Server::SendPutPlayer(char toClient, char fromClient)
 	packet.zPos = clients[fromClient].zPos;
 
 	SendFunc(toClient, &packet);
+}
+
+void Server::SendRoundStart(char client)
+{
+	SC_PACKET_ROUND_START packet;
+	packet.size = sizeof(packet);
+	packet.clientCount = clientCount;
+	packet.type = SC_ROUND_START;
+
+	SendFunc(client, &packet);
+}
+
+void Server::SendPleaseReady(char client)
+{
+	SC_PACKET_PLEASE_READY packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PLEASE_READY;
+
+	SendFunc(client, &packet);
+
 }
 
 void Server::SendMovePlayer(char client)
@@ -383,6 +474,7 @@ void Server::SendRemovePlayer(char toClient, char fromClient)
 {
 	SC_PACKET_REMOVE_PLAYER packet;
 	packet.id = fromClient;
+	packet.hostId = hostId;
 	packet.size = sizeof(packet);
 	packet.type = SC_REMOVE_PLAYER;
 
@@ -391,6 +483,25 @@ void Server::SendRemovePlayer(char toClient, char fromClient)
 
 void Server::ClientDisconnect(char client)
 {
+	
+	clients[client].in_use = false;
+	if (clients[client].isReady)
+	{
+		readyCount--;
+		clients[client].isReady = false;
+	}
+	if (hostId == client)
+	{
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (true == clients[i].in_use)
+			{
+				hostId = i;
+				printf("현재 방장은 %d입니다.\n", hostId);
+				break;
+			}
+		}
+	}
 	for (int i = 0; i < MAX_USER; ++i)
 	{
 		if (false == clients[i].in_use)
@@ -400,8 +511,8 @@ void Server::ClientDisconnect(char client)
 		SendRemovePlayer(i, client);
 	}
 	closesocket(clients[client].socket);
-	clients[client].in_use = false;
-	printf("%d 클라이언트 접속 종료\n", (int)client);
+	clientCount--;
+	printf("%d 클라이언트 접속 종료, 현재 클라이언트 수: %d\n", (int)client, clientCount);
 }
 
 void Server::err_quit(const char* msg)

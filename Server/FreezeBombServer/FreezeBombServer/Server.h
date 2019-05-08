@@ -56,6 +56,8 @@ public:
 	char normalItem;
 	char specialItem;
 	char role;
+	char matID;
+	bool isReady;
 public:
 	SOCKETINFO() {
 		in_use = false;
@@ -63,6 +65,7 @@ public:
 		normalItem = ITEM::NONEITEM;
 		specialItem = ITEM::NONEITEM;
 		role = ROLE::RUNNER;
+		isReady = false;
 		ZeroMemory(&over_ex.messageBuffer, sizeof(over_ex.messageBuffer));
 		ZeroMemory(&packet_buffer, sizeof(packet_buffer));
 		over_ex.dataBuffer.len = MAX_BUFFER;
@@ -81,6 +84,9 @@ private:
 	// 배열로 바꾸니 제대로 동작함. 왜? 무슨 차이?
 	SOCKETINFO clients[MAX_USER];
 	vector<thread> workerThreads;
+	int clientCount;
+	int readyCount;
+	int hostId;
 public:
 	Server();
 	~Server();
@@ -95,8 +101,11 @@ public:
 	void RecvFunc(char client);
 	void ClientDisconnect(char client);
 public:
-	void SendAcessComplete(char client);
+	void SendAccessComplete(char client);
+	void SendAccessPlayer(char toClient, char fromClient);
 	void SendPutPlayer(char toClient, char fromClient);
+	void SendRoundStart(char client);
+	void SendPleaseReady(char client);
 	void SendMovePlayer(char client);
 	void SendRemovePlayer(char toClient, char fromClient);
 public:

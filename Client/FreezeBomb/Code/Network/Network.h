@@ -5,7 +5,7 @@
 #include <WinSock2.h>
 #include "..\Stdafx\Stdafx.h"
 //#include "protocol.h"
-#include "../../../../Server/MJFreezeBombServer/FREEZE~1/FreezeBombServer/protocol.h"
+#include "../../../../Server/FreezeBombServer/FreezeBombServer/protocol.h"
 #include <string>
 
 constexpr int SERVER_PORT = 9000;
@@ -31,20 +31,24 @@ private:
 	int		saved_packet_size = 0;
 
 
-private:
-	SC_PACKET_ACCESS_COMPLETE *pAC = NULL;
-	SC_PACKET_PUT_PLAYER *pPP = NULL;
-	SC_PACKET_MOVE_PLAYER *pMP = NULL;
-	SC_PACKET_USE_ITEM *pUI = NULL;
-	SC_PACKET_ROLL_CHANGE *pRC = NULL;
-	SC_PACKET_ROUND_END *pRE = NULL;
-	SC_PACKET_REMOVE_PLAYER *pRP = NULL;
-	SC_PACKET_COMPARE_TIME *pCT = NULL;
+//public:
+//	SC_PACKET_ACCESS_COMPLETE *pAC = NULL;
+//	SC_PACKET_ACCESS_PLAYER *pAP = NULL;
+//	SC_PACKET_PUT_PLAYER *pPP = NULL;
+//	SC_PACKET_MOVE_PLAYER *pMP = NULL;
+//	SC_PACKET_USE_ITEM *pUI = NULL;
+//	SC_PACKET_ROLL_CHANGE *pRC = NULL;
+//	SC_PACKET_ROUND_END *pRE = NULL;
+//	SC_PACKET_REMOVE_PLAYER *pRP = NULL;
+//	SC_PACKET_COMPARE_TIME *pCT = NULL;
+//	SC_PACKET_ROUND_START *pRS = NULL;
 private:
 	CS_PACKET_UP_KEY *pUp = NULL;
 	CS_PACKET_DOWN_KEY *pDown = NULL;
 	CS_PACKET_RIGHT_KEY *pRight = NULL;
 	CS_PACKET_LEFT_KEY *pLeft = NULL;
+	CS_PACKET_READY *pReady = NULL;
+	CS_PACKET_REQUEST_START *pRequestStart = NULL;
 
 private:
 	//ReadPacket에서 받은 패킷들을 CGameFramework에 전달하기 위한 포인터
@@ -67,7 +71,10 @@ public:
 	void ProcessPacket(char* packet);
 	void SendPacket(int data);
 public:
-	SC_PACKET_ACCESS_COMPLETE* GetAC() { return pAC; }
+	CS_PACKET_REQUEST_START* GetRS() { return pRequestStart; }
+	void SetNullRS() { pRequestStart = NULL; }
+	/*SC_PACKET_ACCESS_COMPLETE* GetAC() { return pAC; }
+	SC_PACKET_ACCESS_PLAYER* GetAP() { return pAP; }
 	SC_PACKET_PUT_PLAYER* GetPP() {return pPP; }
 	SC_PACKET_MOVE_PLAYER* GetMP() { return pMP; }
 	SC_PACKET_USE_ITEM* GetUI() { return pUI; }
@@ -75,6 +82,7 @@ public:
 	SC_PACKET_ROUND_END* GetRE() { return pRE; }
 	SC_PACKET_REMOVE_PLAYER* GetRP() { return pRP; }
 	SC_PACKET_COMPARE_TIME* GetCT() { return pCT; }
+	SC_PACKET_ROUND_START* GetRS() { return pRS; }*/
 
 };
 
