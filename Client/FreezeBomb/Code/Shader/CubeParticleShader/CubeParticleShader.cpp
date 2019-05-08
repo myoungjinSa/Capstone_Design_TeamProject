@@ -99,11 +99,12 @@ void CCubeParticleShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsC
 	auto iter = Context.find("IceTexture");
 	if (iter != Context.end())
 	{
-		CCubeMeshTextured* pCubeMesh = new CCubeMeshTextured(pd3dDevice, pd3dCommandList, 0.5f, 0.5f, 0.5f);
+		//CCubeMeshTextured* pCubeMesh = new CCubeMeshTextured(pd3dDevice, pd3dCommandList, 0.5f, 0.5f, 0.5f);
+		CCubeMeshTextured* pCubeMesh = new CCubeMeshTextured(pd3dDevice, pd3dCommandList, 0.1f, 0.1f, 0.1f);
 		CMaterial* pMaterial = new CMaterial(1);
 		pMaterial->SetTexture((*iter).second, 0);
 		
-		int ParticleCount = 100;
+		int ParticleCount = 1000;
 
 		for (int i = 0; i < ParticleCount; i++)
 		{
@@ -159,8 +160,8 @@ void CCubeParticleShader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommand
 void CCubeParticleShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
 	UpdateShaderVariables(pd3dCommandList);
-	auto iter = m_CubeParticleList.begin();
 
+	auto iter = m_CubeParticleList.begin();
 	OnPrepareRender(pd3dCommandList, GameObject);
 	(*iter)->Render(pd3dCommandList, pCamera, GameObject, m_CubeParticleList.size());
 	OnPrepareRender(pd3dCommandList, GameObject_Shadow);
