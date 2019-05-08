@@ -2,6 +2,8 @@
 //#include <iostream>
 //#include <windows.h>
 //#include <DirectXMath.h>
+//#define SERVER_IP "192.168.22.199"
+#define SERVER_IP "127.0.0.1"
 
 using namespace std;
 //using namespace DirectX;
@@ -22,29 +24,70 @@ constexpr int SC_REMOVE_PLAYER = 4;
 constexpr int SC_USE_ITEM = 5;
 constexpr int SC_ROLL_CHANGE = 6;
 constexpr int SC_ROUND_END = 7;
+constexpr int SC_ROUND_START = 8;
+constexpr int SC_PLEASE_READY = 9;
+constexpr int SC_ACCESS_PLAYER = 10;
 
 constexpr int CS_UP_KEY = 0;
 constexpr int CS_DOWN_KEY = 1;
 constexpr int CS_RIGHT_KEY = 2;
 constexpr int CS_LEFT_KEY = 3;
+constexpr int CS_READY = 4;
+constexpr int CS_REQUEST_START = 5;
 
 //[클라->서버]
+
+//<< Ready Room 패킷 종류 >>
 
 struct SC_PACKET_ACCESS_COMPLETE
 {
 	char size;
 	char type;
 	char myId;
+	char hostId;
 	char score;				// 플레이어 점수
 	char roundCount;		// 몇 라운드인지
 	char serverTime;				// 서버 시간
+};
+
+struct SC_PACKET_ACCESS_PLAYER
+{
+	char size;
+	char type;
+	char id;
+};
+
+struct CS_PACKET_READY
+{
+	char size;
+	char type;
+	char matID;
+};
+
+struct CS_PACKET_REQUEST_START
+{
+	char size;
+	char type;
+};
+
+struct SC_PACKET_PLEASE_READY
+{
+	char size;
+	char type;
+};
+
+struct SC_PACKET_ROUND_START
+{
+	char size;
+	char type;
+	char clientCount;
 };
 
 struct SC_PACKET_PUT_PLAYER
 {
 	char size;
 	char type;
-	char myId;
+	char id;
 	char score;		// 플레이어 점수
 	char matID;			//유저가 원하는 캐릭터는 재질정보가 필요하다.
 	float xPos;		// 오브젝트들 위치
@@ -188,6 +231,7 @@ struct SC_PACKET_REMOVE_PLAYER
 	char size;
 	char type;
 	char id;
+	char hostId;
 };
 
 struct SC_PACKET_ROUND_END

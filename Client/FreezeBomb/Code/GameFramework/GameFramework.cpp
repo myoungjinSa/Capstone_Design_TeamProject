@@ -644,6 +644,20 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			else
 				OnCartoonShading = false;
 			break;
+#ifdef _WITH_SERVER_
+		case VK_F5:
+		{
+			if (m_nState == READY)
+			{
+				if (hostId == m_pPlayer->GetPlayerID() && !m_Network.GetRS())
+				{
+					m_Network.SendPacket(VK_F5);
+					printf("Request Start 패킷 보냄\n");
+				}
+			}
+			break;
+		}
+#endif
 		//case VK_F9:
 			//ChangeSwapChainState();
 			//break;
@@ -661,17 +675,23 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 #elif
 			if(m_nState == CHARACTER_SELECT)
 			{
-#endif		
-				if(m_pLobbyScene)
+#endif			
+#ifdef _WITH_SERVER_
+				m_Network.SendPacket(VK_RETURN);
+				m_nState = READY;
+#elif
+				if (m_pLobbyScene)
 				{
 					m_pLobbyScene->SetMusicStart(false);
 					m_pLobbyScene->StopBackgroundMusic();
 				}
 				m_nState = INGAME;
+#endif
 			}
 
 			break;
 		}
+
 #ifdef _WITH_DIRECT2D_
 		case VK_HANGEUL:
 			(m_bHangeul) ? m_bHangeul = false : m_bHangeul = true;
@@ -1287,99 +1307,129 @@ void CGameFramework::ProcessPacket(char *packet)
 	{
 	case SC_ACCESS_COMPLETE:
 	{
-		SC_PACKET_ACCESS_COMPLETE* pAC = m_Network.GetAC();
+		//SC_PACKET_ACCESS_COMPLETE* pAC = m_Network.GetAC();
 		pAC = reinterpret_cast<SC_PACKET_ACCESS_COMPLETE*>(packet);
 		//플레이어 아이디 Set
 		m_pPlayer->SetPlayerID(pAC->myId);
+		hostId = pAC->hostId;
 		cout << "플레이어 ID -" << (int)m_pPlayer->GetPlayerID() << "\n";
+
 		printf("Access Complete! My ID : %d\n", pAC->myId);
 		break;
 	}
-	case SC_PUT_PLAYER:
+	case SC_ACCESS_PLAYER:
 	{
-		SC_PACKET_PUT_PLAYER* pPP = m_Network.GetPP();
-		pPP = reinterpret_cast<SC_PACKET_PUT_PLAYER*>(packet);
+		//SC_PACKET_ACCESS_PLAYER* pAP = m_Network.GetAP();
+		pAP = reinterpret_cast<SC_PACKET_ACCESS_PLAYER*>(packet);
 
-		if (pPP->myId == m_pPlayer->GetPlayerID())
-		{
-			MappingUserToEvilbear(pPP->myId, 5/*현재 접속한 유저 수를 받아야함 */);
+		// 여기서 접속한 플레이어들의 초기 정보를 받아 저장해놓고
+		// Ingame 시작할 때, clientCount 기반해서 실제 객체 만들어주면 좋을 듯. 상의필요.
 
-		}
-
-		else if (pPP->myId < MAX_USER)
-		{
-			auto iter = m_pScene->getShaderManager()->getShaderMap().find("곰돌이");
-
-
-			auto vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
-
-			for (int i = 0; i < vec.size(); ++i)
-				cout << "적 캐릭터 id - " << vec[i] << "\n";
-		
-		}
-		// 아래 주석 코드는 PUT_PLAYER 부분이 아닌 InGame이 시작됐다는 패킷이 들어오면
-		// 해줘야함- 명진.
-		//if (pPP->myId == m_pPlayer->GetPlayerID())
+		//if (pAP->id == m_pPlayer->GetPlayerID())
 		//{
-		//	XMFLOAT3 pos = XMFLOAT3(pPP->xPos,pPP->yPos, pPP->zPos);
-		//	XMFLOAT3 look = XMFLOAT3(pPP->lookX, pPP->lookY, pPP->lookZ);
-		//	XMFLOAT3 up = XMFLOAT3(pPP->upX, pPP->upY, pPP->upZ);
-		//	XMFLOAT3 right = XMFLOAT3(pPP->rightX, pPP->rightY, pPP->rightZ);
-		//	
-		//	MappingUserToEvilbear(pPP->myId, 5/*현재 접속한 유저 수를 받아야함 */);
+		//	MappingUserToEvilbear(pAP->id, 5/*현재 접속한 유저 수를 받아야함 */);
 
-		//	m_pPlayer->SetPosition(pos);
-		//	m_pPlayer->SetLookVector(look);
-		//	m_pPlayer->SetUpVector(up);
-		//	m_pPlayer->SetRightVector(right);
-		//	//m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
-		//	//m_pPlayer->SetDirection()
 		//}
-		//else if(pPP->myId < MAX_USER)
-		//{
-		//	char id = pPP->myId;
-		//	
-		//	XMFLOAT3 pos = XMFLOAT3(pPP->xPos,pPP->yPos, pPP->zPos);
-		//	XMFLOAT3 look = XMFLOAT3(pPP->lookX, pPP->lookY, pPP->lookZ);
-		//	XMFLOAT3 up = XMFLOAT3(pPP->upX, pPP->upY, pPP->upZ);
-		//	XMFLOAT3 right = XMFLOAT3(pPP->rightX, pPP->rightY, pPP->rightZ);
-		//	
 
+		//else if (pAP->id < MAX_USER)
+		//{
 		//	auto iter = m_pScene->getShaderManager()->getShaderMap().find("곰돌이");
 
-		//	auto terrainIter = m_pScene->getShaderManager()->getShaderMap().find("Terrain");
 
-		//	if (iter != m_pScene->getShaderManager()->getShaderMap().end()
-		//		&& terrainIter != m_pScene->getShaderManager()->getShaderMap().end())
-		//	{
-		//		
-		//		//적 캐릭터 BuildObjects 부분
-		//		dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),
-		//			m_pScene->getShaderManager()->getResourceManager()->getModelMap(), m_pScene->getShaderManager()->getResourceManager()->getBoundMap(),
-		//			6/*적 캐릭터 수*/, dynamic_cast<CTerrainShader*>((*terrainIter).second)->getTerrain());
-		//		(*iter).second->m_ppObjects[id]->SetPosition(pos);
-		//		(*iter).second->m_ppObjects[id]->SetLookVector(look);
-		//		(*iter).second->m_ppObjects[id]->SetRightVector(right);
-		//		(*iter).second->m_ppObjects[id]->SetUpVector(up);
-		//		//(*iter).second->m_ppObjects[id]->SetScale(10, 10, 10);
-		//		
-		//	}
+		//	auto vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+
+		//	for (int i = 0; i < vec.size(); ++i)
+		//		cout << "적 캐릭터 id - " << vec[i] << "\n";
+		//
 		//}
 		
-		printf("Put Player ID: %d\tx: %d, y: %d, z: %d\n", pPP->myId, pPP->xPos, pPP->yPos, pPP->zPos);
+		
+		printf("Access Player ID: %d\n", pAP->id);
 		break;
 	}
+	case SC_PLEASE_READY:
+		m_Network.SetNullRS();
+		printf("모든 플레이어가 Ready하지 않았습니다.\n");
+		break;
+	case SC_ROUND_START:
+		//SC_PACKET_ROUND_START *pRS = m_Network.GetRS();
+		pRS = reinterpret_cast<SC_PACKET_ROUND_START *>(packet);
+		clientCount = pRS->clientCount;
+		if (m_pLobbyScene)
+		{
+			m_pLobbyScene->SetMusicStart(false);
+			m_pLobbyScene->StopBackgroundMusic();
+		}
+		m_nState = INGAME;
+		printf("Round Start\n");
+		break;
+	case SC_PUT_PLAYER:
+		//SC_PACKET_PUT_PLAYER* pPP = m_Network.GetPP();
+		pPP = reinterpret_cast<SC_PACKET_PUT_PLAYER*>(packet);
+
+		// 아래 주석 코드는 PUT_PLAYER 부분이 아닌 InGame이 시작됐다는 패킷이 들어오면
+		// 해줘야함- 명진.
+		if (pPP->id == m_pPlayer->GetPlayerID())
+		{
+			XMFLOAT3 pos = XMFLOAT3(pPP->xPos, pPP->yPos, pPP->zPos);
+			XMFLOAT3 look = XMFLOAT3(pPP->xLook, pPP->yLook, pPP->zLook);
+			XMFLOAT3 up = XMFLOAT3(pPP->xUp, pPP->yUp, pPP->zUp);
+			XMFLOAT3 right = XMFLOAT3(pPP->xRight, pPP->yRight, pPP->zRight);
+			
+			MappingUserToEvilbear(pPP->id, clientCount/*현재 접속한 유저 수를 받아야함 */);
+
+			m_pPlayer->SetPosition(pos);
+			m_pPlayer->SetLookVector(look);
+			m_pPlayer->SetUpVector(up);
+			m_pPlayer->SetRightVector(right);
+			//m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
+			//m_pPlayer->SetDirection()
+		}
+		else if(pPP->id < MAX_USER)
+		{
+			char id = pPP->id;
+			
+			XMFLOAT3 pos = XMFLOAT3(pPP->xPos,pPP->yPos, pPP->zPos);
+			XMFLOAT3 look = XMFLOAT3(pPP->xLook, pPP->yLook, pPP->zLook);
+			XMFLOAT3 up = XMFLOAT3(pPP->xUp, pPP->yUp, pPP->zUp);
+			XMFLOAT3 right = XMFLOAT3(pPP->xRight, pPP->yRight, pPP->zRight);
+			
+
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("곰돌이");
+
+			auto terrainIter = m_pScene->getShaderManager()->getShaderMap().find("Terrain");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end()
+				&& terrainIter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				
+				//적 캐릭터 BuildObjects 부분
+				dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),
+					m_pScene->getShaderManager()->getResourceManager()->getModelMap(), m_pScene->getShaderManager()->getResourceManager()->getBoundMap(),
+					clientCount-1/*적 캐릭터 수*/, dynamic_cast<CTerrainShader*>((*terrainIter).second)->getTerrain());
+				(*iter).second->m_ppObjects[id]->SetPosition(pos);
+				(*iter).second->m_ppObjects[id]->SetLookVector(look);
+				(*iter).second->m_ppObjects[id]->SetRightVector(right);
+				(*iter).second->m_ppObjects[id]->SetUpVector(up);
+				//(*iter).second->m_ppObjects[id]->SetScale(10, 10, 10);
+				
+			}
+		}
+		
+		printf("Put Player ID: %d\n", pPP->id);
+		break;
 	case SC_MOVE_PLAYER:
 	{
-		SC_PACKET_MOVE_PLAYER* pMP = m_Network.GetMP();
+		//SC_PACKET_MOVE_PLAYER* pMP = m_Network.GetMP();
 		pMP = reinterpret_cast<SC_PACKET_MOVE_PLAYER*>(packet);
-		printf("Move Player ID: %d\tx: %d, y: %d, z: %d\n", pMP->id, pMP->xPos, pMP->yPos, pMP->zPos);
+		printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", pMP->id, pMP->xPos, pMP->yPos, pMP->zPos);
 		break;
 	}
 	case SC_REMOVE_PLAYER:
 	{
-		SC_PACKET_REMOVE_PLAYER* pRP = m_Network.GetRP();
+		//SC_PACKET_REMOVE_PLAYER* pRP = m_Network.GetRP();
 		pRP = reinterpret_cast<SC_PACKET_REMOVE_PLAYER*>(packet);
+		hostId = pRP->hostId;
 		printf("Player Disconnected ID : %d\n", pRP->id);
 		break;
 	}
