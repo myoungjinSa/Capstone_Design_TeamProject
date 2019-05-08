@@ -680,14 +680,14 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 #ifdef _WITH_SERVER_
 				m_Network.SendPacket(VK_RETURN);
 				m_nState = READY;
-#elif
+#endif
 				if (m_pLobbyScene)
 				{
 					m_pLobbyScene->SetMusicStart(false);
 					m_pLobbyScene->StopBackgroundMusic();
 				}
 				m_nState = INGAME;
-#endif
+
 			}
 
 			break;
