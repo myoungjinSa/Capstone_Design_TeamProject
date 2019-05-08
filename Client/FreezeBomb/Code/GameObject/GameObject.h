@@ -192,7 +192,7 @@ public:
     CAnimationTrack*	m_pAnimationTracks = NULL;
 
 	UINT					m_state ;
-	const enum ANIMATIONTYPE { IDLE=0, JUMP, RUNFAST, RUNBACKWARD, ATTACK, DIGGING,DIE,RAISEHAND/*아이템 사용동작*/,ICE,VICTORY,AERT/*준비 동작*/,SLIDE};
+	const enum ANIMATIONTYPE { IDLE=0, JUMP, RUNFAST, RUNBACKWARD, ATTACK, DIGGING,DIE,RAISEHAND/*아이템 사용동작*/,ICE,VICTORY,USEGOLDHAMMER/*준비 동작*/,SLIDE};
 
 public:
 	void SetAnimationSets(CAnimationSets *pAnimationSets);

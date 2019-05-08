@@ -361,7 +361,8 @@ void CPlayer::DecideAnimationState(float fLength)
 			&& pController->GetAnimationState() != CAnimationController::RAISEHAND
 			&& pController->GetAnimationState() != CAnimationController::DIE
 			&& pController->GetAnimationState() != CAnimationController::ICE
-			&& pController->GetAnimationState() != CAnimationController::SLIDE))
+			&& pController->GetAnimationState() != CAnimationController::SLIDE
+			&& pController->GetAnimationState() != CAnimationController::USEGOLDHAMMER))
 	{
 		if (pController->GetAnimationState() == CAnimationController::RUNFAST)
 		{
