@@ -13,6 +13,7 @@
 #include "../Shader/CubeParticleShader/CubeParticleShader.h"
 
 #include "../Shader/BillboardShader/UIShader/MenuUIShader/MenuUIShader.h"
+#include "../Shader/BillboardShader/UIShader/TextUIShader/OutcomeUIShader/OutcomeUIShader.h"
 
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -537,6 +538,21 @@ void CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 							((CMenuUIShader*)(*iter).second)->setIsRender(true);
 						else
 							((CMenuUIShader*)(*iter).second)->setIsRender(false);
+					}
+				}
+			}
+			break;
+		case 'N':
+			{
+				if (m_pShaderManager)
+				{
+					auto iter = m_pShaderManager->getShaderMap().find("OutcomeUI");
+					if (iter != m_pShaderManager->getShaderMap().end())
+					{
+						if(((COutcomeUIShader*)(*iter).second)->getIsRender() == false)
+							((COutcomeUIShader*)(*iter).second)->setIsRender(true);
+						else
+							((COutcomeUIShader*)(*iter).second)->setIsRender(false);
 					}
 				}
 			}

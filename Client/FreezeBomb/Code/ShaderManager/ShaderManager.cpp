@@ -18,6 +18,7 @@
 #include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
 #include "../Shader/BillboardShader/UIShader/ItemUIShader/ItemUIShader.h"
 #include "../Shader/BillboardShader/UIShader/MenuUIShader/MenuUIShader.h"
+#include "../Shader/BillboardShader/UIShader/TextUIShader/OutcomeUIShader/OutcomeUIShader.h"
 
 //#include "../Shader/PostProcessShader/CartoonShader/SobelCartoonShader.h"
 
@@ -36,7 +37,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_pResourceManager = new CResourceManager;
 	m_pResourceManager->Initialize(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	m_nShaders = 11;
+	m_nShaders = 12;
 
 	//맵툴 모드일때는 맵의 오브젝트들을 그리지 않게 하기 위해 
 	// 그래야 맵툴모드에서 적용해서 배치한 오브젝트들만 볼 수 있다.
@@ -137,6 +138,13 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	pMenuUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
 	m_ppShaders[index++] = pMenuUIShader;
 	m_ShaderMap.emplace("MenuUI", pMenuUIShader);
+
+	COutcomeUIShader* pOutcomeUIShader = new COutcomeUIShader;
+	pOutcomeUIShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pOutcomeUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
+	m_ppShaders[index++] = pOutcomeUIShader;
+	m_ShaderMap.emplace("OutcomeUI", pOutcomeUIShader);
+
 
 #ifndef _MAPTOOL_MODE_
 	m_pResourceManager->ReleaseModel();

@@ -57,6 +57,9 @@ void CResourceManager::PrepareLoad()
 
 	m_TextureInfoMap.emplace("Menu", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Menu/Menu.dds", 22));
 
+	m_TextureInfoMap.emplace("Win", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Text/Win.dds", 22));
+	m_TextureInfoMap.emplace("Lose", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Text/Lose.dds", 22));
+
 	size_t total = 0;
 	for (auto iter = m_TextureInfoMap.begin(); iter != m_TextureInfoMap.end(); ++iter)
 	{

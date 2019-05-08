@@ -204,6 +204,9 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\MenuUIShader\MenuUIShader.cpp">
       <Filter>Code\Shader\BillboardShader\UIShader\MenuUIShader</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TextUIShader\OutcomeUIShader\OutcomeUIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\TextUIShader\OutcomeUIShader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h">
@@ -407,6 +410,9 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\MenuUIShader\MenuUIShader.h">
       <Filter>Code\Shader\BillboardShader\UIShader\MenuUIShader</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TextUIShader\OutcomeUIShader\OutcomeUIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\TextUIShader\OutcomeUIShader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Code">
@@ -606,6 +612,12 @@
     </Filter>
     <Filter Include="Code\Shader\BillboardShader\UIShader\MenuUIShader">
       <UniqueIdentifier>{455c3907-511f-4790-b0d1-7df24d4d523f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\TextUIShader">
+      <UniqueIdentifier>{a6f7390e-29cc-424f-b009-61740494e17e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\TextUIShader\OutcomeUIShader">
+      <UniqueIdentifier>{ed3e803f-f0a7-4d78-9952-3b0ba728d558}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
