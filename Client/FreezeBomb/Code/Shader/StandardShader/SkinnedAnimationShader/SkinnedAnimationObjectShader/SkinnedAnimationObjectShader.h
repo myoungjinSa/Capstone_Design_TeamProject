@@ -15,9 +15,9 @@ public:
 	virtual void AnimateObjects(float fTimeElapsed, CCamera *pCamera,CPlayer* pPlayer = nullptr);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState);
 
-	void MappingUserToEvilbear(char id);
+	void MappingUserToEvilbear(char id,char matID);
 	
-	vector<char> m_vMaterial;
+	vector<pair<char,char>> m_vMaterial;
 private:
 	
 	char  m_userID;

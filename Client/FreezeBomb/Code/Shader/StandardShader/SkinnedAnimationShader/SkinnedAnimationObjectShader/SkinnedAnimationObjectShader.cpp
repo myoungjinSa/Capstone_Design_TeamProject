@@ -6,6 +6,8 @@
 #include "../../../../GameObject/EvilBear/EvilBear.h"
 #include "../../../../GameObject/Shadow/Shadow.h"
 #include "../../../../FrameTransform/FrameTransform.h"
+#include "../../../../Network/Network.h"
+
 
 CSkinnedAnimationObjectShader::CSkinnedAnimationObjectShader()
 	:m_userID{ 0 }
@@ -89,6 +91,16 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		m_ppObjects[4]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[4]->m_pAnimationController->RUNBACKWARD);
 		m_ppObjects[4]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
 		dynamic_cast<CEvilBear*>(m_ppObjects[4])->SetPlayerName(L"전지현");
+
+		
+		//m_ppObjects[5] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::ICEMAT);
+		//m_ppObjects[5]->SetChild((*Model).second->m_pModelRootObject, true);
+		//m_ppObjects[5]->m_pAnimationController = new CAnimationController(1, (*Model).second->m_pAnimationSets);
+		//m_ppObjects[5]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[5]->m_pAnimationController->RUNBACKWARD);
+		//m_ppObjects[5]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
+		//dynamic_cast<CEvilBear*>(m_ppObjects[5])->SetPlayerName(L"전지현");
+
+
 
 
 		
@@ -207,8 +219,9 @@ void CSkinnedAnimationObjectShader::Render(ID3D12GraphicsCommandList* pd3dComman
 	}
 }
 
-void CSkinnedAnimationObjectShader::MappingUserToEvilbear(char id)
+void CSkinnedAnimationObjectShader::MappingUserToEvilbear(char id,char matID)
 {
-	
+	if (id < MAX_USER)
+		m_vMaterial.emplace_back(id, matID);
 
 }

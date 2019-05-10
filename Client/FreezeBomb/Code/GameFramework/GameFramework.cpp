@@ -860,7 +860,7 @@ bool CGameFramework::BuildObjects()
 	{
 		soundThreads.emplace_back(thread{ &CScene::CreateSoundSystem, m_pScene });
 		//GameFramework에서 관리하는 CPlayer를 제외한 나머지 넘겨준다.
-		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, nPlayerCount - 1);
+		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, nPlayerCount-1);
 		//m_nState = INGAME;
 	}
 	CTerrainPlayer* pPlayer{ nullptr };
