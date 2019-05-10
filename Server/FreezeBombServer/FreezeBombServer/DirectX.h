@@ -1,126 +1,11 @@
 #pragma once
-
-#define WIN32_LEAN_AND_MEAN             // 거의 사용되지 않는 내용은 Windows 헤더에서 제외합니다.
-#define _CRT_SECURE_NO_WARNINGS
-
-#include "../Default/Resource.h"
-#include "../Default/targetver.h"
-// Windows 헤더 파일:
-#include <windows.h>
-
-// C의 런타임 헤더 파일입니다.
-#include <stdlib.h>
-#include <malloc.h>
-#include <memory.h>
-#include <tchar.h>
-#include <math.h>
-
-#include <string>
-
-#include <wrl.h>
-#include <shellapi.h>
-
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <list>
-#include <map>
-#include <random>
-
-using namespace std;
-
-#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
-
-#include <d3d12.h>
-#include <dxgi1_4.h>
-#include <D3Dcompiler.h>
 #include <DirectXMath.h>
-#include <DirectXPackedVector.h>
-#include <DirectXColors.h>
 #include <DirectXCollision.h>
-
-//쓰레드
-#include <thread>
-
-
-//다이렉트 2D 헤더
-#include <d2d1_3.h>		//This header is used by Direct2D. 
-#include <d3d11on12.h>	//11이랑 12의 호환을 담당
-#include <dwrite.h>		//This header is used by DirectWrite. For more information, see: MSDN
-#include <dwrite_1.h>
-#include <d2d1effects.h>
-#include <wincodec.h>	//This header is used by Windows Imaging Component. For more information, see:
-#include <pix.h>
-#include <Mmsystem.h>
-
-#include "KeyDefine.h"
-
-#ifdef _DEBUG
-#include <dxgidebug.h>
-#endif
+#include <stdlib.h>
 
 using namespace DirectX;
-using namespace DirectX::PackedVector;
-
-using Microsoft::WRL::ComPtr;
-
-extern HINSTANCE						ghAppInstance;
-
-#define WM_SOCKET WM_USER + 1
-
-//#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
-//#define _WITH_SYNCH_SWAPCHAIN
-#define _WITH_DIRECT2D_
-
-// 전체모드할경우 주석풀으셈
-//#define FullScreenMode
-
-//맵툴 모드
-//#define _MAPTOOL_MODE_
-
-//서버 연동을 할 경우 
-#define _WITH_SERVER_
-
-#define FRAME_BUFFER_WIDTH		1200
-#define FRAME_BUFFER_HEIGHT		800
-
-enum PIPELINESTATE_TYPE { GameObject, GameObject_Shadow };
-
-//#define _WITH_CB_GAMEOBJECT_32BIT_CONSTANTS
-//#define _WITH_CB_GAMEOBJECT_ROOT_DESCRIPTOR
-#define _WITH_CB_WORLD_MATRIX_DESCRIPTOR_TABLEa
-
-
-
-#pragma comment(lib, "d3dcompiler.lib")
-#pragma comment(lib, "d3d12.lib")
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "d2d1.lib")
-#pragma comment(lib, "dwrite.lib")
-#pragma comment(lib, "dxguid.lib")
-#pragma comment(lib, "winmm.lib")
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "windowscodecs.lib")
-
-// TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
-
-D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3dResourceDesc, UINT nTextureType);
-
-extern UINT gnCbvSrvDescriptorIncrementSize;
-
-extern ID3D12Resource *CreateBufferResource(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, void *pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType = D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, ID3D12Resource **ppd3dUploadBuffer = NULL);
-extern ID3D12Resource *CreateTextureResourceFromDDSFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, wchar_t *pszFileName, ID3D12Resource **ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-extern ID3D12Resource *CreateTextureResourceFromWICFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, wchar_t *pszFileName, ID3D12Resource **ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-extern ID3D12Resource *CreateTexture2DResource(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, UINT nWidth, UINT nHeight, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS d3dResourceFlags, D3D12_RESOURCE_STATES d3dResourceStates, D3D12_CLEAR_VALUE *pd3dClearValue);
-
-extern void SynchronizeResourceTransition(ID3D12GraphicsCommandList *pd3dCommandList, ID3D12Resource *pd3dResource, D3D12_RESOURCE_STATES d3dStateBefore, D3D12_RESOURCE_STATES d3dStateAfter);
-
-
-#define RANDOM_COLOR			XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
 
 #define EPSILON					1.0e-10f
-#define EXPLOSION_DEBRISES		30
-
 
 inline bool IsZero(float fValue) { return((fabsf(fValue) < EPSILON)); }
 inline bool IsEqual(float fA, float fB) { return(::IsZero(fA - fB)); }
@@ -129,6 +14,7 @@ inline bool IsEqual(float fA, float fB, float fEpsilon) { return(::IsZero(fA - f
 inline float InverseSqrt(float fValue) { return 1.0f / sqrtf(fValue); }
 inline void Swap(float *pfS, float *pfT) { float fTemp = *pfS; *pfS = *pfT; *pfT = fTemp; }
 inline float RandF(float fMin, float fMax) { return(fMin + ((float)rand() / (float)RAND_MAX) * (fMax - fMin)); }
+
 
 
 namespace Vector3

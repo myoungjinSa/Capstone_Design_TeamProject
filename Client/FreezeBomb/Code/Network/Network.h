@@ -66,8 +66,14 @@ public:
 	void SetGameFrameworkPtr(HWND hWnd, CGameFramework* client);
 
 	void ReadPacket();
-	void ProcessPacket(char* packet);
-	void SendPacket(int data);
+	void SendPacket();
+public:
+	void SendUpKey();
+	void SendDownKey();
+	void SendRightKey();
+	void SendLeftKey();
+	void SendReady(int matID);
+	void SendReqStart();
 public:
 	CS_PACKET_REQUEST_START* GetRS() { return pRequestStart; }
 	void SetNullRS() { pRequestStart = NULL; }

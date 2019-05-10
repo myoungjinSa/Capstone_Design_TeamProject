@@ -343,6 +343,7 @@ void Server::ProcessPacket(char client, char *packet)
 		printf("Ready한 클라 수: %d\n", ++readyCount);
 		clients[client].isReady = true;
 		clients[client].matID = packet[2];	// matID
+		printf("Recv matID : %d\n", clients[client].matID);
 		break;
 	case CS_REQUEST_START:
 		if (clientCount == readyCount)
@@ -351,12 +352,12 @@ void Server::ProcessPacket(char client, char *packet)
 			{
 				if (true == clients[i].in_use)
 				{
-					SendRoundStart(i);
 					for (int j = 0; j < MAX_USER; ++j)
 					{
 						if (true == clients[j].in_use)
 							SendPutPlayer(i, j);
 					}
+					SendRoundStart(i);
 				}
 			}
 			printf("Round Start\n");
@@ -433,7 +434,17 @@ void Server::SendPutPlayer(char toClient, char fromClient)
 	packet.xPos = clients[fromClient].xPos;
 	packet.yPos = clients[fromClient].yPos;
 	packet.zPos = clients[fromClient].zPos;
-
+	packet.xLook = clients[fromClient].xLook;
+	packet.yLook = clients[fromClient].yLook;
+	packet.zLook = clients[fromClient].zLook;
+	packet.xUp = clients[fromClient].xUp;
+	packet.yUp = clients[fromClient].yUp;
+	packet.zUp = clients[fromClient].zUp;
+	packet.xRight = clients[fromClient].xRight;
+	packet.yRight = clients[fromClient].yRight;
+	packet.zRight = clients[fromClient].zRight;
+	packet.matID = clients[fromClient].matID;
+	printf("Send matID : %d\n", packet.matID);
 	SendFunc(toClient, &packet);
 }
 

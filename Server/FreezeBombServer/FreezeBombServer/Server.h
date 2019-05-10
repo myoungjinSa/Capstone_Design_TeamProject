@@ -8,9 +8,9 @@ constexpr int MAX_BUFFER = 1024;
 
 constexpr int SERVER_PORT = 9000;
 
-constexpr float PLAYER_INIT_X_POS = 0;
+constexpr float PLAYER_INIT_X_POS = 40;
 constexpr float PLAYER_INIT_Y_POS = 0;
-constexpr float PLAYER_INIT_Z_POS = 0;
+constexpr float PLAYER_INIT_Z_POS = 40;
 
 constexpr float PLAYER_INIT_X_LOOK = 0;
 constexpr float PLAYER_INIT_Y_LOOK = 0;

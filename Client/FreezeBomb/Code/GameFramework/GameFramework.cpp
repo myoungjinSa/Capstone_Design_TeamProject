@@ -57,7 +57,6 @@ CGameFramework::CGameFramework()
 
 	m_pScene = NULL;
 	m_pPlayer = NULL;
-	m_pePlayer = NULL;
 
 	_tcscpy_s(m_pszFrameRate, _T("FreezeBomb ("));
 }
@@ -651,11 +650,11 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 #ifdef _WITH_SERVER_
 		case VK_F5:
 		{
-			if (m_nState == READY)
+			if (isReady)
 			{
 				if (hostId == m_pPlayer->GetPlayerID() && !m_Network.GetRS())
 				{
-					m_Network.SendPacket(VK_F5);
+					m_Network.SendReqStart();
 					printf("Request Start 패킷 보냄\n");
 				}
 			}
@@ -681,15 +680,16 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			{
 #endif			
 #ifdef _WITH_SERVER_
-				m_Network.SendPacket(VK_RETURN);
-				m_nState = READY;
-#endif
+				m_Network.SendReady(m_pPlayer->GetMaterialID());
+				isReady = true;
+#elif
 				if (m_pLobbyScene)
 				{
 					m_pLobbyScene->SetMusicStart(false);
 					m_pLobbyScene->StopBackgroundMusic();
 				}
 				m_nState = INGAME;
+#endif
 
 			}
 
@@ -990,7 +990,7 @@ void CGameFramework::ProcessInput()
 				{
 //#ifdef 을 선언하지 않으면 무조건 서버가 켜있지 않을경우 무한 대기에 빠짐
 #ifdef _WITH_SERVER_
-					m_Network.SendPacket(VK_UP);
+					m_Network.SendUpKey();
 #endif
 					dwDirection |= DIR_FORWARD;
 					m_pPlayer->SetDirection(dwDirection);
@@ -1002,7 +1002,7 @@ void CGameFramework::ProcessInput()
 				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
 				{
 #ifdef _WITH_SERVER_
-					m_Network.SendPacket(VK_DOWN);
+					m_Network.SendDownKey();
 #endif
 					dwDirection |= DIR_BACKWARD;
 					m_pPlayer->SetDirection(dwDirection);
@@ -1011,7 +1011,7 @@ void CGameFramework::ProcessInput()
 			if (pKeysBuffer[VK_LEFT] & 0xF0)
 			{
 #ifdef _WITH_SERVER_
-				m_Network.SendPacket(VK_LEFT);
+				m_Network.SendLeftKey();
 #endif
 				dwDirection |= DIR_LEFT;
 				m_pPlayer->SetDirection(dwDirection);
@@ -1019,7 +1019,7 @@ void CGameFramework::ProcessInput()
 			if (pKeysBuffer[VK_RIGHT] & 0xF0)
 			{
 #ifdef _WITH_SERVER_
-				m_Network.SendPacket(VK_RIGHT);
+				m_Network.SendRightKey();
 #endif
 				dwDirection |= DIR_RIGHT;
 				m_pPlayer->SetDirection(dwDirection);
@@ -1335,7 +1335,8 @@ void CGameFramework::ProcessPacket(char *packet)
 			}
 		}
 		
-		printf("Put Player ID: %d\n", pPP->id);
+		printf("Recv matID : %d\n", pPP->matID);
+		printf("Put Player ID: %d, xPos: %f, yPos: %f, zPod: %f\n", pPP->id, pPP->xPos, pPP->yPos, pPP->zPos);
 		break;
 	case SC_MOVE_PLAYER:
 	{

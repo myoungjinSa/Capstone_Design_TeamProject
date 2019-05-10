@@ -87,7 +87,7 @@ private:
 
 	int 						m_nState{ GAMESTATE::INGAME };
 	//게임 상태 
-	enum GAMESTATE {LOBBY=0,CHARACTER_SELECT, READY, INGAME,PAUSE,OPTION};
+	enum GAMESTATE {LOBBY=0,CHARACTER_SELECT, INGAME,PAUSE,OPTION};
 
 	int								m_nWndClientWidth;
 	int								m_nWndClientHeight;
@@ -133,7 +133,6 @@ private:
 	CLobbyScene*							m_pLobbyScene = nullptr;
 	CScene*									m_pScene = nullptr;
 	CPlayer*								m_pPlayer = nullptr;
-	CPlayer*								m_pePlayer = nullptr;
 
 	CCamera*								m_pCamera = nullptr;
 
@@ -195,6 +194,7 @@ private:
 	SC_PACKET_REMOVE_PLAYER *pRP = NULL;
 	SC_PACKET_COMPARE_TIME *pCT = NULL;
 	SC_PACKET_ROUND_START *pRS = NULL;
+	bool isReady = false;
 #endif
 	//사운드 쓰레드 풀
 	vector<thread> soundThreads;
