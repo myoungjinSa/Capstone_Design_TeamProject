@@ -13,6 +13,7 @@
 #include "../Billboard/Bomb/Bomb.h"
 #include "../../FrameTransform/FrameTransform.h"
 #include "../../Chatting/Chatting.h"
+#include "../../Shader/BillboardShader/UIShader/TextUIShader/OutcomeUIShader/OutcomeUIShader.h"
 
 extern byte g_PlayerCharacter;
 
@@ -521,17 +522,18 @@ void CPlayer::DecideAnimationState(float fLength)
 			if (pController->GetAnimationState() != CAnimationController::DIE)
 			{
 				auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
+				//auto outcomeIter = m_pShaderManager->getShaderMap().find("OutcomeUI");
 				if (iter != m_pShaderManager->getShaderMap().end())
 				{
 					if (((CTimerUIShader*)((*iter).second))->getTimer() <= 0.f)
 					{
 						auto iter2 = m_pShaderManager->getShaderMap().find("Bomb");
+						
 						if (iter2 != m_pShaderManager->getShaderMap().end())
 						{
 							m_BombParticle = ((CBombParticleShader*)(*iter2).second)->getBomb();
 							m_BombParticle->setIsBlowing(true);
 							m_bBomb = false;
-
 							pController->SetTrackPosition(0, 0.0f);
 							pController->SetTrackAnimationSet(0, CAnimationController::DIE);
 							pController->SetAnimationState(CAnimationController::DIE);
@@ -591,7 +593,7 @@ void CPlayer::InitializeSound()
 	////m_SoundList[1] = "../Resource/Sound/bell1.wav";
 
 	m_mapMusicList.emplace(FOOTSTEP, s0);
-	m_mapMusicList.emplace(ATTACK, s1);
+	m_mapMusicList.emplace(USETIMER, s1);
 	m_mapMusicList.emplace(DIE, s2);
 	m_mapMusicList.emplace(ATTACK, s3);
 	

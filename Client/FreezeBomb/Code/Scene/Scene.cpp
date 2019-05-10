@@ -16,6 +16,7 @@
 #include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
 #include "../Shader/BillboardShader/UIShader/TextUIShader/OutcomeUIShader/OutcomeUIShader.h"
 
+
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
 D3D12_CPU_DESCRIPTOR_HANDLE	CScene::m_d3dCbvCPUDescriptorStartHandle;
@@ -106,7 +107,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_pShaderManager->Initialize(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nPlayerCount);
 
 	//사운드 생성
-	//CreateSoundSystem();
+	CreateSoundSystem();
 	
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
@@ -525,40 +526,44 @@ void CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 {
 	switch (nMessageID)
 	{
+
 	case WM_KEYUP:
 		switch (wParam)
 		{
+		
 		case 'M':
+		{
+			if (m_pShaderManager)
 			{
-				if (m_pShaderManager)
+				auto iter = m_pShaderManager->getShaderMap().find("MenuUI");
+				if (iter != m_pShaderManager->getShaderMap().end())
 				{
-					auto iter = m_pShaderManager->getShaderMap().find("MenuUI");
-					if (iter != m_pShaderManager->getShaderMap().end())
-					{
-						if(((CMenuUIShader*)(*iter).second)->getIsRender() == false)
-							((CMenuUIShader*)(*iter).second)->setIsRender(true);
-						else
-							((CMenuUIShader*)(*iter).second)->setIsRender(false);
-					}
+					if (((CMenuUIShader*)(*iter).second)->getIsRender() == false)
+						((CMenuUIShader*)(*iter).second)->setIsRender(true);
+					else
+						((CMenuUIShader*)(*iter).second)->setIsRender(false);
 				}
 			}
-			break;
-		case 'N':
-			{
-				if (m_pShaderManager)
-				{
-					auto iter = m_pShaderManager->getShaderMap().find("OutcomeUI");
-					if (iter != m_pShaderManager->getShaderMap().end())
-					{
-						if(((COutcomeUIShader*)(*iter).second)->getIsRender() == false)
-							((COutcomeUIShader*)(*iter).second)->setIsRender(true);
-						else
-							((COutcomeUIShader*)(*iter).second)->setIsRender(false);
-					}
-				}
-			}
-			break;
 		}
+		break;
+		case 'N':
+		{
+			if (m_pShaderManager)
+			{
+				auto iter = m_pShaderManager->getShaderMap().find("OutcomeUI");
+				if (iter != m_pShaderManager->getShaderMap().end())
+				{
+					if (((COutcomeUIShader*)(*iter).second)->getIsRender() == false)
+						((COutcomeUIShader*)(*iter).second)->setIsRender(true);
+					else
+						((COutcomeUIShader*)(*iter).second)->setIsRender(false);
+				}
+			}
+		}
+		break;
+		
+		}
+
 		break;
 	}
 }

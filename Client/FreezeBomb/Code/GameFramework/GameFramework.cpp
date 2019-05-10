@@ -612,8 +612,12 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 	
 	case INGAME:
 	{
-		if (m_pScene) 
-		m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
+		if (m_pScene)
+		{
+			if(ChattingSystem::GetInstance()->IsChattingActive()==false)
+				m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
+			
+		}	
 		break;
 	}
 	case CHARACTER_SELECT:
@@ -743,6 +747,7 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 		break;
 	case WM_KEYDOWN:
 	case WM_KEYUP:
+		
 		OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 
 #ifdef _MAPTOOL_MODE_
@@ -853,7 +858,7 @@ bool CGameFramework::BuildObjects()
 	m_pScene = new CScene;
 	if (m_pScene)
 	{
-		soundThreads.emplace_back(thread{ &CScene::CreateSoundSystem, m_pScene });
+		//soundThreads.emplace_back(thread{ &CScene::CreateSoundSystem, m_pScene });
 		//GameFramework에서 관리하는 CPlayer를 제외한 나머지 넘겨준다.
 		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, nPlayerCount);
 		//m_nState = INGAME;
