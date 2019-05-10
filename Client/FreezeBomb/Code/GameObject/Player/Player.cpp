@@ -522,18 +522,25 @@ void CPlayer::DecideAnimationState(float fLength)
 			if (pController->GetAnimationState() != CAnimationController::DIE)
 			{
 				auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
+			
 				//auto outcomeIter = m_pShaderManager->getShaderMap().find("OutcomeUI");
 				if (iter != m_pShaderManager->getShaderMap().end())
 				{
 					if (((CTimerUIShader*)((*iter).second))->getTimer() <= 0.f)
 					{
+						auto outcomeIter = m_pShaderManager->getShaderMap().find("OutcomeUI");
 						auto iter2 = m_pShaderManager->getShaderMap().find("Bomb");
 						
-						if (iter2 != m_pShaderManager->getShaderMap().end())
+						if (iter2 != m_pShaderManager->getShaderMap().end()
+							&& outcomeIter != m_pShaderManager->getShaderMap().end())
 						{
 							m_BombParticle = ((CBombParticleShader*)(*iter2).second)->getBomb();
 							m_BombParticle->setIsBlowing(true);
 							m_bBomb = false;
+							if (((COutcomeUIShader*)(*outcomeIter).second)->getIsRender() == false)
+								((COutcomeUIShader*)(*outcomeIter).second)->setIsRender(true);
+							else
+								((COutcomeUIShader*)(*outcomeIter).second)->setIsRender(false);
 							pController->SetTrackPosition(0, 0.0f);
 							pController->SetTrackAnimationSet(0, CAnimationController::DIE);
 							pController->SetAnimationState(CAnimationController::DIE);

@@ -100,7 +100,7 @@ void COutcomeUIShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamer
 	if (m_IsRender)
 	{
 		CUIShader::OnPrepareRender(pd3dCommandList, 0);
-		auto iter = m_UIMap.find(WIN);
+		auto iter = m_UIMap.find(LOSE);
 		if (iter != m_UIMap.end())
 			(*iter).second->Render(pd3dCommandList, nPipelineState, 0);
 	}
