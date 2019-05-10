@@ -11,12 +11,12 @@ CEvilBear::CEvilBear(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCo
 	:m_pSound{nullptr}, m_SoundCount{0}
 {
 	m_matID = matID;
-	InitializeSound();
+//	InitializeSound();
 }
 
 CEvilBear::~CEvilBear()
 {
-	m_pSound->Release();
+	//m_pSound->Release();
 
 	if (m_pShadow)
 		delete m_pShadow;
@@ -77,14 +77,7 @@ void CEvilBear::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCam
 {
 }
 
-void CEvilBear::ReleaseSound()
-{
-	if(m_pSound)
-	{
-		m_pSound->Release();
-	}
-	
-}
+
 
 void CEvilBear::Animate(float fTimeElapsed)
 {

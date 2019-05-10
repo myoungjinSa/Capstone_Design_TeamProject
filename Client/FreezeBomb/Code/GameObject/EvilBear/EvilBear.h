@@ -28,7 +28,7 @@ public:
 	bool GetActive() { return m_bActive; }
 	void* GetSoundData() const { return static_cast<void*>(m_pSound); }
 	void InitializeSound();
-	void ReleaseSound();
+	
 	void Initialize_Shadow(CLoadedModelInfo* pLoadedModel, CGameObject* pGameObject);	
 
 public:
