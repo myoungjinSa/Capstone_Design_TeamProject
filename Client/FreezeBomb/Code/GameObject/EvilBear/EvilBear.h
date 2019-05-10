@@ -24,6 +24,8 @@ public:
 		ATTACK
 	};
 
+	void SetActive(bool bActive) { m_bActive = bActive; }
+	bool GetActive() { return m_bActive; }
 	void* GetSoundData() const { return static_cast<void*>(m_pSound); }
 	void InitializeSound();
 	void ReleaseSound();
@@ -34,6 +36,8 @@ public:
 
 private:
 	
+
+	bool			m_bActive{ false };		//오브젝트 풀방식을 위해 화면에 렌더링 되려면 m_bActive가 true이어야 함.
 	const char**	m_SoundList;
 	int			m_SoundCount;
 	CSoundSystem* m_pSound;

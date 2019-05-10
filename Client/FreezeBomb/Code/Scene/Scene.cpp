@@ -13,6 +13,7 @@
 #include "../Shader/CubeParticleShader/CubeParticleShader.h"
 
 #include "../Shader/BillboardShader/UIShader/MenuUIShader/MenuUIShader.h"
+#include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
 #include "../Shader/BillboardShader/UIShader/TextUIShader/OutcomeUIShader/OutcomeUIShader.h"
 
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
@@ -660,6 +661,82 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 		if (iter != m.end())
 		{
 			float minDistance = 1000.0f;
+#ifdef _WITH_SERVER_
+			vector<pair<char, char>> vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+			for (int i = 0; i < vec.size(); ++i)
+			{
+				char id = vec[i].first;
+				if ((*iter).second->m_ppObjects[id]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
+				{
+					// 술래 체인지
+					if (m_pPlayer->GetIsBomb() == true && m_TaggerCoolTime <= 0.f)
+					{
+						(*iter).second->m_ppObjects[id]->SetIsBomb(true);
+						m_pPlayer->SetIsBomb(false);
+
+						m_TaggerCoolTime = 3.f;
+					}
+					else if ((*iter).second->m_ppObjects[id]->GetIsBomb() == true && m_TaggerCoolTime <= 0.f)
+					{
+						m_pPlayer->SetIsBomb(true);
+						(*iter).second->m_ppObjects[id]->SetIsBomb(false);
+
+						m_TaggerCoolTime = 3.f;
+					}
+
+					XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize((*iter).second->m_ppObjects[id]->GetPosition(), m_pPlayer->GetPosition());
+					xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, (m_pPlayer->GetMaxVelocity()*0.3f));
+					m_pPlayer->SetVelocity(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
+
+				}
+
+				float dist = Vector3::Length(Vector3::SubtractNormalize((*iter).second->m_ppObjects[id]->GetPosition(), m_pPlayer->GetPosition()));
+				(*iter).second->m_ppObjects[id]->SetDistanceToTarget(dist);
+
+			}
+
+			static bool bBreak = false;
+
+			if (m_pPlayer->AnimationCollision(CAnimationController::ATTACK))
+			{
+				CGameObject* pHammer = m_pPlayer->FindFrame("Hammer");
+				if (pHammer != nullptr)
+				{
+					for (int i = 0; i < vec.size(); ++i)
+					{
+						char id = vec[i].first;
+						if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[id]->GetBoundingBox()))
+						{
+							if (m_pPlayer->get_Normal_InventorySize() > 0)
+							{
+								if (bBreak == false)
+									bBreak = true;
+
+								m_pPlayer->Refresh_Inventory(CItem::NormalHammer);
+							}
+							m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[id]->GetPosition());
+
+							PlayIceBreakEffect(bBreak);
+
+							//cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
+							break;
+						}
+					}
+				}
+			}
+			if(m_pPlayer->IsCameraVibe())
+			{
+				m_bVibeTime += elapsedTime;
+
+				if(m_bVibeTime >1.0f)
+				{
+					m_pPlayer->SetCameraVibe(false);
+					m_bVibeTime = 0.0f;
+					if (bBreak)
+						bBreak = false;
+				}
+			}
+#else
 			for (int i = 0; i < (*iter).second->m_nObjects; ++i)
 			{
 				if ((*iter).second->m_ppObjects[i]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
@@ -685,25 +762,26 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 					//이쪽에 일단 클라이언트단에서 못움직이게 구현. 추후에 서버에서 해야함
 					//플레이어와 오브젝트의 원점에서의 거리를 구한다음 방향을 구하여 그 방향으로는 진행을 못하게 해야할듯
 
-					XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize((*iter).second->m_ppObjects[i]->GetPosition() ,m_pPlayer->GetPosition());
-					xmf3CollisionDir=Vector3::ScalarProduct(xmf3CollisionDir, (m_pPlayer->GetMaxVelocity()*0.3f));
-					m_pPlayer->SetVelocity(-xmf3CollisionDir.x,-xmf3CollisionDir.y,-xmf3CollisionDir.z);
-					
+					XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize((*iter).second->m_ppObjects[i]->GetPosition(), m_pPlayer->GetPosition());
+					xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, (m_pPlayer->GetMaxVelocity()*0.3f));
+					m_pPlayer->SetVelocity(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
+
 					//cout << i << "번째 애니메이션 오브젝트와 충돌" << endl;
 				}
 
+
 				//각 캐릭터는 플레이어와의 거리 변수를 저장한다.
 				//사운드 볼륩 조절에 필요.
-				float dist = Vector3::Length(Vector3::SubtractNormalize( (*iter).second->m_ppObjects[i]->GetPosition(),m_pPlayer->GetPosition()));
+				float dist = Vector3::Length(Vector3::SubtractNormalize((*iter).second->m_ppObjects[i]->GetPosition(), m_pPlayer->GetPosition()));
 				(*iter).second->m_ppObjects[i]->SetDistanceToTarget(dist);
 				//m_pPlayer->SetMinDistanceWithEnemy(minDistance);
 			}
-			
+
 			//cout<< "최소 거리:" << minDistance << "\n";
-			
-			
+
+
 			static bool bBreak = false;
-			
+
 			if (m_pPlayer->AnimationCollision(CAnimationController::ATTACK))
 			{
 				CGameObject* pHammer = m_pPlayer->FindFrame("Hammer");
@@ -714,10 +792,10 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 						if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[i]->GetBoundingBox()))
 						{
 							if (m_pPlayer->get_Normal_InventorySize() > 0)
-							{					
-								if(bBreak == false)
+							{
+								if (bBreak == false)
 									bBreak = true;
-								
+
 								m_pPlayer->Refresh_Inventory(CItem::NormalHammer);
 							}
 							m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
@@ -729,7 +807,8 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 						}
 					}
 				}
-			}	
+			}
+
 			if(m_pPlayer->IsCameraVibe())
 			{
 				m_bVibeTime += elapsedTime;
@@ -742,7 +821,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 						bBreak = false;
 				}
 			}
-			
+#endif
 			/*sort(begin(m), end(m), [&](const CGameObject& enmey1,const CGameObject& enemy2)->float {
 				float fDistamce = m_pPlayer->
 			});*/
