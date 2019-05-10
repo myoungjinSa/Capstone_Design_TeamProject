@@ -7,6 +7,7 @@
 #include "../../../../GameObject/Shadow/Shadow.h"
 #include "../../../../FrameTransform/FrameTransform.h"
 #include "../../../../Network/Network.h"
+#include "../../../../SoundSystem/SoundSystem.h"
 
 
 CSkinnedAnimationObjectShader::CSkinnedAnimationObjectShader()
@@ -18,7 +19,51 @@ CSkinnedAnimationObjectShader::CSkinnedAnimationObjectShader()
 CSkinnedAnimationObjectShader::~CSkinnedAnimationObjectShader()
 {
 	m_vMaterial.clear();
+	m_mapMusicList.clear();
+	ReleaseSound();
 	//m_EvilbearMap.clear();
+}
+
+void CSkinnedAnimationObjectShader::InitializeSound()
+{
+	m_pSound = new CSoundSystem;
+
+	m_SoundCount = 4;
+		
+	m_SoundList = new const char*[m_SoundCount];
+
+	m_SoundList[0] = "../Resource/Sound/BtnDown03.wav";
+	m_SoundList[1] = "../Resource/Sound/bell1.wav";
+	m_SoundList[2] = "../Resource/Sound/Bomb.mp3";
+	m_SoundList[3] = "../Resource/Sound/Effect/HammerSwing.wav";
+	
+
+	std::string s0(m_SoundList[0]);
+	std::string s1(m_SoundList[1]);
+	std::string s2(m_SoundList[2]);
+	std::string s3(m_SoundList[3]);
+	
+	////m_SoundList[1] = "../Resource/Sound/bell1.wav";
+
+
+	m_mapMusicList.emplace(FOOTSTEP, s0);
+	m_mapMusicList.emplace(USETIMER, s1);
+	m_mapMusicList.emplace(DIE, s2);
+	m_mapMusicList.emplace(ATTACK, s3);
+	
+
+	if(m_pSound)
+	{
+		m_pSound->Initialize(m_SoundCount, m_SoundList,FMOD_LOOP_OFF);
+	}
+}
+void CSkinnedAnimationObjectShader::ReleaseSound()
+{
+	
+	if (m_SoundList)
+		delete[] m_SoundList;
+	if (m_pSound)
+		m_pSound->Release();
 }
 
 void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
@@ -29,7 +74,7 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 
 	m_ppObjects = new CGameObject*[m_nObjects];
 	
-
+	InitializeSound();
 	auto Model = ModelMap.find("EvilBear");
 	if (Model != ModelMap.end())
 	{
@@ -118,70 +163,70 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 
 	}
 
-	//CAnimationCallbackHandler* pRunAnimationCallback = new CSoundCallbackHandler();
-	//CAnimationCallbackHandler* pRaiseHandAnimationCallback = new CSoundCallbackHandler();
-	//CAnimationCallbackHandler* pDieAnimationCallback = new CSoundCallbackHandler();
-	//CAnimationCallbackHandler* pAttackAnimationCallback = new CSoundCallbackHandler();
-	//CAnimationCallbackHandler* pBackRunAnimationCallback = new CSoundCallbackHandler();
+	CAnimationCallbackHandler* pRunAnimationCallback = new CSoundCallbackHandler();
+	CAnimationCallbackHandler* pRaiseHandAnimationCallback = new CSoundCallbackHandler();
+	CAnimationCallbackHandler* pDieAnimationCallback = new CSoundCallbackHandler();
+	CAnimationCallbackHandler* pAttackAnimationCallback = new CSoundCallbackHandler();
+	CAnimationCallbackHandler* pBackRunAnimationCallback = new CSoundCallbackHandler();
 	
-	//for(int i=0; i < m_nObjects; i++)		//플레이어 수만큼 사운드 효과 설정해준다
-	//{
-	//	//m_ppObjects[i]->m_pAnimationController->SetCallbackKeys(m_ppObjects[i]->m_pAnimationController->RUNFAST, 2);
-	//	//m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNFAST, 0, 0.3f, (void*)CEvilBear::MUSIC_ENUM::FOOTSTEP/*MAKEINTRESOURCE(IDR_WAVE2)*/);
-	//	//m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNFAST, 1, 0.6f, (void*)CEvilBear::MUSIC_ENUM::FOOTSTEP/*MAKEINTRESOURCE(IDR_WAVE2)*/);
-	//	//m_ppObjects[i]->m_pAnimationController->SetAnimationCallbackHandler(m_ppObjects[i]->m_pAnimationController->RUNFAST, pAnimationCallback,
-	//	//	dynamic_cast<CEvilBear*>(m_ppObjects[i])->GetSoundData());
-	//	auto map = dynamic_cast<CEvilBear*>(m_ppObjects[i])->m_mapMusicList;
-	//	
-	//	auto iter = map.find(CEvilBear::MUSIC_ENUM::FOOTSTEP);
-	//	
-	//	if(iter != map.end())
-	//	{
-	//		m_ppObjects[i]->m_pAnimationController->SetCallbackKeys(m_ppObjects[i]->m_pAnimationController->RUNFAST, 2);
-	//		m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNFAST, 0, 0.3f,(void*)CEvilBear::MUSIC_ENUM::FOOTSTEP/*MAKEINTRESOURCE(IDR_WAVE2)*/);
-	//		m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNFAST, 1, 0.6f, (void*)CEvilBear::MUSIC_ENUM::FOOTSTEP/*MAKEINTRESOURCE(IDR_WAVE2)*/);
-	//		m_ppObjects[i]->m_pAnimationController->SetAnimationCallbackHandler(m_ppObjects[i]->m_pAnimationController->RUNFAST, pRunAnimationCallback,
-	//			dynamic_cast<CEvilBear*>(m_ppObjects[i])->GetSoundData());
+	for(int i=0; i < m_nObjects; i++)		//플레이어 수만큼 사운드 효과 설정해준다
+	{
+		//m_ppObjects[i]->m_pAnimationController->SetCallbackKeys(m_ppObjects[i]->m_pAnimationController->RUNFAST, 2);
+		//m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNFAST, 0, 0.3f, (void*)CEvilBear::MUSIC_ENUM::FOOTSTEP/*MAKEINTRESOURCE(IDR_WAVE2)*/);
+		//m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNFAST, 1, 0.6f, (void*)CEvilBear::MUSIC_ENUM::FOOTSTEP/*MAKEINTRESOURCE(IDR_WAVE2)*/);
+		//m_ppObjects[i]->m_pAnimationController->SetAnimationCallbackHandler(m_ppObjects[i]->m_pAnimationController->RUNFAST, pAnimationCallback,
+		//	dynamic_cast<CEvilBear*>(m_ppObjects[i])->GetSoundData());
+		auto map = m_mapMusicList;
+		
+		auto iter = map.find(FOOTSTEP);
+		
+		if(iter != map.end())
+		{
+			m_ppObjects[i]->m_pAnimationController->SetCallbackKeys(m_ppObjects[i]->m_pAnimationController->RUNFAST, 2);
+			m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNFAST, 0, 0.3f,(void*)FOOTSTEP/*MAKEINTRESOURCE(IDR_WAVE2)*/);
+			m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNFAST, 1, 0.6f, (void*)FOOTSTEP/*MAKEINTRESOURCE(IDR_WAVE2)*/);
+			m_ppObjects[i]->m_pAnimationController->SetAnimationCallbackHandler(m_ppObjects[i]->m_pAnimationController->RUNFAST, pRunAnimationCallback,
+				GetSoundData());
 
 
-	//		m_ppObjects[i]->m_pAnimationController->SetCallbackKeys(m_ppObjects[i]->m_pAnimationController->RUNBACKWARD, 2);
-	//		m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNBACKWARD, 0, 0.1f, (void*)CEvilBear::MUSIC_ENUM::FOOTSTEP);
-	//		m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNBACKWARD, 1, 0.3f, (void*)CEvilBear::MUSIC_ENUM::FOOTSTEP);
-	//		m_ppObjects[i]->m_pAnimationController->SetAnimationCallbackHandler(m_ppObjects[i]->m_pAnimationController->RUNBACKWARD, pBackRunAnimationCallback,
-	//			dynamic_cast<CEvilBear*>(m_ppObjects[i])->GetSoundData());
+			m_ppObjects[i]->m_pAnimationController->SetCallbackKeys(m_ppObjects[i]->m_pAnimationController->RUNBACKWARD, 2);
+			m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNBACKWARD, 0, 0.1f, (void*)FOOTSTEP);
+			m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RUNBACKWARD, 1, 0.3f, (void*)FOOTSTEP);
+			m_ppObjects[i]->m_pAnimationController->SetAnimationCallbackHandler(m_ppObjects[i]->m_pAnimationController->RUNBACKWARD, pBackRunAnimationCallback,
+				GetSoundData());
 
-	//	}
+		}
 
-	//	iter = map.find(CEvilBear::MUSIC_ENUM::USETIMER);
-	//	
-	//	if(iter != map.end())
-	//	{
-	//		m_ppObjects[i]->m_pAnimationController->SetCallbackKeys(m_ppObjects[i]->m_pAnimationController->RAISEHAND,1);
-	//		m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RAISEHAND, 0, 0.3f,(void*)CEvilBear::MUSIC_ENUM::USETIMER/*MAKEINTRESOURCE(IDR_WAVE2)*/);
-	//		m_ppObjects[i]->m_pAnimationController->SetAnimationCallbackHandler(m_ppObjects[i]->m_pAnimationController->RAISEHAND, pRaiseHandAnimationCallback,
-	//		dynamic_cast<CEvilBear*>(m_ppObjects[i])->GetSoundData());
-	//	}
+		iter = map.find(USETIMER);
+		
+		if(iter != map.end())
+		{
+			m_ppObjects[i]->m_pAnimationController->SetCallbackKeys(m_ppObjects[i]->m_pAnimationController->RAISEHAND,1);
+			m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->RAISEHAND, 0, 0.3f,(void*)USETIMER/*MAKEINTRESOURCE(IDR_WAVE2)*/);
+			m_ppObjects[i]->m_pAnimationController->SetAnimationCallbackHandler(m_ppObjects[i]->m_pAnimationController->RAISEHAND, pRaiseHandAnimationCallback,
+			GetSoundData());
+		}
 
-	//	iter = map.find(CEvilBear::MUSIC_ENUM::DIE);
+		iter = map.find(DIE);
 
-	//	if(iter != map.end())
-	//	{
-	//		m_ppObjects[i]->m_pAnimationController->SetCallbackKeys(m_ppObjects[i]->m_pAnimationController->DIE,1);
-	//		m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->DIE, 0, 0.1f,(void*)CEvilBear::MUSIC_ENUM::DIE/*MAKEINTRESOURCE(IDR_WAVE2)*/);
-	//		m_ppObjects[i]->m_pAnimationController->SetAnimationCallbackHandler(m_ppObjects[i]->m_pAnimationController->DIE, pDieAnimationCallback,
-	//		dynamic_cast<CEvilBear*>(m_ppObjects[i])->GetSoundData());
-	//	}
-	//	iter = map.find(CEvilBear::MUSIC_ENUM::ATTACK);
+		if(iter != map.end())
+		{
+			m_ppObjects[i]->m_pAnimationController->SetCallbackKeys(m_ppObjects[i]->m_pAnimationController->DIE,1);
+			m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->DIE, 0, 0.1f,(void*)DIE/*MAKEINTRESOURCE(IDR_WAVE2)*/);
+			m_ppObjects[i]->m_pAnimationController->SetAnimationCallbackHandler(m_ppObjects[i]->m_pAnimationController->DIE, pDieAnimationCallback,
+			GetSoundData());
+		}
+		iter = map.find(ATTACK);
 
-	//	if(iter != map.end())
-	//	{
-	//		m_ppObjects[i]->m_pAnimationController->SetCallbackKeys(m_ppObjects[i]->m_pAnimationController->ATTACK, 1);
-	//		m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->ATTACK, 0, 0.2f, (void*)CEvilBear::MUSIC_ENUM::ATTACK);
-	//		m_ppObjects[i]->m_pAnimationController->SetAnimationCallbackHandler(m_ppObjects[i]->m_pAnimationController->ATTACK, pAttackAnimationCallback,
-	//		 dynamic_cast<CEvilBear*>(m_ppObjects[i])->GetSoundData());
-	//	}
+		if(iter != map.end())
+		{
+			m_ppObjects[i]->m_pAnimationController->SetCallbackKeys(m_ppObjects[i]->m_pAnimationController->ATTACK, 1);
+			m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->ATTACK, 0, 0.2f, (void*)ATTACK);
+			m_ppObjects[i]->m_pAnimationController->SetAnimationCallbackHandler(m_ppObjects[i]->m_pAnimationController->ATTACK, pAttackAnimationCallback,
+			 GetSoundData());
+		}
 
-	//}
+	}
 
 	XMFLOAT3 Position;
 	for (int i = 0; i < m_nObjects; ++i)
@@ -205,8 +250,8 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 
 
 	//임시 테스트
-	MappingUserToEvilbear(3, 3);//까망 (이름은 까망이)
-	MappingUserToEvilbear(0, 0);//핑크 (이름은 이우상)
+	//MappingUserToEvilbear(3, 3);//까망 (이름은 까망이)
+	//MappingUserToEvilbear(0, 0);//핑크 (이름은 이우상)
 	//MappingUserToEvilbear(1, 2);//하양(이름은 염혜린)
 
 }
