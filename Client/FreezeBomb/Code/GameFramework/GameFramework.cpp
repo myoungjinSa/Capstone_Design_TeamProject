@@ -1244,6 +1244,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		//SC_PACKET_ACCESS_PLAYER* pAP = m_Network.GetAP();
 		pAP = reinterpret_cast<SC_PACKET_ACCESS_PLAYER*>(packet);
 
+
 		// 여기서 접속한 플레이어들의 초기 정보를 받아 저장해놓고
 		// Ingame 시작할 때, clientCount 기반해서 실제 객체 만들어주면 좋을 듯. 상의필요.
 
@@ -1341,7 +1342,41 @@ void CGameFramework::ProcessPacket(char *packet)
 		//SC_PACKET_MOVE_PLAYER* pMP = m_Network.GetMP();
 		pMP = reinterpret_cast<SC_PACKET_MOVE_PLAYER*>(packet);
 
+		if(pMP->id==m_pPlayer->GetPlayerID())
+		{
+			XMFLOAT3 pos = XMFLOAT3(pMP->xPos, pMP->yPos, pMP->zPos);
+			XMFLOAT3 look = XMFLOAT3(pMP->xLook, pMP->yLook, pMP->zLook);
+			XMFLOAT3 up = XMFLOAT3(pMP->xUp, pMP->yUp, pMP->zUp);
+			XMFLOAT3 right = XMFLOAT3(pMP->xRight, pMP->yRight, pMP->zRight);
+		
+			m_pPlayer->SetPosition(pos);
+			m_pPlayer->SetLookVector(look);
+			m_pPlayer->SetUpVector(up);
+			m_pPlayer->SetRightVector(right);
 
+		}
+		else if (pMP->id < MAX_USER)
+		{
+			char id = pMP->id;
+			
+			XMFLOAT3 pos = XMFLOAT3(pMP->xPos,pMP->yPos, pMP->zPos);
+			XMFLOAT3 look = XMFLOAT3(pMP->xLook, pMP->yLook, pMP->zLook);
+			XMFLOAT3 up = XMFLOAT3(pMP->xUp, pMP->yUp, pMP->zUp);
+			XMFLOAT3 right = XMFLOAT3(pMP->xRight, pMP->yRight, pMP->zRight);
+
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("곰돌이");
+
+			
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetPosition(pos);
+				(*iter).second->m_ppObjects[id]->SetLookVector(look);
+				(*iter).second->m_ppObjects[id]->SetRightVector(right);
+				(*iter).second->m_ppObjects[id]->SetUpVector(up);
+				//(*iter).second->m_ppObjects[id]->SetScale(10, 10, 10);
+			}
+
+		}
 
 		printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", pMP->id, pMP->xPos, pMP->yPos, pMP->zPos);
 		break;
