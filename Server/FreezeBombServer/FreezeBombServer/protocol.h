@@ -8,7 +8,7 @@
 using namespace std;
 //using namespace DirectX;
 
-constexpr int MAX_USER = 6;
+#define SERVER_IP "127.0.0.1"
 
 enum ROLE { RUNNER, BOMBER };
 enum ITEM { NONEITEM = 0, HAMMER, GOLD_HAMMER, GOLD_TIMER, BOMB };

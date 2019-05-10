@@ -6,9 +6,7 @@
 #define SERVER_IP "127.0.0.1"
 #pragma comment(lib, "Ws2_32.lib")
 constexpr int MAX_BUFFER = 1024;
-
-//MAX_USER-> 클라이언트도 참조하기위해 Protocol.h로 옮겼음 - 명진
-//constexpr int MAX_USER = 6;
+constexpr int MAX_USER = 6;
 constexpr int SERVER_PORT = 9000;
 
 constexpr float PLAYER_INIT_X_POS = 0;
