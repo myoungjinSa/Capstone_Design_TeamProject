@@ -2,6 +2,7 @@
 
 #include "../SkinnedAnimationShader.h"
 
+
 class CLoadedModelInfo;
 struct Bounds;
 class CSkinnedAnimationObjectShader : public CSkinnedAnimationShader
@@ -16,10 +17,12 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState);
 
 	void MappingUserToEvilbear(char id,char matID);
-	
+
 	vector<pair<char,char>> m_vMaterial;
 private:
 	
+	const int max_Material = 6;
+	//map<int, CGameObject*> m_EvilbearMap;
 	char  m_userID;
 	int   m_userCount;
 	float m_elapsedTime = 0.f;
