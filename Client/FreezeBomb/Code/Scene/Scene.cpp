@@ -15,6 +15,7 @@
 #include "../Shader/BillboardShader/UIShader/MenuUIShader/MenuUIShader.h"
 #include "../Shader/BillboardShader/UIShader/TextUIShader/OutcomeUIShader/OutcomeUIShader.h"
 
+
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
 D3D12_CPU_DESCRIPTOR_HANDLE	CScene::m_d3dCbvCPUDescriptorStartHandle;
@@ -524,40 +525,44 @@ void CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 {
 	switch (nMessageID)
 	{
+
 	case WM_KEYUP:
 		switch (wParam)
 		{
+		
 		case 'M':
+		{
+			if (m_pShaderManager)
 			{
-				if (m_pShaderManager)
+				auto iter = m_pShaderManager->getShaderMap().find("MenuUI");
+				if (iter != m_pShaderManager->getShaderMap().end())
 				{
-					auto iter = m_pShaderManager->getShaderMap().find("MenuUI");
-					if (iter != m_pShaderManager->getShaderMap().end())
-					{
-						if(((CMenuUIShader*)(*iter).second)->getIsRender() == false)
-							((CMenuUIShader*)(*iter).second)->setIsRender(true);
-						else
-							((CMenuUIShader*)(*iter).second)->setIsRender(false);
-					}
+					if (((CMenuUIShader*)(*iter).second)->getIsRender() == false)
+						((CMenuUIShader*)(*iter).second)->setIsRender(true);
+					else
+						((CMenuUIShader*)(*iter).second)->setIsRender(false);
 				}
 			}
-			break;
-		case 'N':
-			{
-				if (m_pShaderManager)
-				{
-					auto iter = m_pShaderManager->getShaderMap().find("OutcomeUI");
-					if (iter != m_pShaderManager->getShaderMap().end())
-					{
-						if(((COutcomeUIShader*)(*iter).second)->getIsRender() == false)
-							((COutcomeUIShader*)(*iter).second)->setIsRender(true);
-						else
-							((COutcomeUIShader*)(*iter).second)->setIsRender(false);
-					}
-				}
-			}
-			break;
 		}
+		break;
+		case 'N':
+		{
+			if (m_pShaderManager)
+			{
+				auto iter = m_pShaderManager->getShaderMap().find("OutcomeUI");
+				if (iter != m_pShaderManager->getShaderMap().end())
+				{
+					if (((COutcomeUIShader*)(*iter).second)->getIsRender() == false)
+						((COutcomeUIShader*)(*iter).second)->setIsRender(true);
+					else
+						((COutcomeUIShader*)(*iter).second)->setIsRender(false);
+				}
+			}
+		}
+		break;
+		
+		}
+
 		break;
 	}
 }

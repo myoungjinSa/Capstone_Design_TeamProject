@@ -612,8 +612,12 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 	
 	case INGAME:
 	{
-		if (m_pScene) 
-		m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
+		if (m_pScene)
+		{
+			if(ChattingSystem::GetInstance()->IsChattingActive()==false)
+				m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
+			
+		}	
 		break;
 	}
 	case CHARACTER_SELECT:
@@ -743,6 +747,7 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 		break;
 	case WM_KEYDOWN:
 	case WM_KEYUP:
+		
 		OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 
 #ifdef _MAPTOOL_MODE_
