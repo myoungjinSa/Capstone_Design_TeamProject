@@ -493,9 +493,10 @@ void CPlayer::DecideAnimationState(float fLength)
 			auto iter = m_Special_Inventory.begin();
 			if ((*iter).second->getItemType() == CItem::GoldHammer)
 			{	
-				SetTrackAnimationSet(0, CAnimationController::ATTACK);
+				SetTrackAnimationSet(0, CAnimationController::RAISEHAND);
 				SetTrackAnimationPosition(0, 0.0f);
-				pController->SetAnimationState(CAnimationController::ATTACK);
+				//m_pAnimationController->SetTrackSpeed(0, 2.0f);
+				pController->SetAnimationState(CAnimationController::RAISEHAND);
 			}
 			else
 			{
