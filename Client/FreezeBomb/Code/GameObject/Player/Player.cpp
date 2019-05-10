@@ -591,7 +591,7 @@ void CPlayer::InitializeSound()
 	////m_SoundList[1] = "../Resource/Sound/bell1.wav";
 
 	m_mapMusicList.emplace(FOOTSTEP, s0);
-	m_mapMusicList.emplace(ATTACK, s1);
+	m_mapMusicList.emplace(USETIMER, s1);
 	m_mapMusicList.emplace(DIE, s2);
 	m_mapMusicList.emplace(ATTACK, s3);
 	
