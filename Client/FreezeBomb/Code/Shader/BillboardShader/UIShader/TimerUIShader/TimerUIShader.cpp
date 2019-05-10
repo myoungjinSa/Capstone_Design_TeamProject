@@ -131,7 +131,7 @@ void CTimerUIShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_UIMap.emplace(Colon, pUI);
 
 	// 300√ 
-	m_Timer = 100.f;
+	m_Timer = 50.f;
 }
 
 void CTimerUIShader::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer* pPlayer)

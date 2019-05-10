@@ -456,14 +456,17 @@ void CPlayer::DecideAnimationState(float fLength)
 	}
 
 	////얼음으로 변신
-	if (GetAsyncKeyState(VK_LSHIFT) & 0x0001
-		&& pController->GetAnimationState() != CAnimationController::ICE
+	if (GetAsyncKeyState(VK_A) & 0x0001
+		//&& pController->GetAnimationState() != CAnimationController::ICE
 		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
 		)
 	{
 		m_bIce = !m_bIce;
 		pController->SetTrackAnimationSet(0, CAnimationController::IDLE);
-		pController->SetAnimationState(CAnimationController::ICE);
+		if (m_bIce == true)
+			pController->SetAnimationState(CAnimationController::ICE);
+		else
+			pController->SetAnimationState(CAnimationController::IDLE);
 	}
 
 	// 망치로 때리기 애니메이션
