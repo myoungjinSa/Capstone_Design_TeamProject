@@ -79,7 +79,8 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 
 	CItemShader* pItemShader = new CItemShader;
 	//pItemShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pItemShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getModelMap(), m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
+	pItemShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getModelMap(), m_pResourceManager->getItemInfo(),
+		m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
 	m_ppShaders[index++] = pItemShader;
 	m_ShaderMap.emplace("Item", pItemShader);
 
@@ -193,7 +194,7 @@ void CShaderManager::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer
 //카툰 렌더링 하지 않고 그려야할 쉐이더 
 void CShaderManager::PostRender(ID3D12GraphicsCommandList* pd3dCommandList,float fTimeElapsed, CCamera* pCamera)
 {
-	for (int i = m_nPostShaders; i <m_nShaders; i++)
+	for (int i = m_nPostShaders; i < m_nShaders; i++)
 	{
 		if (m_ppShaders[i]) 
 			m_ppShaders[i]->Render(pd3dCommandList, pCamera, GameObject);

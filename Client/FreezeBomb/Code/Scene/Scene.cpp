@@ -668,6 +668,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 					if (m_pPlayer->GetIsBomb() == true && m_TaggerCoolTime <= 0.f)
 					{
 						(*iter).second->m_ppObjects[i]->SetIsBomb(true);
+
 						m_pPlayer->SetIsBomb(false);
 
 						m_TaggerCoolTime = 3.f;

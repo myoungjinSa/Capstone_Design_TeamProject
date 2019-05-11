@@ -16,8 +16,8 @@
 #include "../Chatting/Chatting.h"
 #include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
 
-
-
+// 전체모드할경우 주석풀으셈
+//#define FullScreenMode
 
 static bool OnCartoonShading = false;
 
@@ -137,18 +137,20 @@ void CGameFramework::CreateSwapChain()
 #else
 	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
 	::ZeroMemory(&dxgiSwapChainDesc, sizeof(dxgiSwapChainDesc));
-	dxgiSwapChainDesc.BufferCount = m_nSwapChainBuffers;
 	dxgiSwapChainDesc.BufferDesc.Width = m_nWndClientWidth;
 	dxgiSwapChainDesc.BufferDesc.Height = m_nWndClientHeight;
 	dxgiSwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	dxgiSwapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
-	dxgiSwapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-	dxgiSwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	dxgiSwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-	dxgiSwapChainDesc.OutputWindow = m_hWnd;
 	dxgiSwapChainDesc.SampleDesc.Count = (m_bMsaa4xEnable) ? 4 : 1;
 	dxgiSwapChainDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
-	dxgiSwapChainDesc.Windowed = false;
+	dxgiSwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	dxgiSwapChainDesc.BufferCount = m_nSwapChainBuffers;
+
+	dxgiSwapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
+	dxgiSwapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+
+	dxgiSwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	dxgiSwapChainDesc.OutputWindow = m_hWnd;
+	dxgiSwapChainDesc.Windowed = true;
 
 	dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
@@ -167,10 +169,9 @@ void CGameFramework::CreateSwapChain()
 	m_pdxgiSwapChain->ResizeBuffers(m_nSwapChainBuffers, m_nWndClientWidth, m_nWndClientHeight, dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
 	
 #endif
-
-
+	// 스왑체인의 현재 후면버퍼 인덱스를 저장
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
-
+	// Alt + Enter키로 전체모드 비활성화
 	hResult = m_pdxgiFactory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER);
 
 #ifndef _WITH_SWAPCHAIN_FULLSCREEN_STATE
@@ -261,9 +262,6 @@ void CGameFramework::CreateLoadingCommandList()
 }
 
 #ifdef _WITH_DIRECT2D_
-
-
-
 void CGameFramework::CreateDirect2DDevice()
 {
 	UINT nD3D11DeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
@@ -271,6 +269,7 @@ void CGameFramework::CreateDirect2DDevice()
 #if defined(_DEBUG)
 	nD3D11DeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
+
 	//ID3D12Device 생성 후 ID3D11On12Device 를 생성한다.
 	//ID3D11Device는 D3D11OnCreateDevice API를 통해 ID3D12Device에 Wrapping되어있다.
 	//이 api는 11On12 디바이스에 명령들을  ID3D12CommandQueue에 제출하는 역할을 한다.
@@ -280,7 +279,6 @@ void CGameFramework::CreateDirect2DDevice()
 	HRESULT hResult = ::D3D11On12CreateDevice(m_pd3dDevice, nD3D11DeviceFlags, NULL, 0, (IUnknown **)&m_pd3dCommandQueue, 1, 0, &pd3d11Device, &m_pd3d11DeviceContext, NULL);
 	hResult = pd3d11Device->QueryInterface(__uuidof(ID3D11On12Device), (void **)&m_pd3d11On12Device);
 	if (pd3d11Device) pd3d11Device->Release();
-
 
 	//11On12 디바이스가 생성된 후, 우리는 이 디바이스를 D2DFactory와 디바이스를 
 	//다이렉트 11에서 했던 것 과 동일하게 생성해준다.
@@ -293,7 +291,6 @@ void CGameFramework::CreateDirect2DDevice()
 	//D2D1_FACTORY_TYPE_SINGLE_THREADED ->팩토리에 접근하거나 쓰는것 또는 객체를 생성하는 것으로부터 동기화를 제공하지 않는다.
 	//									만약 팩토리나 객체들이 다중 스레드에서 호출되면, Application은 접근을 lock해준다.
 	hResult = ::D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, __uuidof(ID2D1Factory3), &nD2DFactoryOptions, (void**)&m_pd2dFactory);
-
 
 	////////////////////////////////////////////////////////////////////////////////////
 	IDXGIDevice *pdxgiDevice = NULL;
@@ -374,10 +371,10 @@ void CGameFramework::CreateDirect2DDevice()
 
 	if (pwicFrameDecode)
 		pwicFrameDecode->Release();
-
 }
 
 #endif
+
 void CGameFramework::CreateRtvAndDsvDescriptorHeaps()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
@@ -410,8 +407,6 @@ void CGameFramework::CreateRenderTargetViews()
 	
 #endif
 }
-
-
 
 #ifdef _WITH_DIRECT2D_
 // D3D12가 스왑체인을 소유한다. 그렇기 때문에 우리가 사용하는 11On12 Device에 백버퍼에 우리가 원하는것을 그리려면 
@@ -449,11 +444,7 @@ void CGameFramework::CreateDirect2DRenderTargetViews()
 			pdxgiSurface->Release();
 		}
 	}
-
-
 }
-
-
 
 #endif
 void CGameFramework::CreateDepthStencilView()
@@ -534,7 +525,6 @@ void CGameFramework::ChangeSwapChainState()
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
 
 	CreateRenderTargetViews();
-
 }
 
 void CGameFramework::CreateOffScreenRenderTargetViews()

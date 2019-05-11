@@ -760,6 +760,189 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lodLev
 		m_pChild->Render(pd3dCommandList, lodLevel, pCamera, nPipelineState);
 }
 
+void CGameObject::Item_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int ItemType, int nPipelineState)
+{
+	if (m_pFrameTransform)
+		m_pFrameTransform->SetFrameMeshWorldConstantBuffer();
+
+	if (m_pMesh)
+	{
+		if (m_nMaterials > 0)
+		{
+			// ¸ÁÄ¡ ¾ÆÀÌÅÛÀÏ °æ¿ì
+			if (strcmp(m_pstrFrameName, "StoneHammer_Medium") == 0)
+			{
+				if (m_ppMaterials[ItemType])
+				{
+					if (m_ppMaterials[ItemType]->m_pShader)
+						m_ppMaterials[ItemType]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+
+					m_ppMaterials[ItemType]->UpdateShaderVariables(pd3dCommandList);
+				}
+
+				m_pMesh->Render(pd3dCommandList, 0);
+			}
+			// GoldTimer ¾ÆÀÌÅÛÀÏ °æ¿ì
+			else
+			{
+				if (m_ppMaterials[0])
+				{
+					if (m_ppMaterials[0]->m_pShader)
+						m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+
+					m_ppMaterials[0]->UpdateShaderVariables(pd3dCommandList);
+				}
+				m_pMesh->Render(pd3dCommandList, 0);
+			}			
+		}
+	}
+
+	if (m_pSibling)
+		m_pSibling->Item_Render(pd3dCommandList, pCamera, ItemType, nPipelineState);
+	if (m_pChild)
+		m_pChild->Item_Render(pd3dCommandList, pCamera, ItemType, nPipelineState);
+}
+
+void CGameObject::Tagger_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int matID, bool HasGoldTimer, int nPipelineState)
+{
+	OnPrepareRender();
+
+	if (m_pSkinningBoneTransforms)
+		m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
+	if (m_pFrameTransform)
+		m_pFrameTransform->SetFrameMeshWorldConstantBuffer();
+
+	// ÆøÅº ½ÉÁöÀÇ ºÒ²É ÆÄÆ¼Å¬
+	if (m_pLampParticle != nullptr)
+		m_pLampParticle->Render(pd3dCommandList, pCamera, nPipelineState);
+
+	else if (m_pMesh)
+	{
+		if (m_nMaterials > 0)
+		{
+			// ¸öÅë ·»´õ¸µ
+			if (strcmp(m_pstrFrameName, "Evilbear") == 0)
+			{
+				if (m_ppMaterials[matID])
+				{
+					if (m_ppMaterials[matID]->m_pShader)
+						m_ppMaterials[matID]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+					m_ppMaterials[matID]->UpdateShaderVariables(pd3dCommandList);
+
+					m_pMesh->Render(pd3dCommandList, 0);
+				}
+			}
+			// ÆøÅº ·»´õ¸µ
+			else if (strcmp(m_pstrFrameName, "Regular_Bomb") == 0 || strcmp(m_pstrFrameName, "UCX_Regular_Bomb") == 0)
+			{
+				for (int i = 0; i < m_nMaterials; i++)
+				{
+					if (m_ppMaterials[i])
+					{
+						if (m_ppMaterials[i]->m_pShader)
+							m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+
+						m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
+					}
+					m_pMesh->Render(pd3dCommandList, i);
+				}
+			}
+			// È²±Ý½Ã°è ÀÖÀ» °æ¿ì,È²±Ý½Ã°è ·»´õ¸µ
+			else if (HasGoldTimer == true && strcmp(m_pstrFrameName, "StoneHammer_Medium") != 0)
+			{
+				for (int i = 0; i < m_nMaterials; i++)
+				{
+					if (m_ppMaterials[i])
+					{
+						if (m_ppMaterials[i]->m_pShader)
+							m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+
+						m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
+					}
+					m_pMesh->Render(pd3dCommandList, 0);
+				}
+			}
+		}
+	}
+
+	if (m_pSibling)
+		m_pSibling->Tagger_Render(pd3dCommandList, pCamera, matID, HasGoldTimer, nPipelineState);
+	if (m_pChild)
+		m_pChild->Tagger_Render(pd3dCommandList, pCamera, matID, HasGoldTimer, nPipelineState);
+}
+
+void CGameObject::RunAway_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int matID, bool HasHammer, bool HasGoldHammer, int nPipelineState)
+{
+	OnPrepareRender();
+
+	if (m_pSkinningBoneTransforms)
+		m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
+	if (m_pFrameTransform)
+		m_pFrameTransform->SetFrameMeshWorldConstantBuffer();
+
+	if (m_pMesh)
+	{
+		if (m_nMaterials > 0)
+		{
+			// ¸öÅë ·»´õ¸µ
+			if (strcmp(m_pstrFrameName, "Evilbear") == 0)
+			{
+				if (m_ppMaterials[matID])
+				{
+					if (m_ppMaterials[matID]->m_pShader)
+						m_ppMaterials[matID]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+					m_ppMaterials[matID]->UpdateShaderVariables(pd3dCommandList);
+
+					m_pMesh->Render(pd3dCommandList, 0);
+				}
+			}
+			// ¸ÁÄ¡ ·»´õ¸µ
+			else if (strcmp(m_pstrFrameName, "StoneHammer_Medium") == 0)
+			{
+				// ÀÏ¹Ý¸ÁÄ¡, È²±Ý¸ÁÄ¡ µÎ°³´Ù ÀÖÀ» °æ¿ì => È²±Ý¸ÁÄ¡¸¦ ·»´õ¸µÇÔ
+				if (HasHammer == true && HasGoldHammer == true)
+				{
+					if (m_ppMaterials[1])
+					{
+						if (m_ppMaterials[1]->m_pShader)
+							m_ppMaterials[1]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+
+						m_ppMaterials[1]->UpdateShaderVariables(pd3dCommandList);
+					}
+					m_pMesh->Render(pd3dCommandList, 0);
+				}
+				else if (HasHammer == true)
+				{
+					if (m_ppMaterials[0])
+					{
+						if (m_ppMaterials[0]->m_pShader)
+							m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+
+						m_ppMaterials[0]->UpdateShaderVariables(pd3dCommandList);
+					}
+					m_pMesh->Render(pd3dCommandList, 0);
+				}
+				else if (HasGoldHammer == true)
+				{
+					if (m_ppMaterials[1])
+					{
+						if (m_ppMaterials[1]->m_pShader)
+							m_ppMaterials[1]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+
+						m_ppMaterials[1]->UpdateShaderVariables(pd3dCommandList);
+					}
+					m_pMesh->Render(pd3dCommandList, 0);
+				}
+			}
+		}
+	}
+
+	if (m_pSibling)
+		m_pSibling->RunAway_Render(pd3dCommandList, pCamera, matID, HasHammer, HasGoldHammer, nPipelineState);
+	if (m_pChild)
+		m_pChild->RunAway_Render(pd3dCommandList, pCamera, matID, HasHammer, HasGoldHammer, nPipelineState);
+}
+
 void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState, int nInstance)
 {
 	if (m_pMesh)
@@ -770,9 +953,6 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 
 void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4* pxmf4x4World)
 {
-	//XMFLOAT4X4 xmf4x4World;
-	//XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
-	//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World, 0);
 }
 
 void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, CMaterial* pMaterial)

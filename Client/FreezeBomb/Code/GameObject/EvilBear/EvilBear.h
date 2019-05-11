@@ -12,7 +12,6 @@ public:
 	virtual ~CEvilBear();
 
 	virtual void Animate(float fTimeElapsed);
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bHammer, bool bBomb, bool bIce, int matID, CCamera *pCamera, int nPipelineState = GameObject);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int nPipelineState);
 
 	//void SetSoundPtr();
@@ -39,6 +38,5 @@ private:
 	CSoundSystem* m_pSound;
 
 	CShadow*	m_pShadow;
-	
 };
 

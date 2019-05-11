@@ -72,9 +72,6 @@ extern HINSTANCE						ghAppInstance;
 //#define _WITH_SYNCH_SWAPCHAIN
 #define _WITH_DIRECT2D_
 
-// 전체모드할경우 주석풀으셈
-#define FullScreenMode
-
 //맵툴 모드
 //#define _MAPTOOL_MODE_
 

@@ -301,9 +301,18 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 
 	if (nCameraMode == THIRD_PERSON_CAMERA)
 	{
-		CGameObject::Render(pd3dCommandList, m_bHammer, m_bBomb, m_bIce, (int)g_PlayerCharacter, pCamera, GameObject);		//재질별로 렌더 
-		if (m_pShadow)
-			m_pShadow->Render(pd3dCommandList, m_bHammer, m_bBomb, m_bIce, m_matID, pCamera, GameObject_Shadow);
+		if (m_bBomb == true)
+		{
+			CGameObject::Tagger_Render(pd3dCommandList, pCamera, g_PlayerCharacter, m_bGoldTimer, GameObject);
+			if (m_pShadow)
+				m_pShadow->Tagger_Render(pd3dCommandList, pCamera, g_PlayerCharacter, m_bGoldTimer, GameObject_Shadow);
+		}
+		else
+		{
+			CGameObject::RunAway_Render(pd3dCommandList, pCamera, g_PlayerCharacter, m_bHammer, m_bGoldHammer, GameObject);
+			if (m_pShadow)
+				m_pShadow->RunAway_Render(pd3dCommandList, pCamera, g_PlayerCharacter, m_bHammer, m_bGoldHammer, GameObject_Shadow);
+		}
 	}
 }
 
@@ -669,6 +678,9 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	SetCameraUpdatedContext(pContext);
 
 	m_matID = matID;
+	//m_bBomb = true;
+	m_bGoldHammer = true;
+	m_bHammer = true;
 
 	m_ID = "<EvilBear>";
 
@@ -719,9 +731,6 @@ void CTerrainPlayer::Animate(float fTimeElapsed)
 {
 	RotateAxisY(fTimeElapsed);
 	CGameObject::Animate(fTimeElapsed);
-	//CGameObject* p = FindFrame("ToesEnd_R");
-	//if (p != nullptr)
-	//	cout << p->m_xmf4x4World._41 << ", " << p->m_xmf4x4World._42 << ", " << p->m_xmf4x4World._43 << endl;
 }
 
 
