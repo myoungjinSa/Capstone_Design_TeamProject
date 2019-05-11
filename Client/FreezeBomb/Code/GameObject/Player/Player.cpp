@@ -321,9 +321,9 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 		}
 		else
 		{
-			CGameObject::RunAway_Render(pd3dCommandList, pCamera, m_matID, m_bHammer, m_bGoldHammer, GameObject);
+			CGameObject::RunAway_Render(pd3dCommandList, pCamera, m_matID,m_bIce, m_bHammer, m_bGoldHammer, GameObject);
 			if (m_pShadow)
-				m_pShadow->RunAway_Render(pd3dCommandList, pCamera, m_matID, m_bHammer, m_bGoldHammer, GameObject_Shadow);
+				m_pShadow->RunAway_Render(pd3dCommandList, pCamera, m_matID,m_bIce ,m_bHammer, m_bGoldHammer, GameObject_Shadow);
 		}
 #else
 		if (m_bBomb == true)
