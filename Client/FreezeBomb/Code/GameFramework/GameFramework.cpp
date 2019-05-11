@@ -1402,6 +1402,12 @@ void CGameFramework::ProcessPacket(char *packet)
 			printf("Lose..\n");
 		break;
 	}
+	case SC_COMPARE_TIME:
+	{
+		pCT = reinterpret_cast<SC_PACKET_COMPARE_TIME*>(packet);
+		//cout << "ServerTime: " << pCT->serverTime << "\n";
+		break;
+	}
 	}
 }
 #endif
