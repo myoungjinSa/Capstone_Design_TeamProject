@@ -13,6 +13,8 @@ Server::Server()
 Server::~Server()
 {
 	//clients.clear();
+	if (heightMap)
+		delete heightMap;
 }
 
 bool Server::InitServer()
@@ -69,27 +71,31 @@ bool Server::InitServer()
 
 void Server::RunServer()
 {
+	gameTimer.Start();
 	iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
 	for (int i = 0; i < MAX_USER; ++i)
 	{
 		//SOCKETINFO tmpClient;
 		clients[i].prev_size = 0;
-		clients[i].xPos = PLAYER_INIT_X_POS;
-		clients[i].yPos = PLAYER_INIT_Y_POS;
-		clients[i].zPos = PLAYER_INIT_Z_POS;
-		clients[i].xLook = PLAYER_INIT_X_LOOK;
-		clients[i].yLook = PLAYER_INIT_Y_LOOK;
-		clients[i].zLook = PLAYER_INIT_Z_LOOK;
-		clients[i].xUp = PLAYER_INIT_X_UP;
-		clients[i].yUp = PLAYER_INIT_Y_UP;
-		clients[i].zUp = PLAYER_INIT_Z_UP;
-		clients[i].xRight = PLAYER_INIT_X_RIGHT;
-		clients[i].yRight = PLAYER_INIT_Y_RIGHT;
-		clients[i].zRight = PLAYER_INIT_Z_RIGHT;
+		clients[i].pos.x = PLAYER_INIT_X_POS;
+		clients[i].pos.y = PLAYER_INIT_Y_POS;
+		clients[i].pos.z = PLAYER_INIT_Z_POS;
+		clients[i].look.x = PLAYER_INIT_X_LOOK;
+		clients[i].look.y = PLAYER_INIT_Y_LOOK;
+		clients[i].look.z = PLAYER_INIT_Z_LOOK;
+		clients[i].up.x = PLAYER_INIT_X_UP;
+		clients[i].up.y = PLAYER_INIT_Y_UP;
+		clients[i].up.z = PLAYER_INIT_Z_UP;
+		clients[i].right.x = PLAYER_INIT_X_RIGHT;
+		clients[i].right.y = PLAYER_INIT_Y_RIGHT;
+		clients[i].right.z = PLAYER_INIT_Z_RIGHT;
 		//clients.emplace_back(tmpClient);
 		//printf("Create Client ID: %d, PrevSize: %d, xPos: %d, yPos: %d, zPos: %d, xDir: %d, yDir: %d, zDir: %d\n", i, clients[i].prev_size, clients[i].xPos, clients[i].yPos, clients[i].zPos, clients[i].xDir, clients[i].yDir, clients[i].zDir);
 	}
+
+	heightMap = new CHeightMapImage("../../../FreezeBomb/Resource/Textures/Terrain/Terrain.raw", 256, 256, XMFLOAT3(2.0f, 1.0f, 2.0f));
 	
+	gameTimer.Tick(60.0f);
 	for (int i = 0; i < MAX_WORKER_THREAD; ++i)
 		workerThreads.emplace_back(thread{ WorkerThread, (LPVOID)this });
 	thread accpetThread{ AcceptThread, (LPVOID)this };
@@ -291,51 +297,23 @@ void Server::WorkerThreadFunc()
 
 void Server::ProcessPacket(char client, char *packet)
 {
-	float x = clients[client].xPos;
-	float y = clients[client].yPos;
-	float z = clients[client].zPos;
+	float x = clients[client].pos.x;
+	float y = clients[client].pos.y;
+	float z = clients[client].pos.z;
+	DWORD tmpDir;
 
 	// 0번은 사이즈, 1번이 패킷타입
 	switch (packet[1])
 	{
 	case CS_UP_KEY:
-		printf("Press UP Key ID: %d\n", client);
-		y += 12.25f;
-		clients[client].xPos = x;
-		clients[client].yPos = y;
-		clients[client].zPos = z;
-		printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
-
-		SendMovePlayer(client);
-		break;
 	case CS_DOWN_KEY:
-		printf("Press DOWN Key ID: %d\n", client);
-		y -= 12.25f;
-		clients[client].xPos = x;
-		clients[client].yPos = y;
-		clients[client].zPos = z;
-		printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
-
-		SendMovePlayer(client);
-		break;
 	case CS_LEFT_KEY:
-		printf("Press LEFT Key ID: %d\n", client);
-		x -= 12.25f;
-		clients[client].xPos = x;
-		clients[client].yPos = y;
-		clients[client].zPos = z;
-		printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
-
-		SendMovePlayer(client);
-		break;
 	case CS_RIGHT_KEY:
-		printf("Press RIGHT Key ID: %d\n", client);
-		x += 12.25f;
-		clients[client].xPos = x;
-		clients[client].yPos = y;
-		clients[client].zPos = z;
-		printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
+		SetDirection(client, packet[1]);
+		UpdateClientPos(client, gameTimer.GetTimeElapsed());
 
+
+		//printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
 		SendMovePlayer(client);
 		break;
 	case CS_READY:
@@ -431,18 +409,18 @@ void Server::SendPutPlayer(char toClient, char fromClient)
 	packet.id = fromClient;
 	packet.size = sizeof(packet);
 	packet.type = SC_PUT_PLAYER;
-	packet.xPos = clients[fromClient].xPos;
-	packet.yPos = clients[fromClient].yPos;
-	packet.zPos = clients[fromClient].zPos;
-	packet.xLook = clients[fromClient].xLook;
-	packet.yLook = clients[fromClient].yLook;
-	packet.zLook = clients[fromClient].zLook;
-	packet.xUp = clients[fromClient].xUp;
-	packet.yUp = clients[fromClient].yUp;
-	packet.zUp = clients[fromClient].zUp;
-	packet.xRight = clients[fromClient].xRight;
-	packet.yRight = clients[fromClient].yRight;
-	packet.zRight = clients[fromClient].zRight;
+	packet.xPos = clients[fromClient].pos.x;
+	packet.yPos = clients[fromClient].pos.y;
+	packet.zPos = clients[fromClient].pos.z;
+	packet.xLook = clients[fromClient].look.x;
+	packet.yLook = clients[fromClient].look.y;
+	packet.zLook = clients[fromClient].look.z;
+	packet.xUp = clients[fromClient].up.x;
+	packet.yUp = clients[fromClient].up.y;
+	packet.zUp = clients[fromClient].up.z;
+	packet.xRight = clients[fromClient].right.x;
+	packet.yRight = clients[fromClient].right.y;
+	packet.zRight = clients[fromClient].right.z;
 	packet.matID = clients[fromClient].matID;
 	printf("Send matID : %d\n", packet.matID);
 	SendFunc(toClient, &packet);
@@ -474,9 +452,9 @@ void Server::SendMovePlayer(char client)
 	packet.id = client;
 	packet.size = sizeof(packet);
 	packet.type = SC_MOVE_PLAYER;
-	packet.xPos = clients[client].xPos;
-	packet.yPos = clients[client].yPos;
-	packet.zPos = clients[client].zPos;
+	packet.xPos = clients[client].pos.x;
+	packet.yPos = clients[client].pos.y;
+	packet.zPos = clients[client].pos.z;
 
 	SendFunc(client, &packet);
 }
@@ -524,6 +502,156 @@ void Server::ClientDisconnect(char client)
 	closesocket(clients[client].socket);
 	clientCount--;
 	printf("%d 클라이언트 접속 종료, 현재 클라이언트 수: %d\n", (int)client, clientCount);
+}
+
+void Server::SetDirection(char client, int key)
+{
+	DWORD tmpDir = 0;
+	switch (key)
+	{
+	case CS_UP_KEY:
+		tmpDir |= DIR_FORWARD;
+		break;
+	case CS_DOWN_KEY:
+		tmpDir |= DIR_DOWN;
+		break;
+	case CS_RIGHT_KEY:
+		tmpDir |= DIR_RIGHT;
+		break;
+	case CS_LEFT_KEY:
+		tmpDir |= DIR_LEFT;
+		break;
+	}
+	clients[client].direction = tmpDir;
+}
+
+void Server::UpdateClientPos(char client, float fTimeElapsed)
+{
+	if (clients[client].direction == DIR_FORWARD) {
+		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, 1.0f);
+	}
+	if (clients[client].direction == DIR_BACKWARD)
+	{
+		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look , -1.0f);
+	}
+	if (clients[client].direction == DIR_LEFT || clients[client].direction == DIR_RIGHT)
+	{
+		RotateClientAxisY(client, fTimeElapsed);
+	}
+	clients[client].velocity = Vector3::Add(clients[client].velocity, gravity);
+	float fLength = sqrtf(clients[client].velocity.x * clients[client].velocity.x + clients[client].velocity.z * clients[client].velocity.z);
+	if (fLength > MAX_VELOCITY_XZ)
+	{
+		clients[client].velocity.x *= (MAX_VELOCITY_XZ / fLength);
+		clients[client].velocity.z *= (MAX_VELOCITY_XZ / fLength);
+	}
+
+	float fLengthY = sqrtf(clients[client].velocity.y * clients[client].velocity.y);
+
+
+	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(clients[client].velocity, fTimeElapsed, false);
+
+	clients[client].pos = Vector3::Add(clients[client].pos, clients[client].velocity);
+
+	//clients[client].xmf3Position = xmf3Velocity;
+
+	clients[client].velocity = clients[client].velocity;
+
+	ProcessClientHeight(client);
+	ProcessFriction(client, fLength);
+}
+
+void Server::RotateClientAxisY(char client, float fTimeElapsed)
+{
+	XMFLOAT3& xmf3Look = clients[client].look;
+	XMFLOAT3& xmf3Right = clients[client].right;
+	XMFLOAT3& xmf3Up = clients[client].up;
+
+	clients[client].lastLookVector = xmf3Look;
+	clients[client].lastRightVector = xmf3Right;
+	clients[client].lastUpVector = xmf3Up;
+
+	if (clients[client].direction & DIR_RIGHT)
+	{
+		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3Right);
+
+		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
+
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(fAngle*fTimeElapsed));
+		xmf3Look = Vector3::TransformNormal(xmf3Look, xmmtxRotate);
+		xmf3Right = Vector3::TransformNormal(xmf3Right, xmmtxRotate);
+
+		float cxDelta = xmf3Right.x - clients[client].lastRightVector.x;
+		float cyDelta = xmf3Up.y - clients[client].lastUpVector.y;
+		float czDelta = xmf3Look.z - clients[client].lastLookVector.z;
+
+		RotateModel(client, 0.0f, fAngle*fTimeElapsed, 0.0f);
+	}
+	else if (clients[client].direction & DIR_LEFT)
+	{
+		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3Right);
+
+		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
+
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(-(fAngle*fTimeElapsed)));
+		xmf3Look = Vector3::TransformNormal(xmf3Look, xmmtxRotate);
+		xmf3Right = Vector3::TransformNormal(xmf3Right, xmmtxRotate);
+
+		float czDelta = xmf3Look.z - clients[client].lastLookVector.z;
+
+		RotateModel(client, 0.0f, -fAngle * fTimeElapsed, 0.0f);
+	}
+
+	xmf3Look = Vector3::Normalize(xmf3Look);
+	xmf3Right = Vector3::CrossProduct(xmf3Up, xmf3Look, true);
+	xmf3Up = Vector3::CrossProduct(xmf3Look, xmf3Right, true);
+}
+
+void Server::RotateModel(char client, float x, float y, float z)
+{
+	if (x != 0.0f)
+	{
+		clients[client].pitch += x;
+		if (clients[client].pitch > +89.0f) { x -= (clients[client].pitch - 89.0f); clients[client].pitch = +89.0f; }
+		if (clients[client].pitch < -89.0f) { x -= (clients[client].pitch + 89.0f); clients[client].pitch = -89.0f; }
+	}
+	if (y != 0.0f)
+	{
+		clients[client].yaw += y;
+		if (clients[client].yaw > 360.0f) clients[client].yaw -= 360.0f;
+		if (clients[client].yaw < 0.0f) clients[client].yaw += 360.0f;
+	}
+	if (z != 0.0f)
+	{
+		clients[client].roll += z;
+		if (clients[client].roll > +20.0f) { z -= (clients[client].roll - 20.0f); clients[client].roll = +20.0f; }
+		if (clients[client].roll < -20.0f) { z -= (clients[client].roll + 20.0f); clients[client].roll = -20.0f; }
+	}
+}
+
+void Server::ProcessClientHeight(char client)
+{
+	int z = (int)(clients[client].pos.z / heightMap->GetScale().z);
+	bool bReverseQuad = ((z % 2) != 0);
+
+	float fHeight = heightMap->GetHeight(clients[client].pos.x, clients[client].pos.z, bReverseQuad);
+	if (clients[client].pos.y < fHeight)
+	{
+		clients[client].velocity.y = 0.0f;
+		clients[client].pos.y = fHeight;
+	}
+}
+
+void Server::ProcessFriction(char client, float& fLength)
+{
+	fLength = Vector3::Length(clients[client].velocity);
+	float fDeclaration = (FRICTION * gameTimer.GetTimeElapsed());
+
+	if (fDeclaration > fLength)
+	{
+		fDeclaration = fLength;
+		clients[client].velocity = Vector3::Add(clients[client].velocity, Vector3::ScalarProduct(clients[client].velocity, -fDeclaration, true));
+	}
 }
 
 void Server::err_quit(const char* msg)

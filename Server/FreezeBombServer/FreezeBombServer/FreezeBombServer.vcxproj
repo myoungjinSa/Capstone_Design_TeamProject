@@ -123,13 +123,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DirectX.h" />
+    <ClInclude Include="GameTimer.h" />
+    <ClInclude Include="MyDefine.h" />
+    <ClInclude Include="Physics.h" />
     <ClInclude Include="protocol.h" />
     <ClInclude Include="Server.h" />
     <ClInclude Include="MyInclude.h" />
+    <ClInclude Include="Terrain.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GameTimer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Physics.cpp" />
     <ClCompile Include="Server.cpp" />
+    <ClCompile Include="Terrain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
