@@ -11,8 +11,6 @@
 constexpr int SERVER_PORT = 9000;
 constexpr int BUF_SIZE = 1024;
 
-constexpr char MAX_USER = 6;			//최대 접속 유저
-
 class CGameFramework;
 
 #ifdef _WITH_SERVER_

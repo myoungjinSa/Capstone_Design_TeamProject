@@ -207,6 +207,9 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TextUIShader\OutcomeUIShader\OutcomeUIShader.cpp">
       <Filter>Code\Shader\BillboardShader\UIShader\TextUIShader\OutcomeUIShader</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\Physics\Particle\Particle.cpp">
+      <Filter>Code\Physics\Particle</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h">
@@ -413,6 +416,9 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TextUIShader\OutcomeUIShader\OutcomeUIShader.h">
       <Filter>Code\Shader\BillboardShader\UIShader\TextUIShader\OutcomeUIShader</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\Physics\Particle\Particle.h">
+      <Filter>Code\Physics\Particle</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Code">
@@ -618,6 +624,9 @@
     </Filter>
     <Filter Include="Code\Shader\BillboardShader\UIShader\TextUIShader\OutcomeUIShader">
       <UniqueIdentifier>{ed3e803f-f0a7-4d78-9952-3b0ba728d558}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Physics\Particle">
+      <UniqueIdentifier>{4599c934-497b-4574-8017-1fd87afd26f7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

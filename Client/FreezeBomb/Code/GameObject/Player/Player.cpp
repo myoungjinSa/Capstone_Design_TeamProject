@@ -13,6 +13,7 @@
 #include "../Billboard/Bomb/Bomb.h"
 #include "../../FrameTransform/FrameTransform.h"
 #include "../../Chatting/Chatting.h"
+#include "../../Shader/BillboardShader/UIShader/TextUIShader/OutcomeUIShader/OutcomeUIShader.h"
 
 extern byte g_PlayerCharacter;
 
@@ -455,14 +456,17 @@ void CPlayer::DecideAnimationState(float fLength)
 	}
 
 	////얼음으로 변신
-	if (GetAsyncKeyState(VK_LSHIFT) & 0x0001
-		&& pController->GetAnimationState() != CAnimationController::ICE
+	if (GetAsyncKeyState(VK_A) & 0x0001
+		//&& pController->GetAnimationState() != CAnimationController::ICE
 		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
 		)
 	{
 		m_bIce = !m_bIce;
 		pController->SetTrackAnimationSet(0, CAnimationController::IDLE);
-		pController->SetAnimationState(CAnimationController::ICE);
+		if (m_bIce == true)
+			pController->SetAnimationState(CAnimationController::ICE);
+		else
+			pController->SetAnimationState(CAnimationController::IDLE);
 	}
 
 	// 망치로 때리기 애니메이션
@@ -489,9 +493,10 @@ void CPlayer::DecideAnimationState(float fLength)
 			auto iter = m_Special_Inventory.begin();
 			if ((*iter).second->getItemType() == CItem::GoldHammer)
 			{	
-				SetTrackAnimationSet(0, CAnimationController::ATTACK);
+				SetTrackAnimationSet(0, CAnimationController::RAISEHAND);
 				SetTrackAnimationPosition(0, 0.0f);
-				pController->SetAnimationState(CAnimationController::ATTACK);
+				//m_pAnimationController->SetTrackSpeed(0, 2.0f);
+				pController->SetAnimationState(CAnimationController::RAISEHAND);
 			}
 			else
 			{
@@ -521,17 +526,25 @@ void CPlayer::DecideAnimationState(float fLength)
 			if (pController->GetAnimationState() != CAnimationController::DIE)
 			{
 				auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
+			
+				//auto outcomeIter = m_pShaderManager->getShaderMap().find("OutcomeUI");
 				if (iter != m_pShaderManager->getShaderMap().end())
 				{
 					if (((CTimerUIShader*)((*iter).second))->getTimer() <= 0.f)
 					{
+						auto outcomeIter = m_pShaderManager->getShaderMap().find("OutcomeUI");
 						auto iter2 = m_pShaderManager->getShaderMap().find("Bomb");
-						if (iter2 != m_pShaderManager->getShaderMap().end())
+						
+						if (iter2 != m_pShaderManager->getShaderMap().end()
+							&& outcomeIter != m_pShaderManager->getShaderMap().end())
 						{
 							m_BombParticle = ((CBombParticleShader*)(*iter2).second)->getBomb();
 							m_BombParticle->setIsBlowing(true);
 							m_bBomb = false;
-
+							if (((COutcomeUIShader*)(*outcomeIter).second)->getIsRender() == false)
+								((COutcomeUIShader*)(*outcomeIter).second)->setIsRender(true);
+							else
+								((COutcomeUIShader*)(*outcomeIter).second)->setIsRender(false);
 							pController->SetTrackPosition(0, 0.0f);
 							pController->SetTrackAnimationSet(0, CAnimationController::DIE);
 							pController->SetAnimationState(CAnimationController::DIE);

@@ -195,6 +195,7 @@
     <ClInclude Include="..\Code\Mesh\LODMesh\LODMesh.h.h" />
     <ClInclude Include="..\Code\Mesh\Mesh.h" />
     <ClInclude Include="..\Code\Network\Network.h" />
+    <ClInclude Include="..\Code\Physics\Particle\Particle.h" />
     <ClInclude Include="..\Code\Physics\Physics.h" />
     <ClInclude Include="..\Code\Physics\Precision.h" />
     <ClInclude Include="..\Code\ResourceManager\ResourceManager.h" />
@@ -263,6 +264,7 @@
     <ClCompile Include="..\Code\Mesh\LODMesh\LODMesh.cpp" />
     <ClCompile Include="..\Code\Mesh\Mesh.cpp" />
     <ClCompile Include="..\Code\Network\Network.cpp" />
+    <ClCompile Include="..\Code\Physics\Particle\Particle.cpp" />
     <ClCompile Include="..\Code\Physics\Physics.cpp" />
     <ClCompile Include="..\Code\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="..\Code\Scene\LoadingScene\LoadingScene.cpp" />

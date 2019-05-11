@@ -3,10 +3,9 @@
 #include "MyInclude.h"
 #include "protocol.h"
 
-#define SERVER_IP "127.0.0.1"
 #pragma comment(lib, "Ws2_32.lib")
 constexpr int MAX_BUFFER = 1024;
-constexpr int MAX_USER = 6;
+
 constexpr int SERVER_PORT = 9000;
 
 constexpr float PLAYER_INIT_X_POS = 0;
