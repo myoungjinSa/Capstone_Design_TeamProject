@@ -1300,7 +1300,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			
 		//	MappingUserToEvilbear(pPP->id, clientCount/*현재 접속한 유저 수를 받아야함 */);
 
-			cout <<"플레이어 ID-"<<(int)pPP->id<<",재질 -" <<(int)pPP->matID << "\n";
+			//cout <<"플레이어 ID-"<<(int)pPP->id<<",재질 -" <<(int)pPP->matID << "\n";
 			m_pPlayer->SetMaterialID(pPP->matID);	//플레이어 재질정	보 SET
 			m_pPlayer->SetPosition(pos);
 			m_pPlayer->SetLookVector(look);
@@ -1325,7 +1325,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
 				//id랑 재질정보를 MappingUserToEvilbear함수를 통해 할 수 있음 
-				cout <<"적 클라 ID-"<<(int)pPP->id<<",재질 -" <<(int)pPP->matID << "\n";
+				//cout <<"적 클라 ID-"<<(int)pPP->id<<",재질 -" <<(int)pPP->matID << "\n";
 
 				dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->MappingUserToEvilbear(id/*아이디*/, pPP->matID/*재질id*/);
 				(*iter).second->m_ppObjects[id]->SetPosition(pos);
@@ -1336,8 +1336,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			}
 		}
 		
-		printf("Recv matID : %d\n", pPP->matID);
-		printf("Put Player ID: %d, xPos: %f, yPos: %f, zPod: %f\n", pPP->id, pPP->xPos, pPP->yPos, pPP->zPos);
+		//printf("Put Player ID: %d, xPos: %f, yPos: %f, zPod: %f\n", pPP->id, pPP->xPos, pPP->yPos, pPP->zPos);
 		break;
 	case SC_MOVE_PLAYER:
 	{
@@ -1384,7 +1383,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		}
 
-		printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", pMP->id, pMP->xPos, pMP->yPos, pMP->zPos);
+		//printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", pMP->id, pMP->xPos, pMP->yPos, pMP->zPos);
 		break;
 	}
 	case SC_REMOVE_PLAYER:

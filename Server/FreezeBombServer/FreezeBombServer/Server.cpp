@@ -211,7 +211,7 @@ void Server::TimerThreadFunc()
 			// 1초가 지나면 시간비교 패킷 전송
 			if (nowSec - lastSec >= 1.0f)
 			{
-				printf("SendCompareTime() 전송\n");
+				//printf("SendCompareTime() 전송\n");
 				for (int i = 0; i < MAX_USER; ++i)
 				{
 					if (true == clients[i].in_use)
@@ -250,7 +250,7 @@ void Server::RecvFunc(char client)
 	else {
 		// 비동기식으로 돌아가지 않고 동기식으로 돌아갔다는 오류.
 		// 키를 동시에 누를 때 발생(ex / UP키와 RIGHT키)
-		cout << "Non Overlapped Recv return.\n";
+		//cout << "Non Overlapped Recv return.\n";
 		//while (true);
 	}
 }
@@ -407,7 +407,7 @@ void Server::ProcessPacket(char client, char *packet)
 		clients[client].isReady = true;
 		
 		clients[client].matID = packet[2];	// matID
-		printf("Recv matID : %d\n", clients[client].matID);
+		//printf("Recv matID : %d\n", clients[client].matID);
 		break;
 	case CS_REQUEST_START:
 		if (clientCount <= readyCount)
@@ -534,7 +534,7 @@ void Server::SendPutPlayer(char toClient, char fromClient)
 	packet.yRight = clients[fromClient].right.y;
 	packet.zRight = clients[fromClient].right.z;
 	packet.matID = clients[fromClient].matID;
-	printf("Send matID : %d\n", packet.matID);
+
 	SendFunc(toClient, &packet);
 }
 
