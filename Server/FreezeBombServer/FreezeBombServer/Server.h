@@ -137,6 +137,7 @@ public:
 	void SendMovePlayer(char to,char object);
 	void SendRemovePlayer(char toClient, char fromClient);
 	void SendRoundEnd(char client);
+	void SendCompareTime(char client);
 public:
 	void SetVelocityZero(char client);
 	void SetPitchYawRollZero(char client);

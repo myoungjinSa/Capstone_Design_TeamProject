@@ -571,6 +571,7 @@ void CPlayer::DecideAnimationState(float fLength)
 						dynamic_cast<CTimerUIShader*>((*iter2).second)->setTimer(90.f);
 
 						Refresh_Inventory((*iter).second->getItemType());
+						
 					}
 				}
 			}	

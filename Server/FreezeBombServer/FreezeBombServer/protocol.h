@@ -30,6 +30,7 @@ constexpr int SC_ROUND_END = 7;
 constexpr int SC_ROUND_START = 8;
 constexpr int SC_PLEASE_READY = 9;
 constexpr int SC_ACCESS_PLAYER = 10;
+constexpr int SC_COMPARE_TIME = 11;
 
 constexpr int CS_UP_KEY = 0;
 constexpr int CS_DOWN_KEY = 1;
@@ -230,7 +231,7 @@ struct SC_PACKET_COMPARE_TIME
 {
 	char size;
 	char type;
-	char serverTime;				// 서버 시간
+	unsigned long serverTime;				// 서버 시간
 };
 
 struct SC_PACKET_ROLL_CHANGE

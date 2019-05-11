@@ -199,12 +199,28 @@ void Server::TimerThread(LPVOID arg)
 
 void Server::TimerThreadFunc()
 {
+	float lastSec = 0;
+	float nowSec = 0;
 	while (1)
 	{
 		if (roundStartTime > 0)
 		{
-			cout << (GetTickCount() - roundStartTime) / 1000 << "\n";
-			if ((GetTickCount() - roundStartTime) / 1000 >= MAX_ROUND_TIME)
+			nowSec = (GetTickCount() - roundStartTime) / 1000;
+			//cout << nowSec << "\n";
+			// 1초가 지나면 시간비교 패킷 전송
+			if (nowSec - lastSec >= 1.0f)
+			{
+				printf("SendCompareTime() 전송\n");
+				for (int i = 0; i < MAX_USER; ++i)
+				{
+					if (true == clients[i].in_use)
+						SendCompareTime(i);
+				}
+				lastSec = nowSec;
+			}
+
+			// 라운드 종료 시
+			if (nowSec >= MAX_ROUND_TIME)
 			{
 				for (int i = 0; i < MAX_USER; ++i)
 				{
@@ -596,6 +612,16 @@ void Server::SendRoundEnd(char client)
 		packet.isWinner = false;
 	packet.size = sizeof(packet);
 	packet.type = SC_ROUND_END;
+
+	SendFunc(client, &packet);
+}
+
+void Server::SendCompareTime(char client)
+{
+	SC_PACKET_COMPARE_TIME packet;
+	packet.serverTime = GetTickCount();
+	packet.size = sizeof(packet);
+	packet.type = SC_COMPARE_TIME;
 
 	SendFunc(client, &packet);
 }
