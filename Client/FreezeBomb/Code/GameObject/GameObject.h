@@ -444,7 +444,7 @@ public:
 	void setID(const string id) { m_ID = id; }
 	const string getID()	const { return m_ID; }
 
-	const int GetMaterialID() { return m_matID; }
+	//const int GetMaterialID() { return m_matID; }
 	const bool GetBoolIce() { return m_bIce; }
 
 	BoundingOrientedBox GetBoundingBox() const { return m_xmOOBB; }

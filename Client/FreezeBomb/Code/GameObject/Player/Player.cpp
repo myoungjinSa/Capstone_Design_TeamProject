@@ -312,6 +312,20 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 
 	if (nCameraMode == THIRD_PERSON_CAMERA)
 	{
+#ifdef _WITH_SERVER_
+		if (m_bBomb == true)
+		{
+			CGameObject::Tagger_Render(pd3dCommandList, pCamera, m_matID, m_bGoldTimer, GameObject);
+			if (m_pShadow)
+				m_pShadow->Tagger_Render(pd3dCommandList, pCamera, m_matID, m_bGoldTimer, GameObject_Shadow);
+		}
+		else
+		{
+			CGameObject::RunAway_Render(pd3dCommandList, pCamera, m_matID,m_bIce, m_bHammer, m_bGoldHammer, GameObject);
+			if (m_pShadow)
+				m_pShadow->RunAway_Render(pd3dCommandList, pCamera, m_matID,m_bIce ,m_bHammer, m_bGoldHammer, GameObject_Shadow);
+		}
+#else
 		if (m_bBomb == true)
 		{
 			CGameObject::Tagger_Render(pd3dCommandList, pCamera, g_PlayerCharacter, m_bGoldTimer, GameObject);
@@ -324,6 +338,8 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 			if (m_pShadow)
 				m_pShadow->RunAway_Render(pd3dCommandList, pCamera, g_PlayerCharacter, m_bIce, m_bHammer, m_bGoldHammer, GameObject_Shadow);
 		}
+
+#endif
 	}
 }
 
