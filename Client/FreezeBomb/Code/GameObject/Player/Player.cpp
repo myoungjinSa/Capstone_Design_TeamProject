@@ -308,9 +308,9 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 		}
 		else
 		{
-			CGameObject::RunAway_Render(pd3dCommandList, pCamera, g_PlayerCharacter, m_bHammer, m_bGoldHammer, GameObject);
+			CGameObject::RunAway_Render(pd3dCommandList, pCamera, g_PlayerCharacter, m_bIce, m_bHammer, m_bGoldHammer, GameObject);
 			if (m_pShadow)
-				m_pShadow->RunAway_Render(pd3dCommandList, pCamera, g_PlayerCharacter, m_bHammer, m_bGoldHammer, GameObject_Shadow);
+				m_pShadow->RunAway_Render(pd3dCommandList, pCamera, g_PlayerCharacter, m_bIce, m_bHammer, m_bGoldHammer, GameObject_Shadow);
 		}
 	}
 }
@@ -446,41 +446,52 @@ void CPlayer::DecideAnimationState(float fLength)
 
 		pController->SetAnimationState(CAnimationController::DIGGING);
 	}
+
 	// 치트키
 	//추후에 아이템과 충돌여부 및 아이템 획득 여부로 변경해서 하면 될듯
-	if (GetAsyncKeyState(VK_C) & 0x0001
-		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
-		)
+	// 술래일때랑, 도망자일때로 각각 다르게 작동
+	if (GetAsyncKeyState(VK_C) & 0x0001 && ChattingSystem::GetInstance()->IsChattingActive() ==false)
 	{
-		m_bBomb = !m_bBomb;
-		Add_Inventory("치트_망치", CItem::NormalHammer);
-		Add_Inventory("치트_황금망치", CItem::GoldHammer);
+		ChangeRole();
 
-		m_bHammer = !m_bHammer;
+		// 술래일때,
+		if (m_bBomb == true)
+		{
+			Add_Inventory("치트_황금시계", CItem::GoldTimer);
+		}
+		// 도망자일때,
+		else
+		{
+			Add_Inventory("치트_망치", CItem::NormalHammer);
+			Add_Inventory("치트_황금망치", CItem::GoldHammer);
+		}
+		//m_bBomb = !m_bBomb;
+		//Add_Inventory("치트_망치", CItem::NormalHammer);
+		//Add_Inventory("치트_황금망치", CItem::GoldHammer);
+		//m_bHammer = !m_bHammer;
 	}
 
 	if(GetAsyncKeyState(VK_X) & 0x0001
+		&& pController->GetAnimationState() != CAnimationController::ICE
 		&& ChattingSystem::GetInstance()->IsChattingActive() ==false)
 	{
 		pController->SetTrackAnimationSet(0, CAnimationController::SLIDE);
 		pController->SetAnimationState(CAnimationController::SLIDE);
 		//pController->SetTrackSpeed(0, 10.0f);
 	}
-	if (GetAsyncKeyState(VK_RSHIFT) & 0x0001 
-		&& pController->GetAnimationState() != CAnimationController::DIE
-		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
-		)
-	{
-		pController->SetTrackPosition(0, 0.0f);
-		pController->SetTrackAnimationSet(0, CAnimationController::DIE);
-		pController->SetAnimationState(CAnimationController::DIE);
-	}
+
+	//if (GetAsyncKeyState(VK_RSHIFT) & 0x0001 
+	//	&& pController->GetAnimationState() != CAnimationController::DIE
+	//	&& ChattingSystem::GetInstance()->IsChattingActive() ==false
+	//	)
+	//{
+	//	pController->SetTrackPosition(0, 0.0f);
+	//	pController->SetTrackAnimationSet(0, CAnimationController::DIE);
+	//	pController->SetAnimationState(CAnimationController::DIE);
+	//}
 
 	////얼음으로 변신
-	if (GetAsyncKeyState(VK_A) & 0x0001
-		//&& pController->GetAnimationState() != CAnimationController::ICE
-		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
-		)
+	if (GetAsyncKeyState(VK_A) & 0x0001 && ChattingSystem::GetInstance()->IsChattingActive() ==false && m_bBomb == false)
 	{
 		m_bIce = !m_bIce;
 		pController->SetTrackAnimationSet(0, CAnimationController::IDLE);
@@ -518,24 +529,27 @@ void CPlayer::DecideAnimationState(float fLength)
 				SetTrackAnimationPosition(0, 0.0f);
 				//m_pAnimationController->SetTrackSpeed(0, 2.0f);
 				pController->SetAnimationState(CAnimationController::RAISEHAND);
+				
+				//Refresh_Inventory((*iter).second->getItemType());
 			}
 			else
 			{
-				SetTrackAnimationSet(0, CAnimationController::RAISEHAND);
-				SetTrackAnimationPosition(0, 0.0f);
-				pController->SetAnimationState(CAnimationController::RAISEHAND);
-
-				if (m_pShaderManager)
+				if (m_pShaderManager && m_bBomb == true)
 				{
-					auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
-					if (iter != m_pShaderManager->getShaderMap().end())
+					auto iter2 = m_pShaderManager->getShaderMap().find("TimerUI");
+					if (iter2 != m_pShaderManager->getShaderMap().end())
 					{
+						SetTrackAnimationSet(0, CAnimationController::RAISEHAND);
+						SetTrackAnimationPosition(0, 0.0f);
+						pController->SetAnimationState(CAnimationController::RAISEHAND);
+
 						// 90초 증가
-						dynamic_cast<CTimerUIShader*>((*iter).second)->setTimer(90.f);
+						dynamic_cast<CTimerUIShader*>((*iter2).second)->setTimer(90.f);
+
+						Refresh_Inventory((*iter).second->getItemType());
 					}
 				}
 			}	
-			Refresh_Inventory((*iter).second->getItemType());
 		}
 	}
 
@@ -637,6 +651,18 @@ void CPlayer::ReleaseSound()
 {
 	if (m_pSound)
 		m_pSound->Release();
+}
+
+void CPlayer::ChangeRole()
+{
+	if (m_Normal_Inventory.size() > 0)
+		Refresh_Inventory(CItem::NormalHammer);
+	if (m_Special_Inventory.size() > 0)
+		Refresh_Inventory(CItem::GoldHammer);
+	if (m_Special_Inventory.size() > 0)
+		Refresh_Inventory(CItem::GoldTimer);
+
+	m_bBomb = !m_bBomb;
 }
 
 CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, int matID, void *pContext)

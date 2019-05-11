@@ -36,9 +36,9 @@ void CEvilBear::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCam
 		}
 		else
 		{
-			CGameObject::RunAway_Render(pd3dCommandList, pCamera, m_matID, m_bHammer, m_bGoldHammer, nPipelineState);
+			CGameObject::RunAway_Render(pd3dCommandList, pCamera, m_matID, m_bIce, m_bHammer, m_bGoldHammer, nPipelineState);
 			if (m_pShadow)
-				m_pShadow->RunAway_Render(pd3dCommandList, pCamera, m_matID, m_bHammer, m_bGoldHammer, GameObject_Shadow);
+				m_pShadow->RunAway_Render(pd3dCommandList, pCamera, m_matID, m_bIce, m_bHammer, m_bGoldHammer, GameObject_Shadow);
 		}
 	}
 }

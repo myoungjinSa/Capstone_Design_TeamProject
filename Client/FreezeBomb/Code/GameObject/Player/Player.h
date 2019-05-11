@@ -114,6 +114,7 @@ public:
 	bool IsSpike() const { return m_bSpike; }
 	void SetSpike(bool spike) { m_bSpike = spike; }
 
+	void ChangeRole();
 protected:
 
 	XMFLOAT3			m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
