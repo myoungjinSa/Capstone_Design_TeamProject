@@ -682,7 +682,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 #ifdef _WITH_SERVER_
 				m_Network.SendReady(m_pPlayer->GetMaterialID());
 				isReady = true;
-#elif
+#else
 				if (m_pLobbyScene)
 				{
 					m_pLobbyScene->SetMusicStart(false);
