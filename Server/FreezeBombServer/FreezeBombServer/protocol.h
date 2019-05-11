@@ -209,6 +209,9 @@ struct SC_PACKET_MOVE_PLAYER
 	float yaw;
 	float roll;	
 
+	//속도
+	float fVelocity;
+
 };
 
 // 플레이어가 아이템 사용 시

@@ -64,6 +64,8 @@ public:
 	float yaw;
 	float roll;
 	DWORD direction;
+	//¼Óµµ
+	float fVelocity;
 
 	XMFLOAT3 lastRightVector;
 	XMFLOAT3 lastLookVector;
@@ -129,6 +131,7 @@ public:
 	void SendMovePlayer(char to,char object);
 	void SendRemovePlayer(char toClient, char fromClient);
 public:
+	void SetVelocityZero(char client);
 	void SetPitchYawRollZero(char client);
 	void SetClient_Initialize(char client);
 	void SetDirection(char client, int key);
