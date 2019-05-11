@@ -135,7 +135,7 @@ void CProgressBarUIShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graphics
 	m_UIMap.emplace(ProgressBar, pUI);
 
 	//m_ProgressBarPosition = XMFLOAT4(-1.f, -0.95f, -1.f, -1.f);
-	m_ProgressBarPosition = XMFLOAT4(-1.f, -0.9f, -1.f, -1.f);
+	m_ProgressBarPosition = XMFLOAT4(-1.f, -0.93f, -1.f, -1.f);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }

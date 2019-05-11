@@ -130,8 +130,8 @@ void CTimerUIShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	pUI->SetMaterial(0, m_ppUIMaterial[m_nObjects - 1]);
 	m_UIMap.emplace(Colon, pUI);
 
-	// 300초
-	m_Timer = 50.f;
+	// 게임시작시 시간 : 40초
+	m_Timer = 40.f;
 }
 
 void CTimerUIShader::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer* pPlayer)

@@ -896,7 +896,7 @@ void CScene::CheckWarningTimer()
 		auto iter = m.find("TimerUI");
 		float sec = dynamic_cast<CTimerUIShader*>((*iter).second)->getTimer();
 		
-		if(sec < 10.0f)
+		if(sec > 0 && sec < 10.0f)
 		{
 			if (m_bWarningSet == false) {
 				m_bWarningSet = true;

@@ -217,9 +217,12 @@ void CPlayer::Update(float fTimeElapsed)
 		OnPlayerUpdateCallback(fTimeElapsed);
 
 	DWORD nCurrentCameraMode = m_pCamera->GetMode();
-	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->Update(m_xmf3Position, fTimeElapsed,IsCameraVibe());
-	if (m_pCameraUpdatedContext) OnCameraUpdateCallback(fTimeElapsed);
-	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(m_xmf3Position);
+	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) 
+		m_pCamera->Update(m_xmf3Position, fTimeElapsed,IsCameraVibe());
+	if (m_pCameraUpdatedContext) 
+		OnCameraUpdateCallback(fTimeElapsed);
+	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) 
+		m_pCamera->SetLookAt(m_xmf3Position);
 
 	m_pCamera->RegenerateViewMatrix();
 
@@ -480,11 +483,20 @@ void CPlayer::DecideAnimationState(float fLength)
 	// 술래일때랑, 도망자일때로 각각 다르게 작동
 	if (GetAsyncKeyState(VK_C) & 0x0001 && ChattingSystem::GetInstance()->IsChattingActive() ==false)
 	{
+		if (pController->GetAnimationState() == CAnimationController::ICE)
+		{
+			pController->SetAnimationState(CAnimationController::IDLE);
+			SetTrackAnimationSet(0, CAnimationController::IDLE);
+			SetTrackAnimationPosition(0, 0);
+			m_bIce = false;
+		}
+
 		ChangeRole();
 
 		// 술래일때,
 		if (m_bBomb == true)
 		{
+			// 만약 술래가 되기전 얼음이었다면,
 			Add_Inventory("치트_황금시계", CItem::GoldTimer);
 		}
 		// 도망자일때,
@@ -554,7 +566,7 @@ void CPlayer::DecideAnimationState(float fLength)
 				//m_pAnimationController->SetTrackSpeed(0, 2.0f);
 				pController->SetAnimationState(CAnimationController::RAISEHAND);
 				
-				//Refresh_Inventory((*iter).second->getItemType());
+				Refresh_Inventory((*iter).second->getItemType());
 			}
 			else
 			{
@@ -567,8 +579,8 @@ void CPlayer::DecideAnimationState(float fLength)
 						SetTrackAnimationPosition(0, 0.0f);
 						pController->SetAnimationState(CAnimationController::RAISEHAND);
 
-						// 90초 증가
-						dynamic_cast<CTimerUIShader*>((*iter2).second)->setTimer(90.f);
+						// 30초 증가
+						dynamic_cast<CTimerUIShader*>((*iter2).second)->setTimer(30.f);
 
 						Refresh_Inventory((*iter).second->getItemType());
 					}
@@ -600,6 +612,7 @@ void CPlayer::DecideAnimationState(float fLength)
 							m_BombParticle = ((CBombParticleShader*)(*iter2).second)->getBomb();
 							m_BombParticle->setIsBlowing(true);
 							m_bBomb = false;
+
 							if (((COutcomeUIShader*)(*outcomeIter).second)->getIsRender() == false)
 								((COutcomeUIShader*)(*outcomeIter).second)->setIsRender(true);
 							else
@@ -867,7 +880,9 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 	XMFLOAT3 xmf3PlayerPosition = GetPosition();
 	int z = (int)(xmf3PlayerPosition.z / xmf3Scale.z);
 	bool bReverseQuad = ((z % 2) != 0);
-	float fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x, xmf3PlayerPosition.z, bReverseQuad) + 0.0f;
+	// 플레이어 올라가는거 주석처리
+	//float fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x, xmf3PlayerPosition.z, bReverseQuad) + 0.0f;
+	float fHeight = 0.f;
 	if (xmf3PlayerPosition.y < fHeight)
 	{
 		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
@@ -888,7 +903,8 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 	float fHeight = pTerrain->GetHeight(xmf3CameraPosition.x, xmf3CameraPosition.z, bReverseQuad) + 5.0f;
 	if (xmf3CameraPosition.y <= fHeight)
 	{
-		xmf3CameraPosition.y = fHeight;
+		// 카메라 올라가는거 주석처리
+		//xmf3CameraPosition.y = fHeight;
 		m_pCamera->SetPosition(xmf3CameraPosition);
 		if (m_pCamera->GetMode() == THIRD_PERSON_CAMERA)
 		{

@@ -828,8 +828,10 @@ void CGameFramework::OnDestroy()
 bool CGameFramework::BuildObjects()
 {
 	// 윈도우 창 띄우기
-	::ShowWindow(m_hWnd, SW_SHOWDEFAULT);
-	::UpdateWindow(m_hWnd);
+	
+	//::ShowWindow(m_hWnd, SW_MAXIMIZE);
+	//::ShowWindow(m_hWnd, SW_SHOW);
+	//::UpdateWindow(m_hWnd);
 
 	loadingThread.emplace_back(thread{ &CGameFramework::Worker_Thread, this });
 
@@ -866,7 +868,7 @@ bool CGameFramework::BuildObjects()
 			pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), g_PlayerCharacter, pTerrain);
 			pPlayer->SetPosition(XMFLOAT3(40.f, 0.f, 40.f));
 			pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
-			pPlayer->SetPlayerName(L"사명진");
+			pPlayer->SetPlayerName(L"주인공");
 
 			pPlayer->setScore(100);
 
@@ -1144,24 +1146,24 @@ void CGameFramework::ShowScoreboard()
 		m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
 
 		// Score
-		rcText = D2D1::RectF(0, 0, 1900.0f, 360.0f);
+		rcText = D2D1::RectF(0, 0, 2200.f, 360.0f);
 		m_pd2dDeviceContext->DrawTextW((to_wstring(m_pPlayer->getScore())).c_str(), (UINT32)(to_wstring(m_pPlayer->getScore())).length(), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
 
 		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/515.0f);
-		m_pd2dDeviceContext->DrawTextW(L"이우상", (UINT32)wcslen(L"이우상"), m_pdwFont[1], &rcText, m_pd2dbrText[1]);
+		m_pd2dDeviceContext->DrawTextW(L"핑크", (UINT32)wcslen(L"핑크"), m_pdwFont[1], &rcText, m_pd2dbrText[1]);
 
 		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/670.0f);
-		m_pd2dDeviceContext->DrawTextW(L"염혜린", (UINT32)wcslen(L"염혜린"), m_pdwFont[2], &rcText, m_pd2dbrText[2]);
+		m_pd2dDeviceContext->DrawTextW(L"브라운", (UINT32)wcslen(L"브라운"), m_pdwFont[2], &rcText, m_pd2dbrText[2]);
 
 		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/825.0f);
-		m_pd2dDeviceContext->DrawTextW(L"까망이", (UINT32)wcslen(L"까망이"), m_pdwFont[3], &rcText, m_pd2dbrText[3]);
+		m_pd2dDeviceContext->DrawTextW(L"블랙", (UINT32)wcslen(L"블랙"), m_pdwFont[3], &rcText, m_pd2dbrText[3]);
 
 		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/980.0f);
-		m_pd2dDeviceContext->DrawTextW(L"하양이", (UINT32)wcslen(L"하양이"), m_pdwFont[4], &rcText, m_pd2dbrText[4]);
+		m_pd2dDeviceContext->DrawTextW(L"화이트", (UINT32)wcslen(L"화이트"), m_pdwFont[4], &rcText, m_pd2dbrText[4]);
 
 		//cout << index << endl;
 		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/1135.0f);
-		m_pd2dDeviceContext->DrawTextW(L"판다", (UINT32)wcslen(L"판다"), m_pdwFont[5], &rcText, m_pd2dbrText[5]);
+		m_pd2dDeviceContext->DrawTextW(L"펜더", (UINT32)wcslen(L"펜더"), m_pdwFont[5], &rcText, m_pd2dbrText[5]);
 	}
 
 }

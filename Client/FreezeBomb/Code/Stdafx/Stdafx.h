@@ -29,6 +29,7 @@
 
 using namespace std;
 
+// 콘솔창 가리기
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 
 #include <d3d12.h>

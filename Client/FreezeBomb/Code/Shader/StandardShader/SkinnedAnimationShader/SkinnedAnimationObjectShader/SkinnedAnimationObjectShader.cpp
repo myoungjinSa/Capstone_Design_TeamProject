@@ -10,9 +10,7 @@
 #include "../../../../SoundSystem/SoundSystem.h"
 
 
-CSkinnedAnimationObjectShader::CSkinnedAnimationObjectShader()
-	:m_userID{ 0 }
-	
+CSkinnedAnimationObjectShader::CSkinnedAnimationObjectShader()	:m_userID{ 0 }	
 {
 }
 
@@ -21,7 +19,6 @@ CSkinnedAnimationObjectShader::~CSkinnedAnimationObjectShader()
 	m_vMaterial.clear();
 	m_mapMusicList.clear();
 	ReleaseSound();
-	//m_EvilbearMap.clear();
 }
 
 void CSkinnedAnimationObjectShader::InitializeSound()
@@ -54,7 +51,7 @@ void CSkinnedAnimationObjectShader::InitializeSound()
 
 	if(m_pSound)
 	{
-		m_pSound->Initialize(m_SoundCount, m_SoundList,FMOD_LOOP_OFF);
+		m_pSound->Initialize(m_SoundCount, m_SoundList, FMOD_LOOP_OFF);
 	}
 }
 void CSkinnedAnimationObjectShader::ReleaseSound()
@@ -91,7 +88,7 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		//m_ppObjects[0]->m_pAnimationController->SetTrackWeight(1, 0.2f);
 
 		m_ppObjects[0]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
-		dynamic_cast<CEvilBear*>(m_ppObjects[0])->SetPlayerName(L"이우상");
+		dynamic_cast<CEvilBear*>(m_ppObjects[0])->SetPlayerName(L"핑크");
 
 
 		m_ppObjects[1] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::BROWN);
@@ -106,7 +103,7 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		//m_ppObjects[1]->m_pAnimationController->SetTrackSpeed(0, 0.25f);
 
 		m_ppObjects[1]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
-		dynamic_cast<CEvilBear*>(m_ppObjects[1])->SetPlayerName(L"염혜린");
+		dynamic_cast<CEvilBear*>(m_ppObjects[1])->SetPlayerName(L"브라운");
 
 		m_ppObjects[2] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::WHITE);
 		m_ppObjects[2]->SetChild((*Model).second->m_pModelRootObject, true);
@@ -116,7 +113,7 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		//m_ppObjects[2]->m_pAnimationController->SetTrackPosition(0, 0.95f);
 
 		m_ppObjects[2]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
-		dynamic_cast<CEvilBear*>(m_ppObjects[2])->SetPlayerName(L"하양이");
+		dynamic_cast<CEvilBear*>(m_ppObjects[2])->SetPlayerName(L"화이트");
 
 		m_ppObjects[3] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::BLACK);
 		m_ppObjects[3]->SetChild((*Model).second->m_pModelRootObject, true);
@@ -124,14 +121,14 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		m_ppObjects[3]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[3]->m_pAnimationController->RAISEHAND);
 
 		m_ppObjects[3]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
-		dynamic_cast<CEvilBear*>(m_ppObjects[3])->SetPlayerName(L"까망이");
+		dynamic_cast<CEvilBear*>(m_ppObjects[3])->SetPlayerName(L"블랙");
 
 		m_ppObjects[4] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::BLUE);
 		m_ppObjects[4]->SetChild((*Model).second->m_pModelRootObject, true);
 		m_ppObjects[4]->m_pAnimationController = new CAnimationController(1, (*Model).second->m_pAnimationSets);
 		m_ppObjects[4]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[4]->m_pAnimationController->RUNBACKWARD);
 		m_ppObjects[4]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
-		dynamic_cast<CEvilBear*>(m_ppObjects[4])->SetPlayerName(L"파랑이");
+		dynamic_cast<CEvilBear*>(m_ppObjects[4])->SetPlayerName(L"블루");
 
 
 		m_ppObjects[5] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::PANDA);
@@ -139,7 +136,7 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		m_ppObjects[5]->m_pAnimationController = new CAnimationController(1, (*Model).second->m_pAnimationSets);
 		m_ppObjects[5]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[5]->m_pAnimationController->IDLE);
 		m_ppObjects[5]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
-		dynamic_cast<CEvilBear*>(m_ppObjects[5])->SetPlayerName(L"판다");
+		dynamic_cast<CEvilBear*>(m_ppObjects[5])->SetPlayerName(L"펜더");
 
 		for (int i = 0; i < m_nObjects; ++i)
 		{
@@ -214,14 +211,17 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		}
 	}
 
-	XMFLOAT3 Position;
+	// 임시로 플레이어 위치 고정
+	int index = 0;
+	m_ppObjects[index++]->SetPosition(100, 0, 100);
+	m_ppObjects[index++]->SetPosition(58, 0, 180);
+	m_ppObjects[index++]->SetPosition(192, 0, 230);
+	m_ppObjects[index++]->SetPosition(386, 0, 206);
+	m_ppObjects[index++]->SetPosition(250, 0, 50);
+	m_ppObjects[index++]->SetPosition(70, 0, 50);
+
 	for (int i = 0; i < m_nObjects; ++i)
 	{
-		Position.x = Random(0.f, 500.f);
-		Position.z = Random(0.f, 300.f);
-		Position.y = 0.f;
-		m_ppObjects[i]->SetPosition(Position);
-
 		m_ppObjects[i]->SetScale(10, 10, 10);
 
 		m_ppObjects[i]->setID("EvilBear");
@@ -231,14 +231,6 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 
 		dynamic_cast<CEvilBear*>(m_ppObjects[i])->Initialize_Shadow((*Model).second, m_ppObjects[i]);
 	}
-
-//	//임시 테스트
-//#ifndef _WITH_SERVER_
-	//MappingUserToEvilbear(3, 5);//판다 (이름은 까망이)
-	//MappingUserToEvilbear(0, 0);//핑크 (이름은 이우상)
-	//MappingUserToEvilbear(1, 4);//블루(이름은 염혜린)
-//#endif
-
 }
 
 void CSkinnedAnimationObjectShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera,CPlayer* pPlayer)

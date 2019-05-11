@@ -83,6 +83,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	if (!hMainWnd) return(FALSE);
 
+	::ShowWindow(hMainWnd, nCmdShow);
+	::UpdateWindow(hMainWnd);
 	if (!gGameFramework.OnCreate(hInstance, hMainWnd))
 	{
 		::PostQuitMessage(0);
@@ -208,6 +210,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 		break;
+
+		// 윈도우 생성시 가운데로
+	case WM_CREATE:
+		int x, y, width, height;
+		RECT rtDesk, rtWindow;
+		GetWindowRect(GetDesktopWindow(), &rtDesk);
+		GetWindowRect(hWnd, &rtWindow);
+
+		width = rtWindow.right - rtWindow.left;
+		height = rtWindow.bottom - rtWindow.top;
+
+		x = (rtDesk.right - width) / 2;
+		y = (rtDesk.bottom - height) / 2;
+
+		MoveWindow(hWnd, x, y, width, height, TRUE);
+
 	case WM_PAINT:
 		hdc = ::BeginPaint(hWnd, &ps);
 		EndPaint(hWnd, &ps);

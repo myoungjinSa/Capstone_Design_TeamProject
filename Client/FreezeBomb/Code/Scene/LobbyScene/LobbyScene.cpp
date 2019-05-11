@@ -190,12 +190,12 @@ void CLobbyScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wPar
 	case WM_LBUTTONDOWN:
 	{
 		XMFLOAT3 position = ScreenPosition(mouseX, mouseY);
+		//cout << mouseX << ", " << mouseY << "--------------" << position.x << ", " << position.y << endl;
 		auto iter = m_shaderMap.find("Select");
 		if (iter != m_shaderMap.end())
 		{
 			dynamic_cast<CCharacterSelectUIShader*>(m_ppShaders[0])->DecideTextureByCursorPosition(m_pSound, position.x, position.y);
 			g_PlayerCharacter = dynamic_cast<CCharacterSelectUIShader*>(m_ppShaders[0])->SelectedCharacter();
-			//cout << "x :" << position.x << ", y :" << position.y << endl;
 		}
 		break;
 	}
