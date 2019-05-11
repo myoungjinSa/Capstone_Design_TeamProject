@@ -59,21 +59,20 @@ public:
 	void ProcessInGame(D3D12_CPU_DESCRIPTOR_HANDLE&);
 	void ProcessLobby();
 
-
 	void WaitForGpuComplete();
 	void MoveToNextFrame();
 
 	void CreateOffScreenRenderTargetViews();
 
 
-	//void MappingUserToEvilbear(char id,int playerCount);
+	void MappingUserToEvilbear(char id,int playerCount);
+
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 	bool IsHangeul() { return m_bHangeul; }
 	void SetHangeul(bool han) { m_bHangeul = han; }
 
-	
 #ifdef _MAPTOOL_MODE_
 	void OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 #endif	

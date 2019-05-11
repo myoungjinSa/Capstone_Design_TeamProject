@@ -72,14 +72,11 @@ extern HINSTANCE						ghAppInstance;
 //#define _WITH_SYNCH_SWAPCHAIN
 #define _WITH_DIRECT2D_
 
-// 전체모드할경우 주석풀으셈
-//#define FullScreenMode
-
 //맵툴 모드
 //#define _MAPTOOL_MODE_
 
 //서버 연동을 할 경우 
-#define _WITH_SERVER_
+//#define _WITH_SERVER_
 
 #define FRAME_BUFFER_WIDTH		1200
 #define FRAME_BUFFER_HEIGHT		800
@@ -89,8 +86,6 @@ enum PIPELINESTATE_TYPE { GameObject, GameObject_Shadow };
 //#define _WITH_CB_GAMEOBJECT_32BIT_CONSTANTS
 //#define _WITH_CB_GAMEOBJECT_ROOT_DESCRIPTOR
 #define _WITH_CB_WORLD_MATRIX_DESCRIPTOR_TABLEa
-
-
 
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")

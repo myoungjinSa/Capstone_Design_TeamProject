@@ -1,6 +1,7 @@
 #include "../../../Stdafx/Stdafx.h"
 #include "MapToolShader.h"
 #include "../../../GameObject/Surrounding/Surrounding.h"
+#include "../../../GameObject/Item/Item.h"
 #include "../../../GameObject/Terrain/Terrain.h"
 #include "../../../GameObject/Player/Player.h"
 #include "../../../FrameTransform/FrameTransform.h"
@@ -48,20 +49,28 @@ void CMapToolShader::InstallMapObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 		m_nCurrFenceModelIndex = (m_nCurrFenceModelIndex) % (m_nFenceModelCount)+1;
 		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "LowPolyFence_0" + to_string(m_nCurrFenceModelIndex));
 		break;
-
 		// 6
 	case Frozen_Road:
 		BuildWall(pd3dDevice, pd3dCommandList);
 		//InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "FrozenRoad");
 		break;
+		// H
+	case Hammer:
+		InsertItem(pd3dDevice, pd3dCommandList, pPlayer, "Hammer");
+		break;
+		// T
+	case GoldTimer:
+		InsertItem(pd3dDevice, pd3dCommandList, pPlayer, "GoldTimer");
+		break;
+		// D
 	case DeleteAllObject:
 		DeleteAll();
 		break;
-
+		// R
 	case DeleteObject:
 		Delete();
 		break;
-		// O(영어)
+		// O
 	case OutputFile:
 		MakeMapFile();
 		break;
@@ -81,6 +90,35 @@ void CMapToolShader::InsertObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 			return;
 
 		CSurrounding* pGameObject = new CSurrounding(pd3dDevice, pd3dCommandList, nullptr);
+		pGameObject->SetChild((*iter).second->m_pModelRootObject, true);
+		pGameObject->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter).second);
+
+		XMFLOAT3 position = pPlayer->GetPosition();
+		XMFLOAT3 lookVec = pPlayer->GetLookVector();
+		XMFLOAT3 upVec = pPlayer->GetUpVector();
+		XMFLOAT3 rightVec = pPlayer->GetRightVector();
+
+		//Object 위치 설정
+		pGameObject->SetPosition(position);
+		//Object 방향 설정
+		pGameObject->SetLookVector(lookVec);
+		pGameObject->SetUpVector(upVec);
+		pGameObject->SetRightVector(rightVec);
+
+		m_Objects.emplace_back(make_pair((*iter).first, pGameObject));
+	}
+}
+
+void CMapToolShader::InsertItem(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CPlayer *pPlayer, const string& model)
+{
+	auto iter = m_ModelsList.find(model);
+
+	if (iter != m_ModelsList.end())
+	{
+		if (pPlayer == nullptr)
+			return;
+
+		CItem* pGameObject = new CItem;
 		pGameObject->SetChild((*iter).second->m_pModelRootObject, true);
 		pGameObject->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter).second);
 

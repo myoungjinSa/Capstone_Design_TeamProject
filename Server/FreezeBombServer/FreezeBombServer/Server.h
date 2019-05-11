@@ -126,7 +126,7 @@ public:
 	void SendPutPlayer(char toClient, char fromClient);
 	void SendRoundStart(char client);
 	void SendPleaseReady(char client);
-	void SendMovePlayer(char client);
+	void SendMovePlayer(char to,char object);
 	void SendRemovePlayer(char toClient, char fromClient);
 public:
 	void SetPitchYawRollZero(char client);
