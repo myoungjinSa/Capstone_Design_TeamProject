@@ -1348,6 +1348,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			
 			m_pPlayer->Rotate(pMP->pitch, pMP->yaw, pMP->roll);
 			m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
+			m_pPlayer->SetVelocityFromServer(pMP->fVelocity);
 		}
 		else if (pMP->id < MAX_USER)
 		{
