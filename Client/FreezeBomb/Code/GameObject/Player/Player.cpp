@@ -238,7 +238,7 @@ void CPlayer::Update(float fTimeElapsed)
 
 	m_pCamera->RegenerateViewMatrix();
 
-	std::cout <<"서버에서 받은 속도: "<< m_fVelocityFromServer << "\n";
+	//std::cout <<"서버에서 받은 속도: "<< m_fVelocityFromServer << "\n";
 	DecideAnimationState(m_fVelocityFromServer);
 #endif
 	m_Time += fTimeElapsed;
