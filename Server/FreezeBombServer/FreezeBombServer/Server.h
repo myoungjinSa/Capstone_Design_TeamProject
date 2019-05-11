@@ -11,6 +11,8 @@ constexpr int MAX_BUFFER = 1024;
 
 constexpr int SERVER_PORT = 9000;
 
+constexpr float MAX_ROUND_TIME = 50;
+
 constexpr float PLAYER_INIT_X_POS = 40;
 constexpr float PLAYER_INIT_Y_POS = 0;
 constexpr float PLAYER_INIT_Z_POS = 40;
@@ -31,7 +33,7 @@ constexpr float FRICTION = 250;
 constexpr float MAX_VELOCITY_XZ = 40;
 constexpr float MAX_VELOCITY_Y = 400;
 
-constexpr int MAX_WORKER_THREAD = 3;
+constexpr int MAX_WORKER_THREAD = 2;
 
 // Overlapped구조체 확장
 struct OVER_EX {
@@ -106,9 +108,11 @@ private:
 	CGameTimer gameTimer;
 	CHeightMapImage* heightMap;
 	XMFLOAT3 gravity;
+	float roundStartTime;
 	int clientCount;
 	int readyCount;
 	int hostId;
+	int bomberID;
 public:
 	Server();
 	~Server();
@@ -117,6 +121,8 @@ public:
 	void AcceptThreadFunc();
 	static void WorkerThread(LPVOID arg);
 	void WorkerThreadFunc();
+	static void TimerThread(LPVOID arg);
+	void TimerThreadFunc();
 public:
 	void ProcessPacket(char client, char *packet);
 	void SendFunc(char client, void *packet);
@@ -130,6 +136,7 @@ public:
 	void SendPleaseReady(char client);
 	void SendMovePlayer(char to,char object);
 	void SendRemovePlayer(char toClient, char fromClient);
+	void SendRoundEnd(char client);
 public:
 	void SetVelocityZero(char client);
 	void SetPitchYawRollZero(char client);
@@ -140,6 +147,10 @@ public:
 	void UpdateClientPos(char client, float fTimeElapsed);
 	void ProcessClientHeight(char client);
 	void ProcessFriction(char client, float& fLength);
+public:
+	void PickBomber();
+	void StartTimer();
+	void ResetTimer();
 public:
 	bool InitServer();
 	void RunServer();

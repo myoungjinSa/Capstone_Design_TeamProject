@@ -3,6 +3,7 @@
 
 Server::Server()
 {
+	roundStartTime = 0;
 	clientCount = 0;
 	hostId = -1;
 	//clients.reserve(MAX_USER);
@@ -98,7 +99,9 @@ void Server::RunServer()
 	for (int i = 0; i < MAX_WORKER_THREAD; ++i)
 		workerThreads.emplace_back(thread{ WorkerThread, (LPVOID)this });
 	thread accpetThread{ AcceptThread, (LPVOID)this };
+	thread timerThread{ TimerThread,(LPVOID)this };
 	accpetThread.join();
+	timerThread.join();
 	for (auto &th : workerThreads)
 		th.join();
 }
@@ -151,6 +154,7 @@ void Server::AcceptThreadFunc()
 			hostId = new_id;
 			printf("현재 방장은 %d입니다.\n", hostId);
 		}
+		SetClient_Initialize(new_id);
 		///////////////////////////////////// 클라이언트 초기화 정보 수정 위치 /////////////////////////////////////
 		ZeroMemory(&clients[new_id].over_ex.over, sizeof(clients[new_id].over_ex.over));
 		
@@ -185,6 +189,32 @@ void Server::AcceptThreadFunc()
 
 	// Winsock End
 	WSACleanup();
+}
+
+void Server::TimerThread(LPVOID arg)
+{
+	Server *pServer = static_cast<Server*>(arg);
+	pServer->TimerThreadFunc();
+}
+
+void Server::TimerThreadFunc()
+{
+	while (1)
+	{
+		if (roundStartTime > 0)
+		{
+			cout << (GetTickCount() - roundStartTime) / 1000 << "\n";
+			if ((GetTickCount() - roundStartTime) / 1000 >= MAX_ROUND_TIME)
+			{
+				for (int i = 0; i < MAX_USER; ++i)
+				{
+					if (true == clients[i].in_use)
+						SendRoundEnd(i);
+				}
+				ResetTimer();
+			}
+		}
+	}
 }
 
 
@@ -294,6 +324,28 @@ void Server::WorkerThreadFunc()
 	}
 }
 
+void Server::PickBomber()
+{
+	default_random_engine dre;
+	uniform_int_distribution<int> uid(0, clientCount + 1);
+	while (true)
+	{
+		bomberID = uid(dre);
+		if (clients[bomberID].in_use)
+			break;
+	}
+}
+
+void Server::StartTimer()
+{
+	roundStartTime = GetTickCount();
+}
+
+void Server::ResetTimer()
+{
+	roundStartTime = 0;
+}
+
 void Server::ProcessPacket(char client, char *packet)
 {
 	float x = clients[client].pos.x;
@@ -342,23 +394,23 @@ void Server::ProcessPacket(char client, char *packet)
 	case CS_REQUEST_START:
 		if (clientCount <= readyCount)
 		{
-		
+			PickBomber();
+			
 			for(int i=0; i< MAX_USER ;++i)
 			{
 				if(true == clients[i].in_use)
 				{
-					SetClient_Initialize(i);
-					SendRoundStart(i);
 					for (int j = 0; j < MAX_USER; ++j)
 					{
-
 						if (true == clients[j].in_use)
 						{
 							SendPutPlayer(i, j);
 						}
 					}
+					SendRoundStart(i);
 				}
 			}
+			StartTimer();
 			//for (int i = 0; i < MAX_USER; ++i)
 			//{
 			//	if (true == clients[i].in_use)
@@ -378,6 +430,7 @@ void Server::ProcessPacket(char client, char *packet)
 			//		SendRoundStart(i);
 			//	}
 			//}
+			
 			printf("Round Start\n");
 		}
 		else
@@ -470,6 +523,7 @@ void Server::SendPutPlayer(char toClient, char fromClient)
 void Server::SendRoundStart(char client)
 {
 	SC_PACKET_ROUND_START packet;
+	packet.bomberID = bomberID;
 	packet.size = sizeof(packet);
 	packet.clientCount = clientCount;
 	packet.type = SC_ROUND_START;
@@ -532,6 +586,18 @@ void Server::SendRemovePlayer(char toClient, char fromClient)
 	packet.type = SC_REMOVE_PLAYER;
 
 	SendFunc(toClient, &packet);
+}
+
+void Server::SendRoundEnd(char client)
+{
+	SC_PACKET_ROUND_END packet;
+	packet.isWinner = true;
+	if (client == bomberID)
+		packet.isWinner = false;
+	packet.size = sizeof(packet);
+	packet.type = SC_ROUND_END;
+
+	SendFunc(client, &packet);
 }
 
 void Server::ClientDisconnect(char client)
