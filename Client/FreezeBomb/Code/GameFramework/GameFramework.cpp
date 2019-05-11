@@ -675,13 +675,12 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 
 			else if (m_nState == CHARACTER_SELECT)
 			{
-#elif
-			if(m_nState == CHARACTER_SELECT)
-			{
+
 #endif			
 #ifdef _WITH_SERVER_
 				m_Network.SendReady(m_pPlayer->GetMaterialID());
 				isReady = true;
+
 #else
 				if (m_pLobbyScene)
 				{
@@ -690,7 +689,6 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				}
 				m_nState = INGAME;
 #endif
-
 			}
 
 			break;
