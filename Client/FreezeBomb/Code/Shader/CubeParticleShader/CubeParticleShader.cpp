@@ -182,7 +182,7 @@ void CCubeParticleShader::SetParticleBlowUp(XMFLOAT3& position)
 
 void CCubeParticleShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	m_pd3dInstancingData = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, m_CubeParticleList.size() * sizeof(InstancingData), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pd3dInstancingData = ::CreateBufferResource(pd3dDevice, pd3dCommandList, nullptr, m_CubeParticleList.size() * sizeof(InstancingData), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 	m_pd3dInstancingData->Map(0, nullptr, (void**)&m_pMappedInstancingData);
 }
 

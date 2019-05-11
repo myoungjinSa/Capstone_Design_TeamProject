@@ -20,6 +20,7 @@ void CResourceManager::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	LoadTexture(pd3dDevice, pd3dCommandList);
 	LoadModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	LoadMapObjectInfo(pd3dDevice, pd3dCommandList);
+	LoadItemInfo(pd3dDevice, pd3dCommandList);
 
 	LoadBound(pd3dDevice, pd3dCommandList);
 
@@ -160,7 +161,9 @@ void CResourceManager::LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 
 void CResourceManager::LoadMapObjectInfo(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	string filename = "../Resource/Position/Surrounding/MapVer0.bin";
+
+	string filename;
+	filename = "../Resource/Position/Surrounding/MapVer0.bin";
 
 	ifstream in(filename, ios::binary);
 
@@ -213,7 +216,7 @@ void CResourceManager::LoadMapObjectInfo(ID3D12Device* pd3dDevice, ID3D12Graphic
 		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.x), sizeof(float));
 		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.y), sizeof(float));
 		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.z), sizeof(float));
-		
+
 		// Up 문자열 길이 저장
 		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
 		p = new char[nReads + 1];
@@ -243,6 +246,95 @@ void CResourceManager::LoadMapObjectInfo(ID3D12Device* pd3dDevice, ID3D12Graphic
 		m_MapObjectInfoMultiMap.emplace(pMapObjectInfo->m_Name, pMapObjectInfo);
 	}
 	in.close();
+}
+
+void CResourceManager::LoadItemInfo(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	string filename;
+	filename = "../Resource/Position/Surrounding/MapVer1.bin";
+
+	ifstream in(filename, ios::binary);
+
+	if (!in)
+	{
+		cout << filename << " - 바이너리 파일 없음" << endl;
+		return;
+	}
+
+	size_t nReads = 0;
+
+	// 맵 오브젝트 개수
+	int nObjects = 0;
+	in.read(reinterpret_cast<char*>(&nObjects), sizeof(int));
+
+	for (int i = 0; i < nObjects; ++i)
+	{
+		MapObjectInfo* pMapObjectInfo = new MapObjectInfo;
+		// 모델 이름 문자열 길이 저장
+		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+
+		// 길이 + 1만큼 자원 할당
+		char* p = new char[nReads + 1];
+		in.read(p, sizeof(char) * nReads);
+		p[nReads] = '\0';
+		//  모델 이름 저장
+		pMapObjectInfo->m_Name = p;
+		delete[] p;
+
+		// Position 문자열 길이 저장
+		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+		p = new char[nReads + 1];
+		in.read(p, sizeof(char)*nReads);
+		p[nReads] = '\0';
+		delete[] p;
+
+		// Position x, y, z값 저장
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Position.x), sizeof(float));
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Position.y), sizeof(float));
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Position.z), sizeof(float));
+
+		// Look 문자열 길이 저장
+		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+		p = new char[nReads + 1];
+		in.read(p, sizeof(char)*nReads);
+		p[nReads] = '\0';
+		delete[] p;
+
+		// <Look> x, y, z값 저장
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.x), sizeof(float));
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.y), sizeof(float));
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.z), sizeof(float));
+
+		// Up 문자열 길이 저장
+		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+		p = new char[nReads + 1];
+		in.read(p, sizeof(char)*nReads);
+		p[nReads] = '\0';
+		delete[] p;
+
+		// <Up> x, y, z값 저장
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Up.x), sizeof(float));
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Up.y), sizeof(float));
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Up.z), sizeof(float));
+
+		// Right 문자열 길이 저장
+		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+		p = new char[nReads + 1];
+		in.read(p, sizeof(char)*nReads);
+		p[nReads] = '\0';
+		delete[] p;
+
+		// <Right> x, y, z값 저장
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Right.x), sizeof(float));
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Right.y), sizeof(float));
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Right.z), sizeof(float));
+
+		pMapObjectInfo->m_Position.y = 0.f;
+
+		m_ItemInfoMultiMap.emplace(pMapObjectInfo->m_Name, pMapObjectInfo);
+	}
+	in.close();
+
 }
 
 void CResourceManager::LoadBound(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
