@@ -477,10 +477,6 @@ void CPlayer::DecideAnimationState(float fLength)
 			Add_Inventory("치트_망치", CItem::NormalHammer);
 			Add_Inventory("치트_황금망치", CItem::GoldHammer);
 		}
-		//m_bBomb = !m_bBomb;
-		//Add_Inventory("치트_망치", CItem::NormalHammer);
-		//Add_Inventory("치트_황금망치", CItem::GoldHammer);
-		//m_bHammer = !m_bHammer;
 	}
 
 	if(GetAsyncKeyState(VK_X) & 0x0001
