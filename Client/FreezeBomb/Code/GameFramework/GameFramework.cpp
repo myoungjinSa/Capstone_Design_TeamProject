@@ -986,7 +986,7 @@ void CGameFramework::ProcessInput()
 			{
 				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
 				{
-//#ifdef 을 선언하지 않으면 무조건 서버가 켜있지 않을경우 무한 대기에 빠짐
+					//#ifdef 을 선언하지 않으면 무조건 서버가 켜있지 않을경우 무한 대기에 빠짐
 #ifdef _WITH_SERVER_
 					m_Network.SendUpKey();
 #endif
@@ -1022,9 +1022,8 @@ void CGameFramework::ProcessInput()
 				dwDirection |= DIR_RIGHT;
 				m_pPlayer->SetDirection(dwDirection);
 			}
-			if (pKeysBuffer[VK_PRIOR] & 0xF0) dwDirection |= DIR_UP;
-			if (pKeysBuffer[VK_NEXT] & 0xF0) dwDirection |= DIR_DOWN;
-
+//서버와 연동되어 있지 않을때만 마우스 회전을 허용한다.
+#ifndef _WITH_SERVER_
 			float cxDelta = 0.0f, cyDelta = 0.0f;
 			POINT ptCursorPos;
 			if (GetCapture() == m_hWnd)
@@ -1047,6 +1046,8 @@ void CGameFramework::ProcessInput()
 				}
 				if (dwDirection) m_pPlayer->Move(dwDirection, 12.25f, true);
 			}
+
+#endif
 		}
 		m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
 	}
@@ -1305,8 +1306,8 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pPlayer->SetLookVector(look);
 			m_pPlayer->SetUpVector(up);
 			m_pPlayer->SetRightVector(right);
-			//m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
-			//m_pPlayer->SetDirection()
+			m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
+		//m_pPlayer->SetDirection()
 		}
 		else if(pPP->id < MAX_USER)
 		{
@@ -1329,7 +1330,7 @@ void CGameFramework::ProcessPacket(char *packet)
 				(*iter).second->m_ppObjects[id]->SetLookVector(look);
 				(*iter).second->m_ppObjects[id]->SetRightVector(right);
 				(*iter).second->m_ppObjects[id]->SetUpVector(up);
-				//(*iter).second->m_ppObjects[id]->SetScale(10, 10, 10);
+				(*iter).second->m_ppObjects[id]->SetScale(10, 10, 10);
 			}
 		}
 		
@@ -1347,12 +1348,14 @@ void CGameFramework::ProcessPacket(char *packet)
 			XMFLOAT3 look = XMFLOAT3(pMP->xLook, pMP->yLook, pMP->zLook);
 			XMFLOAT3 up = XMFLOAT3(pMP->xUp, pMP->yUp, pMP->zUp);
 			XMFLOAT3 right = XMFLOAT3(pMP->xRight, pMP->yRight, pMP->zRight);
-		
+			
 			m_pPlayer->SetPosition(pos);
 			m_pPlayer->SetLookVector(look);
 			m_pPlayer->SetUpVector(up);
 			m_pPlayer->SetRightVector(right);
-
+			
+			m_pPlayer->Rotate(pMP->pitch, pMP->yaw, pMP->roll);
+			m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
 		}
 		else if (pMP->id < MAX_USER)
 		{
@@ -1372,7 +1375,7 @@ void CGameFramework::ProcessPacket(char *packet)
 				(*iter).second->m_ppObjects[id]->SetLookVector(look);
 				(*iter).second->m_ppObjects[id]->SetRightVector(right);
 				(*iter).second->m_ppObjects[id]->SetUpVector(up);
-				//(*iter).second->m_ppObjects[id]->SetScale(10, 10, 10);
+				(*iter).second->m_ppObjects[id]->SetScale(10, 10, 10);
 			}
 
 		}
