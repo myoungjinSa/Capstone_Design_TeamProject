@@ -1300,8 +1300,8 @@ void CGameFramework::ProcessPacket(char *packet)
 			
 		//	MappingUserToEvilbear(pPP->id, clientCount/*현재 접속한 유저 수를 받아야함 */);
 
-			
-			m_pPlayer->SetMaterialID(pPP->matID);	//플레이어 재질정	보 SET
+			cout <<"플레이어 ID-"<<(int)pPP->id<<",재질 -" <<(int)m_pPlayer->GetPlayerID() << "\n";
+			m_pPlayer->SetMaterialID(m_pPlayer->GetPlayerID());	//플레이어 재질정	보 SET
 			m_pPlayer->SetPosition(pos);
 			m_pPlayer->SetLookVector(look);
 			m_pPlayer->SetUpVector(up);
@@ -1325,6 +1325,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
 				//id랑 재질정보를 MappingUserToEvilbear함수를 통해 할 수 있음 
+				cout <<"클라 ID-"<<(int)pPP->id<<",재질 -" <<(int)pPP->matID << "\n";
 				dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->MappingUserToEvilbear(id/*아이디*/, pPP->matID/*재질id*/);
 				(*iter).second->m_ppObjects[id]->SetPosition(pos);
 				(*iter).second->m_ppObjects[id]->SetLookVector(look);
@@ -1349,6 +1350,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			XMFLOAT3 up = XMFLOAT3(pMP->xUp, pMP->yUp, pMP->zUp);
 			XMFLOAT3 right = XMFLOAT3(pMP->xRight, pMP->yRight, pMP->zRight);
 			
+
 			m_pPlayer->SetPosition(pos);
 			m_pPlayer->SetLookVector(look);
 			m_pPlayer->SetUpVector(up);

@@ -317,7 +317,7 @@ void Server::ProcessPacket(char client, char *packet)
 		{
 			if (clients[i].in_use == true)
 			{
-				SendMovePlayer(i);
+				SendMovePlayer(i,client);
 				//한번 MovePacket을 보내고 난후 
 				//pitch,yaw,roll은 다시 0으로 바꿔줘야함.
 				//그렇지 않을경우 뱅글뱅글 돌게됨.
@@ -327,6 +327,8 @@ void Server::ProcessPacket(char client, char *packet)
 		break;
 	case CS_READY:
 		printf("전체 클라 수: %d\n", clientCount);
+		// 클라가 엔터누르고 F5누를때마다 CS_READY 패킷이 날아온다면 ++readyCount는 clientCount보다 증가하게 되고 
+		// 아래 CS_REQUEST_START안에 if(clientCount<= readyCount) 안으로 들어가지 않는 현상 발생
 		printf("Ready한 클라 수: %d\n", ++readyCount);
 		clients[client].isReady = true;
 		clients[client].matID = packet[2];	// matID
@@ -335,17 +337,22 @@ void Server::ProcessPacket(char client, char *packet)
 	case CS_REQUEST_START:
 		if (clientCount <= readyCount)
 		{
+		
 			for (int i = 0; i < MAX_USER; ++i)
 			{
 				if (true == clients[i].in_use)
 				{
+					//접속하는 클라이언트 마다 look,right,up벡터를 초기화 해줘야함.
+					SetClient_Initialize(i);
+					
 					for (int j = 0; j < MAX_USER; ++j)
 					{
 						if (true == clients[j].in_use)
+						{
 							SendPutPlayer(i, j);
+							//SendPutPlayer(j, i);
+						}
 					}
-					//접속하는 클라이언트 마다 look,right,up벡터를 초기화 해줘야함.
-					SetClient_Initialize(i);
 					SendRoundStart(i);
 				}
 			}
@@ -457,7 +464,12 @@ void Server::SendPleaseReady(char client)
 
 }
 
-void Server::SendMovePlayer(char client)
+
+//무브 플레이어 패킷이 현재는 움직임을 요청한 클라이언트에게만
+//전송하는 구조여서 이부분 바뀌어야 할듯 - 명진
+
+//TO ,Object
+void Server::SendMovePlayer(char to,char client)
 {
 	SC_PACKET_MOVE_PLAYER packet;
 	packet.id = client;
@@ -483,7 +495,7 @@ void Server::SendMovePlayer(char client)
 	packet.yaw = clients[client].yaw;
 	packet.roll = clients[client].roll;
 
-	SendFunc(client, &packet);
+	SendFunc(to, &packet);
 }
 
 void Server::SendRemovePlayer(char toClient, char fromClient)
