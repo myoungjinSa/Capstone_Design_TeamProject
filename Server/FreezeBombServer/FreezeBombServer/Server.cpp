@@ -92,8 +92,7 @@ void Server::RunServer()
 		//clients.emplace_back(tmpClient);
 		//printf("Create Client ID: %d, PrevSize: %d, xPos: %d, yPos: %d, zPos: %d, xDir: %d, yDir: %d, zDir: %d\n", i, clients[i].prev_size, clients[i].xPos, clients[i].yPos, clients[i].zPos, clients[i].xDir, clients[i].yDir, clients[i].zDir);
 	}
-
-	heightMap = new CHeightMapImage("../../../FreezeBomb/Resource/Textures/Terrain/Terrain.raw", 256, 256, XMFLOAT3(2.0f, 1.0f, 2.0f));
+	heightMap = new CHeightMapImage("../../../Client/FreezeBomb/Resource/Textures/Terrain/Terrain.raw", 256, 256, XMFLOAT3(2.0f, 1.0f, 2.0f));
 	
 	gameTimer.Tick(60.0f);
 	for (int i = 0; i < MAX_WORKER_THREAD; ++i)
@@ -248,7 +247,7 @@ void Server::WorkerThreadFunc()
 		if (true == over_ex->is_recv)
 		{
 			// RECV 처리
-			wcout << "Packet from Client: " << (int)key << "\n";
+			//wcout << "Packet from Client: " << (int)key << "\n";
 			// 패킷조립
 			// 남은 크기
 			int rest = io_byte;
@@ -314,7 +313,11 @@ void Server::ProcessPacket(char client, char *packet)
 
 
 		//printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
-		SendMovePlayer(client);
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if(clients[i].in_use == true)
+				SendMovePlayer(i);
+		}
 		break;
 	case CS_READY:
 		printf("전체 클라 수: %d\n", clientCount);
@@ -324,7 +327,7 @@ void Server::ProcessPacket(char client, char *packet)
 		printf("Recv matID : %d\n", clients[client].matID);
 		break;
 	case CS_REQUEST_START:
-		if (clientCount == readyCount)
+		if (clientCount <= readyCount)
 		{
 			for (int i = 0; i < MAX_USER; ++i)
 			{
@@ -455,6 +458,15 @@ void Server::SendMovePlayer(char client)
 	packet.xPos = clients[client].pos.x;
 	packet.yPos = clients[client].pos.y;
 	packet.zPos = clients[client].pos.z;
+	packet.xLook = clients[client].look.x;
+	packet.yLook = clients[client].look.y;
+	packet.zLook = clients[client].look.z;
+	packet.xRight= clients[client].right.x;
+	packet.yRight= clients[client].right.y;
+	packet.zRight= clients[client].right.z;
+	packet.xUp = clients[client].up.x;
+	packet.yUp = clients[client].up.y;
+	packet.zUp = clients[client].up.z;
 
 	SendFunc(client, &packet);
 }
