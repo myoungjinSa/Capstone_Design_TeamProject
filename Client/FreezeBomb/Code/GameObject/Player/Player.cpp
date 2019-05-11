@@ -323,6 +323,9 @@ void CPlayer::Add_Inventory(string key, int ItemType)
 			Refresh_Inventory(ItemType);
 		CItem* pItem = new CItem;
 		pItem->setItemType(ItemType);
+
+		m_bHammer = true;
+
 		m_Normal_Inventory.emplace(key, pItem);
 	}
 	else
@@ -331,6 +334,11 @@ void CPlayer::Add_Inventory(string key, int ItemType)
 			Refresh_Inventory(ItemType);
 		CItem* pItem = new CItem;
 		pItem->setItemType(ItemType);
+
+		if (ItemType == CItem::GoldHammer)
+			m_bGoldHammer = true;
+		else
+			m_bGoldTimer = true;
 		m_Special_Inventory.emplace(key, pItem);
 	}
 }
@@ -347,10 +355,16 @@ void CPlayer::Refresh_Inventory(int ItemType)
 			iter = m_Normal_Inventory.erase(iter);
 		}
 	}
+	// 특수 아이템
 	else
 	{
 		for (auto iter = m_Special_Inventory.begin(); iter != m_Special_Inventory.end();)
 		{
+			if (ItemType == CItem::GoldHammer)
+				m_bGoldHammer = false;
+			else
+				m_bGoldTimer = false;
+
 			m_RemovedItemList.emplace_back((*iter).second);
 			iter = m_Special_Inventory.erase(iter);
 		}
@@ -689,9 +703,6 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	SetCameraUpdatedContext(pContext);
 
 	m_matID = matID;
-	//m_bBomb = true;
-	m_bGoldHammer = true;
-	m_bHammer = true;
 
 	m_ID = "<EvilBear>";
 
