@@ -107,6 +107,8 @@ public:
 	};
 	std::map<MUSIC_ENUM, std::string> m_mapMusicList;
 
+
+	void SetVelocityFromServer(float fVel) { m_fVelocityFromServer = fVel; }
 	void setScore(short score) { m_Score = score; }
 	short getScore()		const { return m_Score; }
 	bool IsCameraVibe() const { return m_bCameraVibe; }
@@ -132,7 +134,9 @@ protected:
 	float           			m_fMaxVelocityXZ = 0.0f;
 	float           			m_fMaxVelocityY = 0.0f;
 	float           			m_fFriction = 0.0f;
-
+#ifdef _WITH_SERVER_
+	float						m_fVelocityFromServer = 0.0f;
+#endif
 	float						m_fMinDistance = 0.0f;
 
 	LPVOID				m_pPlayerUpdatedContext{ nullptr };
