@@ -194,7 +194,6 @@ void CPlayer::Rotate(float x, float y, float z)
 
 void CPlayer::Update(float fTimeElapsed)
 {
-	
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Gravity); // 중력과 속도와 합
 	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 	float fMaxVelocityXZ = m_fMaxVelocityXZ;
@@ -228,7 +227,6 @@ void CPlayer::Update(float fTimeElapsed)
 	if (fDeceleration > fLength) fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 
-	
 	DecideAnimationState(fLength);
 	
 	m_Time += fTimeElapsed;
@@ -730,7 +728,9 @@ void CTerrainPlayer::RotateAxisY(float fTimeElapsed)
 
 void CTerrainPlayer::Animate(float fTimeElapsed)
 {
+#ifndef _WITH_SERVER_
 	RotateAxisY(fTimeElapsed);
+#endif
 	CGameObject::Animate(fTimeElapsed);
 	//CGameObject* p = FindFrame("ToesEnd_R");
 	//if (p != nullptr)

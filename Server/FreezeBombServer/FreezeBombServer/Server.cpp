@@ -597,6 +597,7 @@ void Server::RotateClientAxisY(char client, float fTimeElapsed)
 		float cyDelta = xmf3Up.y - clients[client].lastUpVector.y;
 		float czDelta = xmf3Look.z - clients[client].lastLookVector.z;
 
+
 		RotateModel(client, 0.0f, fAngle*fTimeElapsed, 0.0f);
 	}
 	else if (clients[client].direction & DIR_LEFT)
