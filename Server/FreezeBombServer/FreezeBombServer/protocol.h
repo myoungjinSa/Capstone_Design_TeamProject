@@ -84,6 +84,7 @@ struct SC_PACKET_ROUND_START
 	char size;
 	char type;
 	char clientCount;
+	char bomberID;
 };
 
 struct SC_PACKET_PUT_PLAYER
@@ -252,6 +253,7 @@ struct SC_PACKET_ROUND_END
 {
 	char size;
 	char type;
+	bool isWinner;
 };
 
 struct PLAYER
