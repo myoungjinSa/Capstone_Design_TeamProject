@@ -498,7 +498,7 @@ void CScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 						if (m_pSound)
 						{
 							m_pSound->PlayIndex(MENU_INPUT);
-							cout << "마우스 왼쪽 클릭 - x : " << position.x << ", y : " << position.y << endl;
+							//cout << "마우스 왼쪽 클릭 - x : " << position.x << ", y : " << position.y << endl;
 						}
 					}
 				}
@@ -508,10 +508,10 @@ void CScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	}
 		break;
 	case WM_RBUTTONDOWN:
-		cout << "마우스 오른쪽 클릭 - x : " << mouseX << ", y : " << mouseY << endl;
+		//cout << "마우스 오른쪽 클릭 - x : " << mouseX << ", y : " << mouseY << endl;
 		break;
 	case WM_LBUTTONUP:
-		cout << "마우스 왼쪽 때짐" << endl;
+		//cout << "마우스 왼쪽 때짐" << endl;
 		break;
 	case WM_RBUTTONUP:
 		break;
@@ -625,7 +625,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 	if (m_TaggerCoolTime > 0.f)
 	{
 		m_TaggerCoolTime -= elapsedTime;
-		cout << m_TaggerCoolTime << endl;
+		//cout << m_TaggerCoolTime << endl;
 	}
 	else
 		m_TaggerCoolTime = 0.f;
@@ -874,7 +874,7 @@ void CScene::PlayIceBreakEffect(bool& bBreak)
 			m_pPlayer->SetCameraVibe(true);
 	
 		//m_pPlayer->SetCameraVibe(true);
-		cout << "ICEBREAK" << endl;
+		//cout << "ICEBREAK" << endl;
 	}
 }
 

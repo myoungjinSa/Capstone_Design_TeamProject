@@ -11,9 +11,9 @@ ChattingSystem::ChattingSystem()
 
 ChattingSystem::~ChattingSystem()
 {
-	cout << "Chattinng System ¼Ò¸ê" << endl;
-
+	//cout << "Chattinng System ¼Ò¸ê" << endl;
 }
+
 void ChattingSystem::Initialize(IDWriteFactory* writeFactory,ID2D1DeviceContext2* pd2dDeviceContext,IWICImagingFactory* pwicImagingFactory)
 {
 	HRESULT hResult;
