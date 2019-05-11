@@ -98,9 +98,10 @@ public:
 class Server
 {
 private:
+	mutex gLock;
+	mutex clientsLock[MAX_USER];
 	SOCKET listenSocket;
 	HANDLE iocp;
-	mutex myLock;
 	// vector로 했을 때 over_ex.messagebuffer에 값이 들어오질 않는다.
 	// 배열로 바꾸니 제대로 동작함. 왜? 무슨 차이?
 	SOCKETINFO clients[MAX_USER];

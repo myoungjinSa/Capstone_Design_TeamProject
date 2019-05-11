@@ -147,6 +147,7 @@ void Server::AcceptThreadFunc()
 			continue;
 		}
 		
+		clientsLock[new_id].lock();
 		///////////////////////////////////// 클라이언트 초기화 정보 수정 위치 /////////////////////////////////////
 		clients[new_id].socket = clientSocket;
 		if (-1 == hostId)
@@ -165,6 +166,8 @@ void Server::AcceptThreadFunc()
 		clients[new_id].in_use = true;
 		clients[new_id].velocity = XMFLOAT3(0.0f, 0.0f, 1.0f);
 
+		clientsLock[new_id].unlock();
+
 		SendAccessComplete(new_id);
 		// 기존 유저들에게 이후 접속한 유저들 출력
 		for (int i = 0; i < MAX_USER; ++i)
@@ -180,7 +183,9 @@ void Server::AcceptThreadFunc()
 				continue;
 			SendAccessPlayer(new_id, i);
 		}
+		gLock.lock();
 		++clientCount;
+		gLock.unlock();
 		printf("%d 클라이언트 접속 완료, 현재 클라이언트 수: %d\n", new_id, clientCount);
 		RecvFunc(new_id);
 	}
@@ -348,7 +353,7 @@ void Server::PickBomber()
 	while (true)
 	{
 		bomberID = uid(dre);
-		if (clients[bomberID].in_use)
+		if (true == clients[bomberID].in_use)
 			break;
 	}
 }
@@ -378,8 +383,10 @@ void Server::ProcessPacket(char client, char *packet)
 	case CS_DOWN_KEY:
 	case CS_LEFT_KEY:
 	case CS_RIGHT_KEY:
+		clientsLock[client].lock();
 		SetDirection(client, packet[1]);
 		UpdateClientPos(client, gameTimer.GetTimeElapsed());
+		clientsLock[client].unlock();
 
 
 		//printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
@@ -402,11 +409,17 @@ void Server::ProcessPacket(char client, char *packet)
 		printf("전체 클라 수: %d\n", clientCount);
 		// 클라가 엔터누르고 F5누를때마다 CS_READY 패킷이 날아온다면 ++readyCount는 clientCount보다 증가하게 되고 
 		// 아래 CS_REQUEST_START안에 if(clientCount<= readyCount) 안으로 들어가지 않는 현상 발생
-		printf("Ready한 클라 수: %d\n", ++readyCount);
+		gLock.lock();
+		++readyCount;
+		gLock.unlock();
 
+		printf("Ready한 클라 수: %d\n", readyCount);
+
+		clientsLock[client].lock();
 		clients[client].isReady = true;
 		
 		clients[client].matID = packet[2];	// matID
+		clientsLock[client].unlock();
 		//printf("Recv matID : %d\n", clients[client].matID);
 		break;
 	case CS_REQUEST_START:
@@ -630,7 +643,7 @@ void Server::SendCompareTime(char client)
 
 void Server::ClientDisconnect(char client)
 {
-	
+	gLock.lock();
 	clients[client].in_use = false;
 	if (clients[client].isReady)
 	{
@@ -649,6 +662,8 @@ void Server::ClientDisconnect(char client)
 			}
 		}
 	}
+	clientCount--;
+	gLock.unlock();
 	for (int i = 0; i < MAX_USER; ++i)
 	{
 		if (false == clients[i].in_use)
@@ -658,7 +673,7 @@ void Server::ClientDisconnect(char client)
 		SendRemovePlayer(i, client);
 	}
 	closesocket(clients[client].socket);
-	clientCount--;
+
 	printf("%d 클라이언트 접속 종료, 현재 클라이언트 수: %d\n", (int)client, clientCount);
 }
 
