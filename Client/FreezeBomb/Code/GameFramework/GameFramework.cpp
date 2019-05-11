@@ -1270,8 +1270,12 @@ void CGameFramework::ProcessPacket(char *packet)
 	case SC_ROUND_START:
 		//SC_PACKET_ROUND_START *pRS = m_Network.GetRS();
 		pRS = reinterpret_cast<SC_PACKET_ROUND_START *>(packet);
-		 
-		
+		if (pRS->bomberID == m_pPlayer->GetPlayerID())
+			m_pPlayer->SetIsBomb(true);
+		else if (pRS->bomberID < MAX_USER)
+		{
+			// 다른 클라가 술래일 경우 isBomber를 set해줘야 폭탄을 그리지 않을까?
+		}
 		clientCount = pRS->clientCount;
 		if (m_pLobbyScene)
 		{
@@ -1279,7 +1283,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pLobbyScene->StopBackgroundMusic();
 		}
 		m_nState = INGAME;
-		printf("Round Start\n");
+		printf("Round Start! Bomber is %d\n", pRS->bomberID);
 		break;
 	case SC_PUT_PLAYER:
 		//SC_PACKET_PUT_PLAYER* pPP = m_Network.GetPP();
@@ -1389,6 +1393,21 @@ void CGameFramework::ProcessPacket(char *packet)
 		pRP = reinterpret_cast<SC_PACKET_REMOVE_PLAYER*>(packet);
 		hostId = pRP->hostId;
 		printf("Player Disconnected ID : %d\n", pRP->id);
+		break;
+	}
+	case SC_ROUND_END:
+	{
+		pRE = reinterpret_cast<SC_PACKET_ROUND_END*>(packet);
+		if (pRE->isWinner)
+			printf("Win!\n");
+		else
+			printf("Lose..\n");
+		break;
+	}
+	case SC_COMPARE_TIME:
+	{
+		pCT = reinterpret_cast<SC_PACKET_COMPARE_TIME*>(packet);
+		//cout << "ServerTime: " << pCT->serverTime << "\n";
 		break;
 	}
 	}
