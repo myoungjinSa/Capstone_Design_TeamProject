@@ -324,6 +324,8 @@ void Server::ProcessPacket(char client, char *packet)
 				//pitch,yaw,roll은 다시 0으로 바꿔줘야함.
 				//그렇지 않을경우 뱅글뱅글 돌게됨.
 				SetPitchYawRollZero(i);
+				
+				SetVelocityZero(i);
 			}
 		}
 		break;
@@ -497,6 +499,8 @@ void Server::SendMovePlayer(char to,char client)
 	packet.yaw = clients[client].yaw;
 	packet.roll = clients[client].roll;
 
+	packet.fVelocity = clients[client].fVelocity;
+
 	SendFunc(to, &packet);
 }
 
@@ -566,6 +570,10 @@ void Server::SetDirection(char client, int key)
 	clients[client].direction = tmpDir;
 }
 
+void Server::SetVelocityZero(char client)
+{
+	clients[client].fVelocity = 0.0f;
+}
 void Server::SetClient_Initialize(char client)
 {
 	clients[client].look = XMFLOAT3(0.0f, 0.0f, 1.0f);
@@ -585,6 +593,7 @@ void Server::SetPitchYawRollZero(char client)
 }
 void Server::UpdateClientPos(char client, float fTimeElapsed)
 {
+
 	if (clients[client].direction == DIR_FORWARD) {
 		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, 1.0f);
 	}
@@ -616,7 +625,12 @@ void Server::UpdateClientPos(char client, float fTimeElapsed)
 	//clients[client].velocity = clients[client].velocity;
 
 	ProcessClientHeight(client);
-	//ProcessFriction(client, fLength);
+
+	ProcessFriction(client, fLength);
+
+	//속도
+	clients[client].fVelocity = fLength;
+
 }
 
 void Server::RotateClientAxisY(char client, float fTimeElapsed)

@@ -72,6 +72,7 @@ extern HINSTANCE						ghAppInstance;
 //#define _WITH_SYNCH_SWAPCHAIN
 #define _WITH_DIRECT2D_
 
+//#define FullScreenMode
 //¸ÊÅø ¸ðµå
 //#define _MAPTOOL_MODE_
 
