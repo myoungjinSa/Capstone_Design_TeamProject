@@ -1,8 +1,8 @@
 #pragma once
 
-#define DIR_FORWARD		0x01
-#define DIR_BACKWARD		0x02
-#define DIR_LEFT					0x04
+#define DIR_FORWARD				0x01
+#define DIR_BACKWARD			0x02
+#define DIR_LEFT				0x04
 #define DIR_RIGHT				0x08
 #define DIR_UP					0x10
 #define DIR_DOWN				0x20
@@ -27,6 +27,9 @@ public:
 
 	void SetPlayerID(char id) { m_pPlayerID = id; }
 	char GetPlayerID() { return m_pPlayerID; }
+
+	void SetMaterialID(char id) { m_matID = id; }
+	char GetMaterialID() { return m_matID; }
 	
 	void SetDirection(DWORD direction) { m_dwDirection = direction; }
 	void SetFriction(float fFriction) { m_fFriction = fFriction; }

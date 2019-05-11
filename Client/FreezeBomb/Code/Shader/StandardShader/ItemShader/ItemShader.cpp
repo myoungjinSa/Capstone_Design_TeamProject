@@ -67,8 +67,6 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 			XMFLOAT3 position = (*iter2).second->m_Position;
 			pItem->SetPosition(position.x, position.y + 0.5, position.z);
 
-			cout << position.x << ", " << position.y << ", " << position.z << endl;
-
 			pItem->SetLookVector((*iter2).second->m_Look);
 			pItem->SetUpVector((*iter2).second->m_Up);
 			pItem->SetRightVector((*iter2).second->m_Right);

@@ -134,49 +134,8 @@ void Network::ReadPacket()
 //	}
 //}
 
-void Network::SendPacket(int wParam)
+void Network::SendPacket()
 {
-	
-	switch (wParam)
-	{
-	case VK_UP:
-		pUp = reinterpret_cast<CS_PACKET_UP_KEY *>(send_buffer);
-		pUp->size = sizeof(pUp);
-		send_wsabuf.len = sizeof(pUp);
-		pUp->type = CS_UP_KEY;
-		break;
-	case VK_DOWN:
-		pDown = reinterpret_cast<CS_PACKET_DOWN_KEY *>(send_buffer);
-		pDown->size = sizeof(pDown);
-		send_wsabuf.len = sizeof(pDown);
-		pDown->type = CS_DOWN_KEY;
-		break;
-	case VK_RIGHT:
-		pRight = reinterpret_cast<CS_PACKET_RIGHT_KEY *>(send_buffer);
-		pRight->size = sizeof(pRight);
-		send_wsabuf.len = sizeof(pRight);
-		pRight->type = CS_RIGHT_KEY;
-		break;
-	case VK_LEFT:
-		pLeft = reinterpret_cast<CS_PACKET_LEFT_KEY *>(send_buffer);
-		pLeft->size = sizeof(pLeft);
-		send_wsabuf.len = sizeof(pLeft);
-		pLeft->type = CS_LEFT_KEY;
-		break;
-	case VK_RETURN:
-		pReady = reinterpret_cast<CS_PACKET_READY *>(send_buffer);
-		pReady->size = sizeof(pReady);
-		send_wsabuf.len = sizeof(pReady);
-		pReady->type = CS_READY;
-		// matID 설정필요
-		break;
-	case VK_F5:
-		pRequestStart = reinterpret_cast<CS_PACKET_REQUEST_START *>(send_buffer);
-		pRequestStart->size = sizeof(pRequestStart);
-		send_wsabuf.len = sizeof(pRequestStart);
-		pRequestStart->type = CS_REQUEST_START;
-		break;
-	}
 	DWORD iobyte = 0;
 	int retval = WSASend(sock, &send_wsabuf, 1, &iobyte, 0, NULL, NULL);
 	if (retval)
@@ -186,6 +145,62 @@ void Network::SendPacket(int wParam)
 			err_display("WSASend()");
 		}
 	}
+}
+
+void Network::SendUpKey()
+{
+	pUp = reinterpret_cast<CS_PACKET_UP_KEY *>(send_buffer);
+	pUp->size = sizeof(pUp);
+	send_wsabuf.len = sizeof(pUp);
+	pUp->type = CS_UP_KEY;
+
+	SendPacket();
+}
+void Network::SendDownKey()
+{
+	pDown = reinterpret_cast<CS_PACKET_DOWN_KEY *>(send_buffer);
+	pDown->size = sizeof(pDown);
+	send_wsabuf.len = sizeof(pDown);
+	pDown->type = CS_DOWN_KEY;
+
+	SendPacket();
+}
+void Network::SendRightKey()
+{
+	pRight = reinterpret_cast<CS_PACKET_RIGHT_KEY *>(send_buffer);
+	pRight->size = sizeof(pRight);
+	send_wsabuf.len = sizeof(pRight);
+	pRight->type = CS_RIGHT_KEY;
+
+	SendPacket();
+}
+void Network::SendLeftKey()
+{
+	pLeft = reinterpret_cast<CS_PACKET_LEFT_KEY *>(send_buffer);
+	pLeft->size = sizeof(pLeft);
+	send_wsabuf.len = sizeof(pLeft);
+	pLeft->type = CS_LEFT_KEY;
+
+	SendPacket();
+}
+void Network::SendReady(int matID)
+{
+	pReady = reinterpret_cast<CS_PACKET_READY *>(send_buffer);
+	pReady->matID = matID;
+	pReady->size = sizeof(pReady);
+	send_wsabuf.len = sizeof(pReady);
+	pReady->type = CS_READY;
+	printf("Send matID : %d\n", pReady->matID);
+	SendPacket();
+}
+void Network::SendReqStart()
+{
+	pRequestStart = reinterpret_cast<CS_PACKET_REQUEST_START *>(send_buffer);
+	pRequestStart->size = sizeof(pRequestStart);
+	send_wsabuf.len = sizeof(pRequestStart);
+	pRequestStart->type = CS_REQUEST_START;
+
+	SendPacket();
 }
 
 

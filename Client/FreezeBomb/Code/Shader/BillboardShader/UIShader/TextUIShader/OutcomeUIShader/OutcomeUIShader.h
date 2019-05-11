@@ -18,10 +18,17 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState);
 	virtual void ReleaseObjects();
 
+	enum OUTCOME_TYPE {WIN=0,LOSE};
+	void SetOutcome(OUTCOME_TYPE outcome)
+	{
+		m_outcome = outcome;
+	}
+
 	bool getIsRender()	const { return m_IsRender; }
 	void setIsRender(bool value) { m_IsRender = value; }
 
 private:
-	enum OUTCOME_TYPE {WIN=0,LOSE};
+	
+	int m_outcome = LOSE;
 	bool m_IsRender = false;
 };

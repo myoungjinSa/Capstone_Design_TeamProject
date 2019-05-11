@@ -11,8 +11,6 @@
 constexpr int SERVER_PORT = 9000;
 constexpr int BUF_SIZE = 1024;
 
-constexpr char MAX_USER = 6;			//최대 접속 유저
-
 class CGameFramework;
 
 #ifdef _WITH_SERVER_
@@ -68,8 +66,14 @@ public:
 	void SetGameFrameworkPtr(HWND hWnd, CGameFramework* client);
 
 	void ReadPacket();
-	void ProcessPacket(char* packet);
-	void SendPacket(int data);
+	void SendPacket();
+public:
+	void SendUpKey();
+	void SendDownKey();
+	void SendRightKey();
+	void SendLeftKey();
+	void SendReady(int matID);
+	void SendReqStart();
 public:
 	CS_PACKET_REQUEST_START* GetRS() { return pRequestStart; }
 	void SetNullRS() { pRequestStart = NULL; }

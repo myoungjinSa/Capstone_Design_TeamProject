@@ -13,6 +13,7 @@
 #include "../Billboard/Bomb/Bomb.h"
 #include "../../FrameTransform/FrameTransform.h"
 #include "../../Chatting/Chatting.h"
+#include "../../Shader/BillboardShader/UIShader/TextUIShader/OutcomeUIShader/OutcomeUIShader.h"
 
 extern byte g_PlayerCharacter;
 
@@ -193,7 +194,6 @@ void CPlayer::Rotate(float x, float y, float z)
 
 void CPlayer::Update(float fTimeElapsed)
 {
-	
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Gravity); // 중력과 속도와 합
 	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 	float fMaxVelocityXZ = m_fMaxVelocityXZ;
@@ -227,7 +227,6 @@ void CPlayer::Update(float fTimeElapsed)
 	if (fDeceleration > fLength) fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 
-	
 	DecideAnimationState(fLength);
 	
 	m_Time += fTimeElapsed;
@@ -464,14 +463,17 @@ void CPlayer::DecideAnimationState(float fLength)
 	}
 
 	////얼음으로 변신
-	if (GetAsyncKeyState(VK_LSHIFT) & 0x0001
-		&& pController->GetAnimationState() != CAnimationController::ICE
+	if (GetAsyncKeyState(VK_A) & 0x0001
+		//&& pController->GetAnimationState() != CAnimationController::ICE
 		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
 		)
 	{
 		m_bIce = !m_bIce;
 		pController->SetTrackAnimationSet(0, CAnimationController::IDLE);
-		pController->SetAnimationState(CAnimationController::ICE);
+		if (m_bIce == true)
+			pController->SetAnimationState(CAnimationController::ICE);
+		else
+			pController->SetAnimationState(CAnimationController::IDLE);
 	}
 
 	// 망치로 때리기 애니메이션
@@ -498,9 +500,10 @@ void CPlayer::DecideAnimationState(float fLength)
 			auto iter = m_Special_Inventory.begin();
 			if ((*iter).second->getItemType() == CItem::GoldHammer)
 			{	
-				SetTrackAnimationSet(0, CAnimationController::ATTACK);
+				SetTrackAnimationSet(0, CAnimationController::RAISEHAND);
 				SetTrackAnimationPosition(0, 0.0f);
-				pController->SetAnimationState(CAnimationController::ATTACK);
+				//m_pAnimationController->SetTrackSpeed(0, 2.0f);
+				pController->SetAnimationState(CAnimationController::RAISEHAND);
 			}
 			else
 			{
@@ -530,17 +533,25 @@ void CPlayer::DecideAnimationState(float fLength)
 			if (pController->GetAnimationState() != CAnimationController::DIE)
 			{
 				auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
+			
+				//auto outcomeIter = m_pShaderManager->getShaderMap().find("OutcomeUI");
 				if (iter != m_pShaderManager->getShaderMap().end())
 				{
 					if (((CTimerUIShader*)((*iter).second))->getTimer() <= 0.f)
 					{
+						auto outcomeIter = m_pShaderManager->getShaderMap().find("OutcomeUI");
 						auto iter2 = m_pShaderManager->getShaderMap().find("Bomb");
-						if (iter2 != m_pShaderManager->getShaderMap().end())
+						
+						if (iter2 != m_pShaderManager->getShaderMap().end()
+							&& outcomeIter != m_pShaderManager->getShaderMap().end())
 						{
 							m_BombParticle = ((CBombParticleShader*)(*iter2).second)->getBomb();
 							m_BombParticle->setIsBlowing(true);
 							m_bBomb = false;
-
+							if (((COutcomeUIShader*)(*outcomeIter).second)->getIsRender() == false)
+								((COutcomeUIShader*)(*outcomeIter).second)->setIsRender(true);
+							else
+								((COutcomeUIShader*)(*outcomeIter).second)->setIsRender(false);
 							pController->SetTrackPosition(0, 0.0f);
 							pController->SetTrackAnimationSet(0, CAnimationController::DIE);
 							pController->SetAnimationState(CAnimationController::DIE);
@@ -600,7 +611,7 @@ void CPlayer::InitializeSound()
 	////m_SoundList[1] = "../Resource/Sound/bell1.wav";
 
 	m_mapMusicList.emplace(FOOTSTEP, s0);
-	m_mapMusicList.emplace(ATTACK, s1);
+	m_mapMusicList.emplace(USETIMER, s1);
 	m_mapMusicList.emplace(DIE, s2);
 	m_mapMusicList.emplace(ATTACK, s3);
 	
@@ -729,7 +740,9 @@ void CTerrainPlayer::RotateAxisY(float fTimeElapsed)
 
 void CTerrainPlayer::Animate(float fTimeElapsed)
 {
+#ifndef _WITH_SERVER_
 	RotateAxisY(fTimeElapsed);
+#endif
 	CGameObject::Animate(fTimeElapsed);
 }
 

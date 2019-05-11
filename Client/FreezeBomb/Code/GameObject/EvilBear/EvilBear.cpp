@@ -1,61 +1,23 @@
 #include "../../Stdafx/Stdafx.h"
-#include <vector>
-#include "../../SoundSystem/SoundSystem.h"
 #include "EvilBear.h"
+#include <vector>
 #include "../Shadow/Shadow.h"
 #include "../../Material/Material.h"
 #include "../../Shader/Shader.h"
 #include "../../FrameTransform/FrameTransform.h"
 
-CEvilBear::CEvilBear(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, int matID)
-	:m_pSound{ nullptr }, m_SoundCount{ 0 }
+CEvilBear::CEvilBear(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID)
 {
 	m_matID = matID;
-	InitializeSound();
+
 }
 
 CEvilBear::~CEvilBear()
 {
-	m_pSound->Release();
-
 	if (m_pShadow)
 		delete m_pShadow;
 }
 
-
-void CEvilBear::InitializeSound()
-{
-	m_pSound = new CSoundSystem;
-
-	m_SoundCount = 4;
-
-	m_SoundList = new const char*[m_SoundCount];
-
-	m_SoundList[0] = "../Resource/Sound/BtnDown03.wav";
-	m_SoundList[1] = "../Resource/Sound/bell1.wav";
-	m_SoundList[2] = "../Resource/Sound/Bomb.mp3";
-	m_SoundList[3] = "../Resource/Sound/Effect/HammerSwing.wav";
-
-
-	std::string s0(m_SoundList[0]);
-	std::string s1(m_SoundList[1]);
-	std::string s2(m_SoundList[2]);
-	std::string s3(m_SoundList[3]);
-
-	////m_SoundList[1] = "../Resource/Sound/bell1.wav";
-
-
-	m_mapMusicList.emplace(FOOTSTEP, s0);
-	m_mapMusicList.emplace(USETIMER, s1);
-	m_mapMusicList.emplace(DIE, s2);
-	m_mapMusicList.emplace(ATTACK, s3);
-
-
-	if (m_pSound)
-	{
-		m_pSound->Initialize(m_SoundCount, m_SoundList, FMOD_LOOP_OFF);
-	}
-}
 
 void CEvilBear::Initialize_Shadow(CLoadedModelInfo* pLoadedModel, CGameObject* pGameObject)
 {
@@ -79,15 +41,6 @@ void CEvilBear::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCam
 				m_pShadow->RunAway_Render(pd3dCommandList, pCamera, m_matID, m_bHammer, m_bGoldHammer, GameObject_Shadow);
 		}
 	}
-}
-
-void CEvilBear::ReleaseSound()
-{
-	if (m_pSound)
-	{
-		m_pSound->Release();
-	}
-
 }
 
 void CEvilBear::Animate(float fTimeElapsed)

@@ -3,12 +3,15 @@
 //#include <windows.h>
 //#include <DirectXMath.h>
 //#define SERVER_IP "192.168.22.199"
-#define SERVER_IP "127.0.0.1"
+//#define SERVER_IP "127.0.0.1"
+#define SERVER_IP "192.168.0.34"
+//#define SERVER_IP "192.168.200.103"
 
 using namespace std;
 //using namespace DirectX;
 
-#define SERVER_IP "127.0.0.1"
+constexpr int MAX_USER = 6;
+
 
 enum ROLE { RUNNER, BOMBER };
 enum ITEM { NONEITEM = 0, HAMMER, GOLD_HAMMER, GOLD_TIMER, BOMB };
@@ -189,6 +192,8 @@ struct SC_PACKET_MOVE_PLAYER
 	float xPos;
 	float yPos;
 	float zPos;
+
+	//캐릭터의 진행 방향
 	float xLook;
 	float yLook;
 	float zLook;
@@ -198,6 +203,12 @@ struct SC_PACKET_MOVE_PLAYER
 	float xRight;
 	float yRight;
 	float zRight;
+
+	//모델 자체의 회전 
+	float pitch;
+	float yaw;
+	float roll;	
+
 };
 
 // 플레이어가 아이템 사용 시

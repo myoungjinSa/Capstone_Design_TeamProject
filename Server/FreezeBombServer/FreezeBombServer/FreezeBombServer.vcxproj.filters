@@ -16,6 +16,12 @@
     <Filter Include="소스 파일\Server">
       <UniqueIdentifier>{34e28dca-ec85-4724-b751-5392eacd2e99}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Terrain">
+      <UniqueIdentifier>{7a28b91f-7a85-499d-aa62-19f7e63241ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\GameTimer">
+      <UniqueIdentifier>{0ce5db34-acc1-4c4b-b857-d439fe8a8add}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyInclude.h">
@@ -27,6 +33,18 @@
     <ClInclude Include="protocol.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="DirectX.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Terrain.h">
+      <Filter>소스 파일\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="MyDefine.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GameTimer.h">
+      <Filter>소스 파일\GameTimer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Server.cpp">
@@ -34,6 +52,12 @@
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Terrain.cpp">
+      <Filter>소스 파일\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="GameTimer.cpp">
+      <Filter>소스 파일\GameTimer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
