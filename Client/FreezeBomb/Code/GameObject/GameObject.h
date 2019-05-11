@@ -323,7 +323,7 @@ public:
 	
 	void Item_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int ItemType, int nPipelineState);
 	void Tagger_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int matID, bool HasGoldTimer, int nPipelineState);
-	void RunAway_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int matID, bool HasHammer, bool HasGoldHammer, int nPipelineState);
+	void RunAway_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int matID, bool isICE, bool HasHammer, bool HasGoldHammer, int nPipelineState);
 
 	virtual void ReleaseShaderVariables();
 
@@ -444,7 +444,7 @@ public:
 	void setID(const string id) { m_ID = id; }
 	const string getID()	const { return m_ID; }
 
-	const int GetMaterialID() { return m_matID; }
+	//const int GetMaterialID() { return m_matID; }
 	const bool GetBoolIce() { return m_bIce; }
 
 	BoundingOrientedBox GetBoundingBox() const { return m_xmOOBB; }

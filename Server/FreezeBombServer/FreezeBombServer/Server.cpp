@@ -325,7 +325,8 @@ void Server::ProcessPacket(char client, char *packet)
 				//그렇지 않을경우 뱅글뱅글 돌게됨.
 				SetPitchYawRollZero(i);
 				
-				SetVelocityZero(i);
+				//Idle 동작으로 변하게 하려면 
+				//SetVelocityZero(i);
 			}
 		}
 		break;
@@ -334,7 +335,9 @@ void Server::ProcessPacket(char client, char *packet)
 		// 클라가 엔터누르고 F5누를때마다 CS_READY 패킷이 날아온다면 ++readyCount는 clientCount보다 증가하게 되고 
 		// 아래 CS_REQUEST_START안에 if(clientCount<= readyCount) 안으로 들어가지 않는 현상 발생
 		printf("Ready한 클라 수: %d\n", ++readyCount);
+
 		clients[client].isReady = true;
+		
 		clients[client].matID = packet[2];	// matID
 		printf("Recv matID : %d\n", clients[client].matID);
 		break;
@@ -342,28 +345,46 @@ void Server::ProcessPacket(char client, char *packet)
 		if (clientCount <= readyCount)
 		{
 		
-			for (int i = 0; i < MAX_USER; ++i)
+			for(int i=0; i< MAX_USER ;++i)
 			{
-				if (true == clients[i].in_use)
+				if(true == clients[i].in_use)
 				{
-					//접속하는 클라이언트 마다 look,right,up벡터를 초기화 해줘야함.
 					SetClient_Initialize(i);
-					
+					SendRoundStart(i);
 					for (int j = 0; j < MAX_USER; ++j)
 					{
+
 						if (true == clients[j].in_use)
 						{
 							SendPutPlayer(i, j);
-							//SendPutPlayer(j, i);
 						}
 					}
-					SendRoundStart(i);
 				}
 			}
+			//for (int i = 0; i < MAX_USER; ++i)
+			//{
+			//	if (true == clients[i].in_use)
+			//	{
+			//		//접속하는 클라이언트 마다 look,right,up벡터를 초기화 해줘야함.
+			//		SetClient_Initialize(i);
+			//		
+			//		for (int j = 0; j < MAX_USER; ++j)
+			//		{
+			//			if (true == clients[j].in_use)
+			//			{
+
+			//				SendPutPlayer(i, j);
+			//				//SendPutPlayer(j, i);
+			//			}
+			//		}
+			//		SendRoundStart(i);
+			//	}
+			//}
 			printf("Round Start\n");
 		}
 		else
 		{
+			//이 부분 READYCOUNT 보다
 			for (int i = 0; i < MAX_USER; ++i)
 			{
 				if (true == clients[i].in_use)
@@ -628,7 +649,7 @@ void Server::UpdateClientPos(char client, float fTimeElapsed)
 
 	ProcessFriction(client, fLength);
 
-	//속도
+	//속도를 클라에게 보내주어 클라에서 기본적인 rUn,Backward,애니메이션을 결정하게 하기 위해.
 	clients[client].fVelocity = fLength;
 
 }

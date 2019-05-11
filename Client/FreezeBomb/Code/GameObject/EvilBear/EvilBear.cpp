@@ -6,6 +6,8 @@
 #include "../../Shader/Shader.h"
 #include "../../FrameTransform/FrameTransform.h"
 
+
+
 CEvilBear::CEvilBear(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,int matID)
 {
 	m_matID = matID;
@@ -36,10 +38,11 @@ void CEvilBear::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCam
 		}
 		else
 		{
-			CGameObject::RunAway_Render(pd3dCommandList, pCamera, m_matID, m_bHammer, m_bGoldHammer, nPipelineState);
+			CGameObject::RunAway_Render(pd3dCommandList, pCamera, m_matID, m_bIce, m_bHammer, m_bGoldHammer, nPipelineState);
 			if (m_pShadow)
-				m_pShadow->RunAway_Render(pd3dCommandList, pCamera, m_matID, m_bHammer, m_bGoldHammer, GameObject_Shadow);
+				m_pShadow->RunAway_Render(pd3dCommandList, pCamera, m_matID, m_bIce, m_bHammer, m_bGoldHammer, GameObject_Shadow);
 		}
+
 	}
 }
 
