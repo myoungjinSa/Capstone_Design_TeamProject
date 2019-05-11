@@ -665,12 +665,14 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 
 			else if (m_nState == CHARACTER_SELECT)
 			{
-
 #endif			
-#ifdef _WITH_SERVER_
-				m_Network.SendReady(m_pPlayer->GetMaterialID());
-				isReady = true;
 
+#ifdef _WITH_SERVER_
+				if (isReady == false)
+				{
+					m_Network.SendReady(g_PlayerCharacter);
+					isReady = true;
+				}
 #else
 				if (m_pLobbyScene)
 				{
@@ -1266,6 +1268,8 @@ void CGameFramework::ProcessPacket(char *packet)
 	case SC_ROUND_START:
 		//SC_PACKET_ROUND_START *pRS = m_Network.GetRS();
 		pRS = reinterpret_cast<SC_PACKET_ROUND_START *>(packet);
+		 
+		
 		clientCount = pRS->clientCount;
 		if (m_pLobbyScene)
 		{
@@ -1290,8 +1294,8 @@ void CGameFramework::ProcessPacket(char *packet)
 			
 		//	MappingUserToEvilbear(pPP->id, clientCount/*현재 접속한 유저 수를 받아야함 */);
 
-			cout <<"플레이어 ID-"<<(int)pPP->id<<",재질 -" <<(int)m_pPlayer->GetPlayerID() << "\n";
-			m_pPlayer->SetMaterialID(m_pPlayer->GetPlayerID());	//플레이어 재질정	보 SET
+			cout <<"플레이어 ID-"<<(int)pPP->id<<",재질 -" <<(int)pPP->matID << "\n";
+			m_pPlayer->SetMaterialID(pPP->matID);	//플레이어 재질정	보 SET
 			m_pPlayer->SetPosition(pos);
 			m_pPlayer->SetLookVector(look);
 			m_pPlayer->SetUpVector(up);
@@ -1315,7 +1319,8 @@ void CGameFramework::ProcessPacket(char *packet)
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
 				//id랑 재질정보를 MappingUserToEvilbear함수를 통해 할 수 있음 
-				cout <<"클라 ID-"<<(int)pPP->id<<",재질 -" <<(int)pPP->matID << "\n";
+				cout <<"적 클라 ID-"<<(int)pPP->id<<",재질 -" <<(int)pPP->matID << "\n";
+
 				dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->MappingUserToEvilbear(id/*아이디*/, pPP->matID/*재질id*/);
 				(*iter).second->m_ppObjects[id]->SetPosition(pos);
 				(*iter).second->m_ppObjects[id]->SetLookVector(look);
