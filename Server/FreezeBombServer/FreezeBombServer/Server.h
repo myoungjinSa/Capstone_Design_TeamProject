@@ -129,6 +129,8 @@ public:
 	void SendMovePlayer(char client);
 	void SendRemovePlayer(char toClient, char fromClient);
 public:
+	void SetPitchYawRollZero(char client);
+	void SetClient_Initialize(char client);
 	void SetDirection(char client, int key);
 	void RotateModel(char client, float x, float y, float z);
 	void RotateClientAxisY(char client, float fTimeElapsed);

@@ -317,8 +317,14 @@ void Server::ProcessPacket(char client, char *packet)
 		//printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
 		for (int i = 0; i < MAX_USER; ++i)
 		{
-			if(clients[i].in_use == true)
+			if (clients[i].in_use == true)
+			{
 				SendMovePlayer(i);
+				//한번 MovePacket을 보내고 난후 
+				//pitch,yaw,roll은 다시 0으로 바꿔줘야함.
+				//그렇지 않을경우 뱅글뱅글 돌게됨.
+				SetPitchYawRollZero(i);
+			}
 		}
 		break;
 	case CS_READY:
@@ -340,6 +346,8 @@ void Server::ProcessPacket(char client, char *packet)
 						if (true == clients[j].in_use)
 							SendPutPlayer(i, j);
 					}
+					//접속하는 클라이언트 마다 look,right,up벡터를 초기화 해줘야함.
+					SetClient_Initialize(i);
 					SendRoundStart(i);
 				}
 			}
@@ -457,9 +465,11 @@ void Server::SendMovePlayer(char client)
 	packet.id = client;
 	packet.size = sizeof(packet);
 	packet.type = SC_MOVE_PLAYER;
+
 	packet.xPos = clients[client].pos.x;
 	packet.yPos = clients[client].pos.y;
 	packet.zPos = clients[client].pos.z;
+	//플레이어의 진행 방향 정보 ,look,right,up
 	packet.xLook = clients[client].look.x;
 	packet.yLook = clients[client].look.y;
 	packet.zLook = clients[client].look.z;
@@ -469,6 +479,11 @@ void Server::SendMovePlayer(char client)
 	packet.xUp = clients[client].up.x;
 	packet.yUp = clients[client].up.y;
 	packet.zUp = clients[client].up.z;
+
+	//플레이어 모델의 실제 회전정보
+	packet.pitch = clients[client].pitch;
+	packet.yaw = clients[client].yaw;
+	packet.roll = clients[client].roll;
 
 	SendFunc(client, &packet);
 }
@@ -527,7 +542,7 @@ void Server::SetDirection(char client, int key)
 		tmpDir |= DIR_FORWARD;
 		break;
 	case CS_DOWN_KEY:
-		tmpDir |= DIR_DOWN;
+		tmpDir |= DIR_BACKWARD;
 		break;
 	case CS_RIGHT_KEY:
 		tmpDir |= DIR_RIGHT;
@@ -539,6 +554,23 @@ void Server::SetDirection(char client, int key)
 	clients[client].direction = tmpDir;
 }
 
+void Server::SetClient_Initialize(char client)
+{
+	clients[client].look = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	clients[client].right = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	clients[client].up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+}
+
+void Server::SetPitchYawRollZero(char client)
+{
+	if (clients[client].pitch > 0.0f)
+		clients[client].pitch = 0.0f;
+	if (clients[client].yaw > 0.0f)
+		clients[client].yaw = 0.0f;
+	if (clients[client].roll > 0.0f)
+		clients[client].roll = 0.0f;
+	
+}
 void Server::UpdateClientPos(char client, float fTimeElapsed)
 {
 	if (clients[client].direction == DIR_FORWARD) {
@@ -620,6 +652,9 @@ void Server::RotateClientAxisY(char client, float fTimeElapsed)
 	xmf3Look = Vector3::Normalize(xmf3Look);
 	xmf3Right = Vector3::CrossProduct(xmf3Up, xmf3Look, true);
 	xmf3Up = Vector3::CrossProduct(xmf3Look, xmf3Right, true);
+
+
+
 }
 
 void Server::RotateModel(char client, float x, float y, float z)
