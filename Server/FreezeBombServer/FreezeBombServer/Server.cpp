@@ -159,6 +159,7 @@ void Server::AcceptThreadFunc()
 		CreateIoCompletionPort(reinterpret_cast<HANDLE>(clientSocket), iocp, new_id, 0);
 
 		clients[new_id].in_use = true;
+		clients[new_id].velocity = XMFLOAT3(0.0f, 0.0f, 1.0f);
 
 		SendAccessComplete(new_id);
 		// 기존 유저들에게 이후 접속한 유저들 출력
@@ -299,6 +300,7 @@ void Server::ProcessPacket(char client, char *packet)
 	float x = clients[client].pos.x;
 	float y = clients[client].pos.y;
 	float z = clients[client].pos.z;
+
 	DWORD tmpDir;
 
 	// 0번은 사이즈, 1번이 패킷타입
@@ -567,10 +569,10 @@ void Server::UpdateClientPos(char client, float fTimeElapsed)
 
 	//clients[client].xmf3Position = xmf3Velocity;
 
-	clients[client].velocity = clients[client].velocity;
+	//clients[client].velocity = clients[client].velocity;
 
 	ProcessClientHeight(client);
-	ProcessFriction(client, fLength);
+	//ProcessFriction(client, fLength);
 }
 
 void Server::RotateClientAxisY(char client, float fTimeElapsed)
