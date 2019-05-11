@@ -107,8 +107,9 @@ public:
 	};
 	std::map<MUSIC_ENUM, std::string> m_mapMusicList;
 
-
+#ifdef _WITH_SERVER_
 	void SetVelocityFromServer(float fVel) { m_fVelocityFromServer = fVel; }
+#endif
 	void setScore(short score) { m_Score = score; }
 	short getScore()		const { return m_Score; }
 	bool IsCameraVibe() const { return m_bCameraVibe; }
