@@ -50,6 +50,7 @@ public:
 	void LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	void LoadMapObjectInfo(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	void LoadItemInfo(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void LoadBound(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 
 	void ReleaseModel();
@@ -59,6 +60,7 @@ public:
 	const map<string, CLoadedModelInfo*>& getModelMap()	const { return m_ModelMap; }
 	const map<string, Bounds*>& getBoundMap()	const { return m_BoundMap; }
 	const multimap<string, MapObjectInfo*>& getMapObjectInfo()	const { return m_MapObjectInfoMultiMap; }
+	const multimap<string, MapObjectInfo*>& getItemInfo()	const { return m_ItemInfoMultiMap; }
 
 private:
 	
@@ -67,7 +69,8 @@ private:
 	map<string, Bounds*>						m_BoundMap;
 
 	multimap<string, MapObjectInfo*>	m_MapObjectInfoMultiMap;
-	
+	multimap<string, MapObjectInfo*>	m_ItemInfoMultiMap;
+
 	// 리소스 이름들 저장
 	map<string, TextureInfo>		m_TextureInfoMap;
 	map<string, ModelInfo>		m_ModelInfoMap;

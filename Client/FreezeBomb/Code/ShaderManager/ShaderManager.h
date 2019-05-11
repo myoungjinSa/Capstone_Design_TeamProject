@@ -11,7 +11,6 @@ public:
 	CShaderManager();
 	~CShaderManager();
 
-
 	void Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, const int& nPlayerCount);
 	void AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer* pPlayer = nullptr);
 	void ReleaseObjects();
@@ -27,9 +26,9 @@ public:
 
 private:
 
-	size_t							m_nShaders = 0;
+	int									m_nShaders = 0;
 	//snow나 ui들은 post처리 안되야하기 때문에 m_nShader - m_nPostShader 많이 postshader개수로 파악되어야 함
-	size_t							m_nPostShaders = 0;
+	int									m_nPostShaders = 0;
 	CShader**					m_ppShaders{ nullptr };
 
 	map<string, CShader*>	m_ShaderMap;

@@ -300,9 +300,18 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 
 	if (nCameraMode == THIRD_PERSON_CAMERA)
 	{
-		CGameObject::Render(pd3dCommandList, m_bHammer, m_bBomb, m_bIce, (int)g_PlayerCharacter, pCamera, GameObject);		//재질별로 렌더 
-		if (m_pShadow)
-			m_pShadow->Render(pd3dCommandList, m_bHammer, m_bBomb, m_bIce, m_matID, pCamera, GameObject_Shadow);
+		if (m_bBomb == true)
+		{
+			CGameObject::Tagger_Render(pd3dCommandList, pCamera, g_PlayerCharacter, m_bGoldTimer, GameObject);
+			if (m_pShadow)
+				m_pShadow->Tagger_Render(pd3dCommandList, pCamera, g_PlayerCharacter, m_bGoldTimer, GameObject_Shadow);
+		}
+		else
+		{
+			CGameObject::RunAway_Render(pd3dCommandList, pCamera, g_PlayerCharacter, m_bHammer, m_bGoldHammer, GameObject);
+			if (m_pShadow)
+				m_pShadow->RunAway_Render(pd3dCommandList, pCamera, g_PlayerCharacter, m_bHammer, m_bGoldHammer, GameObject_Shadow);
+		}
 	}
 }
 
@@ -314,6 +323,9 @@ void CPlayer::Add_Inventory(string key, int ItemType)
 			Refresh_Inventory(ItemType);
 		CItem* pItem = new CItem;
 		pItem->setItemType(ItemType);
+
+		m_bHammer = true;
+
 		m_Normal_Inventory.emplace(key, pItem);
 	}
 	else
@@ -322,6 +334,11 @@ void CPlayer::Add_Inventory(string key, int ItemType)
 			Refresh_Inventory(ItemType);
 		CItem* pItem = new CItem;
 		pItem->setItemType(ItemType);
+
+		if (ItemType == CItem::GoldHammer)
+			m_bGoldHammer = true;
+		else
+			m_bGoldTimer = true;
 		m_Special_Inventory.emplace(key, pItem);
 	}
 }
@@ -338,10 +355,16 @@ void CPlayer::Refresh_Inventory(int ItemType)
 			iter = m_Normal_Inventory.erase(iter);
 		}
 	}
+	// 특수 아이템
 	else
 	{
 		for (auto iter = m_Special_Inventory.begin(); iter != m_Special_Inventory.end();)
 		{
+			if (ItemType == CItem::GoldHammer)
+				m_bGoldHammer = false;
+			else
+				m_bGoldTimer = false;
+
 			m_RemovedItemList.emplace_back((*iter).second);
 			iter = m_Special_Inventory.erase(iter);
 		}
@@ -732,9 +755,6 @@ void CTerrainPlayer::Animate(float fTimeElapsed)
 	RotateAxisY(fTimeElapsed);
 #endif
 	CGameObject::Animate(fTimeElapsed);
-	//CGameObject* p = FindFrame("ToesEnd_R");
-	//if (p != nullptr)
-	//	cout << p->m_xmf4x4World._41 << ", " << p->m_xmf4x4World._42 << ", " << p->m_xmf4x4World._43 << endl;
 }
 
 

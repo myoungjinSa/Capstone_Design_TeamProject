@@ -25,36 +25,9 @@ void CItem::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera,
 {
 	if (IsVisible(pCamera) == true)
 	{
-		CGameObject::Render(pd3dCommandList, pCamera, GameObject);
+		CGameObject::Item_Render(pd3dCommandList, pCamera, m_ItemType, GameObject);
 
 		if (m_pShadow)
-			m_pShadow->Render(pd3dCommandList, pCamera, GameObject_Shadow);
+			m_pShadow->Item_Render(pd3dCommandList, pCamera, m_ItemType, GameObject_Shadow);
 	}
 }
-
-//void CItem::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int ItemType, int nPipelineState)
-//{
-//	if (m_pFrameTransform)
-//		m_pFrameTransform->SetFrameMeshWorldConstantBuffer();
-//
-//	if (m_pMesh)
-//	{
-//		if (m_nMaterials > 0)
-//		{
-//			if (m_ppMaterials[ItemType])
-//			{
-//				if (m_ppMaterials[ItemType]->m_pShader)
-//					m_ppMaterials[ItemType]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
-//
-//				m_ppMaterials[ItemType]->UpdateShaderVariables(pd3dCommandList);
-//			}
-//
-//			m_pMesh->Render(pd3dCommandList, ItemType);
-//		}
-//	}
-//
-//	if (m_pSibling)
-//		((CItem*)m_pSibling)->CItem::Render(pd3dCommandList, pCamera, ItemType, nPipelineState);
-//	if (m_pChild)
-//		((CItem*)m_pChild)->CItem::Render(pd3dCommandList, pCamera, ItemType, nPipelineState);
-//}

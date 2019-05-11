@@ -750,6 +750,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 					if (m_pPlayer->GetIsBomb() == true && m_TaggerCoolTime <= 0.f)
 					{
 						(*iter).second->m_ppObjects[i]->SetIsBomb(true);
+
 						m_pPlayer->SetIsBomb(false);
 
 						m_TaggerCoolTime = 3.f;
@@ -846,8 +847,6 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 
 					// 충돌 된 아이템을 플레이어 인벤토리에 추가한다.
 					m_pPlayer->Add_Inventory((*iter2).first, (*iter2).second->getItemType());
-					if((*iter2).second->getItemType() == CItem::NormalHammer || (*iter2).second->getItemType() == CItem::GoldHammer)
-						m_pPlayer->SetIsHammer(true);
 					// 맵에 있는 아이템 삭제
 					PlayGetItemEffect();
 					pItemShader->ItemDelete((*iter2).first);
