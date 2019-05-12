@@ -405,6 +405,16 @@ void Server::ProcessPacket(char client, char *packet)
 			}
 		}
 		break;
+	case CS_RELEASE_KEY:
+		if (clients[client].fVelocity > 0)
+		{
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if(true == clients[i].in_use)
+					SendStopRunAnim(i, client);
+			}
+		}
+		break;
 	case CS_READY:
 		printf("전체 클라 수: %d\n", clientCount);
 		// 클라가 엔터누르고 F5누를때마다 CS_READY 패킷이 날아온다면 ++readyCount는 clientCount보다 증가하게 되고 
@@ -639,6 +649,16 @@ void Server::SendCompareTime(char client)
 	packet.type = SC_COMPARE_TIME;
 
 	SendFunc(client, &packet);
+}
+
+void Server::SendStopRunAnim(char toClient, char fromClient)
+{
+	SC_PACKET_STOP_RUN_ANIM packet;
+	packet.id = fromClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_STOP_RUN_ANIM;
+
+	SendFunc(toClient, &packet);
 }
 
 void Server::ClientDisconnect(char client)

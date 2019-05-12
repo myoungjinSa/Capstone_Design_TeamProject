@@ -77,7 +77,7 @@ extern HINSTANCE						ghAppInstance;
 //#define _MAPTOOL_MODE_
 
 //서버 연동을 할 경우 
-//#define _WITH_SERVER_
+#define _WITH_SERVER_
 
 #define FRAME_BUFFER_WIDTH		800
 #define FRAME_BUFFER_HEIGHT		600
