@@ -164,6 +164,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Server\FreezeBombServer\FreezeBombServer\protocol.h" />
     <ClInclude Include="..\Code\Camera\Camera.h" />
     <ClInclude Include="..\Code\Chatting\Chatting.h" />
     <ClInclude Include="..\Code\Cube\Cube.h" />

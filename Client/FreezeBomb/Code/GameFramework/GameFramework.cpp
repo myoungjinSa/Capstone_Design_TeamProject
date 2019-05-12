@@ -829,10 +829,6 @@ bool CGameFramework::BuildObjects()
 {
 	// 윈도우 창 띄우기
 	
-	//::ShowWindow(m_hWnd, SW_MAXIMIZE);
-	//::ShowWindow(m_hWnd, SW_SHOW);
-	//::UpdateWindow(m_hWnd);
-
 	loadingThread.emplace_back(thread{ &CGameFramework::Worker_Thread, this });
 
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);

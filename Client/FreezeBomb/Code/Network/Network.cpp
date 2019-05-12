@@ -20,10 +20,10 @@ Network::~Network()
 bool Network::connectToServer(HWND hWnd)
 {
 	// 서버 IP주소 입력받기
-	//std::string s;
-	//printf("서버IP입력 : ");
-	//std::cin >> s;
-	//const char *serverIp = s.c_str();
+	std::string s;
+	printf("서버IP입력 : ");
+	std::cin >> s;
+	const char *serverIp = s.c_str();
 
 	// 윈속 초기화
 	WSADATA wsa;
@@ -42,7 +42,8 @@ bool Network::connectToServer(HWND hWnd)
 	SOCKADDR_IN serveraddr;
 	ZeroMemory(&serveraddr, sizeof(serveraddr));
 	serveraddr.sin_family = AF_INET;
-	serveraddr.sin_addr.s_addr = inet_addr(SERVER_IP);
+	//serveraddr.sin_addr.s_addr = inet_addr(SERVER_IP);
+	serveraddr.sin_addr.s_addr = inet_addr(serverIp);
 	serveraddr.sin_port = htons(SERVER_PORT);
 	int retval = WSAConnect(sock, (SOCKADDR *)&serveraddr, sizeof(serveraddr), NULL, NULL, NULL, NULL);
 	if (retval == SOCKET_ERROR)

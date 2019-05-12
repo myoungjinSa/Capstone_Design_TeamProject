@@ -419,6 +419,9 @@
     <ClInclude Include="..\Code\Physics\Particle\Particle.h">
       <Filter>Code\Physics\Particle</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Server\FreezeBombServer\FreezeBombServer\protocol.h">
+      <Filter>Code\Network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Code">

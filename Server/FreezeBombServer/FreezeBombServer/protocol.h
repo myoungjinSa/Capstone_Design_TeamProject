@@ -4,7 +4,7 @@
 //#include <DirectXMath.h>
 //#define SERVER_IP "192.168.22.199"
 #define SERVER_IP "127.0.0.1"
-//#define SERVER_IP "192.168.0.34"
+//#define SERVER_IP "192.168.60.161"
 //#define SERVER_IP "192.168.200.103"
 
 using namespace std;
