@@ -154,20 +154,20 @@ void CGameFramework::CreateSwapChain()
 	dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 	HRESULT hResult = m_pdxgiFactory->CreateSwapChain(m_pd3dCommandQueue, &dxgiSwapChainDesc, (IDXGISwapChain**)&m_pdxgiSwapChain);
-	
+#endif	
 #ifdef FullScreenMode
 	//전체 모드로 시작
 	hResult = m_pdxgiSwapChain->SetFullscreenState(true, NULL);
-#else
-	hResult = m_pdxgiSwapChain->SetFullscreenState(false, NULL);
-#endif
 	if (hResult == E_FAIL)
 		return;
 	m_pdxgiSwapChain->GetDesc(&dxgiSwapChainDesc);
 	//SetFullScreenState함수를 호출해주었기 때문에 ResizeBuffers함수를 호출해줘야함.
 	m_pdxgiSwapChain->ResizeBuffers(m_nSwapChainBuffers, m_nWndClientWidth, m_nWndClientHeight, dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
 	
+#else
+	hResult = m_pdxgiSwapChain->SetFullscreenState(false, NULL);
 #endif
+	
 	// 스왑체인의 현재 후면버퍼 인덱스를 저장
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
 	// Alt + Enter키로 전체모드 비활성화
