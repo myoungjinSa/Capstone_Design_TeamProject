@@ -4,7 +4,7 @@
 //#include <DirectXMath.h>
 //#define SERVER_IP "192.168.22.199"
 #define SERVER_IP "127.0.0.1"
-//#define SERVER_IP "192.168.0.34"
+//#define SERVER_IP "192.168.60.161"
 //#define SERVER_IP "192.168.200.103"
 
 using namespace std;
@@ -31,6 +31,7 @@ constexpr int SC_ROUND_START = 8;
 constexpr int SC_PLEASE_READY = 9;
 constexpr int SC_ACCESS_PLAYER = 10;
 constexpr int SC_COMPARE_TIME = 11;
+constexpr int SC_STOP_RUN_ANIM = 12;
 
 constexpr int CS_UP_KEY = 0;
 constexpr int CS_DOWN_KEY = 1;
@@ -38,6 +39,7 @@ constexpr int CS_RIGHT_KEY = 2;
 constexpr int CS_LEFT_KEY = 3;
 constexpr int CS_READY = 4;
 constexpr int CS_REQUEST_START = 5;
+constexpr int CS_RELEASE_KEY = 6;
 
 //[클라->서버]
 
@@ -145,6 +147,11 @@ struct CS_PACKET_BOMBER_TOUCH
 	char touchedId;	// 터치한 플레이어 번호
 };
 
+struct CS_PACKET_RELEASE_KEY
+{
+	char size;
+	char type;
+};
 //////////////////////////////////////////////////////
 
 //[서버->클라]
@@ -214,6 +221,13 @@ struct SC_PACKET_MOVE_PLAYER
 	//속도
 	float fVelocity;
 
+};
+
+struct SC_PACKET_STOP_RUN_ANIM
+{
+	char size;
+	char type;
+	char id;
 };
 
 // 플레이어가 아이템 사용 시
