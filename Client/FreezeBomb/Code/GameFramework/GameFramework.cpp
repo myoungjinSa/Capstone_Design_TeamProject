@@ -17,7 +17,7 @@
 #include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
 
 // 전체모드할경우 주석풀으셈
-//#define FullScreenMode
+#define FullScreenMode
 
 static bool OnCartoonShading = false;
 
@@ -82,11 +82,12 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 #ifdef _WITH_DIRECT2D_
 	CreateDirect2DDevice();
 #endif
-
 	CreateRtvAndDsvDescriptorHeaps();
 	CreateSwapChain();
 	CreateDepthStencilView();
+	
 
+	
 	//CoInitialize(NULL);
 
 	if (BuildObjects() == false)
@@ -160,7 +161,8 @@ void CGameFramework::CreateSwapChain()
 	hResult = m_pdxgiSwapChain->SetFullscreenState(true, NULL);
 	if (hResult == E_FAIL)
 		return;
-	m_pdxgiSwapChain->GetDesc(&dxgiSwapChainDesc);
+
+	//m_pdxgiSwapChain->GetDesc(&dxgiSwapChainDesc);
 	//SetFullScreenState함수를 호출해주었기 때문에 ResizeBuffers함수를 호출해줘야함.
 	m_pdxgiSwapChain->ResizeBuffers(m_nSwapChainBuffers, m_nWndClientWidth, m_nWndClientHeight, dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
 	

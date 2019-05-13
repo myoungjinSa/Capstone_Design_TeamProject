@@ -29,8 +29,6 @@
 
 using namespace std;
 
-// 콘솔창 가리기
-#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 
 #include <d3d12.h>
 #include <dxgi1_4.h>
@@ -98,6 +96,10 @@ enum PIPELINESTATE_TYPE { GameObject, GameObject_Shadow };
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "windowscodecs.lib")
 
+// 콘솔창 가리기
+#ifdef _WITH_SERVER_
+#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
+#endif
 // TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
 
 D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3dResourceDesc, UINT nTextureType);
