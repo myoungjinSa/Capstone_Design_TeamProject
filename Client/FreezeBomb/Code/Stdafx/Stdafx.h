@@ -30,7 +30,7 @@
 using namespace std;
 
 // 콘솔창 가리기
-#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
+//#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 
 #include <d3d12.h>
 #include <dxgi1_4.h>
@@ -79,8 +79,8 @@ extern HINSTANCE						ghAppInstance;
 //서버 연동을 할 경우 
 //#define _WITH_SERVER_
 
-#define FRAME_BUFFER_WIDTH		800
-#define FRAME_BUFFER_HEIGHT		600
+#define FRAME_BUFFER_WIDTH		1200
+#define FRAME_BUFFER_HEIGHT		800
 
 enum PIPELINESTATE_TYPE { GameObject, GameObject_Shadow };
 

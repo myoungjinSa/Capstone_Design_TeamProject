@@ -747,20 +747,27 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				if ((*iter).second->m_ppObjects[i]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
 					// 술래 체인지
-					if (m_pPlayer->GetIsBomb() == true && m_TaggerCoolTime <= 0.f)
+					if ((*iter).second->m_ppObjects[i]->GetIsICE() == false)
 					{
-						(*iter).second->m_ppObjects[i]->SetIsBomb(true);
+						if (m_pPlayer->GetIsBomb() == true && m_TaggerCoolTime <= 0.f)
+						{
+							(*iter).second->m_ppObjects[i]->SetIsBomb(true);
 
-						m_pPlayer->SetIsBomb(false);
+							m_pPlayer->SetIsBomb(false);
 
-						m_TaggerCoolTime = 3.f;
-					}
-					else if ((*iter).second->m_ppObjects[i]->GetIsBomb() == true && m_TaggerCoolTime <= 0.f)
-					{
-						m_pPlayer->SetIsBomb(true);
-						(*iter).second->m_ppObjects[i]->SetIsBomb(false);
+							m_TaggerCoolTime = 3.f;
+						}
+						else if ((*iter).second->m_ppObjects[i]->GetIsBomb() == true && m_TaggerCoolTime <= 0.f)
+						{
+							if (m_pPlayer->GetIsICE() == false)
+							{
+								m_pPlayer->SetIsBomb(true);
+								(*iter).second->m_ppObjects[i]->SetIsBomb(false);
 
-						m_TaggerCoolTime = 3.f;
+								m_TaggerCoolTime = 3.f;
+							}
+
+						}
 					}
 
 					//(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
@@ -795,22 +802,42 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				{
 					for (int i = 0; i < (*iter).second->m_nObjects; ++i)
 					{
-						if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[i]->GetBoundingBox()))
+						if ((*iter).second->m_ppObjects[i]->GetIsICE() == true)
 						{
-							if (m_pPlayer->get_Normal_InventorySize() > 0)
+							if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[i]->GetBoundingBox()))
 							{
-								if (bBreak == false)
-									bBreak = true;
+								if (m_pPlayer->get_Normal_InventorySize() > 0)
+								{
+									if (bBreak == false)
+										bBreak = true;
 
-								m_pPlayer->Refresh_Inventory(CItem::NormalHammer);
+									m_pPlayer->Refresh_Inventory(CItem::NormalHammer);
+								}
+								m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
+
+								PlayIceBreakEffect(bBreak);
+								(*iter).second->m_ppObjects[i]->SetIsICE(false);
+								//cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
+								break;
+
 							}
-							m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
-
-							PlayIceBreakEffect(bBreak);
-
-							//cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
-							break;
 						}
+						//if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[i]->GetBoundingBox()))
+						//{
+						//	if (m_pPlayer->get_Normal_InventorySize() > 0)
+						//	{
+						//		if (bBreak == false)
+						//			bBreak = true;
+
+						//		m_pPlayer->Refresh_Inventory(CItem::NormalHammer);
+						//	}
+						//	m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
+
+						//	PlayIceBreakEffect(bBreak);
+						//	(*iter).second->m_ppObjects[i]->SetIsICE(false);
+						//	//cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
+						//	break;
+						//}
 					}
 				}
 			}
@@ -828,9 +855,6 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				}
 			}
 #endif
-			/*sort(begin(m), end(m), [&](const CGameObject& enmey1,const CGameObject& enemy2)->float {
-				float fDistamce = m_pPlayer->
-			});*/
 		}
 
 		// 플레이어와 아이템 오브젝트 충돌검사

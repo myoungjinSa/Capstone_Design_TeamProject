@@ -466,17 +466,17 @@ void CPlayer::DecideAnimationState(float fLength)
 		//pController->SetTrackSpeed(0, 1.5f);
 	}
 
-	if (GetAsyncKeyState(VK_Z) & 0x8000
-		&& pController->GetAnimationState() != CAnimationController::DIGGING
-		&& pController->GetAnimationState() != CAnimationController::ICE
-		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
-		)
-	{
-		SetTrackAnimationSet(0, CAnimationController::DIGGING);
-		SetTrackAnimationPosition(0, 0);
+	//if (GetAsyncKeyState(VK_Z) & 0x8000
+	//	&& pController->GetAnimationState() != CAnimationController::DIGGING
+	//	&& pController->GetAnimationState() != CAnimationController::ICE
+	//	&& ChattingSystem::GetInstance()->IsChattingActive() ==false
+	//	)
+	//{
+	//	SetTrackAnimationSet(0, CAnimationController::DIGGING);
+	//	SetTrackAnimationPosition(0, 0);
 
-		pController->SetAnimationState(CAnimationController::DIGGING);
-	}
+	//	pController->SetAnimationState(CAnimationController::DIGGING);
+	//}
 
 	// 치트키
 	//추후에 아이템과 충돌여부 및 아이템 획득 여부로 변경해서 하면 될듯
@@ -503,7 +503,31 @@ void CPlayer::DecideAnimationState(float fLength)
 		else
 		{
 			Add_Inventory("치트_망치", CItem::NormalHammer);
-			Add_Inventory("치트_황금망치", CItem::GoldHammer);
+			//Add_Inventory("치트_황금망치", CItem::GoldHammer);
+		}
+	}
+
+	// 시간증가 치트키
+	if (GetAsyncKeyState(VK_T) & 0x0001)
+	{
+		if (m_pShaderManager)
+		{
+			auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
+			if (iter != m_pShaderManager->getShaderMap().end())
+			{
+				((CTimerUIShader*)(*iter).second)->setTimer(10.f);
+			}
+		}
+	}
+	if (GetAsyncKeyState(VK_R) & 0x0001)
+	{
+		if (m_pShaderManager)
+		{
+			auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
+			if (iter != m_pShaderManager->getShaderMap().end())
+			{
+				((CTimerUIShader*)(*iter).second)->setReduceTimer(10.f);
+			}
 		}
 	}
 

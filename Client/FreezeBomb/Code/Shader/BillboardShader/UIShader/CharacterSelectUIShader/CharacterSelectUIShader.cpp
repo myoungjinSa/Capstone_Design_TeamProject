@@ -198,7 +198,8 @@ void CCharacterSelectUIShader::DecideTextureByCursorPosition(CSoundSystem* sound
 	}
 	else
 	{
-		m_currentTexture = NONE;
+		// 선택안될경우, 기본 브라운
+		m_currentTexture = BROWN;
 	}
 }
 

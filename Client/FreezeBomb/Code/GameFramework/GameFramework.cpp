@@ -17,7 +17,7 @@
 #include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
 
 // 전체모드할경우 주석풀으셈
-//#define FullScreenMode
+#define FullScreenMode
 
 static bool OnCartoonShading = false;
 
@@ -160,7 +160,7 @@ void CGameFramework::CreateSwapChain()
 	hResult = m_pdxgiSwapChain->SetFullscreenState(true, NULL);
 	if (hResult == E_FAIL)
 		return;
-	m_pdxgiSwapChain->GetDesc(&dxgiSwapChainDesc);
+	//m_pdxgiSwapChain->GetDesc(&dxgiSwapChainDesc);
 	//SetFullScreenState함수를 호출해주었기 때문에 ResizeBuffers함수를 호출해줘야함.
 	m_pdxgiSwapChain->ResizeBuffers(m_nSwapChainBuffers, m_nWndClientWidth, m_nWndClientHeight, dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
 	
@@ -175,6 +175,8 @@ void CGameFramework::CreateSwapChain()
 
 #ifndef _WITH_SWAPCHAIN_FULLSCREEN_STATE
 	CreateRenderTargetViews();
+
+	//ChangeSwapChainState();
 #endif
 }
 
@@ -1623,6 +1625,7 @@ void CGameFramework::Worker_Thread()
 		d3dResourceBarrier.Transition.pResource = m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex];
 		// StateBefore가 Present 상태가 되어야, DXGI가 Present를 실행한다.
 		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+
 		// StateAfter가 Render_Target 상태가 되면, Present가 끝나고 GPU가 그림을 바꿀 수 있다.
 		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
@@ -1631,6 +1634,7 @@ void CGameFramework::Worker_Thread()
 		D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 		d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
 		D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+
 		m_pLoadingCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, FALSE, &d3dDsvCPUDescriptorHandle);
 
 		m_pLoadingCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor, 0, NULL);
@@ -1640,18 +1644,22 @@ void CGameFramework::Worker_Thread()
 		m_pLoadingScene->Render(m_pLoadingCommandList);
 
 		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+
 		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 		m_pLoadingCommandList->ResourceBarrier(1, &d3dResourceBarrier);
 
 		m_pLoadingCommandList->Close();
 		ID3D12CommandList* ppd3dCommandLists[] = { m_pLoadingCommandList };
+
 		m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 		WaitForGpuComplete();
 
 		m_pdxgiSwapChain->Present(0, 0);
 
 		MoveToNextFrame();
+
 
 		double totalSize = g_TotalSize;
 		double fileSize = g_FileSize;
