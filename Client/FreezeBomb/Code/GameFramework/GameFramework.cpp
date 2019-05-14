@@ -652,6 +652,12 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			}
 			break;
 		}
+		case VK_UP:
+		case VK_DOWN:
+		{
+			m_Network.SendReleaseKey();
+			break;
+		}
 #endif
 		//case VK_F9:
 			//ChangeSwapChainState();
@@ -1382,6 +1388,26 @@ void CGameFramework::ProcessPacket(char *packet)
 		}
 
 		//printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", pMP->id, pMP->xPos, pMP->yPos, pMP->zPos);
+		break;
+	}
+	case SC_STOP_RUN_ANIM:
+	{
+		pSTA = reinterpret_cast<SC_PACKET_STOP_RUN_ANIM*>(packet);
+		if (pSTA->id == m_pPlayer->GetPlayerID())
+		{
+			m_pPlayer->SetVelocityFromServer(0);
+		}
+		else if (pSTA->id < MAX_USER)
+		{
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("곰돌이");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				// 적 캐릭터들과의 애니메이션도 동기화 하게 되면 작성
+				//(*iter).second->m_ppObjects[pSTA->id]
+			}
+		}
+		printf("SetVelocityFromServer\n");
 		break;
 	}
 	case SC_REMOVE_PLAYER:

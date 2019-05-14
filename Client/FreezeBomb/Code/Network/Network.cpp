@@ -204,6 +204,15 @@ void Network::SendReqStart()
 	SendPacket();
 }
 
+void Network::SendReleaseKey()
+{
+	pReleaseKey = reinterpret_cast<CS_PACKET_RELEASE_KEY *>(send_buffer);
+	pReleaseKey->size = sizeof(pReleaseKey);
+	send_wsabuf.len = sizeof(pReleaseKey);
+	pReleaseKey->type = CS_RELEASE_KEY;
+
+	SendPacket();
+}
 
 void Network::SetGameFrameworkPtr(HWND hWnd,CGameFramework* client)
 {
