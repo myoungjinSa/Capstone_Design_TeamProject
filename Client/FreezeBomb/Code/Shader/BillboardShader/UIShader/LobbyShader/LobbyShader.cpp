@@ -1,28 +1,29 @@
 #include "../../../../Stdafx/Stdafx.h"
-#include "CharacterSelectUIShader.h"
+#include "LobbyShader.h"
 #include "../../../../Texture/Texture.h"
 #include "../../../../Material/Material.h"
 #include "../../../../Mesh/BillboardMesh/BillboardMesh.h"
-#include "../../../../GameObject/Billboard/UI/UI.h"
-#include "../../../../SoundSystem/SoundSystem.h"
+#include"../../../../GameObject/Billboard/UI/UI.h"
 #include "../../../../Scene/LobbyScene/LobbyScene.h"
 
-CCharacterSelectUIShader::CCharacterSelectUIShader()
+
+CLobbyShader::CLobbyShader()
 {
 
 }
 
-CCharacterSelectUIShader::~CCharacterSelectUIShader()
+CLobbyShader::~CLobbyShader()
 {
 
 }
 
-void CCharacterSelectUIShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
+void CLobbyShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
 	m_nPipelineStates = 1;
+
 	m_ppd3dPipelineStates = new ID3D12PipelineState*[m_nPipelineStates];
 
-	for (int i = 0; i < m_nPipelineStates; ++i)
+	for(int i=0;i<m_nPipelineStates;++i)
 	{
 		::ZeroMemory(&m_d3dPipelineStateDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 		m_d3dPipelineStateDesc.pRootSignature = pd3dGraphicsRootSignature;
@@ -49,7 +50,7 @@ void CCharacterSelectUIShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12Grap
 	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
 
-void CCharacterSelectUIShader::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)
+void CLobbyShader::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)
 {
 	//리소스를 사용하려면 뷰를 만들어야한다. 
 	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
@@ -68,8 +69,7 @@ void CCharacterSelectUIShader::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDev
 	m_d3dSrvCPUDescriptorStartHandle.ptr = m_d3dCbvCPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * nConstantBufferViews);
 	m_d3dSrvGPUDescriptorStartHandle.ptr = m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * nConstantBufferViews);
 }
-
-void CCharacterSelectUIShader::CreateConstantBufferViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, ID3D12Resource *pd3dConstantBuffers, UINT nStride)
+void CLobbyShader::CreateConstantBufferViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, ID3D12Resource *pd3dConstantBuffers, UINT nStride)
 {
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = pd3dConstantBuffers->GetGPUVirtualAddress();
 	D3D12_CONSTANT_BUFFER_VIEW_DESC d3dCBVDesc;
@@ -83,7 +83,8 @@ void CCharacterSelectUIShader::CreateConstantBufferViews(ID3D12Device *pd3dDevic
 	}
 }
 
-void CCharacterSelectUIShader::CreateShaderResourceViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CTexture *pTexture, UINT nRootParameter, bool bAutoIncrement)
+
+void CLobbyShader::CreateShaderResourceViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CTexture *pTexture, UINT nRootParameter, bool bAutoIncrement)
 {
 	int nTextures = pTexture->GetTextures();
 	int nTextureType = pTexture->GetTextureType();
@@ -101,51 +102,36 @@ void CCharacterSelectUIShader::CreateShaderResourceViews(ID3D12Device *pd3dDevic
 	}
 }
 
-D3D12_SHADER_BYTECODE CCharacterSelectUIShader::CreateVertexShader()
+D3D12_SHADER_BYTECODE CLobbyShader::CreateVertexShader()
 {
-	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "VSCharacterSelect", "vs_5_1", &m_pd3dVertexShaderBlob));
+	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "VSLobby", "vs_5_1", &m_pd3dVertexShaderBlob));
 }
 
-D3D12_SHADER_BYTECODE CCharacterSelectUIShader::CreatePixelShader()
+D3D12_SHADER_BYTECODE CLobbyShader::CreatePixelShader()
 {
-	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "PSCharacterSelect", "ps_5_1", &m_pd3dVertexShaderBlob));
+	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "PSLobby", "ps_5_1", &m_pd3dVertexShaderBlob));
 }
-void CCharacterSelectUIShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
+
+void CLobbyShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,ID3D12RootSignature *pd3dGraphicsRootSignature,void *pContext)
 {
-	const int m_nTextures = 7;
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_nTextures);
-	pSelectTextures = new CTexture*[m_nTextures];
+	const int nTextures = 1;
 
-	pSelectTextures[NONE] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pSelectTextures[NONE]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Characters.dds", 0);
 	
-	pSelectTextures[BROWN] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pSelectTextures[BROWN]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Characters1.dds", 0);
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, nTextures);
+	pLobbyTextures = new CTexture*[nTextures];
 
-	pSelectTextures[BLUE] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pSelectTextures[BLUE]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Characters2.dds", 0);
-	
-	pSelectTextures[WHITE] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pSelectTextures[WHITE]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Characters3.dds", 0);
+	pLobbyTextures[NOT_START] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pLobbyTextures[NOT_START]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby.dds", 0);
 
-	pSelectTextures[BLACK] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pSelectTextures[BLACK]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Characters4.dds", 0);
-	
-	pSelectTextures[PINK] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pSelectTextures[PINK]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Characters5.dds", 0);
-	
-	pSelectTextures[PANDA] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pSelectTextures[PANDA]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Characters6.dds", 0);
-	
-	for (int i = 0; i < m_nTextures; ++i)
+	for (int i = 0; i < nTextures; ++i)
 	{
-		vTexture.emplace_back(pSelectTextures[i]);
-		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pSelectTextures[i], 0, false);
+		vTexture.emplace_back(pLobbyTextures[i]);
+		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pLobbyTextures[i], 0, false);
 	}
-	
-	CBillboardMesh* pSelectMesh = new CBillboardMesh(pd3dDevice, pd3dCommandList, 20.f, 20.f, 0.0f, 0.0f, 0.0f, 0.0f);
 
-	m_nObjects = m_nTextures;	
+	CBillboardMesh* pLobbyMesh = new CBillboardMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+
+	m_nObjects = nTextures;	
 	m_ppUIMaterial = new CMaterial*[m_nObjects];
 
 	m_ppUIMaterial[0] = new CMaterial(m_nObjects);
@@ -158,69 +144,33 @@ void CCharacterSelectUIShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12Graph
 	for (int i = 0; i < m_nObjects; ++i)
 	{
 		CUI* pUI = new CUI(1);
-		pUI->SetMesh(pSelectMesh);
+		pUI->SetMesh(pLobbyMesh);
 		pUI->SetMaterial(0, m_ppUIMaterial[0]);
 		m_UIMap.emplace(i, pUI);
 	}
+
+
 }
 
-void CCharacterSelectUIShader::DecideTextureByCursorPosition(CSoundSystem* sound, float mouseX, float mouseY)
-{
-	if (-0.93f <= mouseX && mouseX <= -0.36f && 0.05f <= mouseY && mouseY <= 0.865f)
-	{
-		m_currentTexture = BROWN;
-		sound->PlayIndex(CLobbyScene::emusic::BUTTON);
-	}
-	else if (-0.3f <= mouseX && mouseX <= 0.28f && 0.05f <= mouseY && mouseY <= 0.865f)
-	{
-		m_currentTexture = BLUE;
-		sound->PlayIndex(CLobbyScene::emusic::BUTTON);
-	}
-	else if (0.34f <= mouseX && mouseX <= 0.92f && 0.05f <= mouseY && mouseY <= 0.865f)
-	{
-		m_currentTexture = WHITE;
-		sound->PlayIndex(CLobbyScene::emusic::BUTTON);
-	}
-	else if (-0.93f <= mouseX && mouseX <= -0.36f && -0.88f <= mouseY && mouseY <= -0.05f)
-	{
-		m_currentTexture = BLACK;
-		sound->PlayIndex(CLobbyScene::emusic::BUTTON);
-	}
-	else if (-0.3f <= mouseX && mouseX <= 0.28f && -0.88f <= mouseY && mouseY <= -0.05f)
-	{
-		m_currentTexture = PINK;
-		sound->PlayIndex(CLobbyScene::emusic::BUTTON);
-	}
-	else if (0.34f <= mouseX && mouseX <= 0.92f && -0.88f <= mouseY && mouseY <= -0.05f)
-	{
-		m_currentTexture = PANDA;
-		sound->PlayIndex(CLobbyScene::emusic::BUTTON);
-	}
-	else
-	{
-		// 선택안될경우, 기본 브라운
-		m_currentTexture = BROWN;
-	}
-}
 
-void CCharacterSelectUIShader::Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipelineState)
+void CLobbyShader::Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipelineState)
 {
 	if (m_pd3dCbvSrvDescriptorHeap) 
 		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
 	CUIShader::OnPrepareRender(pd3dCommandList, 0);
-	
-	auto iter = m_UIMap.find(m_currentTexture);
+
+	auto iter = m_UIMap.find(NOT_START);
 	if (iter != m_UIMap.end())
-		(*iter).second->Render(pd3dCommandList, nPipelineState,m_currentTexture);
+		(*iter).second->Render(pd3dCommandList, nPipelineState,NOT_START);
 }
 
-void CCharacterSelectUIShader::ReleaseObjects()
+void CLobbyShader::ReleaseObjects()
 {
 	if (m_pd3dCbvSrvDescriptorHeap)
 		m_pd3dCbvSrvDescriptorHeap->Release();
 
 	CUIShader::ReleaseObjects();
 
-	delete[] pSelectTextures;
+	
 }

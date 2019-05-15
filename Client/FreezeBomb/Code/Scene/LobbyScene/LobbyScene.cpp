@@ -3,6 +3,7 @@
 #include "../../Texture/Texture.h"
 #include "../../Shader/BillboardShader/UIShader/CharacterSelectUIShader/CharacterSelectUIShader.h"
 #include "../../SoundSystem/SoundSystem.h"
+#include "../../Shader/BillboardShader/UIShader/LobbyShader/LobbyShader.h"
 
 extern byte g_PlayerCharacter;
 
@@ -91,14 +92,24 @@ void CLobbyScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
 	int index = 0;
-	m_nShaders = 1;
+	m_nShaders = 2;
 	m_ppShaders = new CShader*[m_nShaders];
+
+
+	CLobbyShader* pLobbyShader = new CLobbyShader;
+	pLobbyShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nullptr);
+	pLobbyShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	m_ppShaders[index++] = pLobbyShader;
+	m_shaderMap.emplace("Lobby", pLobbyShader);
 
 	CCharacterSelectUIShader* pSelectShader = new CCharacterSelectUIShader;
 	pSelectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nullptr);
 	pSelectShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	m_ppShaders[index++] = pSelectShader;
 	m_shaderMap.emplace("Select", pSelectShader);
+
+
+
 
 	CreateSoundSystem();
 	m_musicStart = false;
@@ -117,16 +128,16 @@ void CLobbyScene::AnimateObjects(ID3D12GraphicsCommandList* pd3dCommandList, flo
 
 
 
-void CLobbyScene::Render(ID3D12GraphicsCommandList *pd3dCommandList)
+void CLobbyScene::Render(ID3D12GraphicsCommandList *pd3dCommandList,int gameState)
 {
 	if (m_pd3dGraphicsRootSignature)
 	{
 		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 	}
-	for(int i = 0; i < m_nShaders; ++i)
-	{
-		m_ppShaders[i]->Render(pd3dCommandList, 0);
-	}
+	
+	
+	m_ppShaders[gameState]->Render(pd3dCommandList,0 );
+	
 }
 
 void CLobbyScene::CreateSoundSystem()
@@ -179,7 +190,7 @@ XMFLOAT3 CLobbyScene::ScreenPosition(int x, int y)
 
 	return screenPosition;
 }
-void CLobbyScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wParam,LPARAM lParam)
+void CLobbyScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wParam,LPARAM lParam,int gameState)
 {
 	int mouseX = LOWORD(lParam);
 	int mouseY = HIWORD(lParam);
@@ -189,13 +200,21 @@ void CLobbyScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wPar
 	case WM_MOUSEMOVE:
 	case WM_LBUTTONDOWN:
 	{
-		XMFLOAT3 position = ScreenPosition(mouseX, mouseY);
-		//cout << mouseX << ", " << mouseY << "--------------" << position.x << ", " << position.y << endl;
-		auto iter = m_shaderMap.find("Select");
-		if (iter != m_shaderMap.end())
+		if (gameState == CHARACTER_SELECT)
 		{
-			dynamic_cast<CCharacterSelectUIShader*>(m_ppShaders[0])->DecideTextureByCursorPosition(m_pSound, position.x, position.y);
-			g_PlayerCharacter = dynamic_cast<CCharacterSelectUIShader*>(m_ppShaders[0])->SelectedCharacter();
+			XMFLOAT3 position = ScreenPosition(mouseX, mouseY);
+			//cout << mouseX << ", " << mouseY << "--------------" << position.x << ", " << position.y << endl;
+			auto iter = m_shaderMap.find("Select");
+			if (iter != m_shaderMap.end())
+			{
+				dynamic_cast<CCharacterSelectUIShader*>(m_ppShaders[CHARACTER_SELECT])->DecideTextureByCursorPosition(m_pSound, position.x, position.y);
+				g_PlayerCharacter = dynamic_cast<CCharacterSelectUIShader*>(m_ppShaders[CHARACTER_SELECT])->SelectedCharacter();
+			}
+		}
+		if(gameState == LOBBY)
+		{
+			
+
 		}
 		break;
 	}

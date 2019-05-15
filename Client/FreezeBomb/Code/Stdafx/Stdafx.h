@@ -75,12 +75,13 @@ extern HINSTANCE						ghAppInstance;
 //#define _MAPTOOL_MODE_
 
 //서버 연동을 할 경우 
-#define _WITH_SERVER_
+//#define _WITH_SERVER_
 
-#define FRAME_BUFFER_WIDTH		800
-#define FRAME_BUFFER_HEIGHT		600
+#define FRAME_BUFFER_WIDTH		1200
+#define FRAME_BUFFER_HEIGHT		800
 
 enum PIPELINESTATE_TYPE { GameObject, GameObject_Shadow };
+
 
 //#define _WITH_CB_GAMEOBJECT_32BIT_CONSTANTS
 //#define _WITH_CB_GAMEOBJECT_ROOT_DESCRIPTOR
@@ -100,6 +101,7 @@ enum PIPELINESTATE_TYPE { GameObject, GameObject_Shadow };
 #ifdef _WITH_SERVER_
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 #endif
+
 // TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
 
 D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3dResourceDesc, UINT nTextureType);

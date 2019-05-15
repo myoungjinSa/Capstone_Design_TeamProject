@@ -4,6 +4,7 @@ struct MATERIAL
 	float4			m_cDiffuse;		
 	float4			m_cSpecular;	//a = power
 	float4			m_cEmissive;
+
 };
 
 cbuffer cbCameraInfo						: register(b1)
@@ -25,7 +26,62 @@ cbuffer cbMaterialInfo						: register(b3)
 	uint				gnTexturesMask		: packoffset(c4);
 };
 
+#define LINEAR_FOG 1.0f
+#define EXP_FOG 2.0f
+#define EXP2_FOG 3.0f
+
+
+cbuffer cbFog : register(b8)
+{
+	float4 gcFogColor;
+	float4 gvFogParameter; //(mode,start,End,Density)
+}
+
+float4 Fog(float4 cColor, float3 vPosition)
+{
+	float3 vCameraPosition = gvCameraPosition.xyz;
+	float3 vPositionToCamera = vCameraPosition - vPosition;
+	float fDistanceToCamera = length(vPositionToCamera);
+	float fFogFactor = 0.0f;
+	if (gvFogParameter.x == LINEAR_FOG)
+	{
+		float fFogRange = gvFogParameter.z - gvFogParameter.y;
+		fFogFactor = saturate((gvFogParameter.z - fDistanceToCamera) / fFogRange);
+
+	}
+
+	float4 cColorByFog = lerp(cColor, gcFogColor, 1 - fFogFactor);
+	return(cColorByFog);
+}
+
+
+
+//---------------------------------------------------------------------------------------
+// Transforms a normal map sample to world space.
+//---------------------------------------------------------------------------------------
+float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, float3 tangentW)
+{
+	// Uncompress each component from [0,1] to [-1,1].
+	float3 normalT = 2.0f*normalMapSample - 1.0f;
+
+	// Build orthonormal basis.
+	float3 N = unitNormalW;
+	float3 T = normalize(tangentW - dot(tangentW, N)*N);
+	float3 B = cross(N, T);
+
+	float3x3 TBN = float3x3(T, B, N);
+
+	// Transform from tangent space to world space.
+	float3 bumpedNormalW = mul(normalT, TBN);
+
+	return bumpedNormalW;
+}
+
+
+
 #include "Light.hlsl"
+
+
 
 SamplerState gssWrap		: register(s0);
 SamplerState gssClamp	: register(s1);
@@ -39,7 +95,8 @@ struct VS_SKYBOX_CUBEMAP_INPUT
 
 struct VS_SKYBOX_CUBEMAP_OUTPUT
 {
-	float3	positionL : POSITION;
+	float3	positionL : POSITION0;
+	float3  positionW : POSITION1;
 	float4	position : SV_POSITION;
 };
 
@@ -49,7 +106,7 @@ VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
 
 	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection);
 	output.positionL = input.position;
-
+	output.positionW = mul(input.position, (float3x3)gmtxWorld);
 	return(output);
 }
 
@@ -57,11 +114,18 @@ float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtSkyCubeTexture.Sample(gssClamp, input.positionL);
 
-	return(cColor);
+
+	float4 cFog = Fog(cColor, input.positionW);
+	
+	return (lerp(cFog,cColor,0.3f));
+	//return (cColor);
+	
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Texture2D gtxtTerrainBaseTexture : register(t4);
 Texture2D gtxtTerrainDetailTexture : register(t5);
+
+
 
 struct VS_TERRAIN_INPUT
 {
@@ -69,25 +133,29 @@ struct VS_TERRAIN_INPUT
 	float4 color : COLOR;
 	float2 uv0 : TEXCOORD0;
 	float2 uv1 : TEXCOORD1;
+	
 };
 
 struct VS_TERRAIN_OUTPUT
 {
+	float3 positionW : POSITION;
 	float4 position : SV_POSITION;
 	float4 color : COLOR;
 	float2 uv0 : TEXCOORD0;
 	float2 uv1 : TEXCOORD1;
+	
 };
 
 VS_TERRAIN_OUTPUT VSTerrain(VS_TERRAIN_INPUT input)
 {
 	VS_TERRAIN_OUTPUT output;
 
+	output.positionW = mul(input.position, (float3x3)gmtxWorld);
 	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection);
 	output.color = input.color;
 	output.uv0 = input.uv0;
 	output.uv1 = input.uv1;
-
+	
 	return(output);
 }
 
@@ -96,9 +164,9 @@ float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 	float4 cBaseTexColor = gtxtTerrainBaseTexture.Sample(gssWrap, input.uv0);
 	float4 cDetailTexColor = gtxtTerrainDetailTexture.Sample(gssWrap, input.uv1);
 	float4 cColor = input.color * saturate((cBaseTexColor * 0.5f) + (cDetailTexColor * 0.5f));
-
-	//return(cColor);
-	return cBaseTexColor;
+	
+	float4 cFog = Fog(cBaseTexColor, input.positionW);
+	return (lerp(cFog,cBaseTexColor,0.7f));
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //#define _WITH_VERTEX_LIGHTING
@@ -121,7 +189,7 @@ Texture2D gtxtDetailNormalTexture	: register(t12);
 struct VS_STANDARD_INPUT
 {
 	float3 position			: POSITION;
-	float2 uv					: TEXCOORD;
+	float2 uv				: TEXCOORD;
 	float3 normal			: NORMAL;
 	float3 tangent			: TANGENT;
 	float3 bitangent		: BITANGENT;
@@ -156,6 +224,8 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
 
+	if (cAlbedoColor.a < 0.3f) discard;
+
 	float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_SPECULAR_MAP) cSpecularColor = gtxtSpecularTexture.Sample(gssWrap, input.uv);
 
@@ -181,7 +251,11 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 		normalW = normalize(input.normalW);
 	}
 	float4 cIllumination = Lighting(input.positionW, normalW);
-	return(lerp(cColor, cIllumination, 0.5f));
+
+	float4 cFog = Fog(cColor, input.positionW);
+
+	return(lerp(cFog,cIllumination,0.35f));
+	//return(lerp(cColor, cIllumination, 0.5f));
 
 	//cColor = float4(1, 1, 1, 1);
 	//return cColor;
@@ -212,7 +286,9 @@ VS_SHADOW_OUTPUT VSShadow(VS_SHADOW_INPUT input)
 
 float4 PSShadow(VS_SHADOW_OUTPUT input) : SV_TARGET
 {
-	return(float4(0.7f, 0.7f, 0.7f, 1.f));
+	float4 cFog = Fog(float4(0.85f,0.85f,0.85f,1.0f),input.positionW);
+	return(lerp(cFog,1.0f,0.1f));
+	//return (float4(0.85f,0.85f,0.85f,1.0f));
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct InstanceData

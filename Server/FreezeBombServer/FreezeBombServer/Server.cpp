@@ -214,9 +214,12 @@ void Server::TimerThreadFunc()
 			nowSec = (GetTickCount() - roundStartTime) / 1000;
 			//cout << nowSec << "\n";
 			// 1초가 지나면 시간비교 패킷 전송
+
+			//서버 시간 현재 
 			if (nowSec - lastSec >= 1.0f)
 			{
 				//printf("SendCompareTime() 전송\n");
+				roundCurrTime = MAX_ROUND_TIME - nowSec;
 				for (int i = 0; i < MAX_USER; ++i)
 				{
 					if (true == clients[i].in_use)
@@ -385,6 +388,7 @@ void Server::ProcessPacket(char client, char *packet)
 	case CS_RIGHT_KEY:
 		clientsLock[client].lock();
 		SetDirection(client, packet[1]);
+		//cout << gameTimer.GetTimeElapsed()<<endl;
 		UpdateClientPos(client, gameTimer.GetTimeElapsed());
 		clientsLock[client].unlock();
 
@@ -644,7 +648,7 @@ void Server::SendRoundEnd(char client)
 void Server::SendCompareTime(char client)
 {
 	SC_PACKET_COMPARE_TIME packet;
-	packet.serverTime = GetTickCount();
+	packet.serverTime = roundCurrTime;
 	packet.size = sizeof(packet);
 	packet.type = SC_COMPARE_TIME;
 

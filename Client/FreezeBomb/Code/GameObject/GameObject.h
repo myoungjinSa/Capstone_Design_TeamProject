@@ -403,6 +403,9 @@ public:
 
 	UINT GetLodLevel() { return m_lodLevel; }
 
+	bool GetIsICE() const { return m_bIce; }
+	void SetIsICE(bool value) { m_bIce = value; }
+
 	bool GetIsHammer()	const { return m_bHammer; }
 	void SetIsHammer(bool bHammer) { m_bHammer = bHammer; }
 

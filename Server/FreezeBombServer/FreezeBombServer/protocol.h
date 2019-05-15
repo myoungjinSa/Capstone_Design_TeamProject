@@ -41,6 +41,8 @@ constexpr int CS_READY = 4;
 constexpr int CS_REQUEST_START = 5;
 constexpr int CS_RELEASE_KEY = 6;
 
+constexpr int MAX_ROUND_TIME = 50;
+
 //[클라->서버]
 
 //<< Ready Room 패킷 종류 >>
@@ -245,7 +247,7 @@ struct SC_PACKET_COMPARE_TIME
 {
 	char size;
 	char type;
-	unsigned long serverTime;				// 서버 시간
+	float serverTime;				// 서버 시간
 };
 
 struct SC_PACKET_ROLL_CHANGE

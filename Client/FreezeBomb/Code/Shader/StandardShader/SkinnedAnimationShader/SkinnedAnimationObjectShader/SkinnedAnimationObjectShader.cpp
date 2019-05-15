@@ -79,11 +79,11 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		m_ppObjects[0]->SetChild((*Model).second->m_pModelRootObject, true);
 		m_ppObjects[0]->m_pAnimationController = new CAnimationController(1, (*Model).second->m_pAnimationSets);
 		// 0번 트랙에 0번 애니메이션을 Set
-		m_ppObjects[0]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[0]->m_pAnimationController->RUNFAST);
+		m_ppObjects[0]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[0]->m_pAnimationController->IDLE);
 		// 1번 트랙에 1번 애니메이션을 Set
 		//m_ppObjects[0]->m_pAnimationController->SetTrackAnimationSet(1, 1);
 		// 0번 트랙에 가중치를 80%
-	//	m_ppObjects[0]->m_pAnimationController->SetTrackWeight(0, 0.8f);
+		//m_ppObjects[0]->m_pAnimationController->SetTrackWeight(0, 0.8f);
 		// 1번 트랙에 가중치를 20% 
 		//m_ppObjects[0]->m_pAnimationController->SetTrackWeight(1, 0.2f);
 
@@ -213,12 +213,17 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 
 	// 임시로 플레이어 위치 고정
 	int index = 0;
-	m_ppObjects[index++]->SetPosition(100, 0, 100);
+	m_ppObjects[index]->SetPosition(100, 0, 100);
+	m_ppObjects[index++]->SetIsICE(true);
+
 	m_ppObjects[index++]->SetPosition(58, 0, 180);
 	m_ppObjects[index++]->SetPosition(192, 0, 230);
 	m_ppObjects[index++]->SetPosition(386, 0, 206);
 	m_ppObjects[index++]->SetPosition(250, 0, 50);
-	m_ppObjects[index++]->SetPosition(70, 0, 50);
+	
+	m_ppObjects[index]->SetPosition(70, 0, 50);
+	m_ppObjects[index++]->SetIsICE(true);
+
 
 	for (int i = 0; i < m_nObjects; ++i)
 	{

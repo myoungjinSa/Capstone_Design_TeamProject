@@ -15,6 +15,7 @@
 #include "../Shader/PostProcessShader/CartoonShader/SobelCartoonShader.h"
 #include "../Chatting/Chatting.h"
 #include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
+#include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
 
 // 전체모드할경우 주석풀으셈
 #define FullScreenMode
@@ -177,6 +178,8 @@ void CGameFramework::CreateSwapChain()
 
 #ifndef _WITH_SWAPCHAIN_FULLSCREEN_STATE
 	CreateRenderTargetViews();
+
+	//ChangeSwapChainState();
 #endif
 }
 
@@ -567,10 +570,11 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 			m_pScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 		break;
 	}
+	case LOBBY:
 	case CHARACTER_SELECT:
 	{
 		if (m_pLobbyScene)
-			m_pLobbyScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+			m_pLobbyScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam,m_nState);
 		break;
 	}
 	default:
@@ -615,6 +619,11 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 	{
 		break;
 	}
+	case LOBBY:
+	{
+
+		break;
+	}
 	default:
 		break;
 	}
@@ -642,7 +651,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 #ifdef _WITH_SERVER_
 		case VK_F5:
 		{
-			if (isReady)
+			if (isCharacterSelectDone)
 			{
 				if (hostId == m_pPlayer->GetPlayerID() && !m_Network.GetRS())
 				{
@@ -676,12 +685,13 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 #endif			
 
 #ifdef _WITH_SERVER_
-				if (isReady == false)
+				if (isCharacterSelectDone == false)
 				{
 					m_Network.SendReady(g_PlayerCharacter);
-					isReady = true;
+					isCharacterSelectDone = true;
 				}
 #else
+				//여기 부분은 서버 연동 없이 클라로만 동작시킬때
 				if (m_pLobbyScene)
 				{
 					m_pLobbyScene->SetMusicStart(false);
@@ -846,7 +856,11 @@ bool CGameFramework::BuildObjects()
 	{
 		m_pLobbyScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 		
+//#ifdef _WITH_SERVER_
+//		m_nState = LOBBY;
+//#else
 		m_nState = CHARACTER_SELECT;
+#//endif
 	}
 
 	const int nPlayerCount = 6;		//임시로 플레이어 개수 지정. 
@@ -1278,6 +1292,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pPlayer->SetIsBomb(true);
 		else if (pRS->bomberID < MAX_USER)
 		{
+
 			// 다른 클라가 술래일 경우 isBomber를 set해줘야 폭탄을 그리지 않을까?
 		}
 		clientCount = pRS->clientCount;
@@ -1395,7 +1410,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		pSTA = reinterpret_cast<SC_PACKET_STOP_RUN_ANIM*>(packet);
 		if (pSTA->id == m_pPlayer->GetPlayerID())
 		{
-			m_pPlayer->SetVelocityFromServer(0);
+			m_pPlayer->SetVelocityFromServer(0.0f);
 		}
 		else if (pSTA->id < MAX_USER)
 		{
@@ -1430,6 +1445,13 @@ void CGameFramework::ProcessPacket(char *packet)
 	case SC_COMPARE_TIME:
 	{
 		pCT = reinterpret_cast<SC_PACKET_COMPARE_TIME*>(packet);
+
+		auto iter = m_pScene->getShaderManager()->getShaderMap().find("TimerUI");
+
+		if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+		{
+			dynamic_cast<CTimerUIShader*>((*iter).second)->CompareServerTimeAndSet(pCT->serverTime);
+		}
 		//cout << "ServerTime: " << pCT->serverTime << "\n";
 		break;
 	}
@@ -1528,7 +1550,7 @@ void CGameFramework::ProcessLobby()
 			m_pLobbyScene->PlayBackgroundMusic();
 			bStart=false;
 		}
-		m_pLobbyScene->Render(m_pd3dCommandList);
+		m_pLobbyScene->Render(m_pd3dCommandList,m_nState);
 	}
 
 	::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
@@ -1574,6 +1596,7 @@ void CGameFramework::FrameAdvance()
 
 		break;
 	}
+	case LOBBY:
 	case CHARACTER_SELECT:
 	{
 		ProcessLobby();
@@ -1651,6 +1674,7 @@ void CGameFramework::Worker_Thread()
 		d3dResourceBarrier.Transition.pResource = m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex];
 		// StateBefore가 Present 상태가 되어야, DXGI가 Present를 실행한다.
 		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+
 		// StateAfter가 Render_Target 상태가 되면, Present가 끝나고 GPU가 그림을 바꿀 수 있다.
 		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
@@ -1659,6 +1683,7 @@ void CGameFramework::Worker_Thread()
 		D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 		d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
 		D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+
 		m_pLoadingCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, FALSE, &d3dDsvCPUDescriptorHandle);
 
 		m_pLoadingCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor, 0, NULL);
@@ -1668,18 +1693,22 @@ void CGameFramework::Worker_Thread()
 		m_pLoadingScene->Render(m_pLoadingCommandList);
 
 		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+
 		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 		m_pLoadingCommandList->ResourceBarrier(1, &d3dResourceBarrier);
 
 		m_pLoadingCommandList->Close();
 		ID3D12CommandList* ppd3dCommandLists[] = { m_pLoadingCommandList };
+
 		m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 		WaitForGpuComplete();
 
 		m_pdxgiSwapChain->Present(0, 0);
 
 		MoveToNextFrame();
+
 
 		double totalSize = g_TotalSize;
 		double fileSize = g_FileSize;
