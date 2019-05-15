@@ -1395,7 +1395,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		pSTA = reinterpret_cast<SC_PACKET_STOP_RUN_ANIM*>(packet);
 		if (pSTA->id == m_pPlayer->GetPlayerID())
 		{
-			m_pPlayer->SetVelocityFromServer(0);
+			m_pPlayer->SetVelocityFromServer(0.0f);
 		}
 		else if (pSTA->id < MAX_USER)
 		{
@@ -1430,6 +1430,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	case SC_COMPARE_TIME:
 	{
 		pCT = reinterpret_cast<SC_PACKET_COMPARE_TIME*>(packet);
+
 		//cout << "ServerTime: " << pCT->serverTime << "\n";
 		break;
 	}

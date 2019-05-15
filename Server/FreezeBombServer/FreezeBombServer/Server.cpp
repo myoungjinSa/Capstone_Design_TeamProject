@@ -214,6 +214,8 @@ void Server::TimerThreadFunc()
 			nowSec = (GetTickCount() - roundStartTime) / 1000;
 			//cout << nowSec << "\n";
 			// 1초가 지나면 시간비교 패킷 전송
+
+			//서버 시간 현재 
 			if (nowSec - lastSec >= 1.0f)
 			{
 				//printf("SendCompareTime() 전송\n");
