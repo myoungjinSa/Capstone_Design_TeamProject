@@ -219,6 +219,7 @@ void Server::TimerThreadFunc()
 			if (nowSec - lastSec >= 1.0f)
 			{
 				//printf("SendCompareTime() Àü¼Û\n");
+				roundCurrTime = MAX_ROUND_TIME - nowSec;
 				for (int i = 0; i < MAX_USER; ++i)
 				{
 					if (true == clients[i].in_use)
@@ -646,7 +647,7 @@ void Server::SendRoundEnd(char client)
 void Server::SendCompareTime(char client)
 {
 	SC_PACKET_COMPARE_TIME packet;
-	packet.serverTime = GetTickCount();
+	packet.serverTime = roundCurrTime;
 	packet.size = sizeof(packet);
 	packet.type = SC_COMPARE_TIME;
 
