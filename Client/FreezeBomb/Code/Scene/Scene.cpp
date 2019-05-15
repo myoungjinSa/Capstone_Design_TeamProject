@@ -39,13 +39,25 @@ CScene::~CScene()
 {
 }
 
+void CScene::BuildFog()
+{
+	m_pFog = new FOG;
+	::ZeroMemory(m_pFog, sizeof(FOG));
+
+	m_pFog->FogColor = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
+	m_pFog->FogFactor.gFogMode = 1.0f;		//1 = 선형 안개 ,2 = 비 선형 안개( 1/e^(d*density)),3 = 비선형 안개(1/e^((d*density)^2))
+	m_pFog->FogFactor.gFogStart = 30.0f;
+	m_pFog->FogFactor.gFogRange = 100.0f;
+	m_pFog->FogFactor.gFogDensity = 0.9f;
+
+}
 void CScene::BuildDefaultLightsAndMaterials()
 {
 	m_nLights = 4;
 	m_pLights = new LIGHT[m_nLights];
 	::ZeroMemory(m_pLights, sizeof(LIGHT) * m_nLights);
 
-	m_xmf4GlobalAmbient = XMFLOAT4(0.15f, 0.15f, 0.15f, 1.0f);
+	m_xmf4GlobalAmbient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	m_pLights[0].m_bEnable = false;
 	m_pLights[0].m_nType = POINT_LIGHT;
@@ -70,10 +82,10 @@ void CScene::BuildDefaultLightsAndMaterials()
 	m_pLights[1].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
 	m_pLights[2].m_bEnable = true;
 	m_pLights[2].m_nType = DIRECTIONAL_LIGHT;
-	m_pLights[2].m_xmf4Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
-	m_pLights[2].m_xmf4Diffuse = XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f);
-	m_pLights[2].m_xmf4Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 0.0f);
-	m_pLights[2].m_xmf3Direction = XMFLOAT3(1.0f, -1.0f, 0.0f);
+	m_pLights[2].m_xmf4Ambient = XMFLOAT4(1.0f, 1.0f,1.0f, 1.0f);
+	m_pLights[2].m_xmf4Diffuse = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
+	m_pLights[2].m_xmf4Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 0.0f);
+	m_pLights[2].m_xmf3Direction = XMFLOAT3(1.0f, 0.5f, 0.0f);
 	m_pLights[3].m_bEnable = false;
 	m_pLights[3].m_nType = SPOT_LIGHT;
 	m_pLights[3].m_fRange = 600.0f;
@@ -101,7 +113,10 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	// Model을 로드할 때, 셰이더 없이 로드할 경우 이것을 사용함!
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
+
 	BuildDefaultLightsAndMaterials();
+	BuildFog();
+
 
 	m_pShaderManager = new CShaderManager;
 	m_pShaderManager->Initialize(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nPlayerCount);
@@ -133,6 +148,9 @@ void CScene::ReleaseObjects()
 
 	if (m_pLights)
 		delete[] m_pLights;
+
+	if (m_pFog)
+		delete[] m_pFog;
 }
 
 
@@ -226,7 +244,8 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dDescriptorRanges[13].RegisterSpace = 0;
 	pd3dDescriptorRanges[13].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[23];
+
+	D3D12_ROOT_PARAMETER pd3dRootParameters[24];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 1;	// b1 : Camera
@@ -343,6 +362,14 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[22].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[13]);
 	pd3dRootParameters[22].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
+	
+	pd3dRootParameters[23].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	pd3dRootParameters[23].Descriptor.ShaderRegister = 8;	// b8 : Fog
+	pd3dRootParameters[23].Descriptor.RegisterSpace = 0;
+	pd3dRootParameters[23].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+
+
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
 
 	pd3dSamplerDescs[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
@@ -396,6 +423,15 @@ void CScene::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsComma
 	m_pd3dcbLights = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	m_pd3dcbLights->Map(0, NULL, (void **)&m_pcbMappedLights);
+
+
+	//안개
+	UINT ncbFogElementBytes = ((sizeof(FOG) + 255)&~255);
+
+	m_pd3dcbFog = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbFogElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
+	m_pd3dcbFog->Map(0, NULL, (void**)&m_pcbMappedFog);
+
 }
 
 void CScene::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
@@ -406,6 +442,14 @@ void CScene::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
 
 	D3D12_GPU_VIRTUAL_ADDRESS GpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(3, GpuVirtualAddress);
+
+
+	//안개
+	::memcpy(m_pcbMappedFog, m_pFog, sizeof(FOG));
+
+	D3D12_GPU_VIRTUAL_ADDRESS d3dcbFogGPUVirtualAddress = m_pd3dcbFog->GetGPUVirtualAddress();
+	pd3dCommandList->SetGraphicsRootConstantBufferView(23, d3dcbFogGPUVirtualAddress);
+
 }
 
 void CScene::ReleaseShaderVariables()
@@ -415,6 +459,13 @@ void CScene::ReleaseShaderVariables()
 		m_pd3dcbLights->Unmap(0, NULL);
 		m_pd3dcbLights->Release();
 	}
+
+	if (m_pd3dcbFog)
+	{
+		m_pd3dcbFog->Unmap(0, NULL);
+		m_pd3dcbFog->Release();
+	}
+
 }
 
 void CScene::ReleaseUploadBuffers()

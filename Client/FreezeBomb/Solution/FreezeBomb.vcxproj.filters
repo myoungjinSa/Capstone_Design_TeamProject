@@ -210,6 +210,9 @@
     <ClCompile Include="..\Code\Physics\Particle\Particle.cpp">
       <Filter>Code\Physics\Particle</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\LobbyShader\LobbyShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\LobbyShader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h">
@@ -422,6 +425,9 @@
     <ClInclude Include="..\..\..\Server\FreezeBombServer\FreezeBombServer\protocol.h">
       <Filter>Code\Network</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\LobbyShader\LobbyShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\LobbyShader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Code">
@@ -630,6 +636,9 @@
     </Filter>
     <Filter Include="Code\Physics\Particle">
       <UniqueIdentifier>{4599c934-497b-4574-8017-1fd87afd26f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\LobbyShader">
+      <UniqueIdentifier>{6dd06484-5a0a-4d05-bb04-9e096c466b8c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
