@@ -158,14 +158,40 @@ void CGameFramework::CreateSwapChain()
 	HRESULT hResult = m_pdxgiFactory->CreateSwapChain(m_pd3dCommandQueue, &dxgiSwapChainDesc, (IDXGISwapChain**)&m_pdxgiSwapChain);
 #endif	
 #ifdef FullScreenMode
+	hResult = m_pdxgiSwapChain->GetFullscreenState(false, NULL);
 	//전체 모드로 시작
 	hResult = m_pdxgiSwapChain->SetFullscreenState(true, NULL);
 	if (hResult == E_FAIL)
 		return;
+	if (hResult == DXGI_ERROR_NOT_CURRENTLY_AVAILABLE)
+	{
+		
+	}
+	if (hResult == S_OK)
+	{
+		
+		DXGI_MODE_DESC dxgiTargetParameters;
+		dxgiTargetParameters.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		dxgiTargetParameters.Width = m_nWndClientWidth;
+		dxgiTargetParameters.Height = m_nWndClientHeight;
+		dxgiTargetParameters.RefreshRate.Numerator = 60;
+		dxgiTargetParameters.RefreshRate.Denominator = 1;
+		dxgiTargetParameters.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+		dxgiTargetParameters.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+		m_pdxgiSwapChain->ResizeTarget(&dxgiTargetParameters);
+		for (int i = 0; i < m_nSwapChainBuffers; i++)
+		{
+			if (m_ppd3dSwapChainBackBuffers[i]) m_ppd3dSwapChainBackBuffers[i]->Release();
 
-	//m_pdxgiSwapChain->GetDesc(&dxgiSwapChainDesc);
-	//SetFullScreenState함수를 호출해주었기 때문에 ResizeBuffers함수를 호출해줘야함.
-	m_pdxgiSwapChain->ResizeBuffers(m_nSwapChainBuffers, m_nWndClientWidth, m_nWndClientHeight, dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
+		}
+
+		DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
+		m_pdxgiSwapChain->GetDesc(&dxgiSwapChainDesc);
+		m_pdxgiSwapChain->ResizeBuffers(m_nSwapChainBuffers, m_nWndClientWidth, m_nWndClientHeight, dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
+
+	}
+
+	
 	
 #else
 	hResult = m_pdxgiSwapChain->SetFullscreenState(false, NULL);
@@ -668,9 +694,9 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			break;
 		}
 #endif
-		//case VK_F9:
-			//ChangeSwapChainState();
-			//break;
+		/*case VK_F9:
+			ChangeSwapChainState();
+			break;*/
 #ifdef _WITH_DIRECT2D_
 		case VK_RETURN:
 		{
@@ -745,7 +771,10 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 		break;
 	}
 	case WM_SIZE:
+	{
+
 		break;
+	}
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 	case WM_LBUTTONUP:
