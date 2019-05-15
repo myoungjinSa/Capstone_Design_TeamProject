@@ -111,29 +111,6 @@ void Network::ReadPacket()
 }
 
 
-//void Network::ProcessPacket(char* packet)
-//{
-//	switch (packet[1])
-//	{
-//	case SC_ACCESS_COMPLETE:
-//		pAC = reinterpret_cast<SC_PACKET_ACCESS_COMPLETE*>(packet);
-//		myId = pAC->myId;
-//		printf("Access Complete! My ID : %d\n", pAC->myId);
-//		break;
-//	case SC_PUT_PLAYER:
-//		pPP = reinterpret_cast<SC_PACKET_PUT_PLAYER*>(packet);
-//		printf("Put Player ID: %d\tx: %d, y: %D, z: %d\n", pPP->myId ,pPP->xPos, pPP->yPos, pPP->zPos);
-//		break;
-//	case SC_MOVE_PLAYER:
-//		pMP = reinterpret_cast<SC_PACKET_MOVE_PLAYER*>(packet);
-//		printf("Move Player ID: %d\tx: %d, y: %D, z: %d\n", pMP->id, pMP->xPos, pMP->yPos, pMP->zPos);
-//		break;
-//	case SC_REMOVE_PLAYER:
-//		pRP = reinterpret_cast<SC_PACKET_REMOVE_PLAYER*>(packet);
-//		printf("Player Disconnected ID : %d\n", pRP->id);
-//		break;
-//	}
-//}
 
 void Network::SendPacket()
 {
