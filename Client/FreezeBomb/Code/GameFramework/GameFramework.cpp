@@ -15,6 +15,7 @@
 #include "../Shader/PostProcessShader/CartoonShader/SobelCartoonShader.h"
 #include "../Chatting/Chatting.h"
 #include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
+#include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
 
 // 전체모드할경우 주석풀으셈
 //#define FullScreenMode
@@ -1443,6 +1444,12 @@ void CGameFramework::ProcessPacket(char *packet)
 	{
 		pCT = reinterpret_cast<SC_PACKET_COMPARE_TIME*>(packet);
 
+		auto iter = m_pScene->getShaderManager()->getShaderMap().find("TimerUI");
+
+		if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+		{
+			dynamic_cast<CTimerUIShader*>((*iter).second)->CompareServerTimeAndSet(pCT->serverTime);
+		}
 		//cout << "ServerTime: " << pCT->serverTime << "\n";
 		break;
 	}

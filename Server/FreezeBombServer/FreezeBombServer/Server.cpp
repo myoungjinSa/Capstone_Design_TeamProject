@@ -388,6 +388,7 @@ void Server::ProcessPacket(char client, char *packet)
 	case CS_RIGHT_KEY:
 		clientsLock[client].lock();
 		SetDirection(client, packet[1]);
+		//cout << gameTimer.GetTimeElapsed()<<endl;
 		UpdateClientPos(client, gameTimer.GetTimeElapsed());
 		clientsLock[client].unlock();
 
