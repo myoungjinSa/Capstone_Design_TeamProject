@@ -773,6 +773,13 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 	case WM_SIZE:
 	{
 
+		DXGI_MODE_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+		desc.Width = 800;
+		desc.Height = 600;
+
+		
+
 		break;
 	}
 	case WM_LBUTTONDOWN:
