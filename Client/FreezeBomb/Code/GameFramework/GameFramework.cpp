@@ -567,10 +567,11 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 			m_pScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 		break;
 	}
+	case LOBBY:
 	case CHARACTER_SELECT:
 	{
 		if (m_pLobbyScene)
-			m_pLobbyScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+			m_pLobbyScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam,m_nState);
 		break;
 	}
 	default:
@@ -615,6 +616,11 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 	{
 		break;
 	}
+	case LOBBY:
+	{
+
+		break;
+	}
 	default:
 		break;
 	}
@@ -642,7 +648,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 #ifdef _WITH_SERVER_
 		case VK_F5:
 		{
-			if (isReady)
+			if (isCharacterSelectDone)
 			{
 				if (hostId == m_pPlayer->GetPlayerID() && !m_Network.GetRS())
 				{
@@ -676,12 +682,13 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 #endif			
 
 #ifdef _WITH_SERVER_
-				if (isReady == false)
+				if (isCharacterSelectDone == false)
 				{
 					m_Network.SendReady(g_PlayerCharacter);
-					isReady = true;
+					isCharacterSelectDone = true;
 				}
 #else
+				//여기 부분은 서버 연동 없이 클라로만 동작시킬때
 				if (m_pLobbyScene)
 				{
 					m_pLobbyScene->SetMusicStart(false);
@@ -846,7 +853,11 @@ bool CGameFramework::BuildObjects()
 	{
 		m_pLobbyScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 		
+//#ifdef _WITH_SERVER_
+//		m_nState = LOBBY;
+//#else
 		m_nState = CHARACTER_SELECT;
+#//endif
 	}
 
 	const int nPlayerCount = 6;		//임시로 플레이어 개수 지정. 
@@ -1278,6 +1289,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pPlayer->SetIsBomb(true);
 		else if (pRS->bomberID < MAX_USER)
 		{
+
 			// 다른 클라가 술래일 경우 isBomber를 set해줘야 폭탄을 그리지 않을까?
 		}
 		clientCount = pRS->clientCount;
@@ -1529,7 +1541,7 @@ void CGameFramework::ProcessLobby()
 			m_pLobbyScene->PlayBackgroundMusic();
 			bStart=false;
 		}
-		m_pLobbyScene->Render(m_pd3dCommandList);
+		m_pLobbyScene->Render(m_pd3dCommandList,m_nState);
 	}
 
 	::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
@@ -1575,6 +1587,7 @@ void CGameFramework::FrameAdvance()
 
 		break;
 	}
+	case LOBBY:
 	case CHARACTER_SELECT:
 	{
 		ProcessLobby();

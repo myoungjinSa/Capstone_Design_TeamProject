@@ -28,7 +28,7 @@ void CResourceManager::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 
 void CResourceManager::PrepareLoad()
 {
-	m_TextureInfoMap.emplace("SkyBox", TextureInfo(RESOURCE_TEXTURE_CUBE, L"../Resource/Textures/SkyBox/SkyBox_0.dds", 9));
+	m_TextureInfoMap.emplace("SkyBox", TextureInfo(RESOURCE_TEXTURE_CUBE, L"../Resource/Textures/SkyBox/SkyBox_1.dds", 9));
 
 	m_TextureInfoMap.emplace("BaseTerrain", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Terrain/BaseTerrain.dds", 10));
 	m_TextureInfoMap.emplace("SpecularTerrain", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Terrain/SpecularTerrain.dds", 11));

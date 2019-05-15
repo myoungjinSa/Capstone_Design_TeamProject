@@ -455,6 +455,51 @@ float4 PSCharacterSelect(VS_UI_OUTPUT input) : SV_TARGET
 	return(cColor);
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Lobby
+VS_UI_OUTPUT VSLobby(uint nVertexID : SV_VertexID)
+{
+	VS_UI_OUTPUT output;
+
+	if (nVertexID == 0)
+	{
+		output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f);
+		output.uv = float2(0.0f, 0.0f);
+	}
+	if (nVertexID == 1)
+	{
+		output.position = float4(+1.0f, +1.0f, 0.0f, 1.0f);
+		output.uv = float2(1.0f, 0.0f);
+	}
+	if (nVertexID == 2)
+	{
+		output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f);
+		output.uv = float2(1.0f, 1.0f);	
+	}
+	if (nVertexID == 3)
+	{
+		output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f);
+		output.uv = float2(0.0f, 0.0f);
+	}
+	if (nVertexID == 4)
+	{
+		output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f);
+		output.uv = float2(1.0f, 1.0f);
+	}
+	if (nVertexID == 5)
+	{
+		output.position = float4(-1.0f, -1.0f, 0.0f, 1.0f);
+		output.uv = float2(0.0f, 1.0f);
+	}
+	return (output);
+}
+
+
+float4 PSLobby(VS_UI_OUTPUT input) : SV_TARGET
+{
+	float4 cColor = gtxtSelectTexture.Sample(gssLoading, input.uv);
+	return(cColor);
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 cbuffer cbProgressBar	: register(b8)
