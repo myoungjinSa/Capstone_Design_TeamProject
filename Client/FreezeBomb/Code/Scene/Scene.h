@@ -7,6 +7,21 @@
 #define SPOT_LIGHT						2
 #define DIRECTIONAL_LIGHT			3
 
+
+struct FOGFACTORS
+{
+	float gFogMode;
+	float gFogStart;;
+	float gFogRange;
+	float gFogDensity;
+};
+
+struct FOG
+{
+	XMFLOAT4 FogColor;
+	FOGFACTORS FogFactor;
+};
+
 struct LIGHT
 {
 	XMFLOAT4	m_xmf4Ambient;
@@ -27,7 +42,7 @@ struct LIGHT
 struct LIGHTS							
 {										
 	LIGHT				m_pLights[MAX_LIGHTS];
-	XMFLOAT4		m_xmf4GlobalAmbient;
+	XMFLOAT4			m_xmf4GlobalAmbient;
 	int						m_nLights;
 };
 
@@ -55,6 +70,7 @@ public:
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void ReleaseShaderVariables();
 
+	void BuildFog();
 	void BuildDefaultLightsAndMaterials();
 	void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,const int& playerCount);
 	void ReleaseObjects();
@@ -128,6 +144,11 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvDescriptorNextHandle() { return(m_d3dSrvCPUDescriptorNextHandle); }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorNextHandle() { return(m_d3dSrvGPUDescriptorNextHandle); }
 
+	FOG*						m_pFog = NULL;
+
+	ID3D12Resource				*m_pd3dcbFog = NULL;
+	FOG							*m_pcbMappedFog = NULL;
+
 	LIGHT*						m_pLights = NULL;
 	int								m_nLights = 0;
 
@@ -161,7 +182,7 @@ private:
 
 	// [ ShaderResourceView ÃÑ °³¼ö ]
 	// SkyBox : 1
-	// Terrain : 2, 
+	// Terrain : 3, 
 	// DeadTrees : 15, PineTrees : 34, Rocks : 14, Deer : 2, Pond : 2, FirePit : 3 => MapObjects : 70
 	// Hammer : 3, Pocket_Watch : 5 => Item = 8
 	// EvilBear : 18, LampParticle : 1 => 19

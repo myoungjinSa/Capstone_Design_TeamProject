@@ -11,8 +11,6 @@ constexpr int MAX_BUFFER = 1024;
 
 constexpr int SERVER_PORT = 9000;
 
-constexpr float MAX_ROUND_TIME = 50;
-
 constexpr float PLAYER_INIT_X_POS = 40;
 constexpr float PLAYER_INIT_Y_POS = 0;
 constexpr float PLAYER_INIT_Z_POS = 40;
@@ -110,6 +108,7 @@ private:
 	CHeightMapImage* heightMap;
 	XMFLOAT3 gravity;
 	float roundStartTime;
+	float roundCurrTime;
 	int clientCount;
 	int readyCount;
 	int hostId;

@@ -15,9 +15,10 @@
 #include "../Shader/PostProcessShader/CartoonShader/SobelCartoonShader.h"
 #include "../Chatting/Chatting.h"
 #include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
+#include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
 
 // 전체모드할경우 주석풀으셈
-//#define FullScreenMode
+#define FullScreenMode
 
 static bool OnCartoonShading = false;
 
@@ -82,11 +83,12 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 #ifdef _WITH_DIRECT2D_
 	CreateDirect2DDevice();
 #endif
-
 	CreateRtvAndDsvDescriptorHeaps();
 	CreateSwapChain();
 	CreateDepthStencilView();
+	
 
+	
 	//CoInitialize(NULL);
 
 	if (BuildObjects() == false)
@@ -156,13 +158,40 @@ void CGameFramework::CreateSwapChain()
 	HRESULT hResult = m_pdxgiFactory->CreateSwapChain(m_pd3dCommandQueue, &dxgiSwapChainDesc, (IDXGISwapChain**)&m_pdxgiSwapChain);
 #endif	
 #ifdef FullScreenMode
+	hResult = m_pdxgiSwapChain->GetFullscreenState(false, NULL);
 	//전체 모드로 시작
 	hResult = m_pdxgiSwapChain->SetFullscreenState(true, NULL);
 	if (hResult == E_FAIL)
 		return;
-	//m_pdxgiSwapChain->GetDesc(&dxgiSwapChainDesc);
-	//SetFullScreenState함수를 호출해주었기 때문에 ResizeBuffers함수를 호출해줘야함.
-	m_pdxgiSwapChain->ResizeBuffers(m_nSwapChainBuffers, m_nWndClientWidth, m_nWndClientHeight, dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
+	if (hResult == DXGI_ERROR_NOT_CURRENTLY_AVAILABLE)
+	{
+		
+	}
+	if (hResult == S_OK)
+	{
+		
+		DXGI_MODE_DESC dxgiTargetParameters;
+		dxgiTargetParameters.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		dxgiTargetParameters.Width = m_nWndClientWidth;
+		dxgiTargetParameters.Height = m_nWndClientHeight;
+		dxgiTargetParameters.RefreshRate.Numerator = 60;
+		dxgiTargetParameters.RefreshRate.Denominator = 1;
+		dxgiTargetParameters.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+		dxgiTargetParameters.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+		m_pdxgiSwapChain->ResizeTarget(&dxgiTargetParameters);
+		for (int i = 0; i < m_nSwapChainBuffers; i++)
+		{
+			if (m_ppd3dSwapChainBackBuffers[i]) m_ppd3dSwapChainBackBuffers[i]->Release();
+
+		}
+
+		DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
+		m_pdxgiSwapChain->GetDesc(&dxgiSwapChainDesc);
+		m_pdxgiSwapChain->ResizeBuffers(m_nSwapChainBuffers, m_nWndClientWidth, m_nWndClientHeight, dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
+
+	}
+
+	
 	
 #else
 	hResult = m_pdxgiSwapChain->SetFullscreenState(false, NULL);
@@ -567,10 +596,11 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 			m_pScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 		break;
 	}
+	case LOBBY:
 	case CHARACTER_SELECT:
 	{
 		if (m_pLobbyScene)
-			m_pLobbyScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+			m_pLobbyScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam,m_nState);
 		break;
 	}
 	default:
@@ -615,6 +645,11 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 	{
 		break;
 	}
+	case LOBBY:
+	{
+
+		break;
+	}
 	default:
 		break;
 	}
@@ -642,7 +677,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 #ifdef _WITH_SERVER_
 		case VK_F5:
 		{
-			if (isReady)
+			if (isCharacterSelectDone)
 			{
 				if (hostId == m_pPlayer->GetPlayerID() && !m_Network.GetRS())
 				{
@@ -659,9 +694,9 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			break;
 		}
 #endif
-		//case VK_F9:
-			//ChangeSwapChainState();
-			//break;
+		/*case VK_F9:
+			ChangeSwapChainState();
+			break;*/
 #ifdef _WITH_DIRECT2D_
 		case VK_RETURN:
 		{
@@ -676,12 +711,13 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 #endif			
 
 #ifdef _WITH_SERVER_
-				if (isReady == false)
+				if (isCharacterSelectDone == false)
 				{
 					m_Network.SendReady(g_PlayerCharacter);
-					isReady = true;
+					isCharacterSelectDone = true;
 				}
 #else
+				//여기 부분은 서버 연동 없이 클라로만 동작시킬때
 				if (m_pLobbyScene)
 				{
 					m_pLobbyScene->SetMusicStart(false);
@@ -735,7 +771,17 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 		break;
 	}
 	case WM_SIZE:
+	{
+
+		DXGI_MODE_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+		desc.Width = 800;
+		desc.Height = 600;
+
+		
+
 		break;
+	}
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 	case WM_LBUTTONUP:
@@ -846,7 +892,11 @@ bool CGameFramework::BuildObjects()
 	{
 		m_pLobbyScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 		
+//#ifdef _WITH_SERVER_
+//		m_nState = LOBBY;
+//#else
 		m_nState = CHARACTER_SELECT;
+#//endif
 	}
 
 	const int nPlayerCount = 6;		//임시로 플레이어 개수 지정. 
@@ -1278,6 +1328,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pPlayer->SetIsBomb(true);
 		else if (pRS->bomberID < MAX_USER)
 		{
+
 			// 다른 클라가 술래일 경우 isBomber를 set해줘야 폭탄을 그리지 않을까?
 		}
 		clientCount = pRS->clientCount;
@@ -1395,7 +1446,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		pSTA = reinterpret_cast<SC_PACKET_STOP_RUN_ANIM*>(packet);
 		if (pSTA->id == m_pPlayer->GetPlayerID())
 		{
-			m_pPlayer->SetVelocityFromServer(0);
+			m_pPlayer->SetVelocityFromServer(0.0f);
 		}
 		else if (pSTA->id < MAX_USER)
 		{
@@ -1430,6 +1481,13 @@ void CGameFramework::ProcessPacket(char *packet)
 	case SC_COMPARE_TIME:
 	{
 		pCT = reinterpret_cast<SC_PACKET_COMPARE_TIME*>(packet);
+
+		auto iter = m_pScene->getShaderManager()->getShaderMap().find("TimerUI");
+
+		if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+		{
+			dynamic_cast<CTimerUIShader*>((*iter).second)->CompareServerTimeAndSet(pCT->serverTime);
+		}
 		//cout << "ServerTime: " << pCT->serverTime << "\n";
 		break;
 	}
@@ -1528,7 +1586,7 @@ void CGameFramework::ProcessLobby()
 			m_pLobbyScene->PlayBackgroundMusic();
 			bStart=false;
 		}
-		m_pLobbyScene->Render(m_pd3dCommandList);
+		m_pLobbyScene->Render(m_pd3dCommandList,m_nState);
 	}
 
 	::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
@@ -1574,6 +1632,7 @@ void CGameFramework::FrameAdvance()
 
 		break;
 	}
+	case LOBBY:
 	case CHARACTER_SELECT:
 	{
 		ProcessLobby();

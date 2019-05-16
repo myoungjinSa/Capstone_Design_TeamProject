@@ -194,7 +194,7 @@ private:
 	SC_PACKET_COMPARE_TIME *pCT = NULL;
 	SC_PACKET_ROUND_START *pRS = NULL;
 	SC_PACKET_STOP_RUN_ANIM *pSTA = NULL;
-	bool isReady = false;
+	bool isCharacterSelectDone = false;
 #endif
 	//사운드 쓰레드 풀
 	vector<thread> soundThreads;
