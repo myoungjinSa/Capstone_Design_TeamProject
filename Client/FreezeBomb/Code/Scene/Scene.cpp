@@ -44,11 +44,11 @@ void CScene::BuildFog()
 	m_pFog = new FOG;
 	::ZeroMemory(m_pFog, sizeof(FOG));
 
-	m_pFog->FogColor = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
+	m_pFog->FogColor = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
 	m_pFog->FogFactor.gFogMode = 1.0f;		//1 = 선형 안개 ,2 = 비 선형 안개( 1/e^(d*density)),3 = 비선형 안개(1/e^((d*density)^2))
 	m_pFog->FogFactor.gFogStart = 30.0f;
 	m_pFog->FogFactor.gFogRange = 100.0f;
-	m_pFog->FogFactor.gFogDensity = 0.9f;
+	m_pFog->FogFactor.gFogDensity = 0.5f;
 
 }
 void CScene::BuildDefaultLightsAndMaterials()
