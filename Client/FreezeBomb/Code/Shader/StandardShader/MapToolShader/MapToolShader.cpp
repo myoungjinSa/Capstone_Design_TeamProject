@@ -54,6 +54,10 @@ void CMapToolShader::InstallMapObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 		BuildWall(pd3dDevice, pd3dCommandList);
 		//InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "FrozenRoad");
 		break;
+	case FirePit:
+		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "SM_FirePit");
+		break;
+
 		// H
 	case Hammer:
 		InsertItem(pd3dDevice, pd3dCommandList, pPlayer, "Hammer");

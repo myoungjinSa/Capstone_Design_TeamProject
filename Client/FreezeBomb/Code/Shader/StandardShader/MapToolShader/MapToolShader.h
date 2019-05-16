@@ -44,7 +44,7 @@ public:
 	void SetCurrBigRockIndex(int index) { m_nCurrBigRockModelIndex = index; }
 	void SetCurrFenceIndex(int index) { m_nCurrFenceModelIndex = index; }
 
-	enum MapObjectType { DeadTree = 0x31, PineTree = 0x32, BigRock = 0x33, Deer = 0x34, Fence = 0x35, Frozen_Road = 0x36,
+	enum MapObjectType { DeadTree = 0x31, PineTree = 0x32, BigRock = 0x33, Deer = 0x34, Fence = 0x35, Frozen_Road = 0x36, FirePit = 0x37,
 		Hammer = 0x48, GoldTimer = 0x54,
 		DeleteAllObject = 0x44, DeleteObject = 0x52, OutputFile = 0x4F };
 

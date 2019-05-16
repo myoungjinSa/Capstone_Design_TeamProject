@@ -4,7 +4,7 @@
 #include "../Scene/Scene.h"
 #include "../GameObject/Foliage/Foliage.h"
 
-volatile size_t g_TotalSize = 30062795 + 88336;
+volatile size_t g_TotalSize = 30062795 + 88336 + 74552;
 volatile size_t g_FileSize = 0;
 CResourceManager::CResourceManager()
 {
@@ -56,7 +56,7 @@ void CResourceManager::PrepareLoad()
 	m_TextureInfoMap.emplace("GoldHammer", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Item/GoldHammer_Item.dds", 22));
 	m_TextureInfoMap.emplace("GoldTimer", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Item/GoldTimer_Item.dds", 22));
 
-	m_TextureInfoMap.emplace("Menu", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Menu/Menu.dds", 22));
+	m_TextureInfoMap.emplace("Menu", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Menu/Menu_Base.dds", 22));
 
 	m_TextureInfoMap.emplace("Win", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Text/Win.dds", 22));
 	m_TextureInfoMap.emplace("Lose", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Text/Lose.dds", 22));
@@ -114,6 +114,9 @@ void CResourceManager::PrepareLoad()
 	m_ModelInfoMap.emplace("GoldTimer", ModelInfo("../Resource/Models/Pocket_Watch.bin", false));
 
 	m_ModelInfoMap.emplace("EvilBear", ModelInfo("../Resource/Models/EvilBear.bin", true));
+
+	// 3
+	m_ModelInfoMap.emplace("SM_FirePit", ModelInfo("../Resource/Models/FirePit.bin", false));
 }
 
 //void CResourceManager::CreateOffScreenRenderTargeViews(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList,int clientWidth,int clientHeight)
@@ -161,7 +164,6 @@ void CResourceManager::LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 
 void CResourceManager::LoadMapObjectInfo(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-
 	string filename;
 	filename = "../Resource/Position/Surrounding/MapVer0.bin";
 
