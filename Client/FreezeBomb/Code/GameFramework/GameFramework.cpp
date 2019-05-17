@@ -16,9 +16,8 @@
 #include "../Chatting/Chatting.h"
 #include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
 #include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
+#include "../Shader/BillboardShader/UIShader/CharacterSelectUIShader/CharacterSelectUIShader.h"
 
-// 전체모드할경우 주석풀으셈
-#define FullScreenMode
 
 static bool OnCartoonShading = false;
 
@@ -69,7 +68,7 @@ CGameFramework::~CGameFramework()
 bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 {
 #ifdef _WITH_SERVER_
-	if (m_Network.connectToServer(hMainWnd) == false)
+	if (Network::GetInstance()->connectToServer(hMainWnd) == false)
 		return false;
 #endif 
 
@@ -96,7 +95,7 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 
 	CreateOffScreenRenderTargetViews();
 #ifdef _WITH_SERVER_
-	m_Network.SetGameFrameworkPtr(hMainWnd,this);
+	Network::GetInstance()->SetGameFrameworkPtr(hMainWnd,this);
 #endif 
 
 	return true;
@@ -596,7 +595,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 			m_pScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 		break;
 	}
-	case LOBBY:
+
 	case CHARACTER_SELECT:
 	{
 		if (m_pLobbyScene)
@@ -645,11 +644,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 	{
 		break;
 	}
-	case LOBBY:
-	{
 
-		break;
-	}
 	default:
 		break;
 	}
@@ -674,26 +669,48 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			else
 				OnCartoonShading = false;
 			break;
-#ifdef _WITH_SERVER_
+
 		case VK_F5:
-		{
-			if (isCharacterSelectDone)
+		{			
+			if (m_nState == CHARACTER_SELECT)
 			{
-				if (hostId == m_pPlayer->GetPlayerID() && !m_Network.GetRS())
+#ifdef _WITH_SERVER_
+
+				CShader* sel = m_pLobbyScene->m_ppShaders[CLobbyScene::gamestate::CHARACTER_SELECT];
+
+				bool isSelectDone = dynamic_cast<CCharacterSelectUIShader*>(sel)->isCharacterSelectDone;
+
+				//auto iter = 
+
+				if (isSelectDone)
 				{
-					m_Network.SendReqStart();
-					printf("Request Start 패킷 보냄\n");
+					if (hostId == m_pPlayer->GetPlayerID() && !Network::GetInstance()->GetRS())
+					{
+						Network::GetInstance()->SendReqStart();
+						printf("Request Start 패킷 보냄\n");
+					}
 				}
+#else
+								//여기 부분은 서버 연동 없이 클라로만 동작시킬때
+				if (m_pLobbyScene)
+				{
+					m_pLobbyScene->SetMusicStart(false);
+					m_pLobbyScene->StopBackgroundMusic();
+				}
+				m_nState = INGAME;
+#endif
 			}
 			break;
 		}
+#ifdef _WITH_SERVER_
 		case VK_UP:
 		case VK_DOWN:
 		{
-			m_Network.SendReleaseKey();
+			Network::GetInstance()->SendReleaseKey();
 			break;
 		}
 #endif
+
 		/*case VK_F9:
 			ChangeSwapChainState();
 			break;*/
@@ -705,37 +722,19 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				(ChattingSystem::GetInstance()->IsChattingActive()) ? ChattingSystem::GetInstance()->SetActive(false)
 					: ChattingSystem::GetInstance()->SetActive(true);
 			}
-
-			else if (m_nState == CHARACTER_SELECT)
+			if (m_nState == CHARACTER_SELECT)
 			{
-#endif			
-
-#ifdef _WITH_SERVER_
-				if (isCharacterSelectDone == false)
-				{
-					m_Network.SendReady(g_PlayerCharacter);
-					isCharacterSelectDone = true;
-				}
-#else
-				//여기 부분은 서버 연동 없이 클라로만 동작시킬때
-				if (m_pLobbyScene)
-				{
-					m_pLobbyScene->SetMusicStart(false);
-					m_pLobbyScene->StopBackgroundMusic();
-				}
-				m_nState = INGAME;
-#endif
+				(ChattingSystem::GetInstance()->IsChattingActive()) ? ChattingSystem::GetInstance()->SetActive(false)
+					: ChattingSystem::GetInstance()->SetActive(true);
 			}
-
 			break;
 		}
-
-#ifdef _WITH_DIRECT2D_
 		case VK_HANGEUL:
 			(m_bHangeul) ? m_bHangeul = false : m_bHangeul = true;
 			ChattingSystem::GetInstance()->SetIMEMode(hWnd, m_bHangeul);
 			break;
 #endif
+
 		default:
 			break;
 		}
@@ -892,11 +891,8 @@ bool CGameFramework::BuildObjects()
 	{
 		m_pLobbyScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 		
-//#ifdef _WITH_SERVER_
-//		m_nState = LOBBY;
-//#else
 		m_nState = CHARACTER_SELECT;
-#//endif
+
 	}
 
 	const int nPlayerCount = 6;		//임시로 플레이어 개수 지정. 
@@ -1036,7 +1032,15 @@ void CGameFramework::ProcessInput()
 				{
 					//#ifdef 을 선언하지 않으면 무조건 서버가 켜있지 않을경우 무한 대기에 빠짐
 #ifdef _WITH_SERVER_
-					m_Network.SendUpKey();
+					Network::GetInstance()->SendUpKey();
+					if(GetAsyncKeyState(VK_RIGHT) & 0x8000)
+					{
+						Network::GetInstance()->SendUpRightKey();
+					}
+					if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+					{
+						Network::GetInstance()->SendUpLeftKey();
+					}
 #endif
 					dwDirection |= DIR_FORWARD;
 					m_pPlayer->SetDirection(dwDirection);
@@ -1048,7 +1052,15 @@ void CGameFramework::ProcessInput()
 				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
 				{
 #ifdef _WITH_SERVER_
-					m_Network.SendDownKey();
+					Network::GetInstance()->SendDownKey();
+					if(GetAsyncKeyState(VK_RIGHT) & 0x8000)
+					{
+						Network::GetInstance()->SendDownRightKey();
+					}
+					if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+					{
+						Network::GetInstance()->SendDownLeftKey();
+					}
 #endif
 					dwDirection |= DIR_BACKWARD;
 					m_pPlayer->SetDirection(dwDirection);
@@ -1057,7 +1069,8 @@ void CGameFramework::ProcessInput()
 			if (pKeysBuffer[VK_LEFT] & 0xF0)
 			{
 #ifdef _WITH_SERVER_
-				m_Network.SendLeftKey();
+				
+				Network::GetInstance()->SendLeftKey();
 #endif
 				dwDirection |= DIR_LEFT;
 				m_pPlayer->SetDirection(dwDirection);
@@ -1065,7 +1078,9 @@ void CGameFramework::ProcessInput()
 			if (pKeysBuffer[VK_RIGHT] & 0xF0)
 			{
 #ifdef _WITH_SERVER_
-				m_Network.SendRightKey();
+				
+				Network::GetInstance()->SendRightKey();
+				
 #endif
 				dwDirection |= DIR_RIGHT;
 				m_pPlayer->SetDirection(dwDirection);
@@ -1222,6 +1237,11 @@ void CGameFramework::ShowScoreboard()
 
 }
 
+
+void CGameFramework::ShowPlayers()
+{
+
+}
 void CGameFramework::ProcessDirect2D()
 {
 	//AcquireWrappedResources() D3D11On12 디바이스에서 사용될 수 있는 D3D11 리소스들을 얻게해준다.
@@ -1239,14 +1259,22 @@ void CGameFramework::ProcessDirect2D()
 	//D2D1_SIZE_F : float형태의 가로 세로 쌍을 저장한 구조체
 	D2D1_SIZE_F szRenderTarget = m_ppd2dRenderTargets[m_nSwapChainBufferIndex]->GetSize();
 
-	//이름 
-	SetNamecard();
+	if (m_nState == INGAME) {
+		//이름 
+		SetNamecard();
 
-	//채팅
-	ChattingSystem::GetInstance()->ShowChatting(m_pd2dDeviceContext);
 
-	//스코어 보드
-	ShowScoreboard();
+		//채팅
+		ChattingSystem::GetInstance()->ShowIngameChatting(m_pd2dDeviceContext);
+
+		//스코어 보드
+		ShowScoreboard();
+	}
+	else if (m_nState == CHARACTER_SELECT)
+	{
+
+		ChattingSystem::GetInstance()->ShowLobbyChatting(m_pd2dDeviceContext);
+	}
 	////////////////////////////////////////////////////////////////////////
 	//WITH_DIRECT2D_IMAGE_EFFECT
 
@@ -1292,6 +1320,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		pAP = reinterpret_cast<SC_PACKET_ACCESS_PLAYER*>(packet);
 
 
+
 		// 여기서 접속한 플레이어들의 초기 정보를 받아 저장해놓고
 		// Ingame 시작할 때, clientCount 기반해서 실제 객체 만들어주면 좋을 듯. 상의필요.
 
@@ -1318,7 +1347,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		break;
 	}
 	case SC_PLEASE_READY:
-		m_Network.SetNullRS();
+		Network::GetInstance()->SetNullRS();
 		printf("모든 플레이어가 Ready하지 않았습니다.\n");
 		break;
 	case SC_ROUND_START:
@@ -1328,7 +1357,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pPlayer->SetIsBomb(true);
 		else if (pRS->bomberID < MAX_USER)
 		{
-
+			
 			// 다른 클라가 술래일 경우 isBomber를 set해줘야 폭탄을 그리지 않을까?
 		}
 		clientCount = pRS->clientCount;
@@ -1586,7 +1615,8 @@ void CGameFramework::ProcessLobby()
 			m_pLobbyScene->PlayBackgroundMusic();
 			bStart=false;
 		}
-		m_pLobbyScene->Render(m_pd3dCommandList,m_nState);
+		m_pLobbyScene->Render(m_pd3dCommandList);
+
 	}
 
 	::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
@@ -1597,6 +1627,12 @@ void CGameFramework::ProcessLobby()
 	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 
 	WaitForGpuComplete();
+
+#ifdef _WITH_DIRECT2D_
+
+	ProcessDirect2D();
+
+#endif
 }
 void CGameFramework::FrameAdvance()
 {
@@ -1632,7 +1668,6 @@ void CGameFramework::FrameAdvance()
 
 		break;
 	}
-	case LOBBY:
 	case CHARACTER_SELECT:
 	{
 		ProcessLobby();
@@ -1752,3 +1787,12 @@ void CGameFramework::Worker_Thread()
 			break;
 	}
 };
+
+bool CGameFramework::IsInGame()
+{ 
+	bool ret;
+	
+	(m_nState == INGAME) ? ret = true : ret = false;
+				
+	return ret;
+}

@@ -2,6 +2,7 @@
 
 #include "../UIShader.h"
 
+//lobby
 class CTexture;
 class CMaterial;
 class CUI;
@@ -25,9 +26,9 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipelineStates);
 	virtual void ReleaseObjects();
 
-	void DecideTextureByCursorPosition(CSoundSystem* sound,float mouseX, float mouseY);
+	void DecideTextureByCursorPosition(CSoundSystem* sound,UINT nMessageID,float mouseX, float mouseY);
 	
-	byte SelectedCharacter() const { return (byte)m_currentTexture; };
+	byte SelectedCharacter() const { return m_characterSelect; };
 
 		//cpu,gpu 디스크립터 핸들을 반환해주는 함수가 각각 필요 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandleForHeapStart() { return(m_pd3dCbvSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart()); }
@@ -39,8 +40,14 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvDescriptorStartHandle() { return(m_d3dSrvCPUDescriptorStartHandle); }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorStartHandle() { return(m_d3dSrvGPUDescriptorStartHandle); }
 
-	enum CHARACTER { PINK, BROWN, WHITE, BLACK, BLUE, PANDA, NONE };
+	enum LOBBY_CHARACTERSEL { PINK, BROWN, WHITE, BLACK, BLUE, PANDA,NOTREADY,READY};
+	
+	
 
+#ifdef _WITH_SERVER_
+	bool isSelectDone() { return isCharacterSelectDone; }
+	bool  isCharacterSelectDone{ false };
+#endif
 private:
 	CTexture** pSelectTextures;
 
@@ -53,5 +60,9 @@ private:
 	
 	vector<CTexture*> vTexture;
 
+	bool							isReady{ false };
 	int								m_currentTexture;
+	byte							m_characterSelect;
+
+
 };

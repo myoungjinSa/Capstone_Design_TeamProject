@@ -37,9 +37,15 @@ constexpr int CS_UP_KEY = 0;
 constexpr int CS_DOWN_KEY = 1;
 constexpr int CS_RIGHT_KEY = 2;
 constexpr int CS_LEFT_KEY = 3;
-constexpr int CS_READY = 4;
-constexpr int CS_REQUEST_START = 5;
-constexpr int CS_RELEASE_KEY = 6;
+constexpr int CS_UPLEFT_KEY = 4;
+constexpr int CS_UPRIGHT_KEY = 5;
+constexpr int CS_DOWNLEFT_KEY = 6;
+constexpr int CS_DOWNRIGHT_KEY = 7;
+constexpr int CS_READY = 8;
+constexpr int CS_REQUEST_START = 9;
+constexpr int CS_RELEASE_KEY = 10;
+
+
 
 constexpr int MAX_ROUND_TIME = 50;
 

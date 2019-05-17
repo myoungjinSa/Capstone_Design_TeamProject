@@ -134,6 +134,27 @@ void Network::SendUpKey()
 
 	SendPacket();
 }
+
+void Network::SendUpRightKey()
+{
+	pUp = reinterpret_cast<CS_PACKET_UP_KEY *>(send_buffer);
+	pUp->size = sizeof(pUp);
+	send_wsabuf.len = sizeof(pUp);
+	pUp->type = CS_UPRIGHT_KEY;
+
+	SendPacket();
+}
+void Network::SendUpLeftKey()
+{
+	pUp = reinterpret_cast<CS_PACKET_UP_KEY *>(send_buffer);
+	pUp->size = sizeof(pUp);
+	send_wsabuf.len = sizeof(pUp);
+	pUp->type = CS_UPLEFT_KEY;
+
+	SendPacket();
+}
+
+
 void Network::SendDownKey()
 {
 	pDown = reinterpret_cast<CS_PACKET_DOWN_KEY *>(send_buffer);
@@ -143,6 +164,25 @@ void Network::SendDownKey()
 
 	SendPacket();
 }
+void Network::SendDownRightKey()
+{
+	pDown = reinterpret_cast<CS_PACKET_DOWN_KEY *>(send_buffer);
+	pDown->size = sizeof(pDown);
+	send_wsabuf.len = sizeof(pDown);
+	pDown->type = CS_DOWNRIGHT_KEY;
+
+	SendPacket();
+}
+void Network::SendDownLeftKey()
+{
+	pDown = reinterpret_cast<CS_PACKET_DOWN_KEY *>(send_buffer);
+	pDown->size = sizeof(pDown);
+	send_wsabuf.len = sizeof(pDown);
+	pDown->type = CS_DOWNLEFT_KEY;
+
+	SendPacket();
+}
+
 void Network::SendRightKey()
 {
 	pRight = reinterpret_cast<CS_PACKET_RIGHT_KEY *>(send_buffer);

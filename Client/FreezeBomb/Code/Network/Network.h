@@ -6,16 +6,19 @@
 #include "..\Stdafx\Stdafx.h"
 //#include "protocol.h"
 #include "../../../../Server/FreezeBombServer/FreezeBombServer/protocol.h"
+#include "../Singleton/Singleton.h"
 #include <string>
+
 
 constexpr int SERVER_PORT = 9000;
 constexpr int BUF_SIZE = 1024;
 
 class CGameFramework;
 
-#ifdef _WITH_SERVER_
 
-class Network
+#ifdef _WITH_SERVER_
+//ΩÃ±€≈Ê 
+class Network : public Singleton<Network>
 {
 private:
 	SOCKET	sock;
@@ -70,7 +73,11 @@ public:
 	void SendPacket();
 public:
 	void SendUpKey();
+	void SendUpRightKey();
+	void SendUpLeftKey();
 	void SendDownKey();
+	void SendDownRightKey();
+	void SendDownLeftKey();
 	void SendRightKey();
 	void SendLeftKey();
 	void SendReady(int matID);

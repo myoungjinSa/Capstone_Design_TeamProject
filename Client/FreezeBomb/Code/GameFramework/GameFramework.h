@@ -3,7 +3,9 @@
 #include "../GameTimer/GameTimer.h"
 #include "../Network/Network.h"
 
-
+// 전체모드할경우 CharacterSelectUIShader에서도 
+// FULLSCREENMODE 여부를 확인해야해서 CPP말고 헤더로 옮김 - 명진
+//#define FullScreenMode
 class CScene;
 class CPlayer;
 class CCamera;
@@ -12,6 +14,14 @@ class CSobelCartoonShader;
 class CLoadingScene;
 class CLobbyScene;
 class ChattingSystem;
+
+
+struct clientsInfo
+{
+	int		id;
+	bool	isReady;
+	_TCHAR	name[256];
+};
 
 class CGameFramework
 {
@@ -45,7 +55,7 @@ public:
 	void CreateDepthStencilView();
 	
 #ifdef _WITH_SERVER_
-	Network*getNetwork() { return &m_Network; }
+	//Network*getNetwork() { return &m_Network; }
 	void ProcessPacket(char *ptr);
 #endif
 	void ChangeSwapChainState();
@@ -58,14 +68,11 @@ public:
 	void FrameAdvance();
 	void ProcessInGame(D3D12_CPU_DESCRIPTOR_HANDLE&);
 	void ProcessLobby();
-
+	void ShowPlayers();
 	void WaitForGpuComplete();
 	void MoveToNextFrame();
 
 	void CreateOffScreenRenderTargetViews();
-
-
-	void MappingUserToEvilbear(char id,int playerCount);
 
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
@@ -78,7 +85,8 @@ public:
 #endif	
 
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
-
+	bool IsInGame(); 
+	enum GAMESTATE {CHARACTER_SELECT=0, INGAME,PAUSE,OPTION};
 private:
 	HINSTANCE					m_hInstance;
 	HWND							m_hWnd;
@@ -86,8 +94,9 @@ private:
 
 	int 						m_nState{ GAMESTATE::INGAME };
 	//게임 상태 
-	enum GAMESTATE {LOBBY=0,CHARACTER_SELECT, INGAME,PAUSE,OPTION};
-
+	
+	//클라이언트 정보
+	clientsInfo						m_PlayerInfo[MAX_USER];
 	int								m_nWndClientWidth;
 	int								m_nWndClientHeight;
 
@@ -180,7 +189,7 @@ private:
 #endif
 
 #ifdef _WITH_SERVER_
-	Network m_Network;
+	//Network m_Network;
 	int hostId;
 	int clientCount = 0;
 	SC_PACKET_ACCESS_COMPLETE *pAC = NULL;

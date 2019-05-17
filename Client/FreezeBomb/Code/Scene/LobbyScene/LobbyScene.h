@@ -15,7 +15,7 @@ public:
 	
 	void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	void AnimateObjects(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed);
-	void Render(ID3D12GraphicsCommandList *pd3dCommandList,int gameState);
+	void Render(ID3D12GraphicsCommandList *pd3dCommandList);
 	void ReleaseObjects();
 	bool IsMusicStart();
 
@@ -32,7 +32,7 @@ public:
 	
 	ID3D12RootSignature *GetGraphicsRootSignature() { return(m_pd3dGraphicsRootSignature); }
 	enum emusic { BACKGROUNDMUSIC = 0 ,FLAG =1,BUTTON };
-	enum gamestate {LOBBY=0,CHARACTER_SELECT};
+	enum gamestate {CHARACTER_SELECT};
 protected:
 	ID3D12RootSignature						*m_pd3dGraphicsRootSignature = NULL;
 	
@@ -44,6 +44,9 @@ protected:
 	bool						m_musicStart{ false };
 
 	map<string, CShader*> m_shaderMap;
+
+	
+	
 public:
 	
 	CShader						**m_ppShaders{ nullptr };
