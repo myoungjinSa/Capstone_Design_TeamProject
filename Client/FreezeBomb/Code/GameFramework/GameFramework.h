@@ -49,7 +49,8 @@ public:
 	void ShowScoreboard();
 	//HRESULT BindDC();
 	//HRESULT CreateDCRenderTarget();
-	
+	void ShowReadyText();
+
 	void ProcessDirect2D();
 #endif
 	void CreateDepthStencilView();
@@ -84,15 +85,16 @@ public:
 	void OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 #endif	
 
+	
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	bool IsInGame(); 
 	enum GAMESTATE {CHARACTER_SELECT=0, INGAME,PAUSE,OPTION};
 private:
-	HINSTANCE					m_hInstance;
+	HINSTANCE						m_hInstance;
 	HWND							m_hWnd;
 	
 
-	int 						m_nState{ GAMESTATE::INGAME };
+	int 							m_nState{ GAMESTATE::INGAME };
 	//게임 상태 
 	
 	//클라이언트 정보

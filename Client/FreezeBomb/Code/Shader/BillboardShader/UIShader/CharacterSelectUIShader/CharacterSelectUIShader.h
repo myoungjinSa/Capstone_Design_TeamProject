@@ -42,7 +42,7 @@ public:
 
 	enum LOBBY_CHARACTERSEL { PINK, BROWN, WHITE, BLACK, BLUE, PANDA,NOTREADY,READY};
 	
-	
+	bool IsReady() { return isReady; }
 
 #ifdef _WITH_SERVER_
 	bool isSelectDone() { return isCharacterSelectDone; }

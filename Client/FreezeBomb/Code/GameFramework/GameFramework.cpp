@@ -1237,9 +1237,20 @@ void CGameFramework::ShowScoreboard()
 
 }
 
+void CGameFramework::ShowReadyText()
+{
+	D2D1_RECT_F rcText = D2D1::RectF(0, 0, 200.f, 290.f);
+	WCHAR* ready = _T("준비");
+	m_pd2dDeviceContext->DrawTextW(ready, (UINT32)wcslen(ready), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
+
+}
 
 void CGameFramework::ShowPlayers()
 {
+	D2D1_RECT_F rcText{ 0,0,0,0 };
+
+	rcText = D2D1::RectF(0.0f, 0.0f,600.0f,290.0f);
+	m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
 
 }
 void CGameFramework::ProcessDirect2D()
@@ -1259,22 +1270,37 @@ void CGameFramework::ProcessDirect2D()
 	//D2D1_SIZE_F : float형태의 가로 세로 쌍을 저장한 구조체
 	D2D1_SIZE_F szRenderTarget = m_ppd2dRenderTargets[m_nSwapChainBufferIndex]->GetSize();
 
-	if (m_nState == INGAME) {
-		//이름 
-		SetNamecard();
+	switch (m_nState)
+	{
+	case CHARACTER_SELECT:
+	{
+		CShader* m = m_pLobbyScene->m_ppShaders[CLobbyScene::CHARACTER_SELECT];
+		bool isReady = dynamic_cast<CCharacterSelectUIShader*>(m)->IsReady();
 
+		if (isReady)
+			ShowReadyText();
+
+		
+		ShowPlayers();
+		ChattingSystem::GetInstance()->ShowLobbyChatting(m_pd2dDeviceContext);
+
+		break;
+	}
+	case INGAME:
+	{
+		SetNamecard();
 
 		//채팅
 		ChattingSystem::GetInstance()->ShowIngameChatting(m_pd2dDeviceContext);
 
-		//스코어 보드
 		ShowScoreboard();
+		break;
 	}
-	else if (m_nState == CHARACTER_SELECT)
-	{
+	default:
+		break;
 
-		ChattingSystem::GetInstance()->ShowLobbyChatting(m_pd2dDeviceContext);
 	}
+
 	////////////////////////////////////////////////////////////////////////
 	//WITH_DIRECT2D_IMAGE_EFFECT
 
