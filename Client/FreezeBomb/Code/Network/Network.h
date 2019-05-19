@@ -18,6 +18,8 @@ class CGameFramework;
 
 #ifdef _WITH_SERVER_
 //ΩÃ±€≈Ê 
+
+
 class Network : public Singleton<Network>
 {
 private:

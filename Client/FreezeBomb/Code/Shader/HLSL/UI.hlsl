@@ -414,6 +414,98 @@ float4 PSLoadingScene(VS_UI_OUTPUT input) : SV_TARGET
 	float4 cColor = gtxtLoadingTexture.Sample(gssLoading, input.uv);
 	return(cColor);
 }
+///////////////////////////////////////////////////////////////////////////////////////////////////
+cbuffer cbProgressBar	: register(b8)
+{
+	float4 g_Position : packoffset(c0);
+};
+
+VS_UI_OUTPUT VSProgressBarUI(uint nVertexID : SV_VertexID)
+{
+	VS_UI_OUTPUT output;
+
+	if (nVertexID == 0)
+	{
+		output.position = float4(g_Position.x, g_Position.y, 0.f, 1.f);
+		output.uv = float2(0.f, 0.f);
+	}
+	else if (nVertexID == 1)
+	{
+		output.position = float4(g_Position.x, g_Position.w, 0.f, 1.f);
+		output.uv = float2(0.f, 1.f);
+	}
+	else if (nVertexID == 2)
+	{
+		output.position = float4(g_Position.z, g_Position.w, 0.f, 1.f);
+		output.uv = float2(1.f, 1.f);
+
+	}
+	else if (nVertexID == 3)
+	{
+		output.position = float4(g_Position.z, g_Position.w, 0.f, 1.f);
+		output.uv = float2(1.f, 1.f);
+	}
+	else if (nVertexID == 4)
+	{
+		output.position = float4(g_Position.z, g_Position.y, 0.f, 1.f);
+		output.uv = float2(1.f, 0.f);
+	}
+	else if (nVertexID == 5)
+	{
+		output.position = float4(g_Position.x, g_Position.y, 0.f, 1.f);
+		output.uv = float2(0.f, 0.f);
+	}
+	return(output);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//LOGIN
+Texture2D gtxtLoginTexture : register(t21);
+SamplerState gssLogin			: register(s3);
+
+VS_UI_OUTPUT VSLoginScene(uint nVertexID : SV_VertexID)
+{
+	VS_UI_OUTPUT output;
+
+	if (nVertexID == 0)
+	{
+		output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f);
+		output.uv = float2(0.0f, 0.0f);
+	}
+	if (nVertexID == 1)
+	{
+		output.position = float4(+1.0f, +1.0f, 0.0f, 1.0f);
+		output.uv = float2(1.0f, 0.0f);
+	}
+	if (nVertexID == 2)
+	{
+		output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f);
+		output.uv = float2(1.0f, 1.0f);	
+	}
+	if (nVertexID == 3)
+	{
+		output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f);
+		output.uv = float2(0.0f, 0.0f);
+	}
+	if (nVertexID == 4)
+	{
+		output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f);
+		output.uv = float2(1.0f, 1.0f);
+	}
+	if (nVertexID == 5)
+	{
+		output.position = float4(-1.0f, -1.0f, 0.0f, 1.0f);
+		output.uv = float2(0.0f, 1.0f);
+	}
+	return (output);
+}
+
+float4 PSLoginScene(VS_UI_OUTPUT input) : SV_TARGET
+{
+	float4 cColor = gtxtLoginTexture.Sample(gssLogin, input.uv);
+	return(cColor);
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 //CharacterSelect
@@ -508,47 +600,4 @@ float4 PSLobby(VS_UI_OUTPUT input) : SV_TARGET
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-cbuffer cbProgressBar	: register(b8)
-{
-	float4 g_Position : packoffset(c0);
-};
-
-VS_UI_OUTPUT VSProgressBarUI(uint nVertexID : SV_VertexID)
-{
-	VS_UI_OUTPUT output;
-
-	if (nVertexID == 0)
-	{
-		output.position = float4(g_Position.x, g_Position.y, 0.f, 1.f);
-		output.uv = float2(0.f, 0.f);
-	}
-	else if (nVertexID == 1)
-	{
-		output.position = float4(g_Position.x, g_Position.w, 0.f, 1.f);
-		output.uv = float2(0.f, 1.f);
-	}
-	else if (nVertexID == 2)
-	{
-		output.position = float4(g_Position.z, g_Position.w, 0.f, 1.f);
-		output.uv = float2(1.f, 1.f);
-
-	}
-	else if (nVertexID == 3)
-	{
-		output.position = float4(g_Position.z, g_Position.w, 0.f, 1.f);
-		output.uv = float2(1.f, 1.f);
-	}
-	else if (nVertexID == 4)
-	{
-		output.position = float4(g_Position.z, g_Position.y, 0.f, 1.f);
-		output.uv = float2(1.f, 0.f);
-	}
-	else if (nVertexID == 5)
-	{
-		output.position = float4(g_Position.x, g_Position.y, 0.f, 1.f);
-		output.uv = float2(0.f, 0.f);
-	}
-	return(output);
-}
-
 

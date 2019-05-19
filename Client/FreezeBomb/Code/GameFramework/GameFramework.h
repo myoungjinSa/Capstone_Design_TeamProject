@@ -14,6 +14,7 @@ class CSobelCartoonShader;
 class CLoadingScene;
 class CLobbyScene;
 class ChattingSystem;
+class CLoginScene;
 
 
 struct clientsInfo
@@ -58,6 +59,7 @@ public:
 #ifdef _WITH_SERVER_
 	//Network*getNetwork() { return &m_Network; }
 	void ProcessPacket(char *ptr);
+	void CreateLoginCommandList();
 #endif
 	void ChangeSwapChainState();
 
@@ -129,6 +131,7 @@ private:
 	ID3D12CommandAllocator*					m_pLoadingCommandAllocator = nullptr;
 	ID3D12GraphicsCommandList*				m_pLoadingCommandList = nullptr;
 
+	
 	ID3D12Fence*							m_pd3dFence = nullptr;
 	UINT64										m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE									m_hFenceEvent;
@@ -207,11 +210,19 @@ private:
 	SC_PACKET_STOP_RUN_ANIM *pSTA = NULL;
 	SC_PACKET_PLAYER_ANIMATION* pPA = NULL;
 	bool isCharacterSelectDone = false;
+
+	ID3D12CommandAllocator*					m_pLoginCommandAllocator = nullptr;
+	ID3D12GraphicsCommandList*				m_pLoginCommandList = nullptr;
+
+	CLoginScene*				m_pLoginScene{ nullptr };
+	vector<thread> loginThread;
+	void Login_Thread();
 #endif
 	//사운드 쓰레드 풀
 	vector<thread> soundThreads;
 	vector<thread> loadingThread;
 
+	
 	void Worker_Thread();
 
 #ifdef _MAPTOOL_MODE_

@@ -6,6 +6,7 @@
 #include "../GameObject/Player/Player.h"
 #include "../Scene/LobbyScene/LobbyScene.h"
 #include "../Scene/LoadingScene/LoadingScene.h"
+#include "../Scene/LoginScene/LoginScene.h"
 #include "../ShaderManager/ShaderManager.h"
 #include "../Shader/TerrainShader/TerrainShader.h"
 #include "../GameObject/Terrain/Terrain.h"
@@ -19,12 +20,17 @@
 #include "../Shader/BillboardShader/UIShader/CharacterSelectUIShader/CharacterSelectUIShader.h"
 
 
+
 static bool OnCartoonShading = false;
 
 byte g_PlayerCharacter = CGameObject::BROWN;
 
 extern volatile size_t g_TotalSize;
 extern volatile size_t g_FileSize;
+
+#ifdef _WITH_SERVER_
+extern volatile bool g_SuccessToServer;
+#endif
 
 CGameFramework::CGameFramework()
 {
@@ -67,10 +73,7 @@ CGameFramework::~CGameFramework()
 
 bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 {
-#ifdef _WITH_SERVER_
-	if (Network::GetInstance()->connectToServer(hMainWnd) == false)
-		return false;
-#endif 
+
 
 	m_hInstance = hInstance;
 	m_hWnd = hMainWnd;
@@ -78,7 +81,10 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CreateDirect3DDevice();
 	CreateCommandQueueAndList();
 	CreateLoadingCommandList();
-
+#ifdef _WITH_SERVER_
+	CreateLoginCommandList();
+	
+#endif 
 #ifdef _WITH_DIRECT2D_
 	CreateDirect2DDevice();
 #endif
@@ -863,6 +869,13 @@ void CGameFramework::OnDestroy()
 	if (m_pLoadingCommandList)
 		m_pLoadingCommandList->Release();
 
+#ifdef _WITH_SERVER_
+	if (m_pLoginCommandAllocator)
+		m_pLoginCommandAllocator->Release();
+	if (m_pLoginCommandList)
+		m_pLoadingCommandList->Release();
+#endif
+
 	if (m_pd3dFence) m_pd3dFence->Release();
 
 	m_pdxgiSwapChain->SetFullscreenState(FALSE, NULL);
@@ -880,6 +893,15 @@ void CGameFramework::OnDestroy()
 
 bool CGameFramework::BuildObjects()
 {
+#ifdef _WITH_SERVER_
+	//네트워크 연결을 위한 쓰레드
+	loginThread.emplace_back(thread{ &CGameFramework::Login_Thread,this });
+	if (Network::GetInstance()->connectToServer(m_hWnd) == false)
+		return false;
+
+	for (auto& thread : loginThread)
+		thread.join();
+#endif
 	// 윈도우 창 띄우기
 	
 	loadingThread.emplace_back(thread{ &CGameFramework::Worker_Thread, this });
@@ -979,11 +1001,6 @@ void CGameFramework::ReleaseObjects()
 	if (m_pPlayer)
 		m_pPlayer->Release();
 
-	if (m_pLobbyScene)
-	{
-		m_pLobbyScene->ReleaseObjects();
-		delete m_pLobbyScene;
-	}
 
 
 	if (m_pScene)
@@ -999,12 +1016,25 @@ void CGameFramework::ReleaseObjects()
 		m_pCartoonShader->ReleaseObjects();
 		delete m_pCartoonShader;
 	}
+	if (m_pLobbyScene)
+	{
+		m_pLobbyScene->ReleaseObjects();
+		delete m_pLobbyScene;
+	}
+
 
 	if (m_pLoadingScene)
 	{
 		m_pLoadingScene->ReleaseObjects();
 		delete m_pLoadingScene;
 	}
+#ifdef _WITH_SERVER_
+	if (m_pLoginScene)
+	{
+		m_pLoginScene->ReleaseObjects();
+		delete m_pLoginScene;
+	}
+#endif
 }
 
 void CGameFramework::ProcessInput()
@@ -1755,6 +1785,99 @@ void CGameFramework::FrameAdvance()
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 }
 
+#ifdef _WITH_SERVER_
+void CGameFramework::CreateLoginCommandList()
+{
+	HRESULT Result;
+
+	Result = m_pd3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), (void **)&m_pLoginCommandAllocator);
+	Result = m_pd3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pLoginCommandAllocator, nullptr, __uuidof(ID3D12GraphicsCommandList), (void **)&m_pLoginCommandList);
+	Result = m_pLoginCommandList->Close();
+
+}
+
+void CGameFramework::Login_Thread()
+{
+	if (m_pLoginCommandList)
+		m_pLoginCommandList->Reset(m_pLoginCommandAllocator, nullptr);
+
+	m_pLoginScene = new CLoginScene;
+	m_pLoginScene->BuildObjects(m_pd3dDevice, m_pLoginCommandList);
+
+	m_pLoginCommandList->Close();
+
+	ID3D12CommandList* ppd3dCommandLists[] = { m_pLoginCommandList };
+	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+	WaitForGpuComplete();
+	
+	
+	m_GameTimer.Reset();
+
+	//네트워크 연결이 성공하면 루프 탈출
+	while(!g_SuccessToServer)
+	{
+		m_GameTimer.Tick(60.0f);
+		float elapsedTime = m_GameTimer.GetTimeElapsed();
+
+		m_pLoginScene->AnimateObjects(m_pLoginCommandList, elapsedTime);
+		float pfClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+		
+		HRESULT hResult = m_pLoginCommandAllocator->Reset();
+		hResult = m_pLoginCommandList->Reset(m_pLoginCommandAllocator, NULL);
+
+		D3D12_VIEWPORT	d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
+		D3D12_RECT		d3dScissorRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
+		m_pLoginCommandList->RSSetViewports(1, &d3dViewport);
+		m_pLoginCommandList->RSSetScissorRects(1, &d3dScissorRect);
+		
+		// 리소스 장벽(Barrier)
+		D3D12_RESOURCE_BARRIER d3dResourceBarrier;
+		::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
+		d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		d3dResourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		d3dResourceBarrier.Transition.pResource = m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex];
+		// StateBefore가 Present 상태가 되어야, DXGI가 Present를 실행한다.
+		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+		// StateAfter가 Render_Target 상태가 되면, Present가 끝나고 GPU가 그림을 바꿀 수 있다.
+		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		m_pLoginCommandList->ResourceBarrier(1, &d3dResourceBarrier);
+
+
+		D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+		d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
+		D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+
+		m_pLoginCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, FALSE, &d3dDsvCPUDescriptorHandle);
+
+		m_pLoginCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor, 0, NULL);
+
+		m_pLoginCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+
+		m_pLoginScene->Render(m_pLoginCommandList);
+
+		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+
+		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		m_pLoginCommandList->ResourceBarrier(1, &d3dResourceBarrier);
+
+		m_pLoginCommandList->Close();
+		ID3D12CommandList* ppd3dCommandLists[] = { m_pLoginCommandList };
+
+		m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+		WaitForGpuComplete();
+
+		m_pdxgiSwapChain->Present(0, 0);
+
+		MoveToNextFrame();
+
+	}
+
+}
+#endif
 void CGameFramework::Worker_Thread()
 {
 	if (m_pLoadingCommandList)

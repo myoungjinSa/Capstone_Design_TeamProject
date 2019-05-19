@@ -4,6 +4,8 @@
 #pragma warning(disable : 4996)
 
 #ifdef _WITH_SERVER_
+
+volatile bool g_SuccessToServer;
 Network::Network()
 {
 	sock = NULL;
@@ -60,6 +62,8 @@ bool Network::connectToServer(HWND hWnd)
 	recv_wsabuf.buf = recv_buffer;
 	recv_wsabuf.len = BUF_SIZE;
 
+
+	g_SuccessToServer = true;
 	return true;
 }
 
