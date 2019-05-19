@@ -97,10 +97,7 @@ enum PIPELINESTATE_TYPE { GameObject, GameObject_Shadow };
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "windowscodecs.lib")
 
-// 콘솔창 가리기
-#ifdef _WITH_SERVER_
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
-#endif
 
 // TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
 

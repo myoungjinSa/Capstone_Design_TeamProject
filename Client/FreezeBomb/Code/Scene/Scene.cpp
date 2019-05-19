@@ -30,6 +30,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvCPUDescriptorNextHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvGPUDescriptorNextHandle;
 
 float CScene::m_TaggerCoolTime = 0.f;
+bool CScene::m_IsPlay = false;
 
 CScene::CScene() :m_musicCount(0), m_playerCount(0)
 {
@@ -245,7 +246,7 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dDescriptorRanges[13].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[24];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[25];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 1;	// b1 : Camera
@@ -362,13 +363,15 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[22].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[13]);
 	pd3dRootParameters[22].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	
 	pd3dRootParameters[23].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[23].Descriptor.ShaderRegister = 8;	// b8 : Fog
 	pd3dRootParameters[23].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[23].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-
+	pd3dRootParameters[24].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	pd3dRootParameters[24].Descriptor.ShaderRegister = 9;	// b9 : UI
+	pd3dRootParameters[24].Descriptor.RegisterSpace = 0;
+	pd3dRootParameters[24].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
 
@@ -421,17 +424,12 @@ void CScene::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsComma
 {
 	UINT ncbElementBytes = ((sizeof(LIGHTS) + 255) & ~255); //256의 배수
 	m_pd3dcbLights = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-
 	m_pd3dcbLights->Map(0, NULL, (void **)&m_pcbMappedLights);
-
 
 	//안개
 	UINT ncbFogElementBytes = ((sizeof(FOG) + 255)&~255);
-
 	m_pd3dcbFog = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbFogElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-
 	m_pd3dcbFog->Map(0, NULL, (void**)&m_pcbMappedFog);
-
 }
 
 void CScene::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
@@ -443,13 +441,10 @@ void CScene::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
 	D3D12_GPU_VIRTUAL_ADDRESS GpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(3, GpuVirtualAddress);
 
-
 	//안개
 	::memcpy(m_pcbMappedFog, m_pFog, sizeof(FOG));
-
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbFogGPUVirtualAddress = m_pd3dcbFog->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(23, d3dcbFogGPUVirtualAddress);
-
 }
 
 void CScene::ReleaseShaderVariables()
@@ -534,29 +529,16 @@ void CScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	
 	switch (nMessageID)
 	{
+	case WM_MOUSEMOVE:
 	case WM_LBUTTONDOWN:
-	{
 		if (m_pShaderManager)
 		{
 			auto iter = m_pShaderManager->getShaderMap().find("MenuUI");
 			if (iter != m_pShaderManager->getShaderMap().end())
 			{
-				if (((CMenuUIShader*)(*iter).second)->getIsRender() == true)
-				{
-					XMFLOAT3 position = ScreenPosition(mouseX, mouseY);
-					if (-0.5f <= position.x && position.x <= 0.5f && -0.25f <= position.y && position.y <= 0.25f)
-					{
-						if (m_pSound)
-						{
-							m_pSound->PlayIndex(MENU_INPUT);
-							//cout << "마우스 왼쪽 클릭 - x : " << position.x << ", y : " << position.y << endl;
-						}
-					}
-				}
+				((CMenuUIShader*)(*iter).second)->ProcessMessage(CMenuUIShader::MOUSE, nMessageID, ScreenPosition(mouseX, mouseY));
 			}
 		}
-		
-	}
 		break;
 	case WM_RBUTTONDOWN:
 		//cout << "마우스 오른쪽 클릭 - x : " << mouseX << ", y : " << mouseY << endl;
@@ -565,8 +547,6 @@ void CScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 		//cout << "마우스 왼쪽 때짐" << endl;
 		break;
 	case WM_RBUTTONUP:
-		break;
-	case WM_MOUSEMOVE:
 		break;
 	default:
 		break;
@@ -577,44 +557,37 @@ void CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 {
 	switch (nMessageID)
 	{
-
-	case WM_KEYUP:
-		switch (wParam)
-		{
-		
-		case 'M':
-		{
-			if (m_pShaderManager)
-			{
-				auto iter = m_pShaderManager->getShaderMap().find("MenuUI");
-				if (iter != m_pShaderManager->getShaderMap().end())
+		case WM_KEYUP:
+			switch (wParam)
+			{	
+				case VK_ESCAPE:
 				{
-					if (((CMenuUIShader*)(*iter).second)->getIsRender() == false)
-						((CMenuUIShader*)(*iter).second)->setIsRender(true);
-					else
-						((CMenuUIShader*)(*iter).second)->setIsRender(false);
+					if (m_pShaderManager)
+					{
+						auto iter = m_pShaderManager->getShaderMap().find("MenuUI");
+						if (iter != m_pShaderManager->getShaderMap().end())
+						{
+							((CMenuUIShader*)(*iter).second)->ProcessMessage(CMenuUIShader::KEYBOARD, nMessageID, XMFLOAT2(0, 0));
+						}
+					}
 				}
-			}
-		}
-		break;
-		case 'N':
-		{
-			if (m_pShaderManager)
-			{
-				auto iter = m_pShaderManager->getShaderMap().find("OutcomeUI");
-				if (iter != m_pShaderManager->getShaderMap().end())
+				break;
+				case 'N':
 				{
-					if (((COutcomeUIShader*)(*iter).second)->getIsRender() == false)
-						((COutcomeUIShader*)(*iter).second)->setIsRender(true);
-					else
-						((COutcomeUIShader*)(*iter).second)->setIsRender(false);
+					if (m_pShaderManager)
+					{
+						auto iter = m_pShaderManager->getShaderMap().find("OutcomeUI");
+						if (iter != m_pShaderManager->getShaderMap().end())
+						{
+							if (((COutcomeUIShader*)(*iter).second)->getIsRender() == false)
+								((COutcomeUIShader*)(*iter).second)->setIsRender(true);
+							else
+								((COutcomeUIShader*)(*iter).second)->setIsRender(false);
+						}
+					}
 				}
+				break;	
 			}
-		}
-		break;
-		
-		}
-
 		break;
 	}
 }
@@ -1072,20 +1045,20 @@ XMFLOAT2 CScene::ProcessNameCard(const int& objNum)
 	return res;
 }
 
-XMFLOAT3 CScene::ScreenPosition(int x, int y)
+XMFLOAT2 CScene::ScreenPosition(int x, int y)
 {
 	CCamera* pCamera = m_pPlayer->GetCamera();
 	if (pCamera != nullptr)
 	{
 		D3D12_VIEWPORT Viewport = pCamera->GetViewport();
 
-		XMFLOAT3 screenPosition = XMFLOAT3(0.f, 0.f, 0.f);
+		XMFLOAT2 screenPosition = XMFLOAT2(0.f, 0.f);
 		screenPosition.x = (((2.0f * x) / Viewport.Width) - 1) / 1;
 		screenPosition.y = - (((2.0f * y) / Viewport.Height) - 1) / 1;
-		screenPosition.z = 0.0f;
+		//screenPosition.z = 0.0f;
 
 		return screenPosition;
 	}
 
-	return XMFLOAT3(0.f, 0.f, 0.f);
+	return XMFLOAT2(0.f, 0.f);
 }

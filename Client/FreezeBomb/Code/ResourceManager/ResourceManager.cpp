@@ -56,7 +56,10 @@ void CResourceManager::PrepareLoad()
 	m_TextureInfoMap.emplace("GoldHammer", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Item/GoldHammer_Item.dds", 22));
 	m_TextureInfoMap.emplace("GoldTimer", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Item/GoldTimer_Item.dds", 22));
 
-	m_TextureInfoMap.emplace("Menu", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Menu/Menu_Base.dds", 22));
+	m_TextureInfoMap.emplace("MenuBoard", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Menu/MenuBoard.dds", 22));
+	m_TextureInfoMap.emplace("Menu_ICON", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Menu/Menu_ICON.dds", 22));
+	m_TextureInfoMap.emplace("Option", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Menu/Option.dds", 22));
+	m_TextureInfoMap.emplace("GameOver", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Menu/GameOver.dds", 22));
 
 	m_TextureInfoMap.emplace("Win", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Text/Win.dds", 22));
 	m_TextureInfoMap.emplace("Lose", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Text/Lose.dds", 22));
@@ -153,13 +156,11 @@ void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 void CResourceManager::LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
-
 	for (auto iter = m_ModelInfoMap.begin(); iter != m_ModelInfoMap.end(); ++iter)
 	{
 		CLoadedModelInfo* pModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, const_cast<char*>((*iter).second.m_Filename.c_str()), nullptr, (*iter).second.m_HasAnimation);
 		m_ModelMap.emplace((*iter).first, pModel);
 	}
-
 }
 
 void CResourceManager::LoadMapObjectInfo(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)

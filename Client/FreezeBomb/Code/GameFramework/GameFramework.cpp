@@ -18,7 +18,7 @@
 #include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
 
 // 전체모드할경우 주석풀으셈
-#define FullScreenMode
+//#define FullScreenMode
 
 static bool OnCartoonShading = false;
 
@@ -467,6 +467,8 @@ void CGameFramework::CreateDirect2DRenderTargetViews()
 
 		IDXGISurface *pdxgiSurface = NULL;
 		m_ppd3d11WrappedBackBuffers[i]->QueryInterface(__uuidof(IDXGISurface), (void**)&pdxgiSurface);
+
+
 		//CreateBitmapFromDxgiSurface() -> DXGI표면에서 대상 표면으로 설정하거나 추가 색상 컨텍스트 정보를 지정할 수 있는 비트맵을 만듭니다. 
 		m_pd2dDeviceContext->CreateBitmapFromDxgiSurface(pdxgiSurface, &d2dBitmapProperties, &m_ppd2dRenderTargets[i]);
 		if (pdxgiSurface)
@@ -630,7 +632,6 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 {
 	switch (m_nState)
 	{
-	
 	case INGAME:
 	{
 		if (m_pScene)
@@ -661,7 +662,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		switch (wParam)
 		{
 		case VK_ESCAPE:
-			::PostQuitMessage(0);
+			//::PostQuitMessage(0);
 			break;
 		case VK_F1:
 		case VK_F2:
@@ -772,14 +773,10 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 	}
 	case WM_SIZE:
 	{
-
 		DXGI_MODE_DESC desc;
 		ZeroMemory(&desc, sizeof(desc));
 		desc.Width = 800;
 		desc.Height = 600;
-
-		
-
 		break;
 	}
 	case WM_LBUTTONDOWN:

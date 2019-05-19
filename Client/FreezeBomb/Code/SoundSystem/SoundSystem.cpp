@@ -13,7 +13,7 @@ CSoundSystem::~CSoundSystem()
 {
 }
 
-void CSoundSystem::Initialize(const int soundNum ,const char** musicList,int nFlags)
+void CSoundSystem::Initialize(const int soundNum ,const char** musicList, int nFlags)
 {
 	m_soundCount = soundNum;
 	pSound = new Sound*[m_soundCount];
@@ -24,7 +24,6 @@ void CSoundSystem::Initialize(const int soundNum ,const char** musicList,int nFl
 
 	if (soundNum <= maxSound) 
 	{
-
 		pSystem->init(soundNum, FMOD_INIT_NORMAL, nullptr);
 
 		for (int i = 0; i < soundNum; i++) 
@@ -33,6 +32,29 @@ void CSoundSystem::Initialize(const int soundNum ,const char** musicList,int nFl
 				pSystem->createSound(musicList[i] , FMOD_DEFAULT, nullptr, &pSound[i]);
 			else
 				pSystem->createSound(musicList[i] , nFlags | FMOD_DEFAULT, nullptr, &pSound[i]);
+		}
+	}
+}
+
+void CSoundSystem::Initialize(string filename, int type)
+{
+	m_soundCount = 1;
+	pSound = new Sound*[m_soundCount];
+
+	System_Create(&pSystem);
+
+	const int maxSound = 8;
+
+	if (m_soundCount <= maxSound)
+	{
+		pSystem->init(m_soundCount, FMOD_INIT_NORMAL, nullptr);
+
+		for (int i = 0; i < m_soundCount; i++)
+		{
+			if (type == FMOD_LOOP_NORMAL)
+				pSystem->createSound(filename.c_str(), FMOD_DEFAULT, nullptr, &pSound[i]);
+			else
+				pSystem->createSound(filename.c_str(), type | FMOD_DEFAULT, nullptr, &pSound[i]);
 		}
 	}
 }

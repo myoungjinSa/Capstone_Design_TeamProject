@@ -102,7 +102,7 @@ public:
 	void SetWarningTimer();
 	void StopWarningTimer();
 
-	XMFLOAT3 ScreenPosition(int x, int y);
+	XMFLOAT2 ScreenPosition(int x, int y);
 
 	enum MucicEnum
 	{
@@ -192,13 +192,15 @@ private:
 	// Snow : 1, 
 	// Number : 10, Colon : 1 => TimerUI = 11
 	// ItemBox = 1, Hammer_Item : 1, GoldHammer_Item : 1, GoldTimer_Item : 1=> ItemUI : 4
-	// MenuUI : 1
+	// MenuUI : 1, Menu_ICON : 1, Option : 1, GameOver : 1
 	enum nShaderResourceView
 	{
 		SkyBox = 1, Terrain = 2, MapObjects = 70, Item = 8,
-		EvilBear = 19, Player = 19, BombParticle = 1, CubeParticle = 1, Snow = 1, TimerUI = 11, ItemUI = 4, MenuUI = 1
+		EvilBear = 19, Player = 19, BombParticle = 1, CubeParticle = 1, Snow = 1, TimerUI = 11, ItemUI = 4, MenuUI = 4
 	};
 
 	// 술래 변경할 수 있는 시간
 	static float m_TaggerCoolTime;
+
+	static bool m_IsPlay;
 };
