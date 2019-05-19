@@ -51,6 +51,7 @@ private:
 	CS_PACKET_READY *pReady = NULL;
 	CS_PACKET_REQUEST_START *pRequestStart = NULL;
 	CS_PACKET_RELEASE_KEY *pReleaseKey = NULL;
+	CS_PACKET_ANIMATION *pAnimation = NULL;
 
 private:
 	//ReadPacket에서 받은 패킷들을 CGameFramework에 전달하기 위한 포인터
@@ -83,6 +84,7 @@ public:
 	void SendReady(int matID);
 	void SendReqStart();
 	void SendReleaseKey();
+	void SendAnimationState(char animNum);
 public:
 	CS_PACKET_REQUEST_START* GetRS() { return pRequestStart; }
 	void SetNullRS() { pRequestStart = NULL; }

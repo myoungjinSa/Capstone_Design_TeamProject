@@ -32,6 +32,7 @@ constexpr int SC_PLEASE_READY = 9;
 constexpr int SC_ACCESS_PLAYER = 10;
 constexpr int SC_COMPARE_TIME = 11;
 constexpr int SC_STOP_RUN_ANIM = 12;
+constexpr int SC_ANIMATION_INFO = 13;
 
 constexpr int CS_UP_KEY = 0;
 constexpr int CS_DOWN_KEY = 1;
@@ -44,6 +45,7 @@ constexpr int CS_DOWNRIGHT_KEY = 7;
 constexpr int CS_READY = 8;
 constexpr int CS_REQUEST_START = 9;
 constexpr int CS_RELEASE_KEY = 10;
+constexpr int CS_ANIMATION_INFO = 11;
 
 
 
@@ -71,18 +73,7 @@ struct SC_PACKET_ACCESS_PLAYER
 	char id;
 };
 
-struct CS_PACKET_READY
-{
-	char size;
-	char type;
-	char matID;
-};
 
-struct CS_PACKET_REQUEST_START
-{
-	char size;
-	char type;
-};
 
 struct SC_PACKET_PLEASE_READY
 {
@@ -146,6 +137,28 @@ struct CS_PACKET_DOWN_KEY
 {
 	char size;
 	char type;
+};
+
+struct CS_PACKET_READY
+{
+	char size;
+	char type;
+	char matID;
+};
+
+struct CS_PACKET_REQUEST_START
+{
+	char size;
+	char type;
+};
+
+struct CS_PACKET_ANIMATION
+{
+	char size;
+	char type;
+	char animation;			//애니메이션 정보를 클라에서 받아오는 패킷
+	char padding;			//4바이트 정렬을 위한 
+	//float animationTime;	//현재 애니메이션 시간
 };
 
 struct CS_PACKET_BOMBER_TOUCH
@@ -231,6 +244,14 @@ struct SC_PACKET_MOVE_PLAYER
 
 };
 
+struct SC_PACKET_PLAYER_ANIMATION
+{
+	char size;
+	char type;
+	char id;
+	char animation;
+	//float animationTime;		
+};
 struct SC_PACKET_STOP_RUN_ANIM
 {
 	char size;

@@ -14,6 +14,7 @@
 #include "../../FrameTransform/FrameTransform.h"
 #include "../../Chatting/Chatting.h"
 #include "../../Shader/BillboardShader/UIShader/TextUIShader/OutcomeUIShader/OutcomeUIShader.h"
+#include "../../Network/Network.h"
 
 extern byte g_PlayerCharacter;
 
@@ -423,11 +424,15 @@ void CPlayer::DecideAnimationState(float fLength)
 		if (pController->GetAnimationState() == CAnimationController::RUNFAST)
 		{
 			m_pAnimationController->SetTrackPosition(0, 0.0f);
+
 		}
 
 
 		SetTrackAnimationSet(0, CAnimationController::IDLE);
 		m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+#ifdef _WITH_SERVER_
+		Network::GetInstance()->SendAnimationState(CAnimationController::IDLE);
+#endif
 	}
 	else
 	{
@@ -442,7 +447,9 @@ void CPlayer::DecideAnimationState(float fLength)
 			
 			SetTrackAnimationSet(0, CAnimationController::RUNFAST);
 			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
-			
+#ifdef _WITH_SERVER_
+		Network::GetInstance()->SendAnimationState(CAnimationController::RUNFAST);
+#endif
 
 			//m_pAnimationController->SetTrackSpeed(0, 1.3f);
 			//m_pAnimationController->SetTrackPosition(0, 0.0f);
@@ -462,6 +469,8 @@ void CPlayer::DecideAnimationState(float fLength)
 		{
 			SetTrackAnimationSet(0, CAnimationController::IDLE);
 			m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+			Network::GetInstance()->SendAnimationState(CAnimationController::IDLE);
+
 		}
 #endif
 		if (GetAsyncKeyState(VK_DOWN) & 0x8000
@@ -472,8 +481,11 @@ void CPlayer::DecideAnimationState(float fLength)
 			&& pController->GetAnimationState() != CAnimationController::DIE
 			)
 		{
-			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
+			m_pAnimationController->SetAnimationState(CAnimationController::RUNBACKWARD);
 			SetTrackAnimationSet(0, CAnimationController::RUNBACKWARD);
+#ifdef _WITH_SERVER_
+			Network::GetInstance()->SendAnimationState(CAnimationController::RUNBACKWARD);
+#endif
 		}
 
 
@@ -487,6 +499,9 @@ void CPlayer::DecideAnimationState(float fLength)
 		SetTrackAnimationSet(0, CAnimationController::JUMP);
 		SetTrackAnimationPosition(0, 0);
 		pController->SetAnimationState(CAnimationController::JUMP);
+#ifdef _WITH_SERVER_
+			Network::GetInstance()->SendAnimationState(CAnimationController::JUMP);
+#endif
 		//pController->SetTrackSpeed(0, 1.5f);
 	}
 
@@ -596,7 +611,9 @@ void CPlayer::DecideAnimationState(float fLength)
 		SetTrackAnimationPosition(0, 0.0f);
 
 		pController->SetAnimationState(CAnimationController::ATTACK);
-
+#ifdef _WITH_SERVER_
+			Network::GetInstance()->SendAnimationState(CAnimationController::ATTACK);
+#endif
 		//if (m_Normal_Inventory.size() != 0)
 			//Refresh_Inventory(CItem::NormalHammer);
 	}
@@ -613,7 +630,9 @@ void CPlayer::DecideAnimationState(float fLength)
 				SetTrackAnimationPosition(0, 0.0f);
 				//m_pAnimationController->SetTrackSpeed(0, 2.0f);
 				pController->SetAnimationState(CAnimationController::RAISEHAND);
-				
+#ifdef _WITH_SERVER_
+			Network::GetInstance()->SendAnimationState(CAnimationController::RAISEHAND);
+#endif
 				Refresh_Inventory((*iter).second->getItemType());
 			}
 			else
@@ -626,7 +645,9 @@ void CPlayer::DecideAnimationState(float fLength)
 						SetTrackAnimationSet(0, CAnimationController::RAISEHAND);
 						SetTrackAnimationPosition(0, 0.0f);
 						pController->SetAnimationState(CAnimationController::RAISEHAND);
-
+#ifdef _WITH_SERVER_
+			Network::GetInstance()->SendAnimationState(CAnimationController::RAISEHAND);
+#endif
 						// 30√  ¡ı∞°
 						dynamic_cast<CTimerUIShader*>((*iter2).second)->setTimer(30.f);
 

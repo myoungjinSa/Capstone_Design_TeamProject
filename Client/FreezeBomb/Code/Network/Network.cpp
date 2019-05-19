@@ -230,6 +230,16 @@ void Network::SendReleaseKey()
 
 	SendPacket();
 }
+void Network::SendAnimationState(char animNum)
+{
+	pAnimation = reinterpret_cast<CS_PACKET_ANIMATION*>(send_buffer);
+	pAnimation->size = sizeof(pAnimation);
+	send_wsabuf.len = sizeof(pAnimation);
+	pAnimation->type = CS_ANIMATION_INFO;
+	pAnimation->animation = animNum;
+
+	SendPacket();
+}
 
 void Network::SetGameFrameworkPtr(HWND hWnd,CGameFramework* client)
 {

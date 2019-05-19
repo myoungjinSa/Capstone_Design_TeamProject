@@ -1496,6 +1496,30 @@ void CGameFramework::ProcessPacket(char *packet)
 		//printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", pMP->id, pMP->xPos, pMP->yPos, pMP->zPos);
 		break;
 	}
+	case SC_ANIMATION_INFO:
+	{
+		pPA = reinterpret_cast<SC_PACKET_PLAYER_ANIMATION*>(packet);
+		if (pPA->id == m_pPlayer->GetPlayerID())
+		{
+
+		}
+		else if (pPA->id < MAX_USER)
+		{
+			char id = pPA->id;
+			char animNum = pPA->animation;
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("°õµ¹ÀÌ");
+
+			
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetTrackAnimationSet(0, animNum);
+				//(*iter).second->m_ppObjects[id]->SetTrackAnimationPosition(0, animTime);
+			}
+		}
+
+
+		break;
+	}
 	case SC_STOP_RUN_ANIM:
 	{
 		pSTA = reinterpret_cast<SC_PACKET_STOP_RUN_ANIM*>(packet);

@@ -413,6 +413,21 @@ void Server::ProcessPacket(char client, char *packet)
 			}
 		}
 		break;
+	case CS_ANIMATION_INFO:		//클라가 애니메이션이 변경되었을때 패킷을 서버에게 보내고.
+	{							//서버는 그 패킷을 받아서 다른 클라이언트에게 해당 애니메이션 정보를 보낸다.
+		CS_PACKET_ANIMATION* p = reinterpret_cast<CS_PACKET_ANIMATION*>(packet);
+
+		SetAnimationState(client, p->animation);
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (clients[i].in_use == true)
+			{
+				SendPlayerAnimation(i, client);
+			}
+		}
+
+		break;
+	}
 	case CS_RELEASE_KEY:
 		if (clients[client].fVelocity > 0)
 		{
@@ -659,6 +674,17 @@ void Server::SendCompareTime(char client)
 	SendFunc(client, &packet);
 }
 
+void Server::SendPlayerAnimation(char toClient,char fromClient)
+{
+	SC_PACKET_PLAYER_ANIMATION packet;
+	packet.id = fromClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_ANIMATION_INFO;
+	packet.animation = clients[fromClient].animation;
+
+
+	SendFunc(toClient, &packet);
+}
 void Server::SendStopRunAnim(char toClient, char fromClient)
 {
 	SC_PACKET_STOP_RUN_ANIM packet;
@@ -705,6 +731,11 @@ void Server::ClientDisconnect(char client)
 	printf("%d 클라이언트 접속 종료, 현재 클라이언트 수: %d\n", (int)client, clientCount);
 }
 
+void Server::SetAnimationState(char client, char animationNum)
+{
+	clients[client].animation = animationNum;
+
+}
 void Server::SetDirection(char client, int key)
 {
 	DWORD tmpDir = 0;
