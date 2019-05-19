@@ -6,16 +6,21 @@
 #include "..\Stdafx\Stdafx.h"
 //#include "protocol.h"
 #include "../../../../Server/FreezeBombServer/FreezeBombServer/protocol.h"
+#include "../Singleton/Singleton.h"
 #include <string>
+
 
 constexpr int SERVER_PORT = 9000;
 constexpr int BUF_SIZE = 1024;
 
 class CGameFramework;
 
-#ifdef _WITH_SERVER_
 
-class Network
+#ifdef _WITH_SERVER_
+//싱글톤 
+
+
+class Network : public Singleton<Network>
 {
 private:
 	SOCKET	sock;
@@ -48,6 +53,7 @@ private:
 	CS_PACKET_READY *pReady = NULL;
 	CS_PACKET_REQUEST_START *pRequestStart = NULL;
 	CS_PACKET_RELEASE_KEY *pReleaseKey = NULL;
+	CS_PACKET_ANIMATION *pAnimation = NULL;
 
 private:
 	//ReadPacket에서 받은 패킷들을 CGameFramework에 전달하기 위한 포인터
@@ -70,12 +76,17 @@ public:
 	void SendPacket();
 public:
 	void SendUpKey();
+	void SendUpRightKey();
+	void SendUpLeftKey();
 	void SendDownKey();
+	void SendDownRightKey();
+	void SendDownLeftKey();
 	void SendRightKey();
 	void SendLeftKey();
 	void SendReady(int matID);
 	void SendReqStart();
 	void SendReleaseKey();
+	void SendAnimationState(char animNum);
 public:
 	CS_PACKET_REQUEST_START* GetRS() { return pRequestStart; }
 	void SetNullRS() { pRequestStart = NULL; }

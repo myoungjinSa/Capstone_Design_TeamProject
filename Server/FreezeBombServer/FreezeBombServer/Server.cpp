@@ -386,6 +386,10 @@ void Server::ProcessPacket(char client, char *packet)
 	case CS_DOWN_KEY:
 	case CS_LEFT_KEY:
 	case CS_RIGHT_KEY:
+	case CS_UPLEFT_KEY:
+	case CS_UPRIGHT_KEY:
+	case CS_DOWNLEFT_KEY:
+	case CS_DOWNRIGHT_KEY:
 		clientsLock[client].lock();
 		SetDirection(client, packet[1]);
 		//cout << gameTimer.GetTimeElapsed()<<endl;
@@ -409,12 +413,27 @@ void Server::ProcessPacket(char client, char *packet)
 			}
 		}
 		break;
+	case CS_ANIMATION_INFO:		//클라가 애니메이션이 변경되었을때 패킷을 서버에게 보내고.
+	{							//서버는 그 패킷을 받아서 다른 클라이언트에게 해당 애니메이션 정보를 보낸다.
+		CS_PACKET_ANIMATION* p = reinterpret_cast<CS_PACKET_ANIMATION*>(packet);
+
+		SetAnimationState(client, p->animation);
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (clients[i].in_use == true)
+			{
+				SendPlayerAnimation(i, client);
+			}
+		}
+
+		break;
+	}
 	case CS_RELEASE_KEY:
 		if (clients[client].fVelocity > 0)
 		{
 			for (int i = 0; i < MAX_USER; ++i)
 			{
-				if(true == clients[i].in_use)
+				if (true == clients[i].in_use)
 					SendStopRunAnim(i, client);
 			}
 		}
@@ -655,6 +674,17 @@ void Server::SendCompareTime(char client)
 	SendFunc(client, &packet);
 }
 
+void Server::SendPlayerAnimation(char toClient,char fromClient)
+{
+	SC_PACKET_PLAYER_ANIMATION packet;
+	packet.id = fromClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_ANIMATION_INFO;
+	packet.animation = clients[fromClient].animation;
+
+
+	SendFunc(toClient, &packet);
+}
 void Server::SendStopRunAnim(char toClient, char fromClient)
 {
 	SC_PACKET_STOP_RUN_ANIM packet;
@@ -701,6 +731,11 @@ void Server::ClientDisconnect(char client)
 	printf("%d 클라이언트 접속 종료, 현재 클라이언트 수: %d\n", (int)client, clientCount);
 }
 
+void Server::SetAnimationState(char client, char animationNum)
+{
+	clients[client].animation = animationNum;
+
+}
 void Server::SetDirection(char client, int key)
 {
 	DWORD tmpDir = 0;
@@ -718,6 +753,19 @@ void Server::SetDirection(char client, int key)
 	case CS_LEFT_KEY:
 		tmpDir |= DIR_LEFT;
 		break;
+	case CS_UPLEFT_KEY:
+		tmpDir |= DIR_FORWARDLEFT;
+		break;
+	case CS_UPRIGHT_KEY:
+		tmpDir |= DIR_FORWARDRIGHT;
+		break;
+	case CS_DOWNLEFT_KEY:
+		tmpDir |= DIR_BACKLEFT;
+		break;
+
+	case CS_DOWNRIGHT_KEY:
+		tmpDir |= DIR_BACKRIGHT;
+		break;
 	}
 	clients[client].direction = tmpDir;
 }
@@ -733,6 +781,7 @@ void Server::SetClient_Initialize(char client)
 	clients[client].up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 }
 
+
 void Server::SetPitchYawRollZero(char client)
 {
 	if (clients[client].pitch > 0.0f)
@@ -746,19 +795,30 @@ void Server::SetPitchYawRollZero(char client)
 void Server::UpdateClientPos(char client, float fTimeElapsed)
 {
 
-	if (clients[client].direction == DIR_FORWARD) {
-		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, 1.0f);
+	if (clients[client].direction == DIR_FORWARD )
+	{
+		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, 0.7f);
+		
 	}
 	if (clients[client].direction == DIR_BACKWARD)
 	{
-		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look , -1.0f);
+		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look , -0.7f);
 	}
-	if (clients[client].direction == DIR_LEFT || clients[client].direction == DIR_RIGHT)
+	if (clients[client].direction == DIR_LEFT 
+		|| clients[client].direction == DIR_RIGHT
+		|| clients[client].direction == DIR_FORWARDRIGHT
+		|| clients[client].direction == DIR_FORWARDLEFT
+		|| clients[client].direction == DIR_BACKRIGHT
+		|| clients[client].direction == DIR_BACKLEFT)
 	{
 		RotateClientAxisY(client, fTimeElapsed);
 	}
-	clients[client].velocity = Vector3::Add(clients[client].velocity, gravity);
+
+	//clients[client].velocity = Vector3::Add(clients[client].velocity, gravity);//gravity가 초기화가 안되서 쓰레기값?
+	//	cout << clients[client].velocity.x<<","<<clients[client].velocity.y<<","<<clients[client].velocity.z << "\n";
 	float fLength = sqrtf(clients[client].velocity.x * clients[client].velocity.x + clients[client].velocity.z * clients[client].velocity.z);
+	
+	
 	if (fLength > MAX_VELOCITY_XZ)
 	{
 		clients[client].velocity.x *= (MAX_VELOCITY_XZ / fLength);
@@ -783,6 +843,9 @@ void Server::UpdateClientPos(char client, float fTimeElapsed)
 	//속도를 클라에게 보내주어 클라에서 기본적인 rUn,Backward,애니메이션을 결정하게 하기 위해.
 	clients[client].fVelocity = fLength;
 
+	
+	//cout << clients[client].fVelocity << endl;
+
 }
 
 void Server::RotateClientAxisY(char client, float fTimeElapsed)
@@ -794,6 +857,8 @@ void Server::RotateClientAxisY(char client, float fTimeElapsed)
 	clients[client].lastLookVector = xmf3Look;
 	clients[client].lastRightVector = xmf3Right;
 	clients[client].lastUpVector = xmf3Up;
+
+		
 
 	if (clients[client].direction & DIR_RIGHT)
 	{
@@ -811,8 +876,9 @@ void Server::RotateClientAxisY(char client, float fTimeElapsed)
 
 
 		RotateModel(client, 0.0f, fAngle*fTimeElapsed, 0.0f);
+		
 	}
-	else if (clients[client].direction & DIR_LEFT)
+	if (clients[client].direction & DIR_LEFT)
 	{
 		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3Right);
 
@@ -825,6 +891,26 @@ void Server::RotateClientAxisY(char client, float fTimeElapsed)
 		float czDelta = xmf3Look.z - clients[client].lastLookVector.z;
 
 		RotateModel(client, 0.0f, -fAngle * fTimeElapsed, 0.0f);
+		
+	}
+	if (clients[client].direction & DIR_FORWARDRIGHT )
+	{	
+		
+		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, 0.001f);
+	}
+	if (clients[client].direction & DIR_FORWARDLEFT)
+	{
+		
+		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, 0.001f);
+	}
+	if (clients[client].direction & DIR_BACKRIGHT)
+	{
+		
+		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -0.001f);
+	}
+	if (clients[client].direction & DIR_BACKLEFT)
+	{
+		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -0.001f);
 	}
 
 	xmf3Look = Vector3::Normalize(xmf3Look);

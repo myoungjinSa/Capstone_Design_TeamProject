@@ -75,6 +75,7 @@ extern HINSTANCE						ghAppInstance;
 //#define _MAPTOOL_MODE_
 
 //서버 연동을 할 경우 
+
 //#define _WITH_SERVER_
 
 #define FRAME_BUFFER_WIDTH		1200
@@ -96,6 +97,7 @@ enum PIPELINESTATE_TYPE { GameObject, GameObject_Shadow };
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "windowscodecs.lib")
+
 
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 

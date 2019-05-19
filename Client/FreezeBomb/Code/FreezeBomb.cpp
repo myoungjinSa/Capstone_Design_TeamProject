@@ -137,13 +137,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_CHAR:
 #ifdef _WITH_DIRECT2D_
 		if (ChattingSystem::GetInstance()->IsChattingActive())
-			ChattingSystem::GetInstance()->ProcessChatting(hWnd,wParam,lParam);
+			ChattingSystem::GetInstance()->ProcessChatting(hWnd,wParam,lParam,gGameFramework.IsInGame());
+
 #endif
 		break;
 		//한글 조합 시작
 	case WM_IME_STARTCOMPOSITION:
-		if(ChattingSystem::GetInstance()->IsChattingActive())
-			//ChattingSystem::GetInstance()-
+		
 		break;
 	case WM_IME_SETCONTEXT:
 		//응용 프로그램이 활성/비활성될 때 메세지 발생
@@ -165,7 +165,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			//lParam에는 조립 상태가 어떻게 변경되었는지를 나타내는 플래그의 집합.
 				//-GCS_COMPSTR : 문자 조립중
 				//-GCS_RESULTSTR : 한 음절을 조립 완료
-			ChattingSystem::GetInstance()->ProcessChatting(hWnd, wParam, lParam);
+			ChattingSystem::GetInstance()->ProcessChatting(hWnd, wParam, lParam,gGameFramework.IsInGame());
 			//ChattingSystem::GetInstance()->ComposeHangeul(hWnd, wParam,lParam);
 		}
 		break;
@@ -202,7 +202,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 		case FD_READ:
 #ifdef _WITH_SERVER_
-			gGameFramework.getNetwork()->ReadPacket();
+			Network::GetInstance()->ReadPacket();
 #endif
 			break;
 		case FD_CLOSE:

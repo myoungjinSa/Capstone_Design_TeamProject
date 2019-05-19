@@ -14,6 +14,7 @@
 #include "../../FrameTransform/FrameTransform.h"
 #include "../../Chatting/Chatting.h"
 #include "../../Shader/BillboardShader/UIShader/TextUIShader/OutcomeUIShader/OutcomeUIShader.h"
+#include "../../Network/Network.h"
 
 extern byte g_PlayerCharacter;
 
@@ -241,8 +242,10 @@ void CPlayer::Update(float fTimeElapsed)
 
 	m_pCamera->RegenerateViewMatrix();
 
+	
 	//std::cout <<"서버에서 받은 속도: "<< m_fVelocityFromServer << "\n";
 	DecideAnimationState(m_fVelocityFromServer);
+
 #endif
 	m_Time += fTimeElapsed;
 	if (m_Time > 1.f)
@@ -407,6 +410,7 @@ void CPlayer::DecideAnimationState(float fLength)
 {
 	CAnimationController* pController = m_pAnimationController;
 
+	
 	if (fLength == 0.0f
 		&& (pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::DIGGING
@@ -420,11 +424,15 @@ void CPlayer::DecideAnimationState(float fLength)
 		if (pController->GetAnimationState() == CAnimationController::RUNFAST)
 		{
 			m_pAnimationController->SetTrackPosition(0, 0.0f);
+
 		}
 
 
 		SetTrackAnimationSet(0, CAnimationController::IDLE);
 		m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+#ifdef _WITH_SERVER_
+		Network::GetInstance()->SendAnimationState(CAnimationController::IDLE);
+#endif
 	}
 	else
 	{
@@ -436,12 +444,35 @@ void CPlayer::DecideAnimationState(float fLength)
 			&& pController->GetAnimationState() != CAnimationController::DIE
 			)
 		{
+			
 			SetTrackAnimationSet(0, CAnimationController::RUNFAST);
 			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
+#ifdef _WITH_SERVER_
+		Network::GetInstance()->SendAnimationState(CAnimationController::RUNFAST);
+#endif
+
 			//m_pAnimationController->SetTrackSpeed(0, 1.3f);
 			//m_pAnimationController->SetTrackPosition(0, 0.0f);
 		}
+#ifdef _WITH_SERVER_
+		
+		//서버와 연동시 이동과 회전을 동시에 처리가 안되서 
+		// 서버에서 fLength = 0.001의 속도를 부여하고 그속도로 
+		//이동과 회전을 동시에 처리함. 
+		// 그러다보니 제자리에서 회전 했을때도 달리는 애니메이션이 발생해서
+		// 아래와 같은 처리를 하였음 - 명진
+		if ((GetAsyncKeyState(VK_RIGHT) &0x8000
+			|| GetAsyncKeyState(VK_LEFT) &0x8000)
+			&& !(GetAsyncKeyState(VK_UP) & 0x8000)
+			&& pController->GetAnimationState() == CAnimationController::RUNFAST
+			)
+		{
+			SetTrackAnimationSet(0, CAnimationController::IDLE);
+			m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+			Network::GetInstance()->SendAnimationState(CAnimationController::IDLE);
 
+		}
+#endif
 		if (GetAsyncKeyState(VK_DOWN) & 0x8000
 			&& pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::JUMP
@@ -450,9 +481,14 @@ void CPlayer::DecideAnimationState(float fLength)
 			&& pController->GetAnimationState() != CAnimationController::DIE
 			)
 		{
-			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
+			m_pAnimationController->SetAnimationState(CAnimationController::RUNBACKWARD);
 			SetTrackAnimationSet(0, CAnimationController::RUNBACKWARD);
+#ifdef _WITH_SERVER_
+			Network::GetInstance()->SendAnimationState(CAnimationController::RUNBACKWARD);
+#endif
 		}
+
+
 	}
 	if (GetAsyncKeyState(VK_SPACE) & 0x8000
 		&& pController->GetAnimationState() != CAnimationController::JUMP
@@ -463,6 +499,9 @@ void CPlayer::DecideAnimationState(float fLength)
 		SetTrackAnimationSet(0, CAnimationController::JUMP);
 		SetTrackAnimationPosition(0, 0);
 		pController->SetAnimationState(CAnimationController::JUMP);
+#ifdef _WITH_SERVER_
+			Network::GetInstance()->SendAnimationState(CAnimationController::JUMP);
+#endif
 		//pController->SetTrackSpeed(0, 1.5f);
 	}
 
@@ -481,7 +520,7 @@ void CPlayer::DecideAnimationState(float fLength)
 	// 치트키
 	//추후에 아이템과 충돌여부 및 아이템 획득 여부로 변경해서 하면 될듯
 	// 술래일때랑, 도망자일때로 각각 다르게 작동
-	if (GetAsyncKeyState(VK_C) & 0x0001 && ChattingSystem::GetInstance()->IsChattingActive() ==false)
+	if (GetAsyncKeyState(VK_C) & 0x0001 && ChattingSystem::GetInstance()->IsChattingActive() == false)
 	{
 		if (pController->GetAnimationState() == CAnimationController::ICE)
 		{
@@ -572,7 +611,9 @@ void CPlayer::DecideAnimationState(float fLength)
 		SetTrackAnimationPosition(0, 0.0f);
 
 		pController->SetAnimationState(CAnimationController::ATTACK);
-
+#ifdef _WITH_SERVER_
+			Network::GetInstance()->SendAnimationState(CAnimationController::ATTACK);
+#endif
 		//if (m_Normal_Inventory.size() != 0)
 			//Refresh_Inventory(CItem::NormalHammer);
 	}
@@ -589,7 +630,9 @@ void CPlayer::DecideAnimationState(float fLength)
 				SetTrackAnimationPosition(0, 0.0f);
 				//m_pAnimationController->SetTrackSpeed(0, 2.0f);
 				pController->SetAnimationState(CAnimationController::RAISEHAND);
-				
+#ifdef _WITH_SERVER_
+			Network::GetInstance()->SendAnimationState(CAnimationController::RAISEHAND);
+#endif
 				Refresh_Inventory((*iter).second->getItemType());
 			}
 			else
@@ -602,7 +645,9 @@ void CPlayer::DecideAnimationState(float fLength)
 						SetTrackAnimationSet(0, CAnimationController::RAISEHAND);
 						SetTrackAnimationPosition(0, 0.0f);
 						pController->SetAnimationState(CAnimationController::RAISEHAND);
-
+#ifdef _WITH_SERVER_
+			Network::GetInstance()->SendAnimationState(CAnimationController::RAISEHAND);
+#endif
 						// 30초 증가
 						dynamic_cast<CTimerUIShader*>((*iter2).second)->setTimer(30.f);
 

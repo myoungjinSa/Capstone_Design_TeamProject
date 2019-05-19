@@ -71,11 +71,15 @@ public:
 	XMFLOAT3 lastLookVector;
 	XMFLOAT3 lastUpVector;
 
+	
 	char score;
 	char normalItem;
 	char specialItem;
 	char role;
 	char matID;
+
+	char animation;			//애니메이션 index
+	float animationTime;	//애니메이션 시간
 	bool isReady;
 public:
 	SOCKETINFO() {
@@ -131,6 +135,7 @@ public:
 public:
 	void SendAccessComplete(char client);
 	void SendAccessPlayer(char toClient, char fromClient);
+	void SendPlayerAnimation(char toClient, char fromCllient);
 	void SendPutPlayer(char toClient, char fromClient);
 	void SendRoundStart(char client);
 	void SendPleaseReady(char client);
@@ -140,6 +145,7 @@ public:
 	void SendCompareTime(char client);
 	void SendStopRunAnim(char toClient, char fromClient);
 public:
+	void SetAnimationState(char client,char animationNum);
 	void SetVelocityZero(char client);
 	void SetPitchYawRollZero(char client);
 	void SetClient_Initialize(char client);
