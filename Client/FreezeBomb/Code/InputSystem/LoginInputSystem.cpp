@@ -6,7 +6,7 @@
 #pragma comment(lib,"imm32.lib")
 #include <imm.h>
 
-
+#ifdef _WITH_SERVER_
 #ifdef _WITH_DIRECT2D_
 extern  const char* g_serverIP;
 mutex g_lock;
@@ -168,4 +168,5 @@ void CLoginInputSystem::Destroy()
 	
 }
 
+#endif
 #endif

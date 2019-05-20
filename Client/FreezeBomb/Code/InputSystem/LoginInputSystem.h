@@ -2,7 +2,7 @@
 
 
 
-
+#ifdef _WITH_SERVER_
 class CLoginInputSystem 
 {
 protected:
@@ -48,3 +48,4 @@ public:
 	void ShowIPInput();
 	void Destroy();
 };
+#endif 
