@@ -5,6 +5,9 @@
 #include "../../../../GameObject/Billboard/UI/UI.h"
 #include "CLoginShader.h"
 
+#ifdef _WITH_SERVER_
+volatile int g_CurrentTexture;
+
 CLoginShader::CLoginShader()
 {
 }
@@ -112,51 +115,87 @@ D3D12_SHADER_BYTECODE CLoginShader::CreatePixelShader()
 
 void CLoginShader::BuildObjects(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList,ID3D12RootSignature *pd3dGraphicsRootSignature,void *pContext)
 {
-	CTexture *pLoginTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	constexpr int nTextures = 3;
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, nTextures);
 
-	pLoginTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Login/IP_Title.dds", 0);
 
-	vTexture.emplace_back(pLoginTexture);
+	CTexture** pLoginTextures = new CTexture*[nTextures];
+	
+	pLoginTextures[NO_SELECT] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pLoginTextures[NO_SELECT]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Login/IP_Title.dds", 0);
 
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 1);
-	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pLoginTexture, 0, false);
+	pLoginTextures[ID_SELECT] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pLoginTextures[ID_SELECT]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Login/IP_ID.dds", 0);
 
+	pLoginTextures[IP_SELECT] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pLoginTextures[IP_SELECT]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Login/IP_IP.dds", 0);
+
+	for (int i = 0; i < nTextures; ++i)
+	{
+		vTexture.emplace_back(pLoginTextures[i]);
+		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pLoginTextures[i], 0, false);
+	}
 
 	CBillboardMesh* pLoginMesh = new CBillboardMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
 
-	m_nObjects = 1;
-	
+
+	m_nObjects = nTextures;
 	m_ppUIMaterial = new CMaterial*[m_nObjects];
 
-	m_ppUIMaterial[0] = new CMaterial(1);
-	m_ppUIMaterial[0]->SetTexture(vTexture[0], 0);
-
+	m_ppUIMaterial[0] = new CMaterial(m_nObjects);
+	
+	
 	for (int i = 0; i < m_nObjects; ++i)
 	{
+		m_ppUIMaterial[0]->SetTexture(vTexture[i], i);
 		CUI* pUI = new CUI(1);
 		pUI->SetMesh(pLoginMesh);
-		pUI->SetMaterial(0, m_ppUIMaterial[i]);
+		pUI->SetMaterial(0, m_ppUIMaterial[0]);
 		m_UIMap.emplace(i, pUI);
 	}
+	
 }
+
 
 void CLoginShader::AnimateObjects(float fTimeElapsed)
 {
+	
 
 }
 
+void CLoginShader::DecideTextureByCursor(LONG mouseX,LONG mouseY,UINT& p)
+{
+	if (352 <= mouseX && mouseX <= 824 && 610 <= mouseY && mouseY <= 640)
+	{
+			g_CurrentTexture = ID_SELECT;
+			p = ID_SELECT;
+	}
+	else if (352 <= mouseX && mouseX <= 824 && 663 <= mouseY && mouseY <= 690)
+	{
+			g_CurrentTexture = IP_SELECT;
+			p = IP_SELECT;
+	}
+	else
+	{
+			g_CurrentTexture = NO_SELECT;
+			p = NO_SELECT;
+	}
+
+}
 void CLoginShader::Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipelineState)
 {
 	if (m_pd3dCbvSrvDescriptorHeap) 
 		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
 	CUIShader::OnPrepareRender(pd3dCommandList, 0);
-	for (int i = 0; i < m_nObjects; ++i) {
-		auto iter = m_UIMap.find(i);
-		if (iter != m_UIMap.end())
-			(*iter).second->Render(pd3dCommandList, nPipelineState);
-	}
+
+
+	int currentTexture = g_CurrentTexture;
+	auto iter = m_UIMap.find(currentTexture);
+	if (iter != m_UIMap.end())
+		(*iter).second->Render(pd3dCommandList, nPipelineState,currentTexture);
+	
 
 }
 
@@ -169,3 +208,4 @@ void CLoginShader::ReleaseObjects()
 
 	vTexture.clear();
 }
+#endif

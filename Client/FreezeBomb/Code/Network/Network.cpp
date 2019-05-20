@@ -6,6 +6,7 @@
 #ifdef _WITH_SERVER_
 
 volatile bool g_SuccessToServer;
+const char* g_serverIP;
 Network::Network()
 {
 	sock = NULL;
@@ -21,11 +22,12 @@ Network::~Network()
 
 bool Network::connectToServer(HWND hWnd)
 {
+
 	// 서버 IP주소 입력받기
 	std::string s;
 	printf("서버IP입력 : ");
 	std::cin >> s;
-	const char *serverIp = s.c_str();
+	g_serverIP = s.c_str();
 
 	// 윈속 초기화
 	WSADATA wsa;
@@ -45,7 +47,7 @@ bool Network::connectToServer(HWND hWnd)
 	ZeroMemory(&serveraddr, sizeof(serveraddr));
 	serveraddr.sin_family = AF_INET;
 	//serveraddr.sin_addr.s_addr = inet_addr(SERVER_IP);
-	serveraddr.sin_addr.s_addr = inet_addr(serverIp);
+	serveraddr.sin_addr.s_addr = inet_addr(g_serverIP);
 	serveraddr.sin_port = htons(SERVER_PORT);
 	int retval = WSAConnect(sock, (SOCKADDR *)&serveraddr, sizeof(serveraddr), NULL, NULL, NULL, NULL);
 	if (retval == SOCKET_ERROR)
@@ -65,6 +67,7 @@ bool Network::connectToServer(HWND hWnd)
 
 	g_SuccessToServer = true;
 	return true;
+	
 }
 
 SOCKET Network::getSock()

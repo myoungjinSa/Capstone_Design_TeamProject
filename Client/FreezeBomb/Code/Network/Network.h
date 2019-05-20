@@ -58,7 +58,7 @@ private:
 private:
 	//ReadPacket에서 받은 패킷들을 CGameFramework에 전달하기 위한 포인터
 	CGameFramework* m_pGameClient{nullptr};
-
+	const  char *   m_ServerIP{ nullptr };
 public:
 	void err_quit(const char *msg);
 	void err_display(const char *msg);

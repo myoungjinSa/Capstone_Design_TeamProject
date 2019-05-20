@@ -23,7 +23,7 @@
     <ProjectGuid>{23CA9C0E-EABB-4942-AEE9-990D6E896DDE}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>FreezeBomb</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -191,6 +191,7 @@
     <ClInclude Include="..\Code\GameObject\Surrounding\Surrounding.h" />
     <ClInclude Include="..\Code\GameObject\Terrain\Terrain.h" />
     <ClInclude Include="..\Code\GameTimer\GameTimer.h" />
+    <ClInclude Include="..\Code\InputSystem\LoginInputSystem.h" />
     <ClInclude Include="..\Code\Material\Material.h" />
     <ClInclude Include="..\Code\Mesh\BillboardMesh\BillboardMesh.h" />
     <ClInclude Include="..\Code\Mesh\LODMesh\LODMesh.h.h" />
@@ -263,6 +264,7 @@
     <ClCompile Include="..\Code\GameObject\Surrounding\Surrounding.cpp" />
     <ClCompile Include="..\Code\GameObject\Terrain\Terrain.cpp" />
     <ClCompile Include="..\Code\GameTimer\GameTimer.cpp" />
+    <ClCompile Include="..\Code\InputSystem\LoginInputSystem.cpp" />
     <ClCompile Include="..\Code\Material\Material.cpp" />
     <ClCompile Include="..\Code\Mesh\BillboardMesh\BillboardMesh.cpp" />
     <ClCompile Include="..\Code\Mesh\LODMesh\LODMesh.cpp" />

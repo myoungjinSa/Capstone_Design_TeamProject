@@ -219,6 +219,9 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\CLoginShader.cpp">
       <Filter>Code\Shader\BillboardShader\UIShader\LoginShader</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\InputSystem\LoginInputSystem.cpp">
+      <Filter>Code\InputSystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h">
@@ -440,6 +443,9 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\CLoginShader.h">
       <Filter>Code\Shader\BillboardShader\UIShader\LoginShader</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\InputSystem\LoginInputSystem.h">
+      <Filter>Code\InputSystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Code">
@@ -657,6 +663,9 @@
     </Filter>
     <Filter Include="Code\Shader\BillboardShader\UIShader\LoginShader">
       <UniqueIdentifier>{a01ef6f2-a3a3-4630-aa87-d8e01b1f5029}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\InputSystem">
+      <UniqueIdentifier>{ec770303-1375-4d39-b4db-4c4c55671359}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

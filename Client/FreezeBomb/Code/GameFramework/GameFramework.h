@@ -90,7 +90,7 @@ public:
 	
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	bool IsInGame(); 
-	enum GAMESTATE {CHARACTER_SELECT=0, INGAME,PAUSE,OPTION};
+	enum GAMESTATE {CHARACTER_SELECT=0, INGAME,PAUSE,OPTION,LOGIN,LOADING};
 private:
 	HINSTANCE						m_hInstance;
 	HWND							m_hWnd;
@@ -159,6 +159,8 @@ private:
 
 
 #ifdef _WITH_DIRECT2D_
+
+
 	ID3D11On12Device				*m_pd3d11On12Device{ nullptr };//
 	ID3D11DeviceContext				*m_pd3d11DeviceContext{ nullptr };//
 	ID2D1Factory3					*m_pd2dFactory{ nullptr };//
@@ -216,7 +218,8 @@ private:
 
 	CLoginScene*				m_pLoginScene{ nullptr };
 	vector<thread> loginThread;
-	void Login_Thread();
+	vector<thread> connectThread;
+	void Login_Thread(CLoginScene* loginScene);
 #endif
 	//사운드 쓰레드 풀
 	vector<thread> soundThreads;

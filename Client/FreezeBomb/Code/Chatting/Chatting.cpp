@@ -3,6 +3,10 @@
 
 #include "Chatting.h"
 
+#pragma comment(lib,"imm32.lib")
+#include <imm.h>
+
+
 #ifdef _WITH_DIRECT2D_
 
 ChattingSystem::ChattingSystem()
