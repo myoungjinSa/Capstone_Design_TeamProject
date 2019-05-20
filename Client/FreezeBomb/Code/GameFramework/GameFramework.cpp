@@ -23,7 +23,7 @@
 // 전체모드할경우 주석풀으셈
 //#define FullScreenMode
 
-static bool OnCartoonShading = false;
+bool g_OnCartoonShading = false;
 
 byte g_PlayerCharacter = CGameObject::BROWN;
 
@@ -672,13 +672,6 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_F3:
 			m_pCamera = m_pPlayer->ChangeCamera((DWORD)(wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
 			break;
-		case VK_F4:
-			if (OnCartoonShading == false)
-				OnCartoonShading = true;
-			else
-				OnCartoonShading = false;
-			break;
-
 		case VK_F5:
 		{			
 			if (m_nState == CHARACTER_SELECT)
@@ -1641,7 +1634,7 @@ void CGameFramework::ProcessInGame(D3D12_CPU_DESCRIPTOR_HANDLE& d3dDsvDepthStenc
 		if (m_pScene)
 			m_pScene->CheckObjectByObjectCollisions(m_elapsedTime);
 
-		if (m_pCartoonShader != nullptr && OnCartoonShading == true)
+		if (m_pCartoonShader != nullptr && g_OnCartoonShading == true)
 		{
 			m_pCartoonShader->SobelFilter(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);
 			m_pCartoonShader->Render(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_ppd3dCartoonScreenRenderTargetBuffers, m_pCamera);

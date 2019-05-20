@@ -92,7 +92,7 @@ public:
 	bool IsInGame(); 
 	enum GAMESTATE {CHARACTER_SELECT=0, INGAME,PAUSE,OPTION};
 private:
-	HINSTANCE						m_hInstance;
+	HINSTANCE					m_hInstance;
 	HWND							m_hWnd;
 	
 

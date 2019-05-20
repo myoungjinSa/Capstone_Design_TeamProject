@@ -73,6 +73,22 @@ void CSoundSystem::Play(const int Sound_num,float volume)
 		}
 	}
 }
+
+void CSoundSystem::AllPlay(float volume)
+{
+	if (pSystem)
+	{
+		for (int i = 0; i < m_soundCount; i++)
+		{
+			if (pSound[i])
+			{
+				pSystem->playSound(pSound[i], nullptr, false, &pChannel[i]);
+				pChannel[i]->setVolume(volume);
+			}
+		}
+	}
+}
+
 void CSoundSystem::PlayIndex(unsigned int index,float volume)
 {
 	if(pSystem)
@@ -99,6 +115,7 @@ void CSoundSystem::Stop(const int Sound_num)
 		}
 	}
 }
+
 void CSoundSystem::StopIndex(unsigned int index)
 {
 	if(pSystem)

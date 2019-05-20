@@ -938,7 +938,8 @@ void CScene::StopWarningTimer()
 
 void CScene::CheckWarningTimer()
 {
-	if (m_pSound) {
+	if (m_pSound) 
+	{
 		map<string, CShader*> m = m_pShaderManager->getShaderMap();
 
 		auto iter = m.find("TimerUI");
