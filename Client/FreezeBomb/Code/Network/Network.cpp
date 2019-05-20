@@ -5,8 +5,8 @@
 
 #ifdef _WITH_SERVER_
 
-volatile bool g_SuccessToServer;
-const char* g_serverIP;
+volatile bool g_LoginFinished;
+const char* g_serverIP = nullptr;
 Network::Network()
 {
 	sock = NULL;
@@ -24,25 +24,23 @@ bool Network::connectToServer(HWND hWnd)
 {
 
 	// 서버 IP주소 입력받기
-	std::string s;
-	printf("서버IP입력 : ");
-	std::cin >> s;
-	g_serverIP = s.c_str();
-
-	// 윈속 초기화
+	while (g_serverIP == nullptr);
+	
+		// 윈속 초기화
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 		PostQuitMessage(0);
 
-	// socket()
+		// socket()
 	sock = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, 0);
 	if (sock == INVALID_SOCKET)
 	{
 		err_quit("socket()");
+
 		return false;
 	}
 
-	// connect()
+		// connect()
 	SOCKADDR_IN serveraddr;
 	ZeroMemory(&serveraddr, sizeof(serveraddr));
 	serveraddr.sin_family = AF_INET;
@@ -53,7 +51,10 @@ bool Network::connectToServer(HWND hWnd)
 	if (retval == SOCKET_ERROR)
 	{
 		if (GetLastError() != WSAEWOULDBLOCK)
+		{
+			g_LoginFinished = true;
 			err_quit("connect()");
+		}
 		return false;
 	}
 
@@ -65,8 +66,9 @@ bool Network::connectToServer(HWND hWnd)
 	recv_wsabuf.len = BUF_SIZE;
 
 
-	g_SuccessToServer = true;
+	g_LoginFinished = true;
 	return true;
+	
 	
 }
 
@@ -266,7 +268,7 @@ void Network::err_quit(const char *msg)
 		(LPTSTR)&lpMsgBuf, 0, NULL);
 	MessageBox(NULL, (LPCTSTR)lpMsgBuf, (LPCWSTR)msg, MB_ICONERROR);
 	LocalFree(lpMsgBuf);
-	exit(1);
+	//exit(1);
 }
 
 // 소켓 함수 오류 출력

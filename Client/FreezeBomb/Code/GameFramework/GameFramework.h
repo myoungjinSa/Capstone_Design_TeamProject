@@ -60,6 +60,7 @@ public:
 	//Network*getNetwork() { return &m_Network; }
 	void ProcessPacket(char *ptr);
 	void CreateLoginCommandList();
+	void ProcessLogin();
 #endif
 	void ChangeSwapChainState();
 

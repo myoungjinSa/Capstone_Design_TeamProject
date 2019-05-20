@@ -1,13 +1,15 @@
 #include "../Stdafx/Stdafx.h"
 #include "LoginInputSystem.h"
-
+#include "../Shader/BillboardShader/UIShader/LoginShader/CLoginShader.h"
+#include "../Network/Network.h"
+#include <mutex>
 #pragma comment(lib,"imm32.lib")
 #include <imm.h>
 
 
 #ifdef _WITH_DIRECT2D_
-
-
+extern  const char* g_serverIP;
+mutex g_lock;
 CLoginInputSystem::CLoginInputSystem()
 {
 
@@ -28,7 +30,7 @@ void CLoginInputSystem::Initialize(IDWriteFactory *writeFactory, ID2D1DeviceCont
 	{
 		hResult = writeFactory->CreateTextFormat(L"°íµñ", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 30.0f, L"en-US", &m_pdwChattingFont[i]);
 		hResult = m_pdwChattingFont[i]->SetTextAlignment( DWRITE_TEXT_ALIGNMENT_LEADING);
-		hResult = m_pdwChattingFont[i]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
+		hResult = m_pdwChattingFont[i]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 		hResult = writeFactory->CreateTextLayout(L"ÅØ½ºÆ® ·¹ÀÌ¾Æ¿ô", 64, m_pdwChattingFont[i], 4096.0f, 4096.0f, &m_pdwChattingLayout);
 		//pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrChatText[i]);
 	}
@@ -37,34 +39,70 @@ void CLoginInputSystem::Initialize(IDWriteFactory *writeFactory, ID2D1DeviceCont
 }
 
 
-void CLoginInputSystem::ProcessIDInput(UINT sel)
+size_t CLoginInputSystem::ProcessIPInput(UINT sel)
 {
 	//static UCHAR pKeyBuffer[256];
 
-	if (GetAsyncKeyState(VK_A) & 0x0001)
-		if (sel == 0)
+	
+	//	if(sel == CLoginShader::LoginState::IP_SELECT)
+	//	{
+
+	
+	
+		if (m_wsIP.size() < IP_LENGTH)
 		{
-			m_wsID += (TCHAR)'a';
-			//cout << m_wsID.c_str() << endl;
+			if (GetAsyncKeyState(DIGIT_0) & 0x0001 || GetAsyncKeyState(VK_NUMPAD0) & 0x0001)
+				m_wsIP += '0';
+			if (GetAsyncKeyState(DIGIT_1) & 0x0001 || GetAsyncKeyState(VK_NUMPAD1) & 0x0001)
+				m_wsIP += '1';
+			if (GetAsyncKeyState(DIGIT_2) & 0x0001 || GetAsyncKeyState(VK_NUMPAD2) & 0x0001)
+				m_wsIP += '2';
+			if (GetAsyncKeyState(DIGIT_3) & 0x0001 || GetAsyncKeyState(VK_NUMPAD3) & 0x0001)
+				m_wsIP += '3';
+			if (GetAsyncKeyState(DIGIT_4) & 0x0001 || GetAsyncKeyState(VK_NUMPAD4) & 0x0001)
+				m_wsIP += '4';
+			if (GetAsyncKeyState(DIGIT_5) & 0x0001 || GetAsyncKeyState(VK_NUMPAD5) & 0x0001)
+				m_wsIP += '5';
+			if (GetAsyncKeyState(DIGIT_6) & 0x0001 || GetAsyncKeyState(VK_NUMPAD6) & 0x0001)
+				m_wsIP += '6';
+			if (GetAsyncKeyState(DIGIT_7) & 0x0001 || GetAsyncKeyState(VK_NUMPAD7) & 0x0001)
+				m_wsIP += '7';
+			if (GetAsyncKeyState(DIGIT_8) & 0x0001 || GetAsyncKeyState(VK_NUMPAD8) & 0x0001)
+				m_wsIP += '8';
+			if (GetAsyncKeyState(DIGIT_9) & 0x0001 || GetAsyncKeyState(VK_NUMPAD9) & 0x0001)
+				m_wsIP += '9';
+			if (GetAsyncKeyState(VK_OEM_PERIOD) & 0x0001)
+				m_wsIP += '.';
 		}
-		else if(sel == 1)
+
+		if (GetAsyncKeyState(VK_BACK) & 0x0001)
 		{
-			m_wsIP += (TCHAR)'a';
-			//cout << "IP" << endl;
+			if (m_wsIP.size() > 0)
+			{
+				m_wsIP.pop_back();
+
+			}
 		}
+		if(GetAsyncKeyState(VK_RETURN) & 0x0001)
+		{
+			if(m_wsIP.size() > 0 )
+			{
+				g_lock.lock();
+				g_serverIP = m_wsIP.c_str();
+				g_lock.unlock();
+			}
+		}
+	
+	
+	//	}
+
 	//if (GetAsyncKeyState(VK_A) & 0x8000)
 	//cout << "a" << endl;
 	//m_wsID += (TCHAR)'a';
-
+	return m_wsIP.size();
 }
 
-void CLoginInputSystem::ProcessIPInput()
-{
-	static UCHAR pKeyBuffer[256];
 
-	if (pKeyBuffer['1'] & 0xF0)
-		m_wsID += (TCHAR)'1';
-}
 TCHAR* CLoginInputSystem::StringToTCHAR(string& s)
 {
 	tstring tstr;
@@ -82,32 +120,20 @@ TCHAR* CLoginInputSystem::StringToTCHAR(string& s)
 	
 }
 
-void CLoginInputSystem::ShowIDInput()
-{
-	//if(m_bIDShow)
-	//{
-		D2D1_RECT_F idText{ 0,0,0,0 };
 
-		const TCHAR* t;
-		t = m_wsID.c_str();
-
-		idText = D2D1::RectF(680.0f, 645.0f, 500.0f, 300.0f);
-		m_pd2dDeviceContext->DrawTextW(t, (UINT32)wcslen(t), m_pdwChattingFont[0], &idText, m_pd2dbrChatText[0]);
-	//}
-}
 
 void CLoginInputSystem::ShowIPInput()
 {
-	//if(m_bIPShow)
-	//{
-		D2D1_RECT_F ipText{ 0,0,0,0 };
 
-		const TCHAR* t;
-		t = m_wsIP.c_str();
+	D2D1_RECT_F ipText{ 0,0,0,0 };
 
-		ipText = D2D1::RectF(680.0f, 645.0f, 500.0f, 300.0f);
-		m_pd2dDeviceContext->DrawTextW(t, (UINT32)wcslen(t), m_pdwChattingFont[0], &ipText, m_pd2dbrChatText[0]);
-	//}
+	const TCHAR* t;
+		
+	t = StringToTCHAR(m_wsIP);;
+
+	ipText = D2D1::RectF(480.0f, 670.0f, 750.0f, 670.0f);
+	m_pd2dDeviceContext->DrawTextW(t, (UINT32)wcslen(t), m_pdwChattingFont[0], &ipText, m_pd2dbrChatText[0]);
+
 }
 string CLoginInputSystem::TCHARToString(const TCHAR* ptsz)
 {
@@ -128,8 +154,6 @@ void CLoginInputSystem::Destroy()
 	m_wsIP.clear();
 	m_wsIP.shrink_to_fit();
 
-	m_wsID.clear();
-	m_wsID.shrink_to_fit();
 	if (m_pd2dDeviceContext)
 		m_pd2dDeviceContext = nullptr;
 	for (int i = 0; i < m_maxChatSentenceCount; ++i)

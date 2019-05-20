@@ -125,9 +125,14 @@ void CLoginScene::ProcessInput()
 
 	
 	}
-	if (m_pInput)
-		m_pInput->ProcessIDInput(sel);
+	size_t IP_Length = 0;
 	
+	if (m_pInput)
+		IP_Length = m_pInput->ProcessIPInput(sel);
+	
+	if (IP_Length > 0)
+		g_CurrentTexture = CLoginShader::NO_SELECT;
+
 
 }
 
@@ -148,7 +153,6 @@ void CLoginScene::DrawFont()
 {
 	if(m_pInput)
 	{
-		m_pInput->ShowIDInput();
 		m_pInput->ShowIPInput();
 	}
 }

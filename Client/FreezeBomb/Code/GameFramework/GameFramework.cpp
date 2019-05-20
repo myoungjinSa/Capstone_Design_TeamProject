@@ -31,7 +31,7 @@ extern volatile size_t g_TotalSize;
 extern volatile size_t g_FileSize;
 
 #ifdef _WITH_SERVER_
-extern volatile bool g_SuccessToServer;
+extern volatile bool g_LoginFinished;
 volatile HWND g_hWnd;
 #endif
 
@@ -887,6 +887,7 @@ void CGameFramework::OnDestroy()
 #endif
 }
 
+
 bool CGameFramework::BuildObjects()
 {
 #ifdef _WITH_SERVER_
@@ -894,31 +895,24 @@ bool CGameFramework::BuildObjects()
 	m_nState = LOGIN;
 
 	
-	g_hWnd = m_hWnd;
-	if (m_pLoginCommandList)
-		m_pLoginCommandList->Reset(m_pLoginCommandAllocator, nullptr);
-
-	m_pLoginScene = new CLoginScene;
-	m_pLoginScene->BuildObjects(m_pd3dDevice, m_pLoginCommandList,m_pdWriteFactory,m_pd2dDeviceContext,m_pwicImagingFactory);
-
-	m_pLoginCommandList->Close();
-
-	ID3D12CommandList* ppd3dLoginCommandLists[] = { m_pLoginCommandList };
-	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dLoginCommandLists);
-	WaitForGpuComplete();
-
-	loginThread.emplace_back(thread{ &CGameFramework::Login_Thread,this,m_pLoginScene});
-	
-	//loginThread.emplace_back(thread { &CGameFramework::ConnectToServer,this,*Network::GetInstance(),m_hWnd});
-	//OnProcessingMouseMessage(m_hWnd,)
+	ProcessLogin();
 
 	if (Network::GetInstance()->connectToServer(m_hWnd) == false)
-		return false;
-	for (auto& thread : loginThread)
+	{
+		for (auto& thread : loginThread)
 		thread.join();
+		return false;
+	}
+	else
+	{
+		//return false;
+		for (auto& thread : loginThread)
+			thread.join();
 
-	Network::GetInstance()->SetGameFrameworkPtr(m_hWnd,this);
+		Network::GetInstance()->SetGameFrameworkPtr(m_hWnd, this);
 
+	}
+	
 #endif
 	// 윈도우 창 띄우기
 	m_nState = LOADING;
@@ -1375,6 +1369,28 @@ void CGameFramework::ProcessDirect2D()
 #endif
 #ifdef _WITH_SERVER_
 
+void CGameFramework::ProcessLogin() 
+{
+	g_hWnd = m_hWnd;
+	if (m_pLoginCommandList)
+		m_pLoginCommandList->Reset(m_pLoginCommandAllocator, nullptr);
+
+	m_pLoginScene = new CLoginScene;
+	m_pLoginScene->BuildObjects(m_pd3dDevice, m_pLoginCommandList,m_pdWriteFactory,m_pd2dDeviceContext,m_pwicImagingFactory);
+
+	m_pLoginCommandList->Close();
+
+	ID3D12CommandList* ppd3dLoginCommandLists[] = { m_pLoginCommandList };
+	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dLoginCommandLists);
+	WaitForGpuComplete();
+
+	loginThread.emplace_back(thread{ &CGameFramework::Login_Thread,this,m_pLoginScene});
+
+	//loginThread.emplace_back(thread { &CGameFramework::ConnectToServer,this,*Network::GetInstance(),m_hWnd});
+	//OnProcessingMouseMessage(m_hWnd,)
+
+	
+}
 void CGameFramework::ProcessPacket(char *packet)
 {
 	switch (packet[1])
@@ -1823,7 +1839,7 @@ void CGameFramework::Login_Thread(CLoginScene* pLoginScene)
 	m_GameTimer.Reset();
 
 	//네트워크 연결이 성공하면 루프 탈출
-	while(!g_SuccessToServer)
+	while(!g_LoginFinished)
 	{
 		m_GameTimer.Tick(60.0f);
 		float elapsedTime = m_GameTimer.GetTimeElapsed();

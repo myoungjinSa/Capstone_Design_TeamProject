@@ -67,7 +67,7 @@ public:
 	~Network();
 public:
 	SOCKET getSock();
-	bool connectToServer(HWND hWnd);
+	bool connectToServer(HWND hWnd );
 
 	//Network클래스도 CGameFramework에 접근가능하게 하기위해 내부 포인터를 갖고있게 함.
 	void SetGameFrameworkPtr(HWND hWnd, CGameFramework* client);

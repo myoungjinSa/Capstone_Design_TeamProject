@@ -18,17 +18,13 @@ protected:
 	DWORD							m_conv;
 	TCHAR							m_chat[512];
 	//string							m_sChat;
-	wstring							m_wsID;
-	wstring							m_wsIP;
-	bool							m_bIDShow{ false };
+	string							m_wsIP;
+	
 	bool							m_bIPShow{ false };
 	int								m_composeCount{ 0 };
 
-	//LOBBY채팅에서의 최대 길이
-	enum class SENTENCE_LENGTH_LOBBY		{ENG=45,KOR=15};
-	
-	//INGAME채팅에서의 최대 길이
-	enum class SENTENCE_LENGTH_INGAME		{ENG=40,KOR=20};
+
+	const int IP_LENGTH = 15;
 
 public:
 	CLoginInputSystem();
@@ -36,8 +32,7 @@ public:
 
 	void Initialize(IDWriteFactory*,ID2D1DeviceContext2*,IWICImagingFactory*);
 
-	void ProcessIDInput(UINT sel);
-	void ProcessIPInput();
+	size_t ProcessIPInput(UINT sel);
 
 	TCHAR* StringToTCHAR(string& s);
 	string TCHARToString(const TCHAR* ptsz);
@@ -48,11 +43,8 @@ public:
 	bool ComposeHangeul(HWND hWnd, WPARAM wParam,LPARAM lParam);
 
 	//void SetActive(bool active) { m_bActive = active; }
-	void SetIDActive(bool active) { m_bIDShow = active;  }
 	void SetIPActive(bool active) { m_bIPShow = active;  }
-	bool IsIDInputActive() { return m_bIDShow; }
 	bool IsIPInputActive() { return m_bIPShow; }
-	void ShowIDInput();
 	void ShowIPInput();
 	void Destroy();
 };

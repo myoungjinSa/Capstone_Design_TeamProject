@@ -38,9 +38,10 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvDescriptorStartHandle() { return(m_d3dSrvCPUDescriptorStartHandle); }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorStartHandle() { return(m_d3dSrvGPUDescriptorStartHandle); }
 
+
 	void DecideTextureByCursor(LONG mouseX, LONG mouseY,UINT& sel);
 	//사용자가 어떤 유아이를 클릭했는지 
-	enum LoginState {NO_SELECT,ID_SELECT,IP_SELECT};
+	enum LoginState {NO_SELECT,IP_SELECT};
 protected:
 	
 	

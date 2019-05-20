@@ -115,20 +115,17 @@ D3D12_SHADER_BYTECODE CLoginShader::CreatePixelShader()
 
 void CLoginShader::BuildObjects(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList,ID3D12RootSignature *pd3dGraphicsRootSignature,void *pContext)
 {
-	constexpr int nTextures = 3;
+	constexpr int nTextures = 2;
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, nTextures);
 
 
 	CTexture** pLoginTextures = new CTexture*[nTextures];
 	
 	pLoginTextures[NO_SELECT] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pLoginTextures[NO_SELECT]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Login/IP_Title.dds", 0);
-
-	pLoginTextures[ID_SELECT] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pLoginTextures[ID_SELECT]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Login/IP_ID.dds", 0);
+	pLoginTextures[NO_SELECT]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Login/IP_NO.dds", 0);
 
 	pLoginTextures[IP_SELECT] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pLoginTextures[IP_SELECT]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Login/IP_IP.dds", 0);
+	pLoginTextures[IP_SELECT]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Login/IP_YES.dds", 0);
 
 	for (int i = 0; i < nTextures; ++i)
 	{
@@ -166,12 +163,8 @@ void CLoginShader::AnimateObjects(float fTimeElapsed)
 
 void CLoginShader::DecideTextureByCursor(LONG mouseX,LONG mouseY,UINT& p)
 {
-	if (352 <= mouseX && mouseX <= 824 && 610 <= mouseY && mouseY <= 640)
-	{
-			g_CurrentTexture = ID_SELECT;
-			p = ID_SELECT;
-	}
-	else if (352 <= mouseX && mouseX <= 824 && 663 <= mouseY && mouseY <= 690)
+	cout << mouseX << "," << mouseY<<endl;
+	if (339 <= mouseX && mouseX <= 827 && 656 <= mouseY && mouseY <= 692)
 	{
 			g_CurrentTexture = IP_SELECT;
 			p = IP_SELECT;
