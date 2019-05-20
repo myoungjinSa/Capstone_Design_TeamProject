@@ -99,8 +99,6 @@ private:
 	int 							m_nState{ GAMESTATE::INGAME };
 	//게임 상태 
 	
-	//클라이언트 정보
-	clientsInfo						m_PlayerInfo[MAX_USER];
 	int								m_nWndClientWidth;
 	int								m_nWndClientHeight;
 
@@ -194,6 +192,8 @@ private:
 #endif
 
 #ifdef _WITH_SERVER_
+	//클라이언트 정보
+	clientsInfo						m_PlayerInfo[MAX_USER];
 	//Network m_Network;
 	int hostId;
 	int clientCount = 0;
