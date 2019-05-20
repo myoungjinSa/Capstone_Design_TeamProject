@@ -7,7 +7,11 @@
 #include "../../../../GameObject/Billboard/UI/UI.h"
 #include "../../../../SoundSystem/SoundSystem.h"
 
+extern bool g_OnCartoonShading;
+
 bool CMenuUIShader::m_IsPlay = false;
+byte CMenuUIShader::m_MenuState = MenuBoard;
+
 CMenuUIShader::CMenuUIShader()
 {
 }
@@ -18,7 +22,7 @@ CMenuUIShader::~CMenuUIShader()
 
 void CMenuUIShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
-	m_nPipelineStates = 4;
+	m_nPipelineStates = 6;
 	m_ppd3dPipelineStates = new ID3D12PipelineState*[m_nPipelineStates];
 
 	for (int i = 0; i < m_nPipelineStates; ++i)
@@ -67,6 +71,15 @@ D3D12_SHADER_BYTECODE CMenuUIShader::CreateVertexShader(int UIType)
 	case Menu_GameOver:
 		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "VSMenuGameOverUI", "vs_5_1", &m_pd3dVertexShaderBlob));
 		break;
+
+	case Menu_Sound:
+		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "VSMenuSoundUI", "vs_5_1", &m_pd3dVertexShaderBlob));
+		break;
+
+	case Menu_Cartoon:
+		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "VSMenuCartoonUI", "vs_5_1", &m_pd3dVertexShaderBlob));
+		break;
+
 	default:
 		break;
 	}
@@ -113,6 +126,24 @@ void CMenuUIShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	pGameOverUI->SetMaterial(0, pGameOverMaterial);
 	m_UIMap.emplace(Menu_GameOver, pGameOverUI);
 
+	CMaterial* pSoundMaterial = new CMaterial(1);
+	iter = Context.find("Sound");
+	if (iter != Context.end())
+		pSoundMaterial->SetTexture((*iter).second, 0);
+	CUI* pSoundUI = new CUI(1);
+	pSoundUI->SetMesh(pMenuMesh);
+	pSoundUI->SetMaterial(0, pSoundMaterial);
+	m_UIMap.emplace(Menu_Sound, pSoundUI);
+
+	CMaterial* pCartoonMaterial = new CMaterial(1);
+	iter = Context.find("Cartoon");
+	if (iter != Context.end())
+		pCartoonMaterial->SetTexture((*iter).second, 0);
+	CUI* pCartoonUI = new CUI(1);
+	pCartoonUI->SetMesh(pMenuMesh);
+	pCartoonUI->SetMaterial(0, pCartoonMaterial);
+	m_UIMap.emplace(Menu_Cartoon, pCartoonUI);
+
 	int musicNum = 1;
 	string filename = "../Resource/Sound/Click.wav";
 
@@ -126,6 +157,10 @@ void CMenuUIShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	m_MenuInfo.m_MenuOption_MinMaxPos = XMFLOAT4(-0.09f, -0.05f, 0.09f, 0.15f);
 	m_MenuInfo.m_MenuGameOver_MinMaxPos = XMFLOAT4(-0.15f, -0.35f, 0.15f, -0.15f);
 	m_MenuInfo.m_MenuOption_MenuGameOver_UV = XMFLOAT4(0.f, 0.5f, 0.f, 0.5f);
+
+	m_MenuInfo.m_MenuSound_MinMaxPos = XMFLOAT4(-0.2f, -0.05f, 0.2f, 0.15f);
+	m_MenuInfo.m_MenuCartoon_MinMaxPos = XMFLOAT4(-0.25f, -0.35f, 0.25f, -0.15f);
+	m_MenuInfo.m_MenuSound_MenuCartoon_UV = XMFLOAT4(0.f, 0.5f, 0.5f, 1.f);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
@@ -150,15 +185,30 @@ void CMenuUIShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* 
 		if (iter != m_UIMap.end())
 			(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
 
-		CUIShader::OnPrepareRender(pd3dCommandList, Menu_Option);
-		iter = m_UIMap.find(Menu_Option);
-		if (iter != m_UIMap.end())
-			(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
+		if (m_MenuState == MenuBoard)
+		{
+			CUIShader::OnPrepareRender(pd3dCommandList, Menu_Option);
+			iter = m_UIMap.find(Menu_Option);
+			if (iter != m_UIMap.end())
+				(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
 
-		CUIShader::OnPrepareRender(pd3dCommandList, Menu_GameOver);
-		iter = m_UIMap.find(Menu_GameOver);
-		if (iter != m_UIMap.end())
-			(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
+			CUIShader::OnPrepareRender(pd3dCommandList, Menu_GameOver);
+			iter = m_UIMap.find(Menu_GameOver);
+			if (iter != m_UIMap.end())
+				(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
+		}
+		else
+		{
+			CUIShader::OnPrepareRender(pd3dCommandList, Menu_Sound);
+			iter = m_UIMap.find(Menu_Sound);
+			if (iter != m_UIMap.end())
+				(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
+
+			CUIShader::OnPrepareRender(pd3dCommandList, Menu_Cartoon);
+			iter = m_UIMap.find(Menu_Cartoon);
+			if (iter != m_UIMap.end())
+				(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
+		}
 	}
 }
 
@@ -193,6 +243,10 @@ void CMenuUIShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommand
 		m_pMappedUIData->m_MenuOption_MinMaxPos = m_MenuInfo.m_MenuOption_MinMaxPos;
 		m_pMappedUIData->m_MenuGameOver_MinMaxPos = m_MenuInfo.m_MenuGameOver_MinMaxPos;
 		m_pMappedUIData->m_MenuOption_MenuGameOver_UV = m_MenuInfo.m_MenuOption_MenuGameOver_UV;
+
+		m_pMappedUIData->m_MenuSound_MinMaxPos = m_MenuInfo.m_MenuSound_MinMaxPos;
+		m_pMappedUIData->m_MenuCartoon_MinMaxPos = m_MenuInfo.m_MenuCartoon_MinMaxPos;
+		m_pMappedUIData->m_MenuSound_MenuCartoon_UV = m_MenuInfo.m_MenuSound_MenuCartoon_UV;
 
 		D3D12_GPU_VIRTUAL_ADDRESS GPUVirtualAddress = m_pd3dUIData->GetGPUVirtualAddress();
 		pd3dCommandList->SetGraphicsRootConstantBufferView(24, GPUVirtualAddress);
@@ -245,30 +299,32 @@ void CMenuUIShader::ProcessMouseMessage(UINT message, XMFLOAT2& mousePos)
 	switch (message)
 	{
 	case WM_MOUSEMOVE:
+	{
 		{
-			{
-				XMFLOAT2 minPos, maxPos;
-				minPos.x = m_MenuInfo.m_MenuICON_MinMaxPos.x;
-				minPos.y = m_MenuInfo.m_MenuICON_MinMaxPos.y;
-				maxPos.x = m_MenuInfo.m_MenuICON_MinMaxPos.z;
-				maxPos.y = m_MenuInfo.m_MenuICON_MinMaxPos.w;
+			XMFLOAT2 minPos, maxPos;
+			minPos.x = m_MenuInfo.m_MenuICON_MinMaxPos.x;
+			minPos.y = m_MenuInfo.m_MenuICON_MinMaxPos.y;
+			maxPos.x = m_MenuInfo.m_MenuICON_MinMaxPos.z;
+			maxPos.y = m_MenuInfo.m_MenuICON_MinMaxPos.w;
 
-				if (UICollisionCheck(mousePos, minPos, maxPos) == true)
+			if (UICollisionCheck(mousePos, minPos, maxPos) == true)
+			{
+				m_MenuInfo.m_MenuBoard_MenuICON_UV.z = 0.5f;
+				m_MenuInfo.m_MenuBoard_MenuICON_UV.w = 1.f;
+			}
+			else
+			{
+				if (m_IsRender == false)
 				{
-					m_MenuInfo.m_MenuBoard_MenuICON_UV.z = 0.5f;
-					m_MenuInfo.m_MenuBoard_MenuICON_UV.w = 1.f;
-				}
-				else
-				{
-					if (m_IsRender == false)
-					{
-						m_MenuInfo.m_MenuBoard_MenuICON_UV.z = 0.f;
-						m_MenuInfo.m_MenuBoard_MenuICON_UV.w = 0.5f;
-					}
+					m_MenuInfo.m_MenuBoard_MenuICON_UV.z = 0.f;
+					m_MenuInfo.m_MenuBoard_MenuICON_UV.w = 0.5f;
 				}
 			}
+		}
+		{
+			if (m_IsRender == true)
 			{
-				if (m_IsRender == true)
+				if (m_MenuState == MenuBoard)
 				{
 					XMFLOAT2 Option_minPos, Option_maxPos;
 					Option_minPos.x = m_MenuInfo.m_MenuOption_MinMaxPos.x;
@@ -298,57 +354,151 @@ void CMenuUIShader::ProcessMouseMessage(UINT message, XMFLOAT2& mousePos)
 					{
 						m_MenuInfo.m_MenuOption_MinMaxPos = XMFLOAT4(-0.09f, -0.05f, 0.09f, 0.15f);
 						m_MenuInfo.m_MenuGameOver_MinMaxPos = XMFLOAT4(-0.15f, -0.35f, 0.15f, -0.15f);
-						m_MenuInfo.m_MenuOption_MenuGameOver_UV = XMFLOAT4(0.f, 0.5f, 0.f, 0.5f);	
+						m_MenuInfo.m_MenuOption_MenuGameOver_UV = XMFLOAT4(0.f, 0.5f, 0.f, 0.5f);
 					}
-				}		
+				}
+				else if (m_MenuState == Menu_Option)
+				{
+					XMFLOAT2 Sound_minPos, Sound_maxPos;
+					Sound_minPos.x = m_MenuInfo.m_MenuSound_MinMaxPos.x;
+					Sound_minPos.y = m_MenuInfo.m_MenuSound_MinMaxPos.y;
+					Sound_maxPos.x = m_MenuInfo.m_MenuSound_MinMaxPos.z;
+					Sound_maxPos.y = m_MenuInfo.m_MenuSound_MinMaxPos.w;
+
+					XMFLOAT2 Cartoon_minPos, Cartoon_maxPos;
+					Cartoon_minPos.x = m_MenuInfo.m_MenuCartoon_MinMaxPos.x;
+					Cartoon_minPos.y = m_MenuInfo.m_MenuCartoon_MinMaxPos.y;
+					Cartoon_maxPos.x = m_MenuInfo.m_MenuCartoon_MinMaxPos.z;
+					Cartoon_maxPos.y = m_MenuInfo.m_MenuCartoon_MinMaxPos.w;
+
+					if (UICollisionCheck(mousePos, Sound_minPos, Sound_maxPos) == true)
+					{
+						//XMFLOAT4(-0.2f, -0.05f, 0.2f, 0.15f);
+						m_MenuInfo.m_MenuSound_MinMaxPos = XMFLOAT4(-0.225f, -0.075f, 0.225f, 0.175f);
+						m_MenuInfo.m_MenuCartoon_MinMaxPos = XMFLOAT4(-0.25f, -0.35f, 0.25f, -0.15f);
+					}
+					else if (UICollisionCheck(mousePos, Cartoon_minPos, Cartoon_maxPos) == true)
+					{
+						m_MenuInfo.m_MenuSound_MinMaxPos = XMFLOAT4(-0.2f, -0.05f, 0.2f, 0.15f);
+						m_MenuInfo.m_MenuCartoon_MinMaxPos = XMFLOAT4(-0.275f, -0.375f, 0.275f, -0.125f);
+					}
+					else
+					{
+						m_MenuInfo.m_MenuSound_MinMaxPos = XMFLOAT4(-0.2f, -0.05f, 0.2f, 0.15f);
+						m_MenuInfo.m_MenuCartoon_MinMaxPos = XMFLOAT4(-0.25f, -0.35f, 0.25f, -0.15f);
+					}
+				}
 			}
 		}
-		break;
+	}
+	break;
 
 	case WM_LBUTTONDOWN:
+	{
 		{
-			{
-				XMFLOAT2 minPos, maxPos;
-				minPos.x = m_MenuInfo.m_MenuICON_MinMaxPos.x;
-				minPos.y = m_MenuInfo.m_MenuICON_MinMaxPos.y;
-				maxPos.x = m_MenuInfo.m_MenuICON_MinMaxPos.z;
-				maxPos.y = m_MenuInfo.m_MenuICON_MinMaxPos.w;
+			XMFLOAT2 minPos, maxPos;
+			minPos.x = m_MenuInfo.m_MenuICON_MinMaxPos.x;
+			minPos.y = m_MenuInfo.m_MenuICON_MinMaxPos.y;
+			maxPos.x = m_MenuInfo.m_MenuICON_MinMaxPos.z;
+			maxPos.y = m_MenuInfo.m_MenuICON_MinMaxPos.w;
 
-				if (UICollisionCheck(mousePos, minPos, maxPos) == true)
+			if (UICollisionCheck(mousePos, minPos, maxPos) == true)
+			{
+				if (m_pSound)
+					m_pSound->PlayIndex(MENU_INPUT);
+				m_IsRender = !m_IsRender;
+
+				m_MenuState = MenuBoard;
+			}
+		}
+
+		if (m_MenuState == MenuBoard)
+		{
+			XMFLOAT2 Option_minPos, Option_maxPos;
+			Option_minPos.x = m_MenuInfo.m_MenuOption_MinMaxPos.x;
+			Option_minPos.y = m_MenuInfo.m_MenuOption_MinMaxPos.y;
+			Option_maxPos.x = m_MenuInfo.m_MenuOption_MinMaxPos.z;
+			Option_maxPos.y = m_MenuInfo.m_MenuOption_MinMaxPos.w;
+
+			XMFLOAT2 GameOver_minPos, GameOver_maxPos;
+			GameOver_minPos.x = m_MenuInfo.m_MenuGameOver_MinMaxPos.x;
+			GameOver_minPos.y = m_MenuInfo.m_MenuGameOver_MinMaxPos.y;
+			GameOver_maxPos.x = m_MenuInfo.m_MenuGameOver_MinMaxPos.z;
+			GameOver_maxPos.y = m_MenuInfo.m_MenuGameOver_MinMaxPos.w;
+
+			if (UICollisionCheck(mousePos, Option_minPos, Option_maxPos) == true)
+			{
+				if (m_pSound)
+					m_pSound->PlayIndex(MENU_INPUT);
+
+				m_MenuState = Menu_Option;
+			}
+			else if (UICollisionCheck(mousePos, GameOver_minPos, GameOver_maxPos) == true)
+			{
+				::PostQuitMessage(0);
+			}
+		}
+		else if (m_MenuState == Menu_Option)
+		{
+			XMFLOAT2 Sound_minPos, Sound_maxPos;
+			Sound_minPos.x = m_MenuInfo.m_MenuSound_MinMaxPos.x;
+			Sound_minPos.y = m_MenuInfo.m_MenuSound_MinMaxPos.y;
+			Sound_maxPos.x = m_MenuInfo.m_MenuSound_MinMaxPos.z;
+			Sound_maxPos.y = m_MenuInfo.m_MenuSound_MinMaxPos.w;
+
+			XMFLOAT2 Cartoon_minPos, Cartoon_maxPos;
+			Cartoon_minPos.x = m_MenuInfo.m_MenuCartoon_MinMaxPos.x;
+			Cartoon_minPos.y = m_MenuInfo.m_MenuCartoon_MinMaxPos.y;
+			Cartoon_maxPos.x = m_MenuInfo.m_MenuCartoon_MinMaxPos.z;
+			Cartoon_maxPos.y = m_MenuInfo.m_MenuCartoon_MinMaxPos.w;
+
+			if (UICollisionCheck(mousePos, Sound_minPos, Sound_maxPos) == true)
+			{
+				if (m_pSound)
+					m_pSound->PlayIndex(MENU_INPUT);
+
+				m_IsSoundOn = !m_IsSoundOn;
+				if (m_IsSoundOn == true)
 				{
-					if (m_pSound)
-						m_pSound->PlayIndex(MENU_INPUT);
-					m_IsRender = !m_IsRender;
+					m_MenuInfo.m_MenuSound_MenuCartoon_UV.x = 0.f;
+					m_MenuInfo.m_MenuSound_MenuCartoon_UV.y = 0.5f;
+
+					//m_pSound->AllPlay(1.f);
+				}
+				else
+				{
+					m_MenuInfo.m_MenuSound_MenuCartoon_UV.x = 0.5f;
+					m_MenuInfo.m_MenuSound_MenuCartoon_UV.y = 1.f;
+
+					//m_pSound->AllPlay(0.f);
 				}
 			}
+
+			else if (UICollisionCheck(mousePos, Cartoon_minPos, Cartoon_maxPos) == true)
 			{
-				XMFLOAT2 Option_minPos, Option_maxPos;
-				Option_minPos.x = m_MenuInfo.m_MenuOption_MinMaxPos.x;
-				Option_minPos.y = m_MenuInfo.m_MenuOption_MinMaxPos.y;
-				Option_maxPos.x = m_MenuInfo.m_MenuOption_MinMaxPos.z;
-				Option_maxPos.y = m_MenuInfo.m_MenuOption_MinMaxPos.w;
+				if (m_pSound)
+					m_pSound->PlayIndex(MENU_INPUT);
 
-				XMFLOAT2 GameOver_minPos, GameOver_maxPos;
-				GameOver_minPos.x = m_MenuInfo.m_MenuGameOver_MinMaxPos.x;
-				GameOver_minPos.y = m_MenuInfo.m_MenuGameOver_MinMaxPos.y;
-				GameOver_maxPos.x = m_MenuInfo.m_MenuGameOver_MinMaxPos.z;
-				GameOver_maxPos.y = m_MenuInfo.m_MenuGameOver_MinMaxPos.w;
-
-				if (UICollisionCheck(mousePos, Option_minPos, Option_maxPos) == true)
+				g_OnCartoonShading = !g_OnCartoonShading;
+				if (g_OnCartoonShading == true)
 				{
-					if (m_pSound)
-						m_pSound->PlayIndex(MENU_INPUT);
+					m_MenuInfo.m_MenuSound_MenuCartoon_UV.z = 0.f;
+					m_MenuInfo.m_MenuSound_MenuCartoon_UV.w = 0.5f;
 				}
-				else if (UICollisionCheck(mousePos, GameOver_minPos, GameOver_maxPos) == true)
+				else
 				{
-					::PostQuitMessage(0);
+					m_MenuInfo.m_MenuSound_MenuCartoon_UV.z = 0.5f;
+					m_MenuInfo.m_MenuSound_MenuCartoon_UV.w = 1.f;
 				}
 			}
 		}
-		break;
+	}
+	break;
 	default:
 		break;
 	}
+
+	ChangeState();
 }
 
 void CMenuUIShader::ProcessKeyBoardMessage()
@@ -367,5 +517,26 @@ void CMenuUIShader::ProcessKeyBoardMessage()
 	{
 		m_MenuInfo.m_MenuBoard_MenuICON_UV.z = 0.f;
 		m_MenuInfo.m_MenuBoard_MenuICON_UV.w = 0.5f;
+		m_MenuState = MenuBoard;
+	}
+
+	ChangeState();
+}
+
+void CMenuUIShader::ChangeState()
+{
+	switch (m_MenuState)
+	{
+	case MenuBoard:
+		m_MenuInfo.m_MenuBoard_MenuICON_UV.x = 0.f;
+		m_MenuInfo.m_MenuBoard_MenuICON_UV.y = 0.5f;
+		break;
+
+	case Menu_Option:
+		m_MenuInfo.m_MenuBoard_MenuICON_UV.x = 0.5f;
+		m_MenuInfo.m_MenuBoard_MenuICON_UV.y = 1.f;
+		break;
+	default:
+		break;
 	}
 }

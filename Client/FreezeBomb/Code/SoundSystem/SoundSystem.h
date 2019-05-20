@@ -20,10 +20,13 @@ public:
 	void Initialize(const int soundNum,const char** musicList,int nFlags);
 	void Initialize(string filename, int type);
 
-	void Play(const int SoundNum,float volume =1.0f);
+	void Play(const int SoundNum, float volume =1.0f);
+	void AllPlay(float volume);
+
 	void PlayIndex(unsigned int index,float volume=1.0f);
 	void StopIndex(unsigned int index);
 	void Stop(const int sountNum);
+	
 	void Release();
 
 	const int& GetSoundCount()const { return m_soundCount; }

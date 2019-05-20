@@ -60,6 +60,8 @@ void CResourceManager::PrepareLoad()
 	m_TextureInfoMap.emplace("Menu_ICON", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Menu/Menu_ICON.dds", 22));
 	m_TextureInfoMap.emplace("Option", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Menu/Option.dds", 22));
 	m_TextureInfoMap.emplace("GameOver", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Menu/GameOver.dds", 22));
+	m_TextureInfoMap.emplace("Sound", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Menu/Sound.dds", 22));
+	m_TextureInfoMap.emplace("Cartoon", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Menu/Cartoon.dds", 22));
 
 	m_TextureInfoMap.emplace("Win", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Text/Win.dds", 22));
 	m_TextureInfoMap.emplace("Lose", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Text/Lose.dds", 22));

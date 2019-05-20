@@ -297,6 +297,10 @@ cbuffer cbMenuUV					: register(b9)
 	float4 m_MenuOption_MinMaxPos				: packoffset(c3);
 	float4 m_MenuGameOver_MinMaxPos			: packoffset(c4);
 	float4 m_MenuOption_MenuGameOver_UV	: packoffset(c5);
+
+	float4 m_MenuSound_MinMaxPos				: packoffset(c6);
+	float4 m_MenuCartoon_MinMaxPos				: packoffset(c7);
+	float4 m_MenuSound_MenuCartoon_UV		: packoffset(c8);
 };
 
 VS_UI_OUTPUT VSMenuBoardUI(uint nVertexID : SV_VertexID)
@@ -451,6 +455,82 @@ VS_UI_OUTPUT VSMenuGameOverUI(uint nVertexID : SV_VertexID)
 	{
 		output.position = float4(m_MenuGameOver_MinMaxPos.x, m_MenuGameOver_MinMaxPos.w, 0.0f, 1.0f);
 		output.uv = float2(m_MenuOption_MenuGameOver_UV.z, 0.0f);
+	}
+	return (output);
+}
+
+VS_UI_OUTPUT VSMenuSoundUI(uint nVertexID : SV_VertexID)
+{
+	VS_UI_OUTPUT output;
+
+	if (nVertexID == 0)
+	{
+		output.position = float4(m_MenuSound_MinMaxPos.x, m_MenuSound_MinMaxPos.w, 0.0f, 1.0f);
+		output.uv = float2(m_MenuSound_MenuCartoon_UV.x, 0.0f);
+
+	}
+	if (nVertexID == 1)
+	{
+		output.position = float4(m_MenuSound_MinMaxPos.x, m_MenuSound_MinMaxPos.y, 0.0f, 1.0f);
+		output.uv = float2(m_MenuSound_MenuCartoon_UV.x, 1.0f);
+	}
+	if (nVertexID == 2)
+	{
+		output.position = float4(m_MenuSound_MinMaxPos.z, m_MenuSound_MinMaxPos.y, 0.0f, 1.0f);
+		output.uv = float2(m_MenuSound_MenuCartoon_UV.y, 1.0f);
+	}
+	if (nVertexID == 3)
+	{
+		output.position = float4(m_MenuSound_MinMaxPos.z, m_MenuSound_MinMaxPos.y, 0.0f, 1.0f);
+		output.uv = float2(m_MenuSound_MenuCartoon_UV.y, 1.0f);
+	}
+	if (nVertexID == 4)
+	{
+		output.position = float4(m_MenuSound_MinMaxPos.z, m_MenuSound_MinMaxPos.w, 0.0f, 1.0f);
+		output.uv = float2(m_MenuSound_MenuCartoon_UV.y, 0.0f);
+	}
+	if (nVertexID == 5)
+	{
+		output.position = float4(m_MenuSound_MinMaxPos.x, m_MenuSound_MinMaxPos.w, 0.0f, 1.0f);
+		output.uv = float2(m_MenuSound_MenuCartoon_UV.x, 0.0f);
+	}
+	return (output);
+}
+
+VS_UI_OUTPUT VSMenuCartoonUI(uint nVertexID : SV_VertexID)
+{
+	VS_UI_OUTPUT output;
+
+	if (nVertexID == 0)
+	{
+		output.position = float4(m_MenuCartoon_MinMaxPos.x, m_MenuCartoon_MinMaxPos.w, 0.0f, 1.0f);
+		output.uv = float2(m_MenuSound_MenuCartoon_UV.z, 0.0f);
+
+	}
+	if (nVertexID == 1)
+	{
+		output.position = float4(m_MenuCartoon_MinMaxPos.x, m_MenuCartoon_MinMaxPos.y, 0.0f, 1.0f);
+		output.uv = float2(m_MenuSound_MenuCartoon_UV.z, 1.0f);
+	}
+	if (nVertexID == 2)
+	{
+		output.position = float4(m_MenuCartoon_MinMaxPos.z, m_MenuCartoon_MinMaxPos.y, 0.0f, 1.0f);
+		output.uv = float2(m_MenuSound_MenuCartoon_UV.w, 1.0f);
+	}
+	if (nVertexID == 3)
+	{
+		output.position = float4(m_MenuCartoon_MinMaxPos.z, m_MenuCartoon_MinMaxPos.y, 0.0f, 1.0f);
+		output.uv = float2(m_MenuSound_MenuCartoon_UV.w, 1.0f);
+	}
+	if (nVertexID == 4)
+	{
+		output.position = float4(m_MenuCartoon_MinMaxPos.z, m_MenuCartoon_MinMaxPos.w, 0.0f, 1.0f);
+		output.uv = float2(m_MenuSound_MenuCartoon_UV.w, 0.0f);
+	}
+	if (nVertexID == 5)
+	{
+		output.position = float4(m_MenuCartoon_MinMaxPos.x, m_MenuCartoon_MinMaxPos.w, 0.0f, 1.0f);
+		output.uv = float2(m_MenuSound_MenuCartoon_UV.z, 0.0f);
 	}
 	return (output);
 }
