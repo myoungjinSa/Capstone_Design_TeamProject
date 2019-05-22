@@ -26,7 +26,8 @@ public:
 	void PlayIndex(unsigned int index,float volume=1.0f);
 	void StopIndex(unsigned int index);
 	void Stop(const int sountNum);
-	
+	void AllStop();
+
 	void Release();
 
 	const int& GetSoundCount()const { return m_soundCount; }

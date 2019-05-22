@@ -34,13 +34,11 @@ public:
 	void ProcessMouseMessage(UINT message, XMFLOAT2& mousePos);
 	void ProcessKeyBoardMessage();
 	void ChangeState();
-	
+
 private:
 
 	enum MENU_TYPE { None = - 1, MenuBoard, Menu_ICON, Menu_Option, Menu_GameOver, Menu_Sound, Menu_Cartoon };
 	bool m_IsRender = false;
-	bool m_IsSoundOn = true;
-
 	static byte m_MenuState;
 
 	struct MenuUIInfo

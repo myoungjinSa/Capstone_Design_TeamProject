@@ -156,22 +156,17 @@ public:
 
 	ID3D12Resource*				m_pd3dcbLights = NULL;
 	LIGHTS*						m_pcbMappedLights = NULL;
-	
-protected:
 
 	//FMOD 사운드 시스템
 	//씬마다 음악이 달라져야 할수 있기 때문에 씬이 사운드를 관리함.
-	CSoundSystem*				m_pSound=NULL;
+	CSoundSystem*		m_pSound=NULL;
 
-
-	const char**				m_musicList = NULL;
+	const char**			m_musicList = NULL;
 	int							m_musicCount;
 
 	bool						m_musicStart{ false };
-private:
 	CPlayer*					m_pPlayer = NULL;
 
-	
 	float						m_bVibeTime{ 0.0f };
 	bool						m_bWarningSet{ false };		//경고음 울리는지 여부 
 

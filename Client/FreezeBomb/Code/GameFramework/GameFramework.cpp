@@ -24,6 +24,7 @@
 //#define FullScreenMode
 
 bool g_OnCartoonShading = false;
+bool g_IsSoundOn = true;
 
 byte g_PlayerCharacter = CGameObject::BROWN;
 
@@ -76,8 +77,6 @@ CGameFramework::~CGameFramework()
 
 bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 {
-
-
 	m_hInstance = hInstance;
 	m_hWnd = hMainWnd;
 
@@ -95,15 +94,12 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CreateSwapChain();
 	CreateDepthStencilView();
 	
-
-	
 	//CoInitialize(NULL);
 
 	if (BuildObjects() == false)
 		return false;
 
 	CreateOffScreenRenderTargetViews();
-
 
 	return true;
 }

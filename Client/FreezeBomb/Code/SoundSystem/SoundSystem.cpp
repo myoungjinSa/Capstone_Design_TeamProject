@@ -116,6 +116,21 @@ void CSoundSystem::Stop(const int Sound_num)
 	}
 }
 
+void CSoundSystem::AllStop()
+{
+	if (pSystem)
+	{
+		for (int i = 0; i < m_soundCount; i++)
+		{
+			if (pChannel[i])
+			{
+				pChannel[i]->stop();
+
+			}
+		}
+	}
+}
+
 void CSoundSystem::StopIndex(unsigned int index)
 {
 	if(pSystem)

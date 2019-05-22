@@ -3,11 +3,11 @@
 #include "../../../../Mesh/BillboardMesh/BillboardMesh.h"
 #include "../../../../Texture/Texture.h"
 #include "../../../../Material/Material.h"
-//#include "../../../../Scene/Scene.h"
 #include "../../../../GameObject/Billboard/UI/UI.h"
 #include "../../../../SoundSystem/SoundSystem.h"
 
 extern bool g_OnCartoonShading;
+extern bool g_IsSoundOn;
 
 bool CMenuUIShader::m_IsPlay = false;
 byte CMenuUIShader::m_MenuState = MenuBoard;
@@ -404,7 +404,7 @@ void CMenuUIShader::ProcessMouseMessage(UINT message, XMFLOAT2& mousePos)
 
 			if (UICollisionCheck(mousePos, minPos, maxPos) == true)
 			{
-				if (m_pSound)
+				if (m_pSound && g_IsSoundOn == true)
 					m_pSound->PlayIndex(MENU_INPUT);
 				m_IsRender = !m_IsRender;
 
@@ -428,7 +428,7 @@ void CMenuUIShader::ProcessMouseMessage(UINT message, XMFLOAT2& mousePos)
 
 			if (UICollisionCheck(mousePos, Option_minPos, Option_maxPos) == true)
 			{
-				if (m_pSound)
+				if (m_pSound && g_IsSoundOn == true)
 					m_pSound->PlayIndex(MENU_INPUT);
 
 				m_MenuState = Menu_Option;
@@ -454,29 +454,30 @@ void CMenuUIShader::ProcessMouseMessage(UINT message, XMFLOAT2& mousePos)
 
 			if (UICollisionCheck(mousePos, Sound_minPos, Sound_maxPos) == true)
 			{
-				if (m_pSound)
+				if (m_pSound && g_IsSoundOn == true)
 					m_pSound->PlayIndex(MENU_INPUT);
 
-				m_IsSoundOn = !m_IsSoundOn;
-				if (m_IsSoundOn == true)
+				g_IsSoundOn = !g_IsSoundOn;
+				if (g_IsSoundOn == true)
 				{
 					m_MenuInfo.m_MenuSound_MenuCartoon_UV.x = 0.f;
 					m_MenuInfo.m_MenuSound_MenuCartoon_UV.y = 0.5f;
 
-					//m_pSound->AllPlay(1.f);
+					m_pSound->AllPlay(1.f);
 				}
 				else
 				{
 					m_MenuInfo.m_MenuSound_MenuCartoon_UV.x = 0.5f;
 					m_MenuInfo.m_MenuSound_MenuCartoon_UV.y = 1.f;
 
-					//m_pSound->AllPlay(0.f);
+					m_pSound->AllStop();
+					g_IsSoundOn = false;
 				}
 			}
 
 			else if (UICollisionCheck(mousePos, Cartoon_minPos, Cartoon_maxPos) == true)
 			{
-				if (m_pSound)
+				if (m_pSound && g_IsSoundOn == true)
 					m_pSound->PlayIndex(MENU_INPUT);
 
 				g_OnCartoonShading = !g_OnCartoonShading;
@@ -503,7 +504,7 @@ void CMenuUIShader::ProcessMouseMessage(UINT message, XMFLOAT2& mousePos)
 
 void CMenuUIShader::ProcessKeyBoardMessage()
 {
-	if (m_pSound)
+	if (m_pSound && g_IsSoundOn == true)
 		m_pSound->PlayIndex(MENU_INPUT);
 
 	m_IsRender = !m_IsRender;

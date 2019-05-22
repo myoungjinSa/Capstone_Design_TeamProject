@@ -29,6 +29,8 @@ D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dCbvGPUDescriptorNextHandle;
 D3D12_CPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvCPUDescriptorNextHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvGPUDescriptorNextHandle;
 
+extern bool g_IsSoundOn;
+
 float CScene::m_TaggerCoolTime = 0.f;
 bool CScene::m_IsPlay = false;
 
@@ -907,7 +909,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 
 void CScene::PlayGetItemEffect()
 {
-	if (m_pSound)
+	if (m_pSound && g_IsSoundOn == true)
 		m_pSound->PlayIndex(ITEMGET);
 	//cout << "PlayGetItem\n";
 }
@@ -916,7 +918,8 @@ void CScene::PlayIceBreakEffect(bool& bBreak)
 {
 	if (bBreak)
 	{
-		m_pSound->PlayIndex(ICEBREAK);
+		if(m_pSound && g_IsSoundOn == true)
+			m_pSound->PlayIndex(ICEBREAK);
 
 		if (m_pPlayer->IsCameraVibe() == false)
 			m_pPlayer->SetCameraVibe(true);
@@ -938,7 +941,7 @@ void CScene::StopWarningTimer()
 
 void CScene::CheckWarningTimer()
 {
-	if (m_pSound) 
+	if (m_pSound && g_IsSoundOn == true)
 	{
 		map<string, CShader*> m = m_pShaderManager->getShaderMap();
 
@@ -965,7 +968,7 @@ void CScene::CheckWarningTimer()
 
 void CScene::PlayBackgroundMusic()
 {
-	if (m_pSound)
+	if (m_pSound && g_IsSoundOn == true)
 		m_pSound->PlayIndex(BACKGROUNDMUSIC,0.5f);
 
 }
