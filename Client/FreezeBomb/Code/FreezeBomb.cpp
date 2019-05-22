@@ -2,6 +2,8 @@
 #include "Default\Resource.h"
 #include "GameFramework/GameFramework.h"
 #include "Chatting\Chatting.h"
+#include "Scene\LoginScene\IDScene\LoginScene.h"
+#include "InputSystem\IDInputSystem\IDInputSystem.h"
 
 #define MAX_LOADSTRING 100
 
@@ -139,8 +141,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 #ifdef _WITH_DIRECT2D_
 		if (ChattingSystem::GetInstance()->IsChattingActive())
 			ChattingSystem::GetInstance()->ProcessChatting(hWnd,wParam,lParam,gGameFramework.IsInGame());
+#ifdef _WITH_SERVER_
+		if(gGameFramework.GetGameState() == CGameFramework::GAMESTATE::LOGIN)
+		{
+			CLoginScene* p = gGameFramework.GetLoginScene();
+			CIDInput* input = p->GetIDInstance();
+			input->ProcessIDInput(hWnd,wParam,lParam);
+		}
+
 
 #endif
+#endif
+
+
 		break;
 		//한글 조합 시작
 	case WM_IME_STARTCOMPOSITION:
@@ -169,6 +182,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			ChattingSystem::GetInstance()->ProcessChatting(hWnd, wParam, lParam,gGameFramework.IsInGame());
 			//ChattingSystem::GetInstance()->ComposeHangeul(hWnd, wParam,lParam);
 		}
+#ifdef _WITH_SERVER_
+		if(gGameFramework.GetGameState() == CGameFramework::GAMESTATE::LOGIN)
+		{
+			CLoginScene* p = gGameFramework.GetLoginScene();
+			CIDInput* input = p->GetIDInstance();
+			input->ProcessIDInput(hWnd,wParam,lParam);
+		}
+#endif
 		break;
 	case WM_IME_ENDCOMPOSITION:
 		//한글 입력을 종료할때 발생한다.

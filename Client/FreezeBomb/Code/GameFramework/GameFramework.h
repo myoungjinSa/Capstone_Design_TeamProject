@@ -14,6 +14,7 @@ class CSobelCartoonShader;
 class CLoadingScene;
 class CLobbyScene;
 class ChattingSystem;
+class CIPScene;
 class CLoginScene;
 
 
@@ -58,8 +59,10 @@ public:
 	
 #ifdef _WITH_SERVER_
 	//Network*getNetwork() { return &m_Network; }
+	CLoginScene* GetLoginScene()const { return m_pLoginScene; }
 	void ProcessPacket(char *ptr);
 	void CreateLoginCommandList();
+	void ConnectToServer();
 	void ProcessLogin();
 #endif
 	void ChangeSwapChainState();
@@ -84,6 +87,8 @@ public:
 	bool IsHangeul() { return m_bHangeul; }
 	void SetHangeul(bool han) { m_bHangeul = han; }
 
+	int GetGameState() const { return m_nState; };
+	
 #ifdef _MAPTOOL_MODE_
 	void OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 #endif	
@@ -91,7 +96,7 @@ public:
 	
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	bool IsInGame(); 
-	enum GAMESTATE {CHARACTER_SELECT=0, INGAME,PAUSE,OPTION,LOGIN,LOADING};
+	enum GAMESTATE {CHARACTER_SELECT=0, INGAME,PAUSE,OPTION,CONNECT,LOGIN,LOADING};
 private:
 	HINSTANCE					m_hInstance;
 	HWND							m_hWnd;
@@ -217,10 +222,11 @@ private:
 	ID3D12CommandAllocator*					m_pLoginCommandAllocator = nullptr;
 	ID3D12GraphicsCommandList*				m_pLoginCommandList = nullptr;
 
-	CLoginScene*				m_pLoginScene{ nullptr };
+	CLoginScene*			m_pLoginScene{ nullptr };
+	CIPScene*				m_pIPScene{ nullptr };
 	vector<thread> loginThread;
 	vector<thread> connectThread;
-	void Login_Thread(CLoginScene* loginScene);
+	void Connect_Thread(CIPScene* loginScene);
 #endif
 	//사운드 쓰레드 풀
 	vector<thread> soundThreads;

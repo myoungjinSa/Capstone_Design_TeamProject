@@ -4,14 +4,14 @@
 #ifdef _WITH_DIRECT2D_
 class CTexture;
 class CShader;
-class CLoginShader;
-class CLoginInputSystem;
+class CIPShader;
+class CIPInputSystem;
 
-class CLoginScene
+class CIPScene
 {
 public:
-	CLoginScene();
-	~CLoginScene();
+	CIPScene();
+	~CIPScene();
 
 	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 
@@ -24,6 +24,7 @@ public:
 		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 	}
 
+	void ClearIPFont();
 	void ProcessInput();
 	void DrawFont();
 	ID3D12RootSignature *GetGraphicsRootSignature() { return(m_pd3dGraphicsRootSignature); }
@@ -31,7 +32,7 @@ public:
 protected:
 	ID3D12RootSignature						*m_pd3dGraphicsRootSignature = NULL;
 
-	CLoginInputSystem*						m_pInput;
+	CIPInputSystem*						m_pInput;
 public:
 	
 	

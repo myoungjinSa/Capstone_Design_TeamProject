@@ -191,7 +191,8 @@
     <ClInclude Include="..\Code\GameObject\Surrounding\Surrounding.h" />
     <ClInclude Include="..\Code\GameObject\Terrain\Terrain.h" />
     <ClInclude Include="..\Code\GameTimer\GameTimer.h" />
-    <ClInclude Include="..\Code\InputSystem\LoginInputSystem.h" />
+    <ClInclude Include="..\Code\InputSystem\IDInputSystem\IDInputSystem.h" />
+    <ClInclude Include="..\Code\InputSystem\IPInputSystem.h" />
     <ClInclude Include="..\Code\Material\Material.h" />
     <ClInclude Include="..\Code\Mesh\BillboardMesh\BillboardMesh.h" />
     <ClInclude Include="..\Code\Mesh\LODMesh\LODMesh.h.h" />
@@ -203,7 +204,8 @@
     <ClInclude Include="..\Code\ResourceManager\ResourceManager.h" />
     <ClInclude Include="..\Code\Scene\LoadingScene\LoadingScene.h" />
     <ClInclude Include="..\Code\Scene\LobbyScene\LobbyScene.h" />
-    <ClInclude Include="..\Code\Scene\LoginScene\LoginScene.h" />
+    <ClInclude Include="..\Code\Scene\LoginScene\IDScene\LoginScene.h" />
+    <ClInclude Include="..\Code\Scene\LoginScene\IPScene.h" />
     <ClInclude Include="..\Code\Scene\Scene.h" />
     <ClInclude Include="..\Code\ShaderManager\ShaderManager.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\BillboardShader.h" />
@@ -214,7 +216,8 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\ItemUIShader\ItemUIShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\LoadingShader\LoadingShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\LobbyShader\LobbyShader.h" />
-    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\CLoginShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\IDShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\IPShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\MenuUIShader\MenuUIShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\ProgressBarUIShader\ProgressBarUIShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TextUIShader\OutcomeUIShader\OutcomeUIShader.h" />
@@ -264,7 +267,8 @@
     <ClCompile Include="..\Code\GameObject\Surrounding\Surrounding.cpp" />
     <ClCompile Include="..\Code\GameObject\Terrain\Terrain.cpp" />
     <ClCompile Include="..\Code\GameTimer\GameTimer.cpp" />
-    <ClCompile Include="..\Code\InputSystem\LoginInputSystem.cpp" />
+    <ClCompile Include="..\Code\InputSystem\IDInputSystem\IDInputSystem.cpp" />
+    <ClCompile Include="..\Code\InputSystem\IPInputSystem.cpp" />
     <ClCompile Include="..\Code\Material\Material.cpp" />
     <ClCompile Include="..\Code\Mesh\BillboardMesh\BillboardMesh.cpp" />
     <ClCompile Include="..\Code\Mesh\LODMesh\LODMesh.cpp" />
@@ -275,7 +279,8 @@
     <ClCompile Include="..\Code\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="..\Code\Scene\LoadingScene\LoadingScene.cpp" />
     <ClCompile Include="..\Code\Scene\LobbyScene\LobbyScene.cpp" />
-    <ClCompile Include="..\Code\Scene\LoginScene\LoginScene.cpp" />
+    <ClCompile Include="..\Code\Scene\LoginScene\IDScene\LoginScene.cpp" />
+    <ClCompile Include="..\Code\Scene\LoginScene\IPScene.cpp" />
     <ClCompile Include="..\Code\Scene\Scene.cpp" />
     <ClCompile Include="..\Code\ShaderManager\ShaderManager.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\BillboardShader.cpp" />
@@ -286,7 +291,8 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\ItemUIShader\ItemUIShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\LoadingShader\LoadingShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\LobbyShader\LobbyShader.cpp" />
-    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\CLoginShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\IDShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\IPShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\MenuUIShader\MenuUIShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\ProgressBarUIShader\ProgressBarUIShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TextUIShader\OutcomeUIShader\OutcomeUIShader.cpp" />

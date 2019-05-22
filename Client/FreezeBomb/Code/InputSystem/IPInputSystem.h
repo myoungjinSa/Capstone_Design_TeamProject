@@ -3,7 +3,7 @@
 
 
 #ifdef _WITH_SERVER_
-class CLoginInputSystem 
+class CIPInputSystem 
 {
 protected:
 	typedef basic_string<TCHAR> tstring;
@@ -27,8 +27,8 @@ protected:
 	const int IP_LENGTH = 15;
 
 public:
-	CLoginInputSystem();
-	virtual ~CLoginInputSystem();
+	CIPInputSystem();
+	virtual ~CIPInputSystem();
 
 	void Initialize(IDWriteFactory*,ID2D1DeviceContext2*,IWICImagingFactory*);
 

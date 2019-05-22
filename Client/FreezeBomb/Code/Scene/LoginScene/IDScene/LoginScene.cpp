@@ -1,19 +1,18 @@
-#include "../../Stdafx/Stdafx.h"
-#include "LoginScene.h"
-#include "../../Shader/BillboardShader/UIShader/LoginShader/CLoginShader.h"
-#include "../../InputSystem/LoginInputSystem.h"
+#include "../../../Stdafx/Stdafx.h"
+#include "LoginScene.h" 
+#include "../../../Shader/BillboardShader/UIShader/LoginShader/IDShader.h"
+#include "../../../InputSystem/IDInputSystem/IDInputSystem.h"
 
 #ifdef _WITH_SERVER_
 #ifdef _WITH_DIRECT2D_
-extern volatile int g_CurrentTexture;
-extern volatile HWND g_hWnd;
 
 CLoginScene::CLoginScene()
 {
-}
 
+}
 CLoginScene::~CLoginScene()
 {
+
 }
 
 ID3D12RootSignature *CLoginScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)
@@ -85,8 +84,7 @@ void CLoginScene::ReleaseObjects()
 	}
 	delete[] m_ppShaders;
 }
-
-void CLoginScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,IDWriteFactory* writeFactory,ID2D1DeviceContext2* pd2dDeviceContext,IWICImagingFactory* pwicImagingFactory)
+void CLoginScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,IDWriteFactory* writeFactory,ID2D1DeviceContext2* pd2dDeviceContext)
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
@@ -95,45 +93,63 @@ void CLoginScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_nShaders = 1;
 	m_ppShaders = new CShader*[m_nShaders];
 
-	CLoginShader *pLoginShader = new CLoginShader;
-	pLoginShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nullptr);
-	pLoginShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	m_ppShaders[index++] = pLoginShader;
+	CIDShader *pIPShader = new CIDShader;
+	pIPShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nullptr);
+	pIPShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	m_ppShaders[index++] = pIPShader;
 
 
-	m_pInput = new CLoginInputSystem;
+	m_pInput = new CIDInput;
 	if (m_pInput)
-		m_pInput->Initialize(writeFactory,pd2dDeviceContext,pwicImagingFactory);
+		m_pInput->Initialize(writeFactory,pd2dDeviceContext);
+
 
 }
-void CLoginScene::ProcessInput()
+XMFLOAT3 CLoginScene::ScreenPosition(int x, int y)
 {
-	static UCHAR pKeysBuffer[256];
+	D3D12_VIEWPORT d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
 
-	POINT ptCursorPos;
-	
-	SetCursor(NULL);
+	XMFLOAT3 screenPosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
-	GetCursorPos(&ptCursorPos);
-	ScreenToClient(g_hWnd,&ptCursorPos);
-	
-	UINT sel=0;
-	if(GetKeyState(VK_LBUTTON) & 0x8000)
+	screenPosition.x = (((2.0f * x) / d3dViewport.Width) - 1) / 1;
+	screenPosition.y = - (((2.0f * y) / d3dViewport.Height) - 1) / 1;
+
+	screenPosition.z = 0.0f;
+
+	return screenPosition;
+}
+void CLoginScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wParam,LPARAM lParam)
+{
+	int mouseX = LOWORD(lParam);
+	int mouseY = HIWORD(lParam);
+
+	switch(nMessageID)
 	{
+//	case WM_MOUSEMOVE:
+	//case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
+	{
+		POINT ptCursorPos;
 	
-		dynamic_cast<CLoginShader*>(m_ppShaders[0])->DecideTextureByCursor(ptCursorPos.x, ptCursorPos.y,sel);
+		//SetCursor(hWnd);
+	
+		GetCursorPos(&ptCursorPos);
+		ScreenToClient(hWnd,&ptCursorPos);
+		
+		//XMFLOAT3 position = ScreenPosition(mouseX, mouseY);
+		//cout << mouseX << ", " << mouseY << "--------------" << position.x << ", " << position.y << endl;
+			
+		int ret = dynamic_cast<CIDShader*>(m_ppShaders[0])->DecideTextureByCursor(wParam,ptCursorPos.x, ptCursorPos.y);
+		
+		(ret == CIDShader::state::REQUEST_LOGIN) ? m_bLogin = true : m_bLogin = false;
 
-	
+
+		break;
 	}
-	size_t IP_Length = 0;
-	
-	if (m_pInput)
-		IP_Length = m_pInput->ProcessIPInput(sel);
-	
-	if (IP_Length > 0)
-		g_CurrentTexture = CLoginShader::NO_SELECT;
 
 
+		//break;
+	}
 }
 
 void CLoginScene::AnimateObjects(ID3D12GraphicsCommandList* pd3dCommandList, float elapsedTime)
@@ -149,14 +165,6 @@ void CLoginScene::AnimateObjects(ID3D12GraphicsCommandList* pd3dCommandList, flo
 	}
 }
 
-void CLoginScene::DrawFont()
-{
-	if(m_pInput)
-	{
-		m_pInput->ShowIPInput();
-	}
-}
-
 void CLoginScene::Render(ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	if (m_pd3dGraphicsRootSignature) 
@@ -165,7 +173,14 @@ void CLoginScene::Render(ID3D12GraphicsCommandList *pd3dCommandList)
 
 	for(int i = 0; i < m_nShaders; ++i)
 	{
-		m_ppShaders[i]->Render(pd3dCommandList, 0);
+		if(m_pInput->IsIDLength()>0)
+		{
+			m_ppShaders[i]->Render(pd3dCommandList, 0,true);
+		}
+		else
+		{
+			m_ppShaders[i]->Render(pd3dCommandList, 0,false);
+		}
 	}
 
 
