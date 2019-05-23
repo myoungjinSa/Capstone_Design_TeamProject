@@ -464,7 +464,8 @@ void CPlayer::DecideAnimationState(float fLength)
 		if ((GetAsyncKeyState(VK_RIGHT) &0x8000
 			|| GetAsyncKeyState(VK_LEFT) &0x8000)
 			&& !(GetAsyncKeyState(VK_UP) & 0x8000)
-			&& pController->GetAnimationState() == CAnimationController::RUNFAST
+			&&( pController->GetAnimationState() == CAnimationController::RUNFAST
+			|| pController->GetAnimationState() == CAnimationController::RUNBACKWARD)
 			)
 		{
 			SetTrackAnimationSet(0, CAnimationController::IDLE);
@@ -472,6 +473,7 @@ void CPlayer::DecideAnimationState(float fLength)
 			Network::GetInstance()->SendAnimationState(CAnimationController::IDLE);
 
 		}
+
 #endif
 		if (GetAsyncKeyState(VK_DOWN) & 0x8000
 			&& pController->GetAnimationState() != CAnimationController::ATTACK
