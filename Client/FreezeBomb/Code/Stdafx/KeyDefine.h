@@ -26,4 +26,16 @@ constexpr char VK_X = 0x58;
 constexpr char VK_Y = 0x59;
 constexpr char VK_Z = 0x5A;
 
+constexpr short DIGIT_0 = 0x30;
+constexpr short DIGIT_1 = 0x31;
+constexpr short DIGIT_2 = 0x32;
+constexpr short DIGIT_3 = 0x33;
+constexpr short DIGIT_4 = 0x34;
+constexpr short DIGIT_5 = 0x35;
+constexpr short DIGIT_6 = 0x36;
+constexpr short DIGIT_7 = 0x37;
+constexpr short DIGIT_8 = 0x38;
+constexpr short DIGIT_9 = 0x39;
+
+
 

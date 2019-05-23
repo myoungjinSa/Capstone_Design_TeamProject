@@ -15,6 +15,8 @@ struct CB_MATERIAL_INFO
 	XMFLOAT4	m_xmf4AlbedoColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	XMFLOAT4	m_xmf4SpecularColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	XMFLOAT4	m_xmf4EmissiveColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	//float		m_Shininess = 0.5f;
+	//XMFLOAT3	m_xmfFrenel = XMFLOAT3(0.2f, 0.2f, 0.2f);
 	// gnTexturesMask
 	UINT				m_nType = 0x00;
 };

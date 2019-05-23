@@ -39,7 +39,7 @@ void *CAnimationSet::GetCallbackData()
 }
 
 
-void CAnimationSet::SetPosition(CAnimationController& AnimationController,float& fTrackPosition,void* pContext)
+void CAnimationSet::SetPosition(CAnimationController& AnimationController, float& fTrackPosition, void* pContext)
 {
 	m_fPosition = fTrackPosition;
 
@@ -72,13 +72,13 @@ void CAnimationSet::SetPosition(CAnimationController& AnimationController,float&
 				AnimationController.m_state = CAnimationController::IDLE;
 				fTrackPosition = 0.0f;
 			}
-			
+
 		}
 		break;
 
 	case ANIMATION_TYPE_PINGPONG:
 		break;
-}
+	}
 
 	if (m_pAnimationCallbackHandler)
 	{
@@ -87,7 +87,7 @@ void CAnimationSet::SetPosition(CAnimationController& AnimationController,float&
 		{
 			if (pContext)
 			{
-				
+
 				m_pAnimationCallbackHandler->HandleCallback(pCallbackData, pContext);
 			}
 			else {
@@ -107,39 +107,39 @@ XMFLOAT4X4 CAnimationSet::GetSRT(int nFrame)
 	XMVECTOR S, R, T;
 	for (int i = 0; i < (m_nKeyFrameTranslations - 1); i++)
 	{
-		if ((m_pfKeyFrameTranslationTimes[i] <= m_fPosition) && (m_fPosition <= m_pfKeyFrameTranslationTimes[i+1]))
+		if ((m_pfKeyFrameTranslationTimes[i] <= m_fPosition) && (m_fPosition <= m_pfKeyFrameTranslationTimes[i + 1]))
 		{
-			float t = (m_fPosition - m_pfKeyFrameTranslationTimes[i]) / (m_pfKeyFrameTranslationTimes[i+1] - m_pfKeyFrameTranslationTimes[i]);
-			T = XMVectorLerp(XMLoadFloat3(&m_ppxmf3KeyFrameTranslations[i][nFrame]), XMLoadFloat3(&m_ppxmf3KeyFrameTranslations[i+1][nFrame]), t);
+			float t = (m_fPosition - m_pfKeyFrameTranslationTimes[i]) / (m_pfKeyFrameTranslationTimes[i + 1] - m_pfKeyFrameTranslationTimes[i]);
+			T = XMVectorLerp(XMLoadFloat3(&m_ppxmf3KeyFrameTranslations[i][nFrame]), XMLoadFloat3(&m_ppxmf3KeyFrameTranslations[i + 1][nFrame]), t);
 			break;
 		}
 	}
 	for (UINT i = 0; i < (m_nKeyFrameScales - 1); i++)
 	{
-		if ((m_pfKeyFrameScaleTimes[i] <= m_fPosition) && (m_fPosition <= m_pfKeyFrameScaleTimes[i+1]))
+		if ((m_pfKeyFrameScaleTimes[i] <= m_fPosition) && (m_fPosition <= m_pfKeyFrameScaleTimes[i + 1]))
 		{
-			float t = (m_fPosition - m_pfKeyFrameScaleTimes[i]) / (m_pfKeyFrameScaleTimes[i+1] - m_pfKeyFrameScaleTimes[i]);
-			S = XMVectorLerp(XMLoadFloat3(&m_ppxmf3KeyFrameScales[i][nFrame]), XMLoadFloat3(&m_ppxmf3KeyFrameScales[i+1][nFrame]), t);
+			float t = (m_fPosition - m_pfKeyFrameScaleTimes[i]) / (m_pfKeyFrameScaleTimes[i + 1] - m_pfKeyFrameScaleTimes[i]);
+			S = XMVectorLerp(XMLoadFloat3(&m_ppxmf3KeyFrameScales[i][nFrame]), XMLoadFloat3(&m_ppxmf3KeyFrameScales[i + 1][nFrame]), t);
 			break;
 		}
 	}
 	for (UINT i = 0; i < (m_nKeyFrameRotations - 1); i++)
 	{
-		if ((m_pfKeyFrameRotationTimes[i] <= m_fPosition) && (m_fPosition <= m_pfKeyFrameRotationTimes[i+1]))
+		if ((m_pfKeyFrameRotationTimes[i] <= m_fPosition) && (m_fPosition <= m_pfKeyFrameRotationTimes[i + 1]))
 		{
-			float t = (m_fPosition - m_pfKeyFrameRotationTimes[i]) / (m_pfKeyFrameRotationTimes[i+1] - m_pfKeyFrameRotationTimes[i]);
-			R = XMQuaternionSlerp(XMLoadFloat4(&m_ppxmf4KeyFrameRotations[i][nFrame]), XMLoadFloat4(&m_ppxmf4KeyFrameRotations[i+1][nFrame]), t);
+			float t = (m_fPosition - m_pfKeyFrameRotationTimes[i]) / (m_pfKeyFrameRotationTimes[i + 1] - m_pfKeyFrameRotationTimes[i]);
+			R = XMQuaternionSlerp(XMLoadFloat4(&m_ppxmf4KeyFrameRotations[i][nFrame]), XMLoadFloat4(&m_ppxmf4KeyFrameRotations[i + 1][nFrame]), t);
 			break;
 		}
 	}
 
 	XMStoreFloat4x4(&xmf4x4Transform, XMMatrixAffineTransformation(S, NULL, R, T));
 #else   
-	for (int i = 0; i < (m_nKeyFrameTransforms - 1); i++) 
+	for (int i = 0; i < (m_nKeyFrameTransforms - 1); i++)
 	{
-		if ((m_pfKeyFrameTransformTimes[i] <= m_fPosition) && (m_fPosition <= m_pfKeyFrameTransformTimes[i+1]))
+		if ((m_pfKeyFrameTransformTimes[i] <= m_fPosition) && (m_fPosition <= m_pfKeyFrameTransformTimes[i + 1]))
 		{
-			float t = (m_fPosition - m_pfKeyFrameTransformTimes[i]) / (m_pfKeyFrameTransformTimes[i+1] - m_pfKeyFrameTransformTimes[i]);
+			float t = (m_fPosition - m_pfKeyFrameTransformTimes[i]) / (m_pfKeyFrameTransformTimes[i + 1] - m_pfKeyFrameTransformTimes[i]);
 			xmf4x4Transform = Matrix4x4::Interpolate(m_ppxmf4x4KeyFrameTransforms[i][nFrame], m_ppxmf4x4KeyFrameTransforms[i + 1][nFrame], t);
 			break;
 		}
@@ -163,7 +163,7 @@ void CAnimationSet::SetCallbackKey(int nKeyIndex, float fKeyTime, void *pData)
 	m_pCallbackKeys[nKeyIndex].m_pCallbackData = pData;
 }
 
-void CAnimationSet::SetAnimationCallbackHandler(CAnimationCallbackHandler *pCallbackHandler,void* pContext)
+void CAnimationSet::SetAnimationCallbackHandler(CAnimationCallbackHandler *pCallbackHandler, void* pContext)
 {
 	m_pAnimationCallbackHandler = pCallbackHandler;
 	if (pContext)
@@ -197,9 +197,9 @@ void CAnimationSets::SetCallbackKey(int nAnimationSet, int nKeyIndex, float fKey
 	m_pAnimationSets[nAnimationSet].m_pCallbackKeys[nKeyIndex].m_pCallbackData = pData;
 }
 
-void CAnimationSets::SetAnimationCallbackHandler(int nAnimationSet, CAnimationCallbackHandler *pCallbackHandler,void* pSoundContext)
+void CAnimationSets::SetAnimationCallbackHandler(int nAnimationSet, CAnimationCallbackHandler *pCallbackHandler, void* pSoundContext)
 {
-	m_pAnimationSets[nAnimationSet].SetAnimationCallbackHandler(pCallbackHandler,pSoundContext);
+	m_pAnimationSets[nAnimationSet].SetAnimationCallbackHandler(pCallbackHandler, pSoundContext);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -208,9 +208,9 @@ void CAnimationSets::SetAnimationCallbackHandler(int nAnimationSet, CAnimationCa
 CAnimationController::CAnimationController(int nAnimationTracks, CAnimationSets *pAnimationSets)
 {
 	m_nAnimationTracks = nAnimationTracks;
-    m_pAnimationTracks = new CAnimationTrack[nAnimationTracks];
+	m_pAnimationTracks = new CAnimationTrack[nAnimationTracks];
 
-	
+
 	SetAnimationSets(pAnimationSets);
 }
 
@@ -231,9 +231,9 @@ void CAnimationController::SetCallbackKey(int nAnimationSet, int nKeyIndex, floa
 	if (m_pAnimationSets) m_pAnimationSets->SetCallbackKey(nAnimationSet, nKeyIndex, fKeyTime, pData);
 }
 
-void CAnimationController::SetAnimationCallbackHandler(int nAnimationSet, CAnimationCallbackHandler *pCallbackHandler,void* pSoundContext)
+void CAnimationController::SetAnimationCallbackHandler(int nAnimationSet, CAnimationCallbackHandler *pCallbackHandler, void* pSoundContext)
 {
-	if (m_pAnimationSets) m_pAnimationSets->SetAnimationCallbackHandler(nAnimationSet, pCallbackHandler,pSoundContext);
+	if (m_pAnimationSets) m_pAnimationSets->SetAnimationCallbackHandler(nAnimationSet, pCallbackHandler, pSoundContext);
 }
 
 void CAnimationController::SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet)
@@ -280,7 +280,7 @@ void CAnimationController::SetAnimationSets(CAnimationSets *pAnimationSets)
 
 void CAnimationController::AdvanceTime(float fTimeElapsed, void* pContext)
 {
-	m_fTime += fTimeElapsed; 
+	m_fTime += fTimeElapsed;
 	if (m_pAnimationSets && m_pAnimationTracks)
 	{
 		for (int i = 0; i < m_pAnimationSets->m_nAnimationFrames; i++)
@@ -293,7 +293,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, void* pContext)
 
 			CAnimationSet *pAnimationSet = m_pAnimationTracks[j].m_pAnimationSet;
 			pAnimationSet->m_fPosition += (fTimeElapsed * m_pAnimationTracks[j].m_fSpeed);
-			m_pAnimationTracks[j].m_pAnimationSet->SetPosition(*this,m_pAnimationTracks[j].m_fPosition,pContext);
+			m_pAnimationTracks[j].m_pAnimationSet->SetPosition(*this, m_pAnimationTracks[j].m_fPosition, pContext);
 			//m_pAnimationTracks[j].m_pAnimationSet->m_fLength;
 			if (m_pAnimationTracks[j].m_bEnable)
 			{
@@ -307,10 +307,10 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, void* pContext)
 			}
 		}
 	}
-} 
+}
 
 
-void CSoundCallbackHandler::HandleCallback(void *pCallbackData,void* pAdditionalData)
+void CSoundCallbackHandler::HandleCallback(void *pCallbackData, void* pAdditionalData)
 {
 
 	if (m_pContextData) {
@@ -408,47 +408,47 @@ CGameObject::CGameObject(int nMaterials) : CGameObject()
 
 CGameObject::~CGameObject()
 {
-	if (m_pMesh) 
+	if (m_pMesh)
 		m_pMesh->Release();
 
 	if (m_nMaterials > 0)
 	{
 		for (int i = 0; i < m_nMaterials; i++)
 		{
-			if (m_ppMaterials[i]) 
+			if (m_ppMaterials[i])
 				m_ppMaterials[i]->Release();
 		}
 	}
-	if (m_ppMaterials) 
+	if (m_ppMaterials)
 		delete[] m_ppMaterials;
 
-	if (m_pAnimationController) 
+	if (m_pAnimationController)
 		delete m_pAnimationController;
-	if (m_pSkinningBoneTransforms) 
+	if (m_pSkinningBoneTransforms)
 		delete m_pSkinningBoneTransforms;
 	if (m_pFrameTransform)
 		delete m_pFrameTransform;
 }
 
-void CGameObject::AddRef() 
-{ 
-	m_nReferences++; 
+void CGameObject::AddRef()
+{
+	m_nReferences++;
 
-	if (m_pSibling) 
+	if (m_pSibling)
 		m_pSibling->AddRef();
-	if (m_pChild) 
+	if (m_pChild)
 		m_pChild->AddRef();
 }
 
-void CGameObject::Release() 
-{ 
-	if (m_pChild) 
+void CGameObject::Release()
+{
+	if (m_pChild)
 		m_pChild->Release();
-	if (m_pSibling) 
+	if (m_pSibling)
 		m_pSibling->Release();
 
-	if (--m_nReferences <= 0) 
-		delete this; 
+	if (--m_nReferences <= 0)
+		delete this;
 }
 
 void CGameObject::SetChild(CGameObject* pChild, bool bReferenceUpdate)
@@ -456,12 +456,12 @@ void CGameObject::SetChild(CGameObject* pChild, bool bReferenceUpdate)
 	if (pChild)
 	{
 		pChild->m_pParent = this;
-		if (bReferenceUpdate) 
+		if (bReferenceUpdate)
 			pChild->AddRef();
 	}
 	if (m_pChild)
 	{
-		if (pChild) 
+		if (pChild)
 			pChild->m_pSibling = m_pChild->m_pSibling;
 		m_pChild->m_pSibling = pChild;
 	}
@@ -473,12 +473,12 @@ void CGameObject::SetChild(CGameObject* pChild, bool bReferenceUpdate)
 
 void CGameObject::SetMesh(CMesh* pMesh)
 {
-	if (m_pMesh) 
+	if (m_pMesh)
 		m_pMesh->Release();
 
 	m_pMesh = pMesh;
 
-	if (m_pMesh) 
+	if (m_pMesh)
 		m_pMesh->AddRef();
 }
 
@@ -492,7 +492,7 @@ void CGameObject::SetShader(CShader *pShader)
 
 void CGameObject::SetShader(int nMaterial, CShader *pShader)
 {
-	if (m_ppMaterials[nMaterial]) 
+	if (m_ppMaterials[nMaterial])
 		m_ppMaterials[nMaterial]->SetShader(pShader);
 }
 
@@ -509,10 +509,10 @@ CGameObject *CGameObject::FindFrame(char *pstrFrameName)
 	CGameObject *pFrameObject = NULL;
 	if (!strncmp(m_pstrFrameName, pstrFrameName, strlen(pstrFrameName))) return(this);
 
-	if (m_pSibling) 
-		if (pFrameObject = m_pSibling->FindFrame(pstrFrameName)) 
+	if (m_pSibling)
+		if (pFrameObject = m_pSibling->FindFrame(pstrFrameName))
 			return(pFrameObject);
-	if (m_pChild) 
+	if (m_pChild)
 		if (pFrameObject = m_pChild->FindFrame(pstrFrameName))
 			return(pFrameObject);
 
@@ -521,15 +521,15 @@ CGameObject *CGameObject::FindFrame(char *pstrFrameName)
 
 CGameObject *CGameObject::GetRootSkinnedGameObject()
 {
-	if (m_pAnimationController) 
+	if (m_pAnimationController)
 		return this;
 
 	CGameObject *pRootSkinnedGameObject = NULL;
-	if (m_pSibling) 
-		if (pRootSkinnedGameObject = m_pSibling->GetRootSkinnedGameObject()) 
+	if (m_pSibling)
+		if (pRootSkinnedGameObject = m_pSibling->GetRootSkinnedGameObject())
 			return(pRootSkinnedGameObject);
-	if (m_pChild) 
-		if (pRootSkinnedGameObject = m_pChild->GetRootSkinnedGameObject()) 
+	if (m_pChild)
+		if (pRootSkinnedGameObject = m_pChild->GetRootSkinnedGameObject())
 			return(pRootSkinnedGameObject);
 
 	return(NULL);
@@ -539,21 +539,21 @@ void CGameObject::UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent)
 {
 	m_xmf4x4World = (pxmf4x4Parent) ? Matrix4x4::Multiply(m_xmf4x4ToParent, *pxmf4x4Parent) : m_xmf4x4ToParent;
 
-	if (m_pSibling) 
+	if (m_pSibling)
 		m_pSibling->UpdateTransform(pxmf4x4Parent);
-	if (m_pChild) 
+	if (m_pChild)
 		m_pChild->UpdateTransform(&m_xmf4x4World);
 }
 
 void CGameObject::SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet)
 {
-	if (m_pAnimationController) 
+	if (m_pAnimationController)
 		m_pAnimationController->SetTrackAnimationSet(nAnimationTrack, nAnimationSet);
 }
 
 void CGameObject::SetTrackAnimationPosition(int nAnimationTrack, float fPosition)
 {
-	if (m_pAnimationController) 
+	if (m_pAnimationController)
 		m_pAnimationController->SetTrackPosition(nAnimationTrack, fPosition);
 }
 
@@ -568,15 +568,15 @@ float CGameObject::GetTrackAnimationPosition(int nAnimationTrack)
 void CGameObject::Animate(float fTimeElapsed)
 {
 	// 루트 오브젝트를 제외한 나머지는 모두 nullptr이다. 왜냐하면, 루트 오브젝트를 제어하기 위함이므로
-	if (m_pAnimationController) 
+	if (m_pAnimationController)
 		m_pAnimationController->AdvanceTime(fTimeElapsed);
 
 	m_xmOOBBTransformed.Transform(m_xmOOBB, XMLoadFloat4x4(&m_xmf4x4World));
 	XMStoreFloat4(&m_xmOOBBTransformed.Orientation, XMQuaternionNormalize(XMLoadFloat4(&m_xmOOBBTransformed.Orientation)));
 
-	if (m_pSibling) 
+	if (m_pSibling)
 		m_pSibling->Animate(fTimeElapsed);
-	if (m_pChild) 
+	if (m_pChild)
 		m_pChild->Animate(fTimeElapsed);
 }
 
@@ -600,7 +600,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 			{
 				if (m_ppMaterials[i])
 				{
-					if (m_ppMaterials[i]->m_pShader) 
+					if (m_ppMaterials[i]->m_pShader)
 						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
 
 					m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
@@ -610,9 +610,9 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 		}
 	}
 
-	if (m_pSibling) 
+	if (m_pSibling)
 		m_pSibling->Render(pd3dCommandList, pCamera, nPipelineState);
-	if (m_pChild) 
+	if (m_pChild)
 		m_pChild->Render(pd3dCommandList, pCamera, nPipelineState);
 }
 
@@ -632,7 +632,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, bool bHamme
 	{
 		if (!m_pSkinningBoneTransforms)
 			UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
-				
+
 		if (m_nMaterials == 1)			//폭탄과 같은 재질이 하나 있는 오브젝트 렌더
 		{
 			if (m_ppMaterials[0])
@@ -648,12 +648,12 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, bool bHamme
 		{
 			if (m_ppMaterials[0])
 			{
-				if (m_ppMaterials[0]->m_pShader) 
+				if (m_ppMaterials[0]->m_pShader)
 					m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
 				m_ppMaterials[0]->UpdateShaderVariables(pd3dCommandList);
 			}
 		}
-		else if (m_nMaterials == 7)		
+		else if (m_nMaterials == 7)
 		{
 			if (bIce)							//얼음 상태일때
 			{
@@ -663,7 +663,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, bool bHamme
 					{
 						m_ppMaterials[MATERIALTYPE::ICEMAT]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
 					}
-					m_ppMaterials[MATERIALTYPE::ICEMAT ]->UpdateShaderVariables(pd3dCommandList);
+					m_ppMaterials[MATERIALTYPE::ICEMAT]->UpdateShaderVariables(pd3dCommandList);
 				}
 			}
 			else
@@ -684,9 +684,9 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, bool bHamme
 
 	if (!strcmp(this->m_pstrFrameName, "Lamp"))		//불꽅 파티클은 일반 GameObject Render하는 방식을 해야한다. 
 	{
-		if (m_pSibling) 
+		if (m_pSibling)
 			m_pSibling->Render(pd3dCommandList, pCamera, nPipelineState);
-		if (m_pChild) 
+		if (m_pChild)
 			m_pChild->Render(pd3dCommandList, pCamera, nPipelineState);
 	}
 	else
@@ -695,16 +695,16 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, bool bHamme
 		{
 			if (!strncmp(m_pSibling->m_pstrFrameName, "Hammer", strlen(m_pSibling->m_pstrFrameName)))
 			{
-				if (bHammer) 
+				if (bHammer)
 				{
 					m_pSibling->Render(pd3dCommandList, bHammer, bBomb, bIce, matID, pCamera, nPipelineState);
 				}
 			}
-			else 
+			else
 			{
 				m_pSibling->Render(pd3dCommandList, bHammer, bBomb, bIce, matID, pCamera, nPipelineState);
 			}
-			
+
 		}
 		if (m_pChild)
 		{
@@ -712,15 +712,15 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, bool bHamme
 			{
 				if (bBomb)
 				{
-					 m_pChild->Render(pd3dCommandList,bHammer, bBomb, bIce, matID, pCamera, nPipelineState);
+					m_pChild->Render(pd3dCommandList, bHammer, bBomb, bIce, matID, pCamera, nPipelineState);
 				}
 			}
-			else 
+			else
 			{
-				m_pChild->Render(pd3dCommandList, bHammer,bBomb, bIce, matID, pCamera, nPipelineState);
+				m_pChild->Render(pd3dCommandList, bHammer, bBomb, bIce, matID, pCamera, nPipelineState);
 			}
 		}
-	}	
+	}
 }
 
 //LOD 오브젝트 렌더 
@@ -744,7 +744,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lodLev
 			{
 				if (m_ppMaterials[i])
 				{
-					if (m_ppMaterials[i]->m_pShader) 
+					if (m_ppMaterials[i]->m_pShader)
 						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
 					m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
 				}
@@ -754,10 +754,197 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lodLev
 		}
 	}
 
-	if (m_pSibling) 
+	if (m_pSibling)
 		m_pSibling->Render(pd3dCommandList, lodLevel, pCamera, nPipelineState);
-	if (m_pChild) 
+	if (m_pChild)
 		m_pChild->Render(pd3dCommandList, lodLevel, pCamera, nPipelineState);
+}
+
+void CGameObject::Item_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int ItemType, int nPipelineState)
+{
+	if (m_pFrameTransform)
+		m_pFrameTransform->SetFrameMeshWorldConstantBuffer();
+
+	if (m_pMesh)
+	{
+		if (m_nMaterials > 0)
+		{
+			// 망치 아이템일 경우
+			if (strcmp(m_pstrFrameName, "StoneHammer_Medium") == 0)
+			{
+				if (m_ppMaterials[ItemType])
+				{
+					if (m_ppMaterials[ItemType]->m_pShader)
+						m_ppMaterials[ItemType]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+
+					m_ppMaterials[ItemType]->UpdateShaderVariables(pd3dCommandList);
+				}
+
+				m_pMesh->Render(pd3dCommandList, 0);
+			}
+			// GoldTimer 아이템일 경우
+			else
+			{
+				if (m_ppMaterials[0])
+				{
+					if (m_ppMaterials[0]->m_pShader)
+						m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+
+					m_ppMaterials[0]->UpdateShaderVariables(pd3dCommandList);
+				}
+				m_pMesh->Render(pd3dCommandList, 0);
+			}
+		}
+	}
+
+	if (m_pSibling)
+		m_pSibling->Item_Render(pd3dCommandList, pCamera, ItemType, nPipelineState);
+	if (m_pChild)
+		m_pChild->Item_Render(pd3dCommandList, pCamera, ItemType, nPipelineState);
+}
+
+void CGameObject::Tagger_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int matID, bool HasGoldTimer, int nPipelineState)
+{
+	OnPrepareRender();
+
+	if (m_pSkinningBoneTransforms)
+		m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
+	if (m_pFrameTransform)
+		m_pFrameTransform->SetFrameMeshWorldConstantBuffer();
+
+	// 폭탄 심지의 불꽃 파티클
+	if (m_pLampParticle != nullptr)
+		m_pLampParticle->Render(pd3dCommandList, pCamera, nPipelineState);
+
+	else if (m_pMesh)
+	{
+		if (m_nMaterials > 0)
+		{
+			// 몸통 렌더링
+			if (strcmp(m_pstrFrameName, "Evilbear") == 0)
+			{
+				if (m_ppMaterials[matID])
+				{
+					if (m_ppMaterials[matID]->m_pShader)
+						m_ppMaterials[matID]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+					m_ppMaterials[matID]->UpdateShaderVariables(pd3dCommandList);
+
+					m_pMesh->Render(pd3dCommandList, 0);
+				}
+			}
+			// 폭탄 렌더링
+			else if (strcmp(m_pstrFrameName, "Regular_Bomb") == 0 || strcmp(m_pstrFrameName, "UCX_Regular_Bomb") == 0)
+			{
+				for (int i = 0; i < m_nMaterials; i++)
+				{
+					if (m_ppMaterials[i])
+					{
+						if (m_ppMaterials[i]->m_pShader)
+							m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+
+						m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
+					}
+					m_pMesh->Render(pd3dCommandList, i);
+				}
+			}
+			// 황금시계 있을 경우,황금시계 렌더링
+			else if (HasGoldTimer == true && strcmp(m_pstrFrameName, "StoneHammer_Medium") != 0)
+			{
+				for (int i = 0; i < m_nMaterials; i++)
+				{
+					if (m_ppMaterials[i])
+					{
+						if (m_ppMaterials[i]->m_pShader)
+							m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+
+						m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
+					}
+					m_pMesh->Render(pd3dCommandList, 0);
+				}
+			}
+		}
+	}
+
+	if (m_pSibling)
+		m_pSibling->Tagger_Render(pd3dCommandList, pCamera, matID, HasGoldTimer, nPipelineState);
+	if (m_pChild)
+		m_pChild->Tagger_Render(pd3dCommandList, pCamera, matID, HasGoldTimer, nPipelineState);
+}
+
+void CGameObject::RunAway_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int matID, bool isICE, bool HasHammer, bool HasGoldHammer, int nPipelineState)
+{
+	OnPrepareRender();
+
+	if (m_pSkinningBoneTransforms)
+		m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
+	if (m_pFrameTransform)
+		m_pFrameTransform->SetFrameMeshWorldConstantBuffer();
+
+	if (m_pMesh)
+	{
+		if (m_nMaterials > 0)
+		{
+			// 몸통 렌더링
+			if (strcmp(m_pstrFrameName, "Evilbear") == 0)
+			{
+				int mat = matID;
+				if (isICE == true)
+					mat = ICEMAT;
+
+				if (m_ppMaterials[mat])
+				{
+					if (m_ppMaterials[mat]->m_pShader)
+						m_ppMaterials[mat]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+					m_ppMaterials[mat]->UpdateShaderVariables(pd3dCommandList);
+
+					m_pMesh->Render(pd3dCommandList, 0);
+				}
+			}
+			// 망치 렌더링
+			else if (strcmp(m_pstrFrameName, "StoneHammer_Medium") == 0)
+			{
+				// 일반망치, 황금망치 두개다 있을 경우 => 황금망치를 렌더링함
+				if (HasHammer == true && HasGoldHammer == true)
+				{
+					if (m_ppMaterials[1])
+					{
+						if (m_ppMaterials[1]->m_pShader)
+							m_ppMaterials[1]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+
+						m_ppMaterials[1]->UpdateShaderVariables(pd3dCommandList);
+					}
+					m_pMesh->Render(pd3dCommandList, 0);
+				}
+				else if (HasHammer == true)
+				{
+					if (m_ppMaterials[0])
+					{
+						if (m_ppMaterials[0]->m_pShader)
+							m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+
+						m_ppMaterials[0]->UpdateShaderVariables(pd3dCommandList);
+					}
+					m_pMesh->Render(pd3dCommandList, 0);
+				}
+				else if (HasGoldHammer == true)
+				{
+					if (m_ppMaterials[1])
+					{
+						if (m_ppMaterials[1]->m_pShader)
+							m_ppMaterials[1]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
+
+						m_ppMaterials[1]->UpdateShaderVariables(pd3dCommandList);
+					}
+					m_pMesh->Render(pd3dCommandList, 0);
+				}
+			}
+		}
+	}
+
+	if (m_pSibling)
+		m_pSibling->RunAway_Render(pd3dCommandList, pCamera, matID, isICE, HasHammer, HasGoldHammer, nPipelineState);
+	if (m_pChild)
+		m_pChild->RunAway_Render(pd3dCommandList, pCamera, matID, isICE, HasHammer, HasGoldHammer, nPipelineState);
 }
 
 void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState, int nInstance)
@@ -770,9 +957,6 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 
 void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4* pxmf4x4World)
 {
-	//XMFLOAT4X4 xmf4x4World;
-	//XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
-	//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World, 0);
 }
 
 void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, CMaterial* pMaterial)
@@ -785,18 +969,18 @@ void CGameObject::ReleaseShaderVariables()
 
 void CGameObject::ReleaseUploadBuffers()
 {
-	if (m_pMesh) 
+	if (m_pMesh)
 		m_pMesh->ReleaseUploadBuffers();
 
 	for (int i = 0; i < m_nMaterials; ++i)
 	{
-		if (m_ppMaterials[i]) 
+		if (m_ppMaterials[i])
 			m_ppMaterials[i]->ReleaseUploadBuffers();
 	}
 
-	if (m_pSibling) 
+	if (m_pSibling)
 		m_pSibling->ReleaseUploadBuffers();
-	if (m_pChild) 
+	if (m_pChild)
 		m_pChild->ReleaseUploadBuffers();
 }
 
@@ -930,24 +1114,24 @@ CTexture *CGameObject::FindReplicatedTexture(_TCHAR *pstrTextureName)
 			{
 				if (m_ppMaterials[i]->m_ppTextures[j])
 				{
-					if (!_tcsncmp(m_ppMaterials[i]->m_ppstrTextureNames[j], pstrTextureName, _tcslen(pstrTextureName))) 
+					if (!_tcsncmp(m_ppMaterials[i]->m_ppstrTextureNames[j], pstrTextureName, _tcslen(pstrTextureName)))
 						return(m_ppMaterials[i]->m_ppTextures[j]);
 				}
 			}
 		}
 	}
 	CTexture *pTexture = NULL;
-	if (m_pSibling) 
-		if (pTexture = m_pSibling->FindReplicatedTexture(pstrTextureName)) 
+	if (m_pSibling)
+		if (pTexture = m_pSibling->FindReplicatedTexture(pstrTextureName))
 			return(pTexture);
-	if (m_pChild) 
-		if (pTexture = m_pChild->FindReplicatedTexture(pstrTextureName)) 
+	if (m_pChild)
+		if (pTexture = m_pChild->FindReplicatedTexture(pstrTextureName))
 			return(pTexture);
 
 	return(NULL);
 }
 
-void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, 
+void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,
 	CGameObject* pParent, FILE* pInFile, CShader* pShader)
 {
 	char pstrToken[64] = { '\0' };
@@ -956,22 +1140,22 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 	BYTE nStrLength = 0;
 
 	UINT nReads = (UINT)::fread(&m_nMaterials, sizeof(int), 1, pInFile);
-	
+
 	g_FileSize += sizeof(int) * nReads;
-	
+
 	m_ppMaterials = new CMaterial*[m_nMaterials];
 	for (int i = 0; i < m_nMaterials; i++)
 		m_ppMaterials[i] = NULL;
-		
+
 	CMaterial* pMaterial = NULL;
 
-	for ( ; ; )
+	for (; ; )
 	{
 		nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
 
 		g_FileSize += sizeof(BYTE) * nReads;
 
-		nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pInFile); 
+		nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pInFile);
 
 		g_FileSize += sizeof(char) * nReads;
 
@@ -1088,7 +1272,7 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 		m_ppMaterials[i]->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
-CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
+CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
 	CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes, int* pnFrameMeshes)
 {
 	char pstrToken[64] = { '\0' };
@@ -1100,7 +1284,7 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 
 	CGameObject* pGameObject = NULL;
 	XMFLOAT3 xmf3Position, xmf3Rotation, xmf3Scale;
-	for ( ; ; )
+	for (; ; )
 	{
 		nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
 
@@ -1117,7 +1301,7 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 			pGameObject = new CGameObject();
 
 			nReads = (UINT)::fread(&nFrame, sizeof(int), 1, pInFile);
-			
+
 			g_FileSize += sizeof(int) * nReads;
 
 			nReads = (UINT)::fread(&nTextures, sizeof(int), 1, pInFile);
@@ -1178,11 +1362,11 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 			pGameObject->SetMesh(pMesh);
 
 			// 각 바운드 크기 셋
-			pGameObject->SetOOBB(pMesh->getBoundCenter(),pMesh->getBoundExtent() /*Vector3::Multiply(Vector3::ScalarProduct(pMesh->getBoundExtent(),1000,false) , xmf3Scale)*/, XMFLOAT4(0, 0, 0, 1));
+			pGameObject->SetOOBB(pMesh->getBoundCenter(), pMesh->getBoundExtent() /*Vector3::Multiply(Vector3::ScalarProduct(pMesh->getBoundExtent(),1000,false) , xmf3Scale)*/, XMFLOAT4(0, 0, 0, 1));
 		}
 		else if (!strcmp(pstrToken, "<SkinningInfo>:"))
 		{
-			if (pnSkinnedMeshes) 
+			if (pnSkinnedMeshes)
 				(*pnSkinnedMeshes)++;
 			if (pnFrameMeshes)
 				(*pnFrameMeshes)++;
@@ -1219,7 +1403,7 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 			{
 				for (int i = 0; i < nChilds; i++)
 				{
-					CGameObject *pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 
+					CGameObject *pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
 						pGameObject, pInFile, pShader, pnSkinnedMeshes, pnFrameMeshes);
 					if (pChild) pGameObject->SetChild(pChild);
 #ifdef _WITH_DEBUG_FRAME_HIERARCHY
@@ -1246,9 +1430,9 @@ void CGameObject::PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent)
 	_stprintf_s(pstrDebug, 256, _T("(Frame: %p) (Parent: %p)\n"), pGameObject, pParent);
 	OutputDebugString(pstrDebug);
 
-	if (pGameObject->m_pSibling) 
+	if (pGameObject->m_pSibling)
 		CGameObject::PrintFrameInfo(pGameObject->m_pSibling, pParent);
-	if (pGameObject->m_pChild) 
+	if (pGameObject->m_pChild)
 		CGameObject::PrintFrameInfo(pGameObject->m_pChild, pGameObject);
 }
 
@@ -1261,7 +1445,7 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 
 	CAnimationSets *pAnimationSets = new CAnimationSets();
 
-	for ( ; ; )
+	for (; ; )
 	{
 		nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
 
@@ -1335,10 +1519,10 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 			pAnimationSet->m_pstrName[nStrLength] = '\0';
 
 			// 애니메이션이 안되는 문제해결해야댐
-			if (!strcmp(pAnimationSet->m_pstrName, "ATK3") || !strcmp(pAnimationSet->m_pstrName, "Digging") 
-				|| !strcmp(pAnimationSet->m_pstrName,"Jump") ||!strcmp(pAnimationSet->m_pstrName, "RaiseHand")
-				|| !strcmp(pAnimationSet->m_pstrName,"Die2")
-				) 
+			if (!strcmp(pAnimationSet->m_pstrName, "ATK3") || !strcmp(pAnimationSet->m_pstrName, "Digging")
+				|| !strcmp(pAnimationSet->m_pstrName, "Jump") || !strcmp(pAnimationSet->m_pstrName, "RaiseHand")
+				|| !strcmp(pAnimationSet->m_pstrName, "Die2")
+				)
 
 			{
 				pAnimationSet->m_nType = ANIMATION_TYPE_ONCE;
@@ -1394,15 +1578,15 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 			pAnimationSet->m_ppxmf3KeyFrameTranslations = new XMFLOAT3*[pAnimationSet->m_nKeyFrameTranslations];
 			for (int i = 0; i < pAnimationSet->m_nKeyFrameTranslations; i++) pAnimationSet->m_ppxmf3KeyFrameTranslations[i] = new XMFLOAT3[pAnimationSets->m_nAnimationFrames];
 #endif
-		}
+			}
 		else if (!strcmp(pstrToken, "</AnimationSets>"))
 		{
 			break;
 		}
-	}
+		}
 
 	return(pAnimationSets);
-}
+	}
 
 void CGameObject::CacheSkinningBoneFrames(CGameObject *pRootFrame)
 {
@@ -1412,7 +1596,7 @@ void CGameObject::CacheSkinningBoneFrames(CGameObject *pRootFrame)
 		for (int i = 0; i < pSkinnedMesh->m_nSkinningBones; i++)
 		{
 			pSkinnedMesh->m_ppSkinningBoneFrameCaches[i] = pRootFrame->FindFrame(pSkinnedMesh->m_ppstrSkinningBoneNames[i]);
-			
+
 #ifdef _WITH_DEBUG_SKINNING_BONE
 			TCHAR pstrDebug[256] = { 0 };
 			TCHAR pwstrBoneCacheName[64] = { 0 };
@@ -1425,9 +1609,9 @@ void CGameObject::CacheSkinningBoneFrames(CGameObject *pRootFrame)
 #endif
 		}
 	}
-	if (m_pSibling) 
+	if (m_pSibling)
 		m_pSibling->CacheSkinningBoneFrames(pRootFrame);
-	if (m_pChild) 
+	if (m_pChild)
 		m_pChild->CacheSkinningBoneFrames(pRootFrame);
 }
 
@@ -1438,9 +1622,9 @@ void CGameObject::FindAndSetSkinnedMesh(int *pnSkinMesh, CSkinningBoneTransforms
 		CSkinnedMesh *pSkinnedMesh = (CSkinnedMesh*)m_pMesh;
 		pSkinningBoneTransforms->SetSkinnedMesh((*pnSkinMesh)++, pSkinnedMesh);
 	}
-	if (m_pSibling) 
+	if (m_pSibling)
 		m_pSibling->FindAndSetSkinnedMesh(pnSkinMesh, pSkinningBoneTransforms);
-	if (m_pChild) 
+	if (m_pChild)
 		m_pChild->FindAndSetSkinnedMesh(pnSkinMesh, pSkinningBoneTransforms);
 }
 
@@ -1483,7 +1667,7 @@ void CGameObject::FindAndSetFrameMesh(int* nFrameMeshIndex, CFrameTransform* pFr
 		m_pChild->FindAndSetFrameMesh(nFrameMeshIndex, pFrameTransform);
 }
 
-CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
+CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
 	char *pstrFileName, CShader *pShader, bool bHasAnimation)
 {
 	FILE *pInFile = NULL;
@@ -1492,12 +1676,12 @@ CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device *pd
 	::rewind(pInFile);
 
 	CLoadedModelInfo* pLoadedModel = new CLoadedModelInfo;
-	pLoadedModel->m_pModelRootObject = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 
+	pLoadedModel->m_pModelRootObject = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
 		NULL, pInFile, pShader, &pLoadedModel->m_nSkinnedMeshes, &pLoadedModel->m_nFrameMeshes);
 
-	if (bHasAnimation) 
+	if (bHasAnimation)
 		pLoadedModel->m_pAnimationSets = CGameObject::LoadAnimationFromFile(pInFile, pLoadedModel->m_pModelRootObject);
-	
+
 	pLoadedModel->m_pModelRootObject->CacheSkinningBoneFrames(pLoadedModel->m_pModelRootObject);
 	pLoadedModel->m_pModelRootObject->CacheFrameMeshObject(pLoadedModel->m_pModelRootObject);
 
@@ -1518,14 +1702,14 @@ bool CGameObject::IsVisible(CCamera* pCamera)
 	{
 		bool isVisible = false;
 		BoundingOrientedBox boundingBox = m_pMesh->GetBoundingBox();
-		
+
 		//모델 좌표계의 바운딩 박스를 월드 좌표계로 변환한다. 
-		boundingBox.Transform(boundingBox, XMLoadFloat4x4(&m_xmf4x4World)); 
-		
-		if (pCamera) 
-			isVisible = pCamera->IsInFrustum(boundingBox); 
-		
-		return isVisible; 
+		boundingBox.Transform(boundingBox, XMLoadFloat4x4(&m_xmf4x4World));
+
+		if (pCamera)
+			isVisible = pCamera->IsInFrustum(boundingBox);
+
+		return isVisible;
 	}
 
 	if (m_pSibling)

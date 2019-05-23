@@ -46,7 +46,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_nShaders = m_nShaders - 1;
 #endif
 	//카툰렌더링 해야될 쉐이더 개수
-	m_nPostShaders = m_nShaders - 3;
+	m_nPostShaders = m_nShaders - 4;
 	m_ppShaders = new CShader*[m_nShaders];
 
 	int index = 0;
@@ -78,8 +78,8 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	//m_ShaderMap.emplace("Foliage", pFoliageShader);
 
 	CItemShader* pItemShader = new CItemShader;
-	//pItemShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pItemShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getModelMap(), m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
+	pItemShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getModelMap(), m_pResourceManager->getItemInfo(),
+		m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
 	m_ppShaders[index++] = pItemShader;
 	m_ShaderMap.emplace("Item", pItemShader);
 
@@ -91,7 +91,6 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	*/
 
 	CSkinnedAnimationObjectShader* pAnimationObjectShader = new CSkinnedAnimationObjectShader;
-	//pAnimationObjectShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 //#ifndef _WITH_SERVER_
 	//서버랑 연동 되어있을경우 여기서 BuildObjects를 하면 안된다.
 	//왜냐하면 서버에서 재질정보와 위치 정보등의 Evilbear의 정보를 받아와야함.
@@ -193,7 +192,7 @@ void CShaderManager::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer
 //카툰 렌더링 하지 않고 그려야할 쉐이더 
 void CShaderManager::PostRender(ID3D12GraphicsCommandList* pd3dCommandList,float fTimeElapsed, CCamera* pCamera)
 {
-	for (int i = m_nPostShaders; i <m_nShaders; i++)
+	for (int i = m_nPostShaders; i < m_nShaders; i++)
 	{
 		if (m_ppShaders[i]) 
 			m_ppShaders[i]->Render(pd3dCommandList, pCamera, GameObject);

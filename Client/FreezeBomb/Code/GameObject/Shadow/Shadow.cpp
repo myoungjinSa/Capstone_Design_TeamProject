@@ -52,17 +52,30 @@ CShadow::~CShadow()
 	}
 }
 
+// 정적인 오브젝트 그림자
 void CShadow::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)
 {
 	CGameObject::Render(pd3dCommandList, pCamera, nPipelineState);
 }
 
-void CShadow::Render(ID3D12GraphicsCommandList *pd3dCommandList, bool bHammer, bool bBomb, bool bIce, int matID, CCamera* pCamera, int nPipelineState)
-{
-	CGameObject::Render(pd3dCommandList, bHammer, bBomb, bIce, matID, pCamera, nPipelineState);
-}
-
+// 큐브 파티클 그림자
 void CShadow::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState, int nInstance)
 {
 	CGameObject::Render(pd3dCommandList, pCamera, nPipelineState, nInstance);
+}
+
+void CShadow::Item_Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int ItemType, int nPipelineState)
+{
+	CGameObject::Item_Render(pd3dCommandList, pCamera, ItemType, nPipelineState);
+}
+
+void CShadow::Tagger_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int matID, bool HasGoldTimer, int nPipelineState)
+{
+	CGameObject::Tagger_Render(pd3dCommandList, pCamera, matID, HasGoldTimer, nPipelineState);
+}
+
+// 도망자의 그림자
+void CShadow::RunAway_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int matID, bool isICE, bool HasHammer, bool HasGoldHammer, int nPipelineState)
+{
+	CGameObject::RunAway_Render(pd3dCommandList, pCamera, matID, isICE, HasHammer, HasGoldHammer, nPipelineState);
 }

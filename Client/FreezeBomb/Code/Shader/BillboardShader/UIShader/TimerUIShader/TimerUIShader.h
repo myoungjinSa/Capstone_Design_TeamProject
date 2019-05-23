@@ -24,6 +24,10 @@ public:
 	void setTimer(float value);
 	float getTimer() const { return m_Timer; }
 
+	void setReduceTimer(float value);
+#ifdef _WITH_SERVER_
+	void CompareServerTimeAndSet(float time);
+#endif
 private:
 	enum UIType { OneSec, TenSec, OneMin, Colon };
 

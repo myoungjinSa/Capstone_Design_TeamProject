@@ -3,6 +3,7 @@
 
 Server::Server()
 {
+	roundStartTime = 0;
 	clientCount = 0;
 	hostId = -1;
 	//clients.reserve(MAX_USER);
@@ -13,6 +14,8 @@ Server::Server()
 Server::~Server()
 {
 	//clients.clear();
+	if (heightMap)
+		delete heightMap;
 }
 
 bool Server::InitServer()
@@ -69,31 +72,36 @@ bool Server::InitServer()
 
 void Server::RunServer()
 {
+	gameTimer.Start();
 	iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
 	for (int i = 0; i < MAX_USER; ++i)
 	{
 		//SOCKETINFO tmpClient;
 		clients[i].prev_size = 0;
-		clients[i].xPos = PLAYER_INIT_X_POS;
-		clients[i].yPos = PLAYER_INIT_Y_POS;
-		clients[i].zPos = PLAYER_INIT_Z_POS;
-		clients[i].xLook = PLAYER_INIT_X_LOOK;
-		clients[i].yLook = PLAYER_INIT_Y_LOOK;
-		clients[i].zLook = PLAYER_INIT_Z_LOOK;
-		clients[i].xUp = PLAYER_INIT_X_UP;
-		clients[i].yUp = PLAYER_INIT_Y_UP;
-		clients[i].zUp = PLAYER_INIT_Z_UP;
-		clients[i].xRight = PLAYER_INIT_X_RIGHT;
-		clients[i].yRight = PLAYER_INIT_Y_RIGHT;
-		clients[i].zRight = PLAYER_INIT_Z_RIGHT;
+		clients[i].pos.x = PLAYER_INIT_X_POS;
+		clients[i].pos.y = PLAYER_INIT_Y_POS;
+		clients[i].pos.z = PLAYER_INIT_Z_POS;
+		clients[i].look.x = PLAYER_INIT_X_LOOK;
+		clients[i].look.y = PLAYER_INIT_Y_LOOK;
+		clients[i].look.z = PLAYER_INIT_Z_LOOK;
+		clients[i].up.x = PLAYER_INIT_X_UP;
+		clients[i].up.y = PLAYER_INIT_Y_UP;
+		clients[i].up.z = PLAYER_INIT_Z_UP;
+		clients[i].right.x = PLAYER_INIT_X_RIGHT;
+		clients[i].right.y = PLAYER_INIT_Y_RIGHT;
+		clients[i].right.z = PLAYER_INIT_Z_RIGHT;
 		//clients.emplace_back(tmpClient);
 		//printf("Create Client ID: %d, PrevSize: %d, xPos: %d, yPos: %d, zPos: %d, xDir: %d, yDir: %d, zDir: %d\n", i, clients[i].prev_size, clients[i].xPos, clients[i].yPos, clients[i].zPos, clients[i].xDir, clients[i].yDir, clients[i].zDir);
 	}
+	heightMap = new CHeightMapImage("../../../Client/FreezeBomb/Resource/Textures/Terrain/Terrain.raw", 256, 256, XMFLOAT3(2.0f, 1.0f, 2.0f));
 	
+	gameTimer.Tick(60.0f);
 	for (int i = 0; i < MAX_WORKER_THREAD; ++i)
 		workerThreads.emplace_back(thread{ WorkerThread, (LPVOID)this });
 	thread accpetThread{ AcceptThread, (LPVOID)this };
+	thread timerThread{ TimerThread,(LPVOID)this };
 	accpetThread.join();
+	timerThread.join();
 	for (auto &th : workerThreads)
 		th.join();
 }
@@ -139,6 +147,7 @@ void Server::AcceptThreadFunc()
 			continue;
 		}
 		
+		clientsLock[new_id].lock();
 		///////////////////////////////////// 클라이언트 초기화 정보 수정 위치 /////////////////////////////////////
 		clients[new_id].socket = clientSocket;
 		if (-1 == hostId)
@@ -146,6 +155,7 @@ void Server::AcceptThreadFunc()
 			hostId = new_id;
 			printf("현재 방장은 %d입니다.\n", hostId);
 		}
+		SetClient_Initialize(new_id);
 		///////////////////////////////////// 클라이언트 초기화 정보 수정 위치 /////////////////////////////////////
 		ZeroMemory(&clients[new_id].over_ex.over, sizeof(clients[new_id].over_ex.over));
 		
@@ -154,6 +164,9 @@ void Server::AcceptThreadFunc()
 		CreateIoCompletionPort(reinterpret_cast<HANDLE>(clientSocket), iocp, new_id, 0);
 
 		clients[new_id].in_use = true;
+		clients[new_id].velocity = XMFLOAT3(0.0f, 0.0f, 1.0f);
+
+		clientsLock[new_id].unlock();
 
 		SendAccessComplete(new_id);
 		// 기존 유저들에게 이후 접속한 유저들 출력
@@ -170,7 +183,9 @@ void Server::AcceptThreadFunc()
 				continue;
 			SendAccessPlayer(new_id, i);
 		}
+		gLock.lock();
 		++clientCount;
+		gLock.unlock();
 		printf("%d 클라이언트 접속 완료, 현재 클라이언트 수: %d\n", new_id, clientCount);
 		RecvFunc(new_id);
 	}
@@ -180,6 +195,51 @@ void Server::AcceptThreadFunc()
 
 	// Winsock End
 	WSACleanup();
+}
+
+void Server::TimerThread(LPVOID arg)
+{
+	Server *pServer = static_cast<Server*>(arg);
+	pServer->TimerThreadFunc();
+}
+
+void Server::TimerThreadFunc()
+{
+	float lastSec = 0;
+	float nowSec = 0;
+	while (1)
+	{
+		if (roundStartTime > 0)
+		{
+			nowSec = (GetTickCount() - roundStartTime) / 1000;
+			//cout << nowSec << "\n";
+			// 1초가 지나면 시간비교 패킷 전송
+
+			//서버 시간 현재 
+			if (nowSec - lastSec >= 1.0f)
+			{
+				//printf("SendCompareTime() 전송\n");
+				roundCurrTime = MAX_ROUND_TIME - nowSec;
+				for (int i = 0; i < MAX_USER; ++i)
+				{
+					if (true == clients[i].in_use)
+						SendCompareTime(i);
+				}
+				lastSec = nowSec;
+			}
+
+			// 라운드 종료 시
+			if (nowSec >= MAX_ROUND_TIME)
+			{
+				for (int i = 0; i < MAX_USER; ++i)
+				{
+					if (true == clients[i].in_use)
+						SendRoundEnd(i);
+				}
+				ResetTimer();
+			}
+		}
+	}
 }
 
 
@@ -198,7 +258,7 @@ void Server::RecvFunc(char client)
 	else {
 		// 비동기식으로 돌아가지 않고 동기식으로 돌아갔다는 오류.
 		// 키를 동시에 누를 때 발생(ex / UP키와 RIGHT키)
-		cout << "Non Overlapped Recv return.\n";
+		//cout << "Non Overlapped Recv return.\n";
 		//while (true);
 	}
 }
@@ -242,7 +302,7 @@ void Server::WorkerThreadFunc()
 		if (true == over_ex->is_recv)
 		{
 			// RECV 처리
-			wcout << "Packet from Client: " << (int)key << "\n";
+			//wcout << "Packet from Client: " << (int)key << "\n";
 			// 패킷조립
 			// 남은 크기
 			int rest = io_byte;
@@ -289,80 +349,157 @@ void Server::WorkerThreadFunc()
 	}
 }
 
+void Server::PickBomber()
+{
+	default_random_engine dre;
+	uniform_int_distribution<int> uid(0, clientCount + 1);
+	while (true)
+	{
+		bomberID = uid(dre);
+		if (true == clients[bomberID].in_use)
+			break;
+	}
+}
+
+void Server::StartTimer()
+{
+	roundStartTime = GetTickCount();
+}
+
+void Server::ResetTimer()
+{
+	roundStartTime = 0;
+}
+
 void Server::ProcessPacket(char client, char *packet)
 {
-	float x = clients[client].xPos;
-	float y = clients[client].yPos;
-	float z = clients[client].zPos;
+	float x = clients[client].pos.x;
+	float y = clients[client].pos.y;
+	float z = clients[client].pos.z;
+
+	DWORD tmpDir;
 
 	// 0번은 사이즈, 1번이 패킷타입
 	switch (packet[1])
 	{
 	case CS_UP_KEY:
-		printf("Press UP Key ID: %d\n", client);
-		y += 12.25f;
-		clients[client].xPos = x;
-		clients[client].yPos = y;
-		clients[client].zPos = z;
-		printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
-
-		SendMovePlayer(client);
-		break;
 	case CS_DOWN_KEY:
-		printf("Press DOWN Key ID: %d\n", client);
-		y -= 12.25f;
-		clients[client].xPos = x;
-		clients[client].yPos = y;
-		clients[client].zPos = z;
-		printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
-
-		SendMovePlayer(client);
-		break;
 	case CS_LEFT_KEY:
-		printf("Press LEFT Key ID: %d\n", client);
-		x -= 12.25f;
-		clients[client].xPos = x;
-		clients[client].yPos = y;
-		clients[client].zPos = z;
-		printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
-
-		SendMovePlayer(client);
-		break;
 	case CS_RIGHT_KEY:
-		printf("Press RIGHT Key ID: %d\n", client);
-		x += 12.25f;
-		clients[client].xPos = x;
-		clients[client].yPos = y;
-		clients[client].zPos = z;
-		printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
+	case CS_UPLEFT_KEY:
+	case CS_UPRIGHT_KEY:
+	case CS_DOWNLEFT_KEY:
+	case CS_DOWNRIGHT_KEY:
+		clientsLock[client].lock();
+		SetDirection(client, packet[1]);
+		//cout << gameTimer.GetTimeElapsed()<<endl;
+		UpdateClientPos(client, gameTimer.GetTimeElapsed());
+		clientsLock[client].unlock();
 
-		SendMovePlayer(client);
+
+		//printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (clients[i].in_use == true)
+			{
+				SendMovePlayer(i,client);
+				//한번 MovePacket을 보내고 난후 
+				//pitch,yaw,roll은 다시 0으로 바꿔줘야함.
+				//그렇지 않을경우 뱅글뱅글 돌게됨.
+				SetPitchYawRollZero(i);
+				
+				//Idle 동작으로 변하게 하려면 
+				//SetVelocityZero(i);
+			}
+		}
 		break;
-	case CS_READY:
-		printf("전체 클라 수: %d\n", clientCount);
-		printf("Ready한 클라 수: %d\n", ++readyCount);
-		clients[client].isReady = true;
-		clients[client].matID = packet[2];	// matID
+	case CS_ANIMATION_INFO:		//클라가 애니메이션이 변경되었을때 패킷을 서버에게 보내고.
+	{							//서버는 그 패킷을 받아서 다른 클라이언트에게 해당 애니메이션 정보를 보낸다.
+		CS_PACKET_ANIMATION* p = reinterpret_cast<CS_PACKET_ANIMATION*>(packet);
+
+		SetAnimationState(client, p->animation);
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (clients[i].in_use == true)
+			{
+				SendPlayerAnimation(i, client);
+			}
+		}
+
 		break;
-	case CS_REQUEST_START:
-		if (clientCount == readyCount)
+	}
+	case CS_RELEASE_KEY:
+		if (clients[client].fVelocity > 0)
 		{
 			for (int i = 0; i < MAX_USER; ++i)
 			{
 				if (true == clients[i].in_use)
+					SendStopRunAnim(i, client);
+			}
+		}
+		break;
+	case CS_READY:
+		printf("전체 클라 수: %d\n", clientCount);
+		// 클라가 엔터누르고 F5누를때마다 CS_READY 패킷이 날아온다면 ++readyCount는 clientCount보다 증가하게 되고 
+		// 아래 CS_REQUEST_START안에 if(clientCount<= readyCount) 안으로 들어가지 않는 현상 발생
+		gLock.lock();
+		++readyCount;
+		gLock.unlock();
+
+		printf("Ready한 클라 수: %d\n", readyCount);
+
+		clientsLock[client].lock();
+		clients[client].isReady = true;
+		
+		clients[client].matID = packet[2];	// matID
+		clientsLock[client].unlock();
+		//printf("Recv matID : %d\n", clients[client].matID);
+		break;
+	case CS_REQUEST_START:
+		if (clientCount <= readyCount)
+		{
+			PickBomber();
+			
+			for(int i=0; i< MAX_USER ;++i)
+			{
+				if(true == clients[i].in_use)
 				{
-					SendRoundStart(i);
 					for (int j = 0; j < MAX_USER; ++j)
 					{
 						if (true == clients[j].in_use)
+						{
 							SendPutPlayer(i, j);
+						}
 					}
+					SendRoundStart(i);
 				}
 			}
+			StartTimer();
+			//for (int i = 0; i < MAX_USER; ++i)
+			//{
+			//	if (true == clients[i].in_use)
+			//	{
+			//		//접속하는 클라이언트 마다 look,right,up벡터를 초기화 해줘야함.
+			//		SetClient_Initialize(i);
+			//		
+			//		for (int j = 0; j < MAX_USER; ++j)
+			//		{
+			//			if (true == clients[j].in_use)
+			//			{
+
+			//				SendPutPlayer(i, j);
+			//				//SendPutPlayer(j, i);
+			//			}
+			//		}
+			//		SendRoundStart(i);
+			//	}
+			//}
+			
 			printf("Round Start\n");
 		}
 		else
 		{
+			//이 부분 READYCOUNT 보다
 			for (int i = 0; i < MAX_USER; ++i)
 			{
 				if (true == clients[i].in_use)
@@ -430,9 +567,19 @@ void Server::SendPutPlayer(char toClient, char fromClient)
 	packet.id = fromClient;
 	packet.size = sizeof(packet);
 	packet.type = SC_PUT_PLAYER;
-	packet.xPos = clients[fromClient].xPos;
-	packet.yPos = clients[fromClient].yPos;
-	packet.zPos = clients[fromClient].zPos;
+	packet.xPos = clients[fromClient].pos.x;
+	packet.yPos = clients[fromClient].pos.y;
+	packet.zPos = clients[fromClient].pos.z;
+	packet.xLook = clients[fromClient].look.x;
+	packet.yLook = clients[fromClient].look.y;
+	packet.zLook = clients[fromClient].look.z;
+	packet.xUp = clients[fromClient].up.x;
+	packet.yUp = clients[fromClient].up.y;
+	packet.zUp = clients[fromClient].up.z;
+	packet.xRight = clients[fromClient].right.x;
+	packet.yRight = clients[fromClient].right.y;
+	packet.zRight = clients[fromClient].right.z;
+	packet.matID = clients[fromClient].matID;
 
 	SendFunc(toClient, &packet);
 }
@@ -440,6 +587,7 @@ void Server::SendPutPlayer(char toClient, char fromClient)
 void Server::SendRoundStart(char client)
 {
 	SC_PACKET_ROUND_START packet;
+	packet.bomberID = bomberID;
 	packet.size = sizeof(packet);
 	packet.clientCount = clientCount;
 	packet.type = SC_ROUND_START;
@@ -457,17 +605,40 @@ void Server::SendPleaseReady(char client)
 
 }
 
-void Server::SendMovePlayer(char client)
+
+//무브 플레이어 패킷이 현재는 움직임을 요청한 클라이언트에게만
+//전송하는 구조여서 이부분 바뀌어야 할듯 - 명진
+
+//TO ,Object
+void Server::SendMovePlayer(char to,char client)
 {
 	SC_PACKET_MOVE_PLAYER packet;
 	packet.id = client;
 	packet.size = sizeof(packet);
 	packet.type = SC_MOVE_PLAYER;
-	packet.xPos = clients[client].xPos;
-	packet.yPos = clients[client].yPos;
-	packet.zPos = clients[client].zPos;
 
-	SendFunc(client, &packet);
+	packet.xPos = clients[client].pos.x;
+	packet.yPos = clients[client].pos.y;
+	packet.zPos = clients[client].pos.z;
+	//플레이어의 진행 방향 정보 ,look,right,up
+	packet.xLook = clients[client].look.x;
+	packet.yLook = clients[client].look.y;
+	packet.zLook = clients[client].look.z;
+	packet.xRight= clients[client].right.x;
+	packet.yRight= clients[client].right.y;
+	packet.zRight= clients[client].right.z;
+	packet.xUp = clients[client].up.x;
+	packet.yUp = clients[client].up.y;
+	packet.zUp = clients[client].up.z;
+
+	//플레이어 모델의 실제 회전정보
+	packet.pitch = clients[client].pitch;
+	packet.yaw = clients[client].yaw;
+	packet.roll = clients[client].roll;
+
+	packet.fVelocity = clients[client].fVelocity;
+
+	SendFunc(to, &packet);
 }
 
 void Server::SendRemovePlayer(char toClient, char fromClient)
@@ -481,9 +652,52 @@ void Server::SendRemovePlayer(char toClient, char fromClient)
 	SendFunc(toClient, &packet);
 }
 
+void Server::SendRoundEnd(char client)
+{
+	SC_PACKET_ROUND_END packet;
+	packet.isWinner = true;
+	if (client == bomberID)
+		packet.isWinner = false;
+	packet.size = sizeof(packet);
+	packet.type = SC_ROUND_END;
+
+	SendFunc(client, &packet);
+}
+
+void Server::SendCompareTime(char client)
+{
+	SC_PACKET_COMPARE_TIME packet;
+	packet.serverTime = roundCurrTime;
+	packet.size = sizeof(packet);
+	packet.type = SC_COMPARE_TIME;
+
+	SendFunc(client, &packet);
+}
+
+void Server::SendPlayerAnimation(char toClient,char fromClient)
+{
+	SC_PACKET_PLAYER_ANIMATION packet;
+	packet.id = fromClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_ANIMATION_INFO;
+	packet.animation = clients[fromClient].animation;
+
+
+	SendFunc(toClient, &packet);
+}
+void Server::SendStopRunAnim(char toClient, char fromClient)
+{
+	SC_PACKET_STOP_RUN_ANIM packet;
+	packet.id = fromClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_STOP_RUN_ANIM;
+
+	SendFunc(toClient, &packet);
+}
+
 void Server::ClientDisconnect(char client)
 {
-	
+	gLock.lock();
 	clients[client].in_use = false;
 	if (clients[client].isReady)
 	{
@@ -502,6 +716,8 @@ void Server::ClientDisconnect(char client)
 			}
 		}
 	}
+	clientCount--;
+	gLock.unlock();
 	for (int i = 0; i < MAX_USER; ++i)
 	{
 		if (false == clients[i].in_use)
@@ -511,8 +727,245 @@ void Server::ClientDisconnect(char client)
 		SendRemovePlayer(i, client);
 	}
 	closesocket(clients[client].socket);
-	clientCount--;
+
 	printf("%d 클라이언트 접속 종료, 현재 클라이언트 수: %d\n", (int)client, clientCount);
+}
+
+void Server::SetAnimationState(char client, char animationNum)
+{
+	clients[client].animation = animationNum;
+
+}
+void Server::SetDirection(char client, int key)
+{
+	DWORD tmpDir = 0;
+	switch (key)
+	{
+	case CS_UP_KEY:
+		tmpDir |= DIR_FORWARD;
+		break;
+	case CS_DOWN_KEY:
+		tmpDir |= DIR_BACKWARD;
+		break;
+	case CS_RIGHT_KEY:
+		tmpDir |= DIR_RIGHT;
+		break;
+	case CS_LEFT_KEY:
+		tmpDir |= DIR_LEFT;
+		break;
+	case CS_UPLEFT_KEY:
+		tmpDir |= DIR_FORWARDLEFT;
+		break;
+	case CS_UPRIGHT_KEY:
+		tmpDir |= DIR_FORWARDRIGHT;
+		break;
+	case CS_DOWNLEFT_KEY:
+		tmpDir |= DIR_BACKLEFT;
+		break;
+
+	case CS_DOWNRIGHT_KEY:
+		tmpDir |= DIR_BACKRIGHT;
+		break;
+	}
+	clients[client].direction = tmpDir;
+}
+
+void Server::SetVelocityZero(char client)
+{
+	clients[client].fVelocity = 0.0f;
+}
+void Server::SetClient_Initialize(char client)
+{
+	clients[client].look = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	clients[client].right = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	clients[client].up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+}
+
+
+void Server::SetPitchYawRollZero(char client)
+{
+	if (clients[client].pitch > 0.0f)
+		clients[client].pitch = 0.0f;
+	if (clients[client].yaw > 0.0f)
+		clients[client].yaw = 0.0f;
+	if (clients[client].roll > 0.0f)
+		clients[client].roll = 0.0f;
+	
+}
+void Server::UpdateClientPos(char client, float fTimeElapsed)
+{
+
+	if (clients[client].direction == DIR_FORWARD )
+	{
+		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, 0.7f);
+		
+	}
+	if (clients[client].direction == DIR_BACKWARD)
+	{
+		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look , -0.7f);
+	}
+	if (clients[client].direction == DIR_LEFT 
+		|| clients[client].direction == DIR_RIGHT
+		|| clients[client].direction == DIR_FORWARDRIGHT
+		|| clients[client].direction == DIR_FORWARDLEFT
+		|| clients[client].direction == DIR_BACKRIGHT
+		|| clients[client].direction == DIR_BACKLEFT)
+	{
+		RotateClientAxisY(client, fTimeElapsed);
+	}
+
+	//clients[client].velocity = Vector3::Add(clients[client].velocity, gravity);//gravity가 초기화가 안되서 쓰레기값?
+	//	cout << clients[client].velocity.x<<","<<clients[client].velocity.y<<","<<clients[client].velocity.z << "\n";
+	float fLength = sqrtf(clients[client].velocity.x * clients[client].velocity.x + clients[client].velocity.z * clients[client].velocity.z);
+	
+	
+	if (fLength > MAX_VELOCITY_XZ)
+	{
+		clients[client].velocity.x *= (MAX_VELOCITY_XZ / fLength);
+		clients[client].velocity.z *= (MAX_VELOCITY_XZ / fLength);
+	}
+
+	float fLengthY = sqrtf(clients[client].velocity.y * clients[client].velocity.y);
+
+
+	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(clients[client].velocity, fTimeElapsed, false);
+
+	clients[client].pos = Vector3::Add(clients[client].pos, clients[client].velocity);
+
+	//clients[client].xmf3Position = xmf3Velocity;
+
+	//clients[client].velocity = clients[client].velocity;
+
+	ProcessClientHeight(client);
+
+	ProcessFriction(client, fLength);
+
+	//속도를 클라에게 보내주어 클라에서 기본적인 rUn,Backward,애니메이션을 결정하게 하기 위해.
+	clients[client].fVelocity = fLength;
+
+	
+	//cout << clients[client].fVelocity << endl;
+
+}
+
+void Server::RotateClientAxisY(char client, float fTimeElapsed)
+{
+	XMFLOAT3& xmf3Look = clients[client].look;
+	XMFLOAT3& xmf3Right = clients[client].right;
+	XMFLOAT3& xmf3Up = clients[client].up;
+
+	clients[client].lastLookVector = xmf3Look;
+	clients[client].lastRightVector = xmf3Right;
+	clients[client].lastUpVector = xmf3Up;
+
+		
+
+	if (clients[client].direction & DIR_RIGHT)
+	{
+		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3Right);
+
+		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
+
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(fAngle*fTimeElapsed));
+		xmf3Look = Vector3::TransformNormal(xmf3Look, xmmtxRotate);
+		xmf3Right = Vector3::TransformNormal(xmf3Right, xmmtxRotate);
+
+		float cxDelta = xmf3Right.x - clients[client].lastRightVector.x;
+		float cyDelta = xmf3Up.y - clients[client].lastUpVector.y;
+		float czDelta = xmf3Look.z - clients[client].lastLookVector.z;
+
+
+		RotateModel(client, 0.0f, fAngle*fTimeElapsed, 0.0f);
+		
+	}
+	if (clients[client].direction & DIR_LEFT)
+	{
+		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3Right);
+
+		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
+
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(-(fAngle*fTimeElapsed)));
+		xmf3Look = Vector3::TransformNormal(xmf3Look, xmmtxRotate);
+		xmf3Right = Vector3::TransformNormal(xmf3Right, xmmtxRotate);
+
+		float czDelta = xmf3Look.z - clients[client].lastLookVector.z;
+
+		RotateModel(client, 0.0f, -fAngle * fTimeElapsed, 0.0f);
+		
+	}
+	if (clients[client].direction & DIR_FORWARDRIGHT )
+	{	
+		
+		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, 0.001f);
+	}
+	if (clients[client].direction & DIR_FORWARDLEFT)
+	{
+		
+		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, 0.001f);
+	}
+	if (clients[client].direction & DIR_BACKRIGHT)
+	{
+		
+		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -0.001f);
+	}
+	if (clients[client].direction & DIR_BACKLEFT)
+	{
+		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -0.001f);
+	}
+
+	xmf3Look = Vector3::Normalize(xmf3Look);
+	xmf3Right = Vector3::CrossProduct(xmf3Up, xmf3Look, true);
+	xmf3Up = Vector3::CrossProduct(xmf3Look, xmf3Right, true);
+
+
+
+}
+
+void Server::RotateModel(char client, float x, float y, float z)
+{
+	if (x != 0.0f)
+	{
+		clients[client].pitch += x;
+		if (clients[client].pitch > +89.0f) { x -= (clients[client].pitch - 89.0f); clients[client].pitch = +89.0f; }
+		if (clients[client].pitch < -89.0f) { x -= (clients[client].pitch + 89.0f); clients[client].pitch = -89.0f; }
+	}
+	if (y != 0.0f)
+	{
+		clients[client].yaw += y;
+		if (clients[client].yaw > 360.0f) clients[client].yaw -= 360.0f;
+		if (clients[client].yaw < 0.0f) clients[client].yaw += 360.0f;
+	}
+	if (z != 0.0f)
+	{
+		clients[client].roll += z;
+		if (clients[client].roll > +20.0f) { z -= (clients[client].roll - 20.0f); clients[client].roll = +20.0f; }
+		if (clients[client].roll < -20.0f) { z -= (clients[client].roll + 20.0f); clients[client].roll = -20.0f; }
+	}
+}
+
+void Server::ProcessClientHeight(char client)
+{
+	int z = (int)(clients[client].pos.z / heightMap->GetScale().z);
+	bool bReverseQuad = ((z % 2) != 0);
+
+	float fHeight = heightMap->GetHeight(clients[client].pos.x, clients[client].pos.z, bReverseQuad);
+	if (clients[client].pos.y < fHeight)
+	{
+		clients[client].velocity.y = 0.0f;
+		clients[client].pos.y = fHeight;
+	}
+}
+
+void Server::ProcessFriction(char client, float& fLength)
+{
+	fLength = Vector3::Length(clients[client].velocity);
+	float fDeclaration = (FRICTION * gameTimer.GetTimeElapsed());
+
+	if (fDeclaration > fLength)
+	{
+		fDeclaration = fLength;
+		clients[client].velocity = Vector3::Add(clients[client].velocity, Vector3::ScalarProduct(clients[client].velocity, -fDeclaration, true));
+	}
 }
 
 void Server::err_quit(const char* msg)

@@ -2,6 +2,8 @@
 #include "Default\Resource.h"
 #include "GameFramework/GameFramework.h"
 #include "Chatting\Chatting.h"
+#include "Scene\LoginScene\IDScene\LoginScene.h"
+#include "InputSystem\IDInputSystem\IDInputSystem.h"
 
 #define MAX_LOADSTRING 100
 
@@ -10,6 +12,8 @@ TCHAR							szTitle[MAX_LOADSTRING];
 TCHAR							szWindowClass[MAX_LOADSTRING];
 
 CGameFramework		gGameFramework;
+
+
 
 ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
@@ -77,12 +81,14 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	ghAppInstance = hInstance;
 	//
 	RECT rc = { 0, 0,FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT };
-	DWORD dwStyle = WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU |WS_BORDER;
+	DWORD dwStyle = WS_OVERLAPPED| WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU |WS_BORDER;
 	AdjustWindowRect(&rc, dwStyle, FALSE);
 	HWND hMainWnd = CreateWindow(szWindowClass, szTitle, dwStyle, CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, hInstance, NULL);
 
 	if (!hMainWnd) return(FALSE);
 
+	::ShowWindow(hMainWnd, nCmdShow);
+	::UpdateWindow(hMainWnd);
 	if (!gGameFramework.OnCreate(hInstance, hMainWnd))
 	{
 		::PostQuitMessage(0);
@@ -134,13 +140,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_CHAR:
 #ifdef _WITH_DIRECT2D_
 		if (ChattingSystem::GetInstance()->IsChattingActive())
-			ChattingSystem::GetInstance()->ProcessChatting(hWnd,wParam,lParam);
+			ChattingSystem::GetInstance()->ProcessChatting(hWnd,wParam,lParam,gGameFramework.IsInGame());
+#ifdef _WITH_SERVER_
+		if(gGameFramework.GetGameState() == CGameFramework::GAMESTATE::LOGIN)
+		{
+			CLoginScene* p = gGameFramework.GetLoginScene();
+			CIDInput* input = p->GetIDInstance();
+			input->ProcessIDInput(hWnd,wParam,lParam);
+		}
+
+
 #endif
+#endif
+
+
 		break;
 		//한글 조합 시작
 	case WM_IME_STARTCOMPOSITION:
-		if(ChattingSystem::GetInstance()->IsChattingActive())
-			//ChattingSystem::GetInstance()-
+		
 		break;
 	case WM_IME_SETCONTEXT:
 		//응용 프로그램이 활성/비활성될 때 메세지 발생
@@ -162,9 +179,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			//lParam에는 조립 상태가 어떻게 변경되었는지를 나타내는 플래그의 집합.
 				//-GCS_COMPSTR : 문자 조립중
 				//-GCS_RESULTSTR : 한 음절을 조립 완료
-			ChattingSystem::GetInstance()->ProcessChatting(hWnd, wParam, lParam);
+			ChattingSystem::GetInstance()->ProcessChatting(hWnd, wParam, lParam,gGameFramework.IsInGame());
 			//ChattingSystem::GetInstance()->ComposeHangeul(hWnd, wParam,lParam);
 		}
+#ifdef _WITH_SERVER_
+		if(gGameFramework.GetGameState() == CGameFramework::GAMESTATE::LOGIN)
+		{
+			CLoginScene* p = gGameFramework.GetLoginScene();
+			CIDInput* input = p->GetIDInstance();
+			input->ProcessIDInput(hWnd,wParam,lParam);
+		}
+#endif
 		break;
 	case WM_IME_ENDCOMPOSITION:
 		//한글 입력을 종료할때 발생한다.
@@ -199,7 +224,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 		case FD_READ:
 #ifdef _WITH_SERVER_
-			gGameFramework.getNetwork()->ReadPacket();
+			Network::GetInstance()->ReadPacket();
 #endif
 			break;
 		case FD_CLOSE:
@@ -208,6 +233,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 		break;
+
+		// 윈도우 생성시 가운데로
+	case WM_CREATE:
+		int x, y, width, height;
+		RECT rtDesk, rtWindow;
+		GetWindowRect(GetDesktopWindow(), &rtDesk);
+		GetWindowRect(hWnd, &rtWindow);
+
+		width = rtWindow.right - rtWindow.left;
+		height = rtWindow.bottom - rtWindow.top;
+
+		x = (rtDesk.right - width) / 2;
+		y = (rtDesk.bottom - height) / 2;
+
+		MoveWindow(hWnd, x, y, width, height, TRUE);
+
 	case WM_PAINT:
 		hdc = ::BeginPaint(hWnd, &ps);
 		EndPaint(hWnd, &ps);

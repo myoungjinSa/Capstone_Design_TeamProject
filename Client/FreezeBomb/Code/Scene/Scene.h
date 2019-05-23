@@ -7,6 +7,21 @@
 #define SPOT_LIGHT						2
 #define DIRECTIONAL_LIGHT			3
 
+
+struct FOGFACTORS
+{
+	float gFogMode;
+	float gFogStart;;
+	float gFogRange;
+	float gFogDensity;
+};
+
+struct FOG
+{
+	XMFLOAT4 FogColor;
+	FOGFACTORS FogFactor;
+};
+
 struct LIGHT
 {
 	XMFLOAT4	m_xmf4Ambient;
@@ -27,7 +42,7 @@ struct LIGHT
 struct LIGHTS							
 {										
 	LIGHT				m_pLights[MAX_LIGHTS];
-	XMFLOAT4		m_xmf4GlobalAmbient;
+	XMFLOAT4			m_xmf4GlobalAmbient;
 	int						m_nLights;
 };
 
@@ -55,6 +70,7 @@ public:
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void ReleaseShaderVariables();
 
+	void BuildFog();
 	void BuildDefaultLightsAndMaterials();
 	void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,const int& playerCount);
 	void ReleaseObjects();
@@ -86,7 +102,7 @@ public:
 	void SetWarningTimer();
 	void StopWarningTimer();
 
-	XMFLOAT3 ScreenPosition(int x, int y);
+	XMFLOAT2 ScreenPosition(int x, int y);
 
 	enum MucicEnum
 	{
@@ -128,6 +144,11 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvDescriptorNextHandle() { return(m_d3dSrvCPUDescriptorNextHandle); }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorNextHandle() { return(m_d3dSrvGPUDescriptorNextHandle); }
 
+	FOG*						m_pFog = NULL;
+
+	ID3D12Resource				*m_pd3dcbFog = NULL;
+	FOG							*m_pcbMappedFog = NULL;
+
 	LIGHT*						m_pLights = NULL;
 	int								m_nLights = 0;
 
@@ -135,22 +156,17 @@ public:
 
 	ID3D12Resource*				m_pd3dcbLights = NULL;
 	LIGHTS*						m_pcbMappedLights = NULL;
-	
-protected:
 
 	//FMOD 사운드 시스템
 	//씬마다 음악이 달라져야 할수 있기 때문에 씬이 사운드를 관리함.
-	CSoundSystem*				m_pSound=NULL;
+	CSoundSystem*		m_pSound=NULL;
 
-
-	const char**				m_musicList = NULL;
+	const char**			m_musicList = NULL;
 	int							m_musicCount;
 
 	bool						m_musicStart{ false };
-private:
 	CPlayer*					m_pPlayer = NULL;
 
-	
 	float						m_bVibeTime{ 0.0f };
 	bool						m_bWarningSet{ false };		//경고음 울리는지 여부 
 
@@ -161,8 +177,8 @@ private:
 
 	// [ ShaderResourceView 총 개수 ]
 	// SkyBox : 1
-	// Terrain : 2, 
-	// DeadTrees : 15, PineTrees : 34, Rocks : 14, Deer : 2, Pond : 2=> MapObjects : 67
+	// Terrain : 3, 
+	// DeadTrees : 15, PineTrees : 34, Rocks : 14, Deer : 2, Pond : 2, FirePit : 3 => MapObjects : 70
 	// Hammer : 3, Pocket_Watch : 5 => Item = 8
 	// EvilBear : 18, LampParticle : 1 => 19
 	// Player : 18, LampParticle : 1 => 19
@@ -171,13 +187,15 @@ private:
 	// Snow : 1, 
 	// Number : 10, Colon : 1 => TimerUI = 11
 	// ItemBox = 1, Hammer_Item : 1, GoldHammer_Item : 1, GoldTimer_Item : 1=> ItemUI : 4
-	// MenuUI : 1
+	// MenuUI : 1, Menu_ICON : 1, Option : 1, GameOver : 1, Sound : 1, Cartoon : 1 => 6
 	enum nShaderResourceView
 	{
-		SkyBox = 1, Terrain = 2, MapObjects = 67, Item = 8,
-		EvilBear = 19, Player = 19, BombParticle = 1, CubeParticle = 1, Snow = 1, TimerUI = 11, ItemUI = 4, MenuUI = 1
+		SkyBox = 1, Terrain = 2, MapObjects = 70, Item = 8,
+		EvilBear = 19, Player = 19, BombParticle = 1, CubeParticle = 1, Snow = 1, TimerUI = 11, ItemUI = 4, MenuUI = 6
 	};
 
 	// 술래 변경할 수 있는 시간
 	static float m_TaggerCoolTime;
+
+	static bool m_IsPlay;
 };

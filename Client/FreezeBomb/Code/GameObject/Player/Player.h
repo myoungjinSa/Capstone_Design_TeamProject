@@ -107,6 +107,9 @@ public:
 	};
 	std::map<MUSIC_ENUM, std::string> m_mapMusicList;
 
+#ifdef _WITH_SERVER_
+	void SetVelocityFromServer(float fVel) { m_fVelocityFromServer = fVel; }
+#endif
 	void setScore(short score) { m_Score = score; }
 	short getScore()		const { return m_Score; }
 	bool IsCameraVibe() const { return m_bCameraVibe; }
@@ -114,34 +117,37 @@ public:
 	bool IsSpike() const { return m_bSpike; }
 	void SetSpike(bool spike) { m_bSpike = spike; }
 
+	void ChangeRole();
 protected:
 
-	XMFLOAT3			m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	XMFLOAT3			m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	XMFLOAT3			m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	XMFLOAT3			m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	XMFLOAT3					m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMFLOAT3					m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	XMFLOAT3					m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	XMFLOAT3					m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
 
-	XMFLOAT3			m_xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	XMFLOAT3					m_xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
 	float           			m_fPitch = 0.0f;
 	float           			m_fYaw = 0.0f;
 	float           			m_fRoll = 0.0f;
 
-	XMFLOAT3			m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	XMFLOAT3     		m_xmf3Gravity = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMFLOAT3					m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMFLOAT3     				m_xmf3Gravity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	float           			m_fMaxVelocityXZ = 0.0f;
 	float           			m_fMaxVelocityY = 0.0f;
 	float           			m_fFriction = 0.0f;
-
+#ifdef _WITH_SERVER_
+	float						m_fVelocityFromServer = 0.0f;
+#endif
 	float						m_fMinDistance = 0.0f;
 
-	LPVOID				m_pPlayerUpdatedContext{ nullptr };
-	LPVOID				m_pCameraUpdatedContext{ nullptr };
+	LPVOID						m_pPlayerUpdatedContext{ nullptr };
+	LPVOID						m_pCameraUpdatedContext{ nullptr };
 
-	CCamera*				m_pCamera{ nullptr };
+	CCamera*					m_pCamera{ nullptr };
 
-	map<string, CItem*>	m_Normal_Inventory;
-	map<string, CItem*>	m_Special_Inventory;
+	map<string, CItem*>			m_Normal_Inventory;
+	map<string, CItem*>			m_Special_Inventory;
 	list<CItem*>					m_RemovedItemList;
 
 	CShaderManager* m_pShaderManager{ nullptr };

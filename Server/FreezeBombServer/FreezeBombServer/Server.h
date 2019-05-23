@@ -1,16 +1,19 @@
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include "MyInclude.h"
+#include "MyDefine.h"
 #include "protocol.h"
+#include "Terrain.h"
+#include "GameTimer.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 constexpr int MAX_BUFFER = 1024;
 
 constexpr int SERVER_PORT = 9000;
 
-constexpr float PLAYER_INIT_X_POS = 0;
+constexpr float PLAYER_INIT_X_POS = 40;
 constexpr float PLAYER_INIT_Y_POS = 0;
-constexpr float PLAYER_INIT_Z_POS = 0;
+constexpr float PLAYER_INIT_Z_POS = 40;
 
 constexpr float PLAYER_INIT_X_LOOK = 0;
 constexpr float PLAYER_INIT_Y_LOOK = 0;
@@ -24,7 +27,11 @@ constexpr float PLAYER_INIT_X_RIGHT = 0;
 constexpr float PLAYER_INIT_Y_RIGHT = 0;
 constexpr float PLAYER_INIT_Z_RIGHT = 0;
 
-constexpr int MAX_WORKER_THREAD = 3;
+constexpr float FRICTION = 250;
+constexpr float MAX_VELOCITY_XZ = 40;
+constexpr float MAX_VELOCITY_Y = 400;
+
+constexpr int MAX_WORKER_THREAD = 2;
 
 // Overlapped구조체 확장
 struct OVER_EX {
@@ -47,15 +54,32 @@ public:
 	// 조립불가한 메모리를 다음번에 조립하기 위한 임시저장소
 	char packet_buffer[MAX_BUFFER];
 	int prev_size;
-	float xPos, yPos, zPos;
-	float xLook, yLook, zLook;
-	float xUp, yUp, zUp;
-	float xRight, yRight, zRight;
+
+	XMFLOAT3 pos;
+	XMFLOAT3 look;
+	XMFLOAT3 up;
+	XMFLOAT3 right;
+	XMFLOAT3 velocity;
+	float pitch;
+	float yaw;
+	float roll;
+	DWORD direction;
+	//속도
+	float fVelocity;
+
+	XMFLOAT3 lastRightVector;
+	XMFLOAT3 lastLookVector;
+	XMFLOAT3 lastUpVector;
+
+	
 	char score;
 	char normalItem;
 	char specialItem;
 	char role;
 	char matID;
+
+	char animation;			//애니메이션 index
+	float animationTime;	//애니메이션 시간
 	bool isReady;
 public:
 	SOCKETINFO() {
@@ -76,16 +100,23 @@ public:
 class Server
 {
 private:
+	mutex gLock;
+	mutex clientsLock[MAX_USER];
 	SOCKET listenSocket;
 	HANDLE iocp;
-	mutex myLock;
 	// vector로 했을 때 over_ex.messagebuffer에 값이 들어오질 않는다.
 	// 배열로 바꾸니 제대로 동작함. 왜? 무슨 차이?
 	SOCKETINFO clients[MAX_USER];
 	vector<thread> workerThreads;
+	CGameTimer gameTimer;
+	CHeightMapImage* heightMap;
+	XMFLOAT3 gravity;
+	float roundStartTime;
+	float roundCurrTime;
 	int clientCount;
 	int readyCount;
 	int hostId;
+	int bomberID;
 public:
 	Server();
 	~Server();
@@ -94,6 +125,8 @@ public:
 	void AcceptThreadFunc();
 	static void WorkerThread(LPVOID arg);
 	void WorkerThreadFunc();
+	static void TimerThread(LPVOID arg);
+	void TimerThreadFunc();
 public:
 	void ProcessPacket(char client, char *packet);
 	void SendFunc(char client, void *packet);
@@ -102,11 +135,30 @@ public:
 public:
 	void SendAccessComplete(char client);
 	void SendAccessPlayer(char toClient, char fromClient);
+	void SendPlayerAnimation(char toClient, char fromCllient);
 	void SendPutPlayer(char toClient, char fromClient);
 	void SendRoundStart(char client);
 	void SendPleaseReady(char client);
-	void SendMovePlayer(char client);
+	void SendMovePlayer(char to,char object);
 	void SendRemovePlayer(char toClient, char fromClient);
+	void SendRoundEnd(char client);
+	void SendCompareTime(char client);
+	void SendStopRunAnim(char toClient, char fromClient);
+public:
+	void SetAnimationState(char client,char animationNum);
+	void SetVelocityZero(char client);
+	void SetPitchYawRollZero(char client);
+	void SetClient_Initialize(char client);
+	void SetDirection(char client, int key);
+	void RotateModel(char client, float x, float y, float z);
+	void RotateClientAxisY(char client, float fTimeElapsed);
+	void UpdateClientPos(char client, float fTimeElapsed);
+	void ProcessClientHeight(char client);
+	void ProcessFriction(char client, float& fLength);
+public:
+	void PickBomber();
+	void StartTimer();
+	void ResetTimer();
 public:
 	bool InitServer();
 	void RunServer();

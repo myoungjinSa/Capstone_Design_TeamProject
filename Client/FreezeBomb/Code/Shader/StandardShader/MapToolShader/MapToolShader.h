@@ -14,6 +14,8 @@ public:
 
 	void InsertObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CPlayer *pPlayer, const string& model);
 
+	void InsertItem(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CPlayer *pPlayer, const string& model);
+
 	void SortDescByName();	//오브젝트 이름의 내림차순으로 정렬 (동일한 이름일 경우 순서 정할수 없음)
 
 	void MakeMapFile();
@@ -42,7 +44,8 @@ public:
 	void SetCurrBigRockIndex(int index) { m_nCurrBigRockModelIndex = index; }
 	void SetCurrFenceIndex(int index) { m_nCurrFenceModelIndex = index; }
 
-	enum MapObjectType { DeadTree = 0x31, PineTree = 0x32, BigRock = 0x33, Deer = 0x34, Fence = 0x35, Frozen_Road = 0x36, 
+	enum MapObjectType { DeadTree = 0x31, PineTree = 0x32, BigRock = 0x33, Deer = 0x34, Fence = 0x35, Frozen_Road = 0x36, FirePit = 0x37,
+		Hammer = 0x48, GoldTimer = 0x54,
 		DeleteAllObject = 0x44, DeleteObject = 0x52, OutputFile = 0x4F };
 
 	void BuildWall(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);

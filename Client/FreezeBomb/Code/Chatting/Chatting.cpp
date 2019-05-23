@@ -3,6 +3,10 @@
 
 #include "Chatting.h"
 
+#pragma comment(lib,"imm32.lib")
+#include <imm.h>
+
+
 #ifdef _WITH_DIRECT2D_
 
 ChattingSystem::ChattingSystem()
@@ -11,9 +15,9 @@ ChattingSystem::ChattingSystem()
 
 ChattingSystem::~ChattingSystem()
 {
-	cout << "Chattinng System ¼Ò¸ê" << endl;
-
+	//cout << "Chattinng System ¼Ò¸ê" << endl;
 }
+
 void ChattingSystem::Initialize(IDWriteFactory* writeFactory,ID2D1DeviceContext2* pd2dDeviceContext,IWICImagingFactory* pwicImagingFactory)
 {
 	HRESULT hResult;
@@ -26,9 +30,22 @@ void ChattingSystem::Initialize(IDWriteFactory* writeFactory,ID2D1DeviceContext2
 		hResult = m_pdwChattingFont[i]->SetTextAlignment( DWRITE_TEXT_ALIGNMENT_LEADING);
 		hResult = m_pdwChattingFont[i]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
 		hResult = writeFactory->CreateTextLayout(L"ÅØ½ºÆ® ·¹ÀÌ¾Æ¿ô", 64, m_pdwChattingFont[i], 4096.0f, 4096.0f, &m_pdwChattingLayout);
-		pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrChatText[i]);
-	
+		//pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrChatText[i]);
 	}
+
+	/////////////////////////////////////////////////////ÆùÆ® »ö»ó
+	pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrChatText[0]);
+	pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Pink, 1.0f), &m_pd2dbrChatText[1]);
+	pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::DarkBlue, 1.0f), &m_pd2dbrChatText[2]);
+	pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Khaki, 1.0f), &m_pd2dbrChatText[3]);
+	pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::RosyBrown, 1.0f), &m_pd2dbrChatText[4]);
+	pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrChatText[5]);
+	pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrChatText[6]);
+	pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrChatText[7]);
+	pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrChatText[8]);
+	pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black, 1.0f), &m_pd2dbrChatText[9]);
+	
+	///////////////////////////////////////////////////////////////////////////////////////////////////////
 	IWICBitmapDecoder *pwicBitmapDecoder;
 	hResult = pwicImagingFactory->CreateDecoderFromFilename(L"../Resource/Png/chatting.png", NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &pwicBitmapDecoder);
 	
@@ -74,8 +91,21 @@ string ChattingSystem::TCHARToString(const TCHAR* ptsz)
 	delete[] psz;
 	return s;
 }
+void ChattingSystem::ShowLobbyChatting(ID2D1DeviceContext2* pd2dDeviceContext)
+{
+	if(IsChattingActive())
+	{
+		D2D1_RECT_F chatText{ 0,0,0,0 };
+		const TCHAR* t;
+		t = m_wsChat.c_str();
 
-void ChattingSystem::ShowChatting(ID2D1DeviceContext2* pd2dDeviceContext)
+		chatText = D2D1::RectF(680.0f,645.0f , 1200.0f, 645.0f);
+		pd2dDeviceContext->DrawTextW(t, (UINT32)wcslen(t), m_pdwChattingFont[0], &chatText, m_pd2dbrChatText[9]);
+	}
+}
+
+
+void ChattingSystem::ShowIngameChatting(ID2D1DeviceContext2* pd2dDeviceContext)
 {
 	
 	if(IsChattingActive() && m_pd2dfxBitmapSource)
@@ -93,7 +123,7 @@ void ChattingSystem::ShowChatting(ID2D1DeviceContext2* pd2dDeviceContext)
 }
 
 
-void ChattingSystem::ProcessChatting(HWND hWnd,WPARAM wParam,LPARAM lParam)
+void ChattingSystem::ProcessChatting(HWND hWnd,WPARAM wParam,LPARAM lParam,bool isInGame)
 {
 	
 	//n_tcscpy_s()
@@ -109,9 +139,19 @@ void ChattingSystem::ProcessChatting(HWND hWnd,WPARAM wParam,LPARAM lParam)
 	{
 		if (wParam != VK_RETURN && wParam != VK_BACK)
 		{
-			if (m_wsChat.size() <= (size_t)SENTENCE_LENGTH::ENG) 
+			if (isInGame) {
+				if (m_wsChat.size() <= (size_t)SENTENCE_LENGTH_INGAME::ENG)
+				{
+					m_wsChat += (TCHAR)wParam;
+				}
+			}
+			else
 			{
-				m_wsChat += (TCHAR)wParam;
+				if (m_wsChat.size() <= (size_t)SENTENCE_LENGTH_LOBBY::ENG)
+				{
+					//m_wsChat += (TCHAR)wParam;
+					m_wsChat += (TCHAR)wParam;
+				}
 			}
 
 		}
@@ -120,14 +160,22 @@ void ChattingSystem::ProcessChatting(HWND hWnd,WPARAM wParam,LPARAM lParam)
 	{
 		if (wParam != VK_RETURN)
 		{
-			
-			if (m_wsChat.size() <= (size_t)SENTENCE_LENGTH::KOR)
+			if (isInGame)
 			{
+				if (m_wsChat.size() <= (size_t)SENTENCE_LENGTH_INGAME::KOR)
+				{
 					//m_wsChat += (TCHAR)wParam;
-				ComposeHangeul(hWnd, wParam, lParam);
+					ComposeHangeul(hWnd, wParam, lParam);
+				}
 			}
-			
-				
+			else
+			{
+				if (m_wsChat.size() <= (size_t)SENTENCE_LENGTH_LOBBY::KOR)
+				{
+					//m_wsChat += (TCHAR)wParam;
+					ComposeHangeul(hWnd, wParam, lParam);
+				}
+			}
 
 		}
 	

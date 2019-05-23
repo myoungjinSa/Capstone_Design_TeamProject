@@ -3,7 +3,9 @@
 #include "../GameTimer/GameTimer.h"
 #include "../Network/Network.h"
 
-
+// 전체모드할경우 CharacterSelectUIShader에서도 
+// FULLSCREENMODE 여부를 확인해야해서 CPP말고 헤더로 옮김 - 명진
+//#define FullScreenMode
 class CScene;
 class CPlayer;
 class CCamera;
@@ -12,6 +14,16 @@ class CSobelCartoonShader;
 class CLoadingScene;
 class CLobbyScene;
 class ChattingSystem;
+class CIPScene;
+class CLoginScene;
+
+
+struct clientsInfo
+{
+	int		id;
+	bool	isReady;
+	_TCHAR	name[256];
+};
 
 class CGameFramework
 {
@@ -39,14 +51,19 @@ public:
 	void ShowScoreboard();
 	//HRESULT BindDC();
 	//HRESULT CreateDCRenderTarget();
-	
+	void ShowReadyText();
+
 	void ProcessDirect2D();
 #endif
 	void CreateDepthStencilView();
 	
 #ifdef _WITH_SERVER_
-	Network*getNetwork() { return &m_Network; }
+	//Network*getNetwork() { return &m_Network; }
+	CLoginScene* GetLoginScene()const { return m_pLoginScene; }
 	void ProcessPacket(char *ptr);
+	void CreateLoginCommandList();
+	void ConnectToServer();
+	void ProcessLogin();
 #endif
 	void ChangeSwapChainState();
 
@@ -58,37 +75,36 @@ public:
 	void FrameAdvance();
 	void ProcessInGame(D3D12_CPU_DESCRIPTOR_HANDLE&);
 	void ProcessLobby();
-
-
+	void ShowPlayers();
 	void WaitForGpuComplete();
 	void MoveToNextFrame();
 
 	void CreateOffScreenRenderTargetViews();
 
-
-	//void MappingUserToEvilbear(char id,int playerCount);
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 	bool IsHangeul() { return m_bHangeul; }
 	void SetHangeul(bool han) { m_bHangeul = han; }
 
+	int GetGameState() const { return m_nState; };
 	
 #ifdef _MAPTOOL_MODE_
 	void OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 #endif	
 
+	
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
-
+	bool IsInGame(); 
+	enum GAMESTATE {CHARACTER_SELECT=0, INGAME,PAUSE,OPTION,CONNECT,LOGIN,LOADING};
 private:
 	HINSTANCE					m_hInstance;
 	HWND							m_hWnd;
 	
 
-	int 						m_nState{ GAMESTATE::INGAME };
+	int 							m_nState{ GAMESTATE::INGAME };
 	//게임 상태 
-	enum GAMESTATE {LOBBY=0,CHARACTER_SELECT, READY, INGAME,PAUSE,OPTION};
-
+	
 	int								m_nWndClientWidth;
 	int								m_nWndClientHeight;
 
@@ -119,6 +135,7 @@ private:
 	ID3D12CommandAllocator*					m_pLoadingCommandAllocator = nullptr;
 	ID3D12GraphicsCommandList*				m_pLoadingCommandList = nullptr;
 
+	
 	ID3D12Fence*							m_pd3dFence = nullptr;
 	UINT64										m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE									m_hFenceEvent;
@@ -133,7 +150,6 @@ private:
 	CLobbyScene*							m_pLobbyScene = nullptr;
 	CScene*									m_pScene = nullptr;
 	CPlayer*								m_pPlayer = nullptr;
-	CPlayer*								m_pePlayer = nullptr;
 
 	CCamera*								m_pCamera = nullptr;
 
@@ -149,6 +165,8 @@ private:
 
 
 #ifdef _WITH_DIRECT2D_
+
+
 	ID3D11On12Device				*m_pd3d11On12Device{ nullptr };//
 	ID3D11DeviceContext				*m_pd3d11DeviceContext{ nullptr };//
 	ID2D1Factory3					*m_pd2dFactory{ nullptr };//
@@ -182,7 +200,9 @@ private:
 #endif
 
 #ifdef _WITH_SERVER_
-	Network m_Network;
+	//클라이언트 정보
+	clientsInfo						m_PlayerInfo[MAX_USER];
+	//Network m_Network;
 	int hostId;
 	int clientCount = 0;
 	SC_PACKET_ACCESS_COMPLETE *pAC = NULL;
@@ -195,11 +215,24 @@ private:
 	SC_PACKET_REMOVE_PLAYER *pRP = NULL;
 	SC_PACKET_COMPARE_TIME *pCT = NULL;
 	SC_PACKET_ROUND_START *pRS = NULL;
+	SC_PACKET_STOP_RUN_ANIM *pSTA = NULL;
+	SC_PACKET_PLAYER_ANIMATION* pPA = NULL;
+	bool isCharacterSelectDone = false;
+
+	ID3D12CommandAllocator*					m_pLoginCommandAllocator = nullptr;
+	ID3D12GraphicsCommandList*				m_pLoginCommandList = nullptr;
+
+	CLoginScene*			m_pLoginScene{ nullptr };
+	CIPScene*				m_pIPScene{ nullptr };
+	vector<thread> loginThread;
+	vector<thread> connectThread;
+	void Connect_Thread(CIPScene* loginScene);
 #endif
 	//사운드 쓰레드 풀
 	vector<thread> soundThreads;
 	vector<thread> loadingThread;
 
+	
 	void Worker_Thread();
 
 #ifdef _MAPTOOL_MODE_

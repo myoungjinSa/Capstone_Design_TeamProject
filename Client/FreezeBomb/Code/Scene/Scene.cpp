@@ -29,7 +29,10 @@ D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dCbvGPUDescriptorNextHandle;
 D3D12_CPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvCPUDescriptorNextHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvGPUDescriptorNextHandle;
 
+extern bool g_IsSoundOn;
+
 float CScene::m_TaggerCoolTime = 0.f;
+bool CScene::m_IsPlay = false;
 
 CScene::CScene() :m_musicCount(0), m_playerCount(0)
 {
@@ -39,13 +42,25 @@ CScene::~CScene()
 {
 }
 
+void CScene::BuildFog()
+{
+	m_pFog = new FOG;
+	::ZeroMemory(m_pFog, sizeof(FOG));
+
+	m_pFog->FogColor = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
+	m_pFog->FogFactor.gFogMode = 1.0f;		//1 = 선형 안개 ,2 = 비 선형 안개( 1/e^(d*density)),3 = 비선형 안개(1/e^((d*density)^2))
+	m_pFog->FogFactor.gFogStart = 30.0f;
+	m_pFog->FogFactor.gFogRange = 100.0f;
+	m_pFog->FogFactor.gFogDensity = 0.5f;
+
+}
 void CScene::BuildDefaultLightsAndMaterials()
 {
 	m_nLights = 4;
 	m_pLights = new LIGHT[m_nLights];
 	::ZeroMemory(m_pLights, sizeof(LIGHT) * m_nLights);
 
-	m_xmf4GlobalAmbient = XMFLOAT4(0.15f, 0.15f, 0.15f, 1.0f);
+	m_xmf4GlobalAmbient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	m_pLights[0].m_bEnable = false;
 	m_pLights[0].m_nType = POINT_LIGHT;
@@ -70,10 +85,10 @@ void CScene::BuildDefaultLightsAndMaterials()
 	m_pLights[1].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
 	m_pLights[2].m_bEnable = true;
 	m_pLights[2].m_nType = DIRECTIONAL_LIGHT;
-	m_pLights[2].m_xmf4Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
-	m_pLights[2].m_xmf4Diffuse = XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f);
-	m_pLights[2].m_xmf4Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 0.0f);
-	m_pLights[2].m_xmf3Direction = XMFLOAT3(1.0f, -1.0f, 0.0f);
+	m_pLights[2].m_xmf4Ambient = XMFLOAT4(1.0f, 1.0f,1.0f, 1.0f);
+	m_pLights[2].m_xmf4Diffuse = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
+	m_pLights[2].m_xmf4Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 0.0f);
+	m_pLights[2].m_xmf3Direction = XMFLOAT3(1.0f, 0.5f, 0.0f);
 	m_pLights[3].m_bEnable = false;
 	m_pLights[3].m_nType = SPOT_LIGHT;
 	m_pLights[3].m_fRange = 600.0f;
@@ -101,7 +116,10 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	// Model을 로드할 때, 셰이더 없이 로드할 경우 이것을 사용함!
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
+
 	BuildDefaultLightsAndMaterials();
+	BuildFog();
+
 
 	m_pShaderManager = new CShaderManager;
 	m_pShaderManager->Initialize(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nPlayerCount);
@@ -133,6 +151,9 @@ void CScene::ReleaseObjects()
 
 	if (m_pLights)
 		delete[] m_pLights;
+
+	if (m_pFog)
+		delete[] m_pFog;
 }
 
 
@@ -226,7 +247,8 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dDescriptorRanges[13].RegisterSpace = 0;
 	pd3dDescriptorRanges[13].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[23];
+
+	D3D12_ROOT_PARAMETER pd3dRootParameters[25];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 1;	// b1 : Camera
@@ -343,6 +365,16 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[22].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[13]);
 	pd3dRootParameters[22].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
+	pd3dRootParameters[23].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	pd3dRootParameters[23].Descriptor.ShaderRegister = 8;	// b8 : Fog
+	pd3dRootParameters[23].Descriptor.RegisterSpace = 0;
+	pd3dRootParameters[23].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	pd3dRootParameters[24].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	pd3dRootParameters[24].Descriptor.ShaderRegister = 9;	// b9 : UI
+	pd3dRootParameters[24].Descriptor.RegisterSpace = 0;
+	pd3dRootParameters[24].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
 
 	pd3dSamplerDescs[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
@@ -394,8 +426,12 @@ void CScene::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsComma
 {
 	UINT ncbElementBytes = ((sizeof(LIGHTS) + 255) & ~255); //256의 배수
 	m_pd3dcbLights = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-
 	m_pd3dcbLights->Map(0, NULL, (void **)&m_pcbMappedLights);
+
+	//안개
+	UINT ncbFogElementBytes = ((sizeof(FOG) + 255)&~255);
+	m_pd3dcbFog = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbFogElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pd3dcbFog->Map(0, NULL, (void**)&m_pcbMappedFog);
 }
 
 void CScene::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
@@ -406,6 +442,11 @@ void CScene::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
 
 	D3D12_GPU_VIRTUAL_ADDRESS GpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(3, GpuVirtualAddress);
+
+	//안개
+	::memcpy(m_pcbMappedFog, m_pFog, sizeof(FOG));
+	D3D12_GPU_VIRTUAL_ADDRESS d3dcbFogGPUVirtualAddress = m_pd3dcbFog->GetGPUVirtualAddress();
+	pd3dCommandList->SetGraphicsRootConstantBufferView(23, d3dcbFogGPUVirtualAddress);
 }
 
 void CScene::ReleaseShaderVariables()
@@ -415,6 +456,13 @@ void CScene::ReleaseShaderVariables()
 		m_pd3dcbLights->Unmap(0, NULL);
 		m_pd3dcbLights->Release();
 	}
+
+	if (m_pd3dcbFog)
+	{
+		m_pd3dcbFog->Unmap(0, NULL);
+		m_pd3dcbFog->Release();
+	}
+
 }
 
 void CScene::ReleaseUploadBuffers()
@@ -483,39 +531,24 @@ void CScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	
 	switch (nMessageID)
 	{
+	case WM_MOUSEMOVE:
 	case WM_LBUTTONDOWN:
-	{
 		if (m_pShaderManager)
 		{
 			auto iter = m_pShaderManager->getShaderMap().find("MenuUI");
 			if (iter != m_pShaderManager->getShaderMap().end())
 			{
-				if (((CMenuUIShader*)(*iter).second)->getIsRender() == true)
-				{
-					XMFLOAT3 position = ScreenPosition(mouseX, mouseY);
-					if (-0.5f <= position.x && position.x <= 0.5f && -0.25f <= position.y && position.y <= 0.25f)
-					{
-						if (m_pSound)
-						{
-							m_pSound->PlayIndex(MENU_INPUT);
-							cout << "마우스 왼쪽 클릭 - x : " << position.x << ", y : " << position.y << endl;
-						}
-					}
-				}
+				((CMenuUIShader*)(*iter).second)->ProcessMessage(CMenuUIShader::MOUSE, nMessageID, ScreenPosition(mouseX, mouseY));
 			}
 		}
-		
-	}
 		break;
 	case WM_RBUTTONDOWN:
-		cout << "마우스 오른쪽 클릭 - x : " << mouseX << ", y : " << mouseY << endl;
+		//cout << "마우스 오른쪽 클릭 - x : " << mouseX << ", y : " << mouseY << endl;
 		break;
 	case WM_LBUTTONUP:
-		cout << "마우스 왼쪽 때짐" << endl;
+		//cout << "마우스 왼쪽 때짐" << endl;
 		break;
 	case WM_RBUTTONUP:
-		break;
-	case WM_MOUSEMOVE:
 		break;
 	default:
 		break;
@@ -526,44 +559,37 @@ void CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 {
 	switch (nMessageID)
 	{
-
-	case WM_KEYUP:
-		switch (wParam)
-		{
-		
-		case 'M':
-		{
-			if (m_pShaderManager)
-			{
-				auto iter = m_pShaderManager->getShaderMap().find("MenuUI");
-				if (iter != m_pShaderManager->getShaderMap().end())
+		case WM_KEYUP:
+			switch (wParam)
+			{	
+				case VK_ESCAPE:
 				{
-					if (((CMenuUIShader*)(*iter).second)->getIsRender() == false)
-						((CMenuUIShader*)(*iter).second)->setIsRender(true);
-					else
-						((CMenuUIShader*)(*iter).second)->setIsRender(false);
+					if (m_pShaderManager)
+					{
+						auto iter = m_pShaderManager->getShaderMap().find("MenuUI");
+						if (iter != m_pShaderManager->getShaderMap().end())
+						{
+							((CMenuUIShader*)(*iter).second)->ProcessMessage(CMenuUIShader::KEYBOARD, nMessageID, XMFLOAT2(0, 0));
+						}
+					}
 				}
-			}
-		}
-		break;
-		case 'N':
-		{
-			if (m_pShaderManager)
-			{
-				auto iter = m_pShaderManager->getShaderMap().find("OutcomeUI");
-				if (iter != m_pShaderManager->getShaderMap().end())
+				break;
+				case 'N':
 				{
-					if (((COutcomeUIShader*)(*iter).second)->getIsRender() == false)
-						((COutcomeUIShader*)(*iter).second)->setIsRender(true);
-					else
-						((COutcomeUIShader*)(*iter).second)->setIsRender(false);
+					if (m_pShaderManager)
+					{
+						auto iter = m_pShaderManager->getShaderMap().find("OutcomeUI");
+						if (iter != m_pShaderManager->getShaderMap().end())
+						{
+							if (((COutcomeUIShader*)(*iter).second)->getIsRender() == false)
+								((COutcomeUIShader*)(*iter).second)->setIsRender(true);
+							else
+								((COutcomeUIShader*)(*iter).second)->setIsRender(false);
+						}
+					}
 				}
+				break;	
 			}
-		}
-		break;
-		
-		}
-
 		break;
 	}
 }
@@ -625,7 +651,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 	if (m_TaggerCoolTime > 0.f)
 	{
 		m_TaggerCoolTime -= elapsedTime;
-		cout << m_TaggerCoolTime << endl;
+		//cout << m_TaggerCoolTime << endl;
 	}
 	else
 		m_TaggerCoolTime = 0.f;
@@ -747,19 +773,27 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				if ((*iter).second->m_ppObjects[i]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
 					// 술래 체인지
-					if (m_pPlayer->GetIsBomb() == true && m_TaggerCoolTime <= 0.f)
+					if ((*iter).second->m_ppObjects[i]->GetIsICE() == false)
 					{
-						(*iter).second->m_ppObjects[i]->SetIsBomb(true);
-						m_pPlayer->SetIsBomb(false);
+						if (m_pPlayer->GetIsBomb() == true && m_TaggerCoolTime <= 0.f)
+						{
+							(*iter).second->m_ppObjects[i]->SetIsBomb(true);
 
-						m_TaggerCoolTime = 3.f;
-					}
-					else if ((*iter).second->m_ppObjects[i]->GetIsBomb() == true && m_TaggerCoolTime <= 0.f)
-					{
-						m_pPlayer->SetIsBomb(true);
-						(*iter).second->m_ppObjects[i]->SetIsBomb(false);
+							m_pPlayer->SetIsBomb(false);
 
-						m_TaggerCoolTime = 3.f;
+							m_TaggerCoolTime = 3.f;
+						}
+						else if ((*iter).second->m_ppObjects[i]->GetIsBomb() == true && m_TaggerCoolTime <= 0.f)
+						{
+							if (m_pPlayer->GetIsICE() == false)
+							{
+								m_pPlayer->SetIsBomb(true);
+								(*iter).second->m_ppObjects[i]->SetIsBomb(false);
+
+								m_TaggerCoolTime = 3.f;
+							}
+
+						}
 					}
 
 					//(*iter).second->m_ppObjects[i]->SetObjectCollided(m_pPlayer);
@@ -794,22 +828,42 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				{
 					for (int i = 0; i < (*iter).second->m_nObjects; ++i)
 					{
-						if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[i]->GetBoundingBox()))
+						if ((*iter).second->m_ppObjects[i]->GetIsICE() == true)
 						{
-							if (m_pPlayer->get_Normal_InventorySize() > 0)
+							if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[i]->GetBoundingBox()))
 							{
-								if (bBreak == false)
-									bBreak = true;
+								if (m_pPlayer->get_Normal_InventorySize() > 0)
+								{
+									if (bBreak == false)
+										bBreak = true;
 
-								m_pPlayer->Refresh_Inventory(CItem::NormalHammer);
+									m_pPlayer->Refresh_Inventory(CItem::NormalHammer);
+								}
+								m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
+
+								PlayIceBreakEffect(bBreak);
+								(*iter).second->m_ppObjects[i]->SetIsICE(false);
+								//cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
+								break;
+
 							}
-							m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
-
-							PlayIceBreakEffect(bBreak);
-
-							//cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
-							break;
 						}
+						//if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[i]->GetBoundingBox()))
+						//{
+						//	if (m_pPlayer->get_Normal_InventorySize() > 0)
+						//	{
+						//		if (bBreak == false)
+						//			bBreak = true;
+
+						//		m_pPlayer->Refresh_Inventory(CItem::NormalHammer);
+						//	}
+						//	m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
+
+						//	PlayIceBreakEffect(bBreak);
+						//	(*iter).second->m_ppObjects[i]->SetIsICE(false);
+						//	//cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
+						//	break;
+						//}
 					}
 				}
 			}
@@ -827,9 +881,6 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				}
 			}
 #endif
-			/*sort(begin(m), end(m), [&](const CGameObject& enmey1,const CGameObject& enemy2)->float {
-				float fDistamce = m_pPlayer->
-			});*/
 		}
 
 		// 플레이어와 아이템 오브젝트 충돌검사
@@ -846,8 +897,6 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 
 					// 충돌 된 아이템을 플레이어 인벤토리에 추가한다.
 					m_pPlayer->Add_Inventory((*iter2).first, (*iter2).second->getItemType());
-					if((*iter2).second->getItemType() == CItem::NormalHammer || (*iter2).second->getItemType() == CItem::GoldHammer)
-						m_pPlayer->SetIsHammer(true);
 					// 맵에 있는 아이템 삭제
 					PlayGetItemEffect();
 					pItemShader->ItemDelete((*iter2).first);
@@ -860,7 +909,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 
 void CScene::PlayGetItemEffect()
 {
-	if (m_pSound)
+	if (m_pSound && g_IsSoundOn == true)
 		m_pSound->PlayIndex(ITEMGET);
 	//cout << "PlayGetItem\n";
 }
@@ -869,13 +918,14 @@ void CScene::PlayIceBreakEffect(bool& bBreak)
 {
 	if (bBreak)
 	{
-		m_pSound->PlayIndex(ICEBREAK);
+		if(m_pSound && g_IsSoundOn == true)
+			m_pSound->PlayIndex(ICEBREAK);
 
 		if (m_pPlayer->IsCameraVibe() == false)
 			m_pPlayer->SetCameraVibe(true);
 	
 		//m_pPlayer->SetCameraVibe(true);
-		cout << "ICEBREAK" << endl;
+		//cout << "ICEBREAK" << endl;
 	}
 }
 
@@ -891,13 +941,14 @@ void CScene::StopWarningTimer()
 
 void CScene::CheckWarningTimer()
 {
-	if (m_pSound) {
+	if (m_pSound && g_IsSoundOn == true)
+	{
 		map<string, CShader*> m = m_pShaderManager->getShaderMap();
 
 		auto iter = m.find("TimerUI");
 		float sec = dynamic_cast<CTimerUIShader*>((*iter).second)->getTimer();
 		
-		if(sec < 10.0f)
+		if(sec > 0 && sec < 10.0f)
 		{
 			if (m_bWarningSet == false) {
 				m_bWarningSet = true;
@@ -917,7 +968,7 @@ void CScene::CheckWarningTimer()
 
 void CScene::PlayBackgroundMusic()
 {
-	if (m_pSound)
+	if (m_pSound && g_IsSoundOn == true)
 		m_pSound->PlayIndex(BACKGROUNDMUSIC,0.5f);
 
 }
@@ -998,20 +1049,20 @@ XMFLOAT2 CScene::ProcessNameCard(const int& objNum)
 	return res;
 }
 
-XMFLOAT3 CScene::ScreenPosition(int x, int y)
+XMFLOAT2 CScene::ScreenPosition(int x, int y)
 {
 	CCamera* pCamera = m_pPlayer->GetCamera();
 	if (pCamera != nullptr)
 	{
 		D3D12_VIEWPORT Viewport = pCamera->GetViewport();
 
-		XMFLOAT3 screenPosition = XMFLOAT3(0.f, 0.f, 0.f);
+		XMFLOAT2 screenPosition = XMFLOAT2(0.f, 0.f);
 		screenPosition.x = (((2.0f * x) / Viewport.Width) - 1) / 1;
 		screenPosition.y = - (((2.0f * y) / Viewport.Height) - 1) / 1;
-		screenPosition.z = 0.0f;
+		//screenPosition.z = 0.0f;
 
 		return screenPosition;
 	}
 
-	return XMFLOAT3(0.f, 0.f, 0.f);
+	return XMFLOAT2(0.f, 0.f);
 }

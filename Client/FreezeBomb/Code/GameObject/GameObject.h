@@ -253,9 +253,9 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define DIR_FORWARD			0x01
-#define DIR_BACKWARD			0x02
-#define DIR_LEFT						0x04
+#define DIR_FORWARD					0x01
+#define DIR_BACKWARD				0x02
+#define DIR_LEFT					0x04
 #define DIR_RIGHT					0x08
 #define DIR_UP						0x10
 #define DIR_DOWN					0x20
@@ -307,14 +307,8 @@ public:
 
 	_TCHAR* GetPlayerName() { return m_playerName; }
 
-
 	void SetChild(CGameObject *pChild, bool bReferenceUpdate=false);
 	
-	bool GetIsBomb()	const { return m_bBomb; }			//폭탄 소지 여부 true/false 반환
-	void SetIsBomb(bool bBomb) { m_bBomb = bBomb; }	//폭탄 설정
-	bool GetIsHammer()	const{ return m_bHammer; }
-	void SetIsHammer(bool bHammer) { m_bHammer = bHammer; }
-
 	virtual void BuildMaterials(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) { }
 
 	virtual void OnPrepareAnimate() { }
@@ -326,6 +320,10 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList,bool bHammer,bool bBomb ,bool bIce, int matID, CCamera *pCamera, int nPipelineState = GameObject);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lodlevel, CCamera *pCamera, int nPipelineState = GameObject);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState, int nInstance);
+	
+	void Item_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int ItemType, int nPipelineState);
+	void Tagger_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int matID, bool HasGoldTimer, int nPipelineState);
+	void RunAway_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int matID, bool isICE, bool HasHammer, bool HasGoldHammer, int nPipelineState);
 
 	virtual void ReleaseShaderVariables();
 
@@ -404,6 +402,22 @@ public:
 	static void PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent);
 
 	UINT GetLodLevel() { return m_lodLevel; }
+
+	bool GetIsICE() const { return m_bIce; }
+	void SetIsICE(bool value) { m_bIce = value; }
+
+	bool GetIsHammer()	const { return m_bHammer; }
+	void SetIsHammer(bool bHammer) { m_bHammer = bHammer; }
+
+	bool getIsGoldHammer() const { return m_bGoldHammer; }
+	void setIsGoldHammer(bool value) { m_bGoldHammer = value; }
+
+	bool GetIsBomb()	const { return m_bBomb; }			//폭탄 소지 여부 true/false 반환
+	void SetIsBomb(bool bBomb) { m_bBomb = bBomb; }	//폭탄 설정
+
+	bool getIsGoldTimer()	const { return m_bGoldTimer; }
+	void setIsGoldTimer(bool value) { m_bGoldTimer = value; }
+
 protected:
 
 	_TCHAR		m_playerName[256];
@@ -423,7 +437,8 @@ protected:
 	int									m_matID;						//재질 정보
 	bool								m_bBomb = false;		//폭탄 소지 여부
 	bool								m_bHammer = false;	//망치 소지 여부
-	bool								m_bTimer = false;			//타이머 아이템 소지 여부
+	bool								m_bGoldHammer = false;
+	bool								m_bGoldTimer = false;			//타이머 아이템 소지 여부
 
 	//플레이어와의 거리
 	float		m_fDistanceToTarget = 0.0f;
@@ -432,7 +447,7 @@ public:
 	void setID(const string id) { m_ID = id; }
 	const string getID()	const { return m_ID; }
 
-	const int GetMaterialID() { return m_matID; }
+	//const int GetMaterialID() { return m_matID; }
 	const bool GetBoolIce() { return m_bIce; }
 
 	BoundingOrientedBox GetBoundingBox() const { return m_xmOOBB; }
