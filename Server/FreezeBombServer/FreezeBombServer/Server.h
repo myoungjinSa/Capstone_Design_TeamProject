@@ -78,6 +78,7 @@ public:
 	char role;
 	char matID;
 
+	wchar_t nickname[12];
 	char animation;			//애니메이션 index
 	float animationTime;	//애니메이션 시간
 	bool isReady;
@@ -89,6 +90,7 @@ public:
 		specialItem = ITEM::NONEITEM;
 		role = ROLE::RUNNER;
 		isReady = false;
+		ZeroMemory(nickname, sizeof(wchar_t) * 12);
 		ZeroMemory(&over_ex.messageBuffer, sizeof(over_ex.messageBuffer));
 		ZeroMemory(&packet_buffer, sizeof(packet_buffer));
 		over_ex.dataBuffer.len = MAX_BUFFER;

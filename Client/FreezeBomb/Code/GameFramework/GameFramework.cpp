@@ -20,6 +20,7 @@
 #include "../Shader/BillboardShader/UIShader/CharacterSelectUIShader/CharacterSelectUIShader.h"
 #include "../Scene/LoginScene/IDScene/LoginScene.h"
 #include "../InputSystem/IDInputSystem/IDInputSystem.h"
+#include "../Shader/BillboardShader/UIShader/LoginShader/IDShader.h"
 
 // 전체모드할경우 주석풀으셈
 //#define FullScreenMode
@@ -613,7 +614,15 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	{
 		if (m_pLoginScene)
 		{
-			m_pLoginScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+			int ret = 0;
+			ret = m_pLoginScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+			if(ret == CIDShader::state::REQUEST_LOGIN)
+			{
+				
+				Network::GetInstance()->SendNickName(m_pPlayer->GetPlayerID(), m_pLoginScene->GetIDInstance()->GetPlayerName());
+
+			}
+			
 			if (m_pLoginScene->IsLogin())
 			{
 				m_nState = CHARACTER_SELECT;
@@ -1478,6 +1487,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		printf("Access Player ID: %d\n", pAP->id);
 		break;
 	}
+
 	case SC_PLEASE_READY:
 		Network::GetInstance()->SetNullRS();
 		printf("모든 플레이어가 Ready하지 않았습니다.\n");

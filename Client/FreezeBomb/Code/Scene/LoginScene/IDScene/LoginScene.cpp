@@ -2,6 +2,7 @@
 #include "LoginScene.h" 
 #include "../../../Shader/BillboardShader/UIShader/LoginShader/IDShader.h"
 #include "../../../InputSystem/IDInputSystem/IDInputSystem.h"
+#include "../../../Network/Network.h"
 
 #ifdef _WITH_SERVER_
 #ifdef _WITH_DIRECT2D_
@@ -118,11 +119,12 @@ XMFLOAT3 CLoginScene::ScreenPosition(int x, int y)
 
 	return screenPosition;
 }
-void CLoginScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wParam,LPARAM lParam)
+int CLoginScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wParam,LPARAM lParam)
 {
 	int mouseX = LOWORD(lParam);
 	int mouseY = HIWORD(lParam);
 
+	int ret = CIDShader::state::NO_SELECT;
 	switch(nMessageID)
 	{
 //	case WM_MOUSEMOVE:
@@ -139,10 +141,15 @@ void CLoginScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wPar
 		//XMFLOAT3 position = ScreenPosition(mouseX, mouseY);
 		//cout << mouseX << ", " << mouseY << "--------------" << position.x << ", " << position.y << endl;
 			
-		int ret = dynamic_cast<CIDShader*>(m_ppShaders[0])->DecideTextureByCursor(wParam,ptCursorPos.x, ptCursorPos.y);
+		ret = dynamic_cast<CIDShader*>(m_ppShaders[0])->DecideTextureByCursor(wParam,ptCursorPos.x, ptCursorPos.y);
 		
-		(ret == CIDShader::state::REQUEST_LOGIN) ? m_bLogin = true : m_bLogin = false;
-
+		if(ret == CIDShader::state::REQUEST_LOGIN)
+		{
+			m_bLogin = true;
+			return ret;
+		}
+			/*m_bLogin = true : m_bLogin = false;
+*/
 
 		break;
 	}
@@ -150,6 +157,7 @@ void CLoginScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wPar
 
 		//break;
 	}
+	return ret;
 }
 
 void CLoginScene::AnimateObjects(ID3D12GraphicsCommandList* pd3dCommandList, float elapsedTime)

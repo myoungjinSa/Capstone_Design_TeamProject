@@ -22,7 +22,7 @@ struct clientsInfo
 {
 	int		id;
 	bool	isReady;
-	_TCHAR	name[256];
+	_TCHAR	name[12];
 };
 
 class CGameFramework

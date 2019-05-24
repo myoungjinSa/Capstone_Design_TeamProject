@@ -119,11 +119,27 @@ void Network::ReadPacket()
 	}
 }
 
-
+//8바이트 이상일때는 이 SendPacket을 사용하여야한다.
+void Network::SendPacket(DWORD dataBytes)
+{
+	DWORD iobyte = 0;
+	
+	send_wsabuf.len = dataBytes;
+	int retval = WSASend(sock, &send_wsabuf, 1, &dataBytes, 0, NULL, NULL);
+	if (retval)
+	{
+		if (GetLastError() != WSAEWOULDBLOCK)
+		{
+			err_display("WSASend()");
+		}
+	}
+}
 
 void Network::SendPacket()
 {
 	DWORD iobyte = 0;
+	
+
 	int retval = WSASend(sock, &send_wsabuf, 1, &iobyte, 0, NULL, NULL);
 	if (retval)
 	{
@@ -250,6 +266,21 @@ void Network::SendAnimationState(char animNum)
 	SendPacket();
 }
 
+void Network::SendNickName(char id,_TCHAR* name)
+{
+	pNickName = reinterpret_cast<CS_PACKET_NICKNAME*>(send_buffer);
+	pNickName->size = sizeof(CS_PACKET_NICKNAME);
+	pNickName->type = CS_NICKNAME_INFO;
+	pNickName->id = id;
+	pNickName->padding = 0;
+
+	int nLen = WideCharToMultiByte(CP_ACP, 0, name, -1, NULL, 0,NULL,NULL);
+
+	WideCharToMultiByte( CP_ACP, 0, name, -1, pNickName->name, nLen, NULL, NULL );
+
+
+	SendPacket(pNickName->size);
+}
 void Network::SetGameFrameworkPtr(HWND hWnd,CGameFramework* client)
 {
 	if (client) 

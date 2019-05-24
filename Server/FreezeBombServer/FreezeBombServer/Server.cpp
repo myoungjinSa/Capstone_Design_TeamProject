@@ -20,6 +20,8 @@ Server::~Server()
 
 bool Server::InitServer()
 {
+	setlocale(LC_ALL, "korean");
+
 	clientCount = 0;
 	hostId = -1;
 	// Winsock Start - windock.dll ·Îµå
@@ -455,6 +457,17 @@ void Server::ProcessPacket(char client, char *packet)
 		clientsLock[client].unlock();
 		//printf("Recv matID : %d\n", clients[client].matID);
 		break;
+	case CS_NICKNAME_INFO:
+	{
+		CS_PACKET_NICKNAME* p = reinterpret_cast<CS_PACKET_NICKNAME*>(packet);
+		
+		int nLen = MultiByteToWideChar(CP_ACP, 0, p->name, strlen(p->name), NULL, NULL);
+		MultiByteToWideChar(CP_ACP, 0, p->name, strlen(p->name), clients[client].nickname, nLen);
+	
+		wcout << clients[client].nickname << endl;
+		cout <<(int)p->id << endl;
+		break;
+	}
 	case CS_REQUEST_START:
 		if (clientCount <= readyCount)
 		{
