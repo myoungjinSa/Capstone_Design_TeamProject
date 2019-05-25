@@ -152,7 +152,7 @@ public:
 	void SetDirection(char client, int key);
 	void RotateModel(char client, float x, float y, float z);
 	void RotateClientAxisY(char client, float fTimeElapsed);
-	void UpdateClientPos(char client, float fTimeElapsed);
+	void UpdateClientPos(char client, float fTimeElapsed, bool isCollided);
 	void ProcessClientHeight(char client);
 	void ProcessFriction(char client, float& fLength);
 public:

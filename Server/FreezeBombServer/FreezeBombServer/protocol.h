@@ -48,7 +48,6 @@ constexpr int CS_RELEASE_KEY = 10;
 constexpr int CS_ANIMATION_INFO = 11;
 
 
-
 constexpr int MAX_ROUND_TIME = 50;
 
 //[클라->서버]
@@ -119,31 +118,35 @@ struct CS_PACKET_RIGHT_KEY
 {
 	char size;
 	char type;
+	bool isCollided;
 };
 
 struct CS_PACKET_LEFT_KEY
 {
 	char size;
 	char type;
+	bool isCollided;
 };
 
 struct CS_PACKET_UP_KEY
 {
 	char size;
 	char type;
+	bool isCollided;
 };
 
 struct CS_PACKET_DOWN_KEY
 {
 	char size;
 	char type;
+	bool isCollided;
 };
 
 struct CS_PACKET_READY
 {
 	char size;
 	char type;
-	char matID;
+	bool matID;
 };
 
 struct CS_PACKET_REQUEST_START

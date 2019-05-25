@@ -393,7 +393,7 @@ void Server::ProcessPacket(char client, char *packet)
 		clientsLock[client].lock();
 		SetDirection(client, packet[1]);
 		//cout << gameTimer.GetTimeElapsed()<<endl;
-		UpdateClientPos(client, gameTimer.GetTimeElapsed());
+		UpdateClientPos(client, gameTimer.GetTimeElapsed(), packet[2]);
 		clientsLock[client].unlock();
 
 
@@ -792,17 +792,19 @@ void Server::SetPitchYawRollZero(char client)
 		clients[client].roll = 0.0f;
 	
 }
-void Server::UpdateClientPos(char client, float fTimeElapsed)
+void Server::UpdateClientPos(char client, float fTimeElapsed, bool isCollided)
 {
+	if (false == isCollided)
+	{
+		if (clients[client].direction == DIR_FORWARD)
+		{
+			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, 0.7f);
 
-	if (clients[client].direction == DIR_FORWARD )
-	{
-		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, 0.7f);
-		
-	}
-	if (clients[client].direction == DIR_BACKWARD)
-	{
-		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look , -0.7f);
+		}
+		if (clients[client].direction == DIR_BACKWARD)
+		{
+			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -0.7f);
+		}
 	}
 	if (clients[client].direction == DIR_LEFT 
 		|| clients[client].direction == DIR_RIGHT

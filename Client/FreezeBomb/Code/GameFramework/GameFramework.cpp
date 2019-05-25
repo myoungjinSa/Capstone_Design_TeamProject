@@ -1105,14 +1105,14 @@ void CGameFramework::ProcessInput()
 				{
 					//#ifdef 을 선언하지 않으면 무조건 서버가 켜있지 않을경우 무한 대기에 빠짐
 #ifdef _WITH_SERVER_
-					Network::GetInstance()->SendUpKey();
+					Network::GetInstance()->SendUpKey(m_pPlayer->GetIsCollided());
 					if(GetAsyncKeyState(VK_RIGHT) & 0x8000)
 					{
-						Network::GetInstance()->SendUpRightKey();
+						Network::GetInstance()->SendUpRightKey(m_pPlayer->GetIsCollided());
 					}
 					if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 					{
-						Network::GetInstance()->SendUpLeftKey();
+						Network::GetInstance()->SendUpLeftKey(m_pPlayer->GetIsCollided());
 					}
 #endif
 					dwDirection |= DIR_FORWARD;
@@ -1125,14 +1125,14 @@ void CGameFramework::ProcessInput()
 				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
 				{
 #ifdef _WITH_SERVER_
-					Network::GetInstance()->SendDownKey();
+					Network::GetInstance()->SendDownKey(m_pPlayer->GetIsCollided());
 					if(GetAsyncKeyState(VK_RIGHT) & 0x8000)
 					{
-						Network::GetInstance()->SendDownRightKey();
+						Network::GetInstance()->SendDownRightKey(m_pPlayer->GetIsCollided());
 					}
 					if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 					{
-						Network::GetInstance()->SendDownLeftKey();
+						Network::GetInstance()->SendDownLeftKey(m_pPlayer->GetIsCollided());
 					}
 #endif
 					dwDirection |= DIR_BACKWARD;
@@ -1143,7 +1143,7 @@ void CGameFramework::ProcessInput()
 			{
 #ifdef _WITH_SERVER_
 				
-				Network::GetInstance()->SendLeftKey();
+				Network::GetInstance()->SendLeftKey(m_pPlayer->GetIsCollided());
 #endif
 				dwDirection |= DIR_LEFT;
 				m_pPlayer->SetDirection(dwDirection);
@@ -1152,7 +1152,7 @@ void CGameFramework::ProcessInput()
 			{
 #ifdef _WITH_SERVER_
 				
-				Network::GetInstance()->SendRightKey();
+				Network::GetInstance()->SendRightKey(m_pPlayer->GetIsCollided());
 				
 #endif
 				dwDirection |= DIR_RIGHT;

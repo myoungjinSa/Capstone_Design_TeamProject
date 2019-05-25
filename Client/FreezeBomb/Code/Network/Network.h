@@ -75,14 +75,14 @@ public:
 	void ReadPacket();
 	void SendPacket();
 public:
-	void SendUpKey();
-	void SendUpRightKey();
-	void SendUpLeftKey();
-	void SendDownKey();
-	void SendDownRightKey();
-	void SendDownLeftKey();
-	void SendRightKey();
-	void SendLeftKey();
+	void SendUpKey(bool isCollided);
+	void SendUpRightKey(bool isCollided);
+	void SendUpLeftKey(bool isCollided);
+	void SendDownKey(bool isCollided);
+	void SendDownRightKey(bool isCollided);
+	void SendDownLeftKey(bool isCollided);
+	void SendRightKey(bool isCollided);
+	void SendLeftKey(bool isCollided);
 	void SendReady(int matID);
 	void SendReqStart();
 	void SendReleaseKey();
