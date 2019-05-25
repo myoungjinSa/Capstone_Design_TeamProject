@@ -78,7 +78,8 @@ public:
 	char role;
 	char matID;
 
-	wchar_t nickname[12];
+	char nickname[32];
+	//wchar_t nickname[12];
 	char animation;			//애니메이션 index
 	float animationTime;	//애니메이션 시간
 	bool isReady;
@@ -137,6 +138,8 @@ public:
 public:
 	void SendAccessComplete(char client);
 	void SendAccessPlayer(char toClient, char fromClient);
+	void SendClientLobbyIn(char toClient, char fromClient,char *name);
+	void SendClientLobbyOut(char toClient, char fromClient);
 	void SendPlayerAnimation(char toClient, char fromCllient);
 	void SendPutPlayer(char toClient, char fromClient);
 	void SendRoundStart(char client);

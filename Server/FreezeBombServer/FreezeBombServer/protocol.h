@@ -12,6 +12,12 @@ using namespace std;
 
 constexpr int MAX_USER = 6;
 
+struct clientsInfo
+{
+	bool	isReady;
+	char	name[32];
+};
+
 
 enum ROLE { RUNNER, BOMBER };
 enum ITEM { NONEITEM = 0, HAMMER, GOLD_HAMMER, GOLD_TIMER, BOMB };
@@ -33,7 +39,8 @@ constexpr int SC_ACCESS_PLAYER = 10;
 constexpr int SC_COMPARE_TIME = 11;
 constexpr int SC_STOP_RUN_ANIM = 12;
 constexpr int SC_ANIMATION_INFO = 13;
-constexpr int SC_CLIENTS_INFO = 14;
+constexpr int SC_CLIENT_LOBBY_IN = 14;
+constexpr int SC_CLIENT_LOBBY_OUT = 15;
 
 constexpr int CS_UP_KEY = 0;
 constexpr int CS_DOWN_KEY = 1;
@@ -75,9 +82,22 @@ struct SC_PACKET_ACCESS_PLAYER
 	char id;
 };
 
+//입장한 클라이언트의 정보
+struct SC_PACKET_LOBBY_IN
+{
+	char size;
+	char type;
+	char id;
+	clientsInfo client_state;
+};
 
-
-
+//퇴장한 클라이언트의 정보
+struct SC_PACKET_LOBBY_OUT
+{
+	char size;
+	char type;
+	char id;
+};
 
 struct SC_PACKET_PLEASE_READY
 {
