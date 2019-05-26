@@ -150,10 +150,9 @@ void Network::SendPacket()
 	}
 }
 
-void Network::SendUpKey(bool isCollided)
+void Network::SendUpKey()
 {
 	pUp = reinterpret_cast<CS_PACKET_UP_KEY *>(send_buffer);
-	pDown->isCollided = isCollided;
 	pUp->size = sizeof(pUp);
 	send_wsabuf.len = sizeof(pUp);
 	pUp->type = CS_UP_KEY;
@@ -161,20 +160,18 @@ void Network::SendUpKey(bool isCollided)
 	SendPacket();
 }
 
-void Network::SendUpRightKey(bool isCollided)
+void Network::SendUpRightKey()
 {
 	pUp = reinterpret_cast<CS_PACKET_UP_KEY *>(send_buffer);
-	pDown->isCollided = isCollided;
 	pUp->size = sizeof(pUp);
 	send_wsabuf.len = sizeof(pUp);
 	pUp->type = CS_UPRIGHT_KEY;
 
 	SendPacket();
 }
-void Network::SendUpLeftKey(bool isCollided)
+void Network::SendUpLeftKey()
 {
 	pUp = reinterpret_cast<CS_PACKET_UP_KEY *>(send_buffer);
-	pDown->isCollided = isCollided;
 	pUp->size = sizeof(pUp);
 	send_wsabuf.len = sizeof(pUp);
 	pUp->type = CS_UPLEFT_KEY;
@@ -183,30 +180,27 @@ void Network::SendUpLeftKey(bool isCollided)
 }
 
 
-void Network::SendDownKey(bool isCollided)
+void Network::SendDownKey()
 {
 	pDown = reinterpret_cast<CS_PACKET_DOWN_KEY *>(send_buffer);
-	pDown->isCollided = isCollided;
 	pDown->size = sizeof(pDown);
 	send_wsabuf.len = sizeof(pDown);
 	pDown->type = CS_DOWN_KEY;
 
 	SendPacket();
 }
-void Network::SendDownRightKey(bool isCollided)
+void Network::SendDownRightKey()
 {
 	pDown = reinterpret_cast<CS_PACKET_DOWN_KEY *>(send_buffer);
-	pDown->isCollided = isCollided;
 	pDown->size = sizeof(pDown);
 	send_wsabuf.len = sizeof(pDown);
 	pDown->type = CS_DOWNRIGHT_KEY;
 
 	SendPacket();
 }
-void Network::SendDownLeftKey(bool isCollided)
+void Network::SendDownLeftKey()
 {
 	pDown = reinterpret_cast<CS_PACKET_DOWN_KEY *>(send_buffer);
-	pDown->isCollided = isCollided;
 	pDown->size = sizeof(pDown);
 	send_wsabuf.len = sizeof(pDown);
 	pDown->type = CS_DOWNLEFT_KEY;
@@ -214,20 +208,18 @@ void Network::SendDownLeftKey(bool isCollided)
 	SendPacket();
 }
 
-void Network::SendRightKey(bool isCollided)
+void Network::SendRightKey()
 {
 	pRight = reinterpret_cast<CS_PACKET_RIGHT_KEY *>(send_buffer);
-	pDown->isCollided = isCollided;
 	pRight->size = sizeof(pRight);
 	send_wsabuf.len = sizeof(pRight);
 	pRight->type = CS_RIGHT_KEY;
 
 	SendPacket();
 }
-void Network::SendLeftKey(bool isCollided)
+void Network::SendLeftKey()
 {
 	pLeft = reinterpret_cast<CS_PACKET_LEFT_KEY *>(send_buffer);
-	pDown->isCollided = isCollided;
 	pLeft->size = sizeof(pLeft);
 	send_wsabuf.len = sizeof(pLeft);
 	pLeft->type = CS_LEFT_KEY;
@@ -277,7 +269,8 @@ void Network::SendAnimationState(char animNum)
 void Network::SendNickName(char id,_TCHAR* name)
 {
 	pNickName = reinterpret_cast<CS_PACKET_NICKNAME*>(send_buffer);
-	pNickName->size = sizeof(CS_PACKET_NICKNAME);
+	pNickName->size = sizeof(pNickName);
+	send_wsabuf.len = sizeof(pNickName);
 	pNickName->type = CS_NICKNAME_INFO;
 	pNickName->id = id;
 	pNickName->padding = 0;
@@ -289,6 +282,18 @@ void Network::SendNickName(char id,_TCHAR* name)
 
 	SendPacket(pNickName->size);
 }
+
+void Network::SendCollided(char objId)
+{
+	pCollided = reinterpret_cast<CS_PACKET_COLLIDED*>(send_buffer);
+	pCollided->objId = objId;
+	pCollided->size = sizeof(pCollided);
+	send_wsabuf.len = sizeof(pCollided);
+	pCollided->type = CS_COLLIDED;
+
+	SendPacket();
+}
+
 void Network::SetGameFrameworkPtr(HWND hWnd,CGameFramework* client)
 {
 	if (client) 

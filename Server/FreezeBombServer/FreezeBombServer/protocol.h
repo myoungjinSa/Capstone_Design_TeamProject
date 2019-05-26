@@ -55,6 +55,7 @@ constexpr int CS_REQUEST_START = 9;
 constexpr int CS_RELEASE_KEY = 10;
 constexpr int CS_ANIMATION_INFO = 11;
 constexpr int CS_NICKNAME_INFO = 12;
+constexpr int CS_COLLIDED = 13;
 
 
 constexpr int MAX_ROUND_TIME = 50;
@@ -142,28 +143,24 @@ struct CS_PACKET_RIGHT_KEY
 {
 	char size;
 	char type;
-	bool isCollided;
 };
 
 struct CS_PACKET_LEFT_KEY
 {
 	char size;
 	char type;
-	bool isCollided;
 };
 
 struct CS_PACKET_UP_KEY
 {
 	char size;
 	char type;
-	bool isCollided;
 };
 
 struct CS_PACKET_DOWN_KEY
 {
 	char size;
 	char type;
-	bool isCollided;
 };
 
 struct CS_PACKET_READY
@@ -209,6 +206,13 @@ struct CS_PACKET_NICKNAME
 	char id;
 	char padding;	//4바이트 정렬을위한 
 	char name[24];
+};
+
+struct CS_PACKET_COLLIDED
+{
+	char size;
+	char type;
+	char objId;
 };
 
 //////////////////////////////////////////////////////

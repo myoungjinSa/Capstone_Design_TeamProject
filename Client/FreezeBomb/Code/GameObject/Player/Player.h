@@ -109,8 +109,6 @@ public:
 
 #ifdef _WITH_SERVER_
 	void SetVelocityFromServer(float fVel) { m_fVelocityFromServer = fVel; }
-	void SetIsCollided(bool b) { m_isCollided = b; }
-	bool GetIsCollided() { return m_isCollided; }
 #endif
 	void setScore(short score) { m_Score = score; }
 	short getScore()		const { return m_Score; }
@@ -140,7 +138,6 @@ protected:
 	float           			m_fFriction = 0.0f;
 #ifdef _WITH_SERVER_
 	float						m_fVelocityFromServer = 0.0f;
-	bool						m_isCollided = false;
 #endif
 	float						m_fMinDistance = 0.0f;
 

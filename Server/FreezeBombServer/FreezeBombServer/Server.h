@@ -66,6 +66,8 @@ public:
 	DWORD direction;
 	//¼Óµµ
 	float fVelocity;
+	float maxVelocityXZ;
+	float maxVelocityY;
 
 	XMFLOAT3 lastRightVector;
 	XMFLOAT3 lastLookVector;
@@ -91,6 +93,8 @@ public:
 		specialItem = ITEM::NONEITEM;
 		role = ROLE::RUNNER;
 		isReady = false;
+		maxVelocityXZ = 300.0f;
+		maxVelocityY = 400.0f;
 		ZeroMemory(nickname, sizeof(wchar_t) * 12);
 		ZeroMemory(&over_ex.messageBuffer, sizeof(over_ex.messageBuffer));
 		ZeroMemory(&packet_buffer, sizeof(packet_buffer));
@@ -98,6 +102,12 @@ public:
 		over_ex.dataBuffer.buf = over_ex.messageBuffer;
 		over_ex.is_recv = true;
 	}
+};
+
+class MAPOBJECT
+{
+public:
+	XMFLOAT3 pos;
 };
 
 class Server
@@ -114,6 +124,8 @@ private:
 	CGameTimer gameTimer;
 	CHeightMapImage* heightMap;
 	XMFLOAT3 gravity;
+	vector<MAPOBJECT> objects;
+
 	float roundStartTime;
 	float roundCurrTime;
 	int clientCount;
@@ -157,13 +169,14 @@ public:
 	void SetDirection(char client, int key);
 	void RotateModel(char client, float x, float y, float z);
 	void RotateClientAxisY(char client, float fTimeElapsed);
-	void UpdateClientPos(char client, float fTimeElapsed, bool isCollided);
+	void UpdateClientPos(char client, float fTimeElapsed);
 	void ProcessClientHeight(char client);
 	void ProcessFriction(char client, float& fLength);
 public:
 	void PickBomber();
 	void StartTimer();
 	void ResetTimer();
+	void LoadMapObjectInfo();
 public:
 	bool InitServer();
 	void RunServer();

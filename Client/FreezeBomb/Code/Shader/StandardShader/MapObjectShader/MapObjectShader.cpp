@@ -16,6 +16,7 @@ CMapObjectsShader::~CMapObjectsShader()
 void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,
 	const map<string, CLoadedModelInfo*>& ModelMap, const multimap<string, MapObjectInfo*>& MapObjectInfo, const map<string, Bounds*>& BoundMap, void* pContext)
 {
+	int index = 0;
 	for (auto iter = ModelMap.begin(); iter != ModelMap.end(); ++iter)
 	{
 		string name = (*iter).first;
@@ -30,6 +31,7 @@ void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 			pSurrounding->SetLookVector((*iter2).second->m_Look);
 			pSurrounding->SetUpVector((*iter2).second->m_Up);
 			pSurrounding->SetRightVector((*iter2).second->m_Right);
+			pSurrounding->setIndex(index++);
 
 			if (name != "PondSquare")
 				pSurrounding->Initialize_Shadow((*iter).second, pSurrounding);

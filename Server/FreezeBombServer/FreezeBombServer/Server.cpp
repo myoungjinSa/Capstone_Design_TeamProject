@@ -16,11 +16,15 @@ Server::~Server()
 	//clients.clear();
 	if (heightMap)
 		delete heightMap;
+	if (false == objects.empty())
+		objects.clear();
 }
 
 bool Server::InitServer()
 {
 	setlocale(LC_ALL, "korean");
+
+	LoadMapObjectInfo();
 
 	clientCount = 0;
 	hostId = -1;
@@ -70,6 +74,93 @@ bool Server::InitServer()
 		return false;
 	}
 	return true;
+}
+
+void Server::LoadMapObjectInfo()
+{
+	string filename;
+	filename = "../Resource/Position/Surrounding/MapVer0.bin";
+	ifstream in(filename, ios::binary);
+
+	if (!in)
+	{
+		cout << " - 바이너리 파일 없음" << endl;
+		return;
+	}
+
+	size_t nReads = 0;
+	XMFLOAT3 tmp;
+
+	// 맵 오브젝트 개수
+	int nObjects = 0;
+	in.read(reinterpret_cast<char*>(&nObjects), sizeof(int));
+
+	for (int i = 0; i < nObjects; ++i)
+	{
+		MAPOBJECT* pMapObjectInfo = new MAPOBJECT;
+		// 모델 이름 문자열 길이 저장
+		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+
+		// 길이 + 1만큼 자원 할당
+		char* p = new char[nReads + 1];
+		in.read(p, sizeof(char) * nReads);
+		p[nReads] = '\0';
+		//  모델 이름 저장
+		delete[] p;
+
+		// Position 문자열 길이 저장
+		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+		p = new char[nReads + 1];
+		in.read(p, sizeof(char)*nReads);
+		p[nReads] = '\0';
+		delete[] p;
+
+		// Position x, y, z값 저장
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->pos.x), sizeof(float));
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->pos.y), sizeof(float));
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->pos.z), sizeof(float));
+
+		// Look 문자열 길이 저장
+		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+		p = new char[nReads + 1];
+		in.read(p, sizeof(char)*nReads);
+		p[nReads] = '\0';
+		delete[] p;
+
+		// <Look> x, y, z값 저장
+		in.read(reinterpret_cast<char*>(&tmp.x), sizeof(float));
+		in.read(reinterpret_cast<char*>(&tmp.y), sizeof(float));
+		in.read(reinterpret_cast<char*>(&tmp.z), sizeof(float));
+
+		// Up 문자열 길이 저장
+		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+		p = new char[nReads + 1];
+		in.read(p, sizeof(char)*nReads);
+		p[nReads] = '\0';
+		delete[] p;
+
+		// <Up> x, y, z값 저장
+		in.read(reinterpret_cast<char*>(&tmp.x), sizeof(float));
+		in.read(reinterpret_cast<char*>(&tmp.y), sizeof(float));
+		in.read(reinterpret_cast<char*>(&tmp.z), sizeof(float));
+
+		// Right 문자열 길이 저장
+		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+		p = new char[nReads + 1];
+		in.read(p, sizeof(char)*nReads);
+		p[nReads] = '\0';
+		delete[] p;
+
+		// <Right> x, y, z값 저장
+		in.read(reinterpret_cast<char*>(&tmp.x), sizeof(float));
+		in.read(reinterpret_cast<char*>(&tmp.y), sizeof(float));
+		in.read(reinterpret_cast<char*>(&tmp.z), sizeof(float));
+
+		pMapObjectInfo->pos.y = 0.f;
+
+		objects.emplace_back(*pMapObjectInfo);
+	}
+	in.close();
 }
 
 void Server::RunServer()
@@ -395,7 +486,7 @@ void Server::ProcessPacket(char client, char *packet)
 		clientsLock[client].lock();
 		SetDirection(client, packet[1]);
 		//cout << gameTimer.GetTimeElapsed()<<endl;
-		UpdateClientPos(client, gameTimer.GetTimeElapsed(), packet[2]);
+		UpdateClientPos(client, gameTimer.GetTimeElapsed());
 		clientsLock[client].unlock();
 
 
@@ -412,6 +503,26 @@ void Server::ProcessPacket(char client, char *packet)
 				
 				//Idle 동작으로 변하게 하려면 
 				//SetVelocityZero(i);
+			}
+		}
+		break;
+	case CS_COLLIDED:
+		clientsLock[client].lock();
+		XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize(objects[packet[2]].pos, clients[client].pos);
+		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, clients[client].maxVelocityXZ *0.3f);
+		clients[client].velocity.x = -xmf3CollisionDir.x;
+		clients[client].velocity.y = -xmf3CollisionDir.y;
+		clients[client].velocity.z = -xmf3CollisionDir.z;
+		clientsLock[client].unlock();
+
+
+		//printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (clients[i].in_use == true)
+			{
+				SendMovePlayer(i, client);
+				SetPitchYawRollZero(i);
 			}
 		}
 		break;
@@ -830,19 +941,16 @@ void Server::SetPitchYawRollZero(char client)
 		clients[client].roll = 0.0f;
 	
 }
-void Server::UpdateClientPos(char client, float fTimeElapsed, bool isCollided)
+void Server::UpdateClientPos(char client, float fTimeElapsed)
 {
-	if (false == isCollided)
+	if (clients[client].direction == DIR_FORWARD)
 	{
-		if (clients[client].direction == DIR_FORWARD)
-		{
-			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, 0.7f);
+		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, 0.7f);
 
-		}
-		if (clients[client].direction == DIR_BACKWARD)
-		{
-			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -0.7f);
-		}
+	}
+	if (clients[client].direction == DIR_BACKWARD)
+	{
+		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -0.7f);
 	}
 	if (clients[client].direction == DIR_LEFT 
 		|| clients[client].direction == DIR_RIGHT

@@ -55,6 +55,7 @@ private:
 	CS_PACKET_RELEASE_KEY *pReleaseKey = NULL;
 	CS_PACKET_ANIMATION *pAnimation = NULL;
 	CS_PACKET_NICKNAME *pNickName = NULL;
+	CS_PACKET_COLLIDED *pCollided = NULL;
 private:
 	//ReadPacket에서 받은 패킷들을 CGameFramework에 전달하기 위한 포인터
 	CGameFramework* m_pGameClient{nullptr};
@@ -76,19 +77,20 @@ public:
 	void SendPacket();
 	void SendPacket(DWORD dataBytes);
 public:
-	void SendUpKey(bool isCollided);
-	void SendUpRightKey(bool isCollided);
-	void SendUpLeftKey(bool isCollided);
-	void SendDownKey(bool isCollided);
-	void SendDownRightKey(bool isCollided);
-	void SendDownLeftKey(bool isCollided);
-	void SendRightKey(bool isCollided);
-	void SendLeftKey(bool isCollided);
+	void SendUpKey();
+	void SendUpRightKey();
+	void SendUpLeftKey();
+	void SendDownKey();
+	void SendDownRightKey();
+	void SendDownLeftKey();
+	void SendRightKey();
+	void SendLeftKey();
 	void SendReady(int matID);
 	void SendReqStart();
 	void SendReleaseKey();
 	void SendAnimationState(char animNum);
 	void SendNickName(char id,_TCHAR* name);
+	void SendCollided(char objId);
 public:
 	CS_PACKET_REQUEST_START* GetRS() { return pRequestStart; }
 	void SetNullRS() { pRequestStart = NULL; }
