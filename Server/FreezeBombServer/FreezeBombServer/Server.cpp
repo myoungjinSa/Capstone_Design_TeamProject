@@ -20,6 +20,8 @@ Server::~Server()
 
 bool Server::InitServer()
 {
+	setlocale(LC_ALL, "korean");
+
 	clientCount = 0;
 	hostId = -1;
 	// Winsock Start - windock.dll ·Îµå
@@ -420,6 +422,8 @@ void Server::ProcessPacket(char client, char *packet)
 		SetAnimationState(client, p->animation);
 		for (int i = 0; i < MAX_USER; ++i)
 		{
+			if (client == i)
+				continue;
 			if (clients[i].in_use == true)
 			{
 				SendPlayerAnimation(i, client);
@@ -455,6 +459,28 @@ void Server::ProcessPacket(char client, char *packet)
 		clientsLock[client].unlock();
 		//printf("Recv matID : %d\n", clients[client].matID);
 		break;
+	case CS_NICKNAME_INFO:
+	{
+		CS_PACKET_NICKNAME* p = reinterpret_cast<CS_PACKET_NICKNAME*>(packet);
+		
+		//int nLen = MultiByteToWideChar(CP_ACP, 0, p->name, strlen(p->name), NULL, NULL);
+		//MultiByteToWideChar(CP_ACP, 0, p->name, strlen(p->name), clients[client].nickname, nLen);
+	
+		strcpy_s(clients[client].nickname, sizeof(p->name), p->name);
+		for(int i=0;i<MAX_USER;++i)
+		{
+			if (client == i)
+				continue;
+			if(true == clients[i].in_use)
+			{
+				SendClientLobbyIn(i, client, p->name);
+				//client
+			}
+		}
+		cout << clients[client].nickname << endl;
+		cout <<(int)p->id << endl;
+		break;
+	}
 	case CS_REQUEST_START:
 		if (clientCount <= readyCount)
 		{
@@ -557,6 +583,18 @@ void Server::SendAccessPlayer(char toClient, char fromClient)
 	packet.id = fromClient;
 	packet.size = sizeof(packet);
 	packet.type = SC_ACCESS_PLAYER;
+
+	SendFunc(toClient, &packet);
+}
+
+void Server::SendClientLobbyIn(char toClient,char fromClient,char* name)
+{
+	SC_PACKET_LOBBY_IN packet;
+	packet.id = fromClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_CLIENT_LOBBY_IN;
+	packet.client_state.isReady = false;
+	strcpy_s(packet.client_state.name, name);
 
 	SendFunc(toClient, &packet);
 }

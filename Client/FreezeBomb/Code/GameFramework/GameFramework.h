@@ -18,12 +18,7 @@ class CIPScene;
 class CLoginScene;
 
 
-struct clientsInfo
-{
-	int		id;
-	bool	isReady;
-	_TCHAR	name[256];
-};
+struct clientsInfo;
 
 class CGameFramework
 {
@@ -201,7 +196,7 @@ private:
 
 #ifdef _WITH_SERVER_
 	//클라이언트 정보
-	clientsInfo						m_PlayerInfo[MAX_USER];
+	vector<clientsInfo>						m_vclients;
 	//Network m_Network;
 	int hostId;
 	int clientCount = 0;
@@ -217,6 +212,9 @@ private:
 	SC_PACKET_ROUND_START *pRS = NULL;
 	SC_PACKET_STOP_RUN_ANIM *pSTA = NULL;
 	SC_PACKET_PLAYER_ANIMATION* pPA = NULL;
+	SC_PACKET_LOBBY_IN *pLI = NULL;
+	SC_PACKET_LOBBY_OUT *pLO = NULL;
+
 	bool isCharacterSelectDone = false;
 
 	ID3D12CommandAllocator*					m_pLoginCommandAllocator = nullptr;

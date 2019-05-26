@@ -22,7 +22,7 @@ public:
 	void SetGraphicsRootSignature(ID3D12GraphicsCommandList *pd3dCommandList){
 		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 	}
-	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+	int OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 	XMFLOAT3 ScreenPosition(int x, int y);
 	ID3D12RootSignature *GetGraphicsRootSignature() { return(m_pd3dGraphicsRootSignature); }

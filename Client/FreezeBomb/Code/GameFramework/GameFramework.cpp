@@ -20,6 +20,7 @@
 #include "../Shader/BillboardShader/UIShader/CharacterSelectUIShader/CharacterSelectUIShader.h"
 #include "../Scene/LoginScene/IDScene/LoginScene.h"
 #include "../InputSystem/IDInputSystem/IDInputSystem.h"
+#include "../Shader/BillboardShader/UIShader/LoginShader/IDShader.h"
 
 // 전체모드할경우 주석풀으셈
 //#define FullScreenMode
@@ -613,7 +614,15 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	{
 		if (m_pLoginScene)
 		{
-			m_pLoginScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+			int ret = 0;
+			ret = m_pLoginScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+			if(ret == CIDShader::state::REQUEST_LOGIN)
+			{
+				
+				Network::GetInstance()->SendNickName(m_pPlayer->GetPlayerID(), m_pLoginScene->GetIDInstance()->GetPlayerName());
+
+			}
+			
 			if (m_pLoginScene->IsLogin())
 			{
 				m_nState = CHARACTER_SELECT;
@@ -1325,6 +1334,18 @@ void CGameFramework::ShowPlayers()
 	rcText = D2D1::RectF(0.0f, 0.0f,600.0f,290.0f);
 	m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
 
+	if (m_vclients.size() > 0)
+	{
+		wchar_t player[16];
+		for (int i = 0; i < m_vclients.size(); ++i)
+		{
+			rcText = D2D1::RectF(0.0f, 0.0f, 600.0f, ((i*110.0f)+400.0f) );
+			int nLen = MultiByteToWideChar(CP_ACP, 0, m_vclients[i].name, strlen(m_vclients[i].name), NULL, NULL);
+			MultiByteToWideChar(CP_ACP, 0, m_vclients[i].name, strlen(m_vclients[i].name), player, nLen);
+			m_pd2dDeviceContext->DrawTextW(player, nLen, m_pdwFont[i+1], &rcText, m_pd2dbrText[i+1]);
+
+		}
+	}
 }
 void CGameFramework::ProcessDirect2D()
 {
@@ -1476,6 +1497,28 @@ void CGameFramework::ProcessPacket(char *packet)
 		
 		
 		printf("Access Player ID: %d\n", pAP->id);
+		break;
+	}
+	case SC_CLIENT_LOBBY_IN:
+	{
+		pLI = reinterpret_cast<SC_PACKET_LOBBY_IN*>(packet);
+
+		if (pLI->id == m_pPlayer->GetPlayerID())
+		{
+
+		}
+		else if (pLI->id < MAX_USER)
+		{
+
+			m_vclients.emplace_back(pLI->client_state);
+
+			cout << pLI->client_state.name << endl;
+		}
+		break;
+	}
+	case SC_CLIENT_LOBBY_OUT:
+	{
+		
 		break;
 	}
 	case SC_PLEASE_READY:
