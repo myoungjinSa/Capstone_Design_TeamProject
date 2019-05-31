@@ -1333,7 +1333,7 @@ void CGameFramework::ShowPlayers()
 
 	rcText = D2D1::RectF(0.0f, 0.0f,600.0f,290.0f);
 	m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
-
+#ifdef _WITH_SERVER_
 	if (m_vclients.size() > 0)
 	{
 		wchar_t player[16];
@@ -1346,6 +1346,7 @@ void CGameFramework::ShowPlayers()
 
 		}
 	}
+#endif
 }
 void CGameFramework::ProcessDirect2D()
 {
