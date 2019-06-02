@@ -904,7 +904,7 @@ void Server::RotateClientAxisY(char client, float fTimeElapsed)
 
 		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
 
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(fAngle*fTimeElapsed));
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(fAngle*fTimeElapsed*0.3f));
 		xmf3Look = Vector3::TransformNormal(xmf3Look, xmmtxRotate);
 		xmf3Right = Vector3::TransformNormal(xmf3Right, xmmtxRotate);
 
@@ -913,7 +913,7 @@ void Server::RotateClientAxisY(char client, float fTimeElapsed)
 		float czDelta = xmf3Look.z - clients[client].lastLookVector.z;
 
 
-		RotateModel(client, 0.0f, fAngle*fTimeElapsed, 0.0f);
+		RotateModel(client, 0.0f, fAngle*fTimeElapsed * 0.3f, 0.0f);
 		
 	}
 	if (clients[client].direction & DIR_LEFT)
@@ -922,13 +922,13 @@ void Server::RotateClientAxisY(char client, float fTimeElapsed)
 
 		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
 
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(-(fAngle*fTimeElapsed)));
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(-(fAngle*fTimeElapsed*0.3f)));
 		xmf3Look = Vector3::TransformNormal(xmf3Look, xmmtxRotate);
 		xmf3Right = Vector3::TransformNormal(xmf3Right, xmmtxRotate);
 
 		float czDelta = xmf3Look.z - clients[client].lastLookVector.z;
 
-		RotateModel(client, 0.0f, -fAngle * fTimeElapsed, 0.0f);
+		RotateModel(client, 0.0f, -fAngle * fTimeElapsed * 0.3f, 0.0f);
 		
 	}
 	if (clients[client].direction & DIR_FORWARDRIGHT )
