@@ -778,7 +778,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 {
 	CLoadedModelInfo* pEvilBearModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
 		"../Resource/Models/EvilBear.bin", NULL, true);
-
+	
 	SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);
 	m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, pEvilBearModel);

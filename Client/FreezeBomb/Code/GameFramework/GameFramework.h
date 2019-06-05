@@ -214,6 +214,7 @@ private:
 	SC_PACKET_PLAYER_ANIMATION* pPA = NULL;
 	SC_PACKET_LOBBY_IN *pLI = NULL;
 	SC_PACKET_LOBBY_OUT *pLO = NULL;
+	SC_PACKET_CHATTING * pCh = NULL;
 
 	bool isCharacterSelectDone = false;
 

@@ -16,7 +16,7 @@
 #include <math.h>
 
 #include <string>
-
+#include <array>
 #include <wrl.h>
 #include <shellapi.h>
 

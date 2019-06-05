@@ -266,6 +266,20 @@ void Network::SendAnimationState(char animNum)
 	SendPacket();
 }
 
+void Network::SendChattingText(char id,const _TCHAR *text)
+{
+	pText = reinterpret_cast<CS_PACKET_CHATTING*>(send_buffer);
+	pText->size = sizeof(CS_PACKET_CHATTING);
+	pText->type = CS_CHATTING;
+	pText->id = id;
+	pText->padding = 0;
+	
+	int nLen = WideCharToMultiByte(CP_ACP, 0, text, -1, NULL, 0, NULL, NULL);
+
+	WideCharToMultiByte(CP_ACP, 0, text, -1, pText->chatting, nLen, NULL, NULL);
+
+	SendPacket(pText->size);
+}
 void Network::SendNickName(char id,_TCHAR* name)
 {
 	pNickName = reinterpret_cast<CS_PACKET_NICKNAME*>(send_buffer);

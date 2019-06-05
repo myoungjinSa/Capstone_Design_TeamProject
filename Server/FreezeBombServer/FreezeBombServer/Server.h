@@ -140,6 +140,7 @@ public:
 	void SendAccessPlayer(char toClient, char fromClient);
 	void SendClientLobbyIn(char toClient, char fromClient,char *name);
 	void SendClientLobbyOut(char toClient, char fromClient);
+	void SendChattinPacket(char to, char from, char *message);
 	void SendPlayerAnimation(char toClient, char fromCllient);
 	void SendPutPlayer(char toClient, char fromClient);
 	void SendRoundStart(char client);

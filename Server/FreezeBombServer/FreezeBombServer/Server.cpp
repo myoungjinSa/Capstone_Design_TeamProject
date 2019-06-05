@@ -481,6 +481,25 @@ void Server::ProcessPacket(char client, char *packet)
 		cout <<(int)p->id << endl;
 		break;
 	}
+	case CS_CHATTING:
+	{
+		CS_PACKET_CHATTING* p = reinterpret_cast<CS_PACKET_CHATTING*>(packet);
+
+		for(int i =0; i<MAX_USER ;++i)
+		{
+			if (client == i)
+				continue;
+			if(true == clients[i].in_use)
+			{
+				cout << sizeof(p->chatting) << endl;
+				SendChattinPacket(i, client, p->chatting);
+			}
+		}
+		cout << p->chatting << endl;
+
+
+		break;
+	}
 	case CS_REQUEST_START:
 		if (clientCount <= readyCount)
 		{
@@ -534,6 +553,7 @@ void Server::ProcessPacket(char client, char *packet)
 			printf("Please Ready\n");
 		}
 		break;
+
 	default:
 		wcout << L"정의되지 않은 패킷 도착 오류!!\n";
 		while (true);
@@ -599,6 +619,19 @@ void Server::SendClientLobbyIn(char toClient,char fromClient,char* name)
 	SendFunc(toClient, &packet);
 }
 
+void Server::SendChattinPacket(char toClient,char fromClient,char* message)
+{
+	SC_PACKET_CHATTING packet;
+	ZeroMemory(&packet, sizeof(SC_PACKET_CHATTING));
+	packet.id = fromClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_CHATTING;
+	
+	strcpy_s(packet.message,MAX_CHATTING_LENGTH, message);
+
+	SendFunc(toClient, &packet);
+
+}
 void Server::SendPutPlayer(char toClient, char fromClient)
 {
 	SC_PACKET_PUT_PLAYER packet;

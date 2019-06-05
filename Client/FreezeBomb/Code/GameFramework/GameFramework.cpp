@@ -1462,6 +1462,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		pAC = reinterpret_cast<SC_PACKET_ACCESS_COMPLETE*>(packet);
 		//플레이어 아이디 Set
 		m_pPlayer->SetPlayerID(pAC->myId);
+		Network::GetInstance()->SetMyID(pAC->myId);
 		hostId = pAC->hostId;
 		cout << "플레이어 ID -" << (int)m_pPlayer->GetPlayerID() << "\n";
 
@@ -1520,6 +1521,22 @@ void CGameFramework::ProcessPacket(char *packet)
 	case SC_CLIENT_LOBBY_OUT:
 	{
 		
+		break;
+	}
+	case SC_CHATTING:
+	{
+		pCh = reinterpret_cast<SC_PACKET_CHATTING*>(packet);
+
+		if (pCh->id == m_pPlayer->GetPlayerID())
+		{
+		}
+		else if (pCh->id < MAX_USER)
+		{
+			
+			ChattingSystem::GetInstance()->PushChattingText(pCh->message);
+			//ChattingSystem::GetInstance()->
+		}
+
 		break;
 	}
 	case SC_PLEASE_READY:

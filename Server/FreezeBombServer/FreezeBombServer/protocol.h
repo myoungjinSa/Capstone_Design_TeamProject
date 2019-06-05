@@ -27,6 +27,8 @@ enum PLAYER_STATE { NONESTATE, ICE, BREAK };							// 플레이어 상태
 enum STATE_TYPE { Init, Run, Over };
 enum MATERIAL { PINK, BROWN, WHITE, BLACK, BLUE, PANDA, ICEMAT };
 
+constexpr int MAX_CHATTING_LENGTH = 100;
+
 constexpr int SC_ACCESS_COMPLETE = 1;
 constexpr int SC_PUT_PLAYER = 2;
 constexpr int SC_MOVE_PLAYER = 3;
@@ -42,6 +44,7 @@ constexpr int SC_STOP_RUN_ANIM = 12;
 constexpr int SC_ANIMATION_INFO = 13;
 constexpr int SC_CLIENT_LOBBY_IN = 14;
 constexpr int SC_CLIENT_LOBBY_OUT = 15;
+constexpr int SC_CHATTING = 16;
 
 constexpr int CS_UP_KEY = 0;
 constexpr int CS_DOWN_KEY = 1;
@@ -56,6 +59,7 @@ constexpr int CS_REQUEST_START = 9;
 constexpr int CS_RELEASE_KEY = 10;
 constexpr int CS_ANIMATION_INFO = 11;
 constexpr int CS_NICKNAME_INFO = 12;
+constexpr int CS_CHATTING = 13;
 
 
 
@@ -209,6 +213,15 @@ struct CS_PACKET_NICKNAME
 	char name[24];
 };
 
+struct CS_PACKET_CHATTING
+{
+	char size;
+	char type;
+	char id;
+	char padding;
+	char chatting[MAX_CHATTING_LENGTH];
+};
+
 //////////////////////////////////////////////////////
 
 //[서버->클라]
@@ -295,6 +308,14 @@ struct SC_PACKET_STOP_RUN_ANIM
 	char id;
 };
 
+struct SC_PACKET_CHATTING
+{
+	char size;
+	char type;
+	char id;
+	char padding;
+	char message[MAX_CHATTING_LENGTH];
+};
 // 플레이어가 아이템 사용 시
 struct SC_PACKET_USE_ITEM
 {
