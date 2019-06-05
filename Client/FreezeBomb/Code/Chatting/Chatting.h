@@ -3,7 +3,7 @@
 
 constexpr int						m_maxChatSentenceCount = 13;
 
-#ifdef _WITH_SERVER_
+
 class ChattingSystem : public Singleton<ChattingSystem>
 {
 protected:
@@ -61,4 +61,3 @@ public:
 
 	void Destroy();
 };
-#endif

@@ -6,7 +6,7 @@
 #pragma comment(lib,"imm32.lib")
 #include <imm.h>
 
-#ifdef _WITH_SERVER_
+
 
 #ifdef _WITH_DIRECT2D_
 
@@ -383,4 +383,3 @@ bool ChattingSystem::ComposeHangeul(HWND hWnd, WPARAM wParam, LPARAM lParam)
 
 }
 
-#endif
