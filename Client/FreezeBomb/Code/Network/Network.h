@@ -51,6 +51,7 @@ private:
 	CS_PACKET_RIGHT_KEY *pRight = NULL;
 	CS_PACKET_LEFT_KEY *pLeft = NULL;
 	CS_PACKET_READY *pReady = NULL;
+	CS_PACKET_UNREADY* pUnReady = NULL;
 	CS_PACKET_REQUEST_START *pRequestStart = NULL;
 	CS_PACKET_RELEASE_KEY *pReleaseKey = NULL;
 	CS_PACKET_ANIMATION *pAnimation = NULL;
@@ -88,6 +89,7 @@ public:
 	void SendRightKey();
 	void SendLeftKey();
 	void SendReady(int matID);
+	void SendNotReady();
 	void SendReqStart();
 	void SendReleaseKey();
 	void SendAnimationState(char animNum);

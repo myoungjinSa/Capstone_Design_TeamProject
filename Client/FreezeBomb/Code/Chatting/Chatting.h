@@ -1,5 +1,6 @@
 #pragma once
 #include "../Singleton/Singleton.h"
+#include <deque>
 
 constexpr int						m_maxChatSentenceCount = 13;
 
@@ -35,7 +36,9 @@ protected:
 	//INGAME채팅에서의 최대 길이
 	enum class SENTENCE_LENGTH_INGAME		{ENG=40,KOR=20};
 	
-	array<pair<TCHAR*,UINT32>,m_maxChatSentenceCount> m_arrText;
+	//vector<pair<TCHAR*, UINT32>> m_vecText;
+	deque<pair<TCHAR*, UINT32>> m_dequeText;
+	//array<pair<TCHAR*,UINT32>,m_maxChatSentenceCount> m_arrText;
 public:
 	ChattingSystem();
 	virtual ~ChattingSystem();

@@ -34,8 +34,6 @@ void ChattingSystem::Initialize(IDWriteFactory* writeFactory, ID2D1DeviceContext
 
 	}
 
-	
-
 	for (int i = 0; i < m_maxChatSentenceCount; ++i)
 	{
 		hResult = writeFactory->CreateTextFormat(L"고딕", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 30.0f, L"en-US", &m_pdwChattingFont[i]);
@@ -109,14 +107,22 @@ void ChattingSystem::ShowLobbyChatting(ID2D1DeviceContext2* pd2dDeviceContext)
 
 	}
 
-	
-	for (int i=0 ; i<m_nCurrentText;++i)
+	//for(int i = 0;i<m_vecText.size();++i)
+	//{
+	//	chatText = D2D1::RectF(680.0f, 580.0f - (i * 40), 1200.0f, 580.0f - (i * 40));
+
+	//	pd2dDeviceContext->DrawTextW(m_vecText[i].first, m_vecText[i].second, m_pdwChattingFont[i], &chatText, m_pd2dbrChatText[i]);
+	//	
+	//}
+	for (int i=0;i<m_dequeText.size();++i)
 	{
-		
 		chatText = D2D1::RectF(680.0f, 580.0f - (i * 40), 1200.0f, 580.0f - (i * 40));
-		pd2dDeviceContext->DrawTextW(m_arrText[i].first, m_arrText[i].second, m_pdwChattingFont[i], &chatText, m_pd2dbrChatText[i]);
+
+
+		pd2dDeviceContext->DrawTextW(m_dequeText[i].first, m_dequeText[i].second, m_pdwChattingFont[i], &chatText, m_pd2dbrChatText[i]);
 		
 	}
+
 
 
 }
@@ -149,12 +155,14 @@ void ChattingSystem::ProcessChatting(HWND hWnd, WPARAM wParam, LPARAM lParam, bo
 		if (m_wsChat.size() > 0)
 		{
 #ifdef _WITH_SERVER_
-			const TCHAR* t;
-			t = m_wsChat.c_str();
+			TCHAR* t;
+			t = const_cast<TCHAR*>(m_wsChat.c_str());
 
 			Network::GetInstance()->SendChattingText((char)Network::GetInstance()->GetMyID(), t);
 
 #endif
+			
+			
 			m_wsChat.clear();
 			m_wsChat.shrink_to_fit();
 		}
@@ -241,6 +249,7 @@ void ChattingSystem::Destroy()
 		delete[] m_chat;
 	}
 
+	m_dequeText.clear();
 	m_wsChat.clear();
 	m_wsChat.shrink_to_fit();
 	for (int i = 0; i < m_maxChatSentenceCount; ++i)
@@ -264,9 +273,20 @@ void ChattingSystem::PushChattingText(char* chat)
 	ZeroMemory(m_chat[m_nCurrentText], sizeof(256));
 	int nLen = MultiByteToWideChar(CP_ACP, 0, chat, strlen(chat), NULL, NULL);
 	MultiByteToWideChar(CP_ACP, 0, chat, strlen(chat), m_chat[m_nCurrentText], nLen);
-	m_arrText[m_nCurrentText] = make_pair(m_chat[m_nCurrentText], (UINT32)nLen);
-	m_nCurrentText = (++m_nCurrentText) % m_maxChatSentenceCount;
+	if(m_dequeText.size() >= m_maxChatSentenceCount-1)
+	{
+		
+		m_dequeText.pop_back();
 
+		m_dequeText.emplace_front(make_pair(m_chat[m_nCurrentText], (UINT32)nLen));
+		m_nCurrentText = (++m_nCurrentText) % m_maxChatSentenceCount;
+	}
+	else
+	{
+		m_dequeText.emplace_front(make_pair(m_chat[m_nCurrentText], (UINT32)nLen));
+		m_nCurrentText = (++m_nCurrentText) % m_maxChatSentenceCount;
+	}
+	
 }
 
 //프로그램 내에서 한영 전환

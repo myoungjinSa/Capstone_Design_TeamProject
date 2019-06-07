@@ -45,6 +45,8 @@ constexpr int SC_ANIMATION_INFO = 13;
 constexpr int SC_CLIENT_LOBBY_IN = 14;
 constexpr int SC_CLIENT_LOBBY_OUT = 15;
 constexpr int SC_CHATTING = 16;
+constexpr int SC_READY_STATE = 17;
+constexpr int SC_UNREADY_STATE = 18;
 
 constexpr int CS_UP_KEY = 0;
 constexpr int CS_DOWN_KEY = 1;
@@ -55,11 +57,12 @@ constexpr int CS_UPRIGHT_KEY = 5;
 constexpr int CS_DOWNLEFT_KEY = 6;
 constexpr int CS_DOWNRIGHT_KEY = 7;
 constexpr int CS_READY = 8;
-constexpr int CS_REQUEST_START = 9;
-constexpr int CS_RELEASE_KEY = 10;
-constexpr int CS_ANIMATION_INFO = 11;
-constexpr int CS_NICKNAME_INFO = 12;
-constexpr int CS_CHATTING = 13;
+constexpr int CS_UNREADY = 9;
+constexpr int CS_REQUEST_START = 10;
+constexpr int CS_RELEASE_KEY = 11;
+constexpr int CS_ANIMATION_INFO = 12;
+constexpr int CS_NICKNAME_INFO = 13;
+constexpr int CS_CHATTING = 14;
 
 
 
@@ -173,6 +176,11 @@ struct CS_PACKET_READY
 	char size;
 	char type;
 	char matID;
+};
+struct CS_PACKET_UNREADY
+{
+	char size;
+	char type;
 };
 
 struct CS_PACKET_REQUEST_START
@@ -308,6 +316,20 @@ struct SC_PACKET_STOP_RUN_ANIM
 	char id;
 };
 
+//현재 Ready중인 플레이어의 정보를 담은 패킷
+struct SC_PACKET_READY_STATE
+{
+	char size;
+	char type;
+	char id;
+};
+
+struct SC_PACKET_UNREADY_STATE
+{
+	char size;
+	char type;
+	char id;
+};
 struct SC_PACKET_CHATTING
 {
 	char size;

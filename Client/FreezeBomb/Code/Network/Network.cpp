@@ -236,6 +236,19 @@ void Network::SendReady(int matID)
 	printf("Send matID : %d\n", pReady->matID);
 	SendPacket();
 }
+
+void Network::SendNotReady()
+{
+	pUnReady = reinterpret_cast<CS_PACKET_UNREADY*>(send_buffer);
+	
+	pUnReady->size = sizeof(pUnReady);
+	pUnReady->type = CS_UNREADY;
+	send_wsabuf.len = sizeof(pUnReady);
+
+	SendPacket();
+
+}
+
 void Network::SendReqStart()
 {
 	pRequestStart = reinterpret_cast<CS_PACKET_REQUEST_START *>(send_buffer);

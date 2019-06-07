@@ -196,7 +196,7 @@ private:
 
 #ifdef _WITH_SERVER_
 	//클라이언트 정보
-	vector<clientsInfo>						m_vclients;
+	unordered_map<int,clientsInfo>						m_mapClients;
 	//Network m_Network;
 	int hostId;
 	int clientCount = 0;
@@ -215,6 +215,9 @@ private:
 	SC_PACKET_LOBBY_IN *pLI = NULL;
 	SC_PACKET_LOBBY_OUT *pLO = NULL;
 	SC_PACKET_CHATTING * pCh = NULL;
+	SC_PACKET_READY_STATE* pReady = NULL;
+	SC_PACKET_UNREADY_STATE* pNotReady = NULL;
+
 
 	bool isCharacterSelectDone = false;
 

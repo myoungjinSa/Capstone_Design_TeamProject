@@ -145,6 +145,8 @@ public:
 	void SendPutPlayer(char toClient, char fromClient);
 	void SendRoundStart(char client);
 	void SendPleaseReady(char client);
+	void SendReadyStatePacket(char toClient, char fromClient);
+	void SendUnReadyStatePacket(char toClient, char fromClient);
 	void SendMovePlayer(char to,char object);
 	void SendRemovePlayer(char toClient, char fromClient);
 	void SendRoundEnd(char client);

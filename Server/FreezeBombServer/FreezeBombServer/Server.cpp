@@ -453,29 +453,61 @@ void Server::ProcessPacket(char client, char *packet)
 		printf("Ready한 클라 수: %d\n", readyCount);
 
 		clientsLock[client].lock();
+
+
 		clients[client].isReady = true;
-		
 		clients[client].matID = packet[2];	// matID
+		for(int i=0;i<MAX_USER;++i)
+		{
+			if (clients[i].in_use == true)
+				SendReadyStatePacket(i, client);
+		}
 		clientsLock[client].unlock();
 		//printf("Recv matID : %d\n", clients[client].matID);
 		break;
+	case CS_UNREADY:
+	{
+		gLock.lock();
+		--readyCount;
+		gLock.unlock();
+
+
+		printf("Ready한 클라 수: %d\n", readyCount);
+
+		clientsLock[client].lock();
+		clients[client].isReady = false;
+
+		for(int i=0;i<MAX_USER;++i)
+		{
+			if (clients[i].in_use == true)
+				SendUnReadyStatePacket(i, client);
+		}
+
+		clientsLock[client].unlock();
+		break;
+	}
 	case CS_NICKNAME_INFO:
 	{
 		CS_PACKET_NICKNAME* p = reinterpret_cast<CS_PACKET_NICKNAME*>(packet);
 		
 		//int nLen = MultiByteToWideChar(CP_ACP, 0, p->name, strlen(p->name), NULL, NULL);
 		//MultiByteToWideChar(CP_ACP, 0, p->name, strlen(p->name), clients[client].nickname, nLen);
-	
+		vector<int> vec;
 		strcpy_s(clients[client].nickname, sizeof(p->name), p->name);
 		for(int i=0;i<MAX_USER;++i)
 		{
-			if (client == i)
-				continue;
+			
 			if(true == clients[i].in_use)
 			{
+				vec.emplace_back(i);
 				SendClientLobbyIn(i, client, p->name);
+			
 				//client
 			}
+		}
+		for(auto user : vec)
+		{
+			SendClientLobbyIn(client, user, clients[user].nickname);
 		}
 		cout << clients[client].nickname << endl;
 		cout <<(int)p->id << endl;
@@ -487,8 +519,6 @@ void Server::ProcessPacket(char client, char *packet)
 
 		for(int i =0; i<MAX_USER ;++i)
 		{
-			if (client == i)
-				continue;
 			if(true == clients[i].in_use)
 			{
 				cout << sizeof(p->chatting) << endl;
@@ -766,6 +796,27 @@ void Server::SendStopRunAnim(char toClient, char fromClient)
 	SendFunc(toClient, &packet);
 }
 
+void Server::SendReadyStatePacket(char toClient,char fromClient)
+{
+	SC_PACKET_READY_STATE packet;
+
+	packet.id = fromClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_READY_STATE;
+
+	SendFunc(toClient, &packet);
+
+}
+void Server::SendUnReadyStatePacket(char toClient,char fromClient)
+{
+	SC_PACKET_UNREADY_STATE packet;
+
+	packet.id = fromClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_UNREADY_STATE;
+
+	SendFunc(toClient, &packet);
+}
 void Server::ClientDisconnect(char client)
 {
 	gLock.lock();
