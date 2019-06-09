@@ -918,7 +918,7 @@ bool CGameFramework::BuildObjects()
 	m_nState = CONNECT;
 
 	
-	ConnectToServer();
+	InitializeIPSystem();
 
 	if (Network::GetInstance()->connectToServer(m_hWnd) == false)
 	{
@@ -1448,7 +1448,7 @@ void CGameFramework::ProcessDirect2D()
 #endif
 #ifdef _WITH_SERVER_
 
-void CGameFramework::ConnectToServer() 
+void CGameFramework::InitializeIPSystem() 
 {
 	g_hWnd = m_hWnd;
 	if (m_pLoginCommandList)
