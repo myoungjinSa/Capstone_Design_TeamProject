@@ -57,7 +57,7 @@ public:
 	CLoginScene* GetLoginScene()const { return m_pLoginScene; }
 	void ProcessPacket(char *ptr);
 	void CreateLoginCommandList();
-	void InitializeIPSystem();
+	void ConnectToServer();
 	void ProcessLogin();
 #endif
 	void ChangeSwapChainState();
