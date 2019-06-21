@@ -15,6 +15,8 @@ public:
 
 	virtual void AnimateObjects(float fTimeElapsed, CCamera *pCamera, CPlayer *pPlayer = NULL);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int nPipelineState);
+	virtual D3D12_RASTERIZER_DESC CreateRasterizerState();
+
 
 	virtual void ReleaseObjects();
 	virtual void ReleaseUploadBuffers();

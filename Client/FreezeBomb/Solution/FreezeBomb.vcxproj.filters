@@ -231,6 +231,12 @@
     <ClCompile Include="..\Code\InputSystem\IDInputSystem\IDInputSystem.cpp">
       <Filter>Code\InputSystem</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\Shader\StandardShader\EffectShader\MagicRingEffectShader.cpp">
+      <Filter>Code\Shader\StandardShader\MagicRingEffectShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Effect\MagicRing\MagicRing.cpp">
+      <Filter>Code\GameObject\Effect\MagicRing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h">
@@ -464,6 +470,12 @@
     <ClInclude Include="..\Code\InputSystem\IDInputSystem\IDInputSystem.h">
       <Filter>Code\InputSystem</Filter>
     </ClInclude>
+    <ClInclude Include="..\Code\Shader\StandardShader\EffectShader\MagicRingEffectShader.h">
+      <Filter>Code\Shader\StandardShader\MagicRingEffectShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Effect\MagicRing\MagicRing.h">
+      <Filter>Code\GameObject\Effect\MagicRing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Code">
@@ -696,6 +708,15 @@
     </Filter>
     <Filter Include="Code\Shader\BillboardShader\UIShader\LoginShader\IDShader">
       <UniqueIdentifier>{6859334e-0e8c-419b-b7e0-d731c5961c85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader\MagicRingEffectShader">
+      <UniqueIdentifier>{279f4d7d-9984-4aa7-9653-2bafc5f95364}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Effect">
+      <UniqueIdentifier>{b30a3ebc-ebf3-47de-a273-b104ffee1901}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Effect\MagicRing">
+      <UniqueIdentifier>{ab84f698-689b-4f9d-b888-2c56a3856ee9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
