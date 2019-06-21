@@ -5,6 +5,8 @@
 #include "../../../GameObject/Effect/MagicRing/MagicRing.h"
 #include "../../../GameObject/Player/Player.h"
 #include "../../../Texture/Texture.h"
+#include "../SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
+#include "../../../GameObject/EvilBear/EvilBear.h"
 
 CMagicRingShader::CMagicRingShader()
 {
@@ -118,7 +120,11 @@ void CMagicRingShader::BuildObjects(ID3D12Device* pd3dDevice,ID3D12GraphicsComma
 {
 	CLoadedModelInfo* pModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/wind.bin", this, false);
 	
-	
+	//적 캐릭터들의 위치를 받아와야하기 때문에 CSkinnedAnimationObjectShader의 포인터를 멤버변수로 갖고있어야한다.
+	if(pContext)
+		m_ptrSkinnedAnimationObjects = (CSkinnedAnimationObjectShader*)pContext;
+
+
 	for (int i = 0; i < maxObjects; ++i)
 	{
 		m_MagicRingObjects[i] = new CMagicRing;
@@ -131,6 +137,7 @@ void CMagicRingShader::BuildObjects(ID3D12Device* pd3dDevice,ID3D12GraphicsComma
 
 void CMagicRingShader::CheckMagicRingActive(CPlayer* pPlayer)
 {
+
 	if (pPlayer) {
 		if (pPlayer->m_pAnimationController->GetAnimationState() == CAnimationController::RAISEHAND)
 		{
@@ -141,6 +148,47 @@ void CMagicRingShader::CheckMagicRingActive(CPlayer* pPlayer)
 			m_MagicRingObjects[pPlayer->GetPlayerID()]->SetDeActive();
 		}
 	}
+#ifdef _WITH_SERVER_
+
+
+	for(int i =0;i<m_ptrSkinnedAnimationObjects->m_vMaterial.size();++i)
+	{
+		char id = m_ptrSkinnedAnimationObjects->m_vMaterial[i].first;
+
+		if (m_ptrSkinnedAnimationObjects->m_ppObjects[id]->m_pAnimationController->GetAnimationState() == CAnimationController::RAISEHAND)
+		{
+			
+			m_MagicRingObjects[id]->SetActive();
+		}
+		else
+		{
+			m_MagicRingObjects[id]->SetDeActive();
+		}
+	}
+
+
+#else
+
+
+	if (m_ptrSkinnedAnimationObjects)
+	{
+		for (int i = 0; i < m_ptrSkinnedAnimationObjects->m_nObjects; ++i)
+		{
+			if (m_ptrSkinnedAnimationObjects->m_ppObjects[i])
+			{
+				if(m_ptrSkinnedAnimationObjects->m_ppObjects[i]->m_pAnimationController->GetAnimationState() == CAnimationController::RAISEHAND)
+				{
+					m_MagicRingObjects[i+1]->SetActive();
+				}
+				else
+				{
+					m_MagicRingObjects[i+1]->SetDeActive();
+				}
+			}
+
+		}
+	}
+#endif
 }
 void CMagicRingShader::AnimateObjects(float fTimeElapsed,CCamera* pCamera,CPlayer* pPlayer)
 {
@@ -156,6 +204,40 @@ void CMagicRingShader::AnimateObjects(float fTimeElapsed,CCamera* pCamera,CPlaye
 		m_MagicRingObjects[pPlayer->GetPlayerID()]->Rotate(&pPlayer->GetUpVector(), m_fElapsedTime*240.0f);
 		
 	}
+#ifdef _WITH_SERVER_
+	for (int i = 0; i < m_ptrSkinnedAnimationObjects->m_vMaterial.size(); ++i)
+	{
+		char id = m_ptrSkinnedAnimationObjects->m_vMaterial[i].first;
+
+		if (m_MagicRingObjects[id]->GetIsActive()) 
+		{
+			m_MagicRingObjects[id]->SetPosition(m_ptrSkinnedAnimationObjects->m_ppObjects[id]->GetPosition());
+			m_MagicRingObjects[id]->SetLookVector(dynamic_cast<CEvilBear*>(m_ptrSkinnedAnimationObjects->m_ppObjects[id])->GetLookVector());
+			m_MagicRingObjects[id]->SetUpVector(dynamic_cast<CEvilBear*>(m_ptrSkinnedAnimationObjects->m_ppObjects[id])->GetUpVector());
+			m_MagicRingObjects[id]->SetRightVector(dynamic_cast<CEvilBear*>(m_ptrSkinnedAnimationObjects->m_ppObjects[id])->GetRightVector());
+			m_MagicRingObjects[id]->Rotate(&dynamic_cast<CEvilBear*>(m_ptrSkinnedAnimationObjects->m_ppObjects[id])->GetUpVector(), m_fElapsedTime*240.0f);
+			
+		}
+	}
+
+#else
+
+	if(m_ptrSkinnedAnimationObjects)
+	{
+		for(int i=0;i<m_ptrSkinnedAnimationObjects->m_nObjects;++i)
+		{
+			if (m_ptrSkinnedAnimationObjects->m_ppObjects[i] && m_MagicRingObjects[i+1]->GetIsActive())
+			{
+				
+				m_MagicRingObjects[i + 1]->SetPosition(m_ptrSkinnedAnimationObjects->m_ppObjects[i]->GetPosition());
+				m_MagicRingObjects[i + 1]->SetLookVector(dynamic_cast<CEvilBear*>(m_ptrSkinnedAnimationObjects->m_ppObjects[i])->GetLookVector());
+				m_MagicRingObjects[i + 1]->SetUpVector(dynamic_cast<CEvilBear*>(m_ptrSkinnedAnimationObjects->m_ppObjects[i])->GetUpVector());
+				m_MagicRingObjects[i + 1]->SetRightVector(dynamic_cast<CEvilBear*>(m_ptrSkinnedAnimationObjects->m_ppObjects[i])->GetRightVector());
+				m_MagicRingObjects[i + 1]->Rotate(&dynamic_cast<CEvilBear*>(m_ptrSkinnedAnimationObjects->m_ppObjects[i])->GetUpVector(), m_fElapsedTime*240.0f);
+			}
+		}
+	}
+#endif
 
 }
 
@@ -165,18 +247,38 @@ void CMagicRingShader::Render(ID3D12GraphicsCommandList *pd3dCommandList,CCamera
 	if(m_ppd3dPipelineStates[GameObject])
 		pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[GameObject]);
 
-	for(int i=0;i<maxObjects;++i)
+
+//
+//#ifdef _WITH_SERVER_
+//	for (int i = 0; i < m_ptrSkinnedAnimationObjects->m_vMaterial.size(); ++i)
+//	{
+//		char id = m_ptrSkinnedAnimationObjects->m_vMaterial[i].first;
+//
+//		if (m_MagicRingObjects[id]->GetIsActive())
+//		{
+//			m_MagicRingObjects[id]->Animate(m_fElapsedTime);
+//			m_MagicRingObjects[id]->UpdateTransform(nullptr);
+//			m_MagicRingObjects[id]->Render(pd3dCommandList, pCamera, nPipelineState);
+//		}
+//	}
+//#else
+	for (int i = 0; i < maxObjects; ++i)
 	{
-		//m_MagicRingObjects[i]->Animate(m_fElapsedTime);
-		//m_MagicRingObjects[i]->UpdateTransform(nullptr);
-		if(m_MagicRingObjects[i]->GetIsActive())
+		if (m_MagicRingObjects[i]->GetIsActive())
+		{
+			//m_MagicRingObjects[i]->Animate(m_fElapsedTime);
+			//m_MagicRingObjects[i]->UpdateTransform(nullptr);
 			m_MagicRingObjects[i]->Render(pd3dCommandList, pCamera, nPipelineState);
+
+		}
 	}
+//#endif
 
 }
 void CMagicRingShader::ReleaseObjects()
 {
-	
+	m_ptrSkinnedAnimationObjects = nullptr;
+
 	for (int i = 0; i < maxObjects; ++i)
 		delete m_MagicRingObjects[i];
 

@@ -5,6 +5,8 @@
 class CLoadedModelInfo;
 class CMagicRing;
 class CTexture;
+class CSkinnedAnimationObjectShader;
+class CEvilBear;
 
 class CMagicRingShader : public CStandardShader
 {
@@ -27,8 +29,8 @@ public:
 	void CheckMagicRingActive(CPlayer *pPlayer);
 private:
 	
-
-	const int maxObjects = 6;
-	array<CMagicRing*, 6> m_MagicRingObjects;
+	CSkinnedAnimationObjectShader* m_ptrSkinnedAnimationObjects{ nullptr };
+	const int maxObjects = 7;
+	array<CMagicRing*,7> m_MagicRingObjects;
 
 };

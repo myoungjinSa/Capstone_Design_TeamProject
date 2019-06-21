@@ -1675,7 +1675,8 @@ void CGameFramework::ProcessPacket(char *packet)
 		pPA = reinterpret_cast<SC_PACKET_PLAYER_ANIMATION*>(packet);
 		if (pPA->id == m_pPlayer->GetPlayerID())
 		{
-
+			m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
+			m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
 		}
 		else if (pPA->id < MAX_USER)
 		{
@@ -1687,7 +1688,10 @@ void CGameFramework::ProcessPacket(char *packet)
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
 				(*iter).second->m_ppObjects[id]->SetTrackAnimationSet(0, animNum);
-				//(*iter).second->m_ppObjects[id]->SetTrackAnimationPosition(0, animTime);
+				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)animNum);
+				if((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::RAISEHAND)
+					(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackPosition(0, 0.0f);
+				
 			}
 		}
 

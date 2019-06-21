@@ -114,7 +114,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 
 	CMagicRingShader* pMagicRingShader = new CMagicRingShader;
 	pMagicRingShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pMagicRingShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
+	pMagicRingShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), pAnimationObjectShader);
 	m_ppShaders[index++] = pMagicRingShader;
 	m_ShaderMap.emplace("wind", pMagicRingShader);
 
