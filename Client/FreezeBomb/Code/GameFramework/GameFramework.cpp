@@ -1718,6 +1718,13 @@ void CGameFramework::ProcessPacket(char *packet)
 		printf("SetVelocityFromServer\n");
 		break;
 	}
+	case SC_COLLIDED:
+	{
+		SC_PACKET_COLLIDED *pC = reinterpret_cast<SC_PACKET_COLLIDED *>(packet);
+		printf("Player %d Collided!!\n", pC->id);
+
+		break;
+	}
 	case SC_REMOVE_PLAYER:
 	{
 		//SC_PACKET_REMOVE_PLAYER* pRP = m_Network.GetRP();

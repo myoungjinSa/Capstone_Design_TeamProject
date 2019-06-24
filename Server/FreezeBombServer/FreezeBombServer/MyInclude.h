@@ -8,8 +8,12 @@
 #include <thread>
 #include <mutex>
 #include <random>
+#include <queue>
+#include <chrono>
 
 using std::cout;
 using std::mutex;
 using std::vector;
 using std::map;
+
+using namespace std::chrono;

@@ -310,7 +310,7 @@ void Network::SendNickName(char id,_TCHAR* name)
 	SendPacket(pNickName->size);
 }
 
-void Network::SendCollided(char objId)
+void Network::SendCollided(int objId)
 {
 	pCollided = reinterpret_cast<CS_PACKET_COLLIDED*>(send_buffer);
 	pCollided->objId = objId;

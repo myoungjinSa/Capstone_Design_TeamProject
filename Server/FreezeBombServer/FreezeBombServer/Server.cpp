@@ -3,7 +3,7 @@
 
 Server::Server()
 {
-	roundStartTime = 0;
+	roundCurrTime = 0;
 	clientCount = 0;
 	hostId = -1;
 	//clients.reserve(MAX_USER);
@@ -199,6 +199,14 @@ void Server::RunServer()
 		th.join();
 }
 
+void Server::add_timer(int obj_id, EVENT_TYPE et, chrono::high_resolution_clock::time_point start_time)
+{
+	// lock에서 오류남.. 수정 필요
+	timer_l.lock();
+	timer_queue.emplace(EVENT_ST{ obj_id, et,  start_time });
+	timer_l.unlock();
+}
+
 void Server::AcceptThread(LPVOID arg)
 {
 	Server *pServer = static_cast<Server*>(arg);
@@ -298,40 +306,62 @@ void Server::TimerThread(LPVOID arg)
 
 void Server::TimerThreadFunc()
 {
-	float lastSec = 0;
-	float nowSec = 0;
 	while (1)
 	{
-		if (roundStartTime > 0)
+		this_thread::sleep_for(10ms);
+
+		while (1)
 		{
-			nowSec = (GetTickCount() - roundStartTime) / 1000;
-			//cout << nowSec << "\n";
-			// 1초가 지나면 시간비교 패킷 전송
-
-			//서버 시간 현재 
-			if (nowSec - lastSec >= 1.0f)
+			timer_l.lock();
+			if (true == timer_queue.empty())
 			{
-				//printf("SendCompareTime() 전송\n");
-				roundCurrTime = MAX_ROUND_TIME - nowSec;
-				for (int i = 0; i < MAX_USER; ++i)
-				{
-					if (true == clients[i].in_use)
-						SendCompareTime(i);
-				}
-				lastSec = nowSec;
+				timer_l.unlock();
+				break;
 			}
 
-			// 라운드 종료 시
-			if (nowSec >= MAX_ROUND_TIME)
+			EVENT_ST ev = timer_queue.top();
+			// 시간 됐나 확인
+			if (ev.start_time > chrono::high_resolution_clock::now())
 			{
-				for (int i = 0; i < MAX_USER; ++i)
-				{
-					if (true == clients[i].in_use)
-						SendRoundEnd(i);
-				}
-				ResetTimer();
+				timer_l.unlock();
+				break;
 			}
+			timer_queue.pop();
+			timer_l.unlock();
+			OVER_EX *over_ex = new OVER_EX;
+			over_ex->event_t = ev.type;
+			PostQueuedCompletionStatus(iocp, 1, ev.obj_id, &over_ex->over);
 		}
+		//if (roundStartTime > 0)
+		//{
+		//	nowSec = (GetTickCount() - roundStartTime) / 1000;
+		//	//cout << nowSec << "\n";
+		//	// 1초가 지나면 시간비교 패킷 전송
+		//	
+		//	//서버 시간 현재 
+		//	if (nowSec - lastSec >= 1.0f)
+		//	{
+		//		//printf("SendCompareTime() 전송\n");
+		//		roundCurrTime = MAX_ROUND_TIME - nowSec;
+		//		for (int i = 0; i < MAX_USER; ++i)
+		//		{
+		//			if (true == clients[i].in_use)
+		//				SendCompareTime(i);
+		//		}
+		//		lastSec = nowSec;
+		//	}
+
+		//	// 라운드 종료 시
+		//	if (nowSec >= MAX_ROUND_TIME)
+		//	{
+		//		for (int i = 0; i < MAX_USER; ++i)
+		//		{
+		//			if (true == clients[i].in_use)
+		//				SendRoundEnd(i);
+		//		}
+		//		ResetTimer();
+		//	}
+		//}
 	}
 }
 
@@ -392,7 +422,7 @@ void Server::WorkerThreadFunc()
 		}
 
 		char key = static_cast<char>(l_key);
-		if (true == over_ex->is_recv)
+		if (EV_RECV == over_ex->event_t)
 		{
 			// RECV 처리
 			//wcout << "Packet from Client: " << (int)key << "\n";
@@ -434,10 +464,60 @@ void Server::WorkerThreadFunc()
 
 			RecvFunc(key);
 		}
-		else
+		else if(EV_SEND == over_ex->event_t)
 		{
 			// SEND 처리
 			delete over_ex;
+		}
+		else if (EV_COUNT == over_ex->event_t)
+		{
+			roundCurrTime--;
+
+			//서버 시간 현재 (남은 시간)
+			printf("SendCompareTime() 전송\n");
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (true == clients[i].in_use)
+					SendCompareTime(i);
+			}
+
+			// 라운드 종료 시
+			if (roundCurrTime <= 0)
+			{
+				for (int i = 0; i < MAX_USER; ++i)
+				{
+					if (true == clients[i].in_use)
+						SendRoundEnd(i);
+				}
+				ResetTimer();
+			}
+			else
+			{
+				timer_l.lock();
+				add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
+				timer_l.unlock();
+			}
+		}
+		else if (EV_COLLIDED == over_ex->event_t)
+		{
+			int objId = clients[key].collidedObjId;
+			float dist = sqrt(pow(clients[key].pos.x - objects[objId].pos.x, 2) +
+				pow(clients[key].pos.y - objects[objId].pos.y, 2) +
+				pow(clients[key].pos.z - objects[objId].pos.z, 2));
+
+			if (dist <= 3.5)
+			{
+				add_timer(key, EV_COLLIDED, chrono::high_resolution_clock::now() + 1s);
+				break;
+			}
+			clients[key].isCollided = false;
+
+			break;
+		}
+		else
+		{
+			cout << "Unknown Event\n";
+			while (true);
 		}
 	}
 }
@@ -456,12 +536,12 @@ void Server::PickBomber()
 
 void Server::StartTimer()
 {
-	roundStartTime = GetTickCount();
+	roundCurrTime = MAX_ROUND_TIME;
 }
 
 void Server::ResetTimer()
 {
-	roundStartTime = 0;
+	roundCurrTime = 0;
 }
 
 void Server::ProcessPacket(char client, char *packet)
@@ -483,6 +563,8 @@ void Server::ProcessPacket(char client, char *packet)
 	case CS_UPRIGHT_KEY:
 	case CS_DOWNLEFT_KEY:
 	case CS_DOWNRIGHT_KEY:
+		if (true == clients[client].isCollided)
+			break;
 		clientsLock[client].lock();
 		SetDirection(client, packet[1]);
 		//cout << gameTimer.GetTimeElapsed()<<endl;
@@ -507,25 +589,35 @@ void Server::ProcessPacket(char client, char *packet)
 		}
 		break;
 	case CS_COLLIDED:
-		clientsLock[client].lock();
+	{	
+		CS_PACKET_COLLIDED *p = reinterpret_cast<CS_PACKET_COLLIDED *>(packet);
+		/*clientsLock[client].lock();
 		XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize(objects[packet[2]].pos, clients[client].pos);
 		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, clients[client].maxVelocityXZ *0.3f);
 		clients[client].velocity.x = -xmf3CollisionDir.x;
 		clients[client].velocity.y = -xmf3CollisionDir.y;
 		clients[client].velocity.z = -xmf3CollisionDir.z;
-		clientsLock[client].unlock();
+		clientsLock[client].unlock();*/
 
+		// 서버에서 플레이어와 해당 맵 오브젝트 사이의 거리(위치+부피)를 측정하여 검증 후 broadcast
+		float dist = sqrt(pow(clients[client].pos.x - objects[p->objId].pos.x, 2) +
+			pow(clients[client].pos.y - objects[p->objId].pos.y, 2) +
+			pow(clients[client].pos.z - objects[p->objId].pos.z, 2));
+		
+		clients[client].isCollided = true;
+		clients[client].collidedObjId = p->objId;
+		add_timer(client, EV_COLLIDED, chrono::high_resolution_clock::now() + 1s);
+		printf("Player %d is collided with %d, dist = %f\n", client, p->objId, dist);
 
-		//printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
 		for (int i = 0; i < MAX_USER; ++i)
 		{
 			if (clients[i].in_use == true)
 			{
-				SendMovePlayer(i, client);
-				SetPitchYawRollZero(i);
+				SendCollided(i, client);
 			}
 		}
 		break;
+	}
 	case CS_ANIMATION_INFO:		//클라가 애니메이션이 변경되었을때 패킷을 서버에게 보내고.
 	{							//서버는 그 패킷을 받아서 다른 클라이언트에게 해당 애니메이션 정보를 보낸다.
 		CS_PACKET_ANIMATION* p = reinterpret_cast<CS_PACKET_ANIMATION*>(packet);
@@ -660,7 +752,11 @@ void Server::ProcessPacket(char client, char *packet)
 					SendRoundStart(i);
 				}
 			}
+			// 라운드 시작시간 set
 			StartTimer();
+			timer_l.lock();
+			add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
+			timer_l.unlock();
 			//for (int i = 0; i < MAX_USER; ++i)
 			//{
 			//	if (true == clients[i].in_use)
@@ -708,7 +804,7 @@ void Server::SendFunc(char client, void *packet)
 	OVER_EX *ov = new OVER_EX;
 	ov->dataBuffer.len = p[0];
 	ov->dataBuffer.buf = ov->messageBuffer;
-	ov->is_recv = false;
+	ov->event_t = EV_SEND;
 	memcpy(ov->messageBuffer, p, p[0]);
 	ZeroMemory(&ov->over, sizeof(ov->over));
 	int error = WSASend(clients[client].socket, &ov->dataBuffer, 1, 0, 0, &ov->over, NULL);
@@ -928,6 +1024,18 @@ void Server::SendUnReadyStatePacket(char toClient,char fromClient)
 
 	SendFunc(toClient, &packet);
 }
+
+void Server::SendCollided(char toClient, char fromClient)
+{
+	SC_PACKET_COLLIDED packet;
+
+	packet.id = fromClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_COLLIDED;
+
+	SendFunc(toClient, &packet);
+}
+
 void Server::ClientDisconnect(char client)
 {
 	gLock.lock();

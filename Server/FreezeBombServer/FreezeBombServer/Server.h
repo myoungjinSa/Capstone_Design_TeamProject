@@ -33,12 +33,14 @@ constexpr float MAX_VELOCITY_Y = 400;
 
 constexpr int MAX_WORKER_THREAD = 2;
 
+enum EVENT_TYPE { EV_COUNT, EV_COLLIDED, EV_RECV, EV_SEND };
+
 // Overlapped구조체 확장
 struct OVER_EX {
 	WSAOVERLAPPED	over;
 	WSABUF			dataBuffer;
 	char			messageBuffer[MAX_BUFFER];
-	bool			is_recv;
+	EVENT_TYPE		event_t;
 };
 
 class SOCKETINFO
@@ -72,7 +74,8 @@ public:
 	XMFLOAT3 lastRightVector;
 	XMFLOAT3 lastLookVector;
 	XMFLOAT3 lastUpVector;
-
+	bool isCollided;
+	int collidedObjId;
 	
 	char score;
 	char normalItem;
@@ -88,6 +91,7 @@ public:
 public:
 	SOCKETINFO() {
 		in_use = false;
+		isCollided = false;
 		score = 0;
 		normalItem = ITEM::NONEITEM;
 		specialItem = ITEM::NONEITEM;
@@ -100,7 +104,23 @@ public:
 		ZeroMemory(&packet_buffer, sizeof(packet_buffer));
 		over_ex.dataBuffer.len = MAX_BUFFER;
 		over_ex.dataBuffer.buf = over_ex.messageBuffer;
-		over_ex.is_recv = true;
+		over_ex.event_t = EV_RECV;
+	}
+};
+
+struct EVENT_ST
+{
+	// 이 이벤트가 어떤 객체에서 발생해야 하느냐
+	int obj_id;
+	// 어떤 이벤트냐
+	EVENT_TYPE type;
+	// 언제 실행되어야 하느냐
+	chrono::high_resolution_clock::time_point start_time;
+
+	// 현재는 우선순위 큐에서 시간순서로 정렬하는 것을 모른다. operator를 만들어줘야 함.
+	constexpr bool operator < (const EVENT_ST& _Left) const
+	{
+		return (start_time > _Left.start_time);
 	}
 };
 
@@ -126,7 +146,9 @@ private:
 	XMFLOAT3 gravity;
 	vector<MAPOBJECT> objects;
 
-	float roundStartTime;
+	static mutex timer_l;
+	priority_queue <EVENT_ST> timer_queue;
+
 	float roundCurrTime;
 	int clientCount;
 	int readyCount;
@@ -147,6 +169,7 @@ public:
 	void SendFunc(char client, void *packet);
 	void RecvFunc(char client);
 	void ClientDisconnect(char client);
+	void add_timer(int obj_id, EVENT_TYPE et, chrono::high_resolution_clock::time_point start_time);
 public:
 	void SendAccessComplete(char client);
 	void SendAccessPlayer(char toClient, char fromClient);
@@ -164,6 +187,7 @@ public:
 	void SendRoundEnd(char client);
 	void SendCompareTime(char client);
 	void SendStopRunAnim(char toClient, char fromClient);
+	void SendCollided(char toClient, char fromClient);
 public:
 	void SetAnimationState(char client,char animationNum);
 	void SetVelocityZero(char client);
