@@ -3,7 +3,7 @@
 #include "../Texture/Texture.h"
 #include "../Shader/StandardShader/StandardShader.h"
 #include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationShader.h"
-
+#include "../Shader/StandardShader/EffectShader/MagicRingEffectShader.h"
 #include "../Scene/Scene.h"
 
 CShader* CMaterial::m_pSkinnedAnimationShader{ nullptr };
@@ -34,6 +34,7 @@ CMaterial::~CMaterial()
 {
 	if (m_pShader) 
 		m_pShader->Release();
+	
 
 	if (m_nTextures > 0)
 	{
@@ -77,8 +78,17 @@ void CMaterial::PrepareShaders(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 	m_pSkinnedAnimationShader = new CSkinnedAnimationShader;
 	m_pSkinnedAnimationShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-}
 
+
+
+}
+void CMaterial::ReleaseShaders()
+{
+	if (m_pStandardShader)
+		delete m_pStandardShader;
+	if (m_pSkinnedAnimationShader)
+		delete m_pSkinnedAnimationShader;
+}
 void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AmbientColor, 16);	// Ambient

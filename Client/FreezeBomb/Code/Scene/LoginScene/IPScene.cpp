@@ -122,10 +122,7 @@ void CIPScene::ProcessInput()
 	UINT sel=0;
 	if(GetKeyState(VK_LBUTTON) & 0x8000)
 	{
-	
 		dynamic_cast<CIPShader*>(m_ppShaders[0])->DecideTextureByCursor(ptCursorPos.x, ptCursorPos.y,sel);
-
-	
 	}
 	size_t IP_Length = 0;
 	

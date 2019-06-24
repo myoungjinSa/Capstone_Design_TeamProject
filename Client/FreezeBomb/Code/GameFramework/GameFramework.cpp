@@ -918,7 +918,7 @@ bool CGameFramework::BuildObjects()
 	m_nState = CONNECT;
 
 	
-	ConnectToServer();
+	InitializeIPSystem();
 
 	if (Network::GetInstance()->connectToServer(m_hWnd) == false)
 	{
@@ -1327,26 +1327,44 @@ void CGameFramework::ShowReadyText()
 
 }
 
+
 void CGameFramework::ShowPlayers()
 {
 	D2D1_RECT_F rcText{ 0,0,0,0 };
+	D2D1_RECT_F readyText{ 0,0,0,0 };
 
-	rcText = D2D1::RectF(0.0f, 0.0f,600.0f,290.0f);
-	m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
 #ifdef _WITH_SERVER_
-	if (m_vclients.size() > 0)
+	WCHAR* ready = _T("준비");
+	
+	if (m_mapClients.size() > 0)
 	{
 		wchar_t player[16];
-		for (int i = 0; i < m_vclients.size(); ++i)
+		int i = 0;
+		for (const auto& id : m_mapClients)
 		{
-			rcText = D2D1::RectF(0.0f, 0.0f, 600.0f, ((i*110.0f)+400.0f) );
-			int nLen = MultiByteToWideChar(CP_ACP, 0, m_vclients[i].name, strlen(m_vclients[i].name), NULL, NULL);
-			MultiByteToWideChar(CP_ACP, 0, m_vclients[i].name, strlen(m_vclients[i].name), player, nLen);
+			rcText = D2D1::RectF(0.0f, 0.0f, 600.0f, ((i*110.0f)+290.0f) );
+			int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[id.first].name, strlen(m_mapClients[id.first].name), NULL, NULL);
+			MultiByteToWideChar(CP_ACP, 0, m_mapClients[id.first].name, strlen(m_mapClients[id.first].name), player, nLen);
 			m_pd2dDeviceContext->DrawTextW(player, nLen, m_pdwFont[i+1], &rcText, m_pd2dbrText[i+1]);
+			
+			if (m_mapClients[id.first].isReady)
+			{
+				readyText = D2D1::RectF(0.0f, 0.0f, 200.0f, ((i*110.0f) + 290.0f));
+				m_pd2dDeviceContext->DrawTextW(ready, (UINT32)wcslen(ready), m_pdwFont[0], &readyText, m_pd2dbrText[0]);
 
+			}
+			i++;
 		}
 	}
+
+#else
+	rcText = D2D1::RectF(0.0f, 0.0f,600.0f,290.0f);
+	m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
+
 #endif
+	
+
+
 }
 void CGameFramework::ProcessDirect2D()
 {
@@ -1372,8 +1390,8 @@ void CGameFramework::ProcessDirect2D()
 		CShader* m = m_pLobbyScene->m_ppShaders[CLobbyScene::CHARACTER_SELECT];
 		bool isReady = dynamic_cast<CCharacterSelectUIShader*>(m)->IsReady();
 
-		if (isReady)
-			ShowReadyText();
+		//if (isReady)
+			//ShowReadyText();
 
 		
 		ShowPlayers();
@@ -1430,7 +1448,7 @@ void CGameFramework::ProcessDirect2D()
 #endif
 #ifdef _WITH_SERVER_
 
-void CGameFramework::ConnectToServer() 
+void CGameFramework::InitializeIPSystem() 
 {
 	g_hWnd = m_hWnd;
 	if (m_pLoginCommandList)
@@ -1462,6 +1480,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		pAC = reinterpret_cast<SC_PACKET_ACCESS_COMPLETE*>(packet);
 		//플레이어 아이디 Set
 		m_pPlayer->SetPlayerID(pAC->myId);
+		Network::GetInstance()->SetMyID(pAC->myId);
 		hostId = pAC->hostId;
 		cout << "플레이어 ID -" << (int)m_pPlayer->GetPlayerID() << "\n";
 
@@ -1473,30 +1492,6 @@ void CGameFramework::ProcessPacket(char *packet)
 		//SC_PACKET_ACCESS_PLAYER* pAP = m_Network.GetAP();
 		pAP = reinterpret_cast<SC_PACKET_ACCESS_PLAYER*>(packet);
 
-
-
-		// 여기서 접속한 플레이어들의 초기 정보를 받아 저장해놓고
-		// Ingame 시작할 때, clientCount 기반해서 실제 객체 만들어주면 좋을 듯. 상의필요.
-
-		//if (pAP->id == m_pPlayer->GetPlayerID())
-		//{
-		//	MappingUserToEvilbear(pAP->id, 5/*현재 접속한 유저 수를 받아야함 */);
-
-		//}
-
-		//else if (pAP->id < MAX_USER)
-		//{
-		//	auto iter = m_pScene->getShaderManager()->getShaderMap().find("곰돌이");
-
-
-		//	auto vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
-
-		//	for (int i = 0; i < vec.size(); ++i)
-		//		cout << "적 캐릭터 id - " << vec[i] << "\n";
-		//
-		//}
-		
-		
 		printf("Access Player ID: %d\n", pAP->id);
 		break;
 	}
@@ -1504,22 +1499,51 @@ void CGameFramework::ProcessPacket(char *packet)
 	{
 		pLI = reinterpret_cast<SC_PACKET_LOBBY_IN*>(packet);
 
-		if (pLI->id == m_pPlayer->GetPlayerID())
-		{
+	//	if (pLI->id == m_pPlayer->GetPlayerID())
+	//	{
 
-		}
-		else if (pLI->id < MAX_USER)
-		{
+		//}
+	//	else if (pLI->id < MAX_USER)
+	//	{
 
-			m_vclients.emplace_back(pLI->client_state);
+			m_mapClients.emplace((int)pLI->id,pLI->client_state);
 
 			cout << pLI->client_state.name << endl;
-		}
+	//	}
 		break;
 	}
 	case SC_CLIENT_LOBBY_OUT:
 	{
 		
+		break;
+	}
+	case SC_READY_STATE:
+	{
+		pReady = reinterpret_cast<SC_PACKET_READY_STATE*>(packet);
+
+		m_mapClients[pReady->id].isReady = true;
+
+		break;
+	}
+	case SC_UNREADY_STATE: 
+	{
+		pNotReady = reinterpret_cast<SC_PACKET_UNREADY_STATE*>(packet);
+
+		m_mapClients[pReady->id].isReady = false;
+
+
+		break;
+	}
+	case SC_CHATTING:
+	{
+		pCh = reinterpret_cast<SC_PACKET_CHATTING*>(packet);
+
+		
+			
+		ChattingSystem::GetInstance()->PushChattingText(pCh->message);
+		
+		
+
 		break;
 	}
 	case SC_PLEASE_READY:
@@ -1651,7 +1675,8 @@ void CGameFramework::ProcessPacket(char *packet)
 		pPA = reinterpret_cast<SC_PACKET_PLAYER_ANIMATION*>(packet);
 		if (pPA->id == m_pPlayer->GetPlayerID())
 		{
-
+			m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
+			m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
 		}
 		else if (pPA->id < MAX_USER)
 		{
@@ -1663,7 +1688,10 @@ void CGameFramework::ProcessPacket(char *packet)
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
 				(*iter).second->m_ppObjects[id]->SetTrackAnimationSet(0, animNum);
-				//(*iter).second->m_ppObjects[id]->SetTrackAnimationPosition(0, animTime);
+				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)animNum);
+				if((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::RAISEHAND)
+					(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackPosition(0, 0.0f);
+				
 			}
 		}
 

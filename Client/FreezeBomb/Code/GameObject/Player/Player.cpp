@@ -648,7 +648,7 @@ void CPlayer::DecideAnimationState(float fLength)
 						SetTrackAnimationPosition(0, 0.0f);
 						pController->SetAnimationState(CAnimationController::RAISEHAND);
 #ifdef _WITH_SERVER_
-			Network::GetInstance()->SendAnimationState(CAnimationController::RAISEHAND);
+						Network::GetInstance()->SendAnimationState(CAnimationController::RAISEHAND);
 #endif
 						// 30√  ¡ı∞°
 						dynamic_cast<CTimerUIShader*>((*iter2).second)->setTimer(30.f);
@@ -778,7 +778,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 {
 	CLoadedModelInfo* pEvilBearModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
 		"../Resource/Models/EvilBear.bin", NULL, true);
-
+	
 	SetChild(pEvilBearModel->m_pModelRootObject, true);
 	m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, pEvilBearModel);
 	m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, pEvilBearModel);

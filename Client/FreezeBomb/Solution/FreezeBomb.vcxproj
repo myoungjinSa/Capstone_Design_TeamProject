@@ -181,6 +181,7 @@
     <ClInclude Include="..\Code\GameObject\Billboard\Snow\Snow.h" />
     <ClInclude Include="..\Code\GameObject\Billboard\UI\UI.h" />
     <ClInclude Include="..\Code\GameObject\CubeParticle\CubeParticle.h" />
+    <ClInclude Include="..\Code\GameObject\Effect\MagicRing\MagicRing.h" />
     <ClInclude Include="..\Code\GameObject\EvilBear\EvilBear.h" />
     <ClInclude Include="..\Code\GameObject\Foliage\Foliage.h" />
     <ClInclude Include="..\Code\GameObject\GameObject.h" />
@@ -228,6 +229,7 @@
     <ClInclude Include="..\Code\Shader\PostProcessShader\ComputeShader\ComputeShader.h" />
     <ClInclude Include="..\Code\Shader\Shader.h" />
     <ClInclude Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.h" />
+    <ClInclude Include="..\Code\Shader\StandardShader\EffectShader\MagicRingEffectShader.h" />
     <ClInclude Include="..\Code\Shader\StandardShader\FoliageShader\FoliageShader.h" />
     <ClInclude Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.h" />
     <ClInclude Include="..\Code\Shader\StandardShader\MapObjectShader\MapObjectShader.h" />
@@ -257,6 +259,7 @@
     <ClCompile Include="..\Code\GameObject\Billboard\Snow\Snow.cpp" />
     <ClCompile Include="..\Code\GameObject\Billboard\UI\UI.cpp" />
     <ClCompile Include="..\Code\GameObject\CubeParticle\CubeParticle.cpp" />
+    <ClCompile Include="..\Code\GameObject\Effect\MagicRing\MagicRing.cpp" />
     <ClCompile Include="..\Code\GameObject\EvilBear\EvilBear.cpp" />
     <ClCompile Include="..\Code\GameObject\Foliage\Foliage.cpp" />
     <ClCompile Include="..\Code\GameObject\GameObject.cpp" />
@@ -303,6 +306,7 @@
     <ClCompile Include="..\Code\Shader\PostProcessShader\ComputeShader\ComputeShader.cpp" />
     <ClCompile Include="..\Code\Shader\Shader.cpp" />
     <ClCompile Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.cpp" />
+    <ClCompile Include="..\Code\Shader\StandardShader\EffectShader\MagicRingEffectShader.cpp" />
     <ClCompile Include="..\Code\Shader\StandardShader\FoliageShader\FoliageShader.cpp" />
     <ClCompile Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.cpp" />
     <ClCompile Include="..\Code\Shader\StandardShader\MapObjectShader\MapObjectShader.cpp" />
