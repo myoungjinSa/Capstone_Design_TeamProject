@@ -95,13 +95,12 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		m_ppObjects[1]->SetChild((*Model).second->m_pModelRootObject, true);
 		m_ppObjects[1]->m_pAnimationController = new CAnimationController(1, (*Model).second->m_pAnimationSets);
 		//m_ppObjects[1]->m_pAnimationController->SetTrackAnimationSet(1, 2);
-		m_ppObjects[1]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[1]->m_pAnimationController->VICTORY);
+		m_ppObjects[1]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[1]->m_pAnimationController->RUNFAST);
 		//m_ppObjects[1]->m_pAnimationController->SetTrackSpeed(0, 0.8f);
 		//m_ppObjects[1]->m_pAnimationController->SetTrackWeight(0, 0.9);
 		//m_ppObjects[1]->m_pAnimationController->SetTrackWeight(1, 0.1);
 		// 애니메이션의 속도를 0.25로 주어서 느리게 애니메이션 동작을 하도록 Set
 		//m_ppObjects[1]->m_pAnimationController->SetTrackSpeed(0, 0.25f);
-
 		m_ppObjects[1]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
 		dynamic_cast<CEvilBear*>(m_ppObjects[1])->SetPlayerName(L"브라운");
 

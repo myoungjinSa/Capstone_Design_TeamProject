@@ -538,7 +538,8 @@ void CScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 			auto iter = m_pShaderManager->getShaderMap().find("MenuUI");
 			if (iter != m_pShaderManager->getShaderMap().end())
 			{
-				((CMenuUIShader*)(*iter).second)->ProcessMessage(CMenuUIShader::MOUSE, nMessageID, ScreenPosition(mouseX, mouseY));
+				((CMenuUIShader*)(*iter).second)->SetScene(this);
+;				((CMenuUIShader*)(*iter).second)->ProcessMessage(CMenuUIShader::MOUSE, nMessageID, ScreenPosition(mouseX, mouseY));
 			}
 		}
 		break;
@@ -914,7 +915,7 @@ void CScene::PlayGetItemEffect()
 	//cout << "PlayGetItem\n";
 }
 
-void CScene::PlayIceBreakEffect(bool& bBreak)
+void CScene::PlayIceBreakEffect(bool bBreak)
 {
 	if (bBreak)
 	{
@@ -1065,4 +1066,14 @@ XMFLOAT2 CScene::ScreenPosition(int x, int y)
 	}
 
 	return XMFLOAT2(0.f, 0.f);
+}
+
+void CScene::SceneSoundPlay()
+{
+	PlayBackgroundMusic();
+	PlayIceBreakEffect(false);
+}
+void CScene::SceneSoundStop()
+{
+	m_pSound->AllStop();
 }

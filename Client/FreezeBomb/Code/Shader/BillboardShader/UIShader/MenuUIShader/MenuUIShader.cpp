@@ -5,6 +5,7 @@
 #include "../../../../Material/Material.h"
 #include "../../../../GameObject/Billboard/UI/UI.h"
 #include "../../../../SoundSystem/SoundSystem.h"
+#include "../../../../Scene/Scene.h"
 
 extern bool g_OnCartoonShading;
 extern bool g_IsSoundOn;
@@ -464,6 +465,8 @@ void CMenuUIShader::ProcessMouseMessage(UINT message, XMFLOAT2& mousePos)
 					m_MenuInfo.m_MenuSound_MenuCartoon_UV.y = 0.5f;
 
 					m_pSound->AllPlay(1.f);
+
+					m_pScene->SceneSoundPlay();
 				}
 				else
 				{
@@ -471,6 +474,8 @@ void CMenuUIShader::ProcessMouseMessage(UINT message, XMFLOAT2& mousePos)
 					m_MenuInfo.m_MenuSound_MenuCartoon_UV.y = 1.f;
 
 					m_pSound->AllStop();
+					m_pScene->SceneSoundStop();
+
 					g_IsSoundOn = false;
 				}
 			}
