@@ -121,7 +121,7 @@ void CLobbyShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	pLobbyTextures = new CTexture*[nTextures];
 
 	pLobbyTextures[NOT_START] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pLobbyTextures[NOT_START]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby.dds", 0);
+	pLobbyTextures[NOT_START]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Base.dds", 0);
 
 	for (int i = 0; i < nTextures; ++i)
 	{
@@ -148,8 +148,6 @@ void CLobbyShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 		pUI->SetMaterial(0, m_ppUIMaterial[0]);
 		m_UIMap.emplace(i, pUI);
 	}
-
-
 }
 
 

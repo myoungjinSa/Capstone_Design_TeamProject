@@ -92,12 +92,13 @@ void COutcomeUIShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsComm
 
 void COutcomeUIShader::AnimateObjects(float fTimeElapsed,CCamera *pCamera, CPlayer* pPlayer)
 {
-
+	if (m_IsRender)
+		m_ElaspedTime += fTimeElapsed;
 }
 
 void COutcomeUIShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
-	if (m_IsRender)
+	if (m_IsRender && m_ElaspedTime > 1.5f)
 	{
 		CUIShader::OnPrepareRender(pd3dCommandList, 0);
 		auto iter = m_UIMap.find(m_outcome);

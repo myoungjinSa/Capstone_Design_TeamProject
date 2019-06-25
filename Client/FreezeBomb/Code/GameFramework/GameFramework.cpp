@@ -33,6 +33,8 @@ byte g_PlayerCharacter = CGameObject::BROWN;
 extern volatile size_t g_TotalSize;
 extern volatile size_t g_FileSize;
 
+unsigned char g_Round = 0;
+
 #ifdef _WITH_SERVER_
 extern volatile bool g_LoginFinished;
 volatile HWND g_hWnd;
@@ -345,17 +347,20 @@ void CGameFramework::CreateDirect2DDevice()
 
 	m_pdwFont = new IDWriteTextFormat*[m_nNameFont];
 	m_pd2dbrText = new ID2D1SolidColorBrush*[m_nNameFont];
+	wstring fontPath = L"../Resource/Font/a피오피동글.ttf";
 	for (int i = 0; i < m_nNameFont; ++i)
 	{
-		hResult = m_pdWriteFactory->CreateTextFormat(L"고딕", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 30.0f, L"en-US", &m_pdwFont[i]);
+		AddFontResourceEx(fontPath.c_str(), FR_PRIVATE, 0);
+		hResult = m_pdWriteFactory->CreateTextFormat(L"a피오피동글", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 30.0f, L"en-US", &m_pdwFont[i]);
 		hResult = m_pdwFont[i]->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 		hResult = m_pdwFont[i]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 		hResult = m_pdWriteFactory->CreateTextLayout(L"텍스트 레이아웃", 8, m_pdwFont[i], 4096.0f, 4096.0f, &m_pdwTextLayout);
 	}
 
 	int index = 0;
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightBlue, 1.0f), &m_pd2dbrText[index++]);
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Orange, 1.0f), &m_pd2dbrText[index++]);
+	//m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightBlue, 1.0f), &m_pd2dbrText[index++]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black, 1.0f), &m_pd2dbrText[index++]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Red, 1.0f), &m_pd2dbrText[index++]);
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrText[index++]);
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightGreen, 1.0f), &m_pd2dbrText[index++]);
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightCoral, 1.0f), &m_pd2dbrText[index++]);
@@ -666,7 +671,19 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		{
 			if(ChattingSystem::GetInstance()->IsChattingActive()==false)
 				m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
-			
+		
+			if (wParam == '0')
+			{
+				g_Round = 0;
+				m_pScene->ChangeRound();
+			}
+
+			else if (wParam == '1')
+			{
+				g_Round = 1;
+				m_pScene->ChangeRound();
+			}
+
 		}	
 		break;
 	}
@@ -1321,10 +1338,11 @@ void CGameFramework::ShowScoreboard()
 
 void CGameFramework::ShowReadyText()
 {
-	D2D1_RECT_F rcText = D2D1::RectF(0, 0, 200.f, 290.f);
-	WCHAR* ready = _T("준비");
-	m_pd2dDeviceContext->DrawTextW(ready, (UINT32)wcslen(ready), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
-
+	D2D1_RECT_F rcText = D2D1::RectF(0, 0, 200.f, 275.f);
+	WCHAR* ready = _T("READY");
+	//m_pd2dDeviceContext->DrawTextW(ready, (UINT32)wcslen(ready), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
+	// 준비 폰트 빨간색
+	m_pd2dDeviceContext->DrawTextW(ready, (UINT32)wcslen(ready), m_pdwFont[0], &rcText, m_pd2dbrText[1]);
 }
 
 
@@ -2157,7 +2175,6 @@ void CGameFramework::Worker_Thread()
 		m_pdxgiSwapChain->Present(0, 0);
 
 		MoveToNextFrame();
-
 
 		double totalSize = g_TotalSize;
 		double fileSize = g_FileSize;

@@ -354,7 +354,7 @@ void CPlayer::Add_Inventory(string key, int ItemType)
 	if (ItemType == CItem::NormalHammer)
 	{
 		if (m_Normal_Inventory.size() > 0)
-			Refresh_Inventory(ItemType);
+			Sub_Inventory(ItemType);
 		CItem* pItem = new CItem;
 		pItem->setItemType(ItemType);
 
@@ -365,7 +365,7 @@ void CPlayer::Add_Inventory(string key, int ItemType)
 	else
 	{
 		if (m_Special_Inventory.size() > 0)
-			Refresh_Inventory(ItemType);
+			Sub_Inventory(ItemType);
 		CItem* pItem = new CItem;
 		pItem->setItemType(ItemType);
 
@@ -377,7 +377,7 @@ void CPlayer::Add_Inventory(string key, int ItemType)
 	}
 }
 
-void CPlayer::Refresh_Inventory(int ItemType)
+void CPlayer::Sub_Inventory(int ItemType)
 {
 	if (ItemType == CItem::NormalHammer)
 	{
@@ -405,12 +405,35 @@ void CPlayer::Refresh_Inventory(int ItemType)
 	}
 }
 
+void CPlayer::ChangeRound()
+{
+	// 라운드 바꼈으면, 인벤토리 비우고, 초기화
+	for (auto iter = m_Normal_Inventory.begin(); iter != m_Normal_Inventory.end();)
+	{
+		m_RemovedItemList.emplace_back((*iter).second);
+		iter = m_Normal_Inventory.erase(iter);
+	}
+	m_Normal_Inventory.clear();
+
+	for (auto iter = m_Special_Inventory.begin(); iter != m_Special_Inventory.end();)
+	{
+		m_RemovedItemList.emplace_back((*iter).second);
+		iter = m_Special_Inventory.erase(iter);
+	}
+	m_Special_Inventory.clear();
+
+	m_bBomb = false;
+	m_bIce = false;
+	m_bHammer = false;
+	m_bGoldHammer = false;
+	m_bGoldTimer = false;
+}
+
 //플레이어의 애니메이션을 결정
 void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 {
 	CAnimationController* pController = m_pAnimationController;
 
-	
 	if (fLength == 0.0f
 		&& (pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::DIGGING
@@ -620,7 +643,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			Network::GetInstance()->SendAnimationState(CAnimationController::ATTACK);
 #endif
 		//if (m_Normal_Inventory.size() != 0)
-			//Refresh_Inventory(CItem::NormalHammer);
+			//Sub_Inventory(CItem::NormalHammer);
 	}
 
 
@@ -661,10 +684,13 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 #ifdef _WITH_SERVER_
 			Network::GetInstance()->SendAnimationState(CAnimationController::RAISEHAND);
 #endif
+
 				//쿨타임 체크 set
 				countCoolTime = true;
-				
-				
+						
+
+				Sub_Inventory((*iter).second->getItemType());
+
 			}
 			else
 			{
@@ -682,7 +708,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 						// 30초 증가
 						dynamic_cast<CTimerUIShader*>((*iter2).second)->setTimer(30.f);
 
-						Refresh_Inventory((*iter).second->getItemType());
+						Sub_Inventory((*iter).second->getItemType());
 						
 					}
 				}
@@ -794,11 +820,11 @@ void CPlayer::ReleaseSound()
 void CPlayer::ChangeRole()
 {
 	if (m_Normal_Inventory.size() > 0)
-		Refresh_Inventory(CItem::NormalHammer);
+		Sub_Inventory(CItem::NormalHammer);
 	if (m_Special_Inventory.size() > 0)
-		Refresh_Inventory(CItem::GoldHammer);
+		Sub_Inventory(CItem::GoldHammer);
 	if (m_Special_Inventory.size() > 0)
-		Refresh_Inventory(CItem::GoldTimer);
+		Sub_Inventory(CItem::GoldTimer);
 
 	m_bBomb = !m_bBomb;
 }

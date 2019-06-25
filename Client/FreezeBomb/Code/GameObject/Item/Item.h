@@ -15,8 +15,6 @@ public:
 	void setDeleteItem(bool value) { m_DeleteItem = value; }
 
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState);
-	void Hammer_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int ItemType, int nPipelineState);
-	void GoldTimer_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int ItemType, int nPipelineState);
 
 	enum ItemType { NormalHammer, GoldHammer, GoldTimer, Empty };
 	byte getItemType()	const { return m_ItemType; }

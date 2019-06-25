@@ -1,9 +1,7 @@
 #pragma once
 #include "../StandardShader.h"
+#include "../../../ResourceManager/ResourceManager.h"
 
-class CLoadedModelInfo;
-struct MapObjectInfo;
-struct Bounds;
 class CMapObjectsShader : public CStandardShader
 {
 public:
@@ -11,18 +9,18 @@ public:
 	virtual ~CMapObjectsShader();
 
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
-		const map<string, CLoadedModelInfo*>& ModelMap, const multimap<string, MapObjectInfo*>& MapObjectInfo, const map<string, Bounds*>& BoundMap, void *pContext = NULL);
+		const map<string, CLoadedModelInfo*>& ModelMap, const unordered_map<unsigned char, RoundInfo>& MapObjectInfo, const map<string, Bounds*>& BoundMap, void* pContext = nullptr);
 
 	virtual void AnimateObjects(float fTimeElapsed, CCamera *pCamera, CPlayer *pPlayer = NULL);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int nPipelineState);
 	virtual D3D12_RASTERIZER_DESC CreateRasterizerState();
 
-
 	virtual void ReleaseObjects();
 	virtual void ReleaseUploadBuffers();
 	
-	const list<CGameObject*>& getSurroundingList()	const { return m_SurroundingList; }
+	const list<CGameObject*>& getMapObjectList()	const;
 
 private:
-	list<CGameObject*> m_SurroundingList;
+	using RoundMapObjectList = list<CGameObject*>;
+	unordered_map<unsigned char, RoundMapObjectList> m_MapObjectList;
 };

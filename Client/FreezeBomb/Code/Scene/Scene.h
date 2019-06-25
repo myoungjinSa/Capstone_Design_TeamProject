@@ -56,7 +56,7 @@ public:
     ~CScene();
 	
 	void CreateSoundSystem();
-	void PlayIceBreakEffect(bool& bBreak);
+	void PlayIceBreakEffect(bool bBreak);
 	void PlayGetItemEffect();
 
 	bool GetBackgroundMusicOn() { return m_musicStart; }
@@ -112,6 +112,12 @@ public:
 		ITEMGET,
 		MENU_INPUT
 	};
+
+	CSoundSystem* GetSceneSound() { return m_pSound; }
+	void SceneSoundPlay();
+	void SceneSoundStop();
+
+	void ChangeRound();
 
 protected:
 	ID3D12RootSignature*						m_pd3dGraphicsRootSignature = NULL;

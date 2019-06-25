@@ -5,6 +5,7 @@
 class CTexture;
 class CUI;
 class CSoundSystem;
+class CScene;
 class CMenuUIShader : public CUIShader
 {
 public:
@@ -35,6 +36,7 @@ public:
 	void ProcessKeyBoardMessage();
 	void ChangeState();
 
+	void SetScene(CScene* pScene) { m_pScene = pScene; }
 private:
 
 	enum MENU_TYPE { None = - 1, MenuBoard, Menu_ICON, Menu_Option, Menu_GameOver, Menu_Sound, Menu_Cartoon };
@@ -79,4 +81,5 @@ private:
 	enum MUSIC_TYPE { MENU_INPUT};
 	static bool				m_IsPlay;
 	CSoundSystem*		m_pSound{ nullptr };
+	CScene*		m_pScene{ nullptr };
 };

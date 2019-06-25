@@ -31,4 +31,5 @@ private:
 	
 	int m_outcome = LOSE;
 	bool m_IsRender = false;
+	float m_ElaspedTime = 0.f;
 };

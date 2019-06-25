@@ -11,6 +11,7 @@
 
 //int CGameObject::m_AnimationType = CGameObject::ANIMATIONTYPE::IDLE;
 extern volatile size_t g_FileSize;
+extern bool g_IsSoundOn;
 
 class CSoundSystem;
 CAnimationSet::CAnimationSet()
@@ -88,7 +89,6 @@ void CAnimationSet::SetPosition(CAnimationController& AnimationController, float
 		{
 			if (pContext)
 			{
-
 				m_pAnimationCallbackHandler->HandleCallback(pCallbackData, pContext);
 			}
 			else {
@@ -313,22 +313,25 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, void* pContext)
 
 void CSoundCallbackHandler::HandleCallback(void *pCallbackData, void* pAdditionalData)
 {
-
-	if (m_pContextData) {
-		CSoundSystem* pSound = (CSoundSystem*)m_pContextData;
-
-		if (pAdditionalData) {
-			float* fDistance = (float*)pAdditionalData;
-
-			float fDistRate = *fDistance / 100.0f;
-			//사운드 배열은 0부터지만 넘어오는 데이터는 1부터 시작하기 때문에 인자에서 1빼서 넘겨준다.
-			pSound->PlayIndex((int)pCallbackData - 1, 1 - fDistRate);
-		}
-		else
+	if (g_IsSoundOn == true)
+	{
+		if (m_pContextData)
 		{
-			pSound->PlayIndex((int)pCallbackData - 1);
-		}
+			CSoundSystem* pSound = (CSoundSystem*)m_pContextData;
 
+			if (pAdditionalData) {
+				float* fDistance = (float*)pAdditionalData;
+
+				float fDistRate = *fDistance / 100.0f;
+				//사운드 배열은 0부터지만 넘어오는 데이터는 1부터 시작하기 때문에 인자에서 1빼서 넘겨준다.
+				pSound->PlayIndex((int)pCallbackData - 1, 1 - fDistRate);
+			}
+			else
+			{
+				pSound->PlayIndex((int)pCallbackData - 1);
+			}
+
+		}
 	}
 }
 

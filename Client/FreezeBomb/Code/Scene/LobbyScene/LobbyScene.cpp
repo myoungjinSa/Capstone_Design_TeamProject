@@ -195,22 +195,19 @@ void CLobbyScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wPar
 	case WM_MOUSEMOVE:
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:
-	{
-		if (gameState == CHARACTER_SELECT)
 		{
-			XMFLOAT3 position = ScreenPosition(mouseX, mouseY);
-			//cout << mouseX << ", " << mouseY << "--------------" << position.x << ", " << position.y << endl;
-			auto iter = m_shaderMap.find("Select");
-			if (iter != m_shaderMap.end())
+			if (gameState == CHARACTER_SELECT)
 			{
-				dynamic_cast<CCharacterSelectUIShader*>(m_ppShaders[CHARACTER_SELECT])->DecideTextureByCursorPosition(m_pSound,nMessageID, position.x, position.y);
-				g_PlayerCharacter = dynamic_cast<CCharacterSelectUIShader*>(m_ppShaders[CHARACTER_SELECT])->SelectedCharacter();
+				XMFLOAT3 position = ScreenPosition(mouseX, mouseY);
+				//cout << mouseX << ", " << mouseY << "--------------" << position.x << ", " << position.y << endl;
+				auto iter = m_shaderMap.find("Select");
+				if (iter != m_shaderMap.end())
+				{
+					dynamic_cast<CCharacterSelectUIShader*>(m_ppShaders[CHARACTER_SELECT])->DecideTextureByCursorPosition(m_pSound,nMessageID, position.x, position.y);
+					g_PlayerCharacter = dynamic_cast<CCharacterSelectUIShader*>(m_ppShaders[CHARACTER_SELECT])->SelectedCharacter();
+				}
 			}
+			break;
 		}
-		break;
-	}
-
-
-		//break;
 	}
 }

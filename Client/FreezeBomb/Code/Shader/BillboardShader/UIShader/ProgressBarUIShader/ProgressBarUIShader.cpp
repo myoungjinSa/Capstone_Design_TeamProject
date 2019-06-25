@@ -119,8 +119,8 @@ void CProgressBarUIShader::CreateShaderResourceViews(ID3D12Device* pd3dDevice, I
 void CProgressBarUIShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
 {
 	CTexture* pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	//pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Blue_ProgressBar.dds", 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Yellow_ProgressBar.dds", 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Blue_ProgressBar.dds", 0);
+	//pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/Yellow_ProgressBar.dds", 0);
 
 	UINT ncbElementBytes = ((sizeof(CB_Position) + 255) & ~255); //256ÀÇ ¹è¼ö
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 1, 1);
