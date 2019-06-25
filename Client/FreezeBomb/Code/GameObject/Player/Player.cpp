@@ -232,7 +232,7 @@ void CPlayer::Update(float fTimeElapsed)
 	if (fDeceleration > fLength) fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 	
-	DecideAnimationState(fLength);
+	DecideAnimationState(fLength,fTimeElapsed);
 #else
 
 	DWORD nCurrentCameraMode = m_pCamera->GetMode();
@@ -406,7 +406,7 @@ void CPlayer::Refresh_Inventory(int ItemType)
 }
 
 //플레이어의 애니메이션을 결정
-void CPlayer::DecideAnimationState(float fLength)
+void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 {
 	CAnimationController* pController = m_pAnimationController;
 
@@ -430,6 +430,7 @@ void CPlayer::DecideAnimationState(float fLength)
 
 		SetTrackAnimationSet(0, CAnimationController::IDLE);
 		m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+		m_bLocalRotation = false;
 #ifdef _WITH_SERVER_
 		Network::GetInstance()->SendAnimationState(CAnimationController::IDLE);
 #endif
@@ -442,6 +443,7 @@ void CPlayer::DecideAnimationState(float fLength)
 			&& pController->GetAnimationState() != CAnimationController::ICE
 			&& pController->GetAnimationState() != CAnimationController::RAISEHAND
 			&& pController->GetAnimationState() != CAnimationController::DIE
+			&& pController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
 			)
 		{
 			
@@ -613,6 +615,7 @@ void CPlayer::DecideAnimationState(float fLength)
 		SetTrackAnimationPosition(0, 0.0f);
 
 		pController->SetAnimationState(CAnimationController::ATTACK);
+		
 #ifdef _WITH_SERVER_
 			Network::GetInstance()->SendAnimationState(CAnimationController::ATTACK);
 #endif
@@ -620,6 +623,27 @@ void CPlayer::DecideAnimationState(float fLength)
 			//Refresh_Inventory(CItem::NormalHammer);
 	}
 
+
+	// 특수 아이템을 사용하는 동작에 경우 일정 시간동안은 황금 망치를 이용해 특수 아이템 모션을 렌더링하고 Refresh_Inventory를 해줘야하기 때문에
+	// 쿨타임을 세어 줘야한다.
+	static float eraseTime = 0.0f;
+	static bool countCoolTime = false;
+	if (countCoolTime)
+	{
+		eraseTime += fTimeElapsed;
+		if(eraseTime > 3.75f)		//1.75는 USEGOLDHAMMER 애니메이션에 길이 - 0.8f 해준 값
+		{
+			if (m_Special_Inventory.size() > 0)
+			{
+				auto iter = m_Special_Inventory.begin();
+				Refresh_Inventory((*iter).second->getItemType());
+				eraseTime = 0.0f;
+				countCoolTime = false;
+			}
+			
+		}
+	}
+	
 	// 특수 아이템 사용 버튼(ALT)
 	if (GetAsyncKeyState(VK_MENU) & 0x0001)
 	{
@@ -628,14 +652,19 @@ void CPlayer::DecideAnimationState(float fLength)
 			auto iter = m_Special_Inventory.begin();
 			if ((*iter).second->getItemType() == CItem::GoldHammer)
 			{	
-				SetTrackAnimationSet(0, CAnimationController::RAISEHAND);
+				
+				SetTrackAnimationSet(0, CAnimationController::USEGOLDHAMMER);
 				SetTrackAnimationPosition(0, 0.0f);
 				//m_pAnimationController->SetTrackSpeed(0, 2.0f);
-				pController->SetAnimationState(CAnimationController::RAISEHAND);
+				pController->SetAnimationState(CAnimationController::USEGOLDHAMMER);
+				m_bLocalRotation = true;
 #ifdef _WITH_SERVER_
 			Network::GetInstance()->SendAnimationState(CAnimationController::RAISEHAND);
 #endif
-				Refresh_Inventory((*iter).second->getItemType());
+				//쿨타임 체크 set
+				countCoolTime = true;
+				
+				
 			}
 			else
 			{
@@ -892,7 +921,17 @@ void CTerrainPlayer::Animate(float fTimeElapsed)
 	CGameObject::Animate(fTimeElapsed);
 }
 
+void CPlayer::UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent,bool isLocalFrameRotate)
+{
+	m_xmf4x4World = (pxmf4x4Parent) ? Matrix4x4::Multiply(m_xmf4x4ToParent, *pxmf4x4Parent) : m_xmf4x4ToParent;
 
+	
+	if (m_pSibling)
+		m_pSibling->UpdateTransform(pxmf4x4Parent,m_bLocalRotation);
+	if (m_pChild)
+		m_pChild->UpdateTransform(&m_xmf4x4World,m_bLocalRotation);
+
+}
 CCamera *CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 {
 	DWORD nCurrentCameraMode = (m_pCamera) ? m_pCamera->GetMode() : 0x00;

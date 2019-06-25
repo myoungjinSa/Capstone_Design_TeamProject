@@ -1934,6 +1934,7 @@ void CGameFramework::FrameAdvance()
 		
 		break;
 	}
+
 #endif
 	}
 

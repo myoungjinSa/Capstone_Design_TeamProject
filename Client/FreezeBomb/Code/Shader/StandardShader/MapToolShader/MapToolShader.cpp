@@ -324,7 +324,7 @@ void CMapToolShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera 
 		if (iter->second)
 		{
 			iter->second->Animate(m_fElapsedTime);
-			iter->second->UpdateTransform(nullptr);
+			iter->second->UpdateTransform(nullptr,false);
 			iter->second->Render(pd3dCommandList, pCamera, nPipelineState);
 		}
 	}

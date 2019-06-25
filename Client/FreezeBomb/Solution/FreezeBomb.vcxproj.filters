@@ -237,6 +237,12 @@
     <ClCompile Include="..\Code\GameObject\Effect\MagicRing\MagicRing.cpp">
       <Filter>Code\GameObject\Effect\MagicRing</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Billboard\Thunder\ThunderBillboard.cpp">
+      <Filter>Code\GameObject\Billboard\Thunder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\ThunderShader\ThunderShader.cpp">
+      <Filter>Code\Shader\BillboardShader\ThunderShader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h">
@@ -475,6 +481,12 @@
     </ClInclude>
     <ClInclude Include="..\Code\GameObject\Effect\MagicRing\MagicRing.h">
       <Filter>Code\GameObject\Effect\MagicRing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Billboard\Thunder\ThunderBillboard.h">
+      <Filter>Code\GameObject\Billboard\Thunder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\ThunderShader\ThunderShader.h">
+      <Filter>Code\Shader\BillboardShader\ThunderShader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -717,6 +729,12 @@
     </Filter>
     <Filter Include="Code\GameObject\Effect\MagicRing">
       <UniqueIdentifier>{ab84f698-689b-4f9d-b888-2c56a3856ee9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Billboard\Thunder">
+      <UniqueIdentifier>{65a2a3cd-3471-419c-b14c-c262aede6060}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\ThunderShader">
+      <UniqueIdentifier>{34c60b87-f158-4ccb-8d2a-3e0e3ba7fb13}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

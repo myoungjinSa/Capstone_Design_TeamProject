@@ -7,6 +7,7 @@
 #include "Billboard/LampParticle/LampParticle.h"
 #include "../SoundSystem/SoundSystem.h"
 #include "../FrameTransform/FrameTransform.h"
+#include "Billboard/Thunder/ThunderBillboard.h"
 
 //int CGameObject::m_AnimationType = CGameObject::ANIMATIONTYPE::IDLE;
 extern volatile size_t g_FileSize;
@@ -536,14 +537,26 @@ CGameObject *CGameObject::GetRootSkinnedGameObject()
 	return(NULL);
 }
 
-void CGameObject::UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent)
+void CGameObject::UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent,bool isLocalFrameRotate)
 {
+	
 	m_xmf4x4World = (pxmf4x4Parent) ? Matrix4x4::Multiply(m_xmf4x4ToParent, *pxmf4x4Parent) : m_xmf4x4ToParent;
+	
+	if (isLocalFrameRotate)			//isLocalFrameRotate가 true이면 지정된 프레임은 로컬 회전을 한다.
+	{
+		if (!strcmp(this->m_pstrFrameName, "ThumbFinger1_R"))		// 망치의 부모 프레임
+		{
+			XMMATRIX mtxRotate = XMMatrixRotationRollPitchYaw(XMConvertToRadians(-80.0f), XMConvertToRadians(10.0f), XMConvertToRadians(50.0f));
+			m_xmf4x4ToParent = Matrix4x4::Multiply(mtxRotate, m_xmf4x4ToParent);
+		}
+	}
+
 
 	if (m_pSibling)
-		m_pSibling->UpdateTransform(pxmf4x4Parent);
+		m_pSibling->UpdateTransform(pxmf4x4Parent,isLocalFrameRotate);
 	if (m_pChild)
-		m_pChild->UpdateTransform(&m_xmf4x4World);
+		m_pChild->UpdateTransform(&m_xmf4x4World,isLocalFrameRotate);
+
 }
 
 void CGameObject::SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet)
@@ -690,10 +703,18 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, bool bHamme
 		if (m_pChild)
 			m_pChild->Render(pd3dCommandList, pCamera, nPipelineState);
 	}
+	/*else if (!strcmp(this->m_pstrFrameName, "Thunder_Effect"))
+	{
+		if (m_pSibling)
+			m_pSibling->Render(pd3dCommandList, pCamera, nPipelineState);
+		if (m_pChild)
+			m_pChild->Render(pd3dCommandList, pCamera, nPipelineState);
+	}*/
 	else
 	{
 		if (m_pSibling)
 		{
+			
 			if (!strncmp(m_pSibling->m_pstrFrameName, "Hammer", strlen(m_pSibling->m_pstrFrameName)))
 			{
 				if (bHammer)
@@ -815,8 +836,13 @@ void CGameObject::Tagger_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCam
 
 	// 폭탄 심지의 불꽃 파티클
 	if (m_pLampParticle != nullptr)
+	{
 		m_pLampParticle->Render(pd3dCommandList, pCamera, nPipelineState);
-
+	}
+	else if (m_pThunderEffect != nullptr)
+	{
+		m_pThunderEffect->Render(pd3dCommandList, pCamera, nPipelineState);
+	}
 	else if (m_pMesh)
 	{
 		if (m_nMaterials > 0)
@@ -881,7 +907,11 @@ void CGameObject::RunAway_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCa
 	if (m_pFrameTransform)
 		m_pFrameTransform->SetFrameMeshWorldConstantBuffer();
 
-	if (m_pMesh)
+	if (m_pThunderEffect != nullptr)
+	{
+		m_pThunderEffect->Render(pd3dCommandList, pCamera, nPipelineState);
+	}
+	else if (m_pMesh)
 	{
 		if (m_nMaterials > 0)
 		{
@@ -929,6 +959,7 @@ void CGameObject::RunAway_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCa
 				}
 				else if (HasGoldHammer == true)
 				{
+
 					if (m_ppMaterials[1])
 					{
 						if (m_ppMaterials[1]->m_pShader)
@@ -991,7 +1022,7 @@ void CGameObject::SetPosition(float x, float y, float z)
 	m_xmf4x4ToParent._42 = y;
 	m_xmf4x4ToParent._43 = z;
 
-	UpdateTransform(NULL);
+	UpdateTransform(NULL,false);
 }
 
 void CGameObject::SetPosition(XMFLOAT3 xmf3Position)
@@ -1004,7 +1035,7 @@ void CGameObject::SetScale(float x, float y, float z)
 	XMMATRIX mtxScale = XMMatrixScaling(x, y, z);
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
 
-	UpdateTransform(NULL);
+	UpdateTransform(NULL,false);
 }
 
 XMFLOAT3 CGameObject::GetPosition()
@@ -1033,7 +1064,7 @@ void CGameObject::SetLookVector(XMFLOAT3& xmf3Look)
 	m_xmf4x4ToParent._32 = xmf3Look.y;
 	m_xmf4x4ToParent._33 = xmf3Look.z;
 
-	UpdateTransform(NULL);
+	UpdateTransform(NULL,false);
 }
 
 void CGameObject::SetRightVector(XMFLOAT3& xmf3Right)
@@ -1042,7 +1073,7 @@ void CGameObject::SetRightVector(XMFLOAT3& xmf3Right)
 	m_xmf4x4ToParent._12 = xmf3Right.y;
 	m_xmf4x4ToParent._13 = xmf3Right.z;
 
-	UpdateTransform(NULL);
+	UpdateTransform(NULL,false);
 
 }
 
@@ -1052,7 +1083,7 @@ void CGameObject::SetUpVector(XMFLOAT3& xmf3Up)
 	m_xmf4x4ToParent._22 = xmf3Up.y;
 	m_xmf4x4ToParent._23 = xmf3Up.z;
 
-	UpdateTransform(NULL);
+	UpdateTransform(NULL,false);
 }
 
 void CGameObject::MoveStrafe(float fDistance)
@@ -1084,7 +1115,7 @@ void CGameObject::Rotate(float fPitch, float fYaw, float fRoll)
 	XMMATRIX mtxRotate = XMMatrixRotationRollPitchYaw(XMConvertToRadians(fPitch), XMConvertToRadians(fYaw), XMConvertToRadians(fRoll));
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxRotate, m_xmf4x4ToParent);
 
-	UpdateTransform(NULL);
+	UpdateTransform(NULL,false);
 }
 
 void CGameObject::Rotate(XMFLOAT3 *pxmf3Axis, float fAngle)
@@ -1092,7 +1123,7 @@ void CGameObject::Rotate(XMFLOAT3 *pxmf3Axis, float fAngle)
 	XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(pxmf3Axis), XMConvertToRadians(fAngle));
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxRotate, m_xmf4x4ToParent);
 
-	UpdateTransform(NULL);
+	UpdateTransform(NULL,false);
 }
 
 void CGameObject::Rotate(XMFLOAT4 *pxmf4Quaternion)
@@ -1100,7 +1131,7 @@ void CGameObject::Rotate(XMFLOAT4 *pxmf4Quaternion)
 	XMMATRIX mtxRotate = XMMatrixRotationQuaternion(XMLoadFloat4(pxmf4Quaternion));
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxRotate, m_xmf4x4ToParent);
 
-	UpdateTransform(NULL);
+	UpdateTransform(NULL,false);
 }
 
 //#define _WITH_DEBUG_FRAME_HIERARCHY
@@ -1325,6 +1356,11 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 				pGameObject->m_pLampParticle = new CLampParticle(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 				pGameObject->SetChild(pGameObject->m_pLampParticle, true);
 			}
+			else if (!strcmp(pGameObject->m_pstrFrameName, "Thunder_Effect"))
+			{
+				pGameObject->m_pThunderEffect = new CThunderBillboard(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature );
+				pGameObject->SetChild(pGameObject->m_pThunderEffect, true);
+			}
 		}
 		else if (!strcmp(pstrToken, "<Transform>:"))
 		{
@@ -1523,7 +1559,7 @@ CAnimationSets *CGameObject::LoadAnimationFromFile(FILE *pInFile, CGameObject *p
 			// 애니메이션이 안되는 문제해결해야댐
 			if (!strcmp(pAnimationSet->m_pstrName, "ATK3") || !strcmp(pAnimationSet->m_pstrName, "Digging")
 				|| !strcmp(pAnimationSet->m_pstrName, "Jump") || !strcmp(pAnimationSet->m_pstrName, "RaiseHand")
-				|| !strcmp(pAnimationSet->m_pstrName, "Die2")
+				|| !strcmp(pAnimationSet->m_pstrName, "Die2" )|| !strcmp(pAnimationSet->m_pstrName, "USEGOLDHAMMER")
 				)
 
 			{

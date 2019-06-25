@@ -192,6 +192,7 @@ public:
 	{
 		SkyBox = 1, Terrain = 2, MapObjects = 71, Item = 8,
 		EvilBear = 19, Player = 19, BombParticle = 1, CubeParticle = 1, Snow = 1, TimerUI = 11, ItemUI = 4, MenuUI = 6,
+		Thunder = 2
 	};
 
 	// 술래 변경할 수 있는 시간

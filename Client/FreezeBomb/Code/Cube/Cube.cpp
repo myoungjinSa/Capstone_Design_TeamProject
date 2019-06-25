@@ -48,7 +48,7 @@ void CCube::UpdatePosition(const XMFLOAT3 position, float fTimeLag)
 	m_pVertex[1] =		Vector3::Add(m_CenterPos, XMFLOAT3(+fx, +fy, +fz));
 	m_pVertex[2] =		Vector3::Add(m_CenterPos, XMFLOAT3(-fx, -fx, +fz));
 	m_pVertex[3] =		Vector3::Add(m_CenterPos, XMFLOAT3(+fx, -fy, +fz));
-	m_pVertex[4] =	Vector3::Add(m_CenterPos, XMFLOAT3(-fx, +fy, -fz));
+	m_pVertex[4] =		Vector3::Add(m_CenterPos, XMFLOAT3(-fx, +fy, -fz));
 	m_pVertex[5] =		Vector3::Add(m_CenterPos, XMFLOAT3(+fx, +fy, -fz));
 	m_pVertex[6] =		Vector3::Add(m_CenterPos, XMFLOAT3(-fx, -fy, -fz));
 	m_pVertex[7] =		Vector3::Add(m_CenterPos, XMFLOAT3(+fx, -fy, -fz));

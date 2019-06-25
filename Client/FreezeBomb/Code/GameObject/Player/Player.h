@@ -62,8 +62,8 @@ public:
 	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
 	void Rotate(float x, float y, float z);
 
+	void UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent=NULL,bool isLocalFrameRotate = false);
 	void Update(float fTimeElapsed);
-
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed) { }
 	void SetPlayerUpdatedContext(LPVOID pContext) { m_pPlayerUpdatedContext = pContext; }
 
@@ -82,7 +82,7 @@ public:
 
 	void Add_Inventory(string key, int ItemType);
 	void Refresh_Inventory(int ItemType);
-	void DecideAnimationState(float fLength);
+	void DecideAnimationState(float fLength,const float& fTimeElapsed);
 	bool AnimationCollision(byte AnimationType);
 
 	const map<string, CItem*> get_Special_Inventory()	const { return m_Special_Inventory; }
@@ -119,6 +119,7 @@ public:
 
 	void ChangeRole();
 protected:
+
 
 	XMFLOAT3					m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3					m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
@@ -159,6 +160,7 @@ protected:
 	short				m_Score = 0;
 	float				m_Time = 0.f;
 
+	bool			m_bLocalRotation{ false };
 	bool			m_bSpike{ false };
 	bool			m_bCameraVibe{ false };
 	CBomb	*		m_BombParticle{ nullptr };

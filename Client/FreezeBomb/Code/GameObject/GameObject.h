@@ -266,6 +266,7 @@ class CShader;
 class CShadow;
 class CLampParticle;
 class CFrameTransform;
+class CThunderBillboard;
 class CGameObject
 {
 private:
@@ -358,7 +359,7 @@ public:
 	void Rotate(XMFLOAT4 *pxmf4Quaternion);
 
 	CGameObject* GetParent() { return(m_pParent); }
-	void UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent=NULL);
+	void UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent=NULL,bool isLocalFrameRotate = false);
 	CGameObject* FindFrame(char *pstrFrameName);
 
 	CTexture* FindReplicatedTexture(_TCHAR *pstrTextureName);
@@ -424,6 +425,7 @@ protected:
 	CShadow*	m_pShadow{ nullptr };
 
 	CLampParticle*				m_pLampParticle{ nullptr };	
+	CThunderBillboard*			m_pThunderEffect{ nullptr };
 
 	string							m_ID;													
 	CGameObject*				m_pObjectCollided{ nullptr };

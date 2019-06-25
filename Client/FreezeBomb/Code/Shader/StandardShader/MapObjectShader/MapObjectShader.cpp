@@ -62,7 +62,7 @@ void CMapObjectsShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCame
 	for (auto iter = m_SurroundingList.begin(); iter != m_SurroundingList.end(); ++iter)
 	{
 		(*iter)->Animate(m_fElapsedTime);
-		(*iter)->UpdateTransform(nullptr);
+		(*iter)->UpdateTransform(nullptr,false);
 		(*iter)->Render(pd3dCommandList, pCamera, nPipelineState);
 	}
 }

@@ -28,7 +28,7 @@ private:
 	{
 		XMFLOAT4X4		m_World;
 	};
-	ID3D12Resource*		m_pd3dcbWorld{ nullptr };
+	ID3D12Resource*			m_pd3dcbWorld{ nullptr };
 	CB_World*				m_pcbMappedWorld{ nullptr };
 
 	CB_ANIMATIONCLIP*							m_pcbMappedAnimationClip = NULL;

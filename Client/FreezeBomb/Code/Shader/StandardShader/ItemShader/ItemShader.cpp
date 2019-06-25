@@ -158,7 +158,7 @@ void CItemShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 	for (auto iter = m_ItemMap.begin(); iter != m_ItemMap.end(); ++iter)
 	{
 		(*iter).second->Animate(m_fElapsedTime);
-		(*iter).second->UpdateTransform(nullptr);
+		(*iter).second->UpdateTransform(nullptr,false);
 		(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
 	}
 }

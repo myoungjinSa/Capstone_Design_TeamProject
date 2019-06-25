@@ -194,7 +194,7 @@ void CFoliageShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera 
 		if (m_ppObjects[i])
 		{
 			m_ppObjects[i]->Animate(m_fElapsedTime);
-			m_ppObjects[i]->UpdateTransform(NULL);
+			m_ppObjects[i]->UpdateTransform(NULL,false);
 			m_ppObjects[i]->Render(pd3dCommandList, m_ppObjects[i]->GetLodLevel(), pCamera, nPipelineState);
 		}
 	}
