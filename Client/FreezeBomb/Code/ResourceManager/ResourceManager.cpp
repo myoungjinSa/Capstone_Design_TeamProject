@@ -21,10 +21,7 @@ void CResourceManager::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	LoadTexture(pd3dDevice, pd3dCommandList);
 	LoadModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	LoadMapObjectInfo(pd3dDevice, pd3dCommandList);
-	LoadItemInfo(pd3dDevice, pd3dCommandList);
-
 	LoadBound(pd3dDevice, pd3dCommandList);
-
 }
 
 void CResourceManager::PrepareLoad()
@@ -169,185 +166,188 @@ void CResourceManager::LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	{
 		CLoadedModelInfo* pModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, const_cast<char*>((*iter).second.m_Filename.c_str()), nullptr, (*iter).second.m_HasAnimation);
 		m_ModelMap.emplace((*iter).first, pModel);
-
 	}
 }
 
 void CResourceManager::LoadMapObjectInfo(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	string filename;
-	filename = "../Resource/Position/Surrounding/MapVer0.bin";
-
-	ifstream in(filename, ios::binary);
-
-	if (!in)
+	int totalRound = 2;
+	for (int i = 0; i < totalRound; ++i)
 	{
-		cout << filename << " - 바이너리 파일 없음" << endl;
-		return;
+		multimap<string, MapObjectInfo*> objectInfo;
+
+		string filename;
+		filename = "../Resource/MapObjectInfo/Position/Round" + to_string(i) + ".bin";
+
+		ifstream in(filename, ios::binary);
+
+		if (!in)
+		{
+			cout << filename << " - 바이너리 파일 없음" << endl;
+			return;
+		}
+
+		size_t nReads = 0;
+
+		// 맵 오브젝트 개수
+		int nObjects = 0;
+		in.read(reinterpret_cast<char*>(&nObjects), sizeof(int));
+
+		for (int i = 0; i < nObjects; ++i)
+		{
+			MapObjectInfo* pMapObjectInfo = new MapObjectInfo;
+			// 모델 이름 문자열 길이 저장
+			in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+
+			// 길이 + 1만큼 자원 할당
+			char* p = new char[nReads + 1];
+			in.read(p, sizeof(char) * nReads);
+			p[nReads] = '\0';
+			//  모델 이름 저장
+			pMapObjectInfo->m_Name = p;
+			delete[] p;
+
+			// Position 문자열 길이 저장
+			in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+			p = new char[nReads + 1];
+			in.read(p, sizeof(char)*nReads);
+			p[nReads] = '\0';
+			delete[] p;
+
+			// Position x, y, z값 저장
+			in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Position.x), sizeof(float));
+			in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Position.y), sizeof(float));
+			in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Position.z), sizeof(float));
+
+			// Look 문자열 길이 저장
+			in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+			p = new char[nReads + 1];
+			in.read(p, sizeof(char)*nReads);
+			p[nReads] = '\0';
+			delete[] p;
+
+			// <Look> x, y, z값 저장
+			in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.x), sizeof(float));
+			in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.y), sizeof(float));
+			in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.z), sizeof(float));
+
+			// Up 문자열 길이 저장
+			in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+			p = new char[nReads + 1];
+			in.read(p, sizeof(char)*nReads);
+			p[nReads] = '\0';
+			delete[] p;
+
+			// <Up> x, y, z값 저장
+			in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Up.x), sizeof(float));
+			in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Up.y), sizeof(float));
+			in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Up.z), sizeof(float));
+
+			// Right 문자열 길이 저장
+			in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+			p = new char[nReads + 1];
+			in.read(p, sizeof(char)*nReads);
+			p[nReads] = '\0';
+			delete[] p;
+
+			// <Right> x, y, z값 저장
+			in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Right.x), sizeof(float));
+			in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Right.y), sizeof(float));
+			in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Right.z), sizeof(float));
+
+			pMapObjectInfo->m_Position.y = 0.f;
+
+			//m_MapObjectInfoMultiMap.emplace(pMapObjectInfo->m_Name, pMapObjectInfo);
+			objectInfo.emplace(pMapObjectInfo->m_Name, pMapObjectInfo);
+		}
+		in.close();
+
+		m_RoundInfoMapObjectInfo.emplace(i, objectInfo);
 	}
+	//string filename;
+	//filename = "../Resource/MapObjectInfo/Position/Round1.bin";
 
-	size_t nReads = 0;
+	//ifstream in(filename, ios::binary);
 
-	// 맵 오브젝트 개수
-	int nObjects = 0;
-	in.read(reinterpret_cast<char*>(&nObjects), sizeof(int));
+	//if (!in)
+	//{
+	//	cout << filename << " - 바이너리 파일 없음" << endl;
+	//	return;
+	//}
 
-	for (int i = 0; i < nObjects; ++i)
-	{
-		MapObjectInfo* pMapObjectInfo = new MapObjectInfo;
-		// 모델 이름 문자열 길이 저장
-		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+	//size_t nReads = 0;
 
-		// 길이 + 1만큼 자원 할당
-		char* p = new char[nReads + 1];
-		in.read(p, sizeof(char) * nReads);
-		p[nReads] = '\0';
-		//  모델 이름 저장
-		pMapObjectInfo->m_Name = p;
-		delete[] p;
+	//// 맵 오브젝트 개수
+	//int nObjects = 0;
+	//in.read(reinterpret_cast<char*>(&nObjects), sizeof(int));
 
-		// Position 문자열 길이 저장
-		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-		p = new char[nReads + 1];
-		in.read(p, sizeof(char)*nReads);
-		p[nReads] = '\0';
-		delete[] p;
+	//for (int i = 0; i < nObjects; ++i)
+	//{
+	//	MapObjectInfo* pMapObjectInfo = new MapObjectInfo;
+	//	// 모델 이름 문자열 길이 저장
+	//	in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
 
-		// Position x, y, z값 저장
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Position.x), sizeof(float));
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Position.y), sizeof(float));
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Position.z), sizeof(float));
+	//	// 길이 + 1만큼 자원 할당
+	//	char* p = new char[nReads + 1];
+	//	in.read(p, sizeof(char) * nReads);
+	//	p[nReads] = '\0';
+	//	//  모델 이름 저장
+	//	pMapObjectInfo->m_Name = p;
+	//	delete[] p;
 
-		// Look 문자열 길이 저장
-		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-		p = new char[nReads + 1];
-		in.read(p, sizeof(char)*nReads);
-		p[nReads] = '\0';
-		delete[] p;
+	//	// Position 문자열 길이 저장
+	//	in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+	//	p = new char[nReads + 1];
+	//	in.read(p, sizeof(char)*nReads);
+	//	p[nReads] = '\0';
+	//	delete[] p;
 
-		// <Look> x, y, z값 저장
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.x), sizeof(float));
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.y), sizeof(float));
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.z), sizeof(float));
+	//	// Position x, y, z값 저장
+	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Position.x), sizeof(float));
+	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Position.y), sizeof(float));
+	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Position.z), sizeof(float));
 
-		// Up 문자열 길이 저장
-		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-		p = new char[nReads + 1];
-		in.read(p, sizeof(char)*nReads);
-		p[nReads] = '\0';
-		delete[] p;
+	//	// Look 문자열 길이 저장
+	//	in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+	//	p = new char[nReads + 1];
+	//	in.read(p, sizeof(char)*nReads);
+	//	p[nReads] = '\0';
+	//	delete[] p;
 
-		// <Up> x, y, z값 저장
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Up.x), sizeof(float));
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Up.y), sizeof(float));
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Up.z), sizeof(float));
+	//	// <Look> x, y, z값 저장
+	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.x), sizeof(float));
+	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.y), sizeof(float));
+	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.z), sizeof(float));
 
-		// Right 문자열 길이 저장
-		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-		p = new char[nReads + 1];
-		in.read(p, sizeof(char)*nReads);
-		p[nReads] = '\0';
-		delete[] p;
+	//	// Up 문자열 길이 저장
+	//	in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+	//	p = new char[nReads + 1];
+	//	in.read(p, sizeof(char)*nReads);
+	//	p[nReads] = '\0';
+	//	delete[] p;
 
-		// <Right> x, y, z값 저장
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Right.x), sizeof(float));
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Right.y), sizeof(float));
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Right.z), sizeof(float));
+	//	// <Up> x, y, z값 저장
+	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Up.x), sizeof(float));
+	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Up.y), sizeof(float));
+	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Up.z), sizeof(float));
 
-		pMapObjectInfo->m_Position.y = 0.f;
+	//	// Right 문자열 길이 저장
+	//	in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+	//	p = new char[nReads + 1];
+	//	in.read(p, sizeof(char)*nReads);
+	//	p[nReads] = '\0';
+	//	delete[] p;
 
-		m_MapObjectInfoMultiMap.emplace(pMapObjectInfo->m_Name, pMapObjectInfo);
-	}
-	in.close();
-}
+	//	// <Right> x, y, z값 저장
+	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Right.x), sizeof(float));
+	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Right.y), sizeof(float));
+	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Right.z), sizeof(float));
 
-void CResourceManager::LoadItemInfo(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
-{
-	string filename;
-	filename = "../Resource/Position/Surrounding/MapVer1.bin";
+	//	pMapObjectInfo->m_Position.y = 0.f;
 
-	ifstream in(filename, ios::binary);
-
-	if (!in)
-	{
-		cout << filename << " - 바이너리 파일 없음" << endl;
-		return;
-	}
-
-	size_t nReads = 0;
-
-	// 맵 오브젝트 개수
-	int nObjects = 0;
-	in.read(reinterpret_cast<char*>(&nObjects), sizeof(int));
-
-	for (int i = 0; i < nObjects; ++i)
-	{
-		MapObjectInfo* pMapObjectInfo = new MapObjectInfo;
-		// 모델 이름 문자열 길이 저장
-		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-
-		// 길이 + 1만큼 자원 할당
-		char* p = new char[nReads + 1];
-		in.read(p, sizeof(char) * nReads);
-		p[nReads] = '\0';
-		//  모델 이름 저장
-		pMapObjectInfo->m_Name = p;
-		delete[] p;
-
-		// Position 문자열 길이 저장
-		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-		p = new char[nReads + 1];
-		in.read(p, sizeof(char)*nReads);
-		p[nReads] = '\0';
-		delete[] p;
-
-		// Position x, y, z값 저장
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Position.x), sizeof(float));
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Position.y), sizeof(float));
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Position.z), sizeof(float));
-
-		// Look 문자열 길이 저장
-		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-		p = new char[nReads + 1];
-		in.read(p, sizeof(char)*nReads);
-		p[nReads] = '\0';
-		delete[] p;
-
-		// <Look> x, y, z값 저장
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.x), sizeof(float));
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.y), sizeof(float));
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.z), sizeof(float));
-
-		// Up 문자열 길이 저장
-		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-		p = new char[nReads + 1];
-		in.read(p, sizeof(char)*nReads);
-		p[nReads] = '\0';
-		delete[] p;
-
-		// <Up> x, y, z값 저장
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Up.x), sizeof(float));
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Up.y), sizeof(float));
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Up.z), sizeof(float));
-
-		// Right 문자열 길이 저장
-		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-		p = new char[nReads + 1];
-		in.read(p, sizeof(char)*nReads);
-		p[nReads] = '\0';
-		delete[] p;
-
-		// <Right> x, y, z값 저장
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Right.x), sizeof(float));
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Right.y), sizeof(float));
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Right.z), sizeof(float));
-
-		pMapObjectInfo->m_Position.y = 0.f;
-
-		m_ItemInfoMultiMap.emplace(pMapObjectInfo->m_Name, pMapObjectInfo);
-	}
-	in.close();
-
+	//	m_MapObjectInfoMultiMap.emplace(pMapObjectInfo->m_Name, pMapObjectInfo);
+	//}
+	//in.close();
 }
 
 void CResourceManager::LoadBound(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)

@@ -2,8 +2,9 @@
 #include "ItemShader.h"
 #include "../../../GameObject/Item/Item.h"
 #include "../../../GameObject/Terrain/Terrain.h"
-#include "../../../ResourceManager/ResourceManager.h"
 #include "../../../FrameTransform/FrameTransform.h"
+
+extern unsigned char g_Round;
 
 CItemShader::CItemShader()
 {
@@ -14,137 +15,76 @@ CItemShader::~CItemShader()
 }
 
 void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,
-	const map<string, CLoadedModelInfo*>& ModelMap, const multimap<string, MapObjectInfo*>& MapObjectInfo, const map<string, Bounds*>& BoundMap, void* pContext)
+	const map<string, CLoadedModelInfo*>& ModelMap, const unordered_map<unsigned char, RoundInfo>& MapObjectInfo, const map<string, Bounds*>& BoundMap, void* pContext)
 {
 	int nNormalHammer = 0, nGoldHammer = 0, nGoldTimer = 0;
+	unsigned char round = 0;
 
-	auto iter = ModelMap.find("Hammer");
-	if (iter != ModelMap.end())
+	for (auto iter = MapObjectInfo.begin(); iter != MapObjectInfo.end(); ++iter)
 	{
-		string name = (*iter).first;
-		// multimap 컨테이너에서 같은 키를 갖는 벨류를 찾을 때, 사용하는 루프
-		for (auto iter2 = MapObjectInfo.lower_bound(name); iter2 != MapObjectInfo.upper_bound(name); ++iter2)
+		map<string, CItem*> itemList;
+
+		auto iter2 = ModelMap.find("Hammer");
+		if (iter2 != ModelMap.end())
 		{
-			CItem* pItem = new CItem;
-			pItem->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter).second);
-
-			pItem->SetChild((*iter).second->m_pModelRootObject, true);
-			XMFLOAT3 position = (*iter2).second->m_Position;
-			pItem->SetPosition(position.x, position.y + 0.5, position.z);
-
-			pItem->SetLookVector((*iter2).second->m_Look);
-			pItem->SetUpVector((*iter2).second->m_Up);
-			pItem->SetRightVector((*iter2).second->m_Right);
-			pItem->Initialize_Shadow((*iter).second, pItem);
-
-			// 황금망치, 일반망치 랜덤으로 결정
-			switch (rand() % 2)
+			string name = (*iter2).first;
+			// multimap 컨테이너에서 같은 키를 갖는 벨류를 찾을 때, 사용하는 루프
+			for (auto iter3 = (*iter).second.lower_bound(name); iter3 != (*iter).second.upper_bound(name); ++iter3)
 			{
-			case CItem::NormalHammer:
-				pItem->setItemType(CItem::NormalHammer);
-				m_ItemMap.emplace("NormalHammer" + to_string(nNormalHammer++), pItem);
-				break;
+				CItem* pItem = new CItem;
+				pItem->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter2).second);
 
-			case CItem::GoldHammer:
-				pItem->setItemType(CItem::GoldHammer);
-				m_ItemMap.emplace("GoldHammer" + to_string(nGoldHammer++), pItem);
+				pItem->SetChild((*iter2).second->m_pModelRootObject, true);
+				XMFLOAT3 position = (*iter3).second->m_Position;
+				pItem->SetPosition(position.x, position.y + 0.5, position.z);
+				pItem->SetLookVector((*iter3).second->m_Look);
+				pItem->SetUpVector((*iter3).second->m_Up);
+				pItem->SetRightVector((*iter3).second->m_Right);
+				pItem->Initialize_Shadow((*iter2).second, pItem);
+
+				// 황금망치, 일반망치 랜덤으로 결정
+				switch (rand() % 2)
+				{
+				case CItem::NormalHammer:
+					pItem->setItemType(CItem::NormalHammer);
+					//m_ItemMap.emplace("NormalHammer" + to_string(nNormalHammer++), pItem);
+					itemList.emplace("NormalHammer" + to_string(nNormalHammer++), pItem);
 					break;
+
+				case CItem::GoldHammer:
+					pItem->setItemType(CItem::GoldHammer);
+					//m_ItemMap.emplace("GoldHammer" + to_string(nGoldHammer++), pItem);
+					itemList.emplace("GoldHammer" + to_string(nNormalHammer++), pItem);
+					break;
+				}
 			}
-		}	
-	}
-
-	iter = ModelMap.find("GoldTimer");
-	if (iter != ModelMap.end())
-	{
-		string name = (*iter).first;
-		// multimap 컨테이너에서 같은 키를 갖는 벨류를 찾을 때, 사용하는 루프
-		for (auto iter2 = MapObjectInfo.lower_bound(name); iter2 != MapObjectInfo.upper_bound(name); ++iter2)
-		{
-			CItem* pItem = new CItem;
-			pItem->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter).second);
-
-			pItem->SetChild((*iter).second->m_pModelRootObject, true);
-			XMFLOAT3 position = (*iter2).second->m_Position;
-			pItem->SetPosition(position.x, position.y + 0.5, position.z);
-
-			pItem->SetLookVector((*iter2).second->m_Look);
-			pItem->SetUpVector((*iter2).second->m_Up);
-			pItem->SetRightVector((*iter2).second->m_Right);
-			pItem->Initialize_Shadow((*iter).second, pItem);
-
-			pItem->setItemType(CItem::GoldTimer);
-			m_ItemMap.emplace("GoldTimer" + to_string(nGoldTimer++), pItem);
 		}
+
+		iter2 = ModelMap.find("GoldTimer");
+		if (iter2 != ModelMap.end())
+		{
+			string name = (*iter2).first;
+			// multimap 컨테이너에서 같은 키를 갖는 벨류를 찾을 때, 사용하는 루프
+			for (auto iter3 = (*iter).second.lower_bound(name); iter3 != (*iter).second.upper_bound(name); ++iter3)
+			{
+				CItem* pItem = new CItem;
+				pItem->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter2).second);
+
+				pItem->SetChild((*iter2).second->m_pModelRootObject, true);
+				XMFLOAT3 position = (*iter3).second->m_Position;
+				pItem->SetPosition(position.x, position.y + 0.5, position.z);
+				pItem->SetLookVector((*iter3).second->m_Look);
+				pItem->SetUpVector((*iter3).second->m_Up);
+				pItem->SetRightVector((*iter3).second->m_Right);
+				pItem->Initialize_Shadow((*iter2).second, pItem);
+
+				pItem->setItemType(CItem::GoldTimer);
+				//m_ItemMap.emplace("GoldTimer" + to_string(nGoldTimer++), pItem);
+				itemList.emplace("GoldTimer" + to_string(nNormalHammer++), pItem);
+			}
+		}
+		m_ItemList.emplace(round++, itemList);
 	}
-
-
-	//int nNormalHammer = 10, nGoldHammer = 10, nGoldTimer = 10;
-	//m_nObjects = nNormalHammer + nGoldHammer + nGoldTimer;
-
-	//auto iter = ModelMap.find("Hammer");
-	//if (iter != ModelMap.end())
-	//{
-	//	CTerrain* pTerrain = (CTerrain*)pContext;
-
-	//	for (int i = 0; i < nNormalHammer; ++i)
-	//	{
-	//		CItem* pItem = new CItem;
-	//		pItem->SetChild((*iter).second->m_pModelRootObject, true);
-	//		// 그림자를 모델좌표계에서 계산하도록 변경하면 될듯?
-	//		XMFLOAT3 Position = XMFLOAT3(Random(10.f, 490.f), 0.5f, Random(10.f, 290.f));
-	//		pItem->SetPosition(Position);
-	//		pItem->setItemType(CItem::NormalHammer);
-	//		pItem->setID("<Hammer>");
-	//		auto iter2 = Context.find(pItem->getID());
-	//		if (iter2 != Context.end())
-	//			pItem->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
-
-	//		pItem->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter).second);
-	//		pItem->Initialize_Shadow((*iter).second, pItem);
-
-	//		m_ItemMap.emplace("NormalHammer" + to_string(i), dynamic_cast<CItem*>(pItem));
-	//	}
-	//
-	//	for (int i = 0; i < nGoldHammer; ++i)
-	//	{
-	//		CItem* pItem = new CItem;
-	//		pItem->SetChild((*iter).second->m_pModelRootObject, true);
-	//		XMFLOAT3 Position = XMFLOAT3(Random(10.f, 490.f), 0.5, Random(10.f, 290.f));
-	//		pItem->SetPosition(Position);
-	//		pItem->setItemType(CItem::GoldHammer);
-	//		pItem->setID("<Hammer>");
-	//		auto iter2 = Context.find(pItem->getID());
-	//		if (iter2 != Context.end())
-	//			pItem->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
-
-	//		pItem->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter).second);
-	//		// 그림자 생성
-	//		pItem->Initialize_Shadow((*iter).second, pItem);
-	//		m_ItemMap.emplace("GoldHammer" + to_string(i), dynamic_cast<CItem*>(pItem));
-	//	}
-	//}
-
-	//iter = ModelMap.find("GoldTimer");
-	//if (iter != ModelMap.end())
-	//{
-	//	for (int i = 0; i < nGoldTimer; ++i)
-	//	{
-	//		CItem* pItem = new CItem;
-	//		pItem->SetChild((*iter).second->m_pModelRootObject, true);
-	//		XMFLOAT3 Position = XMFLOAT3(Random(10.f, 490.f), 0.3f, Random(10.f, 290.f));
-	//		pItem->SetPosition(Position);
-	//		pItem->setItemType(CItem::GoldTimer);
-	//		pItem->setID("<Pocket_Watch>");
-	//		auto iter2 = Context.find(pItem->getID());
-	//		if (iter2 != Context.end())
-	//			pItem->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
-
-	//		pItem->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter).second);
-	//		pItem->Initialize_Shadow((*iter).second, pItem);
-
-	//		m_ItemMap.emplace("GoldTimer" + to_string(i), dynamic_cast<CItem*>(pItem));
-	//	}
-	//}
 }
 
 void CItemShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer* pPlayer)
@@ -155,26 +95,47 @@ void CItemShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer* 
 
 void CItemShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
-	for (auto iter = m_ItemMap.begin(); iter != m_ItemMap.end(); ++iter)
+	auto iter = m_ItemList.find(g_Round);
+	if (iter != m_ItemList.end())
 	{
-		(*iter).second->Animate(m_fElapsedTime);
-		(*iter).second->UpdateTransform(nullptr);
-		(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
+		for (auto iter2 = (*iter).second.begin(); iter2 != (*iter).second.end(); ++iter2)
+		{
+			(*iter2).second->Animate(m_fElapsedTime);
+			(*iter2).second->UpdateTransform(nullptr);
+			(*iter2).second->Render(pd3dCommandList, pCamera, nPipelineState);
+		}
 	}
 }
 
 void CItemShader::ReleaseObjects()
 {
-	for (auto iter = m_ItemMap.begin(); iter != m_ItemMap.end(); )
+	for (auto iter = m_ItemList.begin(); iter != m_ItemList.end(); )
 	{
-		(*iter).second->Release();
-		iter = m_ItemMap.erase(iter);
+		for (auto iter2 = (*iter).second.begin(); iter2 != (*iter).second.end(); )
+		{
+			(*iter2).second->Release();
+			iter2 = (*iter).second.erase(iter2);
+		}
+		(*iter).second.clear();
+		iter = m_ItemList.erase(iter);
 	}
-	m_ItemMap.clear();
+	m_ItemList.clear();
+
+	//for (auto iter = m_RemovedItemList.begin(); iter != m_RemovedItemList.end(); )
+	//{
+	//	for (auto iter2 = (*iter).second.begin(); iter2 != (*iter).second.end();)
+	//	{
+	//		(*iter2).second->Release();
+	//		iter2 = (*iter).second.erase(iter2);
+	//	}
+	//	(*iter).second.clear();
+	//	iter = m_RemovedItemList.erase(iter);
+	//}
+	//m_RemovedItemList.clear();
 
 	for (auto iter = m_RemovedItemList.begin(); iter != m_RemovedItemList.end(); )
 	{
-		(*iter)->Release();
+		(*iter).second->Release();
 		iter = m_RemovedItemList.erase(iter);
 	}
 	m_RemovedItemList.clear();
@@ -182,18 +143,53 @@ void CItemShader::ReleaseObjects()
 
 void CItemShader::ReleaseUploadBuffers()
 {
-	for (auto iter = m_ItemMap.begin(); iter != m_ItemMap.end(); ++iter)
-		(*iter).second->ReleaseUploadBuffers();
+	for (auto iter = m_ItemList.begin(); iter != m_ItemList.end(); ++iter)
+	{
+		for (auto iter2 = (*iter).second.begin(); iter2 != (*iter).second.end(); ++iter2)
+		{
+			(*iter2).second->ReleaseUploadBuffers();
+		}
+	}
 }
 
 void CItemShader::ItemDelete(string key)
 {
-	auto iter = m_ItemMap.find(key);
-	if (iter != m_ItemMap.end())
+	auto iter = m_ItemList.find(g_Round);
+	if (iter != m_ItemList.end())
 	{
-		cout << (*iter).first << " 획득" << endl;
-		// 제거된 아이템 리스트에 넣어줌
-		m_RemovedItemList.emplace_back((*iter).second);
-		iter = m_ItemMap.erase(iter);
+		auto iter2 = (*iter).second.find(key);
+		if (iter2 != (*iter).second.end())
+		{
+			cout << (*iter2).first << " 획득" << endl;
+			
+			//// 각 라운드에 해당하는 제거된 아이템 리스트에 넣어줌
+			RoundItemList list;
+			list.emplace((*iter2).first, (*iter2).second);
+
+			//m_RemovedItemList.emplace((*iter2).first, (*iter2).second);
+			//m_RemovedItemList.emplace(g_Round, list);
+			m_RemovedItemList.emplace((*iter2).first, (*iter2).second);
+			iter2 = (*iter).second.erase(iter2);
+		}
 	}
+}
+
+void CItemShader::ChangeRound()
+{
+	//for (auto iter = m_RemovedItemList.begin(); iter != m_RemovedItemList.end(); ++iter)
+	//{
+	//	unsigned char key = (*iter).first;
+	//	for (auto iter2 = m_RemovedItemList.lower_bound(key); iter2 != m_RemovedItemList.upper_bound(key); )
+	//	{
+	//		// 라운드에 해당하는 아이템들을 복구시킴
+	//		m_ItemList.emplace(key, (*iter2).second);
+	//	}
+	//}
+}
+
+const map<string, CItem*>& CItemShader::getItemList()	const
+{
+	auto iter = m_ItemList.find(g_Round);
+	if (iter != m_ItemList.end())
+		return (*iter).second;
 }

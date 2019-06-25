@@ -44,7 +44,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	// 그래야 맵툴모드에서 적용해서 배치한 오브젝트들만 볼 수 있다.
 
 #ifdef _MAPTOOL_MODE_
-	m_nShaders = m_nShaders - 1;
+	m_nShaders = m_nShaders - 2;
 #endif
 	//카툰렌더링 해야될 쉐이더 개수
 	m_nPostShaders = m_nShaders - 4;
@@ -66,10 +66,9 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 #ifndef _MAPTOOL_MODE_
 	CMapObjectsShader *pMapShader = new CMapObjectsShader;
 	pMapShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
-		m_pResourceManager->getModelMap(), m_pResourceManager->getMapObjectInfo(), m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
+		m_pResourceManager->getModelMap(), m_pResourceManager->getRoundMapObjectInfo(), m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
 	m_ppShaders[index++] = pMapShader;
 	m_ShaderMap.emplace("MapObjects", pMapShader);
-#endif
 
 	//////Foliage는 충돌처리가 필요 없음.. 따라서 Bound 박스 필요  없다. 그림자도 필요업음
 	//CFoliageShader* pFoliageShader = new CFoliageShader;
@@ -79,10 +78,12 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	//m_ShaderMap.emplace("Foliage", pFoliageShader);
 
 	CItemShader* pItemShader = new CItemShader;
-	pItemShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getModelMap(), m_pResourceManager->getItemInfo(),
+	pItemShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getModelMap(), m_pResourceManager->getRoundMapObjectInfo(),
 		m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
 	m_ppShaders[index++] = pItemShader;
 	m_ShaderMap.emplace("Item", pItemShader);
+
+#endif
 
 	/*
 	CSobelCartoonShader *pCartoonShader = new CSobelCartoonShader;
@@ -98,7 +99,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	pAnimationObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getModelMap(), m_pResourceManager->getBoundMap(),nPlayerCount,pTerrainShader->getTerrain());
 //#endif
 	m_ppShaders[index++] = pAnimationObjectShader;
-	m_ShaderMap.emplace("곰돌이", pAnimationObjectShader);
+	m_ShaderMap.emplace("OtherPlayer", pAnimationObjectShader);
 
 	CBombParticleShader* pBombParticleShader = new CBombParticleShader;
 	pBombParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);

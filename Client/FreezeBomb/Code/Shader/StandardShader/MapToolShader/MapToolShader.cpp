@@ -45,15 +45,10 @@ void CMapToolShader::InstallMapObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "SM_Deer");
 		break;
 		// 5
-	case Fence:
-		m_nCurrFenceModelIndex = (m_nCurrFenceModelIndex) % (m_nFenceModelCount)+1;
-		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "LowPolyFence_0" + to_string(m_nCurrFenceModelIndex));
-		break;
-		// 6
 	case Frozen_Road:
 		BuildWall(pd3dDevice, pd3dCommandList);
-		//InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "FrozenRoad");
 		break;
+		// 6
 	case FirePit:
 		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "SM_FirePit");
 		break;
@@ -163,7 +158,7 @@ void CMapToolShader::OutputMapTextFile()
 	// 같은 파일 있는지 확인
 	while(true)
 	{
-		filePath = "../Resource/Position/Surrounding/MapVer" + to_string(index++) + ".txt";
+		filePath = "../Resource/MapObjectInfo/Position/Round" + to_string(index++) + ".txt";
 		ifstream in(filePath);
 		if (!in)
 			break;
@@ -209,7 +204,7 @@ void CMapToolShader::OutputMapBinaryFile()
 	// 같은 파일 있는지 확인
 	while (true)
 	{
-		filePath = "../Resource/Position/Surrounding/MapVer" + to_string(index++) + ".bin";
+		filePath = "../Resource/MapObjectInfo/Position/Round" + to_string(index++) + ".bin";
 		ifstream in(filePath);
 		if (!in)
 			break;
@@ -394,7 +389,7 @@ void CMapToolShader::BuildWall(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 					}
 					else
 					{
-						pGameObject->SetPosition(501, 0, j * size + 4);
+						pGameObject->SetPosition(508, 0, j * size + 4);
 						XMFLOAT3 rotate = XMFLOAT3(0, 1, 0);
 						pGameObject->Rotate(&rotate, 90);
 					}

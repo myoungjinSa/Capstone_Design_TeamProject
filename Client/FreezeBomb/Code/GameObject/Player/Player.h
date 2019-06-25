@@ -80,10 +80,12 @@ public:
 	virtual void OnPrepareRender();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState);
 
-	void Add_Inventory(string key, int ItemType);
-	void Refresh_Inventory(int ItemType);
 	void DecideAnimationState(float fLength);
 	bool AnimationCollision(byte AnimationType);
+
+	void Add_Inventory(string key, int ItemType);
+	void Sub_Inventory(int ItemType);
+	void ChangeRound();
 
 	const map<string, CItem*> get_Special_Inventory()	const { return m_Special_Inventory; }
 	size_t get_Normal_InventorySize() const { return m_Normal_Inventory.size(); }

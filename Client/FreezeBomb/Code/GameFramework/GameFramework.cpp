@@ -33,6 +33,8 @@ byte g_PlayerCharacter = CGameObject::BROWN;
 extern volatile size_t g_TotalSize;
 extern volatile size_t g_FileSize;
 
+unsigned char g_Round = 0;
+
 #ifdef _WITH_SERVER_
 extern volatile bool g_LoginFinished;
 volatile HWND g_hWnd;
@@ -669,7 +671,19 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		{
 			if(ChattingSystem::GetInstance()->IsChattingActive()==false)
 				m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
-			
+		
+			if (wParam == '0')
+			{
+				g_Round = 0;
+				m_pScene->ChangeRound();
+			}
+
+			else if (wParam == '1')
+			{
+				g_Round = 1;
+				m_pScene->ChangeRound();
+			}
+
 		}	
 		break;
 	}
@@ -1965,10 +1979,10 @@ void CGameFramework::FrameAdvance()
 	size_t nLength = _tcslen(m_pszFrameRate);
 	if (m_pPlayer)
 	{
-		//XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
-		//_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T(" (%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
+		XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
+		_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T(" (%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
 	}
-	//::SetWindowText(m_hWnd, m_pszFrameRate);
+	::SetWindowText(m_hWnd, m_pszFrameRate);
 }
 
 #ifdef _WITH_SERVER_

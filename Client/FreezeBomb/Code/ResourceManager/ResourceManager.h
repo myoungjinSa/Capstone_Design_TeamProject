@@ -35,6 +35,7 @@ struct ModelInfo
 	bool m_HasAnimation;
 };
 
+using RoundInfo = multimap<string, MapObjectInfo*>;
 class CTexture;
 class CLoadedModelInfo;
 // 공유 되는 리소스들을 관리하기 위한 클래스
@@ -50,7 +51,6 @@ public:
 	void LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	void LoadMapObjectInfo(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-	void LoadItemInfo(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void LoadBound(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 
 	void ReleaseModel();
@@ -59,9 +59,10 @@ public:
 	const map<string, CTexture*>& getTextureMap()	const { return m_TextureMap; }
 	const map<string, CLoadedModelInfo*>& getModelMap()	const { return m_ModelMap; }
 	const map<string, Bounds*>& getBoundMap()	const { return m_BoundMap; }
-	const multimap<string, MapObjectInfo*>& getMapObjectInfo()	const { return m_MapObjectInfoMultiMap; }
-	const multimap<string, MapObjectInfo*>& getItemInfo()	const { return m_ItemInfoMultiMap; }
+	// 라운드에 해당하는 모델 위치 정보 반환
+	const multimap<string, MapObjectInfo*>& getMapObjectInfo()	const {}
 
+	const unordered_map<unsigned char, RoundInfo>& getRoundMapObjectInfo()	const { return m_RoundInfoMapObjectInfo; }
 private:
 	
 	map<string, CTexture*>					m_TextureMap;
@@ -69,9 +70,10 @@ private:
 	map<string, Bounds*>						m_BoundMap;
 
 	multimap<string, MapObjectInfo*>	m_MapObjectInfoMultiMap;
-	multimap<string, MapObjectInfo*>	m_ItemInfoMultiMap;
 
 	// 리소스 이름들 저장
 	map<string, TextureInfo>		m_TextureInfoMap;
 	map<string, ModelInfo>		m_ModelInfoMap;
+
+	unordered_map<unsigned char, RoundInfo> m_RoundInfoMapObjectInfo;
 };

@@ -29,8 +29,9 @@ D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dCbvGPUDescriptorNextHandle;
 D3D12_CPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvCPUDescriptorNextHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvGPUDescriptorNextHandle;
 
-extern bool g_IsSoundOn;
+extern unsigned char g_Round;
 
+extern bool g_IsSoundOn;
 float CScene::m_TaggerCoolTime = 0.f;
 bool CScene::m_IsPlay = false;
 
@@ -111,15 +112,12 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	int nObjects = 0;
 
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 
-		SkyBox + Terrain + MapObjects + Item + EvilBear + BombParticle + CubeParticle + Snow + TimerUI + ItemUI + Player
-	+ MenuUI );
+		SkyBox + Terrain + MapObjects + Item + EvilBear + BombParticle + CubeParticle + Snow + TimerUI + ItemUI + Player + MenuUI );
 	// Model을 로드할 때, 셰이더 없이 로드할 경우 이것을 사용함!
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
-
 	BuildDefaultLightsAndMaterials();
 	BuildFog();
-
 
 	m_pShaderManager = new CShaderManager;
 	m_pShaderManager->Initialize(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nPlayerCount);
@@ -670,7 +668,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 		if (iter != m.end())
 		{
 			int i = 0;
-			auto MapObjectsList = ((CMapObjectsShader*)((*iter).second))->getSurroundingList();
+			auto MapObjectsList = ((CMapObjectsShader*)((*iter).second))->getMapObjectList();
 
 			// 맵 오브젝트의 충돌 된 오브젝트를 초기화해줌
 			for (auto iter2 = MapObjectsList.begin(); iter2 != MapObjectsList.end(); ++iter2)
@@ -840,7 +838,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 									if (bBreak == false)
 										bBreak = true;
 
-									m_pPlayer->Refresh_Inventory(CItem::NormalHammer);
+									m_pPlayer->Sub_Inventory(CItem::NormalHammer);
 								}
 								m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
 
@@ -891,7 +889,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 		if (iter != m.end())
 		{
 			CItemShader* pItemShader = dynamic_cast<CItemShader*>((*iter).second);
-			for (auto iter2 = pItemShader->getItemMap().begin(); iter2 != pItemShader->getItemMap().end(); ++iter2)
+			for (auto iter2 = pItemShader->getItemList().begin(); iter2 != pItemShader->getItemList().end(); ++iter2)
 			{
 				if ((*iter2).second->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
@@ -914,7 +912,6 @@ void CScene::PlayGetItemEffect()
 {
 	if (m_pSound && g_IsSoundOn == true)
 		m_pSound->PlayIndex(ITEMGET);
-	//cout << "PlayGetItem\n";
 }
 
 void CScene::PlayIceBreakEffect(bool bBreak)
@@ -1030,7 +1027,7 @@ XMFLOAT2 CScene::ProcessNameCard(const int& objNum)
 	XMFLOAT4X4 viewProj = Matrix4x4::Multiply(m_pPlayer->GetCamera()->GetViewMatrix(), m_pPlayer->GetCamera()->GetProjectionMatrix());
 
 	XMFLOAT2 res{NAN,NAN};
-	auto iter = m.find("곰돌이");
+	auto iter = m.find("OtherPlayer");
 	if(iter != m.end())
 	{
 		CGameObject *obj = (*iter).second->m_ppObjects[objNum];
@@ -1075,7 +1072,20 @@ void CScene::SceneSoundPlay()
 	PlayBackgroundMusic();
 	PlayIceBreakEffect(false);
 }
+
 void CScene::SceneSoundStop()
 {
 	m_pSound->AllStop();
+}
+
+void CScene::ChangeRound()
+{
+	map<string, CShader*> m = getShaderManager()->getShaderMap();
+	auto iter = m.find("OtherPlayer");
+	if (iter != m.end())
+	{
+
+	}
+
+	m_pPlayer->ChangeRound();
 }

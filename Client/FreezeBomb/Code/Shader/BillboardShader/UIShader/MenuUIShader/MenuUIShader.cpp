@@ -288,9 +288,6 @@ void CMenuUIShader::ProcessMessage(bool isMouse, UINT message, XMFLOAT2& mousePo
 	case KEYBOARD:
 		ProcessKeyBoardMessage();
 		break;
-
-	default:
-		break;
 	}
 
 }

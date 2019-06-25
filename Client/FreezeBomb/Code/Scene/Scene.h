@@ -117,6 +117,8 @@ public:
 	void SceneSoundPlay();
 	void SceneSoundStop();
 
+	void ChangeRound();
+
 protected:
 	ID3D12RootSignature*						m_pd3dGraphicsRootSignature = NULL;
 
