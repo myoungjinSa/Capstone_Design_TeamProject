@@ -1,10 +1,11 @@
 #include "../Stdafx/Stdafx.h"
 #include <algorithm>
-
+#include "../Network/Network.h"
 #include "Chatting.h"
 
 #pragma comment(lib,"imm32.lib")
 #include <imm.h>
+
 
 
 #ifdef _WITH_DIRECT2D_
@@ -18,37 +19,37 @@ ChattingSystem::~ChattingSystem()
 	//cout << "Chattinng System 소멸" << endl;
 }
 
-void ChattingSystem::Initialize(IDWriteFactory* writeFactory,ID2D1DeviceContext2* pd2dDeviceContext,IWICImagingFactory* pwicImagingFactory)
+void ChattingSystem::Initialize(IDWriteFactory* writeFactory, ID2D1DeviceContext2* pd2dDeviceContext, IWICImagingFactory* pwicImagingFactory)
 {
 	HRESULT hResult;
 	m_pdwChattingFont = new IDWriteTextFormat*[m_maxChatSentenceCount];
 	m_pd2dbrChatText = new ID2D1SolidColorBrush*[m_maxChatSentenceCount];
 
+
+	m_chat = new TCHAR*[m_maxChatSentenceCount];
+
+	for (int i = 0; i < m_maxChatSentenceCount; ++i)
+	{
+		m_chat[i] = new TCHAR[256];
+
+	}
+
 	for (int i = 0; i < m_maxChatSentenceCount; ++i)
 	{
 		hResult = writeFactory->CreateTextFormat(L"고딕", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 30.0f, L"en-US", &m_pdwChattingFont[i]);
-		hResult = m_pdwChattingFont[i]->SetTextAlignment( DWRITE_TEXT_ALIGNMENT_LEADING);
+		hResult = m_pdwChattingFont[i]->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
 		hResult = m_pdwChattingFont[i]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
 		hResult = writeFactory->CreateTextLayout(L"텍스트 레이아웃", 64, m_pdwChattingFont[i], 4096.0f, 4096.0f, &m_pdwChattingLayout);
+		pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black, 1.0f), &m_pd2dbrChatText[i]);
 		//pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrChatText[i]);
 	}
 
 	/////////////////////////////////////////////////////폰트 색상
-	pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrChatText[0]);
-	pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Pink, 1.0f), &m_pd2dbrChatText[1]);
-	pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::DarkBlue, 1.0f), &m_pd2dbrChatText[2]);
-	pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Khaki, 1.0f), &m_pd2dbrChatText[3]);
-	pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::RosyBrown, 1.0f), &m_pd2dbrChatText[4]);
-	pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrChatText[5]);
-	pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrChatText[6]);
-	pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrChatText[7]);
-	pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrChatText[8]);
-	pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black, 1.0f), &m_pd2dbrChatText[9]);
-	
+
 	///////////////////////////////////////////////////////////////////////////////////////////////////////
 	IWICBitmapDecoder *pwicBitmapDecoder;
 	hResult = pwicImagingFactory->CreateDecoderFromFilename(L"../Resource/Png/chatting.png", NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &pwicBitmapDecoder);
-	
+
 	hResult = pd2dDeviceContext->CreateEffect(CLSID_D2D1BitmapSource, &m_pd2dfxBitmapSource);
 
 	IWICBitmapFrameDecode *pwicFrameDecode;
@@ -76,7 +77,7 @@ TCHAR* ChattingSystem::StringToTCHAR(string& s)
 	mbstowcs(t, all, len);
 
 	return (TCHAR*)t;
-	
+
 }
 
 string ChattingSystem::TCHARToString(const TCHAR* ptsz)
@@ -93,47 +94,81 @@ string ChattingSystem::TCHARToString(const TCHAR* ptsz)
 }
 void ChattingSystem::ShowLobbyChatting(ID2D1DeviceContext2* pd2dDeviceContext)
 {
-	if(IsChattingActive())
+	D2D1_RECT_F chatText{ 0,0,0,0 };
+	if (IsChattingActive())
 	{
-		D2D1_RECT_F chatText{ 0,0,0,0 };
+		
 		const TCHAR* t;
 		t = m_wsChat.c_str();
 
-		chatText = D2D1::RectF(680.0f,645.0f , 1200.0f, 645.0f);
-		pd2dDeviceContext->DrawTextW(t, (UINT32)wcslen(t), m_pdwChattingFont[0], &chatText, m_pd2dbrChatText[9]);
+		chatText = D2D1::RectF(680.0f, 645.0f, 1200.0f, 645.0f);
+		pd2dDeviceContext->DrawTextW(t, (UINT32)wcslen(t), m_pdwChattingFont[0], &chatText, m_pd2dbrChatText[0]);
+
+
 	}
+
+	//for(int i = 0;i<m_vecText.size();++i)
+	//{
+	//	chatText = D2D1::RectF(680.0f, 580.0f - (i * 40), 1200.0f, 580.0f - (i * 40));
+
+	//	pd2dDeviceContext->DrawTextW(m_vecText[i].first, m_vecText[i].second, m_pdwChattingFont[i], &chatText, m_pd2dbrChatText[i]);
+	//	
+	//}
+	for (int i=0;i<m_dequeText.size();++i)
+	{
+		chatText = D2D1::RectF(680.0f, 580.0f - (i * 40), 1200.0f, 580.0f - (i * 40));
+
+
+		pd2dDeviceContext->DrawTextW(m_dequeText[i].first, m_dequeText[i].second, m_pdwChattingFont[i], &chatText, m_pd2dbrChatText[i]);
+		
+	}
+
+
+
 }
 
 
 void ChattingSystem::ShowIngameChatting(ID2D1DeviceContext2* pd2dDeviceContext)
 {
-	
-	if(IsChattingActive() && m_pd2dfxBitmapSource)
+
+	if (IsChattingActive() && m_pd2dfxBitmapSource)
 	{
 		D2D_POINT_2F p{ -360.0f,660.0f };
 
-		pd2dDeviceContext->DrawImage(m_pd2dfxBitmapSource,p);
+		pd2dDeviceContext->DrawImage(m_pd2dfxBitmapSource, p);
 		D2D1_RECT_F chatText{ 0,0,0,0 };
 		const TCHAR* t;
 		t = m_wsChat.c_str();
 
-		chatText = D2D1::RectF(20.0f,750.0f , 600.0f, 750.0f);
+		chatText = D2D1::RectF(20.0f, 750.0f, 600.0f, 750.0f);
 		pd2dDeviceContext->DrawTextW(t, (UINT32)wcslen(t), m_pdwChattingFont[0], &chatText, m_pd2dbrChatText[0]);
 	}
 }
 
 
-void ChattingSystem::ProcessChatting(HWND hWnd,WPARAM wParam,LPARAM lParam,bool isInGame)
+void ChattingSystem::ProcessChatting(HWND hWnd, WPARAM wParam, LPARAM lParam, bool isInGame)
 {
-	
+
 	//n_tcscpy_s()
 	if (wParam == VK_RETURN)
 	{
-		m_wsChat.clear();
-		m_wsChat.shrink_to_fit();
+		if (m_wsChat.size() > 0)
+		{
+#ifdef _WITH_SERVER_
+			TCHAR* t;
+			t = const_cast<TCHAR*>(m_wsChat.c_str());
+
+			Network::GetInstance()->SendChattingText((char)Network::GetInstance()->GetMyID(), t);
+
+#endif
+			
+			
+			m_wsChat.clear();
+			m_wsChat.shrink_to_fit();
+		}
 	}
-	
-	
+
+
 	//현재 영문이 활성화 됐을 경우
 	if (GetIMEMode() == IME_CMODE_ALPHANUMERIC)
 	{
@@ -156,7 +191,7 @@ void ChattingSystem::ProcessChatting(HWND hWnd,WPARAM wParam,LPARAM lParam,bool 
 
 		}
 	}
-	else if(GetIMEMode() == IME_CMODE_NATIVE)
+	else if (GetIMEMode() == IME_CMODE_NATIVE)
 	{
 		if (wParam != VK_RETURN)
 		{
@@ -178,14 +213,14 @@ void ChattingSystem::ProcessChatting(HWND hWnd,WPARAM wParam,LPARAM lParam,bool 
 			}
 
 		}
-	
+
 	}
-	if( GetKeyState(VK_BACK) & 0x8000)
+	if (GetKeyState(VK_BACK) & 0x8000)
 	{
-	
+
 		if (m_wsChat.size() > 0)
 		{
-				m_wsChat.pop_back();
+			m_wsChat.pop_back();
 		}
 		if (GetIMEMode() == IME_CMODE_NATIVE)
 		{
@@ -196,11 +231,25 @@ void ChattingSystem::ProcessChatting(HWND hWnd,WPARAM wParam,LPARAM lParam,bool 
 		//return;
 	}
 
-	
+
 }
 
 void ChattingSystem::Destroy()
 {
+
+	for (int i = 0; i < m_maxChatSentenceCount; ++i)
+	{
+		if (m_chat[i])
+		{
+			delete m_chat[i];
+		}
+	}
+	if (m_chat)
+	{
+		delete[] m_chat;
+	}
+
+	m_dequeText.clear();
 	m_wsChat.clear();
 	m_wsChat.shrink_to_fit();
 	for (int i = 0; i < m_maxChatSentenceCount; ++i)
@@ -218,8 +267,30 @@ void ChattingSystem::Destroy()
 }
 #endif
 
+void ChattingSystem::PushChattingText(char* chat)
+{
+
+	ZeroMemory(m_chat[m_nCurrentText], sizeof(256));
+	int nLen = MultiByteToWideChar(CP_ACP, 0, chat, strlen(chat), NULL, NULL);
+	MultiByteToWideChar(CP_ACP, 0, chat, strlen(chat), m_chat[m_nCurrentText], nLen);
+	if(m_dequeText.size() >= m_maxChatSentenceCount-1)
+	{
+		
+		m_dequeText.pop_back();
+
+		m_dequeText.emplace_front(make_pair(m_chat[m_nCurrentText], (UINT32)nLen));
+		m_nCurrentText = (++m_nCurrentText) % m_maxChatSentenceCount;
+	}
+	else
+	{
+		m_dequeText.emplace_front(make_pair(m_chat[m_nCurrentText], (UINT32)nLen));
+		m_nCurrentText = (++m_nCurrentText) % m_maxChatSentenceCount;
+	}
+	
+}
+
 //프로그램 내에서 한영 전환
-void ChattingSystem::SetIMEMode(HWND hWnd,bool bHanMode)
+void ChattingSystem::SetIMEMode(HWND hWnd, bool bHanMode)
 {
 	//해당 윈도우의 Input Context 를 가져오는 함수.
 	//리턴값으로 Input Context의 핸들을 반환한다.
@@ -245,70 +316,70 @@ void ChattingSystem::SetIMEMode(HWND hWnd,bool bHanMode)
 	//hIMC - input context 핸들, NULL이면 현재 active 상태인 context를 설정
 
 	ImmSetConversionStatus(hIMC, m_conv, dwSent);
-	
+
 	//Input Context를 릴리즈 하고, Context에 할당된 메모리를 unlock 한다.
 	//ImmGetContext()를 사용했다면, 반드시 ImmReleaseContext()를 사용해주어야 한다.
 	ImmReleaseContext(hWnd, hIMC);
 
-	
+
 }
 
 
-bool ChattingSystem::ComposeHangeul(HWND hWnd,WPARAM wParam,LPARAM lParam)
+bool ChattingSystem::ComposeHangeul(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
 	HIMC hImc = ImmGetContext(hWnd);
 
 	if (hImc == nullptr)
 		return false;
 
-	
+
 	int nLength = 0;
 	TCHAR wszComp[4] = { 0, };
 
 	//IME 문자 조합이 완료
-	if(lParam & GCS_RESULTSTR)
-	{		
+	if (lParam & GCS_RESULTSTR)
+	{
 		nLength = ImmGetCompositionStringW(hImc, GCS_RESULTSTR, nullptr, 0);
-		if(nLength > 0)
+		if (nLength > 0)
 		{
 			ImmGetCompositionStringW(hImc, GCS_RESULTSTR, wszComp, nLength);
 
-			for(int i = 0;i<nLength ;++i)
+			for (int i = 0; i < nLength; ++i)
 			{
-				if(wszComp[i]!=0)
+				if (wszComp[i] != 0)
 				{
-				
+
 					//조합된 문자 보여지게 하기
 					wstring s(wszComp);
-					if (m_wsChat.size() > 0 && m_composeCount > 0) 
+					if (m_wsChat.size() > 0 && m_composeCount > 0)
 					{
-							m_wsChat.pop_back();
+						m_wsChat.pop_back();
 					}
 					m_wsChat += s;
 
-				//	m_iter = m_wsChat.rbegin();
-					
+					//	m_iter = m_wsChat.rbegin();
+
 					m_composeCount = 0;
 					//return wszComp;
 				}
 			}
 		}
 	}
-	else if(lParam & GCS_COMPSTR)
+	else if (lParam & GCS_COMPSTR)
 	{
 		nLength = ImmGetCompositionStringW(hImc, GCS_COMPSTR, nullptr, 0);
 
-		
-		if(nLength > 0)
+
+		if (nLength > 0)
 		{
 			ImmGetCompositionStringW(hImc, GCS_COMPSTR, wszComp, nLength);
 
 
-			for(int i=0;i<nLength;++i)
+			for (int i = 0; i < nLength; ++i)
 			{
-				if(wszComp[i] != 0)
+				if (wszComp[i] != 0)
 				{
-				
+
 					wstring s(wszComp);
 					if (m_composeCount > 0 && m_wsChat.size() > 0)
 					{
@@ -319,15 +390,16 @@ bool ChattingSystem::ComposeHangeul(HWND hWnd,WPARAM wParam,LPARAM lParam)
 
 					m_composeCount++;
 					//조합 중인 문자가 보여지는 코드 삽입
-					
-					
-				}				
+
+
+				}
 			}
 		}
 	}
 
 	//IME핸들 해제
-	ImmReleaseContext(hWnd,hImc);
+	ImmReleaseContext(hWnd, hImc);
 	return true;
-	
+
 }
+

@@ -78,6 +78,8 @@ public:
 	char role;
 	char matID;
 
+	char nickname[32];
+	//wchar_t nickname[12];
 	char animation;			//애니메이션 index
 	float animationTime;	//애니메이션 시간
 	bool isReady;
@@ -89,6 +91,7 @@ public:
 		specialItem = ITEM::NONEITEM;
 		role = ROLE::RUNNER;
 		isReady = false;
+		ZeroMemory(nickname, sizeof(wchar_t) * 12);
 		ZeroMemory(&over_ex.messageBuffer, sizeof(over_ex.messageBuffer));
 		ZeroMemory(&packet_buffer, sizeof(packet_buffer));
 		over_ex.dataBuffer.len = MAX_BUFFER;
@@ -135,10 +138,15 @@ public:
 public:
 	void SendAccessComplete(char client);
 	void SendAccessPlayer(char toClient, char fromClient);
+	void SendClientLobbyIn(char toClient, char fromClient,char *name);
+	void SendClientLobbyOut(char toClient, char fromClient);
+	void SendChattinPacket(char to, char from, char *message);
 	void SendPlayerAnimation(char toClient, char fromCllient);
 	void SendPutPlayer(char toClient, char fromClient);
 	void SendRoundStart(char client);
 	void SendPleaseReady(char client);
+	void SendReadyStatePacket(char toClient, char fromClient);
+	void SendUnReadyStatePacket(char toClient, char fromClient);
 	void SendMovePlayer(char to,char object);
 	void SendRemovePlayer(char toClient, char fromClient);
 	void SendRoundEnd(char client);

@@ -6,7 +6,7 @@
 #include "../GameObject/Player/Player.h"
 #include "../Scene/LobbyScene/LobbyScene.h"
 #include "../Scene/LoadingScene/LoadingScene.h"
-#include "../Scene/LoginScene/LoginScene.h"
+#include "../Scene/LoginScene/IPScene.h"
 #include "../ShaderManager/ShaderManager.h"
 #include "../Shader/TerrainShader/TerrainShader.h"
 #include "../GameObject/Terrain/Terrain.h"
@@ -18,7 +18,9 @@
 #include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
 #include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
 #include "../Shader/BillboardShader/UIShader/CharacterSelectUIShader/CharacterSelectUIShader.h"
-
+#include "../Scene/LoginScene/IDScene/LoginScene.h"
+#include "../InputSystem/IDInputSystem/IDInputSystem.h"
+#include "../Shader/BillboardShader/UIShader/LoginShader/IDShader.h"
 
 // 전체모드할경우 주석풀으셈
 //#define FullScreenMode
@@ -610,11 +612,29 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 			m_pLobbyScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam,m_nState);
 		break;
 	}
+#ifdef _WITH_SERVER_
 	case LOGIN:
 	{
-		
+		if (m_pLoginScene)
+		{
+			int ret = 0;
+			ret = m_pLoginScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+			if(ret == CIDShader::state::REQUEST_LOGIN)
+			{
+				
+				Network::GetInstance()->SendNickName(m_pPlayer->GetPlayerID(), m_pLoginScene->GetIDInstance()->GetPlayerName());
+
+			}
+			
+			if (m_pLoginScene->IsLogin())
+			{
+				m_nState = CHARACTER_SELECT;
+				m_pPlayer->SetPlayerName(m_pLoginScene->GetIDInstance()->GetPlayerName());
+			}
+		}
 		break;
 	}
+#endif
 	default:
 		break;
 	}
@@ -737,6 +757,13 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_HANGEUL:
 			(m_bHangeul) ? m_bHangeul = false : m_bHangeul = true;
 			ChattingSystem::GetInstance()->SetIMEMode(hWnd, m_bHangeul);
+#ifdef _WITH_SERVER_
+			if (m_nState == LOGIN)
+			{
+				if (m_pLoginScene)
+					m_pLoginScene->GetIDInstance()->SetIMEMode(hWnd, m_bHangeul);
+			}
+#endif
 			break;
 #endif
 
@@ -891,10 +918,10 @@ bool CGameFramework::BuildObjects()
 {
 #ifdef _WITH_SERVER_
 	//네트워크 연결을 위한 쓰레드
-	m_nState = LOGIN;
+	m_nState = CONNECT;
 
 	
-	ProcessLogin();
+	InitializeIPSystem();
 
 	if (Network::GetInstance()->connectToServer(m_hWnd) == false)
 	{
@@ -919,13 +946,18 @@ bool CGameFramework::BuildObjects()
 
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
+#ifdef _WITH_SERVER_
+	m_pLoginScene = new CLoginScene;
+	if (m_pLoginScene)
+	{
+		m_pLoginScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pdWriteFactory, m_pd2dDeviceContext);
+	}
+#endif
 	m_pLobbyScene = new CLobbyScene;
 	if(m_pLobbyScene)
 	{
 		m_pLobbyScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
-		
-		m_nState = CHARACTER_SELECT;
-
+	
 	}
 
 	const int nPlayerCount = 6;		//임시로 플레이어 개수 지정. 
@@ -960,9 +992,11 @@ bool CGameFramework::BuildObjects()
 			if (iter2 != BoundMap.end())
 				pPlayer->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
 
+#ifndef _WITH_SERVER_
 #ifdef _MAPTOOL_MODE_
 			m_pMapToolShader = new CMapToolShader;
 			m_pMapToolShader->BuildObjects(m_pScene->getShaderManager()->getResourceManager()->getModelMap());
+#endif
 #endif
 		}
 	}
@@ -977,6 +1011,7 @@ bool CGameFramework::BuildObjects()
 	for (auto& thread : loadingThread)
 		thread.join();
 
+
 	//사운드 스레드 조인
 	for (auto & th : soundThreads)
 		th.join();
@@ -986,7 +1021,11 @@ bool CGameFramework::BuildObjects()
 	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 
 	WaitForGpuComplete();
-
+#ifdef _WITH_SERVER_
+	m_nState = LOGIN;
+#else
+	m_nState = CHARACTER_SELECT;
+#endif
 	if (m_pScene)
 		m_pScene->ReleaseUploadBuffers();
 	if (m_pPlayer)
@@ -1040,10 +1079,15 @@ void CGameFramework::ReleaseObjects()
 		delete m_pLoadingScene;
 	}
 #ifdef _WITH_SERVER_
-	if (m_pLoginScene)
+	if(m_pLoginScene)
 	{
 		m_pLoginScene->ReleaseObjects();
 		delete m_pLoginScene;
+	}
+	if (m_pIPScene)
+	{
+		m_pIPScene->ReleaseObjects();
+		delete m_pIPScene;
 	}
 #endif
 }
@@ -1287,12 +1331,43 @@ void CGameFramework::ShowReadyText()
 	m_pd2dDeviceContext->DrawTextW(ready, (UINT32)wcslen(ready), m_pdwFont[0], &rcText, m_pd2dbrText[1]);
 }
 
+
 void CGameFramework::ShowPlayers()
 {
 	D2D1_RECT_F rcText{ 0,0,0,0 };
+	D2D1_RECT_F readyText{ 0,0,0,0 };
 
+#ifdef _WITH_SERVER_
+	WCHAR* ready = _T("준비");
+	
+	if (m_mapClients.size() > 0)
+	{
+		wchar_t player[16];
+		int i = 0;
+		for (const auto& id : m_mapClients)
+		{
+			rcText = D2D1::RectF(0.0f, 0.0f, 600.0f, ((i*110.0f)+290.0f) );
+			int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[id.first].name, strlen(m_mapClients[id.first].name), NULL, NULL);
+			MultiByteToWideChar(CP_ACP, 0, m_mapClients[id.first].name, strlen(m_mapClients[id.first].name), player, nLen);
+			m_pd2dDeviceContext->DrawTextW(player, nLen, m_pdwFont[i+1], &rcText, m_pd2dbrText[i+1]);
+			
+			if (m_mapClients[id.first].isReady)
+			{
+				readyText = D2D1::RectF(0.0f, 0.0f, 200.0f, ((i*110.0f) + 290.0f));
+				m_pd2dDeviceContext->DrawTextW(ready, (UINT32)wcslen(ready), m_pdwFont[0], &readyText, m_pd2dbrText[0]);
+
+			}
+			i++;
+		}
+	}
+
+#else
 	rcText = D2D1::RectF(0.0f, 0.0f,600.0f,290.0f);
 	m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
+
+#endif
+	
+
 
 }
 void CGameFramework::ProcessDirect2D()
@@ -1319,8 +1394,8 @@ void CGameFramework::ProcessDirect2D()
 		CShader* m = m_pLobbyScene->m_ppShaders[CLobbyScene::CHARACTER_SELECT];
 		bool isReady = dynamic_cast<CCharacterSelectUIShader*>(m)->IsReady();
 
-		if (isReady)
-			ShowReadyText();
+		//if (isReady)
+			//ShowReadyText();
 
 		
 		ShowPlayers();
@@ -1338,9 +1413,17 @@ void CGameFramework::ProcessDirect2D()
 		ShowScoreboard();
 		break;
 	}
+#ifdef _WITH_SERVER_
 	case LOGIN:
+	{
+		if(m_pLoginScene)
+		{
+			m_pLoginScene->GetIDInstance()->ShowIDInput(m_pd2dDeviceContext);
+		}
 
 		break;
+	}	
+#endif
 	default:
 		break;
 
@@ -1369,14 +1452,14 @@ void CGameFramework::ProcessDirect2D()
 #endif
 #ifdef _WITH_SERVER_
 
-void CGameFramework::ProcessLogin() 
+void CGameFramework::InitializeIPSystem() 
 {
 	g_hWnd = m_hWnd;
 	if (m_pLoginCommandList)
 		m_pLoginCommandList->Reset(m_pLoginCommandAllocator, nullptr);
 
-	m_pLoginScene = new CLoginScene;
-	m_pLoginScene->BuildObjects(m_pd3dDevice, m_pLoginCommandList,m_pdWriteFactory,m_pd2dDeviceContext,m_pwicImagingFactory);
+	m_pIPScene = new CIPScene;
+	m_pIPScene->BuildObjects(m_pd3dDevice, m_pLoginCommandList,m_pdWriteFactory,m_pd2dDeviceContext,m_pwicImagingFactory);
 
 	m_pLoginCommandList->Close();
 
@@ -1384,7 +1467,7 @@ void CGameFramework::ProcessLogin()
 	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dLoginCommandLists);
 	WaitForGpuComplete();
 
-	loginThread.emplace_back(thread{ &CGameFramework::Login_Thread,this,m_pLoginScene});
+	loginThread.emplace_back(thread{ &CGameFramework::Connect_Thread,this,m_pIPScene});
 
 	//loginThread.emplace_back(thread { &CGameFramework::ConnectToServer,this,*Network::GetInstance(),m_hWnd});
 	//OnProcessingMouseMessage(m_hWnd,)
@@ -1401,6 +1484,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		pAC = reinterpret_cast<SC_PACKET_ACCESS_COMPLETE*>(packet);
 		//플레이어 아이디 Set
 		m_pPlayer->SetPlayerID(pAC->myId);
+		Network::GetInstance()->SetMyID(pAC->myId);
 		hostId = pAC->hostId;
 		cout << "플레이어 ID -" << (int)m_pPlayer->GetPlayerID() << "\n";
 
@@ -1412,31 +1496,58 @@ void CGameFramework::ProcessPacket(char *packet)
 		//SC_PACKET_ACCESS_PLAYER* pAP = m_Network.GetAP();
 		pAP = reinterpret_cast<SC_PACKET_ACCESS_PLAYER*>(packet);
 
-
-
-		// 여기서 접속한 플레이어들의 초기 정보를 받아 저장해놓고
-		// Ingame 시작할 때, clientCount 기반해서 실제 객체 만들어주면 좋을 듯. 상의필요.
-
-		//if (pAP->id == m_pPlayer->GetPlayerID())
-		//{
-		//	MappingUserToEvilbear(pAP->id, 5/*현재 접속한 유저 수를 받아야함 */);
-
-		//}
-
-		//else if (pAP->id < MAX_USER)
-		//{
-		//	auto iter = m_pScene->getShaderManager()->getShaderMap().find("곰돌이");
-
-
-		//	auto vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
-
-		//	for (int i = 0; i < vec.size(); ++i)
-		//		cout << "적 캐릭터 id - " << vec[i] << "\n";
-		//
-		//}
-		
-		
 		printf("Access Player ID: %d\n", pAP->id);
+		break;
+	}
+	case SC_CLIENT_LOBBY_IN:
+	{
+		pLI = reinterpret_cast<SC_PACKET_LOBBY_IN*>(packet);
+
+	//	if (pLI->id == m_pPlayer->GetPlayerID())
+	//	{
+
+		//}
+	//	else if (pLI->id < MAX_USER)
+	//	{
+
+			m_mapClients.emplace((int)pLI->id,pLI->client_state);
+
+			cout << pLI->client_state.name << endl;
+	//	}
+		break;
+	}
+	case SC_CLIENT_LOBBY_OUT:
+	{
+		
+		break;
+	}
+	case SC_READY_STATE:
+	{
+		pReady = reinterpret_cast<SC_PACKET_READY_STATE*>(packet);
+
+		m_mapClients[pReady->id].isReady = true;
+
+		break;
+	}
+	case SC_UNREADY_STATE: 
+	{
+		pNotReady = reinterpret_cast<SC_PACKET_UNREADY_STATE*>(packet);
+
+		m_mapClients[pReady->id].isReady = false;
+
+
+		break;
+	}
+	case SC_CHATTING:
+	{
+		pCh = reinterpret_cast<SC_PACKET_CHATTING*>(packet);
+
+		
+			
+		ChattingSystem::GetInstance()->PushChattingText(pCh->message);
+		
+		
+
 		break;
 	}
 	case SC_PLEASE_READY:
@@ -1568,7 +1679,8 @@ void CGameFramework::ProcessPacket(char *packet)
 		pPA = reinterpret_cast<SC_PACKET_PLAYER_ANIMATION*>(packet);
 		if (pPA->id == m_pPlayer->GetPlayerID())
 		{
-
+			m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
+			m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
 		}
 		else if (pPA->id < MAX_USER)
 		{
@@ -1580,7 +1692,10 @@ void CGameFramework::ProcessPacket(char *packet)
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
 				(*iter).second->m_ppObjects[id]->SetTrackAnimationSet(0, animNum);
-				//(*iter).second->m_ppObjects[id]->SetTrackAnimationPosition(0, animTime);
+				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)animNum);
+				if((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::RAISEHAND)
+					(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackPosition(0, 0.0f);
+				
 			}
 		}
 
@@ -1638,6 +1753,32 @@ void CGameFramework::ProcessPacket(char *packet)
 		break;
 	}
 	}
+}
+
+void CGameFramework::ProcessLogin()
+{
+	D3D12_VIEWPORT	d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
+	D3D12_RECT		d3dScissorRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
+	m_pd3dCommandList->RSSetViewports(1, &d3dViewport);
+	m_pd3dCommandList->RSSetScissorRects(1, &d3dScissorRect);
+	if (m_pLoginScene)
+	{
+		m_pLoginScene->Render(m_pd3dCommandList);
+	}
+	//::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+		
+	HRESULT hResult = m_pd3dCommandList->Close();
+
+	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
+	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+	
+	WaitForGpuComplete();
+
+#ifdef _WITH_DIRECT2D_
+
+	ProcessDirect2D();
+
+#endif
 }
 #endif
 
@@ -1736,7 +1877,7 @@ void CGameFramework::ProcessLobby()
 
 	}
 
-	::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+	//::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 		
 	HRESULT hResult = m_pd3dCommandList->Close();
 
@@ -1788,10 +1929,18 @@ void CGameFramework::FrameAdvance()
 	case CHARACTER_SELECT:
 	{
 		ProcessLobby();
-	}
 		break;
 	}
-	
+#ifdef _WITH_SERVER_
+	case LOGIN:
+	{
+		ProcessLogin();
+		
+		break;
+	}
+#endif
+	}
+
 
 #ifdef _WITH_PRESENT_PARAMETERS
 	DXGI_PRESENT_PARAMETERS dxgiPresentParameters;
@@ -1823,6 +1972,7 @@ void CGameFramework::FrameAdvance()
 }
 
 #ifdef _WITH_SERVER_
+
 void CGameFramework::CreateLoginCommandList()
 {
 	HRESULT Result;
@@ -1833,7 +1983,7 @@ void CGameFramework::CreateLoginCommandList()
 
 }
 
-void CGameFramework::Login_Thread(CLoginScene* pLoginScene)
+void CGameFramework::Connect_Thread(CIPScene* pLoginScene)
 {
 
 	m_GameTimer.Reset();
@@ -1933,6 +2083,8 @@ void CGameFramework::Login_Thread(CLoginScene* pLoginScene)
 	}
 
 }
+
+
 #endif
 void CGameFramework::Worker_Thread()
 {
@@ -1951,7 +2103,7 @@ void CGameFramework::Worker_Thread()
 
 	while (true)
 	{
-		m_GameTimer.Tick(60.0f);
+		m_GameTimer.Tick(0.0f);
 		float elapsedTime = m_GameTimer.GetTimeElapsed();
 
 		m_pLoadingScene->AnimateObjects(m_pLoadingCommandList, elapsedTime);
@@ -2008,7 +2160,6 @@ void CGameFramework::Worker_Thread()
 		m_pdxgiSwapChain->Present(0, 0);
 
 		MoveToNextFrame();
-
 
 		double totalSize = g_TotalSize;
 		double fileSize = g_FileSize;

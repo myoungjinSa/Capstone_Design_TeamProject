@@ -14,15 +14,11 @@ class CSobelCartoonShader;
 class CLoadingScene;
 class CLobbyScene;
 class ChattingSystem;
+class CIPScene;
 class CLoginScene;
 
 
-struct clientsInfo
-{
-	int		id;
-	bool	isReady;
-	_TCHAR	name[256];
-};
+struct clientsInfo;
 
 class CGameFramework
 {
@@ -58,8 +54,10 @@ public:
 	
 #ifdef _WITH_SERVER_
 	//Network*getNetwork() { return &m_Network; }
+	CLoginScene* GetLoginScene()const { return m_pLoginScene; }
 	void ProcessPacket(char *ptr);
 	void CreateLoginCommandList();
+	void InitializeIPSystem();
 	void ProcessLogin();
 #endif
 	void ChangeSwapChainState();
@@ -84,6 +82,8 @@ public:
 	bool IsHangeul() { return m_bHangeul; }
 	void SetHangeul(bool han) { m_bHangeul = han; }
 
+	int GetGameState() const { return m_nState; };
+	
 #ifdef _MAPTOOL_MODE_
 	void OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 #endif	
@@ -91,7 +91,7 @@ public:
 	
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	bool IsInGame(); 
-	enum GAMESTATE {CHARACTER_SELECT=0, INGAME,PAUSE,OPTION,LOGIN,LOADING};
+	enum GAMESTATE {CHARACTER_SELECT=0, INGAME,PAUSE,OPTION,CONNECT,LOGIN,LOADING};
 private:
 	HINSTANCE					m_hInstance;
 	HWND							m_hWnd;
@@ -196,7 +196,7 @@ private:
 
 #ifdef _WITH_SERVER_
 	//클라이언트 정보
-	clientsInfo						m_PlayerInfo[MAX_USER];
+	unordered_map<int,clientsInfo>						m_mapClients;
 	//Network m_Network;
 	int hostId;
 	int clientCount = 0;
@@ -212,15 +212,23 @@ private:
 	SC_PACKET_ROUND_START *pRS = NULL;
 	SC_PACKET_STOP_RUN_ANIM *pSTA = NULL;
 	SC_PACKET_PLAYER_ANIMATION* pPA = NULL;
+	SC_PACKET_LOBBY_IN *pLI = NULL;
+	SC_PACKET_LOBBY_OUT *pLO = NULL;
+	SC_PACKET_CHATTING * pCh = NULL;
+	SC_PACKET_READY_STATE* pReady = NULL;
+	SC_PACKET_UNREADY_STATE* pNotReady = NULL;
+
+
 	bool isCharacterSelectDone = false;
 
 	ID3D12CommandAllocator*					m_pLoginCommandAllocator = nullptr;
 	ID3D12GraphicsCommandList*				m_pLoginCommandList = nullptr;
 
-	CLoginScene*				m_pLoginScene{ nullptr };
+	CLoginScene*			m_pLoginScene{ nullptr };
+	CIPScene*				m_pIPScene{ nullptr };
 	vector<thread> loginThread;
 	vector<thread> connectThread;
-	void Login_Thread(CLoginScene* loginScene);
+	void Connect_Thread(CIPScene* loginScene);
 #endif
 	//사운드 쓰레드 풀
 	vector<thread> soundThreads;

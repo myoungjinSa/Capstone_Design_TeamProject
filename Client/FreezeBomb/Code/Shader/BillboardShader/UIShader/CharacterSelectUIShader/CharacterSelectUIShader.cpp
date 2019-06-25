@@ -299,6 +299,7 @@ void CCharacterSelectUIShader::DecideTextureByCursorPosition(CSoundSystem* sound
 			{
 #ifdef _WITH_SERVER_
 				isCharacterSelectDone = false;
+				Network::GetInstance()->SendNotReady();
 #endif
 				m_currentTexture = BASE;
 			}

@@ -3,6 +3,7 @@
 #include "../Texture/Texture.h"
 #include "../Scene/Scene.h"
 #include "../GameObject/Foliage/Foliage.h"
+#include "../Material/Material.h"
 
 volatile size_t g_TotalSize = 30062795 + 88336 + 74552;
 volatile size_t g_FileSize = 0;
@@ -66,6 +67,8 @@ void CResourceManager::PrepareLoad()
 	m_TextureInfoMap.emplace("Win", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Text/Win.dds", 22));
 	m_TextureInfoMap.emplace("Lose", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Text/Lose.dds", 22));
 
+	//m_TextureInfoMap.emplace("UseTimer_Effect", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Effect/airflow_01.dds", 25));
+
 	size_t total = 0;
 	for (auto iter = m_TextureInfoMap.begin(); iter != m_TextureInfoMap.end(); ++iter)
 	{
@@ -122,6 +125,10 @@ void CResourceManager::PrepareLoad()
 
 	// 3
 	m_ModelInfoMap.emplace("SM_FirePit", ModelInfo("../Resource/Models/FirePit.bin", false));
+
+	//Effect 1
+	//m_ModelInfoMap.emplace("wind", ModelInfo("../Resource/Models/wind.bin", false));
+
 }
 
 //void CResourceManager::CreateOffScreenRenderTargeViews(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList,int clientWidth,int clientHeight)
@@ -162,6 +169,7 @@ void CResourceManager::LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	{
 		CLoadedModelInfo* pModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, const_cast<char*>((*iter).second.m_Filename.c_str()), nullptr, (*iter).second.m_HasAnimation);
 		m_ModelMap.emplace((*iter).first, pModel);
+
 	}
 }
 

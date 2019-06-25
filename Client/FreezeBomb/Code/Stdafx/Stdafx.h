@@ -16,13 +16,14 @@
 #include <math.h>
 
 #include <string>
-
+#include <array>
 #include <wrl.h>
 #include <shellapi.h>
 
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <unordered_map>
 #include <list>
 #include <map>
 #include <random>
@@ -71,6 +72,11 @@ extern HINSTANCE						ghAppInstance;
 //#define _WITH_SYNCH_SWAPCHAIN
 #define _WITH_DIRECT2D_
 
+
+// 전체모드할경우 주석풀으셈
+//#define FullScreenMode
+
+
 //맵툴 모드
 //#define _MAPTOOL_MODE_
 
@@ -98,7 +104,7 @@ enum PIPELINESTATE_TYPE { GameObject, GameObject_Shadow };
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "windowscodecs.lib")
 
-//#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
+#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 
 // TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
 

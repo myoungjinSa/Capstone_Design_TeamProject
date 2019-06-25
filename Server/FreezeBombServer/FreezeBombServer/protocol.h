@@ -3,14 +3,21 @@
 //#include <windows.h>
 //#include <DirectXMath.h>
 //#define SERVER_IP "192.168.22.199"
-#define SERVER_IP "127.0.0.1"
+//#define SERVER_IP "127.0.0.1"
 //#define SERVER_IP "192.168.60.161"
 //#define SERVER_IP "192.168.200.103"
+#define SERVER_IP "192.168.0.34"
 
 using namespace std;
 //using namespace DirectX;
 
 constexpr int MAX_USER = 6;
+
+struct clientsInfo
+{
+	bool	isReady;
+	char	name[32];
+};
 
 
 enum ROLE { RUNNER, BOMBER };
@@ -19,6 +26,8 @@ enum PLAYER_NUM { P1, P2, P3, P4, P5, P6 };						// 몇번 플레이어 인지
 enum PLAYER_STATE { NONESTATE, ICE, BREAK };							// 플레이어 상태
 enum STATE_TYPE { Init, Run, Over };
 enum MATERIAL { PINK, BROWN, WHITE, BLACK, BLUE, PANDA, ICEMAT };
+
+constexpr int MAX_CHATTING_LENGTH = 100;
 
 constexpr int SC_ACCESS_COMPLETE = 1;
 constexpr int SC_PUT_PLAYER = 2;
@@ -33,6 +42,11 @@ constexpr int SC_ACCESS_PLAYER = 10;
 constexpr int SC_COMPARE_TIME = 11;
 constexpr int SC_STOP_RUN_ANIM = 12;
 constexpr int SC_ANIMATION_INFO = 13;
+constexpr int SC_CLIENT_LOBBY_IN = 14;
+constexpr int SC_CLIENT_LOBBY_OUT = 15;
+constexpr int SC_CHATTING = 16;
+constexpr int SC_READY_STATE = 17;
+constexpr int SC_UNREADY_STATE = 18;
 
 constexpr int CS_UP_KEY = 0;
 constexpr int CS_DOWN_KEY = 1;
@@ -43,9 +57,12 @@ constexpr int CS_UPRIGHT_KEY = 5;
 constexpr int CS_DOWNLEFT_KEY = 6;
 constexpr int CS_DOWNRIGHT_KEY = 7;
 constexpr int CS_READY = 8;
-constexpr int CS_REQUEST_START = 9;
-constexpr int CS_RELEASE_KEY = 10;
-constexpr int CS_ANIMATION_INFO = 11;
+constexpr int CS_UNREADY = 9;
+constexpr int CS_REQUEST_START = 10;
+constexpr int CS_RELEASE_KEY = 11;
+constexpr int CS_ANIMATION_INFO = 12;
+constexpr int CS_NICKNAME_INFO = 13;
+constexpr int CS_CHATTING = 14;
 
 
 
@@ -73,7 +90,22 @@ struct SC_PACKET_ACCESS_PLAYER
 	char id;
 };
 
+//입장한 클라이언트의 정보
+struct SC_PACKET_LOBBY_IN
+{
+	char size;
+	char type;
+	char id;
+	clientsInfo client_state;
+};
 
+//퇴장한 클라이언트의 정보
+struct SC_PACKET_LOBBY_OUT
+{
+	char size;
+	char type;
+	char id;
+};
 
 struct SC_PACKET_PLEASE_READY
 {
@@ -145,6 +177,11 @@ struct CS_PACKET_READY
 	char type;
 	char matID;
 };
+struct CS_PACKET_UNREADY
+{
+	char size;
+	char type;
+};
 
 struct CS_PACKET_REQUEST_START
 {
@@ -173,6 +210,26 @@ struct CS_PACKET_RELEASE_KEY
 	char size;
 	char type;
 };
+
+// 플레이어 닉네임 서버에 통보
+struct CS_PACKET_NICKNAME
+{
+	char size;
+	char type;
+	char id;
+	char padding;	//4바이트 정렬을위한 
+	char name[24];
+};
+
+struct CS_PACKET_CHATTING
+{
+	char size;
+	char type;
+	char id;
+	char padding;
+	char chatting[MAX_CHATTING_LENGTH];
+};
+
 //////////////////////////////////////////////////////
 
 //[서버->클라]
@@ -259,6 +316,28 @@ struct SC_PACKET_STOP_RUN_ANIM
 	char id;
 };
 
+//현재 Ready중인 플레이어의 정보를 담은 패킷
+struct SC_PACKET_READY_STATE
+{
+	char size;
+	char type;
+	char id;
+};
+
+struct SC_PACKET_UNREADY_STATE
+{
+	char size;
+	char type;
+	char id;
+};
+struct SC_PACKET_CHATTING
+{
+	char size;
+	char type;
+	char id;
+	char padding;
+	char message[MAX_CHATTING_LENGTH];
+};
 // 플레이어가 아이템 사용 시
 struct SC_PACKET_USE_ITEM
 {

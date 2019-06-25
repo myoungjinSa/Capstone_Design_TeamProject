@@ -213,14 +213,29 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\LobbyShader\LobbyShader.cpp">
       <Filter>Code\Shader\BillboardShader\UIShader\LobbyShader</Filter>
     </ClCompile>
-    <ClCompile Include="..\Code\Scene\LoginScene\LoginScene.cpp">
-      <Filter>Code\Scene\LoginScene</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\CLoginShader.cpp">
-      <Filter>Code\Shader\BillboardShader\UIShader\LoginShader</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Code\InputSystem\LoginInputSystem.cpp">
+    <ClCompile Include="..\Code\InputSystem\IPInputSystem.cpp">
       <Filter>Code\InputSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Scene\LoginScene\IPScene.cpp">
+      <Filter>Code\Scene\LoginScene\IPScene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\IPShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\LoginShader\IPShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\IDShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\LoginShader\IDShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Scene\LoginScene\IDScene\LoginScene.cpp">
+      <Filter>Code\Scene\LoginScene\IDScene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\InputSystem\IDInputSystem\IDInputSystem.cpp">
+      <Filter>Code\InputSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\StandardShader\EffectShader\MagicRingEffectShader.cpp">
+      <Filter>Code\Shader\StandardShader\MagicRingEffectShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Effect\MagicRing\MagicRing.cpp">
+      <Filter>Code\GameObject\Effect\MagicRing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -437,14 +452,29 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\LobbyShader\LobbyShader.h">
       <Filter>Code\Shader\BillboardShader\UIShader\LobbyShader</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\Scene\LoginScene\LoginScene.h">
-      <Filter>Code\Scene\LoginScene</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\CLoginShader.h">
-      <Filter>Code\Shader\BillboardShader\UIShader\LoginShader</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Code\InputSystem\LoginInputSystem.h">
+    <ClInclude Include="..\Code\InputSystem\IPInputSystem.h">
       <Filter>Code\InputSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Scene\LoginScene\IPScene.h">
+      <Filter>Code\Scene\LoginScene\IPScene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\IPShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\LoginShader\IPShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\IDShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\LoginShader\IDShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Scene\LoginScene\IDScene\LoginScene.h">
+      <Filter>Code\Scene\LoginScene\IDScene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\InputSystem\IDInputSystem\IDInputSystem.h">
+      <Filter>Code\InputSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\StandardShader\EffectShader\MagicRingEffectShader.h">
+      <Filter>Code\Shader\StandardShader\MagicRingEffectShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Effect\MagicRing\MagicRing.h">
+      <Filter>Code\GameObject\Effect\MagicRing</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -658,14 +688,35 @@
     <Filter Include="Code\Shader\BillboardShader\UIShader\LobbyShader">
       <UniqueIdentifier>{6dd06484-5a0a-4d05-bb04-9e096c466b8c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Scene\LoginScene">
-      <UniqueIdentifier>{850ff8d7-5488-4270-864c-e453540fde10}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\Shader\BillboardShader\UIShader\LoginShader">
       <UniqueIdentifier>{a01ef6f2-a3a3-4630-aa87-d8e01b1f5029}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\InputSystem">
       <UniqueIdentifier>{ec770303-1375-4d39-b4db-4c4c55671359}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Scene\LoginScene">
+      <UniqueIdentifier>{850ff8d7-5488-4270-864c-e453540fde10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Scene\LoginScene\IPScene">
+      <UniqueIdentifier>{f16e4e6f-000d-4ab8-bed7-53a5b467b097}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Scene\LoginScene\IDScene">
+      <UniqueIdentifier>{19049648-1f4c-4ef7-b880-dc2a4850211f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\LoginShader\IPShader">
+      <UniqueIdentifier>{99f1f977-2ff7-4084-aec4-b44d9c423eac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\LoginShader\IDShader">
+      <UniqueIdentifier>{6859334e-0e8c-419b-b7e0-d731c5961c85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\StandardShader\MagicRingEffectShader">
+      <UniqueIdentifier>{279f4d7d-9984-4aa7-9653-2bafc5f95364}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Effect">
+      <UniqueIdentifier>{b30a3ebc-ebf3-47de-a273-b104ffee1901}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Effect\MagicRing">
+      <UniqueIdentifier>{ab84f698-689b-4f9d-b888-2c56a3856ee9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

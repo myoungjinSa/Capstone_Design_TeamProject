@@ -119,11 +119,27 @@ void Network::ReadPacket()
 	}
 }
 
-
+//8바이트 이상일때는 이 SendPacket을 사용하여야한다.
+void Network::SendPacket(DWORD dataBytes)
+{
+	DWORD iobyte = 0;
+	
+	send_wsabuf.len = dataBytes;
+	int retval = WSASend(sock, &send_wsabuf, 1, &dataBytes, 0, NULL, NULL);
+	if (retval)
+	{
+		if (GetLastError() != WSAEWOULDBLOCK)
+		{
+			err_display("WSASend()");
+		}
+	}
+}
 
 void Network::SendPacket()
 {
 	DWORD iobyte = 0;
+	
+
 	int retval = WSASend(sock, &send_wsabuf, 1, &iobyte, 0, NULL, NULL);
 	if (retval)
 	{
@@ -220,6 +236,19 @@ void Network::SendReady(int matID)
 	printf("Send matID : %d\n", pReady->matID);
 	SendPacket();
 }
+
+void Network::SendNotReady()
+{
+	pUnReady = reinterpret_cast<CS_PACKET_UNREADY*>(send_buffer);
+	
+	pUnReady->size = sizeof(pUnReady);
+	pUnReady->type = CS_UNREADY;
+	send_wsabuf.len = sizeof(pUnReady);
+
+	SendPacket();
+
+}
+
 void Network::SendReqStart()
 {
 	pRequestStart = reinterpret_cast<CS_PACKET_REQUEST_START *>(send_buffer);
@@ -250,6 +279,35 @@ void Network::SendAnimationState(char animNum)
 	SendPacket();
 }
 
+void Network::SendChattingText(char id,const _TCHAR *text)
+{
+	pText = reinterpret_cast<CS_PACKET_CHATTING*>(send_buffer);
+	pText->size = sizeof(CS_PACKET_CHATTING);
+	pText->type = CS_CHATTING;
+	pText->id = id;
+	pText->padding = 0;
+	
+	int nLen = WideCharToMultiByte(CP_ACP, 0, text, -1, NULL, 0, NULL, NULL);
+
+	WideCharToMultiByte(CP_ACP, 0, text, -1, pText->chatting, nLen, NULL, NULL);
+
+	SendPacket(pText->size);
+}
+void Network::SendNickName(char id,_TCHAR* name)
+{
+	pNickName = reinterpret_cast<CS_PACKET_NICKNAME*>(send_buffer);
+	pNickName->size = sizeof(CS_PACKET_NICKNAME);
+	pNickName->type = CS_NICKNAME_INFO;
+	pNickName->id = id;
+	pNickName->padding = 0;
+
+	int nLen = WideCharToMultiByte(CP_ACP, 0, name, -1, NULL, 0,NULL,NULL);
+
+	WideCharToMultiByte( CP_ACP, 0, name, -1, pNickName->name, nLen, NULL, NULL );
+
+
+	SendPacket(pNickName->size);
+}
 void Network::SetGameFrameworkPtr(HWND hWnd,CGameFramework* client)
 {
 	if (client) 

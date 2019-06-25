@@ -80,6 +80,8 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		m_ppObjects[0]->m_pAnimationController = new CAnimationController(1, (*Model).second->m_pAnimationSets);
 		// 0번 트랙에 0번 애니메이션을 Set
 		m_ppObjects[0]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[0]->m_pAnimationController->IDLE);
+		//m_ppObjects[0]->m_pAnimationController->SetTrackSpeed(0, 1.0f / m_nObjects);
+		//m_ppObjects[0]->m_pAnimationController->SetAnimationState(m_ppObjects[0]->m_pAnimationController->IDLE);
 		// 1번 트랙에 1번 애니메이션을 Set
 		//m_ppObjects[0]->m_pAnimationController->SetTrackAnimationSet(1, 1);
 		// 0번 트랙에 가중치를 80%
@@ -96,6 +98,8 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		m_ppObjects[1]->m_pAnimationController = new CAnimationController(1, (*Model).second->m_pAnimationSets);
 		//m_ppObjects[1]->m_pAnimationController->SetTrackAnimationSet(1, 2);
 		m_ppObjects[1]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[1]->m_pAnimationController->RUNFAST);
+		//m_ppObjects[1]->m_pAnimationController->SetTrackSpeed(0, 1.0f / m_nObjects);
+		//m_ppObjects[1]->m_pAnimationController->SetAnimationState(m_ppObjects[1]->m_pAnimationController->RAISEHAND);
 		//m_ppObjects[1]->m_pAnimationController->SetTrackSpeed(0, 0.8f);
 		//m_ppObjects[1]->m_pAnimationController->SetTrackWeight(0, 0.9);
 		//m_ppObjects[1]->m_pAnimationController->SetTrackWeight(1, 0.1);
@@ -108,9 +112,11 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		m_ppObjects[2]->SetChild((*Model).second->m_pModelRootObject, true);
 		m_ppObjects[2]->m_pAnimationController = new CAnimationController(1, (*Model).second->m_pAnimationSets);
 		m_ppObjects[2]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[2]->m_pAnimationController->ATTACK);
+		
+		//m_ppObjects[2]->m_pAnimationController->SetAnimationState(m_ppObjects[2]->m_pAnimationController->ATTACK);
 		// 애니메이션의 시작위치를 다르게 준다. 그러면 같은 동작이더라도 다르게 애니메이션함
 		//m_ppObjects[2]->m_pAnimationController->SetTrackPosition(0, 0.95f);
-
+		//m_ppObjects[2]->m_pAnimationController->SetTrackSpeed(0, 1.0f / m_nObjects);
 		m_ppObjects[2]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
 		dynamic_cast<CEvilBear*>(m_ppObjects[2])->SetPlayerName(L"화이트");
 
@@ -118,14 +124,17 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		m_ppObjects[3]->SetChild((*Model).second->m_pModelRootObject, true);
 		m_ppObjects[3]->m_pAnimationController = new CAnimationController(1, (*Model).second->m_pAnimationSets);
 		m_ppObjects[3]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[3]->m_pAnimationController->RAISEHAND);
-
+		//m_ppObjects[3]->m_pAnimationController->SetAnimationState(m_ppObjects[3]->m_pAnimationController->RAISEHAND);
 		m_ppObjects[3]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
+		//m_ppObjects[3]->m_pAnimationController->SetTrackSpeed(0, 1.0f / m_nObjects);
 		dynamic_cast<CEvilBear*>(m_ppObjects[3])->SetPlayerName(L"블랙");
 
 		m_ppObjects[4] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::BLUE);
 		m_ppObjects[4]->SetChild((*Model).second->m_pModelRootObject, true);
 		m_ppObjects[4]->m_pAnimationController = new CAnimationController(1, (*Model).second->m_pAnimationSets);
 		m_ppObjects[4]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[4]->m_pAnimationController->RUNBACKWARD);
+		//m_ppObjects[4]->m_pAnimationController->SetAnimationState(m_ppObjects[4]->m_pAnimationController->RUNBACKWARD);
+		//m_ppObjects[4]->m_pAnimationController->SetTrackSpeed(0, 1.0f / m_nObjects);
 		m_ppObjects[4]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
 		dynamic_cast<CEvilBear*>(m_ppObjects[4])->SetPlayerName(L"블루");
 
@@ -134,6 +143,8 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		m_ppObjects[5]->SetChild((*Model).second->m_pModelRootObject, true);
 		m_ppObjects[5]->m_pAnimationController = new CAnimationController(1, (*Model).second->m_pAnimationSets);
 		m_ppObjects[5]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[5]->m_pAnimationController->IDLE);
+		//m_ppObjects[5]->m_pAnimationController->SetAnimationState(m_ppObjects[5]->m_pAnimationController->IDLE);
+		//m_ppObjects[5]->m_pAnimationController->SetTrackSpeed(0, 1.0f / m_nObjects);
 		m_ppObjects[5]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
 		dynamic_cast<CEvilBear*>(m_ppObjects[5])->SetPlayerName(L"펜더");
 

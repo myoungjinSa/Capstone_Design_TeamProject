@@ -152,6 +152,7 @@ void CItemShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer* 
 	m_fElapsedTime += fTimeElapsed;
 }
 
+
 void CItemShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
 	for (auto iter = m_ItemMap.begin(); iter != m_ItemMap.end(); ++iter)

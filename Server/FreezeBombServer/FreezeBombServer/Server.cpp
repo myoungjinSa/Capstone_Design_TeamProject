@@ -20,6 +20,8 @@ Server::~Server()
 
 bool Server::InitServer()
 {
+	setlocale(LC_ALL, "korean");
+
 	clientCount = 0;
 	hostId = -1;
 	// Winsock Start - windock.dll 로드
@@ -420,6 +422,8 @@ void Server::ProcessPacket(char client, char *packet)
 		SetAnimationState(client, p->animation);
 		for (int i = 0; i < MAX_USER; ++i)
 		{
+			if (client == i)
+				continue;
 			if (clients[i].in_use == true)
 			{
 				SendPlayerAnimation(i, client);
@@ -449,12 +453,83 @@ void Server::ProcessPacket(char client, char *packet)
 		printf("Ready한 클라 수: %d\n", readyCount);
 
 		clientsLock[client].lock();
+
+
 		clients[client].isReady = true;
-		
 		clients[client].matID = packet[2];	// matID
+		for(int i=0;i<MAX_USER;++i)
+		{
+			if (clients[i].in_use == true)
+				SendReadyStatePacket(i, client);
+		}
 		clientsLock[client].unlock();
 		//printf("Recv matID : %d\n", clients[client].matID);
 		break;
+	case CS_UNREADY:
+	{
+		gLock.lock();
+		--readyCount;
+		gLock.unlock();
+
+
+		printf("Ready한 클라 수: %d\n", readyCount);
+
+		clientsLock[client].lock();
+		clients[client].isReady = false;
+
+		for(int i=0;i<MAX_USER;++i)
+		{
+			if (clients[i].in_use == true)
+				SendUnReadyStatePacket(i, client);
+		}
+
+		clientsLock[client].unlock();
+		break;
+	}
+	case CS_NICKNAME_INFO:
+	{
+		CS_PACKET_NICKNAME* p = reinterpret_cast<CS_PACKET_NICKNAME*>(packet);
+		
+		//int nLen = MultiByteToWideChar(CP_ACP, 0, p->name, strlen(p->name), NULL, NULL);
+		//MultiByteToWideChar(CP_ACP, 0, p->name, strlen(p->name), clients[client].nickname, nLen);
+		vector<int> vec;
+		strcpy_s(clients[client].nickname, sizeof(p->name), p->name);
+		for(int i=0;i<MAX_USER;++i)
+		{
+			
+			if(true == clients[i].in_use)
+			{
+				vec.emplace_back(i);
+				SendClientLobbyIn(i, client, p->name);
+			
+				//client
+			}
+		}
+		for(auto user : vec)
+		{
+			SendClientLobbyIn(client, user, clients[user].nickname);
+		}
+		cout << clients[client].nickname << endl;
+		cout <<(int)p->id << endl;
+		break;
+	}
+	case CS_CHATTING:
+	{
+		CS_PACKET_CHATTING* p = reinterpret_cast<CS_PACKET_CHATTING*>(packet);
+
+		for(int i =0; i<MAX_USER ;++i)
+		{
+			if(true == clients[i].in_use)
+			{
+				cout << sizeof(p->chatting) << endl;
+				SendChattinPacket(i, client, p->chatting);
+			}
+		}
+		cout << p->chatting << endl;
+
+
+		break;
+	}
 	case CS_REQUEST_START:
 		if (clientCount <= readyCount)
 		{
@@ -508,6 +583,7 @@ void Server::ProcessPacket(char client, char *packet)
 			printf("Please Ready\n");
 		}
 		break;
+
 	default:
 		wcout << L"정의되지 않은 패킷 도착 오류!!\n";
 		while (true);
@@ -561,6 +637,31 @@ void Server::SendAccessPlayer(char toClient, char fromClient)
 	SendFunc(toClient, &packet);
 }
 
+void Server::SendClientLobbyIn(char toClient,char fromClient,char* name)
+{
+	SC_PACKET_LOBBY_IN packet;
+	packet.id = fromClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_CLIENT_LOBBY_IN;
+	packet.client_state.isReady = false;
+	strcpy_s(packet.client_state.name, name);
+
+	SendFunc(toClient, &packet);
+}
+
+void Server::SendChattinPacket(char toClient,char fromClient,char* message)
+{
+	SC_PACKET_CHATTING packet;
+	ZeroMemory(&packet, sizeof(SC_PACKET_CHATTING));
+	packet.id = fromClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_CHATTING;
+	
+	strcpy_s(packet.message,MAX_CHATTING_LENGTH, message);
+
+	SendFunc(toClient, &packet);
+
+}
 void Server::SendPutPlayer(char toClient, char fromClient)
 {
 	SC_PACKET_PUT_PLAYER packet;
@@ -695,6 +796,27 @@ void Server::SendStopRunAnim(char toClient, char fromClient)
 	SendFunc(toClient, &packet);
 }
 
+void Server::SendReadyStatePacket(char toClient,char fromClient)
+{
+	SC_PACKET_READY_STATE packet;
+
+	packet.id = fromClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_READY_STATE;
+
+	SendFunc(toClient, &packet);
+
+}
+void Server::SendUnReadyStatePacket(char toClient,char fromClient)
+{
+	SC_PACKET_UNREADY_STATE packet;
+
+	packet.id = fromClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_UNREADY_STATE;
+
+	SendFunc(toClient, &packet);
+}
 void Server::ClientDisconnect(char client)
 {
 	gLock.lock();
@@ -866,7 +988,7 @@ void Server::RotateClientAxisY(char client, float fTimeElapsed)
 
 		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
 
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(fAngle*fTimeElapsed));
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(fAngle*fTimeElapsed*0.3f));
 		xmf3Look = Vector3::TransformNormal(xmf3Look, xmmtxRotate);
 		xmf3Right = Vector3::TransformNormal(xmf3Right, xmmtxRotate);
 
@@ -875,7 +997,7 @@ void Server::RotateClientAxisY(char client, float fTimeElapsed)
 		float czDelta = xmf3Look.z - clients[client].lastLookVector.z;
 
 
-		RotateModel(client, 0.0f, fAngle*fTimeElapsed, 0.0f);
+		RotateModel(client, 0.0f, fAngle*fTimeElapsed * 0.3f, 0.0f);
 		
 	}
 	if (clients[client].direction & DIR_LEFT)
@@ -884,13 +1006,13 @@ void Server::RotateClientAxisY(char client, float fTimeElapsed)
 
 		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
 
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(-(fAngle*fTimeElapsed)));
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(-(fAngle*fTimeElapsed*0.3f)));
 		xmf3Look = Vector3::TransformNormal(xmf3Look, xmmtxRotate);
 		xmf3Right = Vector3::TransformNormal(xmf3Right, xmmtxRotate);
 
 		float czDelta = xmf3Look.z - clients[client].lastLookVector.z;
 
-		RotateModel(client, 0.0f, -fAngle * fTimeElapsed, 0.0f);
+		RotateModel(client, 0.0f, -fAngle * fTimeElapsed * 0.3f, 0.0f);
 		
 	}
 	if (clients[client].direction & DIR_FORWARDRIGHT )

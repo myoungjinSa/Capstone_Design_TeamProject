@@ -182,7 +182,7 @@ public:
 	// [ ShaderResourceView 총 개수 ]
 	// SkyBox : 1
 	// Terrain : 3, 
-	// DeadTrees : 15, PineTrees : 34, Rocks : 14, Deer : 2, Pond : 2, FirePit : 3 => MapObjects : 70
+	// DeadTrees : 15, PineTrees : 34, Rocks : 14, Deer : 2, Pond : 2, FirePit : 3 ,MagicRing=> MapObjects : 71
 	// Hammer : 3, Pocket_Watch : 5 => Item = 8
 	// EvilBear : 18, LampParticle : 1 => 19
 	// Player : 18, LampParticle : 1 => 19
@@ -194,8 +194,8 @@ public:
 	// MenuUI : 1, Menu_ICON : 1, Option : 1, GameOver : 1, Sound : 1, Cartoon : 1 => 6
 	enum nShaderResourceView
 	{
-		SkyBox = 1, Terrain = 2, MapObjects = 70, Item = 8,
-		EvilBear = 19, Player = 19, BombParticle = 1, CubeParticle = 1, Snow = 1, TimerUI = 11, ItemUI = 4, MenuUI = 6
+		SkyBox = 1, Terrain = 2, MapObjects = 71, Item = 8,
+		EvilBear = 19, Player = 19, BombParticle = 1, CubeParticle = 1, Snow = 1, TimerUI = 11, ItemUI = 4, MenuUI = 6,
 	};
 
 	// 술래 변경할 수 있는 시간

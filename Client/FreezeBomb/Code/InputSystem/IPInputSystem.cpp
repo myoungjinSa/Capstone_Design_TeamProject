@@ -1,6 +1,6 @@
 #include "../Stdafx/Stdafx.h"
-#include "LoginInputSystem.h"
-#include "../Shader/BillboardShader/UIShader/LoginShader/CLoginShader.h"
+#include "IPInputSystem.h"
+#include "../Shader/BillboardShader/UIShader/LoginShader/IPShader.h"
 #include "../Network/Network.h"
 #include <mutex>
 #pragma comment(lib,"imm32.lib")
@@ -10,17 +10,17 @@
 #ifdef _WITH_DIRECT2D_
 extern  const char* g_serverIP;
 mutex g_lock;
-CLoginInputSystem::CLoginInputSystem()
+CIPInputSystem::CIPInputSystem()
 {
 
 }
 
-CLoginInputSystem::~CLoginInputSystem()
+CIPInputSystem::~CIPInputSystem()
 {
 
 }
 
-void CLoginInputSystem::Initialize(IDWriteFactory *writeFactory, ID2D1DeviceContext2* pd2dDeviceContext,IWICImagingFactory* pwicImagingFactory)
+void CIPInputSystem::Initialize(IDWriteFactory *writeFactory, ID2D1DeviceContext2* pd2dDeviceContext,IWICImagingFactory* pwicImagingFactory)
 {
 	HRESULT hResult;
 	m_pdwChattingFont = new IDWriteTextFormat*[m_maxChatSentenceCount];
@@ -39,7 +39,7 @@ void CLoginInputSystem::Initialize(IDWriteFactory *writeFactory, ID2D1DeviceCont
 }
 
 
-size_t CLoginInputSystem::ProcessIPInput(UINT sel)
+size_t CIPInputSystem::ProcessIPInput(UINT sel)
 {
 	//static UCHAR pKeyBuffer[256];
 
@@ -103,7 +103,7 @@ size_t CLoginInputSystem::ProcessIPInput(UINT sel)
 }
 
 
-TCHAR* CLoginInputSystem::StringToTCHAR(string& s)
+TCHAR* CIPInputSystem::StringToTCHAR(string& s)
 {
 	tstring tstr;
 	const char* all = s.c_str();
@@ -122,7 +122,7 @@ TCHAR* CLoginInputSystem::StringToTCHAR(string& s)
 
 
 
-void CLoginInputSystem::ShowIPInput()
+void CIPInputSystem::ShowIPInput()
 {
 
 	D2D1_RECT_F ipText{ 0,0,0,0 };
@@ -135,7 +135,7 @@ void CLoginInputSystem::ShowIPInput()
 	m_pd2dDeviceContext->DrawTextW(t, (UINT32)wcslen(t), m_pdwChattingFont[0], &ipText, m_pd2dbrChatText[0]);
 
 }
-string CLoginInputSystem::TCHARToString(const TCHAR* ptsz)
+string CIPInputSystem::TCHARToString(const TCHAR* ptsz)
 {
 	size_t len = (int)wcslen((wchar_t*)ptsz);
 	const size_t charlen = 2 * len + 1;
@@ -149,7 +149,7 @@ string CLoginInputSystem::TCHARToString(const TCHAR* ptsz)
 }
 
 
-void CLoginInputSystem::Destroy()
+void CIPInputSystem::Destroy()
 {
 	m_wsIP.clear();
 	m_wsIP.shrink_to_fit();

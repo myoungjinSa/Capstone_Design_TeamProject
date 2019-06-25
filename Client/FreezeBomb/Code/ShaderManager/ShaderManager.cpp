@@ -10,6 +10,7 @@
 #include "../Shader/StandardShader/FoliageShader/FoliageShader.h"
 #include "../Shader/StandardShader/ItemShader/ItemShader.h"
 #include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
+#include "../Shader/StandardShader/EffectShader/MagicRingEffectShader.h"
 
 #include "../Shader/CubeParticleShader/CubeParticleShader.h"
 #include "../Shader/BillboardShader/BombParticleShader/BombParticleShader.h"
@@ -37,7 +38,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_pResourceManager = new CResourceManager;
 	m_pResourceManager->Initialize(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	m_nShaders = 12;
+	m_nShaders = 13;
 
 	//맵툴 모드일때는 맵의 오브젝트들을 그리지 않게 하기 위해 
 	// 그래야 맵툴모드에서 적용해서 배치한 오브젝트들만 볼 수 있다.
@@ -111,7 +112,12 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ppShaders[index++] = pCubeParticleShader;
 	m_ShaderMap.emplace("CubeParticle", pCubeParticleShader);
 
-	
+	CMagicRingShader* pMagicRingShader = new CMagicRingShader;
+	pMagicRingShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pMagicRingShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), pAnimationObjectShader);
+	m_ppShaders[index++] = pMagicRingShader;
+	m_ShaderMap.emplace("wind", pMagicRingShader);
+
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	//아래 shader들은 카툰처리가 되면 안되는 shader
 	CSnowShader * pSnowShader = new CSnowShader;

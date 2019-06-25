@@ -414,6 +414,7 @@ CGameObject::~CGameObject()
 	if (m_pMesh)
 		m_pMesh->Release();
 
+
 	if (m_nMaterials > 0)
 	{
 		for (int i = 0; i < m_nMaterials; i++)
@@ -1187,6 +1188,7 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 					}
 				}
 			}
+		
 			SetMaterial(nMaterial, pMaterial);
 		}
 		else if (!strcmp(pstrToken, "<AlbedoColor>:"))

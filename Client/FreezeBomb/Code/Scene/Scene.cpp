@@ -112,7 +112,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 
 		SkyBox + Terrain + MapObjects + Item + EvilBear + BombParticle + CubeParticle + Snow + TimerUI + ItemUI + Player
-	+ MenuUI);
+	+ MenuUI );
 	// Model을 로드할 때, 셰이더 없이 로드할 경우 이것을 사용함!
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
@@ -132,6 +132,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 void CScene::ReleaseObjects()
 {
+	CMaterial::ReleaseShaders();
 	if (m_pd3dGraphicsRootSignature)
 		m_pd3dGraphicsRootSignature->Release();
 
@@ -374,6 +375,7 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[24].Descriptor.ShaderRegister = 9;	// b9 : UI
 	pd3dRootParameters[24].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[24].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
 

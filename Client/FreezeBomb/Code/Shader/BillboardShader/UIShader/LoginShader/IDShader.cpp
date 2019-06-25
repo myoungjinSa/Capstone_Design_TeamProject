@@ -3,22 +3,19 @@
 #include "../../../../Mesh/BillboardMesh/BillboardMesh.h"
 #include "../../../../Material/Material.h"
 #include "../../../../GameObject/Billboard/UI/UI.h"
-#include "CLoginShader.h"
-
+#include "IDShader.h"
+#include "../../../../GameFramework/GameFramework.h"
 #ifdef _WITH_SERVER_
-volatile int g_CurrentTexture;
-
-CLoginShader::CLoginShader()
+CIDShader::CIDShader()
 {
 }
 
-CLoginShader::~CLoginShader()
+CIDShader::~CIDShader()
 {
 
 }
 
-
-void CLoginShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
+void CIDShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
 	m_nPipelineStates = 1;
 	m_ppd3dPipelineStates = new ID3D12PipelineState*[m_nPipelineStates];
@@ -50,7 +47,7 @@ void CLoginShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
 
-void CLoginShader::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)
+void CIDShader::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)
 {
 	//리소스를 사용하려면 뷰를 만들어야한다. 
 	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
@@ -70,7 +67,7 @@ void CLoginShader::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12G
 	m_d3dSrvGPUDescriptorStartHandle.ptr = m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * nConstantBufferViews);
 }
 
-void CLoginShader::CreateConstantBufferViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, ID3D12Resource *pd3dConstantBuffers, UINT nStride)
+void CIDShader::CreateConstantBufferViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, ID3D12Resource *pd3dConstantBuffers, UINT nStride)
 {
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = pd3dConstantBuffers->GetGPUVirtualAddress();
 	D3D12_CONSTANT_BUFFER_VIEW_DESC d3dCBVDesc;
@@ -84,7 +81,7 @@ void CLoginShader::CreateConstantBufferViews(ID3D12Device *pd3dDevice, ID3D12Gra
 	}
 }
 
-void CLoginShader::CreateShaderResourceViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CTexture *pTexture, UINT nRootParameter, bool bAutoIncrement)
+void CIDShader::CreateShaderResourceViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CTexture *pTexture, UINT nRootParameter, bool bAutoIncrement)
 {
 	int nTextures = pTexture->GetTextures();
 	int nTextureType = pTexture->GetTextureType();
@@ -102,30 +99,35 @@ void CLoginShader::CreateShaderResourceViews(ID3D12Device *pd3dDevice, ID3D12Gra
 	}
 }
 
-D3D12_SHADER_BYTECODE CLoginShader::CreateVertexShader()
+D3D12_SHADER_BYTECODE CIDShader::CreateVertexShader()
 {
-	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "VSLoginScene", "vs_5_1", &m_pd3dVertexShaderBlob));
+	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "VSIDScene", "vs_5_1", &m_pd3dVertexShaderBlob));
 }
 
-D3D12_SHADER_BYTECODE CLoginShader::CreatePixelShader()
+D3D12_SHADER_BYTECODE CIDShader::CreatePixelShader()
 {
-	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "PSLoginScene", "ps_5_1", &m_pd3dVertexShaderBlob));
+	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "PSIDScene", "ps_5_1", &m_pd3dVertexShaderBlob));
 }
 
 
-void CLoginShader::BuildObjects(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList,ID3D12RootSignature *pd3dGraphicsRootSignature,void *pContext)
+void CIDShader::BuildObjects(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList,ID3D12RootSignature *pd3dGraphicsRootSignature,void *pContext)
 {
-	constexpr int nTextures = 2;
+	constexpr int nTextures = 3;
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, nTextures);
 
 
 	CTexture** pLoginTextures = new CTexture*[nTextures];
 	
 	pLoginTextures[NO_SELECT] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pLoginTextures[NO_SELECT]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Login/IP_NO.dds", 0);
+	pLoginTextures[NO_SELECT]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Login/ID_1.dds", 0);
 
-	pLoginTextures[IP_SELECT] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pLoginTextures[IP_SELECT]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Login/IP_YES.dds", 0);
+	pLoginTextures[ID_SELECT] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pLoginTextures[ID_SELECT]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Login/ID_2.dds", 0);
+
+	
+	pLoginTextures[REQUEST_LOGIN] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pLoginTextures[REQUEST_LOGIN]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Login/ID_3.dds", 0);
+
 
 	for (int i = 0; i < nTextures; ++i)
 	{
@@ -153,46 +155,60 @@ void CLoginShader::BuildObjects(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandLi
 	}
 	
 }
-
-
-void CLoginShader::AnimateObjects(float fTimeElapsed)
+void CIDShader::AnimateObjects(float fTimeElapsed)
 {
 	
 
 }
 
-void CLoginShader::DecideTextureByCursor(LONG mouseX,LONG mouseY,UINT& p)
+int CIDShader::DecideTextureByCursor(WPARAM wParam,LONG mouseX,LONG mouseY)
 {
 	cout << mouseX << "," << mouseY<<endl;
+
+	
 	if (339 <= mouseX && mouseX <= 827 && 656 <= mouseY && mouseY <= 692)
 	{
-			g_CurrentTexture = IP_SELECT;
-			p = IP_SELECT;
+		
+		m_currentTexture = ID_SELECT;
+
+	}
+	else if (887 <= mouseX && mouseX <= 1051 && 652 <= mouseY && mouseY <= 692)
+	{
+		m_currentTexture = REQUEST_LOGIN;
+
 	}
 	else
 	{
-			g_CurrentTexture = NO_SELECT;
-			p = NO_SELECT;
+		m_currentTexture = NO_SELECT;
 	}
+	return m_currentTexture;
 
 }
-void CLoginShader::Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipelineState)
+void CIDShader::Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipelineState,bool isInput)
 {
 	if (m_pd3dCbvSrvDescriptorHeap) 
 		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
 	CUIShader::OnPrepareRender(pd3dCommandList, 0);
 
-
-	int currentTexture = g_CurrentTexture;
-	auto iter = m_UIMap.find(currentTexture);
-	if (iter != m_UIMap.end())
-		(*iter).second->Render(pd3dCommandList, nPipelineState,currentTexture);
+	if(isInput)
+	{
+		auto iter = m_UIMap.find(NO_SELECT);
+		if (iter != m_UIMap.end())
+		(*iter).second->Render(pd3dCommandList, nPipelineState,NO_SELECT);
+	}
+	else
+	{
+		auto iter = m_UIMap.find(m_currentTexture);
+		if (iter != m_UIMap.end())
+		(*iter).second->Render(pd3dCommandList, nPipelineState,m_currentTexture);
+	
+	}
 	
 
 }
 
-void CLoginShader::ReleaseObjects()
+void CIDShader::ReleaseObjects()
 {
 	if (m_pd3dCbvSrvDescriptorHeap)
 		m_pd3dCbvSrvDescriptorHeap->Release();
