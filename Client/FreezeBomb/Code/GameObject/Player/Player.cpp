@@ -244,7 +244,7 @@ void CPlayer::Update(float fTimeElapsed)
 
 	
 	//std::cout <<"서버에서 받은 속도: "<< m_fVelocityFromServer << "\n";
-	DecideAnimationState(m_fVelocityFromServer);
+	DecideAnimationState(m_fVelocityFromServer,fTimeElapsed);
 
 #endif
 	m_Time += fTimeElapsed;
@@ -647,23 +647,23 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 	}
 
 
-	// 특수 아이템을 사용하는 동작에 경우 일정 시간동안은 황금 망치를 이용해 특수 아이템 모션을 렌더링하고 Refresh_Inventory를 해줘야하기 때문에
+	// 특수 아이템을 사용하는 동작에 경우 일정 시간동안은 황금 망치를 이용해 특수 아이템 모션을 렌더링하고 Sub_Inventory를 해줘야하기 때문에
 	// 쿨타임을 세어 줘야한다.
 	static float eraseTime = 0.0f;
 	static bool countCoolTime = false;
 	if (countCoolTime)
 	{
 		eraseTime += fTimeElapsed;
-		if(eraseTime > 3.75f)		//1.75는 USEGOLDHAMMER 애니메이션에 길이 - 0.8f 해준 값
+		if(eraseTime > 1.85f)		//1.75는 USEGOLDHAMMER 애니메이션에 길이 - 0.8f 해준 값
 		{
 			if (m_Special_Inventory.size() > 0)
 			{
 				auto iter = m_Special_Inventory.begin();
-				Refresh_Inventory((*iter).second->getItemType());
+				Sub_Inventory((*iter).second->getItemType());
 				eraseTime = 0.0f;
-				countCoolTime = false;
+				
 			}
-			
+			countCoolTime = false;
 		}
 	}
 	

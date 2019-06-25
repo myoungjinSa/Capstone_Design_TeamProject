@@ -123,11 +123,11 @@ struct SC_PACKET_ROUND_START
 
 struct SC_PACKET_PUT_PLAYER
 {
+	//4바이트 정렬을 할 필요가 있다.
 	char size;
 	char type;
 	char id;
 	char score;		// 플레이어 점수
-	char matID;			//유저가 원하는 캐릭터는 재질정보가 필요하다.
 	float xPos;		// 오브젝트들 위치
 	float yPos;
 	float zPos;
@@ -140,6 +140,7 @@ struct SC_PACKET_PUT_PLAYER
 	float xRight;
 	float yRight;
 	float zRight;
+	char matID;			//유저가 원하는 캐릭터는 재질정보가 필요하다.
 };
 
 //////////////////////////////////////////////////////

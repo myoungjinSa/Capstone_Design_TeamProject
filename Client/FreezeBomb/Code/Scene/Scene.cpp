@@ -702,7 +702,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 
 		}
 
-		iter = m.find("°õµ¹ÀÌ");
+		iter = m.find("OtherPlayer");
 		if (iter != m.end())
 		{
 			float minDistance = 1000.0f;
@@ -757,7 +757,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 								if (bBreak == false)
 									bBreak = true;
 
-								m_pPlayer->Refresh_Inventory(CItem::NormalHammer);
+								m_pPlayer->Sub_Inventory(CItem::NormalHammer);
 							}
 							m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[id]->GetPosition());
 

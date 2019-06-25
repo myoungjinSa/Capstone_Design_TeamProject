@@ -450,7 +450,7 @@ public:
 	const string getID()	const { return m_ID; }
 
 	//const int GetMaterialID() { return m_matID; }
-	const bool GetBoolIce() { return m_bIce; }
+	//const bool GetBoolIce() { return m_bIce; }
 
 	BoundingOrientedBox GetBoundingBox() const { return m_xmOOBB; }
 	void SetOOBB(XMFLOAT3& xmCenter, XMFLOAT3& xmExtents, XMFLOAT4& xmOrientation)

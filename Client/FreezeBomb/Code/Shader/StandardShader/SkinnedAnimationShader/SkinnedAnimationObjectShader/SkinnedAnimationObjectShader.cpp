@@ -221,6 +221,7 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		}
 	}
 
+#ifndef _WITH_SERVER_
 	// 임시로 플레이어 위치 고정
 	int index = 0;
 	m_ppObjects[index]->SetPosition(100, 0, 100);
@@ -233,7 +234,7 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 	
 	m_ppObjects[index]->SetPosition(70, 0, 50);
 	m_ppObjects[index++]->SetIsICE(true);
-
+#endif
 
 	for (int i = 0; i < m_nObjects; ++i)
 	{
@@ -264,7 +265,7 @@ void CSkinnedAnimationObjectShader::Render(ID3D12GraphicsCommandList* pd3dComman
 		
 		m_ppObjects[id]->Animate(m_elapsedTime);
 		m_ppObjects[id]->UpdateTransform(NULL);
-		m_ppObjects[id]->Render(pd3dCommandList, m_ppObjects[id]->GetIsHammer(), m_ppObjects[id]->GetIsBomb(), m_ppObjects[id]->GetBoolIce(), matID, pCamera, nPipelineState);
+		m_ppObjects[id]->Render(pd3dCommandList, m_ppObjects[id]->GetIsHammer(), m_ppObjects[id]->GetIsBomb(), m_ppObjects[id]->GetIsICE(), matID, pCamera, nPipelineState);
 		
 	}
 	//cout << "m_vMaterial Size" << m_vMaterial.size() << "\n";

@@ -80,7 +80,6 @@ public:
 	virtual void OnPrepareRender();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState);
 
-	void Refresh_Inventory(int ItemType);
 	void DecideAnimationState(float fLength,const float& fTimeElapsed);
 
 	bool AnimationCollision(byte AnimationType);

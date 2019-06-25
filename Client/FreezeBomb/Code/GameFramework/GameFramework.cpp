@@ -1263,7 +1263,7 @@ void CGameFramework::SetNamecard()
 	if (m_pScene)
 	{
 		map<string, CShader*> m = m_pScene->getShaderManager()->getShaderMap();
-		auto iter = m.find("°õµ¹ÀÌ");
+		auto iter = m.find("OtherPlayer");
 		if (iter != m.end())
 		{
 #ifdef _WITH_SERVER_
@@ -1621,7 +1621,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			XMFLOAT3 right = XMFLOAT3(pPP->xRight, pPP->yRight, pPP->zRight);
 			
 
-			auto iter = m_pScene->getShaderManager()->getShaderMap().find("°õµ¹ÀÌ");
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 
 
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
@@ -1671,7 +1671,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			XMFLOAT3 up = XMFLOAT3(pMP->xUp, pMP->yUp, pMP->zUp);
 			XMFLOAT3 right = XMFLOAT3(pMP->xRight, pMP->yRight, pMP->zRight);
 
-			auto iter = m_pScene->getShaderManager()->getShaderMap().find("°õµ¹ÀÌ");
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 
 			
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
@@ -1700,7 +1700,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		{
 			char id = pPA->id;
 			char animNum = pPA->animation;
-			auto iter = m_pScene->getShaderManager()->getShaderMap().find("°õµ¹ÀÌ");
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 
 			
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
@@ -1725,7 +1725,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		}
 		else if (pSTA->id < MAX_USER)
 		{
-			auto iter = m_pScene->getShaderManager()->getShaderMap().find("°õµ¹ÀÌ");
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
