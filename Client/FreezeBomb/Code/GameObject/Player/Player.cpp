@@ -327,7 +327,7 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 		}
 		else
 		{
-			CGameObject::RunAway_Render(pd3dCommandList, pCamera, m_matID,m_bIce, m_bHammer, m_bGoldHammer, GameObject);
+			CGameObject::RunAway_Render(pd3dCommandList, pCamera, m_matID,m_bIce, m_bHammer, m_bGoldHammer,m_bLightening, GameObject);
 			if (m_pShadow)
 				m_pShadow->RunAway_Render(pd3dCommandList, pCamera, m_matID,m_bIce ,m_bHammer, m_bGoldHammer, GameObject_Shadow);
 		}
@@ -340,9 +340,9 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 		}
 		else
 		{
-			CGameObject::RunAway_Render(pd3dCommandList, pCamera, g_PlayerCharacter, m_bIce, m_bHammer, m_bGoldHammer, GameObject);
+			CGameObject::RunAway_Render(pd3dCommandList, pCamera, g_PlayerCharacter, m_bIce, m_bHammer, m_bGoldHammer,m_bLightening, GameObject);
 			if (m_pShadow)
-				m_pShadow->RunAway_Render(pd3dCommandList, pCamera, g_PlayerCharacter, m_bIce, m_bHammer, m_bGoldHammer, GameObject_Shadow);
+				m_pShadow->RunAway_Render(pd3dCommandList, pCamera, g_PlayerCharacter, m_bIce, m_bHammer, m_bGoldHammer,GameObject_Shadow);
 		}
 
 #endif
@@ -663,6 +663,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 				eraseTime = 0.0f;
 				
 			}
+			m_bLightening = false;
 			countCoolTime = false;
 		}
 	}
@@ -670,6 +671,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 	// 특수 아이템 사용 버튼(ALT)
 	if (GetAsyncKeyState(VK_MENU) & 0x0001)
 	{
+		m_bLightening = true;
 		if (m_Special_Inventory.size() > 0)
 		{
 			auto iter = m_Special_Inventory.begin();
@@ -681,6 +683,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 				//m_pAnimationController->SetTrackSpeed(0, 2.0f);
 				pController->SetAnimationState(CAnimationController::USEGOLDHAMMER);
 				m_bLocalRotation = true;
+				
 #ifdef _WITH_SERVER_
 			Network::GetInstance()->SendAnimationState(CAnimationController::RAISEHAND);
 #endif

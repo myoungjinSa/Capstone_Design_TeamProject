@@ -178,7 +178,7 @@ private:
 	ID2D1SolidColorBrush			*m_pBlackBrush{ nullptr };
 	
 	IDWriteTextFormat				**m_pdwFont{ nullptr };//
-	const int						m_nNameFont=6;
+	const int						m_nNameFont=7;
 	//const int								m_nNameFont = 7;
 	IDWriteTextLayout				*m_pdwTextLayout{ nullptr };//
 	ID2D1SolidColorBrush			**m_pd2dbrText{ nullptr };//
@@ -196,7 +196,7 @@ private:
 
 #ifdef _WITH_SERVER_
 	//클라이언트 정보
-	unordered_map<int,clientsInfo>						m_mapClients;
+	map<int,clientsInfo>						m_mapClients;
 	//Network m_Network;
 	int hostId;
 	int clientCount = 0;

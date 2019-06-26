@@ -324,7 +324,7 @@ public:
 	
 	void Item_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int ItemType, int nPipelineState);
 	void Tagger_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int matID, bool HasGoldTimer, int nPipelineState);
-	void RunAway_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int matID, bool isICE, bool HasHammer, bool HasGoldHammer, int nPipelineState);
+	void RunAway_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int matID, bool isICE, bool HasHammer, bool HasGoldHammer,bool isLightEffect ,int nPipelineState);
 
 	virtual void ReleaseShaderVariables();
 
@@ -419,6 +419,9 @@ public:
 	bool getIsGoldTimer()	const { return m_bGoldTimer; }
 	void setIsGoldTimer(bool value) { m_bGoldTimer = value; }
 
+	bool GetIsLightEffect() const { return m_bLightening; }
+	void SetIsLightEffect(bool value) { m_bLightening = value; }
+
 protected:
 
 	_TCHAR		m_playerName[256];
@@ -436,11 +439,13 @@ protected:
 	BoundingOrientedBox	m_xmOOBBTransformed;
 
 	bool								m_bIce = false;				//얼음 여부 
-	int									m_matID;						//재질 정보
+	int									m_matID;				//재질 정보
 	bool								m_bBomb = false;		//폭탄 소지 여부
 	bool								m_bHammer = false;	//망치 소지 여부
 	bool								m_bGoldHammer = false;
-	bool								m_bGoldTimer = false;			//타이머 아이템 소지 여부
+	bool								m_bGoldTimer = false;	//타이머 아이템 소지 여부
+	bool								m_bLightening = false;		//특수 아이템 사용시 번개 효과를 렌더링하기 위한 bool변수
+
 
 	//플레이어와의 거리
 	float		m_fDistanceToTarget = 0.0f;

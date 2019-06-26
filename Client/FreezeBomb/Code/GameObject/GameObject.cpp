@@ -844,7 +844,7 @@ void CGameObject::Tagger_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCam
 	}
 	else if (m_pThunderEffect != nullptr)
 	{
-		m_pThunderEffect->Render(pd3dCommandList, pCamera, nPipelineState);
+		m_pThunderEffect->Render(pd3dCommandList, pCamera, false,nPipelineState);
 	}
 	else if (m_pMesh)
 	{
@@ -878,7 +878,7 @@ void CGameObject::Tagger_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCam
 				}
 			}
 			// 황금시계 있을 경우,황금시계 렌더링
-			else if (HasGoldTimer == true && strcmp(m_pstrFrameName, "StoneHammer_Medium") != 0)
+			else if (HasGoldTimer == true && strcmp(m_pstrFrameName, "StoneHammer_Medium") != 0 &&  strcmp(m_pstrFrameName, "") != 0 )
 			{
 				for (int i = 0; i < m_nMaterials; i++)
 				{
@@ -901,7 +901,7 @@ void CGameObject::Tagger_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCam
 		m_pChild->Tagger_Render(pd3dCommandList, pCamera, matID, HasGoldTimer, nPipelineState);
 }
 
-void CGameObject::RunAway_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int matID, bool isICE, bool HasHammer, bool HasGoldHammer, int nPipelineState)
+void CGameObject::RunAway_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int matID, bool isICE, bool HasHammer, bool HasGoldHammer,bool isLightEffect, int nPipelineState)
 {
 	OnPrepareRender();
 
@@ -912,7 +912,7 @@ void CGameObject::RunAway_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCa
 
 	if (m_pThunderEffect != nullptr)
 	{
-		m_pThunderEffect->Render(pd3dCommandList, pCamera, nPipelineState);
+		m_pThunderEffect->Render(pd3dCommandList, pCamera, isLightEffect,nPipelineState);
 	}
 	else if (m_pMesh)
 	{
@@ -977,9 +977,9 @@ void CGameObject::RunAway_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCa
 	}
 
 	if (m_pSibling)
-		m_pSibling->RunAway_Render(pd3dCommandList, pCamera, matID, isICE, HasHammer, HasGoldHammer, nPipelineState);
+		m_pSibling->RunAway_Render(pd3dCommandList, pCamera, matID, isICE, HasHammer, HasGoldHammer,isLightEffect ,nPipelineState);
 	if (m_pChild)
-		m_pChild->RunAway_Render(pd3dCommandList, pCamera, matID, isICE, HasHammer, HasGoldHammer, nPipelineState);
+		m_pChild->RunAway_Render(pd3dCommandList, pCamera, matID, isICE, HasHammer, HasGoldHammer,isLightEffect ,nPipelineState);
 }
 
 void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState, int nInstance)

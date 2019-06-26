@@ -13,7 +13,7 @@ public:
 	void SetLookAt(XMFLOAT3& xmfTarget);
 public:
 	virtual void Animate(float fTimeElpased);
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera,bool isLightEffect ,int nPipelineState);
 
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void ReleaseShaderVariables();

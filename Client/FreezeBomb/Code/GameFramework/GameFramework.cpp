@@ -365,6 +365,7 @@ void CGameFramework::CreateDirect2DDevice()
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightGreen, 1.0f), &m_pd2dbrText[index++]);
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightCoral, 1.0f), &m_pd2dbrText[index++]);
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LavenderBlush, 1.0f), &m_pd2dbrText[index++]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Magenta, 1.0f), &m_pd2dbrText[index++]);
 
 	//Initializes the COM library on the current thread and identifies the concurrency model as single-thread apartment 
 	CoInitialize(NULL);
@@ -1273,11 +1274,15 @@ void CGameFramework::SetNamecard()
 				char id = vec[i].first;
 				XMFLOAT2& screenSpace = m_pScene->ProcessNameCard(id);
 				D2D1_RECT_F nameCard{ 0.0f,0.0f,0.0f,0.0f };
-				nameCard = D2D1::RectF(screenSpace.x - 60.0f, screenSpace.y - 60.0f, screenSpace.x + 60.0f, screenSpace.y + 60.0f);
+				nameCard = D2D1::RectF(screenSpace.x - 200.0f, screenSpace.y, screenSpace.x + 200.0f, screenSpace.y);
 
-				m_pd2dDeviceContext->DrawTextW((*iter).second->m_ppObjects[id]->GetPlayerName(),
-					(UINT32)wcslen((*iter).second->m_ppObjects[id]->GetPlayerName()), m_pdwFont[id], &nameCard, m_pd2dbrText[id]);
-
+				wchar_t wname[16];
+				int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), NULL, NULL);
+				MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), wname, nLen);
+				
+		
+				m_pd2dDeviceContext->DrawTextW(wname, nLen, m_pdwFont[id], &nameCard, m_pd2dbrText[id]);
+				
 			}
 #else
 
@@ -1311,27 +1316,50 @@ void CGameFramework::ShowScoreboard()
 
 		// 이름
 		rcText = D2D1::RectF(0.0f, 0.0f, /*szRenderTarget.width * 0.2f*/ /*1150.0f*/1150.0f,/* szRenderTarget.height * 0.45f*/360.0f);
-		m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
+		m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[6], &rcText, m_pd2dbrText[6]);
 
 		// Score
 		rcText = D2D1::RectF(0, 0, 2200.f, 360.0f);
-		m_pd2dDeviceContext->DrawTextW((to_wstring(m_pPlayer->getScore())).c_str(), (UINT32)(to_wstring(m_pPlayer->getScore())).length(), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
+		m_pd2dDeviceContext->DrawTextW((to_wstring(m_pPlayer->getScore())).c_str(), (UINT32)(to_wstring(m_pPlayer->getScore())).length(), m_pdwFont[6], &rcText, m_pd2dbrText[6]);
 
-		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/515.0f);
-		m_pd2dDeviceContext->DrawTextW(L"핑크", (UINT32)wcslen(L"핑크"), m_pdwFont[1], &rcText, m_pd2dbrText[1]);
+#ifdef _WITH_SERVER_
 
-		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/670.0f);
-		m_pd2dDeviceContext->DrawTextW(L"브라운", (UINT32)wcslen(L"브라운"), m_pdwFont[2], &rcText, m_pd2dbrText[2]);
+		map<string, CShader*> m = m_pScene->getShaderManager()->getShaderMap();
+		auto iter = m.find("OtherPlayer");
+		if (iter != m.end())
+		{
+			vector<pair<char, char>> vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+			for (int i = 0; i < vec.size(); ++i)
+			{
+				char id = vec[i].first;
+				
+				wchar_t wname[16];
+				int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), NULL, NULL);
+				MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), wname, nLen);
+						
+				rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/515.0f + (i*155.0f));
+				m_pd2dDeviceContext->DrawTextW(wname, nLen, m_pdwFont[i], &rcText, m_pd2dbrText[i]);
+			}
 
-		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/825.0f);
-		m_pd2dDeviceContext->DrawTextW(L"블랙", (UINT32)wcslen(L"블랙"), m_pdwFont[3], &rcText, m_pd2dbrText[3]);
+		}
 
-		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/980.0f);
-		m_pd2dDeviceContext->DrawTextW(L"화이트", (UINT32)wcslen(L"화이트"), m_pdwFont[4], &rcText, m_pd2dbrText[4]);
+#endif
+		//rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/515.0f);
+		//m_pd2dDeviceContext->DrawTextW(L"핑크", (UINT32)wcslen(L"핑크"), m_pdwFont[1], &rcText, m_pd2dbrText[1]);
 
-		//cout << index << endl;
-		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/1135.0f);
-		m_pd2dDeviceContext->DrawTextW(L"펜더", (UINT32)wcslen(L"펜더"), m_pdwFont[5], &rcText, m_pd2dbrText[5]);
+		//rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/670.0f);
+		//m_pd2dDeviceContext->DrawTextW(L"브라운", (UINT32)wcslen(L"브라운"), m_pdwFont[2], &rcText, m_pd2dbrText[2]);
+
+		//rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/825.0f);
+		//m_pd2dDeviceContext->DrawTextW(L"블랙", (UINT32)wcslen(L"블랙"), m_pdwFont[3], &rcText, m_pd2dbrText[3]);
+
+		//rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/980.0f);
+		//m_pd2dDeviceContext->DrawTextW(L"화이트", (UINT32)wcslen(L"화이트"), m_pdwFont[4], &rcText, m_pd2dbrText[4]);
+
+		////cout << index << endl;
+		//rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/1135.0f);
+		//m_pd2dDeviceContext->DrawTextW(L"펜더", (UINT32)wcslen(L"펜더"), m_pdwFont[5], &rcText, m_pd2dbrText[5]);
+
 	}
 
 }
@@ -1360,7 +1388,7 @@ void CGameFramework::ShowPlayers()
 		int i = 0;
 		for (const auto& id : m_mapClients)
 		{
-			rcText = D2D1::RectF(0.0f, 0.0f, 600.0f, ((i*110.0f)+290.0f) );
+			rcText = D2D1::RectF(0.0f, 0.0f, 780.0f, ((i*110.0f)+290.0f) );
 			int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[id.first].name, strlen(m_mapClients[id.first].name), NULL, NULL);
 			MultiByteToWideChar(CP_ACP, 0, m_mapClients[id.first].name, strlen(m_mapClients[id.first].name), player, nLen);
 			m_pd2dDeviceContext->DrawTextW(player, nLen, m_pdwFont[i+1], &rcText, m_pd2dbrText[i+1]);

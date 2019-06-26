@@ -77,5 +77,5 @@ void CShadow::Tagger_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera*
 // 도망자의 그림자
 void CShadow::RunAway_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int matID, bool isICE, bool HasHammer, bool HasGoldHammer, int nPipelineState)
 {
-	CGameObject::RunAway_Render(pd3dCommandList, pCamera, matID, isICE, HasHammer, HasGoldHammer, nPipelineState);
+	CGameObject::RunAway_Render(pd3dCommandList, pCamera, matID, isICE, HasHammer, HasGoldHammer,false ,nPipelineState);
 }

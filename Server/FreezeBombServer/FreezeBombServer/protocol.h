@@ -274,9 +274,11 @@ struct SC_PACKET_INGAME_PACKET
 // 플레이어 이동 시
 struct SC_PACKET_MOVE_PLAYER
 {
+	
 	char size;
 	char type;
 	char id;
+	char padding;		//4바이트 정렬
 	float xPos;
 	float yPos;
 	float zPos;
@@ -354,7 +356,7 @@ struct SC_PACKET_COMPARE_TIME
 {
 	char size;
 	char type;
-	float serverTime;				// 서버 시간
+	unsigned short serverTime;				// 서버 시간
 };
 
 struct SC_PACKET_ROLL_CHANGE

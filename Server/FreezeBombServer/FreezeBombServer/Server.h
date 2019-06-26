@@ -114,8 +114,8 @@ private:
 	CGameTimer gameTimer;
 	CHeightMapImage* heightMap;
 	XMFLOAT3 gravity;
-	float roundStartTime;
-	float roundCurrTime;
+	unsigned short roundStartTime;
+	unsigned short roundCurrTime;
 	int clientCount;
 	int readyCount;
 	int hostId;

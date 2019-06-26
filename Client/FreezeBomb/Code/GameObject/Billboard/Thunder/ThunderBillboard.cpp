@@ -56,13 +56,15 @@ void CThunderBillboard::Animate(float elapsedTime)
 	
 }
 
-void CThunderBillboard::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)
+void CThunderBillboard::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,bool isLightEffect, int nPipelineState)
 {
 
-	XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
-	SetLookAt(xmf3CameraPosition);
-
-	CGameObject::Render(pd3dCommandList, pCamera, nPipelineState);
+	if (isLightEffect) 
+	{
+		XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
+		SetLookAt(xmf3CameraPosition);
+		CGameObject::Render(pd3dCommandList, pCamera, nPipelineState);
+	}
 }
 void CThunderBillboard::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
