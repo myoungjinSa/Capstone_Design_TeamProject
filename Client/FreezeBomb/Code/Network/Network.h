@@ -66,6 +66,10 @@ public:
 	void err_display(const char *msg);
 	int GetMyID() { return myId; }
 	void SetMyID(int id) { myId = id; }
+	void SetServerIP(const char* ip) { m_ServerIP = ip; }
+	const char* GetServerIP() { return m_ServerIP; }
+public:
+	bool m_connect{ false };
 public:
 	Network();
 	~Network();

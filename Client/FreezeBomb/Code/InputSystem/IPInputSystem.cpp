@@ -8,7 +8,7 @@
 
 #ifdef _WITH_SERVER_
 #ifdef _WITH_DIRECT2D_
-extern  const char* g_serverIP;
+
 mutex g_lock;
 CIPInputSystem::CIPInputSystem()
 {
@@ -88,7 +88,8 @@ size_t CIPInputSystem::ProcessIPInput(UINT sel)
 			if(m_wsIP.size() > 0 )
 			{
 				g_lock.lock();
-				g_serverIP = m_wsIP.c_str();
+				Network::GetInstance()->m_connect = true;
+				Network::GetInstance()->SetServerIP( m_wsIP.c_str());
 				g_lock.unlock();
 			}
 		}

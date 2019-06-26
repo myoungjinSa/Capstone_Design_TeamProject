@@ -5,8 +5,9 @@
 
 #ifdef _WITH_SERVER_
 
-volatile bool g_LoginFinished;
-const char* g_serverIP = nullptr;
+//volatile bool g_LoginFinished;
+//const char* g_serverIP = nullptr;
+
 Network::Network()
 {
 	sock = NULL;
@@ -23,51 +24,53 @@ Network::~Network()
 bool Network::connectToServer(HWND hWnd)
 {
 
-	// 서버 IP주소 입력받기
-	while (g_serverIP == nullptr);
-	
+
 		// 윈속 초기화
-	WSADATA wsa;
-	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
-		PostQuitMessage(0);
+	bool ret = false;
+	if (m_connect)
+	{
+		WSADATA wsa;
+		if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
+			PostQuitMessage(0);
 
 		// socket()
-	sock = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, 0);
-	if (sock == INVALID_SOCKET)
-	{
-		err_quit("socket()");
+		sock = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, 0);
+		if (sock == INVALID_SOCKET)
+		{
+			err_quit("socket()");
 
-		return false;
-	}
+			return false;
+		}
 
 		// connect()
-	SOCKADDR_IN serveraddr;
-	ZeroMemory(&serveraddr, sizeof(serveraddr));
-	serveraddr.sin_family = AF_INET;
-	//serveraddr.sin_addr.s_addr = inet_addr(SERVER_IP);
-	serveraddr.sin_addr.s_addr = inet_addr(g_serverIP);
-	serveraddr.sin_port = htons(SERVER_PORT);
-	int retval = WSAConnect(sock, (SOCKADDR *)&serveraddr, sizeof(serveraddr), NULL, NULL, NULL, NULL);
-	if (retval == SOCKET_ERROR)
-	{
-		if (GetLastError() != WSAEWOULDBLOCK)
+		SOCKADDR_IN serveraddr;
+		ZeroMemory(&serveraddr, sizeof(serveraddr));
+		serveraddr.sin_family = AF_INET;
+		//serveraddr.sin_addr.s_addr = inet_addr(SERVER_IP);
+		serveraddr.sin_addr.s_addr = inet_addr(m_ServerIP);
+		serveraddr.sin_port = htons(SERVER_PORT);
+		int retval = WSAConnect(sock, (SOCKADDR *)&serveraddr, sizeof(serveraddr), NULL, NULL, NULL, NULL);
+		if (retval == SOCKET_ERROR)
 		{
-			g_LoginFinished = true;
-			err_quit("connect()");
+			if (GetLastError() != WSAEWOULDBLOCK)
+			{
+				//g_LoginFinished = true;
+				err_quit("connect()");
+			}
+			return false;
 		}
-		return false;
+
+		WSAAsyncSelect(sock, hWnd, WM_SOCKET, FD_CLOSE | FD_READ);
+
+		send_wsabuf.buf = send_buffer;
+		send_wsabuf.len = BUF_SIZE;
+		recv_wsabuf.buf = recv_buffer;
+		recv_wsabuf.len = BUF_SIZE;
+		ret = true;
+		//g_LoginFinished = true;
 	}
-
-	WSAAsyncSelect(sock, hWnd, WM_SOCKET, FD_CLOSE | FD_READ);
-
-	send_wsabuf.buf = send_buffer;
-	send_wsabuf.len = BUF_SIZE;
-	recv_wsabuf.buf = recv_buffer;
-	recv_wsabuf.len = BUF_SIZE;
-
-
-	g_LoginFinished = true;
-	return true;
+	
+	return ret;
 	
 	
 }

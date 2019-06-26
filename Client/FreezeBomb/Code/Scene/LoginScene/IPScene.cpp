@@ -108,7 +108,7 @@ void CIPScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList*
 
 }
 
-void CIPScene::ProcessInput()
+void CIPScene::ProcessInput(HWND hWnd)
 {
 	static UCHAR pKeysBuffer[256];
 
@@ -117,7 +117,7 @@ void CIPScene::ProcessInput()
 	SetCursor(NULL);
 
 	GetCursorPos(&ptCursorPos);
-	ScreenToClient(g_hWnd,&ptCursorPos);
+	ScreenToClient(hWnd,&ptCursorPos);
 	
 	UINT sel=0;
 	if(GetKeyState(VK_LBUTTON) & 0x8000)
@@ -135,18 +135,18 @@ void CIPScene::ProcessInput()
 
 }
 
-void CIPScene::AnimateObjects(ID3D12GraphicsCommandList* pd3dCommandList, float elapsedTime)
-{
-	
-	//dynamic_cast<CLoginShader*>(m_ppShaders[0])->DecideTextureByCursorPosition()
-	for (int i = 0; i < m_nShaders; ++i)
-	{
-		if (m_ppShaders[i])
-		{
-			m_ppShaders[i]->AnimateObjects(elapsedTime, nullptr, nullptr);
-		}
-	}
-}
+//void CIPScene::AnimateObjects(ID3D12GraphicsCommandList* pd3dCommandList, float elapsedTime)
+//{
+//	
+//	//dynamic_cast<CLoginShader*>(m_ppShaders[0])->DecideTextureByCursorPosition()
+//	for (int i = 0; i < m_nShaders; ++i)
+//	{
+//		if (m_ppShaders[i])
+//		{
+//			m_ppShaders[i]->AnimateObjects(elapsedTime, nullptr, nullptr);
+//		}
+//	}
+//}
 
 void CIPScene::DrawFont()
 {

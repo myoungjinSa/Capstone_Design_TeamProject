@@ -94,10 +94,10 @@ void CLoginScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_nShaders = 1;
 	m_ppShaders = new CShader*[m_nShaders];
 
-	CIDShader *pIPShader = new CIDShader;
-	pIPShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nullptr);
-	pIPShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
-	m_ppShaders[index++] = pIPShader;
+	CIDShader *pIDShader = new CIDShader;
+	pIDShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nullptr);
+	pIDShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	m_ppShaders[index++] = pIDShader;
 
 
 	m_pInput = new CIDInput;

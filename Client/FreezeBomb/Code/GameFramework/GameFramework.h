@@ -56,8 +56,8 @@ public:
 	//Network*getNetwork() { return &m_Network; }
 	CLoginScene* GetLoginScene()const { return m_pLoginScene; }
 	void ProcessPacket(char *ptr);
-	void CreateLoginCommandList();
-	void InitializeIPSystem();
+	//void CreateLoginCommandList();
+	//void InitializeIPSystem();
 	void ProcessLogin();
 #endif
 	void ChangeSwapChainState();
@@ -221,14 +221,10 @@ private:
 
 	bool isCharacterSelectDone = false;
 
-	ID3D12CommandAllocator*					m_pLoginCommandAllocator = nullptr;
-	ID3D12GraphicsCommandList*				m_pLoginCommandList = nullptr;
-
 	CLoginScene*			m_pLoginScene{ nullptr };
 	CIPScene*				m_pIPScene{ nullptr };
 	vector<thread> loginThread;
-	vector<thread> connectThread;
-	void Connect_Thread(CIPScene* loginScene);
+
 #endif
 	//사운드 쓰레드 풀
 	vector<thread> soundThreads;

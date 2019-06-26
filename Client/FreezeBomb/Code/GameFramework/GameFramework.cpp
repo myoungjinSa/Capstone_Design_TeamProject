@@ -36,7 +36,7 @@ extern volatile size_t g_FileSize;
 unsigned char g_Round = 0;
 
 #ifdef _WITH_SERVER_
-extern volatile bool g_LoginFinished;
+//extern volatile bool g_LoginFinished;
 volatile HWND g_hWnd;
 #endif
 
@@ -87,10 +87,10 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CreateDirect3DDevice();
 	CreateCommandQueueAndList();
 	CreateLoadingCommandList();
-#ifdef _WITH_SERVER_
-	CreateLoginCommandList();
-	
-#endif 
+//#ifdef _WITH_SERVER_
+//	CreateLoginCommandList();
+//	
+//#endif 
 #ifdef _WITH_DIRECT2D_
 	CreateDirect2DDevice();
 #endif
@@ -907,10 +907,10 @@ void CGameFramework::OnDestroy()
 		m_pLoadingCommandList->Release();
 
 #ifdef _WITH_SERVER_
-	if (m_pLoginCommandAllocator)
+	/*if (m_pLoginCommandAllocator)
 		m_pLoginCommandAllocator->Release();
 	if (m_pLoginCommandList)
-		m_pLoginCommandList->Release();
+		m_pLoginCommandList->Release();*/
 #endif
 
 	if (m_pd3dFence) m_pd3dFence->Release();
@@ -931,35 +931,22 @@ void CGameFramework::OnDestroy()
 
 bool CGameFramework::BuildObjects()
 {
+
+	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 #ifdef _WITH_SERVER_
 	//네트워크 연결을 위한 쓰레드
-	m_nState = CONNECT;
+	//m_nState = CONNECT;
 
-	
-	InitializeIPSystem();
+	m_pIPScene = new CIPScene;
+	m_pIPScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList,m_pdWriteFactory,m_pd2dDeviceContext,m_pwicImagingFactory);
+	Network::GetInstance()->SetGameFrameworkPtr(m_hWnd, this);
 
-	if (Network::GetInstance()->connectToServer(m_hWnd) == false)
-	{
-		for (auto& thread : loginThread)
-		thread.join();
-		return false;
-	}
-	else
-	{
-		//return false;
-		for (auto& thread : loginThread)
-			thread.join();
-
-		Network::GetInstance()->SetGameFrameworkPtr(m_hWnd, this);
-
-	}
-	
 #endif
 	// 윈도우 창 띄우기
 	m_nState = LOADING;
 	loadingThread.emplace_back(thread{ &CGameFramework::Worker_Thread, this });
 
-	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
+
 
 #ifdef _WITH_SERVER_
 	m_pLoginScene = new CLoginScene;
@@ -1037,7 +1024,7 @@ bool CGameFramework::BuildObjects()
 
 	WaitForGpuComplete();
 #ifdef _WITH_SERVER_
-	m_nState = LOGIN;
+	m_nState = CONNECT;
 #else
 	m_nState = CHARACTER_SELECT;
 #endif
@@ -1219,11 +1206,27 @@ void CGameFramework::ProcessInput()
 void CGameFramework::AnimateObjects()
 {
 	m_elapsedTime = m_GameTimer.GetTimeElapsed();
-	if (m_nState == INGAME)
+	switch(m_nState)
 	{
-		
+	case INGAME:
+	{
 		if (m_pScene)
 			m_pScene->AnimateObjects(m_pd3dCommandList, m_elapsedTime);
+		break;
+	}
+#ifdef _WITH_SERVER_
+	case CONNECT:
+	{
+		if (m_pIPScene)
+		{
+			m_pIPScene->ProcessInput(m_hWnd);
+
+			if (Network::GetInstance()->connectToServer(m_hWnd))
+				m_nState = LOGIN;
+		}
+		break;
+	}
+#endif
 	}
 
 	//m_pPlayer->Animate(fTimeElapsed);
@@ -1465,6 +1468,12 @@ void CGameFramework::ProcessDirect2D()
 
 		break;
 	}	
+	case CONNECT:
+	{
+		if (m_pIPScene)
+			m_pIPScene->DrawFont();
+		break;
+	}
 #endif
 	default:
 		break;
@@ -1494,28 +1503,26 @@ void CGameFramework::ProcessDirect2D()
 #endif
 #ifdef _WITH_SERVER_
 
-void CGameFramework::InitializeIPSystem() 
-{
-	g_hWnd = m_hWnd;
-	if (m_pLoginCommandList)
-		m_pLoginCommandList->Reset(m_pLoginCommandAllocator, nullptr);
-
-	m_pIPScene = new CIPScene;
-	m_pIPScene->BuildObjects(m_pd3dDevice, m_pLoginCommandList,m_pdWriteFactory,m_pd2dDeviceContext,m_pwicImagingFactory);
-
-	m_pLoginCommandList->Close();
-
-	ID3D12CommandList* ppd3dLoginCommandLists[] = { m_pLoginCommandList };
-	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dLoginCommandLists);
-	WaitForGpuComplete();
-
-	loginThread.emplace_back(thread{ &CGameFramework::Connect_Thread,this,m_pIPScene});
-
-	//loginThread.emplace_back(thread { &CGameFramework::ConnectToServer,this,*Network::GetInstance(),m_hWnd});
-	//OnProcessingMouseMessage(m_hWnd,)
-
-	
-}
+//void CGameFramework::InitializeIPSystem() 
+//{
+//	g_hWnd = m_hWnd;
+//	if (m_pLoginCommandList)
+//		m_pLoginCommandList->Reset(m_pLoginCommandAllocator, nullptr);
+//
+//	m_pIPScene = new CIPScene;
+//	m_pIPScene->BuildObjects(m_pd3dDevice, m_pLoginCommandList,m_pdWriteFactory,m_pd2dDeviceContext,m_pwicImagingFactory);
+//
+//	m_pLoginCommandList->Close();
+//
+//	ID3D12CommandList* ppd3dLoginCommandLists[] = { m_pLoginCommandList };
+//	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dLoginCommandLists);
+//	WaitForGpuComplete();
+//
+//	loginThread.emplace_back(thread{ &CGameFramework::Connect_Thread,this,m_pIPScene});
+//
+//	
+//	
+//}
 void CGameFramework::ProcessPacket(char *packet)
 {
 	switch (packet[1])
@@ -1980,6 +1987,32 @@ void CGameFramework::FrameAdvance()
 		
 		break;
 	}
+	case CONNECT:
+	{
+		D3D12_VIEWPORT	d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
+		D3D12_RECT		d3dScissorRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
+		m_pd3dCommandList->RSSetViewports(1, &d3dViewport);
+		m_pd3dCommandList->RSSetScissorRects(1, &d3dScissorRect);
+	
+		if(m_pIPScene)
+			m_pIPScene->Render(m_pd3dCommandList);
+
+		//::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+		
+		HRESULT hResult = m_pd3dCommandList->Close();
+
+		ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
+		m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+
+		WaitForGpuComplete();
+
+#ifdef _WITH_DIRECT2D_
+
+		ProcessDirect2D();
+
+#endif
+	}
+		break;
 
 #endif
 	}
@@ -2016,116 +2049,116 @@ void CGameFramework::FrameAdvance()
 
 #ifdef _WITH_SERVER_
 
-void CGameFramework::CreateLoginCommandList()
-{
-	HRESULT Result;
+//void CGameFramework::CreateLoginCommandList()
+//{
+//	HRESULT Result;
+//
+//	Result = m_pd3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), (void **)&m_pLoginCommandAllocator);
+//	Result = m_pd3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pLoginCommandAllocator, nullptr, __uuidof(ID3D12GraphicsCommandList), (void **)&m_pLoginCommandList);
+//	Result = m_pLoginCommandList->Close();
+//
+//}
 
-	Result = m_pd3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), (void **)&m_pLoginCommandAllocator);
-	Result = m_pd3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pLoginCommandAllocator, nullptr, __uuidof(ID3D12GraphicsCommandList), (void **)&m_pLoginCommandList);
-	Result = m_pLoginCommandList->Close();
-
-}
-
-void CGameFramework::Connect_Thread(CIPScene* pLoginScene)
-{
-
-	m_GameTimer.Reset();
-
-	//네트워크 연결이 성공하면 루프 탈출
-	while(!g_LoginFinished)
-	{
-		m_GameTimer.Tick(60.0f);
-		float elapsedTime = m_GameTimer.GetTimeElapsed();
-		
-		pLoginScene->ProcessInput();
-
-		pLoginScene->AnimateObjects(m_pLoginCommandList, elapsedTime);
-		float pfClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-
-		
-		HRESULT hResult = m_pLoginCommandAllocator->Reset();
-		hResult = m_pLoginCommandList->Reset(m_pLoginCommandAllocator, NULL);
-
-		D3D12_VIEWPORT	d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
-		D3D12_RECT		d3dScissorRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
-		m_pLoginCommandList->RSSetViewports(1, &d3dViewport);
-		m_pLoginCommandList->RSSetScissorRects(1, &d3dScissorRect);
-		
-		// 리소스 장벽(Barrier)
-		D3D12_RESOURCE_BARRIER d3dResourceBarrier;
-		::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
-		d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		d3dResourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		d3dResourceBarrier.Transition.pResource = m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex];
-		// StateBefore가 Present 상태가 되어야, DXGI가 Present를 실행한다.
-		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-		// StateAfter가 Render_Target 상태가 되면, Present가 끝나고 GPU가 그림을 바꿀 수 있다.
-		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-		m_pLoginCommandList->ResourceBarrier(1, &d3dResourceBarrier);
-
-
-		D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-		d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
-		D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-
-		m_pLoginCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, FALSE, &d3dDsvCPUDescriptorHandle);
-
-		m_pLoginCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor, 0, NULL);
-
-		m_pLoginCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
-
-		pLoginScene->Render(m_pLoginCommandList);
-
-	
-		/*d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-
-
-		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-		m_pLoginCommandList->ResourceBarrier(1, &d3dResourceBarrier);*/
-
-		m_pLoginCommandList->Close();
-		ID3D12CommandList* ppd3dCommandLists[] = { m_pLoginCommandList };
-
-		m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
-		WaitForGpuComplete();
-
-	
-		//////AcquireWrappedResources() D3D11On12 디바이스에서 사용될 수 있는 D3D11 리소스들을 얻게해준다.
-		//////이 함수는 렌더링 할 Wrapped Resource 들을 다시 사용할 수 있다고 암시해준다. 
-		m_pd3d11On12Device->AcquireWrappedResources(&m_ppd3d11WrappedBackBuffers[m_nSwapChainBufferIndex], 1);
-
-		////Direct2D 디바이스가 렌더 할 비트맵이나 커맨드 리스트를 설정한다.
-		m_pd2dDeviceContext->SetTarget(m_ppd2dRenderTargets[m_nSwapChainBufferIndex]);
-
-		m_pd2dDeviceContext->BeginDraw();
-
-		// Apply the rotation transform to the render target
-		m_pd2dDeviceContext->SetTransform(D2D1::Matrix3x2F::Identity());
-
-		//D2D1_SIZE_F : float형태의 가로 세로 쌍을 저장한 구조체
-		D2D1_SIZE_F szRenderTarget = m_ppd2dRenderTargets[m_nSwapChainBufferIndex]->GetSize();
-
-		pLoginScene->DrawFont();
-
-		m_pd2dDeviceContext->EndDraw();
-
-		//Releases D3D11 resources that were wrapped for D3D 11on12
-		m_pd3d11On12Device->ReleaseWrappedResources(&m_ppd3d11WrappedBackBuffers[m_nSwapChainBufferIndex], 1);
-
-		//,커맨드 버퍼에 대기중인 커맨드를 gpu로 전송
-		m_pd3d11DeviceContext->Flush();
-
-
-
-		m_pdxgiSwapChain->Present(0, 0);
-
-		MoveToNextFrame();
-
-	}
-
-}
+//void CGameFramework::Connect_Thread(CIPScene* pLoginScene)
+//{
+//
+//	m_GameTimer.Reset();
+//
+//	//네트워크 연결이 성공하면 루프 탈출
+//	while(!g_LoginFinished)
+//	{
+//		m_GameTimer.Tick(60.0f);
+//		float elapsedTime = m_GameTimer.GetTimeElapsed();
+//		
+//		pLoginScene->ProcessInput();
+//
+//		pLoginScene->AnimateObjects(m_pLoginCommandList, elapsedTime);
+//		float pfClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+//
+//		
+//		HRESULT hResult = m_pLoginCommandAllocator->Reset();
+//		hResult = m_pLoginCommandList->Reset(m_pLoginCommandAllocator, NULL);
+//
+//		D3D12_VIEWPORT	d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
+//		D3D12_RECT		d3dScissorRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
+//		m_pLoginCommandList->RSSetViewports(1, &d3dViewport);
+//		m_pLoginCommandList->RSSetScissorRects(1, &d3dScissorRect);
+//		
+//		// 리소스 장벽(Barrier)
+//		D3D12_RESOURCE_BARRIER d3dResourceBarrier;
+//		::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
+//		d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+//		d3dResourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+//		d3dResourceBarrier.Transition.pResource = m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex];
+//		// StateBefore가 Present 상태가 되어야, DXGI가 Present를 실행한다.
+//		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+//		// StateAfter가 Render_Target 상태가 되면, Present가 끝나고 GPU가 그림을 바꿀 수 있다.
+//		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+//		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+//		m_pLoginCommandList->ResourceBarrier(1, &d3dResourceBarrier);
+//
+//
+//		D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+//		d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
+//		D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+//
+//		m_pLoginCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, FALSE, &d3dDsvCPUDescriptorHandle);
+//
+//		m_pLoginCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor, 0, NULL);
+//
+//		m_pLoginCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+//
+//		pLoginScene->Render(m_pLoginCommandList);
+//
+//	
+//		/*d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+//
+//
+//		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+//		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+//		m_pLoginCommandList->ResourceBarrier(1, &d3dResourceBarrier);*/
+//
+//		m_pLoginCommandList->Close();
+//		ID3D12CommandList* ppd3dCommandLists[] = { m_pLoginCommandList };
+//
+//		m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+//		WaitForGpuComplete();
+//
+//	
+//		//////AcquireWrappedResources() D3D11On12 디바이스에서 사용될 수 있는 D3D11 리소스들을 얻게해준다.
+//		//////이 함수는 렌더링 할 Wrapped Resource 들을 다시 사용할 수 있다고 암시해준다. 
+//		m_pd3d11On12Device->AcquireWrappedResources(&m_ppd3d11WrappedBackBuffers[m_nSwapChainBufferIndex], 1);
+//
+//		////Direct2D 디바이스가 렌더 할 비트맵이나 커맨드 리스트를 설정한다.
+//		m_pd2dDeviceContext->SetTarget(m_ppd2dRenderTargets[m_nSwapChainBufferIndex]);
+//
+//		m_pd2dDeviceContext->BeginDraw();
+//
+//		// Apply the rotation transform to the render target
+//		m_pd2dDeviceContext->SetTransform(D2D1::Matrix3x2F::Identity());
+//
+//		//D2D1_SIZE_F : float형태의 가로 세로 쌍을 저장한 구조체
+//		D2D1_SIZE_F szRenderTarget = m_ppd2dRenderTargets[m_nSwapChainBufferIndex]->GetSize();
+//
+//		pLoginScene->DrawFont();
+//
+//		m_pd2dDeviceContext->EndDraw();
+//
+//		//Releases D3D11 resources that were wrapped for D3D 11on12
+//		m_pd3d11On12Device->ReleaseWrappedResources(&m_ppd3d11WrappedBackBuffers[m_nSwapChainBufferIndex], 1);
+//
+//		//,커맨드 버퍼에 대기중인 커맨드를 gpu로 전송
+//		m_pd3d11DeviceContext->Flush();
+//
+//
+//
+//		m_pdxgiSwapChain->Present(0, 0);
+//
+//		MoveToNextFrame();
+//
+//	}
+//
+//}
 
 
 #endif

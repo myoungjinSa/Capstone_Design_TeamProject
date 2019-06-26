@@ -244,8 +244,10 @@ void CPlayer::Update(float fTimeElapsed)
 
 	
 	//std::cout <<"서버에서 받은 속도: "<< m_fVelocityFromServer << "\n";
-	DecideAnimationState(m_fVelocityFromServer,fTimeElapsed);
-
+	if (Network::GetInstance()->m_connect) 
+	{
+		DecideAnimationState(m_fVelocityFromServer, fTimeElapsed);
+	}
 #endif
 	m_Time += fTimeElapsed;
 	if (m_Time > 1.f)

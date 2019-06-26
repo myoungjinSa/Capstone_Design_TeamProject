@@ -1,7 +1,6 @@
 #pragma once
 
 
-
 #ifdef _WITH_SERVER_
 class CIPInputSystem 
 {
