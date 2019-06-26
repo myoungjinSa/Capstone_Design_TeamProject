@@ -787,7 +787,7 @@ void CPlayer::InitializeSound()
 {
 	m_pSound = new CSoundSystem;
 
-	m_SoundCount = 4;
+	m_SoundCount = 5;
 
 	m_SoundList = new const char*[m_SoundCount];
 
@@ -795,12 +795,15 @@ void CPlayer::InitializeSound()
 	m_SoundList[1] = "../Resource/Sound/bell1.wav";
 	m_SoundList[2] = "../Resource/Sound/BombExplode2.wav";
 	m_SoundList[3] = "../Resource/Sound/Effect/HammerSwing.wav";
+	m_SoundList[4] = "../Resource/Sound/Effect/Electricity.wav";
 	
 
 	std::string s0(m_SoundList[0]);
 	std::string s1(m_SoundList[1]);
 	std::string s2(m_SoundList[2]);
 	std::string s3(m_SoundList[3]);
+	std::string s4(m_SoundList[4]);
+
 
 
 	////m_SoundList[1] = "../Resource/Sound/bell1.wav";
@@ -809,6 +812,8 @@ void CPlayer::InitializeSound()
 	m_mapMusicList.emplace(USETIMER, s1);
 	m_mapMusicList.emplace(DIE, s2);
 	m_mapMusicList.emplace(ATTACK, s3);
+	m_mapMusicList.emplace(ELECTRIC, s4);
+
 	
 	if (m_pSound)
 		m_pSound->Initialize(m_SoundCount, m_SoundList, FMOD_LOOP_OFF);
@@ -866,6 +871,10 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pAnimationController->SetCallbackKeys(m_pAnimationController->ATTACK, 1);
 	m_pAnimationController->SetCallbackKey(m_pAnimationController->ATTACK, 0, 0.2f, (void*)CPlayer::MUSIC_ENUM::ATTACK);
 
+	
+	m_pAnimationController->SetCallbackKeys(m_pAnimationController->USEGOLDHAMMER, 1);
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->USEGOLDHAMMER, 0, 0.3f, (void*)CPlayer::MUSIC_ENUM::ELECTRIC);
+
 
 
 	CAnimationCallbackHandler* pRunAnimationCallbackHandler = new CSoundCallbackHandler();
@@ -886,6 +895,10 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 	CAnimationCallbackHandler* pAttackAnimationCallbackHandler = new CSoundCallbackHandler();
 	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->ATTACK, pAttackAnimationCallbackHandler,
+		GetSoundData());
+
+	CAnimationCallbackHandler* pUseGoldHammerCallbackHandler = new CSoundCallbackHandler();
+	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->USEGOLDHAMMER, pUseGoldHammerCallbackHandler,
 		GetSoundData());
 
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);

@@ -28,7 +28,8 @@ public:
 		FOOTSTEP=1,
 		USETIMER,
 		DIE,
-		ATTACK
+		ATTACK,
+		ELECTRIC
 	};
 	std::map<MUSIC_ENUM, std::string> m_mapMusicList;
 	vector<pair<char,char>> m_vMaterial;

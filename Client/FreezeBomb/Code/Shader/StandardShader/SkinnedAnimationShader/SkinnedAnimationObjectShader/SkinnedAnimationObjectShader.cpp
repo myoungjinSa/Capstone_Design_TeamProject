@@ -25,7 +25,7 @@ void CSkinnedAnimationObjectShader::InitializeSound()
 {
 	m_pSound = new CSoundSystem;
 
-	m_SoundCount = 4;
+	m_SoundCount = 5;
 		
 	m_SoundList = new const char*[m_SoundCount];
 
@@ -33,12 +33,13 @@ void CSkinnedAnimationObjectShader::InitializeSound()
 	m_SoundList[1] = "../Resource/Sound/bell1.wav";
 	m_SoundList[2] = "../Resource/Sound/Bomb.mp3";
 	m_SoundList[3] = "../Resource/Sound/Effect/HammerSwing.wav";
-	
+	m_SoundList[4] = "../Resource/Sound/Effect/Electricity.wav";
 
 	std::string s0(m_SoundList[0]);
 	std::string s1(m_SoundList[1]);
 	std::string s2(m_SoundList[2]);
 	std::string s3(m_SoundList[3]);
+	std::string s4(m_SoundList[4]);
 	
 	////m_SoundList[1] = "../Resource/Sound/bell1.wav";
 
@@ -47,7 +48,7 @@ void CSkinnedAnimationObjectShader::InitializeSound()
 	m_mapMusicList.emplace(USETIMER, s1);
 	m_mapMusicList.emplace(DIE, s2);
 	m_mapMusicList.emplace(ATTACK, s3);
-	
+	m_mapMusicList.emplace(ELECTRIC, s4);
 
 	if(m_pSound)
 	{
@@ -90,14 +91,14 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		//m_ppObjects[0]->m_pAnimationController->SetTrackWeight(1, 0.2f);
 
 		m_ppObjects[0]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
-		dynamic_cast<CEvilBear*>(m_ppObjects[0])->SetPlayerName(L"핑크");
+		//dynamic_cast<CEvilBear*>(m_ppObjects[0])->SetPlayerName(L"핑크");
 
 
 		m_ppObjects[1] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::BROWN);
 		m_ppObjects[1]->SetChild((*Model).second->m_pModelRootObject, true);
 		m_ppObjects[1]->m_pAnimationController = new CAnimationController(1, (*Model).second->m_pAnimationSets);
 		//m_ppObjects[1]->m_pAnimationController->SetTrackAnimationSet(1, 2);
-		m_ppObjects[1]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[1]->m_pAnimationController->RUNFAST);
+		m_ppObjects[1]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[1]->m_pAnimationController->RAISEHAND);
 		//m_ppObjects[1]->m_pAnimationController->SetTrackSpeed(0, 1.0f / m_nObjects);
 		//m_ppObjects[1]->m_pAnimationController->SetAnimationState(m_ppObjects[1]->m_pAnimationController->RAISEHAND);
 		//m_ppObjects[1]->m_pAnimationController->SetTrackSpeed(0, 0.8f);
@@ -106,7 +107,7 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		// 애니메이션의 속도를 0.25로 주어서 느리게 애니메이션 동작을 하도록 Set
 		//m_ppObjects[1]->m_pAnimationController->SetTrackSpeed(0, 0.25f);
 		m_ppObjects[1]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
-		dynamic_cast<CEvilBear*>(m_ppObjects[1])->SetPlayerName(L"브라운");
+		//dynamic_cast<CEvilBear*>(m_ppObjects[1])->SetPlayerName(L"브라운");
 
 		m_ppObjects[2] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::WHITE);
 		m_ppObjects[2]->SetChild((*Model).second->m_pModelRootObject, true);
@@ -118,7 +119,7 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		//m_ppObjects[2]->m_pAnimationController->SetTrackPosition(0, 0.95f);
 		//m_ppObjects[2]->m_pAnimationController->SetTrackSpeed(0, 1.0f / m_nObjects);
 		m_ppObjects[2]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
-		dynamic_cast<CEvilBear*>(m_ppObjects[2])->SetPlayerName(L"화이트");
+	//	dynamic_cast<CEvilBear*>(m_ppObjects[2])->SetPlayerName(L"화이트");
 
 		m_ppObjects[3] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::BLACK);
 		m_ppObjects[3]->SetChild((*Model).second->m_pModelRootObject, true);
@@ -127,7 +128,7 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		//m_ppObjects[3]->m_pAnimationController->SetAnimationState(m_ppObjects[3]->m_pAnimationController->RAISEHAND);
 		m_ppObjects[3]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
 		//m_ppObjects[3]->m_pAnimationController->SetTrackSpeed(0, 1.0f / m_nObjects);
-		dynamic_cast<CEvilBear*>(m_ppObjects[3])->SetPlayerName(L"블랙");
+		//dynamic_cast<CEvilBear*>(m_ppObjects[3])->SetPlayerName(L"블랙");
 
 		m_ppObjects[4] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::BLUE);
 		m_ppObjects[4]->SetChild((*Model).second->m_pModelRootObject, true);
@@ -136,7 +137,7 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		//m_ppObjects[4]->m_pAnimationController->SetAnimationState(m_ppObjects[4]->m_pAnimationController->RUNBACKWARD);
 		//m_ppObjects[4]->m_pAnimationController->SetTrackSpeed(0, 1.0f / m_nObjects);
 		m_ppObjects[4]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
-		dynamic_cast<CEvilBear*>(m_ppObjects[4])->SetPlayerName(L"블루");
+		//dynamic_cast<CEvilBear*>(m_ppObjects[4])->SetPlayerName(L"블루");
 
 
 		m_ppObjects[5] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::PANDA);
@@ -146,7 +147,7 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		//m_ppObjects[5]->m_pAnimationController->SetAnimationState(m_ppObjects[5]->m_pAnimationController->IDLE);
 		//m_ppObjects[5]->m_pAnimationController->SetTrackSpeed(0, 1.0f / m_nObjects);
 		m_ppObjects[5]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
-		dynamic_cast<CEvilBear*>(m_ppObjects[5])->SetPlayerName(L"펜더");
+		//dynamic_cast<CEvilBear*>(m_ppObjects[5])->SetPlayerName(L"펜더");
 
 		for (int i = 0; i < m_nObjects; ++i)
 		{
@@ -162,7 +163,8 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 	CAnimationCallbackHandler* pDieAnimationCallback = new CSoundCallbackHandler();
 	CAnimationCallbackHandler* pAttackAnimationCallback = new CSoundCallbackHandler();
 	CAnimationCallbackHandler* pBackRunAnimationCallback = new CSoundCallbackHandler();
-	
+	CAnimationCallbackHandler* pUseGoldHammerCallback = new CSoundCallbackHandler();
+
 	for(int i=0; i < m_nObjects; i++)		//플레이어 수만큼 사운드 효과 설정해준다
 	{
 		//m_ppObjects[i]->m_pAnimationController->SetCallbackKeys(m_ppObjects[i]->m_pAnimationController->RUNFAST, 2);
@@ -219,6 +221,17 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 			m_ppObjects[i]->m_pAnimationController->SetAnimationCallbackHandler(m_ppObjects[i]->m_pAnimationController->ATTACK, pAttackAnimationCallback,
 			 GetSoundData());
 		}
+
+		iter = map.find(ELECTRIC);
+
+		if (iter != map.end())
+		{
+			m_ppObjects[i]->m_pAnimationController->SetCallbackKeys(m_ppObjects[i]->m_pAnimationController->USEGOLDHAMMER, 1);
+			m_ppObjects[i]->m_pAnimationController->SetCallbackKey(m_ppObjects[i]->m_pAnimationController->USEGOLDHAMMER, 0, 0.3f, (void*)ELECTRIC);
+			m_ppObjects[i]->m_pAnimationController->SetAnimationCallbackHandler(m_ppObjects[i]->m_pAnimationController->USEGOLDHAMMER, pUseGoldHammerCallback,
+				GetSoundData());
+		}
+
 	}
 
 #ifndef _WITH_SERVER_
