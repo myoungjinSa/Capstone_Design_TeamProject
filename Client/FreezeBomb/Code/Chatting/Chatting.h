@@ -2,7 +2,9 @@
 #include "../Singleton/Singleton.h"
 #include <deque>
 
-constexpr int						m_maxChatSentenceCount = 13;
+constexpr int						m_maxChatSentenceCount = 20;
+
+
 
 
 class ChattingSystem : public Singleton<ChattingSystem>
@@ -31,21 +33,22 @@ protected:
 
 	
 	//LOBBY채팅에서의 최대 길이
-	enum class SENTENCE_LENGTH_LOBBY		{ENG=45,KOR=15};
+	enum class SENTENCE_LENGTH_LOBBY		{ENG=20,KOR=12};
 	
 	//INGAME채팅에서의 최대 길이
 	enum class SENTENCE_LENGTH_INGAME		{ENG=40,KOR=20};
 	
 	//vector<pair<TCHAR*, UINT32>> m_vecText;
-	deque<pair<TCHAR*, UINT32>> m_dequeText;
+	//deque<pair<TCHAR*, UINT32>> m_dequeText;
+	deque<pair<const TCHAR*, const UINT32>> m_dequeText;
 	//array<pair<TCHAR*,UINT32>,m_maxChatSentenceCount> m_arrText;
 public:
 	ChattingSystem();
 	virtual ~ChattingSystem();
 	void Initialize(IDWriteFactory*,ID2D1DeviceContext2*,IWICImagingFactory*);
 	void ProcessChatting(HWND hWnd,WPARAM wParam,LPARAM lParam,bool isIngame);
-	void PushChattingText(char* chat);
-	
+	void PushChattingText(const string& user,const char* chat);
+	void ProcessSpecialCharacter(WPARAM wParam);
 	//string -> TCHAR
 	TCHAR* StringToTCHAR(string& s);
 	string TCHARToString(const TCHAR* ptsz);

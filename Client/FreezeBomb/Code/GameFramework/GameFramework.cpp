@@ -41,6 +41,7 @@ volatile HWND g_hWnd;
 #endif
 
 CGameFramework::CGameFramework()
+	:m_GameStage{ 0 }
 {
 	m_pdxgiFactory = NULL;
 	m_pdxgiSwapChain = NULL;
@@ -71,6 +72,7 @@ CGameFramework::CGameFramework()
 
 	m_pScene = NULL;
 	m_pPlayer = NULL;
+
 
 	_tcscpy_s(m_pszFrameRate, _T("FreezeBomb ("));
 }
@@ -348,14 +350,16 @@ void CGameFramework::CreateDirect2DDevice()
 	m_pdwFont = new IDWriteTextFormat*[m_nNameFont];
 	m_pd2dbrText = new ID2D1SolidColorBrush*[m_nNameFont];
 	wstring fontPath = L"../Resource/Font/a피오피동글.ttf";
+	AddFontResourceEx(fontPath.c_str(), FR_PRIVATE, 0);
 	for (int i = 0; i < m_nNameFont; ++i)
-	{
-		AddFontResourceEx(fontPath.c_str(), FR_PRIVATE, 0);
+	{	
 		hResult = m_pdWriteFactory->CreateTextFormat(L"a피오피동글", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 30.0f, L"en-US", &m_pdwFont[i]);
 		hResult = m_pdwFont[i]->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 		hResult = m_pdwFont[i]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-		hResult = m_pdWriteFactory->CreateTextLayout(L"텍스트 레이아웃", 8, m_pdwFont[i], 4096.0f, 4096.0f, &m_pdwTextLayout);
+		hResult = m_pdWriteFactory->CreateTextLayout(L"텍스트 레이아웃", 8, m_pdwFont[i], 1024.0f, 1024.0f, &m_pdwTextLayout);
 	}
+
+
 
 	int index = 0;
 	//m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightBlue, 1.0f), &m_pd2dbrText[index++]);
@@ -366,6 +370,20 @@ void CGameFramework::CreateDirect2DDevice()
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightCoral, 1.0f), &m_pd2dbrText[index++]);
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LavenderBlush, 1.0f), &m_pd2dbrText[index++]);
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Magenta, 1.0f), &m_pd2dbrText[index++]);
+
+
+	////////////////////////////////////
+	//Stage Font 생성 
+	//AddFontResourceEx(fontPath.c_str(), FR_PRIVATE, 0);
+	hResult = m_pdWriteFactory->CreateTextFormat(L"a피오피오 동글", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 50.0f, L"en_US", &m_pdwStageInfoFont);
+	hResult = m_pdwStageInfoFont->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+	hResult = m_pdwStageInfoFont->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+	hResult = m_pdWriteFactory->CreateTextLayout(L"텍스트 레이아웃", 8, m_pdwStageInfoFont, 64, 64, &m_pdwStageTextLayout);
+
+
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Coral, 1.0f), &m_pd2dbrStageInfoText);
+	////////////////////////////////////
+
 
 	//Initializes the COM library on the current thread and identifies the concurrency model as single-thread apartment 
 	CoInitialize(NULL);
@@ -676,12 +694,14 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			if (wParam == '0')
 			{
 				g_Round = 0;
+				m_GameStage = g_Round;
 				m_pScene->ChangeRound();
 			}
 
 			else if (wParam == '1')
 			{
 				g_Round = 1;
+				m_GameStage = g_Round;
 				m_pScene->ChangeRound();
 			}
 
@@ -853,6 +873,10 @@ void CGameFramework::OnDestroy()
 	//Direct2D
 	if (m_pd2dbrBackground) m_pd2dbrBackground->Release();
 	if (m_pd2dbrBorder) m_pd2dbrBorder->Release();
+
+	if (m_pd2dbrStageInfoText) m_pd2dbrStageInfoText->Release();
+	if (m_pdwStageInfoFont) m_pdwStageInfoFont->Release();
+
 	for (int i = 0; i < m_nNameFont; ++i)
 	{
 		if (m_pdwFont[i]) m_pdwFont[i]->Release();
@@ -863,6 +887,8 @@ void CGameFramework::OnDestroy()
 	delete[]m_pd2dbrText;
 	m_pd2dbrText = nullptr;
 
+
+	if (m_pdwStageTextLayout) m_pdwStageTextLayout->Release();
 	if (m_pdwTextLayout) m_pdwTextLayout->Release();
 
 	ChattingSystem::GetInstance()->Destroy();
@@ -1415,6 +1441,48 @@ void CGameFramework::ShowPlayers()
 
 
 }
+
+void CGameFramework::DrawStageInfo()
+{
+	D2D1_RECT_F stageText = { 0.0f,0.0f,300.0f, 70.0f};
+	
+	switch (m_GameStage)
+	{
+	case 0:
+	{
+		const wstring s = to_wstring(m_GameStage) + L" Round";
+		m_pd2dDeviceContext->DrawTextW(s.c_str(), (UINT32)wcslen(s.c_str()), m_pdwStageInfoFont, &stageText, m_pd2dbrStageInfoText);
+
+		break;
+	}
+	case 1:
+	{
+		const wstring s = to_wstring(m_GameStage) + L" Round";
+		m_pd2dDeviceContext->DrawTextW(s.c_str(), (UINT32)wcslen(s.c_str()), m_pdwStageInfoFont, &stageText,  m_pd2dbrStageInfoText);
+
+		break;
+	}
+	case 2:
+	{
+		const wstring s = to_wstring(m_GameStage) + L" Round";
+		m_pd2dDeviceContext->DrawTextW(s.c_str(), (UINT32)wcslen(s.c_str()), m_pdwStageInfoFont, &stageText,  m_pd2dbrStageInfoText);
+
+		break;
+	}
+	case 3:
+	{
+		const wstring s = to_wstring(m_GameStage) + L" Round";
+		m_pd2dDeviceContext->DrawTextW(s.c_str(), (UINT32)wcslen(s.c_str()), m_pdwStageInfoFont, &stageText, m_pd2dbrStageInfoText);
+
+		break;
+	}
+	default:
+		cout << "존재 하지 않는 스테이지 입니다.\n";
+		break;
+	}
+
+
+}
 void CGameFramework::ProcessDirect2D()
 {
 	//AcquireWrappedResources() D3D11On12 디바이스에서 사용될 수 있는 D3D11 리소스들을 얻게해준다.
@@ -1450,6 +1518,7 @@ void CGameFramework::ProcessDirect2D()
 	}
 	case INGAME:
 	{
+		DrawStageInfo();
 		SetNamecard();
 
 		//채팅
@@ -1591,9 +1660,9 @@ void CGameFramework::ProcessPacket(char *packet)
 	{
 		pCh = reinterpret_cast<SC_PACKET_CHATTING*>(packet);
 
+		const string& clientName = m_mapClients[pCh->id].name;
 		
-			
-		ChattingSystem::GetInstance()->PushChattingText(pCh->message);
+		ChattingSystem::GetInstance()->PushChattingText(clientName,pCh->message);
 		
 		
 

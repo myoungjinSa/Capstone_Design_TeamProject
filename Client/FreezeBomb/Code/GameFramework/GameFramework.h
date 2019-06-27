@@ -47,7 +47,7 @@ public:
 	//HRESULT BindDC();
 	//HRESULT CreateDCRenderTarget();
 	void ShowReadyText();
-
+	void DrawStageInfo();
 	void ProcessDirect2D();
 #endif
 	void CreateDepthStencilView();
@@ -156,6 +156,7 @@ private:
 	ID3D12Resource*							m_ppd3dCartoonScreenRenderTargetBuffers[m_nCartoonScreenRenderTargetBuffers];
 	D3D12_CPU_DESCRIPTOR_HANDLE				m_pd3dCarttonScreenRenderTargetBufferCPUHandles[m_nCartoonScreenRenderTargetBuffers];
 
+	unsigned char							m_GameStage;
 	CSobelCartoonShader*					m_pCartoonShader{ nullptr };
 
 
@@ -166,6 +167,7 @@ private:
 	ID3D11DeviceContext				*m_pd3d11DeviceContext{ nullptr };//
 	ID2D1Factory3					*m_pd2dFactory{ nullptr };//
 	IDWriteFactory					*m_pdWriteFactory{ nullptr };//
+
 	ID2D1Device2					*m_pd2dDevice{ nullptr };//
 	ID2D1DeviceContext2				*m_pd2dDeviceContext{ nullptr };//
 
@@ -177,11 +179,15 @@ private:
 	ID2D1SolidColorBrush			*m_pd2dbrBorder{ nullptr };//
 	ID2D1SolidColorBrush			*m_pBlackBrush{ nullptr };
 	
+	IDWriteTextFormat				*m_pdwStageInfoFont{ nullptr };
 	IDWriteTextFormat				**m_pdwFont{ nullptr };//
 	const int						m_nNameFont=7;
 	//const int								m_nNameFont = 7;
+
 	IDWriteTextLayout				*m_pdwTextLayout{ nullptr };//
+	IDWriteTextLayout				*m_pdwStageTextLayout{ nullptr };
 	ID2D1SolidColorBrush			**m_pd2dbrText{ nullptr };//
+	ID2D1SolidColorBrush			*m_pd2dbrStageInfoText{ nullptr };
 	
 	
 	IWICImagingFactory				*m_pwicImagingFactory{ nullptr };

@@ -24,7 +24,7 @@ protected:
 	int								m_composeCount{ 0 };
 
 
-	enum LENGTH{ENG = 15,KOR = 10};
+	enum LENGTH{ENG = 15,KOR = 8};
 
 public:
 	CIDInput();

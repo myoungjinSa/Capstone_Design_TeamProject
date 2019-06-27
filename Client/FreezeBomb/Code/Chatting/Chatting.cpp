@@ -6,8 +6,7 @@
 #pragma comment(lib,"imm32.lib")
 #include <imm.h>
 
-
-
+#define NUMBER DIGIT_0 | DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4
 #ifdef _WITH_DIRECT2D_
 
 ChattingSystem::ChattingSystem()
@@ -34,13 +33,22 @@ void ChattingSystem::Initialize(IDWriteFactory* writeFactory, ID2D1DeviceContext
 
 	}
 
+
 	for (int i = 0; i < m_maxChatSentenceCount; ++i)
 	{
-		hResult = writeFactory->CreateTextFormat(L"고딕", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 30.0f, L"en-US", &m_pdwChattingFont[i]);
+		if (i == 0)
+		{
+			hResult = writeFactory->CreateTextFormat(L"고딕", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 30.0f, L"en-US", &m_pdwChattingFont[i]);
+		}
+		else
+		{
+			hResult = writeFactory->CreateTextFormat(L"고딕", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 20.0f, L"en-US", &m_pdwChattingFont[i]);
+
+		}
 		hResult = m_pdwChattingFont[i]->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
 		hResult = m_pdwChattingFont[i]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
 		hResult = writeFactory->CreateTextLayout(L"텍스트 레이아웃", 64, m_pdwChattingFont[i], 4096.0f, 4096.0f, &m_pdwChattingLayout);
-		pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black, 1.0f), &m_pd2dbrChatText[i]);
+		pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Coral, 1.0f), &m_pd2dbrChatText[i]);
 		//pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrChatText[i]);
 	}
 
@@ -107,24 +115,13 @@ void ChattingSystem::ShowLobbyChatting(ID2D1DeviceContext2* pd2dDeviceContext)
 
 	}
 
-	//for(int i = 0;i<m_vecText.size();++i)
-	//{
-	//	chatText = D2D1::RectF(680.0f, 580.0f - (i * 40), 1200.0f, 580.0f - (i * 40));
-
-	//	pd2dDeviceContext->DrawTextW(m_vecText[i].first, m_vecText[i].second, m_pdwChattingFont[i], &chatText, m_pd2dbrChatText[i]);
-	//	
-	//}
-	for (int i=0;i<m_dequeText.size();++i)
+	
+	for (int i = 1; i < m_dequeText.size()+1; ++i) 
 	{
-		chatText = D2D1::RectF(680.0f, 580.0f - (i * 40), 1200.0f, 580.0f - (i * 40));
-
-
-		pd2dDeviceContext->DrawTextW(m_dequeText[i].first, m_dequeText[i].second, m_pdwChattingFont[i], &chatText, m_pd2dbrChatText[i]);
-		
+	
+		chatText = D2D1::RectF(680.0f, 600.0f - (i * 24), 1200.0f, 600.0f - (i * 24));
+		pd2dDeviceContext->DrawTextW(m_dequeText[i-1].first, m_dequeText[i-1].second, m_pdwChattingFont[i], &chatText, m_pd2dbrChatText[i-1]);
 	}
-
-
-
 }
 
 
@@ -145,12 +142,191 @@ void ChattingSystem::ShowIngameChatting(ID2D1DeviceContext2* pd2dDeviceContext)
 	}
 }
 
+void ChattingSystem::ProcessSpecialCharacter(WPARAM wParam)
+{
+	//n_tcscpy_s()
+	if(DIGIT_0 <= wParam && wParam <= DIGIT_9)
+	{
+		if (m_wsChat.size() <= (size_t)18)
+		{
+			m_wsChat += (TCHAR)wParam;
+		}
+		
+	}
+	switch(wParam)
+	{
+	case '?':
+	{
+		
+		if(m_wsChat.size() <= (size_t)15)
+		{
+			m_wsChat.append(L"?");
+		}
+		break;
+	}
+	case '!':
+	{
+		if(m_wsChat.size() <= (size_t)15)
+		{
+			m_wsChat.append(L"!");
+		}
+		break;
+	}
+	case '@':
+	{
+		if(m_wsChat.size() <= (size_t)14)
+		{
+			m_wsChat.append(L"@");
+		}
+		break;
+	}
+	case '_':
+	{
+		if(m_wsChat.size() <= (size_t)15)
+		{
+			m_wsChat.append(L"_");
+		}
+		break;
+	}
+	case '-':
+	{
+		if(m_wsChat.size() <= (size_t)15)
+		{
+			m_wsChat.append(L"-");
+		}
+		break;
+	}
+	case '%':
+	{
+		if(m_wsChat.size() <= (size_t)14)
+		{
+			m_wsChat.append(L"%");
+		}
+		break;
+	}
+	case '^':
+	{
+		if(m_wsChat.size() <= (size_t)15)
+		{
+			m_wsChat.append(L"^");
+		}
+		break;
+	}
+	case '(':
+	{
+		if(m_wsChat.size() <= (size_t)15)
+		{
+			m_wsChat.append(L"(");
+		}
+		break;
+	}
+	case ')':
+	{
+		if(m_wsChat.size() <= (size_t)15)
+		{
+			m_wsChat.append(L")");
+		}
+		break;
+	}
+	case '$':
+	{
+		if(m_wsChat.size() <= (size_t)14)
+		{
+			m_wsChat.append(L"$");
+		}
+		break;
+	}
+	case '#':
+	{
+		if(m_wsChat.size() <= (size_t)14)
+		{
+			m_wsChat.append(L"#");
+		}
+		break;
+	}
+	case '*':
+	{
+		if(m_wsChat.size() <= (size_t)15)
+		{
+			m_wsChat.append(L"*");
+		}
+		break;
+	}
+	case '+':
+	{
+		if(m_wsChat.size() <= (size_t)15)
+		{
+			m_wsChat.append(L"+");
+		}
+		break;
+	}
+	case '.':
+	{
+		if(m_wsChat.size() <= (size_t)20)
+		{
+			m_wsChat.append(L".");
+		}
+		break;
+	}
+	case ',':
+	{
+		if(m_wsChat.size() <= (size_t)20)
+		{
+			m_wsChat.append(L",");
+		}
+		break;
+	}
+	case '&':
+	{
+		if(m_wsChat.size() <= (size_t)14)
+		{
+			m_wsChat.append(L"&");
+		}
+		break;
+	}
+	case '~':
+	{
+		if(m_wsChat.size() <= (size_t)15)
+		{
+			m_wsChat.append(L"~");
+		}
+		break;
+	}
+	case '"':
+	{
+		if(m_wsChat.size() <= (size_t)15)
+		{
+			m_wsChat += L'"';
+		}
+		break;
+	}
+	case ';':
+	{
+		if(m_wsChat.size() <= (size_t)20)
+		{
+			m_wsChat.append(L";");
+		}
+		break;
+	}
+	case ':':
+	{
+		if(m_wsChat.size() <= (size_t)20)
+		{
+			m_wsChat.append(L":");
+		}
+		break;
+	}
+	default:
+		break;
+	}
+
+}
 
 void ChattingSystem::ProcessChatting(HWND hWnd, WPARAM wParam, LPARAM lParam, bool isInGame)
 {
 
-	//n_tcscpy_s()
-	if (wParam == VK_RETURN)
+	
+	if(wParam == VK_RETURN)
 	{
 		if (m_wsChat.size() > 0)
 		{
@@ -167,7 +343,13 @@ void ChattingSystem::ProcessChatting(HWND hWnd, WPARAM wParam, LPARAM lParam, bo
 			m_wsChat.shrink_to_fit();
 		}
 	}
-
+	if(wParam == VK_SPACE)
+	{
+		if(m_wsChat.size() <= (size_t)24)
+		{
+			m_wsChat.append(L" ");
+		}
+	}
 
 	//현재 영문이 활성화 됐을 경우
 	if (GetIMEMode() == IME_CMODE_ALPHANUMERIC)
@@ -193,6 +375,9 @@ void ChattingSystem::ProcessChatting(HWND hWnd, WPARAM wParam, LPARAM lParam, bo
 	}
 	else if (GetIMEMode() == IME_CMODE_NATIVE)
 	{
+		//한글 입력에서는 특수문자 처리를 이 함수에서 해줘야한다.
+		ProcessSpecialCharacter(wParam);
+
 		if (wParam != VK_RETURN)
 		{
 			if (isInGame)
@@ -267,26 +452,29 @@ void ChattingSystem::Destroy()
 }
 #endif
 
-void ChattingSystem::PushChattingText(char* chat)
+void ChattingSystem::PushChattingText(const string& user,const char* chat)
 {
+	string s = user + ": ";
+	s.append(chat);
 
 	ZeroMemory(m_chat[m_nCurrentText], sizeof(256));
-	int nLen = MultiByteToWideChar(CP_ACP, 0, chat, strlen(chat), NULL, NULL);
-	MultiByteToWideChar(CP_ACP, 0, chat, strlen(chat), m_chat[m_nCurrentText], nLen);
+	int chattingLen = MultiByteToWideChar(CP_ACP, 0, s.c_str(), s.length(), NULL, NULL);
+	MultiByteToWideChar(CP_ACP, 0, s.c_str(), s.length(), m_chat[m_nCurrentText], chattingLen);
+
+
 	if(m_dequeText.size() >= m_maxChatSentenceCount-1)
 	{
-		
+		//가장 위에 위치한 텍스트를 pop한다.
 		m_dequeText.pop_back();
-
-		m_dequeText.emplace_front(make_pair(m_chat[m_nCurrentText], (UINT32)nLen));
+		m_dequeText.emplace_front(make_pair(m_chat[m_nCurrentText], (UINT32)chattingLen));
 		m_nCurrentText = (++m_nCurrentText) % m_maxChatSentenceCount;
 	}
 	else
 	{
-		m_dequeText.emplace_front(make_pair(m_chat[m_nCurrentText], (UINT32)nLen));
+		m_dequeText.emplace_front(make_pair(m_chat[m_nCurrentText], (UINT32)chattingLen));
 		m_nCurrentText = (++m_nCurrentText) % m_maxChatSentenceCount;
 	}
-	
+
 }
 
 //프로그램 내에서 한영 전환

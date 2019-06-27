@@ -608,15 +608,6 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		//pController->SetTrackSpeed(0, 10.0f);
 	}
 
-	//if (GetAsyncKeyState(VK_RSHIFT) & 0x0001 
-	//	&& pController->GetAnimationState() != CAnimationController::DIE
-	//	&& ChattingSystem::GetInstance()->IsChattingActive() ==false
-	//	)
-	//{
-	//	pController->SetTrackPosition(0, 0.0f);
-	//	pController->SetTrackAnimationSet(0, CAnimationController::DIE);
-	//	pController->SetAnimationState(CAnimationController::DIE);
-	//}
 
 	////얼음으로 변신
 	if (GetAsyncKeyState(VK_A) & 0x0001 && ChattingSystem::GetInstance()->IsChattingActive() ==false && m_bBomb == false)
