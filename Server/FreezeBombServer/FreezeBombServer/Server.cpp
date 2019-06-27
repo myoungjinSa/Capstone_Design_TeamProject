@@ -493,9 +493,7 @@ void Server::WorkerThreadFunc()
 			}
 			else
 			{
-				timer_l.lock();
 				add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
-				timer_l.unlock();
 			}
 		}
 		else if (EV_COLLIDED == over_ex->event_t)
@@ -505,9 +503,10 @@ void Server::WorkerThreadFunc()
 				pow(clients[key].pos.y - objects[objId].pos.y, 2) +
 				pow(clients[key].pos.z - objects[objId].pos.z, 2));
 
-			if (dist <= 3.5)
+			if (dist <= 15.5)
 			{
 				add_timer(key, EV_COLLIDED, chrono::high_resolution_clock::now() + 1s);
+				printf("Player %d is still collided with %d, dist = %f\n", key, objId, dist);
 				break;
 			}
 			clients[key].isCollided = false;
@@ -563,8 +562,8 @@ void Server::ProcessPacket(char client, char *packet)
 	case CS_UPRIGHT_KEY:
 	case CS_DOWNLEFT_KEY:
 	case CS_DOWNRIGHT_KEY:
-		if (true == clients[client].isCollided)
-			break;
+		//if (true == clients[client].isCollided)
+		//	break;
 		clientsLock[client].lock();
 		SetDirection(client, packet[1]);
 		//cout << gameTimer.GetTimeElapsed()<<endl;
@@ -604,18 +603,22 @@ void Server::ProcessPacket(char client, char *packet)
 			pow(clients[client].pos.y - objects[p->objId].pos.y, 2) +
 			pow(clients[client].pos.z - objects[p->objId].pos.z, 2));
 		
-		clients[client].isCollided = true;
-		clients[client].collidedObjId = p->objId;
-		add_timer(client, EV_COLLIDED, chrono::high_resolution_clock::now() + 1s);
-		printf("Player %d is collided with %d, dist = %f\n", client, p->objId, dist);
-
-		for (int i = 0; i < MAX_USER; ++i)
+		if (false == clients[client].isCollided)
 		{
-			if (clients[i].in_use == true)
+			clients[client].isCollided = true;
+			clients[client].collidedObjId = p->objId;
+			add_timer(client, EV_COLLIDED, chrono::high_resolution_clock::now() + 1s);
+
+			for (int i = 0; i < MAX_USER; ++i)
 			{
-				SendCollided(i, client);
+				if (clients[i].in_use == true)
+				{
+					SendCollided(i, client);
+				}
 			}
 		}
+
+		
 		break;
 	}
 	case CS_ANIMATION_INFO:		//클라가 애니메이션이 변경되었을때 패킷을 서버에게 보내고.
@@ -754,9 +757,7 @@ void Server::ProcessPacket(char client, char *packet)
 			}
 			// 라운드 시작시간 set
 			StartTimer();
-			timer_l.lock();
 			add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
-			timer_l.unlock();
 			//for (int i = 0; i < MAX_USER; ++i)
 			//{
 			//	if (true == clients[i].in_use)

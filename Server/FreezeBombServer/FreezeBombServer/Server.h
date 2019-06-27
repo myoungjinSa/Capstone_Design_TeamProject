@@ -146,7 +146,7 @@ private:
 	XMFLOAT3 gravity;
 	vector<MAPOBJECT> objects;
 
-	static mutex timer_l;
+	mutex timer_l;
 	priority_queue <EVENT_ST> timer_queue;
 
 	float roundCurrTime;
