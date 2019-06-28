@@ -16,6 +16,7 @@
 #include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
 #include "../Shader/BillboardShader/UIShader/TextUIShader/OutcomeUIShader/OutcomeUIShader.h"
 
+#include "../Network/Network.h"
 
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -691,6 +692,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 			{
 				if((*iter2)->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
+					Network::GetInstance()->SendCollided((*iter2)->getIndex());
 					m_pPlayer->SetObjectCollided((*iter2));
 					XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize((*iter2)->GetPosition() ,m_pPlayer->GetPosition());
 					xmf3CollisionDir=Vector3::ScalarProduct(xmf3CollisionDir, m_pPlayer->GetMaxVelocity()*0.3f);
