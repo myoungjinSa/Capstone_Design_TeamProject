@@ -65,6 +65,7 @@ constexpr int CS_ANIMATION_INFO = 12;
 constexpr int CS_NICKNAME_INFO = 13;
 constexpr int CS_CHATTING = 14;
 constexpr int CS_COLLIDED = 15;
+constexpr int CS_USEITEM = 16;
 
 
 
@@ -239,6 +240,14 @@ struct CS_PACKET_COLLIDED
 	int objId;
 };
 
+struct CS_PACKET_USE_ITEM
+{
+	char size;
+	char type;
+	char target;			// 사용대상이 존재할 때
+	char usedItem;			// 사용되는 아이템 정보
+};
+
 //////////////////////////////////////////////////////
 
 //[서버->클라]
@@ -353,6 +362,7 @@ struct SC_PACKET_USE_ITEM
 	char size;
 	char type;
 	char id;
+	char target;
 	char usedItem;			// 사용되는 아이템 정보
 };
 

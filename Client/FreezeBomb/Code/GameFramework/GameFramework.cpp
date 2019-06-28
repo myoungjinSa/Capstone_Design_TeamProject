@@ -1499,22 +1499,22 @@ void CGameFramework::ProcessPacket(char *packet)
 	{
 		pLI = reinterpret_cast<SC_PACKET_LOBBY_IN*>(packet);
 
-	//	if (pLI->id == m_pPlayer->GetPlayerID())
-	//	{
+		//	if (pLI->id == m_pPlayer->GetPlayerID())
+		//	{
 
-		//}
-	//	else if (pLI->id < MAX_USER)
-	//	{
+			//}
+		//	else if (pLI->id < MAX_USER)
+		//	{
 
-			m_mapClients.emplace((int)pLI->id,pLI->client_state);
+		m_mapClients.emplace((int)pLI->id, pLI->client_state);
 
-			cout << pLI->client_state.name << endl;
-	//	}
+		cout << pLI->client_state.name << endl;
+		//	}
 		break;
 	}
 	case SC_CLIENT_LOBBY_OUT:
 	{
-		
+
 		break;
 	}
 	case SC_READY_STATE:
@@ -1525,7 +1525,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		break;
 	}
-	case SC_UNREADY_STATE: 
+	case SC_UNREADY_STATE:
 	{
 		pNotReady = reinterpret_cast<SC_PACKET_UNREADY_STATE*>(packet);
 
@@ -1538,11 +1538,11 @@ void CGameFramework::ProcessPacket(char *packet)
 	{
 		pCh = reinterpret_cast<SC_PACKET_CHATTING*>(packet);
 
-		
-			
+
+
 		ChattingSystem::GetInstance()->PushChattingText(pCh->message);
-		
-		
+
+
 
 		break;
 	}
@@ -1557,7 +1557,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pPlayer->SetIsBomb(true);
 		else if (pRS->bomberID < MAX_USER)
 		{
-			
+
 			// 다른 클라가 술래일 경우 isBomber를 set해줘야 폭탄을 그리지 않을까?
 		}
 		clientCount = pRS->clientCount;
@@ -1581,27 +1581,27 @@ void CGameFramework::ProcessPacket(char *packet)
 			XMFLOAT3 look = XMFLOAT3(pPP->xLook, pPP->yLook, pPP->zLook);
 			XMFLOAT3 up = XMFLOAT3(pPP->xUp, pPP->yUp, pPP->zUp);
 			XMFLOAT3 right = XMFLOAT3(pPP->xRight, pPP->yRight, pPP->zRight);
-			
-		//	MappingUserToEvilbear(pPP->id, clientCount/*현재 접속한 유저 수를 받아야함 */);
 
-			//cout <<"플레이어 ID-"<<(int)pPP->id<<",재질 -" <<(int)pPP->matID << "\n";
+			//	MappingUserToEvilbear(pPP->id, clientCount/*현재 접속한 유저 수를 받아야함 */);
+
+				//cout <<"플레이어 ID-"<<(int)pPP->id<<",재질 -" <<(int)pPP->matID << "\n";
 			m_pPlayer->SetMaterialID(pPP->matID);	//플레이어 재질정	보 SET
 			m_pPlayer->SetPosition(pos);
 			m_pPlayer->SetLookVector(look);
 			m_pPlayer->SetUpVector(up);
 			m_pPlayer->SetRightVector(right);
 			m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
-		//m_pPlayer->SetDirection()
+			//m_pPlayer->SetDirection()
 		}
-		else if(pPP->id < MAX_USER)
+		else if (pPP->id < MAX_USER)
 		{
 			char id = pPP->id;
-			
-			XMFLOAT3 pos = XMFLOAT3(pPP->xPos,pPP->yPos, pPP->zPos);
+
+			XMFLOAT3 pos = XMFLOAT3(pPP->xPos, pPP->yPos, pPP->zPos);
 			XMFLOAT3 look = XMFLOAT3(pPP->xLook, pPP->yLook, pPP->zLook);
 			XMFLOAT3 up = XMFLOAT3(pPP->xUp, pPP->yUp, pPP->zUp);
 			XMFLOAT3 right = XMFLOAT3(pPP->xRight, pPP->yRight, pPP->zRight);
-			
+
 
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("곰돌이");
 
@@ -1619,7 +1619,7 @@ void CGameFramework::ProcessPacket(char *packet)
 				(*iter).second->m_ppObjects[id]->SetScale(10, 10, 10);
 			}
 		}
-		
+
 		//printf("Put Player ID: %d, xPos: %f, yPos: %f, zPod: %f\n", pPP->id, pPP->xPos, pPP->yPos, pPP->zPos);
 		break;
 	case SC_MOVE_PLAYER:
@@ -1627,19 +1627,19 @@ void CGameFramework::ProcessPacket(char *packet)
 		//SC_PACKET_MOVE_PLAYER* pMP = m_Network.GetMP();
 		pMP = reinterpret_cast<SC_PACKET_MOVE_PLAYER*>(packet);
 
-		if(pMP->id==m_pPlayer->GetPlayerID())
+		if (pMP->id == m_pPlayer->GetPlayerID())
 		{
 			XMFLOAT3 pos = XMFLOAT3(pMP->xPos, pMP->yPos, pMP->zPos);
 			XMFLOAT3 look = XMFLOAT3(pMP->xLook, pMP->yLook, pMP->zLook);
 			XMFLOAT3 up = XMFLOAT3(pMP->xUp, pMP->yUp, pMP->zUp);
 			XMFLOAT3 right = XMFLOAT3(pMP->xRight, pMP->yRight, pMP->zRight);
-			
+
 
 			m_pPlayer->SetPosition(pos);
 			m_pPlayer->SetLookVector(look);
 			m_pPlayer->SetUpVector(up);
 			m_pPlayer->SetRightVector(right);
-			
+
 			m_pPlayer->Rotate(pMP->pitch, pMP->yaw, pMP->roll);
 			m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
 			m_pPlayer->SetVelocityFromServer(pMP->fVelocity);
@@ -1647,15 +1647,15 @@ void CGameFramework::ProcessPacket(char *packet)
 		else if (pMP->id < MAX_USER)
 		{
 			char id = pMP->id;
-			
-			XMFLOAT3 pos = XMFLOAT3(pMP->xPos,pMP->yPos, pMP->zPos);
+
+			XMFLOAT3 pos = XMFLOAT3(pMP->xPos, pMP->yPos, pMP->zPos);
 			XMFLOAT3 look = XMFLOAT3(pMP->xLook, pMP->yLook, pMP->zLook);
 			XMFLOAT3 up = XMFLOAT3(pMP->xUp, pMP->yUp, pMP->zUp);
 			XMFLOAT3 right = XMFLOAT3(pMP->xRight, pMP->yRight, pMP->zRight);
 
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("곰돌이");
 
-			
+
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
 				(*iter).second->m_ppObjects[id]->SetPosition(pos);
@@ -1684,14 +1684,14 @@ void CGameFramework::ProcessPacket(char *packet)
 			char animNum = pPA->animation;
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("곰돌이");
 
-			
+
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
 				(*iter).second->m_ppObjects[id]->SetTrackAnimationSet(0, animNum);
 				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)animNum);
-				if((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::RAISEHAND)
+				if ((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::RAISEHAND)
 					(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackPosition(0, 0.0f);
-				
+
 			}
 		}
 
@@ -1723,6 +1723,8 @@ void CGameFramework::ProcessPacket(char *packet)
 		SC_PACKET_COLLIDED *pC = reinterpret_cast<SC_PACKET_COLLIDED *>(packet);
 		printf("Player %d Collided!!\n", pC->id);
 
+		// 여기에 충돌 후처리 코드 작성
+
 		break;
 	}
 	case SC_REMOVE_PLAYER:
@@ -1753,6 +1755,13 @@ void CGameFramework::ProcessPacket(char *packet)
 			dynamic_cast<CTimerUIShader*>((*iter).second)->CompareServerTimeAndSet(pCT->serverTime);
 		}
 		//cout << "ServerTime: " << pCT->serverTime << "\n";
+		break;
+	}
+	case SC_USE_ITEM:
+	{
+		SC_PACKET_USE_ITEM *pUI = reinterpret_cast<SC_PACKET_USE_ITEM *>(packet);
+
+		cout << "Player " << pUI->id << "used Item " << pUI->usedItem << "\n";
 		break;
 	}
 	}

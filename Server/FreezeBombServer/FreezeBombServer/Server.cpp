@@ -474,7 +474,7 @@ void Server::WorkerThreadFunc()
 			roundCurrTime--;
 
 			//서버 시간 현재 (남은 시간)
-			printf("SendCompareTime() 전송\n");
+			printf("RoundCurrentTime : %d", roundCurrTime);
 			for (int i = 0; i < MAX_USER; ++i)
 			{
 				if (true == clients[i].in_use)
@@ -495,23 +495,6 @@ void Server::WorkerThreadFunc()
 			{
 				add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
 			}
-		}
-		else if (EV_COLLIDED == over_ex->event_t)
-		{
-			int objId = clients[key].collidedObjId;
-			float dist = sqrt(pow(clients[key].pos.x - objects[objId].pos.x, 2) +
-				pow(clients[key].pos.y - objects[objId].pos.y, 2) +
-				pow(clients[key].pos.z - objects[objId].pos.z, 2));
-
-			if (dist <= 15.5)
-			{
-				add_timer(key, EV_COLLIDED, chrono::high_resolution_clock::now() + 1s);
-				printf("Player %d is still collided with %d, dist = %f\n", key, objId, dist);
-				break;
-			}
-			clients[key].isCollided = false;
-
-			break;
 		}
 		else
 		{
@@ -603,21 +586,13 @@ void Server::ProcessPacket(char client, char *packet)
 			pow(clients[client].pos.y - objects[p->objId].pos.y, 2) +
 			pow(clients[client].pos.z - objects[p->objId].pos.z, 2));
 		
-		if (false == clients[client].isCollided)
+		for (int i = 0; i < MAX_USER; ++i)
 		{
-			clients[client].isCollided = true;
-			clients[client].collidedObjId = p->objId;
-			add_timer(client, EV_COLLIDED, chrono::high_resolution_clock::now() + 1s);
-
-			for (int i = 0; i < MAX_USER; ++i)
+			if (clients[i].in_use == true)
 			{
-				if (clients[i].in_use == true)
-				{
-					SendCollided(i, client);
-				}
+				SendCollided(i, client);
 			}
 		}
-
 		
 		break;
 	}
@@ -792,6 +767,24 @@ void Server::ProcessPacket(char client, char *packet)
 		}
 		break;
 
+	case CS_USEITEM:
+	{
+		CS_PACKET_USE_ITEM *p = reinterpret_cast<CS_PACKET_USE_ITEM *>(packet);
+
+		if (GOLD_TIMER == p->usedItem)
+		{
+			roundCurrTime += 60;
+		}
+		
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (clients[i].in_use == true)
+			{
+				SendUseItem(i, client, p->usedItem, p->target);
+			}
+		}
+		break;
+	}
 	default:
 		wcout << L"정의되지 않은 패킷 도착 오류!!\n";
 		while (true);
@@ -1033,6 +1026,18 @@ void Server::SendCollided(char toClient, char fromClient)
 	packet.id = fromClient;
 	packet.size = sizeof(packet);
 	packet.type = SC_COLLIDED;
+
+	SendFunc(toClient, &packet);
+}
+
+void Server::SendUseItem(char toClient, char fromClient, char usedItem, char targetClient)
+{
+	SC_PACKET_USE_ITEM packet;
+
+	packet.id = fromClient;
+	packet.target = targetClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_USE_ITEM;
 
 	SendFunc(toClient, &packet);
 }

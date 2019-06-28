@@ -321,6 +321,18 @@ void Network::SendCollided(int objId)
 	SendPacket();
 }
 
+void Network::SendUseItem(int usedItem, int targetId)
+{
+	pUseItem = reinterpret_cast<CS_PACKET_USE_ITEM *>(send_buffer);
+	pUseItem->usedItem = usedItem;
+	pUseItem->target = targetId;
+	pUseItem->size = sizeof(pUseItem);
+	send_wsabuf.len = sizeof(pUseItem);
+	pUseItem->type = CS_USEITEM;
+
+	SendPacket();
+}
+
 void Network::SetGameFrameworkPtr(HWND hWnd,CGameFramework* client)
 {
 	if (client) 

@@ -33,7 +33,7 @@ constexpr float MAX_VELOCITY_Y = 400;
 
 constexpr int MAX_WORKER_THREAD = 2;
 
-enum EVENT_TYPE { EV_COUNT, EV_COLLIDED, EV_RECV, EV_SEND };
+enum EVENT_TYPE { EV_COUNT, EV_RECV, EV_SEND };
 
 // Overlapped구조체 확장
 struct OVER_EX {
@@ -74,8 +74,6 @@ public:
 	XMFLOAT3 lastRightVector;
 	XMFLOAT3 lastLookVector;
 	XMFLOAT3 lastUpVector;
-	bool isCollided;
-	int collidedObjId;
 	
 	char score;
 	char normalItem;
@@ -91,7 +89,6 @@ public:
 public:
 	SOCKETINFO() {
 		in_use = false;
-		isCollided = false;
 		score = 0;
 		normalItem = ITEM::NONEITEM;
 		specialItem = ITEM::NONEITEM;
@@ -149,7 +146,7 @@ private:
 	mutex timer_l;
 	priority_queue <EVENT_ST> timer_queue;
 
-	float roundCurrTime;
+	int roundCurrTime;
 	int clientCount;
 	int readyCount;
 	int hostId;
@@ -188,6 +185,7 @@ public:
 	void SendCompareTime(char client);
 	void SendStopRunAnim(char toClient, char fromClient);
 	void SendCollided(char toClient, char fromClient);
+	void SendUseItem(char toClient, char fromClient, char usedItem, char targetClient);
 public:
 	void SetAnimationState(char client,char animationNum);
 	void SetVelocityZero(char client);
