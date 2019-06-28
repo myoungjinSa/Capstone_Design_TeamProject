@@ -490,24 +490,20 @@ void Server::ProcessPacket(char client, char *packet)
 	{
 		CS_PACKET_NICKNAME* p = reinterpret_cast<CS_PACKET_NICKNAME*>(packet);
 		
-		//int nLen = MultiByteToWideChar(CP_ACP, 0, p->name, strlen(p->name), NULL, NULL);
-		//MultiByteToWideChar(CP_ACP, 0, p->name, strlen(p->name), clients[client].nickname, nLen);
-		vector<int> vec;
+	
 		strcpy_s(clients[client].nickname, sizeof(p->name), p->name);
-		for(int i=0;i<MAX_USER;++i)
+		for (int i = 0; i < MAX_USER; ++i)
+			if (true == clients[i].in_use)
+				SendClientLobbyIn(i, client,clients[client].nickname);
+
+		// 처음 접속한 나에게 기존 유저들 출력
+		for (int i = 0; i < MAX_USER; ++i)
 		{
-			
-			if(true == clients[i].in_use)
-			{
-				vec.emplace_back(i);
-				SendClientLobbyIn(i, client, p->name);
-			
-				//client
-			}
-		}
-		for(auto user : vec)
-		{
-			SendClientLobbyIn(client, user, clients[user].nickname);
+			if (false == clients[i].in_use)
+				continue;
+			if (i == client)
+				continue;
+			SendClientLobbyIn(client, i,clients[i].nickname);
 		}
 		cout << clients[client].nickname << endl;
 		cout <<(int)p->id << endl;

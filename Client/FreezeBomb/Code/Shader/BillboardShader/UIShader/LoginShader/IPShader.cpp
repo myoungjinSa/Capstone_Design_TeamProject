@@ -163,7 +163,7 @@ void CIPShader::AnimateObjects(float fTimeElapsed)
 
 void CIPShader::DecideTextureByCursor(LONG mouseX,LONG mouseY,UINT& p)
 {
-	cout << mouseX << "," << mouseY<<endl;
+	//cout << mouseX << "," << mouseY<<endl;
 	if (339 <= mouseX && mouseX <= 827 && 656 <= mouseY && mouseY <= 692)
 	{
 			g_CurrentTexture = IP_SELECT;

@@ -1522,7 +1522,7 @@ void CGameFramework::ProcessDirect2D()
 		SetNamecard();
 
 		//채팅
-		ChattingSystem::GetInstance()->ShowIngameChatting(m_pd2dDeviceContext);
+		ChattingSystem::GetInstance()->ShowIngameChatting(m_pd2dDeviceContext,m_GameTimer.GetTimeElapsed());
 
 		ShowScoreboard();
 		break;
@@ -1627,10 +1627,13 @@ void CGameFramework::ProcessPacket(char *packet)
 		//}
 	//	else if (pLI->id < MAX_USER)
 	//	{
-
-			m_mapClients.emplace((int)pLI->id,pLI->client_state);
-
-			cout << pLI->client_state.name << endl;
+		if (pLI->id < MAX_USER)
+		{
+			m_mapClients[(int)pLI->id] = pLI->client_state;
+			//맵의 emplace는 한번 생성하면 똑같은 키에 value를 넣는 작업을 하지 않는다.(중복을 허용하지 않기 때문에)
+			cout << "ID : " <<(int) pLI->id << endl;
+			cout << "닉네임 : "<<pLI->client_state.name << endl;
+		}
 	//	}
 		break;
 	}
@@ -1662,6 +1665,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		const string& clientName = m_mapClients[pCh->id].name;
 		
+		ChattingSystem::GetInstance()->SetActive(true);
 		ChattingSystem::GetInstance()->PushChattingText(clientName,pCh->message);
 		
 		
@@ -1689,6 +1693,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pLobbyScene->StopBackgroundMusic();
 		}
 		m_nState = INGAME;
+		ChattingSystem::GetInstance()->SetActive(false);
 		printf("Round Start! Bomber is %d\n", pRS->bomberID);
 		break;
 	case SC_PUT_PLAYER:
@@ -1845,6 +1850,39 @@ void CGameFramework::ProcessPacket(char *packet)
 		//SC_PACKET_REMOVE_PLAYER* pRP = m_Network.GetRP();
 		pRP = reinterpret_cast<SC_PACKET_REMOVE_PLAYER*>(packet);
 		hostId = pRP->hostId;
+
+
+		if (pRP->id != m_pPlayer->GetPlayerID())
+		{
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+		
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				char id = pRP->id;
+				vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+
+				auto vecIter = find_if(vec.begin(), vec.end(), [&id](const pair<char,char>& p) {
+					return p.first == id;
+				});
+				if (vecIter != vec.end())
+				{
+					vec.erase(vecIter);
+				}
+				
+				(*iter).second->m_ppObjects[id]->SetPosition(0.0f, 0.0f, 0.0f);
+				(*iter).second->m_ppObjects[id]->SetScale(0.0f, 0.0f, 0.0f);
+
+
+				string s = "님이 나가셨습니다.";
+				string user = m_mapClients[id].name;
+				ChattingSystem::GetInstance()->SetActive(true);
+				ChattingSystem::GetInstance()->PushChattingText(user,s.c_str());
+			}
+		}
+
+		
+
 		printf("Player Disconnected ID : %d\n", pRP->id);
 		break;
 	}
@@ -2116,121 +2154,6 @@ void CGameFramework::FrameAdvance()
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 }
 
-#ifdef _WITH_SERVER_
-
-//void CGameFramework::CreateLoginCommandList()
-//{
-//	HRESULT Result;
-//
-//	Result = m_pd3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), (void **)&m_pLoginCommandAllocator);
-//	Result = m_pd3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pLoginCommandAllocator, nullptr, __uuidof(ID3D12GraphicsCommandList), (void **)&m_pLoginCommandList);
-//	Result = m_pLoginCommandList->Close();
-//
-//}
-
-//void CGameFramework::Connect_Thread(CIPScene* pLoginScene)
-//{
-//
-//	m_GameTimer.Reset();
-//
-//	//네트워크 연결이 성공하면 루프 탈출
-//	while(!g_LoginFinished)
-//	{
-//		m_GameTimer.Tick(60.0f);
-//		float elapsedTime = m_GameTimer.GetTimeElapsed();
-//		
-//		pLoginScene->ProcessInput();
-//
-//		pLoginScene->AnimateObjects(m_pLoginCommandList, elapsedTime);
-//		float pfClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-//
-//		
-//		HRESULT hResult = m_pLoginCommandAllocator->Reset();
-//		hResult = m_pLoginCommandList->Reset(m_pLoginCommandAllocator, NULL);
-//
-//		D3D12_VIEWPORT	d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
-//		D3D12_RECT		d3dScissorRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
-//		m_pLoginCommandList->RSSetViewports(1, &d3dViewport);
-//		m_pLoginCommandList->RSSetScissorRects(1, &d3dScissorRect);
-//		
-//		// 리소스 장벽(Barrier)
-//		D3D12_RESOURCE_BARRIER d3dResourceBarrier;
-//		::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
-//		d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-//		d3dResourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-//		d3dResourceBarrier.Transition.pResource = m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex];
-//		// StateBefore가 Present 상태가 되어야, DXGI가 Present를 실행한다.
-//		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-//		// StateAfter가 Render_Target 상태가 되면, Present가 끝나고 GPU가 그림을 바꿀 수 있다.
-//		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-//		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-//		m_pLoginCommandList->ResourceBarrier(1, &d3dResourceBarrier);
-//
-//
-//		D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-//		d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
-//		D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-//
-//		m_pLoginCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, FALSE, &d3dDsvCPUDescriptorHandle);
-//
-//		m_pLoginCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor, 0, NULL);
-//
-//		m_pLoginCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
-//
-//		pLoginScene->Render(m_pLoginCommandList);
-//
-//	
-//		/*d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-//
-//
-//		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-//		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-//		m_pLoginCommandList->ResourceBarrier(1, &d3dResourceBarrier);*/
-//
-//		m_pLoginCommandList->Close();
-//		ID3D12CommandList* ppd3dCommandLists[] = { m_pLoginCommandList };
-//
-//		m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
-//		WaitForGpuComplete();
-//
-//	
-//		//////AcquireWrappedResources() D3D11On12 디바이스에서 사용될 수 있는 D3D11 리소스들을 얻게해준다.
-//		//////이 함수는 렌더링 할 Wrapped Resource 들을 다시 사용할 수 있다고 암시해준다. 
-//		m_pd3d11On12Device->AcquireWrappedResources(&m_ppd3d11WrappedBackBuffers[m_nSwapChainBufferIndex], 1);
-//
-//		////Direct2D 디바이스가 렌더 할 비트맵이나 커맨드 리스트를 설정한다.
-//		m_pd2dDeviceContext->SetTarget(m_ppd2dRenderTargets[m_nSwapChainBufferIndex]);
-//
-//		m_pd2dDeviceContext->BeginDraw();
-//
-//		// Apply the rotation transform to the render target
-//		m_pd2dDeviceContext->SetTransform(D2D1::Matrix3x2F::Identity());
-//
-//		//D2D1_SIZE_F : float형태의 가로 세로 쌍을 저장한 구조체
-//		D2D1_SIZE_F szRenderTarget = m_ppd2dRenderTargets[m_nSwapChainBufferIndex]->GetSize();
-//
-//		pLoginScene->DrawFont();
-//
-//		m_pd2dDeviceContext->EndDraw();
-//
-//		//Releases D3D11 resources that were wrapped for D3D 11on12
-//		m_pd3d11On12Device->ReleaseWrappedResources(&m_ppd3d11WrappedBackBuffers[m_nSwapChainBufferIndex], 1);
-//
-//		//,커맨드 버퍼에 대기중인 커맨드를 gpu로 전송
-//		m_pd3d11DeviceContext->Flush();
-//
-//
-//
-//		m_pdxgiSwapChain->Present(0, 0);
-//
-//		MoveToNextFrame();
-//
-//	}
-//
-//}
-
-
-#endif
 void CGameFramework::Worker_Thread()
 {
 	if (m_pLoadingCommandList)

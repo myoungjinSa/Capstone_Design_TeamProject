@@ -62,7 +62,7 @@ public:
 
 	void SetActive(bool active) { m_bActive = active; }
 	bool IsChattingActive() { return m_bActive; }
-	void ShowIngameChatting(ID2D1DeviceContext2* pd2dDeviceContext);
+	void ShowIngameChatting(ID2D1DeviceContext2* pd2dDeviceContext,float fTimeElapsed);
 	void ShowLobbyChatting(ID2D1DeviceContext2* pd2dDeviceContext);
 
 	void Destroy();

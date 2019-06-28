@@ -163,7 +163,7 @@ void CIDShader::AnimateObjects(float fTimeElapsed)
 
 int CIDShader::DecideTextureByCursor(WPARAM wParam,LONG mouseX,LONG mouseY)
 {
-	cout << mouseX << "," << mouseY<<endl;
+	//cout << mouseX << "," << mouseY<<endl;
 
 	
 	if (339 <= mouseX && mouseX <= 827 && 656 <= mouseY && mouseY <= 692)
