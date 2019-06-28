@@ -203,6 +203,7 @@
     <ClInclude Include="..\Code\Physics\Particle\Particle.h" />
     <ClInclude Include="..\Code\Physics\Physics.h" />
     <ClInclude Include="..\Code\Physics\Precision.h" />
+    <ClInclude Include="..\Code\Physics\Random.h" />
     <ClInclude Include="..\Code\ResourceManager\ResourceManager.h" />
     <ClInclude Include="..\Code\Scene\LoadingScene\LoadingScene.h" />
     <ClInclude Include="..\Code\Scene\LobbyScene\LobbyScene.h" />
@@ -280,8 +281,10 @@
     <ClCompile Include="..\Code\Mesh\LODMesh\LODMesh.cpp" />
     <ClCompile Include="..\Code\Mesh\Mesh.cpp" />
     <ClCompile Include="..\Code\Network\Network.cpp" />
+    <ClCompile Include="..\Code\Physics\Particle\Fireworks\Firework.cpp" />
     <ClCompile Include="..\Code\Physics\Particle\Particle.cpp" />
     <ClCompile Include="..\Code\Physics\Physics.cpp" />
+    <ClCompile Include="..\Code\Physics\Random.cpp" />
     <ClCompile Include="..\Code\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="..\Code\Scene\LoadingScene\LoadingScene.cpp" />
     <ClCompile Include="..\Code\Scene\LobbyScene\LobbyScene.cpp" />

@@ -243,6 +243,12 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\ThunderShader\ThunderShader.cpp">
       <Filter>Code\Shader\BillboardShader\ThunderShader</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\Physics\Particle\Fireworks\Firework.cpp">
+      <Filter>Code\Physics\Particle\Firework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Physics\Random.cpp">
+      <Filter>Code\Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h">
@@ -487,6 +493,9 @@
     </ClInclude>
     <ClInclude Include="..\Code\Shader\BillboardShader\ThunderShader\ThunderShader.h">
       <Filter>Code\Shader\BillboardShader\ThunderShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Physics\Random.h">
+      <Filter>Code\Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -735,6 +744,9 @@
     </Filter>
     <Filter Include="Code\Shader\BillboardShader\ThunderShader">
       <UniqueIdentifier>{34c60b87-f158-4ccb-8d2a-3e0e3ba7fb13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Physics\Particle\Firework">
+      <UniqueIdentifier>{f32276c4-596f-40dd-b368-c0c9b81ac850}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
