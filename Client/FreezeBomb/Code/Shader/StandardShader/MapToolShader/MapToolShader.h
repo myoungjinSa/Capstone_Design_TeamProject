@@ -66,7 +66,5 @@ private:
 	int m_nCurrPineTreeModelIndex = 0;
 	int m_nCurrBigRockModelIndex = 0;
 	int m_nCurrFenceModelIndex = 0;
-
-	int g_nIndex = 0;
 };
 

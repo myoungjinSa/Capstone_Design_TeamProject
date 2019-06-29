@@ -33,12 +33,15 @@ byte g_PlayerCharacter = CGameObject::BROWN;
 extern volatile size_t g_TotalSize;
 extern volatile size_t g_FileSize;
 
+unsigned char g_Round = 0;
+
 #ifdef _WITH_SERVER_
-extern volatile bool g_LoginFinished;
+//extern volatile bool g_LoginFinished;
 volatile HWND g_hWnd;
 #endif
 
 CGameFramework::CGameFramework()
+	:m_GameStage{ 0 }
 {
 	m_pdxgiFactory = NULL;
 	m_pdxgiSwapChain = NULL;
@@ -70,6 +73,7 @@ CGameFramework::CGameFramework()
 	m_pScene = NULL;
 	m_pPlayer = NULL;
 
+
 	_tcscpy_s(m_pszFrameRate, _T("FreezeBomb ("));
 }
 
@@ -85,10 +89,10 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CreateDirect3DDevice();
 	CreateCommandQueueAndList();
 	CreateLoadingCommandList();
-#ifdef _WITH_SERVER_
-	CreateLoginCommandList();
-	
-#endif 
+//#ifdef _WITH_SERVER_
+//	CreateLoginCommandList();
+//	
+//#endif 
 #ifdef _WITH_DIRECT2D_
 	CreateDirect2DDevice();
 #endif
@@ -345,21 +349,41 @@ void CGameFramework::CreateDirect2DDevice()
 
 	m_pdwFont = new IDWriteTextFormat*[m_nNameFont];
 	m_pd2dbrText = new ID2D1SolidColorBrush*[m_nNameFont];
+	wstring fontPath = L"../Resource/Font/a피오피동글.ttf";
+	AddFontResourceEx(fontPath.c_str(), FR_PRIVATE, 0);
 	for (int i = 0; i < m_nNameFont; ++i)
-	{
-		hResult = m_pdWriteFactory->CreateTextFormat(L"고딕", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 30.0f, L"en-US", &m_pdwFont[i]);
+	{	
+		hResult = m_pdWriteFactory->CreateTextFormat(L"a피오피동글", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 30.0f, L"en-US", &m_pdwFont[i]);
 		hResult = m_pdwFont[i]->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 		hResult = m_pdwFont[i]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-		hResult = m_pdWriteFactory->CreateTextLayout(L"텍스트 레이아웃", 8, m_pdwFont[i], 4096.0f, 4096.0f, &m_pdwTextLayout);
+		hResult = m_pdWriteFactory->CreateTextLayout(L"텍스트 레이아웃", 8, m_pdwFont[i], 1024.0f, 1024.0f, &m_pdwTextLayout);
 	}
 
+
+
 	int index = 0;
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightBlue, 1.0f), &m_pd2dbrText[index++]);
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Orange, 1.0f), &m_pd2dbrText[index++]);
+	//m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightBlue, 1.0f), &m_pd2dbrText[index++]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black, 1.0f), &m_pd2dbrText[index++]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Red, 1.0f), &m_pd2dbrText[index++]);
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrText[index++]);
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightGreen, 1.0f), &m_pd2dbrText[index++]);
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightCoral, 1.0f), &m_pd2dbrText[index++]);
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LavenderBlush, 1.0f), &m_pd2dbrText[index++]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Magenta, 1.0f), &m_pd2dbrText[index++]);
+
+
+	////////////////////////////////////
+	//Stage Font 생성 
+	//AddFontResourceEx(fontPath.c_str(), FR_PRIVATE, 0);
+	hResult = m_pdWriteFactory->CreateTextFormat(L"a피오피오 동글", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 50.0f, L"en_US", &m_pdwStageInfoFont);
+	hResult = m_pdwStageInfoFont->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+	hResult = m_pdwStageInfoFont->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+	hResult = m_pdWriteFactory->CreateTextLayout(L"텍스트 레이아웃", 8, m_pdwStageInfoFont, 64, 64, &m_pdwStageTextLayout);
+
+
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Coral, 1.0f), &m_pd2dbrStageInfoText);
+	////////////////////////////////////
+
 
 	//Initializes the COM library on the current thread and identifies the concurrency model as single-thread apartment 
 	CoInitialize(NULL);
@@ -666,7 +690,21 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		{
 			if(ChattingSystem::GetInstance()->IsChattingActive()==false)
 				m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
-			
+		
+			if (wParam == '0')
+			{
+				g_Round = 0;
+				m_GameStage = g_Round;
+				m_pScene->ChangeRound();
+			}
+
+			else if (wParam == '1')
+			{
+				g_Round = 1;
+				m_GameStage = g_Round;
+				m_pScene->ChangeRound();
+			}
+
 		}	
 		break;
 	}
@@ -835,6 +873,10 @@ void CGameFramework::OnDestroy()
 	//Direct2D
 	if (m_pd2dbrBackground) m_pd2dbrBackground->Release();
 	if (m_pd2dbrBorder) m_pd2dbrBorder->Release();
+
+	if (m_pd2dbrStageInfoText) m_pd2dbrStageInfoText->Release();
+	if (m_pdwStageInfoFont) m_pdwStageInfoFont->Release();
+
 	for (int i = 0; i < m_nNameFont; ++i)
 	{
 		if (m_pdwFont[i]) m_pdwFont[i]->Release();
@@ -845,6 +887,8 @@ void CGameFramework::OnDestroy()
 	delete[]m_pd2dbrText;
 	m_pd2dbrText = nullptr;
 
+
+	if (m_pdwStageTextLayout) m_pdwStageTextLayout->Release();
 	if (m_pdwTextLayout) m_pdwTextLayout->Release();
 
 	ChattingSystem::GetInstance()->Destroy();
@@ -889,10 +933,10 @@ void CGameFramework::OnDestroy()
 		m_pLoadingCommandList->Release();
 
 #ifdef _WITH_SERVER_
-	if (m_pLoginCommandAllocator)
+	/*if (m_pLoginCommandAllocator)
 		m_pLoginCommandAllocator->Release();
 	if (m_pLoginCommandList)
-		m_pLoginCommandList->Release();
+		m_pLoginCommandList->Release();*/
 #endif
 
 	if (m_pd3dFence) m_pd3dFence->Release();
@@ -913,35 +957,22 @@ void CGameFramework::OnDestroy()
 
 bool CGameFramework::BuildObjects()
 {
+
+	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 #ifdef _WITH_SERVER_
 	//네트워크 연결을 위한 쓰레드
-	m_nState = CONNECT;
+	//m_nState = CONNECT;
 
-	
-	InitializeIPSystem();
+	m_pIPScene = new CIPScene;
+	m_pIPScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList,m_pdWriteFactory,m_pd2dDeviceContext,m_pwicImagingFactory);
+	Network::GetInstance()->SetGameFrameworkPtr(m_hWnd, this);
 
-	if (Network::GetInstance()->connectToServer(m_hWnd) == false)
-	{
-		for (auto& thread : loginThread)
-		thread.join();
-		return false;
-	}
-	else
-	{
-		//return false;
-		for (auto& thread : loginThread)
-			thread.join();
-
-		Network::GetInstance()->SetGameFrameworkPtr(m_hWnd, this);
-
-	}
-	
 #endif
 	// 윈도우 창 띄우기
 	m_nState = LOADING;
 	loadingThread.emplace_back(thread{ &CGameFramework::Worker_Thread, this });
 
-	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
+
 
 #ifdef _WITH_SERVER_
 	m_pLoginScene = new CLoginScene;
@@ -1019,7 +1050,7 @@ bool CGameFramework::BuildObjects()
 
 	WaitForGpuComplete();
 #ifdef _WITH_SERVER_
-	m_nState = LOGIN;
+	m_nState = CONNECT;
 #else
 	m_nState = CHARACTER_SELECT;
 #endif
@@ -1201,11 +1232,27 @@ void CGameFramework::ProcessInput()
 void CGameFramework::AnimateObjects()
 {
 	m_elapsedTime = m_GameTimer.GetTimeElapsed();
-	if (m_nState == INGAME)
+	switch(m_nState)
 	{
-		
+	case INGAME:
+	{
 		if (m_pScene)
 			m_pScene->AnimateObjects(m_pd3dCommandList, m_elapsedTime);
+		break;
+	}
+#ifdef _WITH_SERVER_
+	case CONNECT:
+	{
+		if (m_pIPScene)
+		{
+			m_pIPScene->ProcessInput(m_hWnd);
+
+			if (Network::GetInstance()->connectToServer(m_hWnd))
+				m_nState = LOGIN;
+		}
+		break;
+	}
+#endif
 	}
 
 	//m_pPlayer->Animate(fTimeElapsed);
@@ -1246,7 +1293,7 @@ void CGameFramework::SetNamecard()
 	if (m_pScene)
 	{
 		map<string, CShader*> m = m_pScene->getShaderManager()->getShaderMap();
-		auto iter = m.find("곰돌이");
+		auto iter = m.find("OtherPlayer");
 		if (iter != m.end())
 		{
 #ifdef _WITH_SERVER_
@@ -1256,11 +1303,15 @@ void CGameFramework::SetNamecard()
 				char id = vec[i].first;
 				XMFLOAT2& screenSpace = m_pScene->ProcessNameCard(id);
 				D2D1_RECT_F nameCard{ 0.0f,0.0f,0.0f,0.0f };
-				nameCard = D2D1::RectF(screenSpace.x - 60.0f, screenSpace.y - 60.0f, screenSpace.x + 60.0f, screenSpace.y + 60.0f);
+				nameCard = D2D1::RectF(screenSpace.x - 200.0f, screenSpace.y, screenSpace.x + 200.0f, screenSpace.y);
 
-				m_pd2dDeviceContext->DrawTextW((*iter).second->m_ppObjects[id]->GetPlayerName(),
-					(UINT32)wcslen((*iter).second->m_ppObjects[id]->GetPlayerName()), m_pdwFont[id], &nameCard, m_pd2dbrText[id]);
-
+				wchar_t wname[16];
+				int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), NULL, NULL);
+				MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), wname, nLen);
+				
+		
+				m_pd2dDeviceContext->DrawTextW(wname, nLen, m_pdwFont[id], &nameCard, m_pd2dbrText[id]);
+				
 			}
 #else
 
@@ -1294,37 +1345,61 @@ void CGameFramework::ShowScoreboard()
 
 		// 이름
 		rcText = D2D1::RectF(0.0f, 0.0f, /*szRenderTarget.width * 0.2f*/ /*1150.0f*/1150.0f,/* szRenderTarget.height * 0.45f*/360.0f);
-		m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
+		m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[6], &rcText, m_pd2dbrText[6]);
 
 		// Score
 		rcText = D2D1::RectF(0, 0, 2200.f, 360.0f);
-		m_pd2dDeviceContext->DrawTextW((to_wstring(m_pPlayer->getScore())).c_str(), (UINT32)(to_wstring(m_pPlayer->getScore())).length(), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
+		m_pd2dDeviceContext->DrawTextW((to_wstring(m_pPlayer->getScore())).c_str(), (UINT32)(to_wstring(m_pPlayer->getScore())).length(), m_pdwFont[6], &rcText, m_pd2dbrText[6]);
 
-		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/515.0f);
-		m_pd2dDeviceContext->DrawTextW(L"핑크", (UINT32)wcslen(L"핑크"), m_pdwFont[1], &rcText, m_pd2dbrText[1]);
+#ifdef _WITH_SERVER_
 
-		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/670.0f);
-		m_pd2dDeviceContext->DrawTextW(L"브라운", (UINT32)wcslen(L"브라운"), m_pdwFont[2], &rcText, m_pd2dbrText[2]);
+		map<string, CShader*> m = m_pScene->getShaderManager()->getShaderMap();
+		auto iter = m.find("OtherPlayer");
+		if (iter != m.end())
+		{
+			vector<pair<char, char>> vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+			for (int i = 0; i < vec.size(); ++i)
+			{
+				char id = vec[i].first;
+				
+				wchar_t wname[16];
+				int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), NULL, NULL);
+				MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), wname, nLen);
+						
+				rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/515.0f + (i*155.0f));
+				m_pd2dDeviceContext->DrawTextW(wname, nLen, m_pdwFont[i], &rcText, m_pd2dbrText[i]);
+			}
 
-		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/825.0f);
-		m_pd2dDeviceContext->DrawTextW(L"블랙", (UINT32)wcslen(L"블랙"), m_pdwFont[3], &rcText, m_pd2dbrText[3]);
+		}
 
-		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/980.0f);
-		m_pd2dDeviceContext->DrawTextW(L"화이트", (UINT32)wcslen(L"화이트"), m_pdwFont[4], &rcText, m_pd2dbrText[4]);
+#endif
+		//rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/515.0f);
+		//m_pd2dDeviceContext->DrawTextW(L"핑크", (UINT32)wcslen(L"핑크"), m_pdwFont[1], &rcText, m_pd2dbrText[1]);
 
-		//cout << index << endl;
-		rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/1135.0f);
-		m_pd2dDeviceContext->DrawTextW(L"펜더", (UINT32)wcslen(L"펜더"), m_pdwFont[5], &rcText, m_pd2dbrText[5]);
+		//rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/670.0f);
+		//m_pd2dDeviceContext->DrawTextW(L"브라운", (UINT32)wcslen(L"브라운"), m_pdwFont[2], &rcText, m_pd2dbrText[2]);
+
+		//rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/825.0f);
+		//m_pd2dDeviceContext->DrawTextW(L"블랙", (UINT32)wcslen(L"블랙"), m_pdwFont[3], &rcText, m_pd2dbrText[3]);
+
+		//rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/980.0f);
+		//m_pd2dDeviceContext->DrawTextW(L"화이트", (UINT32)wcslen(L"화이트"), m_pdwFont[4], &rcText, m_pd2dbrText[4]);
+
+		////cout << index << endl;
+		//rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/1135.0f);
+		//m_pd2dDeviceContext->DrawTextW(L"펜더", (UINT32)wcslen(L"펜더"), m_pdwFont[5], &rcText, m_pd2dbrText[5]);
+
 	}
 
 }
 
 void CGameFramework::ShowReadyText()
 {
-	D2D1_RECT_F rcText = D2D1::RectF(0, 0, 200.f, 290.f);
-	WCHAR* ready = _T("준비");
-	m_pd2dDeviceContext->DrawTextW(ready, (UINT32)wcslen(ready), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
-
+	D2D1_RECT_F rcText = D2D1::RectF(0, 0, 200.f, 275.f);
+	WCHAR* ready = _T("READY");
+	//m_pd2dDeviceContext->DrawTextW(ready, (UINT32)wcslen(ready), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
+	// 준비 폰트 빨간색
+	m_pd2dDeviceContext->DrawTextW(ready, (UINT32)wcslen(ready), m_pdwFont[0], &rcText, m_pd2dbrText[1]);
 }
 
 
@@ -1342,7 +1417,7 @@ void CGameFramework::ShowPlayers()
 		int i = 0;
 		for (const auto& id : m_mapClients)
 		{
-			rcText = D2D1::RectF(0.0f, 0.0f, 600.0f, ((i*110.0f)+290.0f) );
+			rcText = D2D1::RectF(0.0f, 0.0f, 780.0f, ((i*110.0f)+290.0f) );
 			int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[id.first].name, strlen(m_mapClients[id.first].name), NULL, NULL);
 			MultiByteToWideChar(CP_ACP, 0, m_mapClients[id.first].name, strlen(m_mapClients[id.first].name), player, nLen);
 			m_pd2dDeviceContext->DrawTextW(player, nLen, m_pdwFont[i+1], &rcText, m_pd2dbrText[i+1]);
@@ -1363,6 +1438,48 @@ void CGameFramework::ShowPlayers()
 
 #endif
 	
+
+
+}
+
+void CGameFramework::DrawStageInfo()
+{
+	D2D1_RECT_F stageText = { 0.0f,0.0f,300.0f, 70.0f};
+	
+	switch (m_GameStage)
+	{
+	case 0:
+	{
+		const wstring s = to_wstring(m_GameStage) + L" Round";
+		m_pd2dDeviceContext->DrawTextW(s.c_str(), (UINT32)wcslen(s.c_str()), m_pdwStageInfoFont, &stageText, m_pd2dbrStageInfoText);
+
+		break;
+	}
+	case 1:
+	{
+		const wstring s = to_wstring(m_GameStage) + L" Round";
+		m_pd2dDeviceContext->DrawTextW(s.c_str(), (UINT32)wcslen(s.c_str()), m_pdwStageInfoFont, &stageText,  m_pd2dbrStageInfoText);
+
+		break;
+	}
+	case 2:
+	{
+		const wstring s = to_wstring(m_GameStage) + L" Round";
+		m_pd2dDeviceContext->DrawTextW(s.c_str(), (UINT32)wcslen(s.c_str()), m_pdwStageInfoFont, &stageText,  m_pd2dbrStageInfoText);
+
+		break;
+	}
+	case 3:
+	{
+		const wstring s = to_wstring(m_GameStage) + L" Round";
+		m_pd2dDeviceContext->DrawTextW(s.c_str(), (UINT32)wcslen(s.c_str()), m_pdwStageInfoFont, &stageText, m_pd2dbrStageInfoText);
+
+		break;
+	}
+	default:
+		cout << "존재 하지 않는 스테이지 입니다.\n";
+		break;
+	}
 
 
 }
@@ -1401,10 +1518,11 @@ void CGameFramework::ProcessDirect2D()
 	}
 	case INGAME:
 	{
+		DrawStageInfo();
 		SetNamecard();
 
 		//채팅
-		ChattingSystem::GetInstance()->ShowIngameChatting(m_pd2dDeviceContext);
+		ChattingSystem::GetInstance()->ShowIngameChatting(m_pd2dDeviceContext,m_GameTimer.GetTimeElapsed());
 
 		ShowScoreboard();
 		break;
@@ -1419,6 +1537,12 @@ void CGameFramework::ProcessDirect2D()
 
 		break;
 	}	
+	case CONNECT:
+	{
+		if (m_pIPScene)
+			m_pIPScene->DrawFont();
+		break;
+	}
 #endif
 	default:
 		break;
@@ -1448,28 +1572,26 @@ void CGameFramework::ProcessDirect2D()
 #endif
 #ifdef _WITH_SERVER_
 
-void CGameFramework::InitializeIPSystem() 
-{
-	g_hWnd = m_hWnd;
-	if (m_pLoginCommandList)
-		m_pLoginCommandList->Reset(m_pLoginCommandAllocator, nullptr);
-
-	m_pIPScene = new CIPScene;
-	m_pIPScene->BuildObjects(m_pd3dDevice, m_pLoginCommandList,m_pdWriteFactory,m_pd2dDeviceContext,m_pwicImagingFactory);
-
-	m_pLoginCommandList->Close();
-
-	ID3D12CommandList* ppd3dLoginCommandLists[] = { m_pLoginCommandList };
-	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dLoginCommandLists);
-	WaitForGpuComplete();
-
-	loginThread.emplace_back(thread{ &CGameFramework::Connect_Thread,this,m_pIPScene});
-
-	//loginThread.emplace_back(thread { &CGameFramework::ConnectToServer,this,*Network::GetInstance(),m_hWnd});
-	//OnProcessingMouseMessage(m_hWnd,)
-
-	
-}
+//void CGameFramework::InitializeIPSystem() 
+//{
+//	g_hWnd = m_hWnd;
+//	if (m_pLoginCommandList)
+//		m_pLoginCommandList->Reset(m_pLoginCommandAllocator, nullptr);
+//
+//	m_pIPScene = new CIPScene;
+//	m_pIPScene->BuildObjects(m_pd3dDevice, m_pLoginCommandList,m_pdWriteFactory,m_pd2dDeviceContext,m_pwicImagingFactory);
+//
+//	m_pLoginCommandList->Close();
+//
+//	ID3D12CommandList* ppd3dLoginCommandLists[] = { m_pLoginCommandList };
+//	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dLoginCommandLists);
+//	WaitForGpuComplete();
+//
+//	loginThread.emplace_back(thread{ &CGameFramework::Connect_Thread,this,m_pIPScene});
+//
+//	
+//	
+//}
 void CGameFramework::ProcessPacket(char *packet)
 {
 	switch (packet[1])
@@ -1499,22 +1621,25 @@ void CGameFramework::ProcessPacket(char *packet)
 	{
 		pLI = reinterpret_cast<SC_PACKET_LOBBY_IN*>(packet);
 
-		//	if (pLI->id == m_pPlayer->GetPlayerID())
-		//	{
+	//	if (pLI->id == m_pPlayer->GetPlayerID())
+	//	{
 
-			//}
-		//	else if (pLI->id < MAX_USER)
-		//	{
-
-		m_mapClients.emplace((int)pLI->id, pLI->client_state);
-
-		cout << pLI->client_state.name << endl;
-		//	}
+		//}
+	//	else if (pLI->id < MAX_USER)
+	//	{
+		if (pLI->id < MAX_USER)
+		{
+			m_mapClients[(int)pLI->id] = pLI->client_state;
+			//맵의 emplace는 한번 생성하면 똑같은 키에 value를 넣는 작업을 하지 않는다.(중복을 허용하지 않기 때문에)
+			cout << "ID : " <<(int) pLI->id << endl;
+			cout << "닉네임 : "<<pLI->client_state.name << endl;
+		}
+	//	}
 		break;
 	}
 	case SC_CLIENT_LOBBY_OUT:
 	{
-
+		
 		break;
 	}
 	case SC_READY_STATE:
@@ -1525,7 +1650,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		break;
 	}
-	case SC_UNREADY_STATE:
+	case SC_UNREADY_STATE: 
 	{
 		pNotReady = reinterpret_cast<SC_PACKET_UNREADY_STATE*>(packet);
 
@@ -1538,11 +1663,12 @@ void CGameFramework::ProcessPacket(char *packet)
 	{
 		pCh = reinterpret_cast<SC_PACKET_CHATTING*>(packet);
 
-
-
-		ChattingSystem::GetInstance()->PushChattingText(pCh->message);
-
-
+		const string& clientName = m_mapClients[pCh->id].name;
+		
+		ChattingSystem::GetInstance()->SetActive(true);
+		ChattingSystem::GetInstance()->PushChattingText(clientName,pCh->message);
+		
+		
 
 		break;
 	}
@@ -1557,7 +1683,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pPlayer->SetIsBomb(true);
 		else if (pRS->bomberID < MAX_USER)
 		{
-
+			
 			// 다른 클라가 술래일 경우 isBomber를 set해줘야 폭탄을 그리지 않을까?
 		}
 		clientCount = pRS->clientCount;
@@ -1567,6 +1693,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pLobbyScene->StopBackgroundMusic();
 		}
 		m_nState = INGAME;
+		ChattingSystem::GetInstance()->SetActive(false);
 		printf("Round Start! Bomber is %d\n", pRS->bomberID);
 		break;
 	case SC_PUT_PLAYER:
@@ -1581,29 +1708,29 @@ void CGameFramework::ProcessPacket(char *packet)
 			XMFLOAT3 look = XMFLOAT3(pPP->xLook, pPP->yLook, pPP->zLook);
 			XMFLOAT3 up = XMFLOAT3(pPP->xUp, pPP->yUp, pPP->zUp);
 			XMFLOAT3 right = XMFLOAT3(pPP->xRight, pPP->yRight, pPP->zRight);
+			
+		//	MappingUserToEvilbear(pPP->id, clientCount/*현재 접속한 유저 수를 받아야함 */);
 
-			//	MappingUserToEvilbear(pPP->id, clientCount/*현재 접속한 유저 수를 받아야함 */);
-
-				//cout <<"플레이어 ID-"<<(int)pPP->id<<",재질 -" <<(int)pPP->matID << "\n";
+			//cout <<"플레이어 ID-"<<(int)pPP->id<<",재질 -" <<(int)pPP->matID << "\n";
 			m_pPlayer->SetMaterialID(pPP->matID);	//플레이어 재질정	보 SET
 			m_pPlayer->SetPosition(pos);
 			m_pPlayer->SetLookVector(look);
 			m_pPlayer->SetUpVector(up);
 			m_pPlayer->SetRightVector(right);
 			m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
-			//m_pPlayer->SetDirection()
+		//m_pPlayer->SetDirection()
 		}
-		else if (pPP->id < MAX_USER)
+		else if(pPP->id < MAX_USER)
 		{
 			char id = pPP->id;
-
-			XMFLOAT3 pos = XMFLOAT3(pPP->xPos, pPP->yPos, pPP->zPos);
+			
+			XMFLOAT3 pos = XMFLOAT3(pPP->xPos,pPP->yPos, pPP->zPos);
 			XMFLOAT3 look = XMFLOAT3(pPP->xLook, pPP->yLook, pPP->zLook);
 			XMFLOAT3 up = XMFLOAT3(pPP->xUp, pPP->yUp, pPP->zUp);
 			XMFLOAT3 right = XMFLOAT3(pPP->xRight, pPP->yRight, pPP->zRight);
+			
 
-
-			auto iter = m_pScene->getShaderManager()->getShaderMap().find("곰돌이");
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 
 
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
@@ -1619,7 +1746,7 @@ void CGameFramework::ProcessPacket(char *packet)
 				(*iter).second->m_ppObjects[id]->SetScale(10, 10, 10);
 			}
 		}
-
+		
 		//printf("Put Player ID: %d, xPos: %f, yPos: %f, zPod: %f\n", pPP->id, pPP->xPos, pPP->yPos, pPP->zPos);
 		break;
 	case SC_MOVE_PLAYER:
@@ -1627,19 +1754,19 @@ void CGameFramework::ProcessPacket(char *packet)
 		//SC_PACKET_MOVE_PLAYER* pMP = m_Network.GetMP();
 		pMP = reinterpret_cast<SC_PACKET_MOVE_PLAYER*>(packet);
 
-		if (pMP->id == m_pPlayer->GetPlayerID())
+		if(pMP->id==m_pPlayer->GetPlayerID())
 		{
 			XMFLOAT3 pos = XMFLOAT3(pMP->xPos, pMP->yPos, pMP->zPos);
 			XMFLOAT3 look = XMFLOAT3(pMP->xLook, pMP->yLook, pMP->zLook);
 			XMFLOAT3 up = XMFLOAT3(pMP->xUp, pMP->yUp, pMP->zUp);
 			XMFLOAT3 right = XMFLOAT3(pMP->xRight, pMP->yRight, pMP->zRight);
-
+			
 
 			m_pPlayer->SetPosition(pos);
 			m_pPlayer->SetLookVector(look);
 			m_pPlayer->SetUpVector(up);
 			m_pPlayer->SetRightVector(right);
-
+			
 			m_pPlayer->Rotate(pMP->pitch, pMP->yaw, pMP->roll);
 			m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
 			m_pPlayer->SetVelocityFromServer(pMP->fVelocity);
@@ -1647,15 +1774,15 @@ void CGameFramework::ProcessPacket(char *packet)
 		else if (pMP->id < MAX_USER)
 		{
 			char id = pMP->id;
-
-			XMFLOAT3 pos = XMFLOAT3(pMP->xPos, pMP->yPos, pMP->zPos);
+			
+			XMFLOAT3 pos = XMFLOAT3(pMP->xPos,pMP->yPos, pMP->zPos);
 			XMFLOAT3 look = XMFLOAT3(pMP->xLook, pMP->yLook, pMP->zLook);
 			XMFLOAT3 up = XMFLOAT3(pMP->xUp, pMP->yUp, pMP->zUp);
 			XMFLOAT3 right = XMFLOAT3(pMP->xRight, pMP->yRight, pMP->zRight);
 
-			auto iter = m_pScene->getShaderManager()->getShaderMap().find("곰돌이");
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 
-
+			
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
 				(*iter).second->m_ppObjects[id]->SetPosition(pos);
@@ -1682,16 +1809,16 @@ void CGameFramework::ProcessPacket(char *packet)
 		{
 			char id = pPA->id;
 			char animNum = pPA->animation;
-			auto iter = m_pScene->getShaderManager()->getShaderMap().find("곰돌이");
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 
-
+			
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
 				(*iter).second->m_ppObjects[id]->SetTrackAnimationSet(0, animNum);
 				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)animNum);
-				if ((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::RAISEHAND)
+				if((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::RAISEHAND)
 					(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackPosition(0, 0.0f);
-
+				
 			}
 		}
 
@@ -1707,7 +1834,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		}
 		else if (pSTA->id < MAX_USER)
 		{
-			auto iter = m_pScene->getShaderManager()->getShaderMap().find("곰돌이");
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
@@ -1718,20 +1845,44 @@ void CGameFramework::ProcessPacket(char *packet)
 		printf("SetVelocityFromServer\n");
 		break;
 	}
-	case SC_COLLIDED:
-	{
-		SC_PACKET_COLLIDED *pC = reinterpret_cast<SC_PACKET_COLLIDED *>(packet);
-		printf("Player %d Collided!!\n", pC->id);
-
-		// 여기에 충돌 후처리 코드 작성
-
-		break;
-	}
 	case SC_REMOVE_PLAYER:
 	{
 		//SC_PACKET_REMOVE_PLAYER* pRP = m_Network.GetRP();
 		pRP = reinterpret_cast<SC_PACKET_REMOVE_PLAYER*>(packet);
 		hostId = pRP->hostId;
+
+
+		if (pRP->id != m_pPlayer->GetPlayerID())
+		{
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+		
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				char id = pRP->id;
+				vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+
+				auto vecIter = find_if(vec.begin(), vec.end(), [&id](const pair<char,char>& p) {
+					return p.first == id;
+				});
+				if (vecIter != vec.end())
+				{
+					vec.erase(vecIter);
+				}
+				
+				(*iter).second->m_ppObjects[id]->SetPosition(0.0f, 0.0f, 0.0f);
+				(*iter).second->m_ppObjects[id]->SetScale(0.0f, 0.0f, 0.0f);
+
+
+				string s = "님이 나가셨습니다.";
+				string user = m_mapClients[id].name;
+				ChattingSystem::GetInstance()->SetActive(true);
+				ChattingSystem::GetInstance()->PushChattingText(user,s.c_str());
+			}
+		}
+
+		
+
 		printf("Player Disconnected ID : %d\n", pRP->id);
 		break;
 	}
@@ -1755,13 +1906,6 @@ void CGameFramework::ProcessPacket(char *packet)
 			dynamic_cast<CTimerUIShader*>((*iter).second)->CompareServerTimeAndSet(pCT->serverTime);
 		}
 		//cout << "ServerTime: " << pCT->serverTime << "\n";
-		break;
-	}
-	case SC_USE_ITEM:
-	{
-		SC_PACKET_USE_ITEM *pUI = reinterpret_cast<SC_PACKET_USE_ITEM *>(packet);
-
-		cout << "Player " << pUI->id << "used Item " << pUI->usedItem << "\n";
 		break;
 	}
 	}
@@ -1950,6 +2094,33 @@ void CGameFramework::FrameAdvance()
 		
 		break;
 	}
+	case CONNECT:
+	{
+		D3D12_VIEWPORT	d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
+		D3D12_RECT		d3dScissorRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
+		m_pd3dCommandList->RSSetViewports(1, &d3dViewport);
+		m_pd3dCommandList->RSSetScissorRects(1, &d3dScissorRect);
+	
+		if(m_pIPScene)
+			m_pIPScene->Render(m_pd3dCommandList);
+
+		//::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+		
+		HRESULT hResult = m_pd3dCommandList->Close();
+
+		ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
+		m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+
+		WaitForGpuComplete();
+
+#ifdef _WITH_DIRECT2D_
+
+		ProcessDirect2D();
+
+#endif
+	}
+		break;
+
 #endif
 	}
 
@@ -1983,121 +2154,6 @@ void CGameFramework::FrameAdvance()
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 }
 
-#ifdef _WITH_SERVER_
-
-void CGameFramework::CreateLoginCommandList()
-{
-	HRESULT Result;
-
-	Result = m_pd3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), (void **)&m_pLoginCommandAllocator);
-	Result = m_pd3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pLoginCommandAllocator, nullptr, __uuidof(ID3D12GraphicsCommandList), (void **)&m_pLoginCommandList);
-	Result = m_pLoginCommandList->Close();
-
-}
-
-void CGameFramework::Connect_Thread(CIPScene* pLoginScene)
-{
-
-	m_GameTimer.Reset();
-
-	//네트워크 연결이 성공하면 루프 탈출
-	while(!g_LoginFinished)
-	{
-		m_GameTimer.Tick(60.0f);
-		float elapsedTime = m_GameTimer.GetTimeElapsed();
-		
-		pLoginScene->ProcessInput();
-
-		pLoginScene->AnimateObjects(m_pLoginCommandList, elapsedTime);
-		float pfClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-
-		
-		HRESULT hResult = m_pLoginCommandAllocator->Reset();
-		hResult = m_pLoginCommandList->Reset(m_pLoginCommandAllocator, NULL);
-
-		D3D12_VIEWPORT	d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
-		D3D12_RECT		d3dScissorRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
-		m_pLoginCommandList->RSSetViewports(1, &d3dViewport);
-		m_pLoginCommandList->RSSetScissorRects(1, &d3dScissorRect);
-		
-		// 리소스 장벽(Barrier)
-		D3D12_RESOURCE_BARRIER d3dResourceBarrier;
-		::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
-		d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		d3dResourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		d3dResourceBarrier.Transition.pResource = m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex];
-		// StateBefore가 Present 상태가 되어야, DXGI가 Present를 실행한다.
-		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-		// StateAfter가 Render_Target 상태가 되면, Present가 끝나고 GPU가 그림을 바꿀 수 있다.
-		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-		m_pLoginCommandList->ResourceBarrier(1, &d3dResourceBarrier);
-
-
-		D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-		d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
-		D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-
-		m_pLoginCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, FALSE, &d3dDsvCPUDescriptorHandle);
-
-		m_pLoginCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor, 0, NULL);
-
-		m_pLoginCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
-
-		pLoginScene->Render(m_pLoginCommandList);
-
-	
-		/*d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-
-
-		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-		m_pLoginCommandList->ResourceBarrier(1, &d3dResourceBarrier);*/
-
-		m_pLoginCommandList->Close();
-		ID3D12CommandList* ppd3dCommandLists[] = { m_pLoginCommandList };
-
-		m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
-		WaitForGpuComplete();
-
-	
-		//////AcquireWrappedResources() D3D11On12 디바이스에서 사용될 수 있는 D3D11 리소스들을 얻게해준다.
-		//////이 함수는 렌더링 할 Wrapped Resource 들을 다시 사용할 수 있다고 암시해준다. 
-		m_pd3d11On12Device->AcquireWrappedResources(&m_ppd3d11WrappedBackBuffers[m_nSwapChainBufferIndex], 1);
-
-		////Direct2D 디바이스가 렌더 할 비트맵이나 커맨드 리스트를 설정한다.
-		m_pd2dDeviceContext->SetTarget(m_ppd2dRenderTargets[m_nSwapChainBufferIndex]);
-
-		m_pd2dDeviceContext->BeginDraw();
-
-		// Apply the rotation transform to the render target
-		m_pd2dDeviceContext->SetTransform(D2D1::Matrix3x2F::Identity());
-
-		//D2D1_SIZE_F : float형태의 가로 세로 쌍을 저장한 구조체
-		D2D1_SIZE_F szRenderTarget = m_ppd2dRenderTargets[m_nSwapChainBufferIndex]->GetSize();
-
-		pLoginScene->DrawFont();
-
-		m_pd2dDeviceContext->EndDraw();
-
-		//Releases D3D11 resources that were wrapped for D3D 11on12
-		m_pd3d11On12Device->ReleaseWrappedResources(&m_ppd3d11WrappedBackBuffers[m_nSwapChainBufferIndex], 1);
-
-		//,커맨드 버퍼에 대기중인 커맨드를 gpu로 전송
-		m_pd3d11DeviceContext->Flush();
-
-
-
-		m_pdxgiSwapChain->Present(0, 0);
-
-		MoveToNextFrame();
-
-	}
-
-}
-
-
-#endif
 void CGameFramework::Worker_Thread()
 {
 	if (m_pLoadingCommandList)
@@ -2172,7 +2228,6 @@ void CGameFramework::Worker_Thread()
 		m_pdxgiSwapChain->Present(0, 0);
 
 		MoveToNextFrame();
-
 
 		double totalSize = g_TotalSize;
 		double fileSize = g_FileSize;

@@ -282,8 +282,6 @@ public:
     virtual ~CGameObject();
 
 public:
-	int index = 0;
-	
 	char					m_pstrFrameName[64];
 
 	CMesh*			m_pMesh = NULL;
@@ -301,9 +299,6 @@ public:
 	CGameObject*	m_pSibling = NULL;
 
 	//static int m_AnimationType;
-
-	int getIndex() { return index; }
-	void setIndex(int i) { index = i; }
 
 	void SetMesh(CMesh *pMesh);
 	void SetShader(CShader *pShader);
