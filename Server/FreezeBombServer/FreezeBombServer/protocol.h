@@ -3,10 +3,10 @@
 //#include <windows.h>
 //#include <DirectXMath.h>
 //#define SERVER_IP "192.168.22.199"
-#define SERVER_IP "127.0.0.1"
+//#define SERVER_IP "127.0.0.1"
 //#define SERVER_IP "192.168.60.161"
 //#define SERVER_IP "192.168.200.103"
-//#define SERVER_IP "192.168.0.34"
+#define SERVER_IP "192.168.0.34"
 
 using namespace std;
 //using namespace DirectX;
@@ -47,7 +47,6 @@ constexpr int SC_CLIENT_LOBBY_OUT = 15;
 constexpr int SC_CHATTING = 16;
 constexpr int SC_READY_STATE = 17;
 constexpr int SC_UNREADY_STATE = 18;
-constexpr int SC_COLLIDED = 19;
 
 constexpr int CS_UP_KEY = 0;
 constexpr int CS_DOWN_KEY = 1;
@@ -64,12 +63,10 @@ constexpr int CS_RELEASE_KEY = 11;
 constexpr int CS_ANIMATION_INFO = 12;
 constexpr int CS_NICKNAME_INFO = 13;
 constexpr int CS_CHATTING = 14;
-constexpr int CS_COLLIDED = 15;
-constexpr int CS_USEITEM = 16;
 
 
 
-constexpr int MAX_ROUND_TIME = 100;
+constexpr int MAX_ROUND_TIME = 50;
 
 //[클라->서버]
 
@@ -234,21 +231,6 @@ struct CS_PACKET_CHATTING
 	char chatting[MAX_CHATTING_LENGTH];
 };
 
-struct CS_PACKET_COLLIDED
-{
-	char size;
-	char type;
-	int objId;
-};
-
-struct CS_PACKET_USE_ITEM
-{
-	char size;
-	char type;
-	char target;			// 사용대상이 존재할 때
-	char usedItem;			// 사용되는 아이템 정보
-};
-
 //////////////////////////////////////////////////////
 
 //[서버->클라]
@@ -365,7 +347,6 @@ struct SC_PACKET_USE_ITEM
 	char size;
 	char type;
 	char id;
-	char target;
 	char usedItem;			// 사용되는 아이템 정보
 };
 
@@ -399,13 +380,6 @@ struct SC_PACKET_ROUND_END
 	char size;
 	char type;
 	bool isWinner;
-};
-
-struct SC_PACKET_COLLIDED
-{
-	char size;
-	char type;
-	char id;
 };
 
 struct PLAYER

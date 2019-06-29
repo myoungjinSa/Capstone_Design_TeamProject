@@ -299,8 +299,7 @@ void Network::SendChattingText(char id,const _TCHAR *text)
 void Network::SendNickName(char id,_TCHAR* name)
 {
 	pNickName = reinterpret_cast<CS_PACKET_NICKNAME*>(send_buffer);
-	pNickName->size = sizeof(pNickName);
-	send_wsabuf.len = sizeof(pNickName);
+	pNickName->size = sizeof(CS_PACKET_NICKNAME);
 	pNickName->type = CS_NICKNAME_INFO;
 	pNickName->id = id;
 	pNickName->padding = 0;
@@ -312,30 +311,6 @@ void Network::SendNickName(char id,_TCHAR* name)
 
 	SendPacket(pNickName->size);
 }
-
-void Network::SendCollided(int objId)
-{
-	pCollided = reinterpret_cast<CS_PACKET_COLLIDED*>(send_buffer);
-	pCollided->objId = objId;
-	pCollided->size = sizeof(pCollided);
-	send_wsabuf.len = sizeof(pCollided);
-	pCollided->type = CS_COLLIDED;
-
-	SendPacket();
-}
-
-void Network::SendUseItem(int usedItem, int targetId)
-{
-	pUseItem = reinterpret_cast<CS_PACKET_USE_ITEM *>(send_buffer);
-	pUseItem->usedItem = usedItem;
-	pUseItem->target = targetId;
-	pUseItem->size = sizeof(pUseItem);
-	send_wsabuf.len = sizeof(pUseItem);
-	pUseItem->type = CS_USEITEM;
-
-	SendPacket();
-}
-
 void Network::SetGameFrameworkPtr(HWND hWnd,CGameFramework* client)
 {
 	if (client) 
