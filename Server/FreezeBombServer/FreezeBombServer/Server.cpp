@@ -474,7 +474,7 @@ void Server::WorkerThreadFunc()
 			roundCurrTime--;
 
 			//서버 시간 현재 (남은 시간)
-			printf("RoundCurrentTime : %d", roundCurrTime);
+		//	printf("RoundCurrentTime : %d", roundCurrTime);
 			for (int i = 0; i < MAX_USER; ++i)
 			{
 				if (true == clients[i].in_use)
@@ -547,11 +547,11 @@ void Server::ProcessPacket(char client, char *packet)
 	case CS_DOWNRIGHT_KEY:
 		//if (true == clients[client].isCollided)
 		//	break;
-		clientsLock[client].lock();
+		//clientsLock[client].lock();
 		SetDirection(client, packet[1]);
 		//cout << gameTimer.GetTimeElapsed()<<endl;
 		UpdateClientPos(client, gameTimer.GetTimeElapsed());
-		clientsLock[client].unlock();
+		//clientsLock[client].unlock();
 
 
 		//printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
@@ -573,13 +573,7 @@ void Server::ProcessPacket(char client, char *packet)
 	case CS_COLLIDED:
 	{	
 		CS_PACKET_COLLIDED *p = reinterpret_cast<CS_PACKET_COLLIDED *>(packet);
-		/*clientsLock[client].lock();
-		XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize(objects[packet[2]].pos, clients[client].pos);
-		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, clients[client].maxVelocityXZ *0.3f);
-		clients[client].velocity.x = -xmf3CollisionDir.x;
-		clients[client].velocity.y = -xmf3CollisionDir.y;
-		clients[client].velocity.z = -xmf3CollisionDir.z;
-		clientsLock[client].unlock();*/
+
 
 		// 서버에서 플레이어와 해당 맵 오브젝트 사이의 거리(위치+부피)를 측정하여 검증 후 broadcast
 		float dist = sqrt(pow(clients[client].pos.x - objects[p->objId].pos.x, 2) +
@@ -590,14 +584,7 @@ void Server::ProcessPacket(char client, char *packet)
 
 		
 		clients[client].isCollided = true;
-		/*for (int i = 0; i < MAX_USER; ++i)
-		{
-			if (clients[i].in_use == true)
-			{
-				SendCollided(i, client);
-			}
-		}*/
-		
+
 		break;
 	}
 	case CS_NOT_COLLIDED:
