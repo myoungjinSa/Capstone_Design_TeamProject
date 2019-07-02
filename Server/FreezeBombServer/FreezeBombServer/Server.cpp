@@ -3,6 +3,8 @@
 
 Server::Server()
 {
+	recent_pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	player_pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	roundCurrTime = 0;
 	clientCount = 0;
 	hostId = -1;
@@ -570,9 +572,9 @@ void Server::ProcessPacket(char client, char *packet)
 			}
 		}
 		break;
-	case CS_COLLIDED:
+	case CS_OBJECT_COLLISION:
 	{	
-		CS_PACKET_COLLIDED *p = reinterpret_cast<CS_PACKET_COLLIDED *>(packet);
+		CS_PACKET_OBJECT_COLLISION *p = reinterpret_cast<CS_PACKET_OBJECT_COLLISION *>(packet);
 
 
 		// 서버에서 플레이어와 해당 맵 오브젝트 사이의 거리(위치+부피)를 측정하여 검증 후 broadcast
@@ -580,24 +582,62 @@ void Server::ProcessPacket(char client, char *packet)
 			pow(clients[client].pos.y - objects[p->objId].pos.y, 2) +
 			pow(clients[client].pos.z - objects[p->objId].pos.z, 2));
 		
+		clientsLock[client].lock();
 		recent_objects = objects[p->objId]; //최근에 부딪힌 오브젝트를 저장한다.
+		clientsLock[client].unlock();
 
-		
-		clients[client].isCollided = true;
+		clientsLock[client].lock();
+		recent_pos = objects[p->objId].pos;
+		clientsLock[client].unlock();
+
+		clients[client].collision = CL_SURROUNDING;
 
 		break;
 	}
-	case CS_NOT_COLLIDED:
+	case CS_NOT_OBJECT_COLLISION:
 	{
-		CS_PACKET_NOT_COLLIDED *p = reinterpret_cast<CS_PACKET_NOT_COLLIDED *>(packet);
+		CS_PACKET_NOT_OBJECT_COLLISION *p = reinterpret_cast<CS_PACKET_NOT_OBJECT_COLLISION *>(packet);
 
+		//최근 검사한 recent_object와만 거리 검사를 실시
 		float dist = sqrt(pow(clients[client].pos.x - recent_objects.pos.x, 2) +
 			pow(clients[client].pos.y - recent_objects.pos.y, 2) +
 			pow(clients[client].pos.z - recent_objects.pos.z, 2));
 
-		clients[client].isCollided = false;
+		clients[client].collision = CL_NONE;
 
 
+		break;
+	}//주변 Surrounding 객체들과 플레이어들의 위치 판별검사를 다르게 하기 위해 경우의 수를 나눠야한다.
+	case CS_PLAYER_COLLISION:
+	{
+		CS_PACKET_PLAYER_COLLISION* p = reinterpret_cast<CS_PACKET_PLAYER_COLLISION*>(packet);
+
+		float dist = sqrt(pow(clients[client].pos.x - clients[p->playerID].pos.x, 2) +
+		pow(clients[client].pos.y - clients[p->playerID].pos.y, 2) +
+		pow(clients[client].pos.z - clients[p->playerID].pos.z, 2));
+
+		clientsLock[client].lock();
+		recent_player = p->playerID;
+		clientsLock[client].unlock();
+
+		clientsLock[client].lock();
+		player_pos = clients[recent_player].pos;
+		clientsLock[client].unlock();
+		clients[client].collision = CL_PLAYER;
+
+		break;
+	}
+	case CS_NOT_PLAYER_COLLISION:
+	{
+		CS_PACKET_NOT_PLAYER_COLLISION* p = reinterpret_cast<CS_PACKET_NOT_PLAYER_COLLISION*>(packet);
+
+		float dist = sqrt(pow(clients[client].pos.x - clients[recent_player].pos.x, 2) +
+		pow(clients[client].pos.y - clients[recent_player].pos.y, 2) +
+		pow(clients[client].pos.z - clients[recent_player].pos.z, 2));
+
+
+		clients[client].collision = CL_NONE;
+	
 		break;
 	}
 	case CS_ANIMATION_INFO:		//클라가 애니메이션이 변경되었을때 패킷을 서버에게 보내고.
@@ -715,16 +755,23 @@ void Server::ProcessPacket(char client, char *packet)
 		if (clientCount <= readyCount)
 		{
 			PickBomber();
-			
+		
+
 			for(int i=0; i< MAX_USER ;++i)
 			{
 				if(true == clients[i].in_use)
 				{
+				
 					for (int j = 0; j < MAX_USER; ++j)
 					{
 						if (true == clients[j].in_use)
 						{
+							
+							clients[j].pos.x = (100.0f*j + 100);
+							clients[j].pos.z = 100.0f;
+							
 							SendPutPlayer(i, j);
+							
 						}
 					}
 					SendRoundStart(i);
@@ -733,25 +780,7 @@ void Server::ProcessPacket(char client, char *packet)
 			// 라운드 시작시간 set
 			StartTimer();
 			add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
-			//for (int i = 0; i < MAX_USER; ++i)
-			//{
-			//	if (true == clients[i].in_use)
-			//	{
-			//		//접속하는 클라이언트 마다 look,right,up벡터를 초기화 해줘야함.
-			//		SetClient_Initialize(i);
-			//		
-			//		for (int j = 0; j < MAX_USER; ++j)
-			//		{
-			//			if (true == clients[j].in_use)
-			//			{
 
-			//				SendPutPlayer(i, j);
-			//				//SendPutPlayer(j, i);
-			//			}
-			//		}
-			//		SendRoundStart(i);
-			//	}
-			//}
 			
 			printf("Round Start\n");
 		}
@@ -1019,27 +1048,7 @@ void Server::SendUnReadyStatePacket(char toClient,char fromClient)
 	SendFunc(toClient, &packet);
 }
 
-void Server::SendCollided(char toClient, char fromClient)
-{
-	SC_PACKET_COLLIDED packet;
 
-	packet.id = fromClient;
-	packet.size = sizeof(packet);
-	packet.type = SC_COLLIDED;
-
-	SendFunc(toClient, &packet);
-}
-
-void Server::SendNotCollided(char toClient,char fromClient)
-{
-	SC_PACKET_NOT_COLLIDED packet;
-
-	packet.id = fromClient;
-	packet.size = sizeof(packet);
-	packet.type = SC_NOT_COLLIDED;
-
-	SendFunc(toClient, &packet);
-}
 void Server::SendUseItem(char toClient, char fromClient, char usedItem, char targetClient)
 {
 	SC_PACKET_USE_ITEM packet;
@@ -1136,7 +1145,7 @@ void Server::SetClient_Initialize(char client)
 	clients[client].look = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	clients[client].right = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	clients[client].up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	clients[client].isCollided = false;
+	clients[client].collision = CL_NONE;
 }
 
 
@@ -1186,16 +1195,56 @@ void Server::UpdateClientPos(char client, float fTimeElapsed)
 
 
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(clients[client].velocity, fTimeElapsed, false);
-
-	if(clients[client].isCollided)
+	
+	switch (clients[client].collision)
 	{
-		XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize(recent_objects.pos ,clients[client].pos);
-		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, VELOCITY * 0.3f);
-		clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x,-xmf3CollisionDir.y,-xmf3CollisionDir.z);
+	case CL_NONE:
+	{
+		break;
 	}
+	case CL_SURROUNDING:
+	{
+		clientsLock[client].lock();
+		XMFLOAT3 xmf3CollisionDir = Vector3::Subtract(recent_pos, clients[client].pos);
+		clientsLock[client].unlock();
+		//xmf3CollisionDir = Vector3::Add(xmf3CollisionDir, clients[client].velocity);
+		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, VELOCITY*0.3f );
+		clientsLock[client].lock();
+		clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
+		clientsLock[client].unlock();
+		//clients[client].pos = Vector3::Add(clients[client].pos, clients[client].velocity);
+		break;
+	}
+	case CL_PLAYER:
+	{
+		
+		clientsLock[client].lock();
+		XMFLOAT3 xmf3CollisionDir = Vector3::Subtract(player_pos,clients[client].pos);
+		clientsLock[client].unlock();
+		//xmf3CollisionDir = Vector3::Add(xmf3CollisionDir, clients[client].velocity);
+		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, VELOCITY * 0.5f );
+		clientsLock[client].lock();
+		clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
+		clientsLock[client].unlock();
+		break;
+	}
+	default :
+		cout << "알수 없는 객체와 충돌\n";
+		break;
+	}
+
+	//if (clients[client].collision == true)
+	//{
+	//	XMFLOAT3 xmf3CollisionDir = Vector3::Subtract(recent_pos, clients[client].pos);
+	//	//xmf3CollisionDir = Vector3::Add(xmf3CollisionDir, clients[client].velocity);
+	//	xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, VELOCITY*0.5f );
+	//	clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
+	//}
+	//
 	
+	clientsLock[client].lock();
 	clients[client].pos = Vector3::Add(clients[client].pos, clients[client].velocity);
-	
+	clientsLock[client].unlock();
 	//clients[client].xmf3Position = xmf3Velocity;
 
 	//clients[client].velocity = clients[client].velocity;
@@ -1205,8 +1254,9 @@ void Server::UpdateClientPos(char client, float fTimeElapsed)
 	ProcessFriction(client, fLength);
 
 	//속도를 클라에게 보내주어 클라에서 기본적인 rUn,Backward,애니메이션을 결정하게 하기 위해.
+	clientsLock[client].lock();
 	clients[client].fVelocity = fLength;
-
+	clientsLock[client].unlock();
 	
 	//cout << clients[client].fVelocity << endl;
 
@@ -1316,19 +1366,25 @@ void Server::ProcessClientHeight(char client)
 	if (clients[client].pos.y < fHeight)
 	{
 		clients[client].velocity.y = 0.0f;
+		clientsLock[client].lock();
 		clients[client].pos.y = fHeight;
+		clientsLock[client].unlock();
 	}
 }
 
 void Server::ProcessFriction(char client, float& fLength)
 {
+	clientsLock[client].lock();
 	fLength = Vector3::Length(clients[client].velocity);
+	clientsLock[client].unlock();
 	float fDeclaration = (FRICTION * gameTimer.GetTimeElapsed());
 
 	if (fDeclaration > fLength)
 	{
 		fDeclaration = fLength;
+		clientsLock[client].lock();
 		clients[client].velocity = Vector3::Add(clients[client].velocity, Vector3::ScalarProduct(clients[client].velocity, -fDeclaration, true));
+		clientsLock[client].unlock();
 	}
 }
 

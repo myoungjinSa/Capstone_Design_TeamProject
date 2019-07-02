@@ -1010,16 +1010,22 @@ bool CGameFramework::BuildObjects()
 			CTerrain* pTerrain = dynamic_cast<CTerrainShader*>((*iter).second)->getTerrain();
 			pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), g_PlayerCharacter, pTerrain);
 			pPlayer->SetPosition(XMFLOAT3(40.f, 0.f, 40.f));
-			pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
+			XMFLOAT3 scale = XMFLOAT3(10.0f, 10.0f, 10.0f);
+			pPlayer->SetScale(scale);
 			pPlayer->SetPlayerName(L"ÁÖÀÎ°ø");
 
 			pPlayer->setScore(100);
 
 			map<string, Bounds*> BoundMap = m_pScene->getShaderManager()->getResourceManager()->getBoundMap();
 			auto iter2 = BoundMap.find("EvilBear");
-			if (iter2 != BoundMap.end())
+			if (iter2 != BoundMap.end()) 
+			{
+//#ifdef _WITH_SERVER_
+//				pPlayer->SetOOBB((*iter2).second->m_xmf3Center, Vector3::Multiply((*iter2).second->m_xmf3Extent, scale), XMFLOAT4(0, 0, 0, 1));
+//#else
 				pPlayer->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
-
+//#endif
+			}
 #ifndef _WITH_SERVER_
 #ifdef _MAPTOOL_MODE_
 			m_pMapToolShader = new CMapToolShader;
@@ -1751,21 +1757,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		
 		//printf("Put Player ID: %d, xPos: %f, yPos: %f, zPod: %f\n", pPP->id, pPP->xPos, pPP->yPos, pPP->zPos);
 		break;
-	case SC_COLLIDED:
-	{
-		pCollided = reinterpret_cast<SC_PACKET_COLLIDED*>(packet);
 
-		if (pCollided->id == m_pPlayer->GetPlayerID())
-		{
-			m_pPlayer->SetCollided(true);
-		}
-		else if (pCollided->id < MAX_USER)
-		{
-
-		}
-
-		break;
-	}
 	case SC_MOVE_PLAYER:
 	{
 		//SC_PACKET_MOVE_PLAYER* pMP = m_Network.GetMP();

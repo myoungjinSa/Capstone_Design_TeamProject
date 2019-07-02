@@ -78,6 +78,7 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 	{
 		m_ppObjects[0] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::PINK);
 		m_ppObjects[0]->SetChild((*Model).second->m_pModelRootObject, true);
+		//m_ppObjects[0]->SetOOBB()
 		m_ppObjects[0]->m_pAnimationController = new CAnimationController(1, (*Model).second->m_pAnimationSets);
 		// 0번 트랙에 0번 애니메이션을 Set
 		m_ppObjects[0]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[0]->m_pAnimationController->IDLE);
@@ -251,13 +252,19 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 
 	for (int i = 0; i < m_nObjects; ++i)
 	{
-		m_ppObjects[i]->SetScale(10, 10, 10);
+		XMFLOAT3 scale = XMFLOAT3(10.0f, 10.0f, 10.0f);
+		m_ppObjects[i]->SetScale(scale.x,scale.y,scale.z);
 
 		m_ppObjects[i]->setID("EvilBear");
 		auto iter = Context.find(m_ppObjects[i]->getID());
-		if (iter != Context.end())
+		if (iter != Context.end()) 
+		{
+#ifdef _WITH_SERVER_
+			m_ppObjects[i]->SetOOBB((*iter).second->m_xmf3Center, Vector3::Multiply((*iter).second->m_xmf3Extent, XMFLOAT3(2.0f,2.0f,2.0f)), XMFLOAT4(0, 0, 0, 1));
+#else
 			m_ppObjects[i]->SetOOBB((*iter).second->m_xmf3Center, (*iter).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
-
+#endif
+		}
 		dynamic_cast<CEvilBear*>(m_ppObjects[i])->Initialize_Shadow((*Model).second, m_ppObjects[i]);
 	}
 }

@@ -679,6 +679,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 
 		// 플레이어와 정적인 오브젝트 충돌검사
 		map<string, CShader*> m = m_pShaderManager->getShaderMap();
+		bool isCollided{ false };
 		auto iter = m.find("MapObjects");
 		if (iter != m.end())
 		{
@@ -689,7 +690,9 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 			for (auto iter2 = MapObjectsList.begin(); iter2 != MapObjectsList.end(); ++iter2)
 				(*iter2)->SetObjectCollided(nullptr);
 
-			bool isCollided{ false };
+			
+
+			
 			for (auto iter2 = MapObjectsList.begin(); iter2 != MapObjectsList.end(); ++iter2)
 			{
 				
@@ -698,7 +701,8 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 
 #ifdef _WITH_SERVER_
 					isCollided = true;
-					Network::GetInstance()->SendCollided(dynamic_cast<CSurrounding*>(*iter2)->GetIndex());
+					
+					Network::GetInstance()->SendSurroundingCollision(dynamic_cast<CSurrounding*>(*iter2)->GetIndex());
 #else
 					XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize((*iter2)->GetPosition() ,m_pPlayer->GetPosition());
 					xmf3CollisionDir=Vector3::ScalarProduct(xmf3CollisionDir, m_pPlayer->GetMaxVelocity()*0.3f);
@@ -710,13 +714,13 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				}
 				++i;
 			}
-#ifdef _WITH_SERVER_
-			if(isCollided == false)		//충돌하지 않은 것으로 판명 서버에게 알려준다.
-			{
-				m_pPlayer->SetCollided(false);
-				Network::GetInstance()->SendNotCollide();
-			}
-#endif
+//#ifdef _WITH_SERVER_
+//			
+//			if(isCollided == false)		//충돌하지 않은 것으로 판명 서버에게 알려준다.
+//			{
+//				Network::GetInstance()->SendNotSurroundingCollision();
+//			}
+//#endif
 
 		}
 
@@ -724,11 +728,14 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 		if (iter != m.end())
 		{
 			float minDistance = 1000.0f;
+			
+			char id{ -1 };
 #ifdef _WITH_SERVER_
 			vector<pair<char, char>> vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
 			for (int i = 0; i < vec.size(); ++i)
 			{
-				char id = vec[i].first;
+				id = vec[i].first;
+				
 				if ((*iter).second->m_ppObjects[id]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
 					// 술래 체인지
@@ -747,17 +754,28 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 						m_TaggerCoolTime = 3.f;
 					}
 
+#ifdef _WITH_SERVER_
+					isCollided = true;
+				//	cout << (int)id << "번째 player와 충돌\n ";
+					Network::GetInstance()->SendPlayerCollision(id);
+#else					
 					XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize((*iter).second->m_ppObjects[id]->GetPosition(), m_pPlayer->GetPosition());
 					xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, (m_pPlayer->GetMaxVelocity()*0.3f));
 					m_pPlayer->SetVelocity(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
+#endif
 
 				}
-
+				
 				float dist = Vector3::Length(Vector3::SubtractNormalize((*iter).second->m_ppObjects[id]->GetPosition(), m_pPlayer->GetPosition()));
 				(*iter).second->m_ppObjects[id]->SetDistanceToTarget(dist);
 
 			}
-
+#ifdef _WITH_SERVER_
+			if(isCollided == false)
+			{
+				Network::GetInstance()->SendNotSurroundingCollision();
+			}
+#endif
 			static bool bBreak = false;
 
 			if (m_pPlayer->AnimationCollision(CAnimationController::ATTACK))

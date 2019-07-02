@@ -7,7 +7,7 @@
 //#define SERVER_IP "192.168.60.161"
 //#define SERVER_IP "192.168.200.103"
 //#define SERVER_IP "192.168.0.34"
-#define SERVER_IP "192.168.0.154"
+#define SERVER_IP "192.168.0.132"
 
 using namespace std;
 //using namespace DirectX;
@@ -48,8 +48,7 @@ constexpr int SC_CLIENT_LOBBY_OUT = 15;
 constexpr int SC_CHATTING = 16;
 constexpr int SC_READY_STATE = 17;
 constexpr int SC_UNREADY_STATE = 18;
-constexpr int SC_COLLIDED = 19;
-constexpr int SC_NOT_COLLIDED = 20;
+
 
 constexpr int CS_UP_KEY = 0;
 constexpr int CS_DOWN_KEY = 1;
@@ -66,9 +65,11 @@ constexpr int CS_RELEASE_KEY = 11;
 constexpr int CS_ANIMATION_INFO = 12;
 constexpr int CS_NICKNAME_INFO = 13;
 constexpr int CS_CHATTING = 14;
-constexpr int CS_COLLIDED = 15;
-constexpr int CS_NOT_COLLIDED = 16;
-constexpr int CS_USEITEM = 17;
+constexpr int CS_OBJECT_COLLISION = 15;
+constexpr int CS_NOT_OBJECT_COLLISION = 16;
+constexpr int CS_PLAYER_COLLISION = 17;
+constexpr int CS_NOT_PLAYER_COLLISION = 18;
+constexpr int CS_USEITEM = 19;
 
 
 
@@ -237,19 +238,30 @@ struct CS_PACKET_CHATTING
 	char chatting[MAX_CHATTING_LENGTH];
 };
 
-struct CS_PACKET_COLLIDED
+struct CS_PACKET_OBJECT_COLLISION
 {
 	char size;
 	char type;
-	int objId;
+	unsigned short objId;		//object개수는 66536을 넘지 않기 때문에 unsigned short로 변경
 };
 
-struct CS_PACKET_NOT_COLLIDED
+struct CS_PACKET_NOT_OBJECT_COLLISION
 {
 	char size;
 	char type;
 };
-
+struct CS_PACKET_PLAYER_COLLISION
+{
+	char size;
+	char type;
+	unsigned char playerID;
+};
+struct CS_PACKET_NOT_PLAYER_COLLISION
+{
+	char size;
+	char type;
+	unsigned char playerID;
+};
 
 struct CS_PACKET_USE_ITEM
 {

@@ -42,7 +42,12 @@ enum EVENT_TYPE
 	EV_SEND,
 	EV_COUNT
 };
-
+enum COLLISION_TYPE		//어느 객체와 충돌했는지 
+{
+	CL_NONE,
+	CL_SURROUNDING,	//주변
+	CL_PLAYER		//플레이어
+};
 struct EVENT_ST
 {
 	int					obj_id;
@@ -93,7 +98,7 @@ public:
 	XMFLOAT3 lastUpVector;
 
 	
-	bool isCollided;
+	COLLISION_TYPE collision;
 	char score;
 	char normalItem;
 	char specialItem;
@@ -158,6 +163,9 @@ private:
 private:
 	vector<MAPOBJECT> objects;
 	MAPOBJECT recent_objects;		//최근에 부딪힌 오브젝트;
+	XMFLOAT3 recent_pos;
+	XMFLOAT3 player_pos;
+	unsigned char recent_player;
 public:
 	Server();
 	~Server();
@@ -190,8 +198,6 @@ public:
 	void SendRoundEnd(char client);
 	void SendCompareTime(char client);
 	void SendStopRunAnim(char toClient, char fromClient);
-	void SendCollided(char toClient, char fromClient);
-	void SendNotCollided(char toClient, char fromClient);
 	void SendUseItem(char toClient, char fromClient, char useItem, char targetClient);
 public:
 	void SetAnimationState(char client,char animationNum);

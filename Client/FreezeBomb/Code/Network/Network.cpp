@@ -318,26 +318,49 @@ void Network::SetGameFrameworkPtr(HWND hWnd,CGameFramework* client)
 		m_pGameClient = client;
 	}
 }
-void Network::SendCollided(int objID)
+void Network::SendSurroundingCollision(USHORT objID)
 {
-	pCollide = reinterpret_cast<CS_PACKET_COLLIDED*>(send_buffer);
+	pCollide = reinterpret_cast<CS_PACKET_OBJECT_COLLISION*>(send_buffer);
 	pCollide->objId = objID;
 	pCollide->size = sizeof(pCollide);
 	send_wsabuf.len = sizeof(pCollide);
-	pCollide->type = CS_COLLIDED;
+	pCollide->type = CS_OBJECT_COLLISION;
 
 	SendPacket();
 }
 
-void Network::SendNotCollide()
+void Network::SendNotSurroundingCollision()
 {
-	pNotCollide = reinterpret_cast<CS_PACKET_NOT_COLLIDED*>(send_buffer);
+	pNotCollide = reinterpret_cast<CS_PACKET_NOT_OBJECT_COLLISION*>(send_buffer);
 	pNotCollide->size = sizeof(pNotCollide);
-	pNotCollide->type = CS_NOT_COLLIDED;
+	pNotCollide->type = CS_NOT_OBJECT_COLLISION;
 	send_wsabuf.len = sizeof(pNotCollide);
 
 	SendPacket();
 }
+
+void Network::SendPlayerCollision(unsigned char playerID)
+{
+	pPlayerCollision = reinterpret_cast<CS_PACKET_PLAYER_COLLISION*>(send_buffer);
+	pPlayerCollision->size = sizeof(pPlayerCollision);
+	pPlayerCollision->type = CS_PLAYER_COLLISION;
+	pPlayerCollision->playerID = playerID;
+	send_wsabuf.len = sizeof(pPlayerCollision);
+
+	SendPacket();
+}
+
+void Network::SendNotPlayerCollision(unsigned char playerID)
+{
+	pPlayerNotCollision = reinterpret_cast<CS_PACKET_NOT_PLAYER_COLLISION*>(send_buffer);
+	pPlayerNotCollision->size = sizeof(pPlayerCollision);
+	pPlayerNotCollision->type = CS_NOT_PLAYER_COLLISION;
+	pPlayerNotCollision->playerID = playerID;
+	send_wsabuf.len - sizeof(pPlayerNotCollision);
+
+	SendPacket();
+}
+
 void Network::SendUseItem(int useItem, int targetID)
 {
 	pItem = reinterpret_cast<CS_PACKET_USE_ITEM*>(send_buffer);

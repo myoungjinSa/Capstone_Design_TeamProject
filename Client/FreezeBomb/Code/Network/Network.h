@@ -46,8 +46,10 @@ private:
 	CS_PACKET_ANIMATION *pAnimation = NULL;
 	CS_PACKET_NICKNAME *pNickName = NULL;
 	CS_PACKET_CHATTING *pText = NULL;	
-	CS_PACKET_COLLIDED *pCollide = NULL;
-	CS_PACKET_NOT_COLLIDED *pNotCollide = NULL;
+	CS_PACKET_OBJECT_COLLISION *pCollide = NULL;
+	CS_PACKET_NOT_OBJECT_COLLISION *pNotCollide = NULL;
+	CS_PACKET_PLAYER_COLLISION* pPlayerCollision = NULL;
+	CS_PACKET_NOT_PLAYER_COLLISION* pPlayerNotCollision = NULL;
 	CS_PACKET_USE_ITEM *pItem = NULL;
 private:
 	//ReadPacket에서 받은 패킷들을 CGameFramework에 전달하기 위한 포인터
@@ -91,8 +93,10 @@ public:
 	void SendAnimationState(char animNum);
 	void SendNickName(char id,_TCHAR* name);
 	void SendChattingText(char id,const _TCHAR* text);
-	void SendCollided(int objID);
-	void SendNotCollide();
+	void SendSurroundingCollision(USHORT objID);
+	void SendNotSurroundingCollision();
+	void SendPlayerCollision(unsigned char playerID);
+	void SendNotPlayerCollision(unsigned char playerID);
 	void SendUseItem(int useItem, int targetID);
 public:
 	CS_PACKET_REQUEST_START* GetRS() { return pRequestStart; }

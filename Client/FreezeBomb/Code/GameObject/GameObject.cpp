@@ -1403,7 +1403,7 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 			pGameObject->SetMesh(pMesh);
 
 			// 각 바운드 크기 셋
-			pGameObject->SetOOBB(pMesh->getBoundCenter(), pMesh->getBoundExtent() /*Vector3::Multiply(Vector3::ScalarProduct(pMesh->getBoundExtent(),1000,false) , xmf3Scale)*/, XMFLOAT4(0, 0, 0, 1));
+			pGameObject->SetOOBB(pMesh->getBoundCenter(), pMesh->getBoundExtent() /*Vector3::Multiply(Vector3::ScalarProduct(pMesh->getBoundExtent(),m_xmf3Scale,false) , xmf3Scale)*/, XMFLOAT4(0, 0, 0, 1));
 		}
 		else if (!strcmp(pstrToken, "<SkinningInfo>:"))
 		{
