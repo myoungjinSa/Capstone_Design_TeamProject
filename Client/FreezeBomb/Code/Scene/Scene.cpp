@@ -12,9 +12,11 @@
 #include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
 #include "../Shader/CubeParticleShader/CubeParticleShader.h"
 
+#include "../GameObject/Surrounding/Surrounding.h"
 #include "../Shader/BillboardShader/UIShader/MenuUIShader/MenuUIShader.h"
 #include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
 #include "../Shader/BillboardShader/UIShader/TextUIShader/OutcomeUIShader/OutcomeUIShader.h"
+#include "../Network/Network.h"
 
 
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
@@ -687,18 +689,34 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 			for (auto iter2 = MapObjectsList.begin(); iter2 != MapObjectsList.end(); ++iter2)
 				(*iter2)->SetObjectCollided(nullptr);
 
+			bool isCollided{ false };
 			for (auto iter2 = MapObjectsList.begin(); iter2 != MapObjectsList.end(); ++iter2)
 			{
+				
 				if((*iter2)->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
-					m_pPlayer->SetObjectCollided((*iter2));
+
+#ifdef _WITH_SERVER_
+					isCollided = true;
+					Network::GetInstance()->SendCollided(dynamic_cast<CSurrounding*>(*iter2)->GetIndex());
+#else
 					XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize((*iter2)->GetPosition() ,m_pPlayer->GetPosition());
 					xmf3CollisionDir=Vector3::ScalarProduct(xmf3CollisionDir, m_pPlayer->GetMaxVelocity()*0.3f);
 					m_pPlayer->SetVelocity(-xmf3CollisionDir.x,-xmf3CollisionDir.y,-xmf3CollisionDir.z);
+#endif
+					m_pPlayer->SetObjectCollided((*iter2));
+					
 					//cout << i << "번째 정적인 오브젝트와 충돌" << endl;
 				}
 				++i;
 			}
+#ifdef _WITH_SERVER_
+			if(isCollided == false)		//충돌하지 않은 것으로 판명 서버에게 알려준다.
+			{
+				m_pPlayer->SetCollided(false);
+				Network::GetInstance()->SendNotCollide();
+			}
+#endif
 
 		}
 

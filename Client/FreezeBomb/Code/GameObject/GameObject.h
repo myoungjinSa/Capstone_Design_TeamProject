@@ -446,11 +446,18 @@ protected:
 	bool								m_bGoldTimer = false;	//타이머 아이템 소지 여부
 	bool								m_bLightening = false;		//특수 아이템 사용시 번개 효과를 렌더링하기 위한 bool변수
 
+#ifdef _WITH_SERVER_
+	bool								m_bCollided{ false };
+#endif
 
 	//플레이어와의 거리
 	float		m_fDistanceToTarget = 0.0f;
 public:
 
+#ifdef _WITH_SERVER_
+	void SetCollided(bool isCollided) { m_bCollided = isCollided; }
+	bool IsCollided() { return m_bCollided; }
+#endif
 	void setID(const string id) { m_ID = id; }
 	const string getID()	const { return m_ID; }
 

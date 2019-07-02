@@ -11,5 +11,10 @@ public:
 
 	void Initialize_Shadow(CLoadedModelInfo* pLoadedModel, CGameObject* pGameObject);
 
+	
+	void SetIndex(int num) { objNum = num; }
+	int GetIndex() { return objNum; }
 	void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState);
+private:
+	int objNum;
 };

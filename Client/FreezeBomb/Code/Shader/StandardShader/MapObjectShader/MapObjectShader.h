@@ -20,7 +20,9 @@ public:
 	
 	const list<CGameObject*>& getMapObjectList()	const;
 
+
 private:
 	using RoundMapObjectList = list<CGameObject*>;
 	unordered_map<unsigned char, RoundMapObjectList> m_MapObjectList;
+
 };

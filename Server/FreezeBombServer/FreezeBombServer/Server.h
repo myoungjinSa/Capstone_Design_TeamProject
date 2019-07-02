@@ -30,15 +30,36 @@ constexpr float PLAYER_INIT_Z_RIGHT = 0;
 constexpr float FRICTION = 250;
 constexpr float MAX_VELOCITY_XZ = 40;
 constexpr float MAX_VELOCITY_Y = 400;
+constexpr float VELOCITY = 0.7f;
 
 constexpr int MAX_WORKER_THREAD = 2;
+
+
+
+enum EVENT_TYPE
+{
+	EV_RECV,
+	EV_SEND,
+	EV_COUNT
+};
+
+struct EVENT_ST
+{
+	int					obj_id;
+	EVENT_TYPE			type;
+	high_resolution_clock::time_point start_time;
+	constexpr bool operator<(const EVENT_ST& left)const
+	{
+		return(type > left.type && start_time > left.start_time);
+	}
+};
 
 // Overlapped구조체 확장
 struct OVER_EX {
 	WSAOVERLAPPED	over;
 	WSABUF			dataBuffer;
 	char			messageBuffer[MAX_BUFFER];
-	bool			is_recv;
+	EVENT_TYPE		event_t;
 };
 
 class SOCKETINFO
@@ -72,6 +93,7 @@ public:
 	XMFLOAT3 lastUpVector;
 
 	
+	bool isCollided;
 	char score;
 	char normalItem;
 	char specialItem;
@@ -83,6 +105,8 @@ public:
 	char animation;			//애니메이션 index
 	float animationTime;	//애니메이션 시간
 	bool isReady;
+
+
 public:
 	SOCKETINFO() {
 		in_use = false;
@@ -96,8 +120,14 @@ public:
 		ZeroMemory(&packet_buffer, sizeof(packet_buffer));
 		over_ex.dataBuffer.len = MAX_BUFFER;
 		over_ex.dataBuffer.buf = over_ex.messageBuffer;
-		over_ex.is_recv = true;
+		over_ex.event_t = EV_RECV;
 	}
+};
+
+struct MAPOBJECT
+{
+	string name;
+	XMFLOAT3 pos = XMFLOAT3(0.0f,0.0f,0.0f);
 };
 
 class Server
@@ -120,6 +150,14 @@ private:
 	int readyCount;
 	int hostId;
 	int bomberID;
+
+private:
+
+	priority_queue <EVENT_ST> timer_queue;
+	mutex		timer_l;
+private:
+	vector<MAPOBJECT> objects;
+	MAPOBJECT recent_objects;		//최근에 부딪힌 오브젝트;
 public:
 	Server();
 	~Server();
@@ -152,6 +190,9 @@ public:
 	void SendRoundEnd(char client);
 	void SendCompareTime(char client);
 	void SendStopRunAnim(char toClient, char fromClient);
+	void SendCollided(char toClient, char fromClient);
+	void SendNotCollided(char toClient, char fromClient);
+	void SendUseItem(char toClient, char fromClient, char useItem, char targetClient);
 public:
 	void SetAnimationState(char client,char animationNum);
 	void SetVelocityZero(char client);
@@ -167,9 +208,14 @@ public:
 	void PickBomber();
 	void StartTimer();
 	void ResetTimer();
+
+	void add_timer(int obj_id,EVENT_TYPE et,chrono::high_resolution_clock::time_point start_time);
 public:
 	bool InitServer();
 	void RunServer();
+
+public:
+	void LoadMapObjectInfo();
 public:
 	void err_quit(const char*);
 	void err_display(const char*);

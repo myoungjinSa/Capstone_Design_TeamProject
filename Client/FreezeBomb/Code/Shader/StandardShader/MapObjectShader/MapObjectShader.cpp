@@ -12,7 +12,9 @@ CMapObjectsShader::CMapObjectsShader()
 
 CMapObjectsShader::~CMapObjectsShader()
 {
+
 }
+
 
 void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,
 	const map<string, CLoadedModelInfo*>& ModelMap, const unordered_map<unsigned char, RoundInfo>& MapObjectInfo, const map<string, Bounds*>& BoundMap, void* pContext)
@@ -22,7 +24,7 @@ void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 	for (auto iter = MapObjectInfo.begin(); iter != MapObjectInfo.end(); ++iter)
 	{
 		list<CGameObject*> objectList;
-
+		int index = 0;
 		// 모든 모델의 루프를 돌고,
 		for (auto iter2 = ModelMap.begin(); iter2 != ModelMap.end(); ++iter2)
 		{
@@ -41,7 +43,11 @@ void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 				pSurrounding->SetUpVector((*iter3).second->m_Up);
 				pSurrounding->SetRightVector((*iter3).second->m_Right);
 
+				dynamic_cast<CSurrounding*>(pSurrounding)->SetIndex(index++);
+
 				pSurrounding->Initialize_Shadow((*iter2).second, pSurrounding);
+
+				
 
 				auto iter4 = BoundMap.find(name);
 				if (iter4 != BoundMap.end())

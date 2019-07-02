@@ -223,6 +223,7 @@ private:
 	SC_PACKET_CHATTING * pCh = NULL;
 	SC_PACKET_READY_STATE* pReady = NULL;
 	SC_PACKET_UNREADY_STATE* pNotReady = NULL;
+	SC_PACKET_COLLIDED* pCollided = NULL;
 
 
 	bool isCharacterSelectDone = false;

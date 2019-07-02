@@ -1718,6 +1718,8 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pPlayer->SetUpVector(up);
 			m_pPlayer->SetRightVector(right);
 			m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
+
+
 		//m_pPlayer->SetDirection()
 		}
 		else if(pPP->id < MAX_USER)
@@ -1749,6 +1751,21 @@ void CGameFramework::ProcessPacket(char *packet)
 		
 		//printf("Put Player ID: %d, xPos: %f, yPos: %f, zPod: %f\n", pPP->id, pPP->xPos, pPP->yPos, pPP->zPos);
 		break;
+	case SC_COLLIDED:
+	{
+		pCollided = reinterpret_cast<SC_PACKET_COLLIDED*>(packet);
+
+		if (pCollided->id == m_pPlayer->GetPlayerID())
+		{
+			m_pPlayer->SetCollided(true);
+		}
+		else if (pCollided->id < MAX_USER)
+		{
+
+		}
+
+		break;
+	}
 	case SC_MOVE_PLAYER:
 	{
 		//SC_PACKET_MOVE_PLAYER* pMP = m_Network.GetMP();
@@ -1770,6 +1787,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pPlayer->Rotate(pMP->pitch, pMP->yaw, pMP->roll);
 			m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
 			m_pPlayer->SetVelocityFromServer(pMP->fVelocity);
+	
 		}
 		else if (pMP->id < MAX_USER)
 		{

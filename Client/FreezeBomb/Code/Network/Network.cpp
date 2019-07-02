@@ -318,6 +318,37 @@ void Network::SetGameFrameworkPtr(HWND hWnd,CGameFramework* client)
 		m_pGameClient = client;
 	}
 }
+void Network::SendCollided(int objID)
+{
+	pCollide = reinterpret_cast<CS_PACKET_COLLIDED*>(send_buffer);
+	pCollide->objId = objID;
+	pCollide->size = sizeof(pCollide);
+	send_wsabuf.len = sizeof(pCollide);
+	pCollide->type = CS_COLLIDED;
+
+	SendPacket();
+}
+
+void Network::SendNotCollide()
+{
+	pNotCollide = reinterpret_cast<CS_PACKET_NOT_COLLIDED*>(send_buffer);
+	pNotCollide->size = sizeof(pNotCollide);
+	pNotCollide->type = CS_NOT_COLLIDED;
+	send_wsabuf.len = sizeof(pNotCollide);
+
+	SendPacket();
+}
+void Network::SendUseItem(int useItem, int targetID)
+{
+	pItem = reinterpret_cast<CS_PACKET_USE_ITEM*>(send_buffer);
+	pItem->usedItem = useItem;
+	pItem->target = targetID;
+	pItem->size = sizeof(pItem);
+	send_wsabuf.len = sizeof(pItem);
+	pItem->type = CS_USEITEM;
+
+	SendPacket();
+}
 // 소켓 함수 오류 출력 후 종료
 void Network::err_quit(const char *msg)
 {

@@ -48,6 +48,7 @@ constexpr int SC_CHATTING = 16;
 constexpr int SC_READY_STATE = 17;
 constexpr int SC_UNREADY_STATE = 18;
 constexpr int SC_COLLIDED = 19;
+constexpr int SC_NOT_COLLIDED = 20;
 
 constexpr int CS_UP_KEY = 0;
 constexpr int CS_DOWN_KEY = 1;
@@ -65,7 +66,8 @@ constexpr int CS_ANIMATION_INFO = 12;
 constexpr int CS_NICKNAME_INFO = 13;
 constexpr int CS_CHATTING = 14;
 constexpr int CS_COLLIDED = 15;
-constexpr int CS_USEITEM = 16;
+constexpr int CS_NOT_COLLIDED = 16;
+constexpr int CS_USEITEM = 17;
 
 
 
@@ -234,6 +236,20 @@ struct CS_PACKET_CHATTING
 	char chatting[MAX_CHATTING_LENGTH];
 };
 
+struct CS_PACKET_COLLIDED
+{
+	char size;
+	char type;
+	int objId;
+};
+
+struct CS_PACKET_NOT_COLLIDED
+{
+	char size;
+	char type;
+};
+
+
 struct CS_PACKET_USE_ITEM
 {
 	char size;
@@ -241,6 +257,7 @@ struct CS_PACKET_USE_ITEM
 	char target;			// 사용대상이 존재할 때
 	char usedItem;			// 사용되는 아이템 정보
 };
+
 //////////////////////////////////////////////////////
 
 //[서버->클라]
@@ -394,6 +411,13 @@ struct SC_PACKET_ROUND_END
 };
 
 struct SC_PACKET_COLLIDED
+{
+	char size;
+	char type;
+	char id;
+};
+
+struct SC_PACKET_NOT_COLLIDED
 {
 	char size;
 	char type;

@@ -3,7 +3,7 @@
 
 Server::Server()
 {
-	roundStartTime = 0;
+	roundCurrTime = 0;
 	clientCount = 0;
 	hostId = -1;
 	//clients.reserve(MAX_USER);
@@ -16,11 +16,15 @@ Server::~Server()
 	//clients.clear();
 	if (heightMap)
 		delete heightMap;
+	if (false == objects.empty())
+		objects.clear();
 }
 
 bool Server::InitServer()
 {
 	setlocale(LC_ALL, "korean");
+
+	LoadMapObjectInfo();
 
 	clientCount = 0;
 	hostId = -1;
@@ -72,6 +76,93 @@ bool Server::InitServer()
 	return true;
 }
 
+void Server::LoadMapObjectInfo()
+{
+	string filename;
+	filename = "../Resource/Position/Surrounding/MapVer0.bin";
+	ifstream in(filename, ios::binary);
+
+	if (!in)
+	{
+		cout << " - 바이너리 파일 없음" << endl;
+		return;
+	}
+
+	size_t nReads = 0;
+	XMFLOAT3 tmp;
+
+	// 맵 오브젝트 개수
+	int nObjects = 0;
+	in.read(reinterpret_cast<char*>(&nObjects), sizeof(int));
+
+	for (int i = 0; i < nObjects; ++i)
+	{
+		MAPOBJECT* pMapObjectInfo = new MAPOBJECT;
+		// 모델 이름 문자열 길이 저장
+		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+
+		// 길이 + 1만큼 자원 할당
+		char* p = new char[nReads + 1];
+		in.read(p, sizeof(char) * nReads);
+		p[nReads] = '\0';
+		//  모델 이름 저장
+		delete[] p;
+
+		// Position 문자열 길이 저장
+		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+		p = new char[nReads + 1];
+		in.read(p, sizeof(char)*nReads);
+		p[nReads] = '\0';
+		delete[] p;
+
+		// Position x, y, z값 저장
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->pos.x), sizeof(float));
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->pos.y), sizeof(float));
+		in.read(reinterpret_cast<char*>(&pMapObjectInfo->pos.z), sizeof(float));
+
+		// Look 문자열 길이 저장
+		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+		p = new char[nReads + 1];
+		in.read(p, sizeof(char)*nReads);
+		p[nReads] = '\0';
+		delete[] p;
+
+		// <Look> x, y, z값 저장
+		in.read(reinterpret_cast<char*>(&tmp.x), sizeof(float));
+		in.read(reinterpret_cast<char*>(&tmp.y), sizeof(float));
+		in.read(reinterpret_cast<char*>(&tmp.z), sizeof(float));
+
+		// Up 문자열 길이 저장
+		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+		p = new char[nReads + 1];
+		in.read(p, sizeof(char)*nReads);
+		p[nReads] = '\0';
+		delete[] p;
+
+		// <Up> x, y, z값 저장
+		in.read(reinterpret_cast<char*>(&tmp.x), sizeof(float));
+		in.read(reinterpret_cast<char*>(&tmp.y), sizeof(float));
+		in.read(reinterpret_cast<char*>(&tmp.z), sizeof(float));
+
+		// Right 문자열 길이 저장
+		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+		p = new char[nReads + 1];
+		in.read(p, sizeof(char)*nReads);
+		p[nReads] = '\0';
+		delete[] p;
+
+		// <Right> x, y, z값 저장
+		in.read(reinterpret_cast<char*>(&tmp.x), sizeof(float));
+		in.read(reinterpret_cast<char*>(&tmp.y), sizeof(float));
+		in.read(reinterpret_cast<char*>(&tmp.z), sizeof(float));
+
+		pMapObjectInfo->pos.y = 0.f;
+
+		objects.emplace_back(*pMapObjectInfo);
+	}
+	in.close();
+}
+
 void Server::RunServer()
 {
 	gameTimer.Start();
@@ -106,6 +197,14 @@ void Server::RunServer()
 	timerThread.join();
 	for (auto &th : workerThreads)
 		th.join();
+}
+
+void Server::add_timer(int obj_id, EVENT_TYPE et, chrono::high_resolution_clock::time_point start_time)
+{
+	// lock에서 오류남.. 수정 필요
+	timer_l.lock();
+	timer_queue.emplace(EVENT_ST{ obj_id, et,  start_time });
+	timer_l.unlock();
 }
 
 void Server::AcceptThread(LPVOID arg)
@@ -207,40 +306,62 @@ void Server::TimerThread(LPVOID arg)
 
 void Server::TimerThreadFunc()
 {
-	float lastSec = 0;
-	float nowSec = 0;
 	while (1)
 	{
-		if (roundStartTime > 0)
+		this_thread::sleep_for(10ms);
+
+		while (1)
 		{
-			nowSec = (GetTickCount() - roundStartTime) / 1000;
-			//cout << nowSec << "\n";
-			// 1초가 지나면 시간비교 패킷 전송
-
-			//서버 시간 현재 
-			if (nowSec - lastSec >= 1.0f)
+			timer_l.lock();
+			if (true == timer_queue.empty())
 			{
-				//printf("SendCompareTime() 전송\n");
-				roundCurrTime = MAX_ROUND_TIME - nowSec;
-				for (int i = 0; i < MAX_USER; ++i)
-				{
-					if (true == clients[i].in_use)
-						SendCompareTime(i);
-				}
-				lastSec = nowSec;
+				timer_l.unlock();
+				break;
 			}
 
-			// 라운드 종료 시
-			if (nowSec >= MAX_ROUND_TIME)
+			EVENT_ST ev = timer_queue.top();
+			// 시간 됐나 확인
+			if (ev.start_time > chrono::high_resolution_clock::now())
 			{
-				for (int i = 0; i < MAX_USER; ++i)
-				{
-					if (true == clients[i].in_use)
-						SendRoundEnd(i);
-				}
-				ResetTimer();
+				timer_l.unlock();
+				break;
 			}
+			timer_queue.pop();
+			timer_l.unlock();
+			OVER_EX *over_ex = new OVER_EX;
+			over_ex->event_t = ev.type;
+			PostQueuedCompletionStatus(iocp, 1, ev.obj_id, &over_ex->over);
 		}
+		//if (roundStartTime > 0)
+		//{
+		//	nowSec = (GetTickCount() - roundStartTime) / 1000;
+		//	//cout << nowSec << "\n";
+		//	// 1초가 지나면 시간비교 패킷 전송
+		//	
+		//	//서버 시간 현재 
+		//	if (nowSec - lastSec >= 1.0f)
+		//	{
+		//		//printf("SendCompareTime() 전송\n");
+		//		roundCurrTime = MAX_ROUND_TIME - nowSec;
+		//		for (int i = 0; i < MAX_USER; ++i)
+		//		{
+		//			if (true == clients[i].in_use)
+		//				SendCompareTime(i);
+		//		}
+		//		lastSec = nowSec;
+		//	}
+
+		//	// 라운드 종료 시
+		//	if (nowSec >= MAX_ROUND_TIME)
+		//	{
+		//		for (int i = 0; i < MAX_USER; ++i)
+		//		{
+		//			if (true == clients[i].in_use)
+		//				SendRoundEnd(i);
+		//		}
+		//		ResetTimer();
+		//	}
+		//}
 	}
 }
 
@@ -301,7 +422,7 @@ void Server::WorkerThreadFunc()
 		}
 
 		char key = static_cast<char>(l_key);
-		if (true == over_ex->is_recv)
+		if (EV_RECV == over_ex->event_t)
 		{
 			// RECV 처리
 			//wcout << "Packet from Client: " << (int)key << "\n";
@@ -343,10 +464,42 @@ void Server::WorkerThreadFunc()
 
 			RecvFunc(key);
 		}
-		else
+		else if(EV_SEND == over_ex->event_t)
 		{
 			// SEND 처리
 			delete over_ex;
+		}
+		else if (EV_COUNT == over_ex->event_t)
+		{
+			roundCurrTime--;
+
+			//서버 시간 현재 (남은 시간)
+			printf("RoundCurrentTime : %d", roundCurrTime);
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (true == clients[i].in_use)
+					SendCompareTime(i);
+			}
+
+			// 라운드 종료 시
+			if (roundCurrTime <= 0)
+			{
+				for (int i = 0; i < MAX_USER; ++i)
+				{
+					if (true == clients[i].in_use)
+						SendRoundEnd(i);
+				}
+				ResetTimer();
+			}
+			else
+			{
+				add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
+			}
+		}
+		else
+		{
+			cout << "Unknown Event\n";
+			while (true);
 		}
 	}
 }
@@ -365,12 +518,12 @@ void Server::PickBomber()
 
 void Server::StartTimer()
 {
-	roundStartTime = GetTickCount();
+	roundCurrTime = MAX_ROUND_TIME;
 }
 
 void Server::ResetTimer()
 {
-	roundStartTime = 0;
+	roundCurrTime = 0;
 }
 
 void Server::ProcessPacket(char client, char *packet)
@@ -392,6 +545,8 @@ void Server::ProcessPacket(char client, char *packet)
 	case CS_UPRIGHT_KEY:
 	case CS_DOWNLEFT_KEY:
 	case CS_DOWNRIGHT_KEY:
+		//if (true == clients[client].isCollided)
+		//	break;
 		clientsLock[client].lock();
 		SetDirection(client, packet[1]);
 		//cout << gameTimer.GetTimeElapsed()<<endl;
@@ -415,6 +570,49 @@ void Server::ProcessPacket(char client, char *packet)
 			}
 		}
 		break;
+	case CS_COLLIDED:
+	{	
+		CS_PACKET_COLLIDED *p = reinterpret_cast<CS_PACKET_COLLIDED *>(packet);
+		/*clientsLock[client].lock();
+		XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize(objects[packet[2]].pos, clients[client].pos);
+		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, clients[client].maxVelocityXZ *0.3f);
+		clients[client].velocity.x = -xmf3CollisionDir.x;
+		clients[client].velocity.y = -xmf3CollisionDir.y;
+		clients[client].velocity.z = -xmf3CollisionDir.z;
+		clientsLock[client].unlock();*/
+
+		// 서버에서 플레이어와 해당 맵 오브젝트 사이의 거리(위치+부피)를 측정하여 검증 후 broadcast
+		float dist = sqrt(pow(clients[client].pos.x - objects[p->objId].pos.x, 2) +
+			pow(clients[client].pos.y - objects[p->objId].pos.y, 2) +
+			pow(clients[client].pos.z - objects[p->objId].pos.z, 2));
+		
+		recent_objects = objects[p->objId]; //최근에 부딪힌 오브젝트를 저장한다.
+
+		
+		clients[client].isCollided = true;
+		/*for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (clients[i].in_use == true)
+			{
+				SendCollided(i, client);
+			}
+		}*/
+		
+		break;
+	}
+	case CS_NOT_COLLIDED:
+	{
+		CS_PACKET_NOT_COLLIDED *p = reinterpret_cast<CS_PACKET_NOT_COLLIDED *>(packet);
+
+		float dist = sqrt(pow(clients[client].pos.x - recent_objects.pos.x, 2) +
+			pow(clients[client].pos.y - recent_objects.pos.y, 2) +
+			pow(clients[client].pos.z - recent_objects.pos.z, 2));
+
+		clients[client].isCollided = false;
+
+
+		break;
+	}
 	case CS_ANIMATION_INFO:		//클라가 애니메이션이 변경되었을때 패킷을 서버에게 보내고.
 	{							//서버는 그 패킷을 받아서 다른 클라이언트에게 해당 애니메이션 정보를 보낸다.
 		CS_PACKET_ANIMATION* p = reinterpret_cast<CS_PACKET_ANIMATION*>(packet);
@@ -545,7 +743,9 @@ void Server::ProcessPacket(char client, char *packet)
 					SendRoundStart(i);
 				}
 			}
+			// 라운드 시작시간 set
 			StartTimer();
+			add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
 			//for (int i = 0; i < MAX_USER; ++i)
 			//{
 			//	if (true == clients[i].in_use)
@@ -580,6 +780,24 @@ void Server::ProcessPacket(char client, char *packet)
 		}
 		break;
 
+	case CS_USEITEM:
+	{
+		CS_PACKET_USE_ITEM *p = reinterpret_cast<CS_PACKET_USE_ITEM *>(packet);
+
+		if (GOLD_TIMER == p->usedItem)
+		{
+			roundCurrTime += 60;
+		}
+		
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (clients[i].in_use == true)
+			{
+				SendUseItem(i, client, p->usedItem, p->target);
+			}
+		}
+		break;
+	}
 	default:
 		wcout << L"정의되지 않은 패킷 도착 오류!!\n";
 		while (true);
@@ -593,7 +811,7 @@ void Server::SendFunc(char client, void *packet)
 	OVER_EX *ov = new OVER_EX;
 	ov->dataBuffer.len = p[0];
 	ov->dataBuffer.buf = ov->messageBuffer;
-	ov->is_recv = false;
+	ov->event_t = EV_SEND;
 	memcpy(ov->messageBuffer, p, p[0]);
 	ZeroMemory(&ov->over, sizeof(ov->over));
 	int error = WSASend(clients[client].socket, &ov->dataBuffer, 1, 0, 0, &ov->over, NULL);
@@ -813,6 +1031,40 @@ void Server::SendUnReadyStatePacket(char toClient,char fromClient)
 
 	SendFunc(toClient, &packet);
 }
+
+void Server::SendCollided(char toClient, char fromClient)
+{
+	SC_PACKET_COLLIDED packet;
+
+	packet.id = fromClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_COLLIDED;
+
+	SendFunc(toClient, &packet);
+}
+
+void Server::SendNotCollided(char toClient,char fromClient)
+{
+	SC_PACKET_NOT_COLLIDED packet;
+
+	packet.id = fromClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_NOT_COLLIDED;
+
+	SendFunc(toClient, &packet);
+}
+void Server::SendUseItem(char toClient, char fromClient, char usedItem, char targetClient)
+{
+	SC_PACKET_USE_ITEM packet;
+
+	packet.id = fromClient;
+	packet.target = targetClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_USE_ITEM;
+
+	SendFunc(toClient, &packet);
+}
+
 void Server::ClientDisconnect(char client)
 {
 	gLock.lock();
@@ -897,6 +1149,7 @@ void Server::SetClient_Initialize(char client)
 	clients[client].look = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	clients[client].right = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	clients[client].up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	clients[client].isCollided = false;
 }
 
 
@@ -912,15 +1165,14 @@ void Server::SetPitchYawRollZero(char client)
 }
 void Server::UpdateClientPos(char client, float fTimeElapsed)
 {
-
-	if (clients[client].direction == DIR_FORWARD )
+	if (clients[client].direction == DIR_FORWARD)
 	{
-		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, 0.7f);
-		
+		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY);
+
 	}
 	if (clients[client].direction == DIR_BACKWARD)
 	{
-		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look , -0.7f);
+		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -VELOCITY);
 	}
 	if (clients[client].direction == DIR_LEFT 
 		|| clients[client].direction == DIR_RIGHT
@@ -948,8 +1200,15 @@ void Server::UpdateClientPos(char client, float fTimeElapsed)
 
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(clients[client].velocity, fTimeElapsed, false);
 
+	if(clients[client].isCollided)
+	{
+		XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize(recent_objects.pos ,clients[client].pos);
+		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, VELOCITY * 0.3f);
+		clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x,-xmf3CollisionDir.y,-xmf3CollisionDir.z);
+	}
+	
 	clients[client].pos = Vector3::Add(clients[client].pos, clients[client].velocity);
-
+	
 	//clients[client].xmf3Position = xmf3Velocity;
 
 	//clients[client].velocity = clients[client].velocity;
