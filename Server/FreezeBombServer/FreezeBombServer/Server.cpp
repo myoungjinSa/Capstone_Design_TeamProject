@@ -1204,28 +1204,22 @@ void Server::UpdateClientPos(char client, float fTimeElapsed)
 	}
 	case CL_SURROUNDING:
 	{
-		clientsLock[client].lock();
+	
 		XMFLOAT3 xmf3CollisionDir = Vector3::Subtract(recent_pos, clients[client].pos);
-		clientsLock[client].unlock();
-		//xmf3CollisionDir = Vector3::Add(xmf3CollisionDir, clients[client].velocity);
+		
 		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, VELOCITY*0.3f );
-		clientsLock[client].lock();
+		
 		clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
-		clientsLock[client].unlock();
-		//clients[client].pos = Vector3::Add(clients[client].pos, clients[client].velocity);
+		
 		break;
 	}
 	case CL_PLAYER:
 	{
-		
-		clientsLock[client].lock();
 		XMFLOAT3 xmf3CollisionDir = Vector3::Subtract(player_pos,clients[client].pos);
-		clientsLock[client].unlock();
 		//xmf3CollisionDir = Vector3::Add(xmf3CollisionDir, clients[client].velocity);
-		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, VELOCITY * 0.5f );
-		clientsLock[client].lock();
+		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, 1.0f );
 		clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
-		clientsLock[client].unlock();
+		
 		break;
 	}
 	default :
@@ -1233,18 +1227,10 @@ void Server::UpdateClientPos(char client, float fTimeElapsed)
 		break;
 	}
 
-	//if (clients[client].collision == true)
-	//{
-	//	XMFLOAT3 xmf3CollisionDir = Vector3::Subtract(recent_pos, clients[client].pos);
-	//	//xmf3CollisionDir = Vector3::Add(xmf3CollisionDir, clients[client].velocity);
-	//	xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, VELOCITY*0.5f );
-	//	clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
-	//}
-	//
+
 	
-	clientsLock[client].lock();
 	clients[client].pos = Vector3::Add(clients[client].pos, clients[client].velocity);
-	clientsLock[client].unlock();
+	
 	//clients[client].xmf3Position = xmf3Velocity;
 
 	//clients[client].velocity = clients[client].velocity;
@@ -1254,9 +1240,7 @@ void Server::UpdateClientPos(char client, float fTimeElapsed)
 	ProcessFriction(client, fLength);
 
 	//속도를 클라에게 보내주어 클라에서 기본적인 rUn,Backward,애니메이션을 결정하게 하기 위해.
-	clientsLock[client].lock();
 	clients[client].fVelocity = fLength;
-	clientsLock[client].unlock();
 	
 	//cout << clients[client].fVelocity << endl;
 
@@ -1331,7 +1315,9 @@ void Server::RotateClientAxisY(char client, float fTimeElapsed)
 	xmf3Right = Vector3::CrossProduct(xmf3Up, xmf3Look, true);
 	xmf3Up = Vector3::CrossProduct(xmf3Look, xmf3Right, true);
 
-
+	clients[client].look = xmf3Look;
+	clients[client].right = xmf3Right;
+	clients[client].up = xmf3Up;
 
 }
 
@@ -1366,25 +1352,22 @@ void Server::ProcessClientHeight(char client)
 	if (clients[client].pos.y < fHeight)
 	{
 		clients[client].velocity.y = 0.0f;
-		clientsLock[client].lock();
+		
 		clients[client].pos.y = fHeight;
-		clientsLock[client].unlock();
+		
 	}
 }
 
 void Server::ProcessFriction(char client, float& fLength)
 {
-	clientsLock[client].lock();
+	
 	fLength = Vector3::Length(clients[client].velocity);
-	clientsLock[client].unlock();
 	float fDeclaration = (FRICTION * gameTimer.GetTimeElapsed());
 
 	if (fDeclaration > fLength)
 	{
 		fDeclaration = fLength;
-		clientsLock[client].lock();
 		clients[client].velocity = Vector3::Add(clients[client].velocity, Vector3::ScalarProduct(clients[client].velocity, -fDeclaration, true));
-		clientsLock[client].unlock();
 	}
 }
 

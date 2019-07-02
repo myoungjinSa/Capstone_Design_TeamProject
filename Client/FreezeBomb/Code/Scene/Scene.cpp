@@ -714,13 +714,6 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				}
 				++i;
 			}
-//#ifdef _WITH_SERVER_
-//			
-//			if(isCollided == false)		//충돌하지 않은 것으로 판명 서버에게 알려준다.
-//			{
-//				Network::GetInstance()->SendNotSurroundingCollision();
-//			}
-//#endif
 
 		}
 

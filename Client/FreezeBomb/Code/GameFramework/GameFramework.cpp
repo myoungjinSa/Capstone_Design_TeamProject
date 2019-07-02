@@ -1010,8 +1010,8 @@ bool CGameFramework::BuildObjects()
 			CTerrain* pTerrain = dynamic_cast<CTerrainShader*>((*iter).second)->getTerrain();
 			pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), g_PlayerCharacter, pTerrain);
 			pPlayer->SetPosition(XMFLOAT3(40.f, 0.f, 40.f));
-			XMFLOAT3 scale = XMFLOAT3(10.0f, 10.0f, 10.0f);
-			pPlayer->SetScale(scale);
+			
+			pPlayer->SetScale(XMFLOAT3(10.0f,10.0f,10.0f));
 			pPlayer->SetPlayerName(L"ÁÖÀÎ°ø");
 
 			pPlayer->setScore(100);
@@ -1020,11 +1020,7 @@ bool CGameFramework::BuildObjects()
 			auto iter2 = BoundMap.find("EvilBear");
 			if (iter2 != BoundMap.end()) 
 			{
-//#ifdef _WITH_SERVER_
-//				pPlayer->SetOOBB((*iter2).second->m_xmf3Center, Vector3::Multiply((*iter2).second->m_xmf3Extent, scale), XMFLOAT4(0, 0, 0, 1));
-//#else
 				pPlayer->SetOOBB((*iter2).second->m_xmf3Center, (*iter2).second->m_xmf3Extent, XMFLOAT4(0, 0, 0, 1));
-//#endif
 			}
 #ifndef _WITH_SERVER_
 #ifdef _MAPTOOL_MODE_
