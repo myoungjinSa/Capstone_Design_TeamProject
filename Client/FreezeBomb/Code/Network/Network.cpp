@@ -374,6 +374,16 @@ void Network::SendUseItem(int useItem, int targetID)
 	SendPacket();
 }
 
+void Network::SendBombExplosion()
+{
+	pBomb = reinterpret_cast<CS_PACKET_BOMB_EXPLOSION*>(send_buffer);
+	pBomb->type = CS_BOMB_EXPLOSION;
+	pBomb->size = sizeof(pBomb);
+	send_wsabuf.len = sizeof(pBomb);
+
+	SendPacket();
+
+}
 void Network::SendFreezeState()
 {
 	pFreeze = reinterpret_cast<CS_PACKET_FREEZE*>(send_buffer);

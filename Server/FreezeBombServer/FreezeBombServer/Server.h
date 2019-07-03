@@ -204,6 +204,7 @@ public:
 	void SendUseItem(char toClient, char fromClient, char useItem, char targetClient);
 	void SendFreeze(char toClient, char fromClient);
 	void SendReleaseFreeze(char toClient, char fromClient);
+	void SendBombExplosion(char toClient, char fromClient);
 public:
 	void SetAnimationState(char client,char animationNum);
 	void SetVelocityZero(char client);

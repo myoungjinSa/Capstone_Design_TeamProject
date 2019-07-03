@@ -18,10 +18,13 @@
 #include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
 #include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
 #include "../Shader/BillboardShader/UIShader/CharacterSelectUIShader/CharacterSelectUIShader.h"
+#include "../Shader/BillboardShader/BombParticleShader/BombParticleShader.h"
 #include "../Scene/LoginScene/IDScene/LoginScene.h"
 #include "../InputSystem/IDInputSystem/IDInputSystem.h"
 #include "../Shader/BillboardShader/UIShader/LoginShader/IDShader.h"
 #include "../GameObject/Item/Item.h"
+#include "../GameObject/Billboard/Bomb/Bomb.h"
+#include "../GameObject/EvilBear/EvilBear.h"
 
 // 전체모드할경우 주석풀으셈
 //#define FullScreenMode
@@ -2038,12 +2041,38 @@ void CGameFramework::ProcessPacket(char *packet)
 			break;
 		}
 		default:
-			cout << "미정의 아이템 패킷\n";
+			cout << "미정의 아이템\n";
 			break;
 		}
 
 		break;
 	}
+	case SC_BOMB_EXPLOSION:
+	{
+		pBE = reinterpret_cast<SC_PACKET_BOMB_EXPLOSION*>(packet);
+
+		if (pBE->bomberId != m_pPlayer->GetPlayerID())
+		{
+			char id = pBE->bomberId;
+			auto bombIter = m_pScene->getShaderManager()->getShaderMap().find("Bomb");
+			auto enemyIter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if(bombIter != m_pScene->getShaderManager()->getShaderMap().end()
+				&& enemyIter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				CBomb *pBomb = ((CBombParticleShader*)(*bombIter).second)->getBomb();
+
+				pBomb->SetPosition((*enemyIter).second->m_ppObjects[id]->GetPosition());
+				pBomb->setIsBlowing(true);
+			}
+
+		}
+
+
+		break;
+	}
+
+
 	}
 }
 

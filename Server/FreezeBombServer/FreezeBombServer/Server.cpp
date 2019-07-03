@@ -857,6 +857,22 @@ void Server::ProcessPacket(char client, char *packet)
 		}
 		break;
 	}
+	case CS_BOMB_EXPLOSION:
+	{
+		if (client != bomberID)		//술래가 아닌 다른 클라이언트가 보냈다면 무시한다.
+			break;
+		//Bomber가 아닌 다른 나머지 클라이언트에게 폭탄이 터진것을 알림
+		for(int i=0;i<MAX_USER;++i)
+		{
+			if (clients[i].in_use == false)
+				continue;
+			if (i == bomberID)
+				continue;
+			SendBombExplosion(i, bomberID);
+		}
+
+		break;
+	}
 	default:
 		wcout << L"정의되지 않은 패킷 도착 오류!!\n";
 		while (true);
@@ -1124,6 +1140,17 @@ void Server::SendReleaseFreeze(char toClient,char fromClient)
 	packet.size = sizeof(packet);
 	packet.type = SC_RELEASE_FREEZE;
 	packet.id = fromClient;
+
+	SendFunc(toClient, &packet);
+}
+
+void Server::SendBombExplosion(char toClient,char fromClient)
+{
+	SC_PACKET_BOMB_EXPLOSION packet;
+
+	packet.size = sizeof(packet);
+	packet.type = SC_BOMB_EXPLOSION;
+	packet.bomberId = fromClient;
 
 	SendFunc(toClient, &packet);
 }

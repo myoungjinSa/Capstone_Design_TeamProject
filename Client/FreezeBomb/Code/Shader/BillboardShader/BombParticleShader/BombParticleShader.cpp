@@ -52,12 +52,12 @@ void CBombParticleShader::AnimateObjects(float elapsedTime, CCamera *pCamera, CP
 	if (m_BombParticle)
 	{
 		// 곰돌이의 프레임을 찾는다.
-		CGameObject* p = pPlayer->FindFrame("black-handbomb");
-		if (p != nullptr)
-		{
+		//CGameObject* p = pPlayer->FindFrame("black-handbomb");
+		//if (p != nullptr)
+		//{
 			// 곰돌이의 프레임에 월드를 얻어온다.
-			m_BombParticle->SetPosition(p->m_xmf4x4World._41, p->m_xmf4x4World._42, p->m_xmf4x4World._43);
-		}
+			//m_BombParticle->SetPosition(p->m_xmf4x4World._41, p->m_xmf4x4World._42, p->m_xmf4x4World._43);
+		//}
 		XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
 		m_BombParticle->SetLookAt(xmf3CameraPosition);
 		m_BombParticle->Animate(elapsedTime);

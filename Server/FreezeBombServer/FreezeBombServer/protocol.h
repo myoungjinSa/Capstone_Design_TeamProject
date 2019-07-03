@@ -55,6 +55,7 @@ constexpr int SC_READY_STATE = 17;
 constexpr int SC_UNREADY_STATE = 18;
 constexpr int SC_FREEZE = 19;
 constexpr int SC_RELEASE_FREEZE = 20;
+constexpr int SC_BOMB_EXPLOSION = 21;
 
 
 
@@ -80,7 +81,7 @@ constexpr int CS_NOT_PLAYER_COLLISION = 18;
 constexpr int CS_USEITEM = 19;
 constexpr int CS_FREEZE = 20;
 constexpr int CS_RELEASE_FREEZE = 21;
-
+constexpr int CS_BOMB_EXPLOSION = 22;
 
 
 
@@ -295,6 +296,12 @@ struct CS_PACKET_USE_ITEM
 	char usedItem;			// 사용되는 아이템 정보
 };
 
+struct CS_PACKET_BOMB_EXPLOSION
+{
+	char size;
+	char type;
+};
+
 //////////////////////////////////////////////////////
 
 //[서버->클라]
@@ -475,5 +482,11 @@ struct SC_PACKET_RELEASE_FREEZE
 	char id;
 };
 
+struct SC_PACKET_BOMB_EXPLOSION
+{
+	char size;
+	char type;
+	char bomberId;			
+};
 
 //////////////////////////////////////////////////////

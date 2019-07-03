@@ -744,9 +744,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 						if (iter2 != m_pShaderManager->getShaderMap().end()
 							&& outcomeIter != m_pShaderManager->getShaderMap().end())
 						{
-							m_BombParticle = ((CBombParticleShader*)(*iter2).second)->getBomb();
-							m_BombParticle->setIsBlowing(true);
-							m_bBomb = false;
+							
 
 							if (((COutcomeUIShader*)(*outcomeIter).second)->getIsRender() == false)
 								((COutcomeUIShader*)(*outcomeIter).second)->setIsRender(true);
@@ -757,8 +755,14 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 							pController->SetAnimationState(CAnimationController::DIE);
 #ifdef _WITH_SERVER_
 							Network::GetInstance()->SendAnimationState(CAnimationController::DIE);
+							
+							Network::GetInstance()->SendBombExplosion();
 
 #endif
+							m_BombParticle = ((CBombParticleShader*)(*iter2).second)->getBomb();
+							m_BombParticle->SetPosition(m_xmf3Position.x, m_xmf3Position.y, m_xmf3Position.z);
+							m_BombParticle->setIsBlowing(true);
+							m_bBomb = false;
 						}
 					}
 				}
