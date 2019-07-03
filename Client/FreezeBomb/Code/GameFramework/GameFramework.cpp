@@ -21,6 +21,7 @@
 #include "../Scene/LoginScene/IDScene/LoginScene.h"
 #include "../InputSystem/IDInputSystem/IDInputSystem.h"
 #include "../Shader/BillboardShader/UIShader/LoginShader/IDShader.h"
+#include "../GameObject/Item/Item.h"
 
 // 전체모드할경우 주석풀으셈
 //#define FullScreenMode
@@ -1127,14 +1128,6 @@ void CGameFramework::ProcessInput()
 	static UCHAR pKeysBuffer[256];
 	bool bProcessedByScene = false;
 
-//#ifdef _WITH_DIRECT2D_
-//	//채팅 input처리
-//	if (m_bChattingMode)
-//	{
-//		ChattingSystem::GetInstance()->ProcessChatting(pKeysBuffer);
-//	}
-//#endif
-
 	if (GetKeyboardState(pKeysBuffer) && m_pScene) bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
 	if (m_nState == INGAME)
 	{
@@ -1227,7 +1220,10 @@ void CGameFramework::ProcessInput()
 
 #endif
 		}
-		m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
+		if (m_nState == INGAME) 
+		{
+			m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
+		}
 	}
 }
 
@@ -1679,13 +1675,24 @@ void CGameFramework::ProcessPacket(char *packet)
 		printf("모든 플레이어가 Ready하지 않았습니다.\n");
 		break;
 	case SC_ROUND_START:
+	{
 		//SC_PACKET_ROUND_START *pRS = m_Network.GetRS();
 		pRS = reinterpret_cast<SC_PACKET_ROUND_START *>(packet);
 		if (pRS->bomberID == m_pPlayer->GetPlayerID())
+		{
 			m_pPlayer->SetIsBomb(true);
+		}
 		else if (pRS->bomberID < MAX_USER)
 		{
-			
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				char id = pRS->bomberID;
+				//vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+				(*iter).second->m_ppObjects[id]->SetIsBomb(true);
+
+			}
 			// 다른 클라가 술래일 경우 isBomber를 set해줘야 폭탄을 그리지 않을까?
 		}
 		clientCount = pRS->clientCount;
@@ -1695,10 +1702,20 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pLobbyScene->StopBackgroundMusic();
 		}
 		m_nState = INGAME;
+		//시간을 받아야함.
+		auto iter = m_pScene->getShaderManager()->getShaderMap().find("TimerUI");
+
+		if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+		{
+			dynamic_cast<CTimerUIShader*>((*iter).second)->CompareServerTimeAndSet(pRS->startTime);
+		}
+
 		ChattingSystem::GetInstance()->SetActive(false);
 		printf("Round Start! Bomber is %d\n", pRS->bomberID);
 		break;
+	}
 	case SC_PUT_PLAYER:
+	{
 		//SC_PACKET_PUT_PLAYER* pPP = m_Network.GetPP();
 		pPP = reinterpret_cast<SC_PACKET_PUT_PLAYER*>(packet);
 
@@ -1710,10 +1727,10 @@ void CGameFramework::ProcessPacket(char *packet)
 			XMFLOAT3 look = XMFLOAT3(pPP->xLook, pPP->yLook, pPP->zLook);
 			XMFLOAT3 up = XMFLOAT3(pPP->xUp, pPP->yUp, pPP->zUp);
 			XMFLOAT3 right = XMFLOAT3(pPP->xRight, pPP->yRight, pPP->zRight);
-			
-		//	MappingUserToEvilbear(pPP->id, clientCount/*현재 접속한 유저 수를 받아야함 */);
 
-			//cout <<"플레이어 ID-"<<(int)pPP->id<<",재질 -" <<(int)pPP->matID << "\n";
+			//	MappingUserToEvilbear(pPP->id, clientCount/*현재 접속한 유저 수를 받아야함 */);
+
+				//cout <<"플레이어 ID-"<<(int)pPP->id<<",재질 -" <<(int)pPP->matID << "\n";
 			m_pPlayer->SetMaterialID(pPP->matID);	//플레이어 재질정	보 SET
 			m_pPlayer->SetPosition(pos);
 			m_pPlayer->SetLookVector(look);
@@ -1722,17 +1739,17 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
 
 
-		//m_pPlayer->SetDirection()
+			//m_pPlayer->SetDirection()
 		}
-		else if(pPP->id < MAX_USER)
+		else if (pPP->id < MAX_USER)
 		{
 			char id = pPP->id;
-			
-			XMFLOAT3 pos = XMFLOAT3(pPP->xPos,pPP->yPos, pPP->zPos);
+
+			XMFLOAT3 pos = XMFLOAT3(pPP->xPos, pPP->yPos, pPP->zPos);
 			XMFLOAT3 look = XMFLOAT3(pPP->xLook, pPP->yLook, pPP->zLook);
 			XMFLOAT3 up = XMFLOAT3(pPP->xUp, pPP->yUp, pPP->zUp);
 			XMFLOAT3 right = XMFLOAT3(pPP->xRight, pPP->yRight, pPP->zRight);
-			
+
 
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 
@@ -1750,10 +1767,10 @@ void CGameFramework::ProcessPacket(char *packet)
 				(*iter).second->m_ppObjects[id]->SetScale(10, 10, 10);
 			}
 		}
-		
+
 		//printf("Put Player ID: %d, xPos: %f, yPos: %f, zPod: %f\n", pPP->id, pPP->xPos, pPP->yPos, pPP->zPos);
 		break;
-
+	}
 	case SC_MOVE_PLAYER:
 	{
 		//SC_PACKET_MOVE_PLAYER* pMP = m_Network.GetMP();
@@ -1822,12 +1839,12 @@ void CGameFramework::ProcessPacket(char *packet)
 			{
 				(*iter).second->m_ppObjects[id]->SetTrackAnimationSet(0, animNum);
 				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)animNum);
-				if((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::RAISEHAND)
+				if((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::RAISEHAND
+					|| (CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::DIE)
 					(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackPosition(0, 0.0f);
 				
 			}
 		}
-
 
 		break;
 	}
@@ -1848,7 +1865,7 @@ void CGameFramework::ProcessPacket(char *packet)
 				//(*iter).second->m_ppObjects[pSTA->id]
 			}
 		}
-		printf("SetVelocityFromServer\n");
+		//printf("SetVelocityFromServer\n");
 		break;
 	}
 	case SC_REMOVE_PLAYER:
@@ -1888,7 +1905,6 @@ void CGameFramework::ProcessPacket(char *packet)
 		}
 
 		
-
 		printf("Player Disconnected ID : %d\n", pRP->id);
 		break;
 	}
@@ -1907,11 +1923,125 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		auto iter = m_pScene->getShaderManager()->getShaderMap().find("TimerUI");
 
+		//printf("ServerTime: %d\n", pCT->serverTime);
 		if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 		{
 			dynamic_cast<CTimerUIShader*>((*iter).second)->CompareServerTimeAndSet(pCT->serverTime);
 		}
+		//printf("ServerTime: %f\n", pCT->serverTime);
 		//cout << "ServerTime: " << pCT->serverTime << "\n";
+		break;
+	}
+	case SC_FREEZE:
+	{
+		pFR = reinterpret_cast<SC_PACKET_FREEZE*>(packet);
+
+		if (pFR->id == m_pPlayer->GetPlayerID())
+		{
+			if (m_pPlayer->GetIsICE() == false)
+				m_pPlayer->SetIsICE(true);
+
+			m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
+
+			m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::ICE);
+
+			
+		}
+		else if (pFR->id < MAX_USER)
+		{
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				char id = pFR->id;
+				//vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+			
+				if ((*iter).second->m_ppObjects[id]->GetIsICE() == false)
+					(*iter).second->m_ppObjects[id]->SetIsICE(true);
+				
+				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
+				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState(CAnimationController::ICE);
+
+			}
+
+		}
+
+		break;
+	}
+	case SC_RELEASE_FREEZE:
+	{
+		pRF = reinterpret_cast<SC_PACKET_RELEASE_FREEZE*>(packet);
+		
+		if(pRF->id == m_pPlayer->GetPlayerID())
+		{
+			if (m_pPlayer->GetIsICE() == true)
+				m_pPlayer->SetIsICE(false);
+
+		
+			m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
+
+			m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+		}
+		else if (pRF->id < MAX_USER)
+		{
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				char id = pRF->id;
+				vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+
+				if((*iter).second->m_ppObjects[id]->GetIsICE()==true)
+				{
+					(*iter).second->m_ppObjects[id]->SetIsICE(false);
+				}
+				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
+				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+
+			}
+			
+
+
+		}
+		break;
+	}
+	case SC_USE_ITEM:
+	{
+		pUI = reinterpret_cast<SC_PACKET_USE_ITEM*>(packet);
+
+		switch (pUI->usedItem)
+		{
+		case ITEM::GOLD_TIMER:
+		{
+			cout << "GOLD_TIMER 사용\n";
+
+			if (pUI->id == m_pPlayer->GetPlayerID()) {
+				if (m_pPlayer->GetSpecialInventory().size() > 0)
+				{
+					map<string, CItem*>::iterator iter = m_pPlayer->GetSpecialInventory().begin();
+					m_pPlayer->Sub_Inventory((*iter).second->getItemType());
+
+				}
+			}
+			break;
+		}
+		case ITEM::GOLD_HAMMER:
+		{
+			break;
+		}
+		case ITEM::NORMALHAMMER:
+		{
+			break;
+		}
+		case ITEM::EMPTY:
+		{
+			break;
+		}
+		default:
+			cout << "미정의 아이템 패킷\n";
+			break;
+		}
+
 		break;
 	}
 	}

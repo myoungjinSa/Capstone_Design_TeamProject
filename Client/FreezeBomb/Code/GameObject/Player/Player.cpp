@@ -243,6 +243,7 @@ void CPlayer::Update(float fTimeElapsed)
 	m_pCamera->RegenerateViewMatrix();
 
 	
+
 	//std::cout <<"서버에서 받은 속도: "<< m_fVelocityFromServer << "\n";
 	if (Network::GetInstance()->m_connect) 
 	{
@@ -534,18 +535,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		//pController->SetTrackSpeed(0, 1.5f);
 	}
 
-	//if (GetAsyncKeyState(VK_Z) & 0x8000
-	//	&& pController->GetAnimationState() != CAnimationController::DIGGING
-	//	&& pController->GetAnimationState() != CAnimationController::ICE
-	//	&& ChattingSystem::GetInstance()->IsChattingActive() ==false
-	//	)
-	//{
-	//	SetTrackAnimationSet(0, CAnimationController::DIGGING);
-	//	SetTrackAnimationPosition(0, 0);
-
-	//	pController->SetAnimationState(CAnimationController::DIGGING);
-	//}
-
+#ifndef _WITH_SERVER_			//서버와의 연동시에는 적용 x
 	// 치트키
 	//추후에 아이템과 충돌여부 및 아이템 획득 여부로 변경해서 하면 될듯
 	// 술래일때랑, 도망자일때로 각각 다르게 작동
@@ -607,17 +597,37 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		pController->SetAnimationState(CAnimationController::SLIDE);
 		//pController->SetTrackSpeed(0, 10.0f);
 	}
+#endif
+
+	
 
 
 	////얼음으로 변신
 	if (GetAsyncKeyState(VK_A) & 0x0001 && ChattingSystem::GetInstance()->IsChattingActive() ==false && m_bBomb == false)
 	{
+#ifdef _WITH_SERVER_
+		if (m_bIce == false)
+		{
+			m_bIce = true;
+			Network::GetInstance()->SendFreezeState();
+		}
+		else
+		{
+			m_bIce = false;
+			Network::GetInstance()->SendReleaseFreezeState();
+		}
+#else
 		m_bIce = !m_bIce;
 		pController->SetTrackAnimationSet(0, CAnimationController::IDLE);
 		if (m_bIce == true)
+		{
 			pController->SetAnimationState(CAnimationController::ICE);
+		}
 		else
+		{
 			pController->SetAnimationState(CAnimationController::IDLE);
+		}
+#endif
 	}
 
 	// 망치로 때리기 애니메이션
@@ -678,7 +688,8 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 				m_bLocalRotation = true;
 				
 #ifdef _WITH_SERVER_
-			Network::GetInstance()->SendAnimationState(CAnimationController::RAISEHAND);
+			Network::GetInstance()->SendAnimationState(CAnimationController::USEGOLDHAMMER);
+			
 #endif
 
 				//쿨타임 체크 set
@@ -700,12 +711,13 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 						pController->SetAnimationState(CAnimationController::RAISEHAND);
 #ifdef _WITH_SERVER_
 						Network::GetInstance()->SendAnimationState(CAnimationController::RAISEHAND);
-#endif
+						Network::GetInstance()->SendUseItem(ITEM::GOLD_TIMER,GetPlayerID());
+#else
 						// 30초 증가
 						dynamic_cast<CTimerUIShader*>((*iter2).second)->setTimer(30.f);
 
 						Sub_Inventory((*iter).second->getItemType());
-						
+#endif					
 					}
 				}
 			}	
@@ -743,6 +755,10 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 							pController->SetTrackPosition(0, 0.0f);
 							pController->SetTrackAnimationSet(0, CAnimationController::DIE);
 							pController->SetAnimationState(CAnimationController::DIE);
+#ifdef _WITH_SERVER_
+							Network::GetInstance()->SendAnimationState(CAnimationController::DIE);
+
+#endif
 						}
 					}
 				}

@@ -8,6 +8,7 @@ Server::Server()
 	roundCurrTime = 0;
 	clientCount = 0;
 	hostId = -1;
+	freezeCnt = 0;
 	//clients.reserve(MAX_USER);
 	workerThreads.reserve(MAX_WORKER_THREAD);
 }
@@ -334,36 +335,7 @@ void Server::TimerThreadFunc()
 			over_ex->event_t = ev.type;
 			PostQueuedCompletionStatus(iocp, 1, ev.obj_id, &over_ex->over);
 		}
-		//if (roundStartTime > 0)
-		//{
-		//	nowSec = (GetTickCount() - roundStartTime) / 1000;
-		//	//cout << nowSec << "\n";
-		//	// 1초가 지나면 시간비교 패킷 전송
-		//	
-		//	//서버 시간 현재 
-		//	if (nowSec - lastSec >= 1.0f)
-		//	{
-		//		//printf("SendCompareTime() 전송\n");
-		//		roundCurrTime = MAX_ROUND_TIME - nowSec;
-		//		for (int i = 0; i < MAX_USER; ++i)
-		//		{
-		//			if (true == clients[i].in_use)
-		//				SendCompareTime(i);
-		//		}
-		//		lastSec = nowSec;
-		//	}
 
-		//	// 라운드 종료 시
-		//	if (nowSec >= MAX_ROUND_TIME)
-		//	{
-		//		for (int i = 0; i < MAX_USER; ++i)
-		//		{
-		//			if (true == clients[i].in_use)
-		//				SendRoundEnd(i);
-		//		}
-		//		ResetTimer();
-		//	}
-		//}
 	}
 }
 
@@ -473,8 +445,9 @@ void Server::WorkerThreadFunc()
 		}
 		else if (EV_COUNT == over_ex->event_t)
 		{
+			//timer_l.lock();
 			roundCurrTime--;
-
+			//timer_l.unlock();
 			//서버 시간 현재 (남은 시간)
 		//	printf("RoundCurrentTime : %d", roundCurrTime);
 			for (int i = 0; i < MAX_USER; ++i)
@@ -516,6 +489,7 @@ void Server::PickBomber()
 		if (true == clients[bomberID].in_use)
 			break;
 	}
+	cout << "술래 ID:" << bomberID << "\n";
 }
 
 void Server::StartTimer()
@@ -756,7 +730,9 @@ void Server::ProcessPacket(char client, char *packet)
 		{
 			PickBomber();
 		
-
+			// 라운드 시작시간 set
+			StartTimer();
+		
 			for(int i=0; i< MAX_USER ;++i)
 			{
 				if(true == clients[i].in_use)
@@ -777,8 +753,6 @@ void Server::ProcessPacket(char client, char *packet)
 					SendRoundStart(i);
 				}
 			}
-			// 라운드 시작시간 set
-			StartTimer();
 			add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
 
 			
@@ -800,17 +774,86 @@ void Server::ProcessPacket(char client, char *packet)
 	{
 		CS_PACKET_USE_ITEM *p = reinterpret_cast<CS_PACKET_USE_ITEM *>(packet);
 
-		if (GOLD_TIMER == p->usedItem)
+
+		switch(p->usedItem)
 		{
-			roundCurrTime += 60;
+		case NORMALHAMMER:
+		{
+			break;
 		}
-		
-		for (int i = 0; i < MAX_USER; ++i)
+		case GOLD_HAMMER:
+		{
+			break;
+		}
+		case GOLD_TIMER:
+		{
+			//실제 이 클라이언트가 이 아이템을 들고 있는지 검사를 해야함.
+			//이 클라이언트가 도망자인지 검사해야함.
+
+			timer_l.lock();
+			roundCurrTime += 60;
+			timer_l.unlock();
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (clients[i].in_use == true)
+				{
+					SendCompareTime(i);
+					SendUseItem(i, client, ITEM::GOLD_TIMER, client);
+				}
+			}
+			break;
+		}
+		case EMPTY:
+		{
+			break;
+		}
+		default:
+			printf("미정의 패킷\n");
+			break;
+		}
+
+		break;
+	}
+	case CS_FREEZE:
+	{
+		// 1. 현재 Freeze를 요청한 id클라가 도망자인지를 판단해야함.
+		// 2. 현재 모든 도망자가 Freeze상태인지를 확인해야함.
+		// 3. 모든 도망자가 Freeze가 아니고 해당 클라가 도망자가 맞다면 SC_FREEZE를 각 클라들에게 알려줌
+		if (client == bomberID)		//술래라면 얼음을 할 수 없다.
+			break;
+
+		if (freezeCnt >= MAX_FREEZE_COUNT)	//최대 얼음할 수 있는 도망자 수를 넘으면 얼음을 하게 할 수 없다.
+			break;
+
+		clientsLock[client].lock();
+		++freezeCnt;
+		clientsLock[client].unlock();
+
+		for(int i=0;i<MAX_USER;++i)
 		{
 			if (clients[i].in_use == true)
-			{
-				SendUseItem(i, client, p->usedItem, p->target);
-			}
+				SendFreeze(i, client);
+		}
+		
+
+		break;
+	}
+	case CS_RELEASE_FREEZE:
+	{
+		if (client == bomberID)		//술래라면 얼음을 할 수 없다.
+			break;
+
+		if (freezeCnt <= 0)
+			break;
+
+		clientsLock[client].lock();
+		--freezeCnt;
+		clientsLock[client].unlock();
+
+		for(int i=0;i<MAX_USER;++i)
+		{
+			if (clients[i].in_use == true)
+				SendReleaseFreeze(i, client);
 		}
 		break;
 	}
@@ -922,6 +965,7 @@ void Server::SendRoundStart(char client)
 	packet.size = sizeof(packet);
 	packet.clientCount = clientCount;
 	packet.type = SC_ROUND_START;
+	packet.startTime = roundCurrTime;
 
 	SendFunc(client, &packet);
 }
@@ -1061,6 +1105,28 @@ void Server::SendUseItem(char toClient, char fromClient, char usedItem, char tar
 	SendFunc(toClient, &packet);
 }
 
+void Server::SendFreeze(char toClient,char fromClient)
+{
+	SC_PACKET_FREEZE packet;
+
+	packet.size = sizeof(packet);
+	packet.type = SC_FREEZE;
+	packet.id = fromClient;
+
+	SendFunc(toClient, &packet);
+
+}
+
+void Server::SendReleaseFreeze(char toClient,char fromClient)
+{
+	SC_PACKET_RELEASE_FREEZE packet;
+
+	packet.size = sizeof(packet);
+	packet.type = SC_RELEASE_FREEZE;
+	packet.id = fromClient;
+
+	SendFunc(toClient, &packet);
+}
 void Server::ClientDisconnect(char client)
 {
 	gLock.lock();
@@ -1206,9 +1272,7 @@ void Server::UpdateClientPos(char client, float fTimeElapsed)
 	{
 	
 		XMFLOAT3 xmf3CollisionDir = Vector3::Subtract(recent_pos, clients[client].pos);
-		
 		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, VELOCITY*0.3f );
-		
 		clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
 		
 		break;
@@ -1216,8 +1280,7 @@ void Server::UpdateClientPos(char client, float fTimeElapsed)
 	case CL_PLAYER:
 	{
 		XMFLOAT3 xmf3CollisionDir = Vector3::Subtract(player_pos,clients[client].pos);
-		//xmf3CollisionDir = Vector3::Add(xmf3CollisionDir, clients[client].velocity);
-		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, 1.0f );
+		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, 0.5f );
 		clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
 		
 		break;
@@ -1230,10 +1293,7 @@ void Server::UpdateClientPos(char client, float fTimeElapsed)
 
 	
 	clients[client].pos = Vector3::Add(clients[client].pos, clients[client].velocity);
-	
-	//clients[client].xmf3Position = xmf3Velocity;
 
-	//clients[client].velocity = clients[client].velocity;
 
 	ProcessClientHeight(client);
 

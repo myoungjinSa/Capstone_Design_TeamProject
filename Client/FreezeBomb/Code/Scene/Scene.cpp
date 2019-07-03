@@ -747,15 +747,10 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 						m_TaggerCoolTime = 3.f;
 					}
 
-#ifdef _WITH_SERVER_
 					isCollided = true;
-				//	cout << (int)id << "번째 player와 충돌\n ";
+				
 					Network::GetInstance()->SendPlayerCollision(id);
-#else					
-					XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize((*iter).second->m_ppObjects[id]->GetPosition(), m_pPlayer->GetPosition());
-					xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, (m_pPlayer->GetMaxVelocity()*0.3f));
-					m_pPlayer->SetVelocity(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
-#endif
+
 
 				}
 				
@@ -763,12 +758,10 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				(*iter).second->m_ppObjects[id]->SetDistanceToTarget(dist);
 
 			}
-#ifdef _WITH_SERVER_
 			if(isCollided == false)
 			{
 				Network::GetInstance()->SendNotSurroundingCollision();
 			}
-#endif
 			static bool bBreak = false;
 
 			if (m_pPlayer->AnimationCollision(CAnimationController::ATTACK))

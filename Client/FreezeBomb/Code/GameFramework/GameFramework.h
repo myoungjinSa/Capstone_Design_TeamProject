@@ -224,6 +224,9 @@ private:
 	SC_PACKET_READY_STATE* pReady = NULL;
 	SC_PACKET_UNREADY_STATE* pNotReady = NULL;
 	SC_PACKET_COLLIDED* pCollided = NULL;
+	SC_PACKET_FREEZE* pFR = NULL;
+	SC_PACKET_RELEASE_FREEZE *pRF = NULL;
+
 
 
 	bool isCharacterSelectDone = false;

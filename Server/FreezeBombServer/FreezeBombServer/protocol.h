@@ -7,7 +7,9 @@
 //#define SERVER_IP "192.168.60.161"
 //#define SERVER_IP "192.168.200.103"
 //#define SERVER_IP "192.168.0.34"
-#define SERVER_IP "192.168.0.132"
+#define SERVER_IP "192.168.0.27"
+//#define SERVER_IP "175.210.100.248"
+
 
 using namespace std;
 //using namespace DirectX;
@@ -22,7 +24,8 @@ struct clientsInfo
 
 
 enum ROLE { RUNNER, BOMBER };
-enum ITEM { NONEITEM = 0, HAMMER, GOLD_HAMMER, GOLD_TIMER, BOMB };
+enum ITEM { NORMALHAMMER=0, GOLD_HAMMER, GOLD_TIMER,EMPTY };
+
 enum PLAYER_NUM { P1, P2, P3, P4, P5, P6 };						// 몇번 플레이어 인지 
 enum PLAYER_STATE { NONESTATE, ICE, BREAK };							// 플레이어 상태
 enum STATE_TYPE { Init, Run, Over };
@@ -48,6 +51,9 @@ constexpr int SC_CLIENT_LOBBY_OUT = 15;
 constexpr int SC_CHATTING = 16;
 constexpr int SC_READY_STATE = 17;
 constexpr int SC_UNREADY_STATE = 18;
+constexpr int SC_FREEZE = 19;
+constexpr int SC_RELEASE_FREEZE = 20;
+
 
 
 constexpr int CS_UP_KEY = 0;
@@ -70,10 +76,13 @@ constexpr int CS_NOT_OBJECT_COLLISION = 16;
 constexpr int CS_PLAYER_COLLISION = 17;
 constexpr int CS_NOT_PLAYER_COLLISION = 18;
 constexpr int CS_USEITEM = 19;
+constexpr int CS_FREEZE = 20;
+constexpr int CS_RELEASE_FREEZE = 21;
 
 
 
-constexpr int MAX_ROUND_TIME = 100;
+
+constexpr int MAX_ROUND_TIME = 30;
 
 //[클라->서버]
 
@@ -126,6 +135,7 @@ struct SC_PACKET_ROUND_START
 	char type;
 	char clientCount;
 	char bomberID;
+	unsigned short startTime;
 };
 
 struct SC_PACKET_PUT_PLAYER
@@ -174,6 +184,18 @@ struct CS_PACKET_UP_KEY
 };
 
 struct CS_PACKET_DOWN_KEY
+{
+	char size;
+	char type;
+};
+
+struct CS_PACKET_FREEZE				//얼음변신 알림 패킷
+{
+	char size;
+	char type;
+};
+
+struct CS_PACKET_RELEASE_FREEZE		//얼음 해제 알림 패킷
 {
 	char size;
 	char type;
@@ -437,15 +459,18 @@ struct SC_PACKET_NOT_COLLIDED
 	char id;
 };
 
-struct PLAYER
+struct SC_PACKET_FREEZE	
 {
-	//bool isBomber;        	 // 플레이어들의 역할
-	//XMFLOAT3 Pos; 	             // 플레이어 위치
-	//XMFLOAT4 Dir;      	// 방향(쿼터니언)
-	//byte AnimationNum;    	// 애니메이션 번호
-	//float AnimationTime; 	// 애니메이션 시간 정보
-	//byte UsedItem;      	// 사용되는 아이템 정보
-	//byte PlayerState;  	// 플레이어 상태
+	char size;
+	char type;
+	char id;
+};
+
+struct SC_PACKET_RELEASE_FREEZE
+{
+	char size;
+	char type;
+	char id;
 };
 
 

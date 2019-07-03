@@ -16,7 +16,7 @@ public:
 
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState);
 
-	enum ItemType { NormalHammer, GoldHammer, GoldTimer, Empty };
+	enum ItemType { NormalHammer=0, GoldHammer, GoldTimer, Empty };
 	byte getItemType()	const { return m_ItemType; }
 	void setItemType(byte value) { m_ItemType = value; }
 

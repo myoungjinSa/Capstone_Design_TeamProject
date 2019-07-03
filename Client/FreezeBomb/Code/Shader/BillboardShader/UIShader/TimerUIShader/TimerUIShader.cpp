@@ -131,7 +131,7 @@ void CTimerUIShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_UIMap.emplace(Colon, pUI);
 
 	// 게임시작시 시간 : 60초
-	m_Timer = 60.f;
+	m_Timer = 300.f;
 }
 
 void CTimerUIShader::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer* pPlayer)
@@ -225,8 +225,9 @@ void CTimerUIShader::setReduceTimer(float value)
 #ifdef _WITH_SERVER_
 void CTimerUIShader::CompareServerTimeAndSet(float time)
 {
-	if (m_Timer - time >= 1.0f)
-		m_Timer = time;
+	//if (m_Timer - time >= 1.0f)
+
+	m_Timer = time;
 
 }
 #endif

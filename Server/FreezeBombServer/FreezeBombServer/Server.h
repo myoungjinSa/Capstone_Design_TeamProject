@@ -32,6 +32,7 @@ constexpr float MAX_VELOCITY_XZ = 40;
 constexpr float MAX_VELOCITY_Y = 400;
 constexpr float VELOCITY = 0.7f;
 
+constexpr int MAX_FREEZE_COUNT = MAX_USER - 2;
 constexpr int MAX_WORKER_THREAD = 2;
 
 
@@ -104,6 +105,7 @@ public:
 	char specialItem;
 	char role;
 	char matID;
+	bool isFreeze;			//얼음 상태인지 여부
 
 	char nickname[32];
 	//wchar_t nickname[12];
@@ -116,8 +118,8 @@ public:
 	SOCKETINFO() {
 		in_use = false;
 		score = 0;
-		normalItem = ITEM::NONEITEM;
-		specialItem = ITEM::NONEITEM;
+		normalItem = ITEM::EMPTY;
+		specialItem = ITEM::EMPTY;
 		role = ROLE::RUNNER;
 		isReady = false;
 		ZeroMemory(nickname, sizeof(wchar_t) * 12);
@@ -155,6 +157,7 @@ private:
 	int readyCount;
 	int hostId;
 	int bomberID;
+	int freezeCnt;			//얼음 상태인 도망자 수  
 
 private:
 
@@ -199,6 +202,8 @@ public:
 	void SendCompareTime(char client);
 	void SendStopRunAnim(char toClient, char fromClient);
 	void SendUseItem(char toClient, char fromClient, char useItem, char targetClient);
+	void SendFreeze(char toClient, char fromClient);
+	void SendReleaseFreeze(char toClient, char fromClient);
 public:
 	void SetAnimationState(char client,char animationNum);
 	void SetVelocityZero(char client);

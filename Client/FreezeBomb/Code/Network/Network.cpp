@@ -344,7 +344,7 @@ void Network::SendPlayerCollision(unsigned char playerID)
 	pPlayerCollision = reinterpret_cast<CS_PACKET_PLAYER_COLLISION*>(send_buffer);
 	pPlayerCollision->size = sizeof(pPlayerCollision);
 	pPlayerCollision->type = CS_PLAYER_COLLISION;
-	pPlayerCollision->playerID = playerID;
+	pPlayerCollision->playerID = playerID;		//충돌한 플레이어 ID
 	send_wsabuf.len = sizeof(pPlayerCollision);
 
 	SendPacket();
@@ -369,6 +369,26 @@ void Network::SendUseItem(int useItem, int targetID)
 	pItem->size = sizeof(pItem);
 	send_wsabuf.len = sizeof(pItem);
 	pItem->type = CS_USEITEM;
+
+	SendPacket();
+}
+
+void Network::SendFreezeState()
+{
+	pFreeze = reinterpret_cast<CS_PACKET_FREEZE*>(send_buffer);
+	pFreeze->type = CS_FREEZE;
+	pFreeze->size = sizeof(pFreeze);
+	send_wsabuf.len = sizeof(pFreeze);
+
+	SendPacket();
+}
+
+void Network::SendReleaseFreezeState()
+{
+	pReleaseFreeze = reinterpret_cast<CS_PACKET_RELEASE_FREEZE*>(send_buffer);
+	pReleaseFreeze->type = CS_RELEASE_FREEZE;
+	pReleaseFreeze->size = sizeof(pReleaseFreeze);
+	send_wsabuf.len = sizeof(pReleaseFreeze);
 
 	SendPacket();
 }

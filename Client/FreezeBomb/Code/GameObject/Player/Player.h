@@ -122,6 +122,8 @@ public:
 	void SetSpike(bool spike) { m_bSpike = spike; }
 
 	void ChangeRole();
+	map<string, CItem*>& GetSpecialInventory() { return m_Special_Inventory; }
+	map<string, CItem*>& GetNormalInventory() { return m_Normal_Inventory; }
 protected:
 
 
