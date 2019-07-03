@@ -410,93 +410,97 @@ void CMenuUIShader::ProcessMouseMessage(UINT message, XMFLOAT2& mousePos)
 			}
 		}
 
-		if (m_MenuState == MenuBoard)
+		if (m_IsRender == true)
 		{
-			XMFLOAT2 Option_minPos, Option_maxPos;
-			Option_minPos.x = m_MenuInfo.m_MenuOption_MinMaxPos.x;
-			Option_minPos.y = m_MenuInfo.m_MenuOption_MinMaxPos.y;
-			Option_maxPos.x = m_MenuInfo.m_MenuOption_MinMaxPos.z;
-			Option_maxPos.y = m_MenuInfo.m_MenuOption_MinMaxPos.w;
-
-			XMFLOAT2 GameOver_minPos, GameOver_maxPos;
-			GameOver_minPos.x = m_MenuInfo.m_MenuGameOver_MinMaxPos.x;
-			GameOver_minPos.y = m_MenuInfo.m_MenuGameOver_MinMaxPos.y;
-			GameOver_maxPos.x = m_MenuInfo.m_MenuGameOver_MinMaxPos.z;
-			GameOver_maxPos.y = m_MenuInfo.m_MenuGameOver_MinMaxPos.w;
-
-			if (UICollisionCheck(mousePos, Option_minPos, Option_maxPos) == true)
+			if (m_MenuState == MenuBoard)
 			{
-				if (m_pSound && g_IsSoundOn == true)
-					m_pSound->PlayIndex(MENU_INPUT);
+				XMFLOAT2 Option_minPos, Option_maxPos;
+				Option_minPos.x = m_MenuInfo.m_MenuOption_MinMaxPos.x;
+				Option_minPos.y = m_MenuInfo.m_MenuOption_MinMaxPos.y;
+				Option_maxPos.x = m_MenuInfo.m_MenuOption_MinMaxPos.z;
+				Option_maxPos.y = m_MenuInfo.m_MenuOption_MinMaxPos.w;
 
-				m_MenuState = Menu_Option;
-			}
-			else if (UICollisionCheck(mousePos, GameOver_minPos, GameOver_maxPos) == true)
-			{
-				::PostQuitMessage(0);
-			}
-		}
-		else if (m_MenuState == Menu_Option)
-		{
-			XMFLOAT2 Sound_minPos, Sound_maxPos;
-			Sound_minPos.x = m_MenuInfo.m_MenuSound_MinMaxPos.x;
-			Sound_minPos.y = m_MenuInfo.m_MenuSound_MinMaxPos.y;
-			Sound_maxPos.x = m_MenuInfo.m_MenuSound_MinMaxPos.z;
-			Sound_maxPos.y = m_MenuInfo.m_MenuSound_MinMaxPos.w;
+				XMFLOAT2 GameOver_minPos, GameOver_maxPos;
+				GameOver_minPos.x = m_MenuInfo.m_MenuGameOver_MinMaxPos.x;
+				GameOver_minPos.y = m_MenuInfo.m_MenuGameOver_MinMaxPos.y;
+				GameOver_maxPos.x = m_MenuInfo.m_MenuGameOver_MinMaxPos.z;
+				GameOver_maxPos.y = m_MenuInfo.m_MenuGameOver_MinMaxPos.w;
 
-			XMFLOAT2 Cartoon_minPos, Cartoon_maxPos;
-			Cartoon_minPos.x = m_MenuInfo.m_MenuCartoon_MinMaxPos.x;
-			Cartoon_minPos.y = m_MenuInfo.m_MenuCartoon_MinMaxPos.y;
-			Cartoon_maxPos.x = m_MenuInfo.m_MenuCartoon_MinMaxPos.z;
-			Cartoon_maxPos.y = m_MenuInfo.m_MenuCartoon_MinMaxPos.w;
-
-			if (UICollisionCheck(mousePos, Sound_minPos, Sound_maxPos) == true)
-			{
-				if (m_pSound && g_IsSoundOn == true)
-					m_pSound->PlayIndex(MENU_INPUT);
-
-				g_IsSoundOn = !g_IsSoundOn;
-				if (g_IsSoundOn == true)
+				if (UICollisionCheck(mousePos, Option_minPos, Option_maxPos) == true)
 				{
-					m_MenuInfo.m_MenuSound_MenuCartoon_UV.x = 0.f;
-					m_MenuInfo.m_MenuSound_MenuCartoon_UV.y = 0.5f;
+					if (m_pSound && g_IsSoundOn == true)
+						m_pSound->PlayIndex(MENU_INPUT);
 
-					m_pSound->AllPlay(1.f);
-
-					m_pScene->SceneSoundPlay();
+					m_MenuState = Menu_Option;
 				}
-				else
+				else if (UICollisionCheck(mousePos, GameOver_minPos, GameOver_maxPos) == true)
 				{
-					m_MenuInfo.m_MenuSound_MenuCartoon_UV.x = 0.5f;
-					m_MenuInfo.m_MenuSound_MenuCartoon_UV.y = 1.f;
-
-					m_pSound->AllStop();
-					m_pScene->SceneSoundStop();
-
-					g_IsSoundOn = false;
+					::PostQuitMessage(0);
 				}
 			}
-
-			else if (UICollisionCheck(mousePos, Cartoon_minPos, Cartoon_maxPos) == true)
+			else if (m_MenuState == Menu_Option)
 			{
-				if (m_pSound && g_IsSoundOn == true)
-					m_pSound->PlayIndex(MENU_INPUT);
+				XMFLOAT2 Sound_minPos, Sound_maxPos;
+				Sound_minPos.x = m_MenuInfo.m_MenuSound_MinMaxPos.x;
+				Sound_minPos.y = m_MenuInfo.m_MenuSound_MinMaxPos.y;
+				Sound_maxPos.x = m_MenuInfo.m_MenuSound_MinMaxPos.z;
+				Sound_maxPos.y = m_MenuInfo.m_MenuSound_MinMaxPos.w;
 
-				g_OnCartoonShading = !g_OnCartoonShading;
-				if (g_OnCartoonShading == true)
+				XMFLOAT2 Cartoon_minPos, Cartoon_maxPos;
+				Cartoon_minPos.x = m_MenuInfo.m_MenuCartoon_MinMaxPos.x;
+				Cartoon_minPos.y = m_MenuInfo.m_MenuCartoon_MinMaxPos.y;
+				Cartoon_maxPos.x = m_MenuInfo.m_MenuCartoon_MinMaxPos.z;
+				Cartoon_maxPos.y = m_MenuInfo.m_MenuCartoon_MinMaxPos.w;
+
+				if (UICollisionCheck(mousePos, Sound_minPos, Sound_maxPos) == true)
 				{
-					m_MenuInfo.m_MenuSound_MenuCartoon_UV.z = 0.f;
-					m_MenuInfo.m_MenuSound_MenuCartoon_UV.w = 0.5f;
+					if (m_pSound && g_IsSoundOn == true)
+						m_pSound->PlayIndex(MENU_INPUT);
+
+					g_IsSoundOn = !g_IsSoundOn;
+					if (g_IsSoundOn == true)
+					{
+						m_MenuInfo.m_MenuSound_MenuCartoon_UV.x = 0.f;
+						m_MenuInfo.m_MenuSound_MenuCartoon_UV.y = 0.5f;
+
+						m_pSound->AllPlay(1.f);
+
+						m_pScene->SceneSoundPlay();
+					}
+					else
+					{
+						m_MenuInfo.m_MenuSound_MenuCartoon_UV.x = 0.5f;
+						m_MenuInfo.m_MenuSound_MenuCartoon_UV.y = 1.f;
+
+						m_pSound->AllStop();
+						m_pScene->SceneSoundStop();
+
+						g_IsSoundOn = false;
+					}
 				}
-				else
+
+				else if (UICollisionCheck(mousePos, Cartoon_minPos, Cartoon_maxPos) == true)
 				{
-					m_MenuInfo.m_MenuSound_MenuCartoon_UV.z = 0.5f;
-					m_MenuInfo.m_MenuSound_MenuCartoon_UV.w = 1.f;
+					if (m_pSound && g_IsSoundOn == true)
+						m_pSound->PlayIndex(MENU_INPUT);
+
+					g_OnCartoonShading = !g_OnCartoonShading;
+					if (g_OnCartoonShading == true)
+					{
+						m_MenuInfo.m_MenuSound_MenuCartoon_UV.z = 0.f;
+						m_MenuInfo.m_MenuSound_MenuCartoon_UV.w = 0.5f;
+					}
+					else
+					{
+						m_MenuInfo.m_MenuSound_MenuCartoon_UV.z = 0.5f;
+						m_MenuInfo.m_MenuSound_MenuCartoon_UV.w = 1.f;
+					}
 				}
 			}
 		}
 	}
 	break;
+
 	default:
 		break;
 	}
