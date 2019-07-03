@@ -49,6 +49,7 @@ bool Network::connectToServer(HWND hWnd)
 		//serveraddr.sin_addr.s_addr = inet_addr(SERVER_IP);
 		serveraddr.sin_addr.s_addr = inet_addr(m_ServerIP);
 		serveraddr.sin_port = htons(SERVER_PORT);
+
 		int retval = WSAConnect(sock, (SOCKADDR *)&serveraddr, sizeof(serveraddr), NULL, NULL, NULL, NULL);
 		if (retval == SOCKET_ERROR)
 		{
