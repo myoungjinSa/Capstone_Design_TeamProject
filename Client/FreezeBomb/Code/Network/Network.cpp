@@ -351,6 +351,16 @@ void Network::SendPlayerCollision(unsigned char playerID)
 	SendPacket();
 }
 
+void Network::SendBomberTouch(char targetID)
+{
+	pTouch = reinterpret_cast<CS_PACKET_BOMBER_TOUCH*>(send_buffer);
+	pTouch->size = sizeof(pTouch);
+	pTouch->type = CS_BOMBER_TOUCH;
+	pTouch->touchId = targetID;
+	send_wsabuf.len = sizeof(pTouch);
+
+	SendPacket();
+}
 void Network::SendNotPlayerCollision(unsigned char playerID)
 {
 	pPlayerNotCollision = reinterpret_cast<CS_PACKET_NOT_PLAYER_COLLISION*>(send_buffer);

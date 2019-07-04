@@ -54,6 +54,7 @@ private:
 	CS_PACKET_FREEZE *pFreeze = NULL;
 	CS_PACKET_RELEASE_FREEZE *pReleaseFreeze = NULL;
 	CS_PACKET_BOMB_EXPLOSION *pBomb = NULL;
+	CS_PACKET_BOMBER_TOUCH* pTouch = NULL;
 private:
 	//ReadPacket에서 받은 패킷들을 CGameFramework에 전달하기 위한 포인터
 	CGameFramework* m_pGameClient{nullptr};
@@ -104,6 +105,7 @@ public:
 	void SendFreezeState();
 	void SendReleaseFreezeState();
 	void SendBombExplosion();
+	void SendBomberTouch(char targetID);
 public:
 	CS_PACKET_REQUEST_START* GetRS() { return pRequestStart; }
 	void SetNullRS() { pRequestStart = NULL; }

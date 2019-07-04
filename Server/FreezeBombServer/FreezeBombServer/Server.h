@@ -41,7 +41,8 @@ enum EVENT_TYPE
 {
 	EV_RECV,
 	EV_SEND,
-	EV_COUNT
+	EV_COUNT,
+	EV_COOLTIME
 };
 enum COLLISION_TYPE		//어느 객체와 충돌했는지 
 {
@@ -153,6 +154,7 @@ private:
 	XMFLOAT3 gravity;
 	unsigned short roundStartTime;
 	unsigned short roundCurrTime;
+	unsigned short changeCoolTime;	//Bomber와 충돌했을때 어느정도 시간만큼은 지나야 됨 
 	int clientCount;
 	int readyCount;
 	int hostId;
@@ -205,6 +207,7 @@ public:
 	void SendFreeze(char toClient, char fromClient);
 	void SendReleaseFreeze(char toClient, char fromClient);
 	void SendBombExplosion(char toClient, char fromClient);
+	void SendChangeBomber(char toClient, char bomberId,char runnerId);
 public:
 	void SetAnimationState(char client,char animationNum);
 	void SetVelocityZero(char client);
@@ -218,6 +221,7 @@ public:
 	void ProcessFriction(char client, float& fLength);
 public:
 	void PickBomber();
+	
 	void StartTimer();
 	void ResetTimer();
 

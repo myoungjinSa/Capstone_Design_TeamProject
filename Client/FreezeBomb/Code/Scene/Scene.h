@@ -201,8 +201,9 @@ public:
 		Thunder = 2
 	};
 
+#ifndef _WITH_SERVER_
 	// 술래 변경할 수 있는 시간
 	static float m_TaggerCoolTime;
-
+#endif
 	static bool m_IsPlay;
 };

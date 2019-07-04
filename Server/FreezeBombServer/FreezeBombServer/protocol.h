@@ -8,9 +8,9 @@
 //#define SERVER_IP "192.168.60.161"
 //#define SERVER_IP "192.168.200.103"
 //#define SERVER_IP "192.168.0.34"
-#define SERVER_IP "192.168.0.27"
+//#define SERVER_IP "192.168.0.27"
 //#define SERVER_IP "175.210.100.248"
-
+#define SERVER_IP "172.30.1.57"
 
 
 using namespace std;
@@ -34,13 +34,14 @@ enum STATE_TYPE { Init, Run, Over };
 enum MATERIAL { PINK, BROWN, WHITE, BLACK, BLUE, PANDA, ICEMAT };
 
 constexpr int MAX_CHATTING_LENGTH = 100;
+constexpr int COOLTIME = 3;
 
 constexpr int SC_ACCESS_COMPLETE = 1;
 constexpr int SC_PUT_PLAYER = 2;
 constexpr int SC_MOVE_PLAYER = 3;
 constexpr int SC_REMOVE_PLAYER = 4;
 constexpr int SC_USE_ITEM = 5;
-constexpr int SC_ROLL_CHANGE = 6;
+constexpr int SC_ROLE_CHANGE = 6;
 constexpr int SC_ROUND_END = 7;
 constexpr int SC_ROUND_START = 8;
 constexpr int SC_PLEASE_READY = 9;
@@ -82,86 +83,15 @@ constexpr int CS_USEITEM = 19;
 constexpr int CS_FREEZE = 20;
 constexpr int CS_RELEASE_FREEZE = 21;
 constexpr int CS_BOMB_EXPLOSION = 22;
+constexpr int CS_BOMBER_TOUCH = 23;
 
 
 
-constexpr int MAX_ROUND_TIME = 30;
+constexpr int MAX_ROUND_TIME = 300;
 
 //[클라->서버]
 
-//<< Ready Room 패킷 종류 >>
 
-struct SC_PACKET_ACCESS_COMPLETE
-{
-	char size;
-	char type;
-	char myId;
-	char hostId;
-	char score;				// 플레이어 점수
-	char roundCount;		// 몇 라운드인지
-	char serverTime;				// 서버 시간
-};
-
-struct SC_PACKET_ACCESS_PLAYER
-{
-	char size;
-	char type;
-	char id;
-};
-
-//입장한 클라이언트의 정보
-struct SC_PACKET_LOBBY_IN
-{
-	char size;
-	char type;
-	char id;
-	clientsInfo client_state;
-};
-
-//퇴장한 클라이언트의 정보
-struct SC_PACKET_LOBBY_OUT
-{
-	char size;
-	char type;
-	char id;
-};
-
-struct SC_PACKET_PLEASE_READY
-{
-	char size;
-	char type;
-};
-
-struct SC_PACKET_ROUND_START
-{
-	char size;
-	char type;
-	char clientCount;
-	char bomberID;
-	unsigned short startTime;
-};
-
-struct SC_PACKET_PUT_PLAYER
-{
-	//4바이트 정렬을 할 필요가 있다.
-	char size;
-	char type;
-	char id;
-	char score;		// 플레이어 점수
-	float xPos;		// 오브젝트들 위치
-	float yPos;
-	float zPos;
-	float xLook;
-	float yLook;
-	float zLook;
-	float xUp;
-	float yUp;
-	float zUp;
-	float xRight;
-	float yRight;
-	float zRight;
-	char matID;			//유저가 원하는 캐릭터는 재질정보가 필요하다.
-};
 
 //////////////////////////////////////////////////////
 
@@ -235,7 +165,7 @@ struct CS_PACKET_BOMBER_TOUCH
 {
 	char size;
 	char type;
-	char touchedId;	// 터치한 플레이어 번호
+	char touchId;	// 터치한 플레이어 번호
 };
 
 struct CS_PACKET_RELEASE_KEY
@@ -342,6 +272,79 @@ struct SC_PACKET_INGAME_PACKET
 		isBoomed(_isBoomed) {};*/
 };
 
+//<< Ready Room 패킷 종류 >>
+
+struct SC_PACKET_ACCESS_COMPLETE
+{
+	char size;
+	char type;
+	char myId;
+	char hostId;
+	char score;				// 플레이어 점수
+	char roundCount;		// 몇 라운드인지
+	char serverTime;				// 서버 시간
+};
+
+struct SC_PACKET_ACCESS_PLAYER
+{
+	char size;
+	char type;
+	char id;
+};
+
+//입장한 클라이언트의 정보
+struct SC_PACKET_LOBBY_IN
+{
+	char size;
+	char type;
+	char id;
+	clientsInfo client_state;
+};
+
+//퇴장한 클라이언트의 정보
+struct SC_PACKET_LOBBY_OUT
+{
+	char size;
+	char type;
+	char id;
+};
+
+struct SC_PACKET_PLEASE_READY
+{
+	char size;
+	char type;
+};
+
+struct SC_PACKET_ROUND_START
+{
+	char size;
+	char type;
+	char clientCount;
+	char bomberID;
+	unsigned short startTime;
+};
+
+struct SC_PACKET_PUT_PLAYER
+{
+	//4바이트 정렬을 할 필요가 있다.
+	char size;
+	char type;
+	char id;
+	char score;		// 플레이어 점수
+	float xPos;		// 오브젝트들 위치
+	float yPos;
+	float zPos;
+	float xLook;
+	float yLook;
+	float zLook;
+	float xUp;
+	float yUp;
+	float zUp;
+	float xRight;
+	float yRight;
+	float zRight;
+	char matID;			//유저가 원하는 캐릭터는 재질정보가 필요하다.
+};
 // 플레이어 이동 시
 struct SC_PACKET_MOVE_PLAYER
 {
@@ -431,13 +434,6 @@ struct SC_PACKET_COMPARE_TIME
 	unsigned short serverTime;				// 서버 시간
 };
 
-struct SC_PACKET_ROLL_CHANGE
-{
-	char size;
-	char type;
-	char bomberId;
-	char normalId;
-};
 
 struct SC_PACKET_REMOVE_PLAYER
 {
@@ -489,4 +485,11 @@ struct SC_PACKET_BOMB_EXPLOSION
 	char bomberId;			
 };
 
+struct SC_PACKET_ROLE_CHANGE
+{
+	char size;
+	char type;
+	char bomberId;
+	char runnerId;
+};
 //////////////////////////////////////////////////////

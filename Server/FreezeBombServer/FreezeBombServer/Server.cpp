@@ -468,8 +468,30 @@ void Server::WorkerThreadFunc()
 			}
 			else
 			{
+				
 				add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
 			}
+		}
+		else if(EV_COOLTIME == over_ex->event_t)		//cooltime 계산
+		{
+			timer_l.lock();
+			changeCoolTime--;
+			timer_l.unlock();
+
+			printf("쿨타임:%d\n", changeCoolTime);
+			timer_l.lock();
+			if(changeCoolTime<=0)
+			{
+			
+				changeCoolTime = 0;
+				timer_l.unlock();
+			}
+			else
+			{
+				timer_l.unlock();
+				add_timer(-1, EV_COOLTIME, chrono::high_resolution_clock::now() + 1s);
+			}
+
 		}
 		else
 		{
@@ -491,6 +513,7 @@ void Server::PickBomber()
 	}
 	cout << "술래 ID:" << bomberID << "\n";
 }
+
 
 void Server::StartTimer()
 {
@@ -521,13 +544,14 @@ void Server::ProcessPacket(char client, char *packet)
 	case CS_UPRIGHT_KEY:
 	case CS_DOWNLEFT_KEY:
 	case CS_DOWNRIGHT_KEY:
-		//if (true == clients[client].isCollided)
-		//	break;
-		//clientsLock[client].lock();
+	{
 		SetDirection(client, packet[1]);
-		//cout << gameTimer.GetTimeElapsed()<<endl;
-		UpdateClientPos(client, gameTimer.GetTimeElapsed());
-		//clientsLock[client].unlock();
+
+		clientsLock[client].lock();
+		float time = gameTimer.GetTimeElapsed();
+		clientsLock[client].unlock();
+
+		UpdateClientPos(client, time);
 
 
 		//printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
@@ -535,17 +559,18 @@ void Server::ProcessPacket(char client, char *packet)
 		{
 			if (clients[i].in_use == true)
 			{
-				SendMovePlayer(i,client);
+				SendMovePlayer(i, client);
 				//한번 MovePacket을 보내고 난후 
 				//pitch,yaw,roll은 다시 0으로 바꿔줘야함.
 				//그렇지 않을경우 뱅글뱅글 돌게됨.
 				SetPitchYawRollZero(i);
-				
+
 				//Idle 동작으로 변하게 하려면 
 				//SetVelocityZero(i);
 			}
 		}
 		break;
+	}
 	case CS_OBJECT_COLLISION:
 	{	
 		CS_PACKET_OBJECT_COLLISION *p = reinterpret_cast<CS_PACKET_OBJECT_COLLISION *>(packet);
@@ -586,9 +611,14 @@ void Server::ProcessPacket(char client, char *packet)
 	{
 		CS_PACKET_PLAYER_COLLISION* p = reinterpret_cast<CS_PACKET_PLAYER_COLLISION*>(packet);
 
+
+
+
 		float dist = sqrt(pow(clients[client].pos.x - clients[p->playerID].pos.x, 2) +
 		pow(clients[client].pos.y - clients[p->playerID].pos.y, 2) +
-		pow(clients[client].pos.z - clients[p->playerID].pos.z, 2));
+			pow(clients[client].pos.z - clients[p->playerID].pos.z, 2));
+
+
 
 		clientsLock[client].lock();
 		recent_player = p->playerID;
@@ -598,6 +628,41 @@ void Server::ProcessPacket(char client, char *packet)
 		player_pos = clients[recent_player].pos;
 		clientsLock[client].unlock();
 		clients[client].collision = CL_PLAYER;
+
+		break;
+	}
+	case CS_BOMBER_TOUCH:
+	{
+		CS_PACKET_BOMBER_TOUCH* p = reinterpret_cast<CS_PACKET_BOMBER_TOUCH*>(packet);
+
+		if (client != bomberID)
+			break;
+		
+		if (changeCoolTime > 0)		//쿨타임이 아직 남아있으면 RoleChange를 하지 않는다.
+			break;
+
+		float dist = sqrt(pow(clients[client].pos.x - clients[p->touchId].pos.x, 2) +
+		pow(clients[client].pos.y - clients[p->touchId].pos.y, 2) +
+			pow(clients[client].pos.z - clients[p->touchId].pos.z, 2));
+
+		clientsLock[client].lock();
+		bomberID = p->touchId;
+		clientsLock[client].unlock();
+		timer_l.lock();
+		changeCoolTime = COOLTIME;
+		timer_l.unlock();
+		
+		if (changeCoolTime == COOLTIME) 
+		{
+			add_timer(-1, EV_COOLTIME, chrono::high_resolution_clock::now() + 1s);
+		}
+		for(int i=0;i<MAX_USER;++i)
+		{
+			if (clients[i].in_use == true)
+				SendChangeBomber(i, bomberID,client);
+
+		}
+		
 
 		break;
 	}
@@ -743,7 +808,7 @@ void Server::ProcessPacket(char client, char *packet)
 						if (true == clients[j].in_use)
 						{
 							
-							clients[j].pos.x = (100.0f*j + 100);
+							clients[j].pos.x = (100.0f*j + 50);
 							clients[j].pos.z = 100.0f;
 							
 							SendPutPlayer(i, j);
@@ -1108,7 +1173,18 @@ void Server::SendUnReadyStatePacket(char toClient,char fromClient)
 	SendFunc(toClient, &packet);
 }
 
+void Server::SendChangeBomber(char toClient, char bomberID,char runnerID)
+{
+	SC_PACKET_ROLE_CHANGE packet;
 
+	packet.type = SC_ROLE_CHANGE;
+	packet.size = sizeof(packet);
+	packet.bomberId = bomberID;
+	packet.runnerId = runnerID;
+
+	SendFunc(toClient, &packet);
+
+}
 void Server::SendUseItem(char toClient, char fromClient, char usedItem, char targetClient)
 {
 	SC_PACKET_USE_ITEM packet;

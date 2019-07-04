@@ -2071,7 +2071,48 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		break;
 	}
+	case SC_ROLE_CHANGE:
+	{
+		pRC = reinterpret_cast<SC_PACKET_ROLE_CHANGE*>(packet);
 
+		if(pRC->bomberId == m_pPlayer->GetPlayerID())
+		{
+			char runnerID = pRC->runnerId;
+
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				m_pPlayer->SetIsBomb(true);
+				(*iter).second->m_ppObjects[runnerID]->SetIsBomb(false);
+			}
+
+		}
+		else if (pRC->runnerId == m_pPlayer->GetPlayerID())
+		{
+			char bomberID = pRC->bomberId;
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				m_pPlayer->SetIsBomb(false);
+				(*iter).second->m_ppObjects[bomberID]->SetIsBomb(true);
+			}
+		}
+		else if ( pRC->bomberId != m_pPlayer->GetPlayerID() && pRC->runnerId != m_pPlayer->GetPlayerID())
+		{
+			char bomberId = pRC->bomberId;
+			char runnerId = pRC->runnerId;
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[runnerId]->SetIsBomb(false);
+				(*iter).second->m_ppObjects[bomberId]->SetIsBomb(true);
+
+			}
+		}
+		
+
+		break;
+	}
 
 	}
 }

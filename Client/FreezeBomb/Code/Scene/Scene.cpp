@@ -34,7 +34,9 @@ D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvGPUDescriptorNextHandle;
 extern unsigned char g_Round;
 
 extern bool g_IsSoundOn;
+#ifndef _WITH_SERVER_
 float CScene::m_TaggerCoolTime = 0.f;
+#endif
 bool CScene::m_IsPlay = false;
 
 CScene::CScene() :m_musicCount(0), m_playerCount(0)
@@ -664,6 +666,8 @@ void CScene::PostRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeEl
 
 void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 {
+	//서버 자체에서 쿨타임을 계산해야한다. 보안상의 문제
+#ifndef _WITH_SERVER_
 	if (m_TaggerCoolTime > 0.f)
 	{
 		m_TaggerCoolTime -= elapsedTime;
@@ -672,6 +676,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 	else
 		m_TaggerCoolTime = 0.f;
 
+#endif
 	if (m_pPlayer)
 	{		
 		// 플레이어와 충돌 된 오브젝트 정보를 초기화
@@ -732,20 +737,21 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				if ((*iter).second->m_ppObjects[id]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
 					// 술래 체인지
-					if (m_pPlayer->GetIsBomb() == true && m_TaggerCoolTime <= 0.f)
+					if (m_pPlayer->GetIsBomb() == true /*&& m_TaggerCoolTime <= 0.f*/)
 					{
-						(*iter).second->m_ppObjects[id]->SetIsBomb(true);
-						m_pPlayer->SetIsBomb(false);
+						//(*iter).second->m_ppObjects[id]->SetIsBomb(true);
+						//m_pPlayer->SetIsBomb(false);
+						Network::GetInstance()->SendBomberTouch(id);
 
-						m_TaggerCoolTime = 3.f;
+						//m_TaggerCoolTime = (float)COOLTIME;
 					}
-					else if ((*iter).second->m_ppObjects[id]->GetIsBomb() == true && m_TaggerCoolTime <= 0.f)
-					{
-						m_pPlayer->SetIsBomb(true);
-						(*iter).second->m_ppObjects[id]->SetIsBomb(false);
+					//else if ((*iter).second->m_ppObjects[id]->GetIsBomb() == true /*&& m_TaggerCoolTime <= 0.f*/)
+				//{
+						//m_pPlayer->SetIsBomb(true);
+					//	(*iter).second->m_ppObjects[id]->SetIsBomb(false);
 
-						m_TaggerCoolTime = 3.f;
-					}
+						//m_TaggerCoolTime = (float)COOLTIME;
+					//}
 
 					isCollided = true;
 				
