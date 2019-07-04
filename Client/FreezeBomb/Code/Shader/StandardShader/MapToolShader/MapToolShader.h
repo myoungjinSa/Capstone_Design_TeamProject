@@ -44,9 +44,14 @@ public:
 	void SetCurrBigRockIndex(int index) { m_nCurrBigRockModelIndex = index; }
 	void SetCurrFenceIndex(int index) { m_nCurrFenceModelIndex = index; }
 
-	enum MapObjectType { DeadTree = 0x31, PineTree = 0x32, BigRock = 0x33, Deer = 0x34, Frozen_Road = 0x35, FirePit = 0x36,
+	enum MapObjectType 
+	{ 
+		DeadTree = 0x31, PineTree = 0x32, BigRock = 0x33, Deer = 0x34, Fence = 0x35, FirePit = 0x36, 
+		Foliage0 = 0x37, Foliage1 = 0x38, Foliage2 = 0x39,
+
 		Hammer = 0x48, GoldTimer = 0x54,
-		DeleteAllObject = 0x44, DeleteObject = 0x52, OutputFile = 0x4F };
+		DeleteAllObject = 0x44, DeleteObject = 0x52, OutputFile = 0x4F 
+	};
 
 	void BuildWall(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 

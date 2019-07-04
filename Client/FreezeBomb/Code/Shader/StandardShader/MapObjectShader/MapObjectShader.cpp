@@ -17,11 +17,11 @@ CMapObjectsShader::~CMapObjectsShader()
 
 
 void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,
-	const map<string, CLoadedModelInfo*>& ModelMap, const unordered_map<unsigned char, RoundInfo>& MapObjectInfo, const map<string, Bounds*>& BoundMap, void* pContext)
+	const map<string, CLoadedModelInfo*>& ModelMap, const unordered_map<unsigned char, RoundInfo>& RoundMapObjectInfo, const map<string, Bounds*>& BoundMap, void* pContext)
 {
 	unsigned char round = 0;
 	// 모든 라운드에 해당하는 모델정보 루프를 돌면서
-	for (auto iter = MapObjectInfo.begin(); iter != MapObjectInfo.end(); ++iter)
+	for (auto iter = RoundMapObjectInfo.begin(); iter != RoundMapObjectInfo.end(); ++iter)
 	{
 		list<CGameObject*> objectList;
 		int index = 0;
@@ -29,7 +29,7 @@ void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 		for (auto iter2 = ModelMap.begin(); iter2 != ModelMap.end(); ++iter2)
 		{
 			string name = (*iter2).first;
-			if (name == "Hammer" || name == "GoldTimer")	continue;
+			if (name == "Hammer" || name == "GoldTimer" || name == "Foliage0" || name == "Foliage1" || name == "Foliage2")	continue;
 
 			// multimap 컨테이너에서 같은 키를 갖는 벨류를 찾을 때, 사용하는 루프
 			for (auto iter3 = (*iter).second.lower_bound(name); iter3 != (*iter).second.upper_bound(name); ++iter3)
@@ -46,8 +46,6 @@ void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 				dynamic_cast<CSurrounding*>(pSurrounding)->SetIndex(index++);
 
 				pSurrounding->Initialize_Shadow((*iter2).second, pSurrounding);
-
-				
 
 				auto iter4 = BoundMap.find(name);
 				if (iter4 != BoundMap.end())

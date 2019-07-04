@@ -1364,6 +1364,17 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 				pGameObject->m_pThunderEffect = new CThunderBillboard(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature );
 				pGameObject->SetChild(pGameObject->m_pThunderEffect, true);
 			}
+
+			//LOD레벨 설정
+			else if (strstr(pGameObject->m_pstrFrameName, "LOD0"))
+				pGameObject->m_lodLevel = 0;
+		
+			else if (strstr(pGameObject->m_pstrFrameName, "LOD1"))
+				pGameObject->m_lodLevel = 1;
+
+			else if (strstr(pGameObject->m_pstrFrameName, "LOD2"))			
+				pGameObject->m_lodLevel = 2;
+			
 		}
 		else if (!strcmp(pstrToken, "<Transform>:"))
 		{

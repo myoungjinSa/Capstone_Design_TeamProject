@@ -45,12 +45,24 @@ void CMapToolShader::InstallMapObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "SM_Deer");
 		break;
 		// 5
-	case Frozen_Road:
+	case Fence:
 		BuildWall(pd3dDevice, pd3dCommandList);
 		break;
 		// 6
 	case FirePit:
 		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "SM_FirePit");
+		break;
+		// 7
+	case Foliage0:
+		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "Foliage0");
+		break;
+		// 8
+	case Foliage1:
+		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "Foliage1");
+		break;
+		// 9
+	case Foliage2:
+		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "Foliage2");
 		break;
 
 		// H
@@ -61,6 +73,7 @@ void CMapToolShader::InstallMapObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	case GoldTimer:
 		InsertItem(pd3dDevice, pd3dCommandList, pPlayer, "GoldTimer");
 		break;
+
 		// D
 	case DeleteAllObject:
 		DeleteAll();
@@ -69,6 +82,7 @@ void CMapToolShader::InstallMapObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	case DeleteObject:
 		Delete();
 		break;
+
 		// O
 	case OutputFile:
 		MakeMapFile();
