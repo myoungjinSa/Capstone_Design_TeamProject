@@ -445,20 +445,23 @@ void Server::WorkerThreadFunc()
 		}
 		else if (EV_COUNT == over_ex->event_t)
 		{
-			//timer_l.lock();
-			roundCurrTime--;
-			//timer_l.unlock();
+			timer_l.lock();
+			unsigned short time = --roundCurrTime;
+			timer_l.unlock();
+
 			//서버 시간 현재 (남은 시간)
 		//	printf("RoundCurrentTime : %d", roundCurrTime);
 			for (int i = 0; i < MAX_USER; ++i)
 			{
 				if (true == clients[i].in_use)
-					SendCompareTime(i);
+					SendCompareTime(i,time);
 			}
 
 			// 라운드 종료 시
+			timer_l.lock();
 			if (roundCurrTime <= 0)
 			{
+				timer_l.unlock();
 				for (int i = 0; i < MAX_USER; ++i)
 				{
 					if (true == clients[i].in_use)
@@ -468,7 +471,7 @@ void Server::WorkerThreadFunc()
 			}
 			else
 			{
-				
+				timer_l.unlock();
 				add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
 			}
 		}
@@ -478,7 +481,7 @@ void Server::WorkerThreadFunc()
 			changeCoolTime--;
 			timer_l.unlock();
 
-			printf("쿨타임:%d\n", changeCoolTime);
+			//printf("쿨타임:%d\n", changeCoolTime);
 			timer_l.lock();
 			if(changeCoolTime<=0)
 			{
@@ -517,12 +520,16 @@ void Server::PickBomber()
 
 void Server::StartTimer()
 {
+	timer_l.lock();
 	roundCurrTime = MAX_ROUND_TIME;
+	timer_l.unlock();
 }
 
 void Server::ResetTimer()
 {
+	timer_l.lock();
 	roundCurrTime = 0;
+	timer_l.unlock();
 }
 
 void Server::ProcessPacket(char client, char *packet)
@@ -638,7 +645,7 @@ void Server::ProcessPacket(char client, char *packet)
 		if (client != bomberID)
 			break;
 		
-		if (changeCoolTime > 0)		//쿨타임이 아직 남아있으면 RoleChange를 하지 않는다.
+		if (changeCoolTime > 0 || changeCoolTime < 0 )		//쿨타임이 아직 남아있으면 RoleChange를 하지 않는다.
 			break;
 
 		float dist = sqrt(pow(clients[client].pos.x - clients[p->touchId].pos.x, 2) +
@@ -652,9 +659,15 @@ void Server::ProcessPacket(char client, char *packet)
 		changeCoolTime = COOLTIME;
 		timer_l.unlock();
 		
+		timer_l.lock();
 		if (changeCoolTime == COOLTIME) 
 		{
+			timer_l.unlock();
 			add_timer(-1, EV_COOLTIME, chrono::high_resolution_clock::now() + 1s);
+		}
+		else
+		{
+			timer_l.unlock();
 		}
 		for(int i=0;i<MAX_USER;++i)
 		{
@@ -798,6 +811,9 @@ void Server::ProcessPacket(char client, char *packet)
 			// 라운드 시작시간 set
 			StartTimer();
 		
+			timer_l.lock();
+			unsigned short time = roundCurrTime;
+			timer_l.unlock();
 			for(int i=0; i< MAX_USER ;++i)
 			{
 				if(true == clients[i].in_use)
@@ -815,7 +831,7 @@ void Server::ProcessPacket(char client, char *packet)
 							
 						}
 					}
-					SendRoundStart(i);
+					SendRoundStart(i,time);
 				}
 			}
 			add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
@@ -856,13 +872,15 @@ void Server::ProcessPacket(char client, char *packet)
 			//이 클라이언트가 도망자인지 검사해야함.
 
 			timer_l.lock();
-			roundCurrTime += 60;
+			unsigned short time = roundCurrTime += 60;
 			timer_l.unlock();
+
+
 			for (int i = 0; i < MAX_USER; ++i)
 			{
 				if (clients[i].in_use == true)
 				{
-					SendCompareTime(i);
+					SendCompareTime(i,time);
 					SendUseItem(i, client, ITEM::GOLD_TIMER, client);
 				}
 			}
@@ -1039,14 +1057,14 @@ void Server::SendPutPlayer(char toClient, char fromClient)
 	SendFunc(toClient, &packet);
 }
 
-void Server::SendRoundStart(char client)
+void Server::SendRoundStart(char client,unsigned short& t)
 {
 	SC_PACKET_ROUND_START packet;
 	packet.bomberID = bomberID;
 	packet.size = sizeof(packet);
 	packet.clientCount = clientCount;
 	packet.type = SC_ROUND_START;
-	packet.startTime = roundCurrTime;
+	packet.startTime = t;
 
 	SendFunc(client, &packet);
 }
@@ -1120,10 +1138,10 @@ void Server::SendRoundEnd(char client)
 	SendFunc(client, &packet);
 }
 
-void Server::SendCompareTime(char client)
+void Server::SendCompareTime(char client,unsigned short& time)
 {
 	SC_PACKET_COMPARE_TIME packet;
-	packet.serverTime = roundCurrTime;
+	packet.serverTime = time;
 	packet.size = sizeof(packet);
 	packet.type = SC_COMPARE_TIME;
 

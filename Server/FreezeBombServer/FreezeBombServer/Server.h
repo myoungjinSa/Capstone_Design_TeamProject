@@ -154,7 +154,7 @@ private:
 	XMFLOAT3 gravity;
 	unsigned short roundStartTime;
 	unsigned short roundCurrTime;
-	unsigned short changeCoolTime;	//Bomber와 충돌했을때 어느정도 시간만큼은 지나야 됨 
+	short changeCoolTime;	//Bomber와 충돌했을때 어느정도 시간만큼은 지나야 됨 
 	int clientCount;
 	int readyCount;
 	int hostId;
@@ -194,14 +194,14 @@ public:
 	void SendChattinPacket(char to, char from, char *message);
 	void SendPlayerAnimation(char toClient, char fromCllient);
 	void SendPutPlayer(char toClient, char fromClient);
-	void SendRoundStart(char client);
+	void SendRoundStart(char client,unsigned short& time);
 	void SendPleaseReady(char client);
 	void SendReadyStatePacket(char toClient, char fromClient);
 	void SendUnReadyStatePacket(char toClient, char fromClient);
 	void SendMovePlayer(char to,char object);
 	void SendRemovePlayer(char toClient, char fromClient);
 	void SendRoundEnd(char client);
-	void SendCompareTime(char client);
+	void SendCompareTime(char client,unsigned short& time);
 	void SendStopRunAnim(char toClient, char fromClient);
 	void SendUseItem(char toClient, char fromClient, char useItem, char targetClient);
 	void SendFreeze(char toClient, char fromClient);

@@ -130,6 +130,7 @@ void CTimerUIShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	pUI->SetMaterial(0, m_ppUIMaterial[m_nObjects - 1]);
 	m_UIMap.emplace(Colon, pUI);
 
+
 	// 게임시작시 시간 : 60초
 	m_Timer = 300.f;
 }
@@ -138,8 +139,10 @@ void CTimerUIShader::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer
 {
 	TimerUpdate();
 
+#ifndef _WITH_SERVER_
 	if(m_Timer >= 0)
 		m_Timer -= elapsedTime;
+#endif
 }
 
 void CTimerUIShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)

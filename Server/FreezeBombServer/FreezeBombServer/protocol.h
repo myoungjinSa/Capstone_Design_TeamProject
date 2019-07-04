@@ -10,7 +10,7 @@
 //#define SERVER_IP "192.168.0.34"
 //#define SERVER_IP "192.168.0.27"
 //#define SERVER_IP "175.210.100.248"
-#define SERVER_IP "172.30.1.57"
+#define SERVER_IP "172.30.1.1"
 
 
 using namespace std;
@@ -87,7 +87,7 @@ constexpr int CS_BOMBER_TOUCH = 23;
 
 
 
-constexpr int MAX_ROUND_TIME = 300;
+constexpr int MAX_ROUND_TIME = 30;
 
 //[클라->서버]
 
