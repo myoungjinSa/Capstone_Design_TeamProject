@@ -78,7 +78,7 @@ extern HINSTANCE						ghAppInstance;
 
 
 //맵툴 모드
-#define _MAPTOOL_MODE_
+//#define _MAPTOOL_MODE_
 
 //서버 연동을 할 경우 
 

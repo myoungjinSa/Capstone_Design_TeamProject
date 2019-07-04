@@ -5,9 +5,10 @@
 #include "../../../GameObject/Terrain/Terrain.h"
 #include "../../../FrameTransform/FrameTransform.h"
 
+extern unsigned char g_Round;
+
 CFoliageShader::CFoliageShader()
 {
-
 }
 
 CFoliageShader::~CFoliageShader()
@@ -45,11 +46,6 @@ void CFoliageShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 
 	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
-
-//D3D12_SHADER_BYTECODE CFoliageShader::CreateVertexShader(int nPipelineState)
-//{
-//	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSFoliage", "vs_5_1", &m_pd3dPixelShaderBlob));
-//}
 
 D3D12_SHADER_BYTECODE CFoliageShader::CreatePixelShader(int nPipelineState)
 {
@@ -89,152 +85,109 @@ float CFoliageShader::GetDistanceToCamera(CGameObject* pObject, CCamera *pCamera
 }
 
 void CFoliageShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
-	const map<string,CLoadedModelInfo*>& ModelMap,void *pContext = NULL)
+	const unordered_map<unsigned char, RoundInfo>& RoundMapObjectInfo, void* pContext)
 {
-	//m_ppFoliageModel01 = CFoliageObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Grass_C_01.bin", this, false, "Surrounding");
-	//m_ppFoliageModel02 = CFoliageObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Grass_D_01.bin", this, false, "Surrounding");
-	//m_ppFoliageModel03 = CFoliageObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Plant_c_01.bin", this, false, "Surrounding");
+	unordered_map<string, CLoadedModelInfo*> foliageModelList;
+	m_pFoliageModel0 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Grass_C_01.bin", this, false);
+	foliageModelList.emplace("Foliage0", m_pFoliageModel0);
+	m_pFoliageModel1 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Grass_D_01.bin", this, false);
+	foliageModelList.emplace("Foliage1", m_pFoliageModel1);
+	m_pFoliageModel2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "../Resource/Models/Plant_c_01.bin", this, false);
+	foliageModelList.emplace("Foliage2", m_pFoliageModel2);
 
-	CTerrain *pTerrain = (CTerrain *)pContext;
-
-	float fxPitch = 12.0f;
-	float fzPitch = 12.0f;
-
-	float fTerrainWidth = pTerrain->GetWidth();
-	float fTerrainLength = pTerrain->GetLength();
-
-	int xObjects = int(fTerrainWidth * 0.1f / fxPitch);
-	int zObjects = int(fTerrainLength * 0.25f / fzPitch);
-
-	m_nObjects = xObjects * zObjects;
-	m_ppObjects = new CGameObject*[m_nObjects];
-
-	int xStart = 0.0f;
-	int zStart = 0.0f;
-
-	
-	for (int z = zStart, i = 0; z < zStart + zObjects; z++)
-	{
-		for (int x = xStart; x < xStart + xObjects; x++)
+	unsigned char round = 0;
+	for (auto iter = RoundMapObjectInfo.begin(); iter != RoundMapObjectInfo.end(); ++iter)
+	{		
+		list<CGameObject*> objectList;
+		for (auto iter2 = foliageModelList.begin(); iter2 != foliageModelList.end(); ++iter2)
 		{
-			m_ppObjects[i] = new CFoliageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-
-			float xPosition = x * fxPitch;
-			float zPosition = z * fzPitch;
-			float fHeight = pTerrain->GetHeight(xPosition, zPosition);
-			m_ppObjects[i]->SetPosition(xPosition, fHeight, zPosition);
-
-			if (i % 3 == 0) {
-
-				m_ppObjects[i]->SetChild(m_ppFoliageModel01->m_pModelRootObject, true);
-				m_ppObjects[i++]->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, m_ppFoliageModel01);
-			}
-			else if (i % 3 == 1)
+			string name = (*iter2).first;
+			for (auto iter3 = (*iter).second.lower_bound(name); iter3 != (*iter).second.upper_bound(name); ++iter3)
 			{
-				m_ppObjects[i]->SetChild(m_ppFoliageModel02->m_pModelRootObject, true);
-				m_ppObjects[i++]->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, m_ppFoliageModel02);
-			}
-			else {
-				m_ppObjects[i]->SetChild(m_ppFoliageModel03->m_pModelRootObject, true);
-				m_ppObjects[i++]->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, m_ppFoliageModel03);
+				CFoliageObject* pFoliage = new CFoliageObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+				pFoliage->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter2).second);
+				pFoliage->SetChild((*iter2).second->m_pModelRootObject, true);
+				pFoliage->SetPosition((*iter3).second->m_Position);
+				pFoliage->SetLookVector((*iter3).second->m_Look);
+				pFoliage->SetUpVector((*iter3).second->m_Up);
+				pFoliage->SetRightVector((*iter3).second->m_Right);
+
+				objectList.emplace_back(pFoliage);
 			}
 		}
+		m_MapObjectList.emplace(round++, objectList);
 	}
 
-	//CreateShaderVariables(pd3dDevice, pd3dCommandList);
-
-
-	if (m_ppFoliageModel01)
-		delete m_ppFoliageModel01;
-	if (m_ppFoliageModel02)
-		delete m_ppFoliageModel02;
-	if (m_ppFoliageModel03)
-		delete m_ppFoliageModel03;
+	delete m_pFoliageModel0;
+	delete m_pFoliageModel1;
+	delete m_pFoliageModel2;
 }
 
 void CFoliageShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer* pPlayer)
 {
 	float distance = 0.0f;
 	UINT lodlevel = CGameObject::LOD_LEVEL0;
-	for (int i = 0; i < m_nObjects; i++)
+
+	auto iter = m_MapObjectList.find(g_Round);
+	if (iter != m_MapObjectList.end())
 	{
-		distance = GetDistanceToCamera(m_ppObjects[i], pCamera);
-		//lodlevel= (distance < 20.0f) ? CGameObject::LOD_LEVEL0 : CGameObject::LOD_LEVEL1;
+		for (auto iter2 = (*iter).second.begin(); iter2 != (*iter).second.end(); ++iter2)
+		{
+			distance = GetDistanceToCamera((*iter2), pCamera);
 
-		if (distance < 30.0f)
-		{
-			lodlevel = CGameObject::LOD_LEVEL0;
+			if (distance < 30.0f)
+				lodlevel = CGameObject::LOD_LEVEL0;
+			
+			else if (distance >= 30.0f && distance < 100.0f)
+				lodlevel = CGameObject::LOD_LEVEL1;
+			
+			else if (distance > 100 && distance < 200.0f)
+				lodlevel = CGameObject::LOD_LEVEL2;
+			
+			//여기서 자신의 LOD레벨을 구하면 될듯하다.
+			(*iter2)->SetLODlevel(lodlevel);
 		}
-		else if (distance >= 30.0f && distance < 100.0f)
-		{
-			lodlevel = CGameObject::LOD_LEVEL1;
-		}
-		else if (distance > 100 && distance < 200.0f)
-		{
-			lodlevel = CGameObject::LOD_LEVEL2;
-		}
-		else
-		{
-			lodlevel = CGameObject::LOD_BILLBOARD;
-		}
-
-		//여기서 자신의 LOD레벨을 구하면 될듯하다.
-		m_ppObjects[i]->SetLODlevel(lodlevel);
 	}
 }
 
 
 void CFoliageShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
-	//UpdateShaderVariables(pd3dCommandList);
 	CStandardShader::Render(pd3dCommandList, pCamera, nPipelineState);
-	for (int i = 0; i < m_nObjects; i++)
+	auto iter = m_MapObjectList.find(g_Round);
+	if (iter != m_MapObjectList.end())
 	{
-		if (m_ppObjects[i])
+		for (auto iter2 = (*iter).second.begin(); iter2 != (*iter).second.end(); ++iter2)
 		{
-			m_ppObjects[i]->Animate(m_fElapsedTime);
-			m_ppObjects[i]->UpdateTransform(NULL,false);
-			m_ppObjects[i]->Render(pd3dCommandList, m_ppObjects[i]->GetLodLevel(), pCamera, nPipelineState);
+			(*iter2)->Animate(m_fElapsedTime);
+			(*iter2)->UpdateTransform(nullptr);
+			(*iter2)->Render(pd3dCommandList, (*iter2)->GetLodLevel(), pCamera, nPipelineState);
 		}
 	}
 }
-//void CFoliageShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
-//{
-//	m_pd3dInstancingData = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, m_nObjects * sizeof(InstancingData), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-//	m_pd3dInstancingData->Map(0, nullptr, (void**)&m_pMappedInstancingData);
-//}
-//
-//void CFoliageShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
-//{
-//	if (m_pd3dInstancingData)
-//	{
-//		D3D12_GPU_VIRTUAL_ADDRESS GPUVirtualAddress = m_pd3dInstancingData->GetGPUVirtualAddress();
-//		pd3dCommandList->SetGraphicsRootShaderResourceView(24, GPUVirtualAddress);
-//		for (int i=0; i < m_nObjects; ++i)
-//		{
-//			XMStoreFloat4x4(&m_pMappedInstancingData[i].m_World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
-//		}
-//	}
-//}
-
-//void CFoliageShader::ReleaseShaderVariables()
-//{
-//	if (m_pd3dInstancingData)
-	//{
-	//	m_pd3dInstancingData->Unmap(0, nullptr);
-	//	m_pd3dInstancingData->Release();
-	//}
-//}
 
 void CFoliageShader::ReleaseObjects()
 {
-	for (int i = 0; i < m_nObjects; ++i)
-		m_ppObjects[i]->Release();
-
-	//CStandardShader::ReleaseObjects();
+	for (auto iter = m_MapObjectList.begin(); iter != m_MapObjectList.end(); )
+	{
+		for (auto iter2 = (*iter).second.begin(); iter2 != (*iter).second.end(); )
+		{
+			(*iter2)->Release();
+			iter2 = (*iter).second.erase(iter2);
+		}
+		(*iter).second.clear();
+		iter = m_MapObjectList.erase(iter);
+	}
+	m_MapObjectList.clear();
 }
+
 void CFoliageShader::ReleaseUploadBuffers()
 {
-	//for (int i = 0; i < m_nObjects; ++i)
-		//m_ppObjects[i]->ReleaseUploadBuffers();
+	for (auto iter = m_MapObjectList.begin(); iter != m_MapObjectList.end(); ++iter)
+	{
+		for (auto iter2 = (*iter).second.begin(); iter2 != (*iter).second.end(); ++iter2)
+		{
+			(*iter2)->ReleaseUploadBuffers();
+		}
+	}
 }

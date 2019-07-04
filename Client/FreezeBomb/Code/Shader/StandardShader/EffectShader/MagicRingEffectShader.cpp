@@ -124,7 +124,6 @@ void CMagicRingShader::BuildObjects(ID3D12Device* pd3dDevice,ID3D12GraphicsComma
 	if(pContext)
 		m_ptrSkinnedAnimationObjects = (CSkinnedAnimationObjectShader*)pContext;
 
-
 	for (int i = 0; i < maxObjects; ++i)
 	{
 		m_MagicRingObjects[i] = new CMagicRing;

@@ -24,5 +24,4 @@ public:
 private:
 	using RoundMapObjectList = list<CGameObject*>;
 	unordered_map<unsigned char, RoundMapObjectList> m_MapObjectList;
-
 };

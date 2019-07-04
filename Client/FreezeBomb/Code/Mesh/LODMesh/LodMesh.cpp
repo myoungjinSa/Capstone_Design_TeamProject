@@ -14,7 +14,8 @@ CLODMesh::~CLODMesh()
 
 void CLODMesh::Render(ID3D12GraphicsCommandList *pd3dCommandList, int nSubSet, UINT lodLevel)
 {
-	if (m_LodLevel == lodLevel) {
+	//if (m_LodLevel == lodLevel) 
+	{
 		UpdateShaderVariables(pd3dCommandList);
 
 		OnPreRender(pd3dCommandList, NULL);

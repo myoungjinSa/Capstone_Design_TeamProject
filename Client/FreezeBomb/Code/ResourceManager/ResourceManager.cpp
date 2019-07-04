@@ -126,9 +126,9 @@ void CResourceManager::PrepareLoad()
 	// 3
 	m_ModelInfoMap.emplace("SM_FirePit", ModelInfo("../Resource/Models/FirePit.bin", false));
 
-	m_ModelInfoMap.emplace("Foliage0", ModelInfo("../Resource/Models/Grass_C_01.bin", false));
-	m_ModelInfoMap.emplace("Foliage1", ModelInfo("../Resource/Models/Grass_D_01.bin", false));
-	m_ModelInfoMap.emplace("Foliage2", ModelInfo("../Resource/Models/Plant_c_01.bin", false));
+	//m_ModelInfoMap.emplace("Foliage0", ModelInfo("../Resource/Models/Grass_C_01.bin", false));
+	//m_ModelInfoMap.emplace("Foliage1", ModelInfo("../Resource/Models/Grass_D_01.bin", false));
+	//m_ModelInfoMap.emplace("Foliage2", ModelInfo("../Resource/Models/Plant_c_01.bin", false));
 
 	//Effect 1
 	//m_ModelInfoMap.emplace("wind", ModelInfo("../Resource/Models/wind.bin", false));

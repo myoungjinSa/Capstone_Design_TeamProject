@@ -29,7 +29,7 @@ void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 		for (auto iter2 = ModelMap.begin(); iter2 != ModelMap.end(); ++iter2)
 		{
 			string name = (*iter2).first;
-			if (name == "Hammer" || name == "GoldTimer" || name == "Foliage0" || name == "Foliage1" || name == "Foliage2")	continue;
+			if (name == "Hammer" || name == "GoldTimer")	continue;
 
 			// multimap 컨테이너에서 같은 키를 갖는 벨류를 찾을 때, 사용하는 루프
 			for (auto iter3 = (*iter).second.lower_bound(name); iter3 != (*iter).second.upper_bound(name); ++iter3)

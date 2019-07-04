@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../StandardShader.h"
+#include "../../../ResourceManager/ResourceManager.h"
 
-class CLoadedModelInfo;
 class CFoliageShader : public CStandardShader
 {
 public:
@@ -15,7 +15,7 @@ public:
 
 	virtual D3D12_BLEND_DESC CreateBlendState();
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, 
-		const map<string,CLoadedModelInfo*>& ModelMap,void *pContext);
+		const unordered_map<unsigned char, RoundInfo>& RoundMapObjectInfo, void *pContext);
 	virtual void AnimateObjects(float fTimeElapsed, CCamera *pCamera, CPlayer *pPlayer =NULL);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState);
 
@@ -28,15 +28,10 @@ public:
 	float GetDistanceToCamera(CGameObject* pObject, CCamera* pCamera);
 
 private:
-	CLoadedModelInfo*	m_ppFoliageModel01{ nullptr };
-	CLoadedModelInfo*	m_ppFoliageModel02{ nullptr };
-	CLoadedModelInfo*	m_ppFoliageModel03{ nullptr };
+	CLoadedModelInfo*	m_pFoliageModel0{ nullptr };
+	CLoadedModelInfo*	m_pFoliageModel1{ nullptr };
+	CLoadedModelInfo*	m_pFoliageModel2{ nullptr };
 
-	struct InstancingData
-	{
-		XMFLOAT4X4 m_World;
-	};
-
-	ID3D12Resource*				m_pd3dInstancingData{ nullptr };
-	InstancingData*				m_pMappedInstancingData{ nullptr };
+	using RoundMapObjectList = list<CGameObject*>;
+	unordered_map<unsigned char, RoundMapObjectList> m_MapObjectList;
 };

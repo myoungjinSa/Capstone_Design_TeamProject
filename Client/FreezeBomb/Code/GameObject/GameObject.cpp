@@ -608,9 +608,6 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 
 	if (m_pMesh)
 	{
-		if (!m_pSkinningBoneTransforms)
-			UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
-
 		if (m_nMaterials > 0)
 		{
 			for (int i = 0; i < m_nMaterials; i++)
@@ -633,10 +630,8 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 		m_pChild->Render(pd3dCommandList, pCamera, nPipelineState);
 }
 
-
 //플레이어 Render로 부터 호출되서 플레이어의 프레임들을 호출하며 Render할때 호출되는 함수
 // 플레이어가 들고있는 폭탄이나 , 망치가 이 함수 Render로 호출된다.
-
 void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, bool bHammer, bool bBomb, bool bIce, int matID, CCamera* pCamera, int nPipelineState)
 {
 	OnPrepareRender();
@@ -647,9 +642,6 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, bool bHamme
 
 	if (m_pMesh)
 	{
-		if (!m_pSkinningBoneTransforms)
-			UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
-
 		if (m_nMaterials == 1)			//폭탄과 같은 재질이 하나 있는 오브젝트 렌더
 		{
 			if (m_ppMaterials[0])
@@ -753,16 +745,11 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lodLev
 {
 	OnPrepareRender();
 
-	if (m_pSkinningBoneTransforms)
-		m_pSkinningBoneTransforms->SetSkinnedMeshBoneTransformConstantBuffer();
 	if (m_pFrameTransform)
 		m_pFrameTransform->SetFrameMeshWorldConstantBuffer();
 
-
 	if (m_pMesh)
 	{
-		if (!m_pSkinningBoneTransforms) UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
-
 		if (m_nMaterials > 0)
 		{
 			for (int i = 0; i < m_nMaterials; i++)
@@ -988,18 +975,6 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 	{
 		m_pMesh->Render(pd3dCommandList, 0, nInstance);
 	}
-}
-
-void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4* pxmf4x4World)
-{
-}
-
-void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, CMaterial* pMaterial)
-{
-}
-
-void CGameObject::ReleaseShaderVariables()
-{
 }
 
 void CGameObject::ReleaseUploadBuffers()
