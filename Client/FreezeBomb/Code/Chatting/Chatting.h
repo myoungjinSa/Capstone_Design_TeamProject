@@ -41,6 +41,7 @@ protected:
 	//vector<pair<TCHAR*, UINT32>> m_vecText;
 	//deque<pair<TCHAR*, UINT32>> m_dequeText;
 	deque<pair<const TCHAR*, const UINT32>> m_dequeText;
+	float m_showTime{ 0.0f };
 	//array<pair<TCHAR*,UINT32>,m_maxChatSentenceCount> m_arrText;
 public:
 	ChattingSystem();
@@ -53,6 +54,7 @@ public:
 	TCHAR* StringToTCHAR(string& s);
 	string TCHARToString(const TCHAR* ptsz);
 
+	void ResetShowTime(float t) { m_showTime = t; }
 
 	//TCHAR* GetChatText() { return m_chat; };
 	DWORD GetIMEMode() const { return m_conv; }

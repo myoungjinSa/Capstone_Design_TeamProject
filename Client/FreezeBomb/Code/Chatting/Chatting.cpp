@@ -127,7 +127,7 @@ void ChattingSystem::ShowLobbyChatting(ID2D1DeviceContext2* pd2dDeviceContext)
 
 void ChattingSystem::ShowIngameChatting(ID2D1DeviceContext2* pd2dDeviceContext,float fTimeElapsed)
 {
-	static float showTime = 0.0f;		//채팅이 비활성화 되어도 일정 시간동안은 채팅은 보이게 하기 위해 시간을 카운트 하는 변수
+	
 	if (IsChattingActive() && m_pd2dfxBitmapSource)
 	{
 		D2D_POINT_2F p{ -360.0f,660.0f };
@@ -140,14 +140,14 @@ void ChattingSystem::ShowIngameChatting(ID2D1DeviceContext2* pd2dDeviceContext,f
 		chatText = D2D1::RectF(20.0f, 750.0f, 600.0f, 750.0f);
 		pd2dDeviceContext->DrawTextW(t, (UINT32)wcslen(t), m_pdwChattingFont[0], &chatText, m_pd2dbrChatText[0]);
 
-		showTime = 0.0f;
+		m_showTime = 0.0f;
 	
 	}
 	else
 	{
-		showTime += fTimeElapsed;
+		m_showTime += fTimeElapsed;
 	}
-	if (showTime <= 5.0f) 
+	if (m_showTime <= 5.0f) 
 	{
 		D2D1_RECT_F chatText{ 0,0,0,0 };
 		for (int i = 1; i < m_dequeText.size() + 1; ++i)

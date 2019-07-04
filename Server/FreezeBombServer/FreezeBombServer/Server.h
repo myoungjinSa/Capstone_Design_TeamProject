@@ -50,6 +50,12 @@ enum COLLISION_TYPE		//어느 객체와 충돌했는지
 	CL_SURROUNDING,	//주변
 	CL_PLAYER		//플레이어
 };
+
+enum GAME_STATE			//로비 상태인지 인게임 중인지 
+{
+	GS_LOBBY,
+	GS_INGAME
+};
 struct EVENT_ST
 {
 	int					obj_id;
@@ -113,7 +119,7 @@ public:
 	char animation;			//애니메이션 index
 	float animationTime;	//애니메이션 시간
 	bool isReady;
-
+	GAME_STATE gameState;	
 
 public:
 	SOCKETINFO() {
@@ -160,6 +166,7 @@ private:
 	int hostId;
 	int bomberID;
 	int freezeCnt;			//얼음 상태인 도망자 수  
+	
 
 private:
 
@@ -208,6 +215,7 @@ public:
 	void SendReleaseFreeze(char toClient, char fromClient);
 	void SendBombExplosion(char toClient, char fromClient);
 	void SendChangeBomber(char toClient, char bomberId,char runnerId);
+	void SendChangeHostID(char toClient, char hostID);
 public:
 	void SetAnimationState(char client,char animationNum);
 	void SetVelocityZero(char client);

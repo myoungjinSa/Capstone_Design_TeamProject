@@ -666,7 +666,8 @@ void CScene::PostRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeEl
 
 void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 {
-	//서버 자체에서 쿨타임을 계산해야한다. 보안상의 문제
+	//서버 자체에서 쿨타임을 계산해야한다. 
+	//쿨타임 변경 해킹이 있을수 있기 때문
 #ifndef _WITH_SERVER_
 	if (m_TaggerCoolTime > 0.f)
 	{

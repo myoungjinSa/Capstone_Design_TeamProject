@@ -1622,25 +1622,48 @@ void CGameFramework::ProcessPacket(char *packet)
 	{
 		pLI = reinterpret_cast<SC_PACKET_LOBBY_IN*>(packet);
 
-	//	if (pLI->id == m_pPlayer->GetPlayerID())
-	//	{
 
-		//}
-	//	else if (pLI->id < MAX_USER)
-	//	{
 		if (pLI->id < MAX_USER)
 		{
 			m_mapClients[(int)pLI->id] = pLI->client_state;
 			//맵의 emplace는 한번 생성하면 똑같은 키에 value를 넣는 작업을 하지 않는다.(중복을 허용하지 않기 때문에)
-			cout << "ID : " <<(int) pLI->id << endl;
-			cout << "닉네임 : "<<pLI->client_state.name << endl;
+			string user = m_mapClients[(int)pLI->id].name;
+			string s = "님이 입장하였습니다.";
+
+			ChattingSystem::GetInstance()->PushChattingText(user, s.c_str());
+			
 		}
-	//	}
+
 		break;
 	}
 	case SC_CLIENT_LOBBY_OUT:
 	{
+		printf("SC_CLIENT_LOBBY_OUT 호출");
+		pLO = reinterpret_cast<SC_PACKET_LOBBY_OUT*>(packet);
+
+		if (pLO->id < MAX_USER)
+		{
+			m_mapClients[(int)pLO->id].isReady = false;
+			string user = m_mapClients[(int)pLO->id].name;
+			string s = "님이 나갔습니다.";
+
+			ChattingSystem::GetInstance()->PushChattingText(user, s.c_str());
+			strcpy(m_mapClients[(int)pLO->id].name, " ");
+		}
+
+		break;
+	}
+	case SC_CHANGE_HOST_ID:
+	{
+		pCH = reinterpret_cast<SC_PACKET_CHANGE_HOST*>(packet);
+
 		
+		if (pCH->hostID < MAX_USER)
+		{
+			hostId = pCH->hostID;
+			printf("호스트 ID: %d ", hostId);
+		}
+
 		break;
 	}
 	case SC_READY_STATE:
@@ -1666,7 +1689,8 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		const string& clientName = m_mapClients[pCh->id].name;
 		
-		ChattingSystem::GetInstance()->SetActive(true);
+		ChattingSystem::GetInstance()->ResetShowTime(0.0f);
+		//ChattingSystem::GetInstance()->SetActive(true);
 		ChattingSystem::GetInstance()->PushChattingText(clientName,pCh->message);
 		
 		
@@ -1900,9 +1924,9 @@ void CGameFramework::ProcessPacket(char *packet)
 				(*iter).second->m_ppObjects[id]->SetScale(0.0f, 0.0f, 0.0f);
 
 
-				string s = "님이 나가셨습니다.";
+				string s = "님이 나갔습니다.";
 				string user = m_mapClients[id].name;
-				ChattingSystem::GetInstance()->SetActive(true);
+				ChattingSystem::GetInstance()->ResetShowTime(0.0f);
 				ChattingSystem::GetInstance()->PushChattingText(user,s.c_str());
 			}
 		}

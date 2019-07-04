@@ -10,6 +10,7 @@ Server::Server()
 	hostId = -1;
 	freezeCnt = 0;
 	//clients.reserve(MAX_USER);
+	
 	workerThreads.reserve(MAX_WORKER_THREAD);
 }
 
@@ -269,8 +270,11 @@ void Server::AcceptThreadFunc()
 
 		clients[new_id].in_use = true;
 		clients[new_id].velocity = XMFLOAT3(0.0f, 0.0f, 1.0f);
-
+		
+		clients[new_id].gameState = GS_LOBBY;
 		clientsLock[new_id].unlock();
+
+		
 
 		SendAccessComplete(new_id);
 		// 기존 유저들에게 이후 접속한 유저들 출력
@@ -321,14 +325,16 @@ void Server::TimerThreadFunc()
 				timer_l.unlock();
 				break;
 			}
-
+		
 			EVENT_ST ev = timer_queue.top();
+	
 			// 시간 됐나 확인
 			if (ev.start_time > chrono::high_resolution_clock::now())
 			{
 				timer_l.unlock();
 				break;
 			}
+		
 			timer_queue.pop();
 			timer_l.unlock();
 			OVER_EX *over_ex = new OVER_EX;
@@ -652,6 +658,7 @@ void Server::ProcessPacket(char client, char *packet)
 		pow(clients[client].pos.y - clients[p->touchId].pos.y, 2) +
 			pow(clients[client].pos.z - clients[p->touchId].pos.z, 2));
 
+
 		clientsLock[client].lock();
 		bomberID = p->touchId;
 		clientsLock[client].unlock();
@@ -807,7 +814,15 @@ void Server::ProcessPacket(char client, char *packet)
 		if (clientCount <= readyCount)
 		{
 			PickBomber();
-		
+			
+			
+			for(int i=0;i<MAX_USER;++i)
+			{
+				if (clients[i].in_use == true)
+				{
+					clients[i].gameState = GS_INGAME;
+				}
+			}
 			// 라운드 시작시간 set
 			StartTimer();
 		
@@ -1009,6 +1024,16 @@ void Server::SendAccessPlayer(char toClient, char fromClient)
 	SendFunc(toClient, &packet);
 }
 
+void Server::SendChangeHostID(char toClient,char hostID)
+{
+	SC_PACKET_CHANGE_HOST packet;
+	packet.type = SC_CHANGE_HOST_ID;
+	packet.size = sizeof(packet);
+	packet.hostID = hostID;
+
+	SendFunc(toClient, &packet);
+}
+
 void Server::SendClientLobbyIn(char toClient,char fromClient,char* name)
 {
 	SC_PACKET_LOBBY_IN packet;
@@ -1018,6 +1043,15 @@ void Server::SendClientLobbyIn(char toClient,char fromClient,char* name)
 	packet.client_state.isReady = false;
 	strcpy_s(packet.client_state.name, name);
 
+	SendFunc(toClient, &packet);
+}
+void Server::SendClientLobbyOut(char toClient,char fromClient)
+{
+	SC_PACKET_LOBBY_OUT packet;
+	packet.id = fromClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_CLIENT_LOBBY_OUT;
+	
 	SendFunc(toClient, &packet);
 }
 
@@ -1264,6 +1298,7 @@ void Server::ClientDisconnect(char client)
 			if (true == clients[i].in_use)
 			{
 				hostId = i;
+				SendChangeHostID(i, hostId);
 				printf("현재 방장은 %d입니다.\n", hostId);
 				break;
 			}
@@ -1271,14 +1306,40 @@ void Server::ClientDisconnect(char client)
 	}
 	clientCount--;
 	gLock.unlock();
-	for (int i = 0; i < MAX_USER; ++i)
+	
+	clientsLock[client].lock();
+	GAME_STATE gs = clients[client].gameState;
+	clientsLock[client].unlock();
+
+	switch(gs)
 	{
-		if (false == clients[i].in_use)
-			continue;
-		if (i == client)
-			continue;
-		SendRemovePlayer(i, client);
+	case GS_LOBBY:
+	{
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (false == clients[i].in_use)
+				continue;
+			if (i == client)
+				continue;
+			SendClientLobbyOut(i, client);
+		}
+		break;
 	}
+	case GS_INGAME:
+	{
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (false == clients[i].in_use)
+				continue;
+			if (i == client)
+				continue;
+			SendRemovePlayer(i, client);
+		}
+		break;
+	}
+	}
+
+	
 	closesocket(clients[client].socket);
 
 	printf("%d 클라이언트 접속 종료, 현재 클라이언트 수: %d\n", (int)client, clientCount);
@@ -1333,6 +1394,7 @@ void Server::SetClient_Initialize(char client)
 	clients[client].right = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	clients[client].up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	clients[client].collision = CL_NONE;
+	
 }
 
 
@@ -1412,17 +1474,21 @@ void Server::UpdateClientPos(char client, float fTimeElapsed)
 	}
 
 
-	
+	clientsLock[client].lock();
 	clients[client].pos = Vector3::Add(clients[client].pos, clients[client].velocity);
+	clientsLock[client].unlock();
 
-
-	ProcessClientHeight(client);
+	//현재 높이값은 0으로 정해져있어서 필요없는 함수 
+	//ProcessClientHeight(client);
 
 	ProcessFriction(client, fLength);
 
+
 	//속도를 클라에게 보내주어 클라에서 기본적인 rUn,Backward,애니메이션을 결정하게 하기 위해.
+	clientsLock[client].lock();
 	clients[client].fVelocity = fLength;
-	
+	clientsLock[client].unlock();
+
 	//cout << clients[client].fVelocity << endl;
 
 }

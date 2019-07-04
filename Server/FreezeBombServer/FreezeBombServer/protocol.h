@@ -57,6 +57,7 @@ constexpr int SC_UNREADY_STATE = 18;
 constexpr int SC_FREEZE = 19;
 constexpr int SC_RELEASE_FREEZE = 20;
 constexpr int SC_BOMB_EXPLOSION = 21;
+constexpr int SC_CHANGE_HOST_ID = 22;
 
 
 
@@ -87,7 +88,7 @@ constexpr int CS_BOMBER_TOUCH = 23;
 
 
 
-constexpr int MAX_ROUND_TIME = 30;
+constexpr int MAX_ROUND_TIME = 300;
 
 //[클라->서버]
 
@@ -290,6 +291,13 @@ struct SC_PACKET_ACCESS_PLAYER
 	char size;
 	char type;
 	char id;
+};
+
+struct SC_PACKET_CHANGE_HOST
+{
+	char size;
+	char type;
+	char hostID;
 };
 
 //입장한 클라이언트의 정보

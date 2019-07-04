@@ -227,7 +227,7 @@ private:
 	SC_PACKET_RELEASE_FREEZE* pRF = NULL;
 	SC_PACKET_BOMB_EXPLOSION* pBE = NULL;
 	SC_PACKET_ROLE_CHANGE* pRC = NULL;
-
+	SC_PACKET_CHANGE_HOST* pCH = NULL;
 
 	bool isCharacterSelectDone = false;
 
