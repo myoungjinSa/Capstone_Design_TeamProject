@@ -129,7 +129,8 @@ CGameObject* CFoliageObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice
 				pGameObject->SetMesh(pMesh);
 				pMesh->SetLodLevel(LODLEVEL::LOD_LEVEL2);
 			}
-			else {
+			else 
+			{
 				//ºôº¸µå
 				//CBillboardObject* pBillboardObject = new CGrassFoliageBillboardObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 				//pGameObject->SetChild(pBillboardObject, true);

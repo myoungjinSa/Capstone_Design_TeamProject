@@ -5,8 +5,11 @@
 #include "../GameObject/Foliage/Foliage.h"
 #include "../Material/Material.h"
 
-volatile size_t g_TotalSize = 30062795 + 88336 + 74552;
+//volatile size_t g_TotalSize = 30062795 + 88336 + 74552;
+volatile size_t g_TotalSize = 0;
 volatile size_t g_FileSize = 0;
+extern volatile bool g_IsloadingStart = false;
+
 CResourceManager::CResourceManager()
 {
 }
@@ -18,6 +21,8 @@ CResourceManager::~CResourceManager()
 void CResourceManager::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
 	PrepareLoad();
+	g_IsloadingStart = true;
+
 	LoadTexture(pd3dDevice, pd3dCommandList);
 	LoadModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	LoadMapObjectInfo(pd3dDevice, pd3dCommandList);
@@ -66,7 +71,6 @@ void CResourceManager::PrepareLoad()
 
 	//m_TextureInfoMap.emplace("UseTimer_Effect", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Effect/airflow_01.dds", 25));
 
-	size_t total = 0;
 	for (auto iter = m_TextureInfoMap.begin(); iter != m_TextureInfoMap.end(); ++iter)
 	{
 		wifstream in((*iter).second.m_Filename, ios::binary);
@@ -80,6 +84,8 @@ void CResourceManager::PrepareLoad()
 		(*iter).second.m_FileSize = in.tellg();
 		in.seekg(0, ios::beg);
 		in.close();
+
+		g_TotalSize += (*iter).second.m_FileSize;
 	}
 
 	// 15
@@ -105,13 +111,10 @@ void CResourceManager::PrepareLoad()
 	// 2
 	m_ModelInfoMap.emplace("SM_Deer", ModelInfo("../Resource/Models/SM_Deer.bin", false));
 	// 2
-	//m_ModelInfoMap.emplace("PondSquare", ModelInfo("../Resource/Models/Frozen_Road.bin", false));
 	m_ModelInfoMap.emplace("Frozen_Road", ModelInfo("../Resource/Models/Frozen_Road.bin", false));
 	// 0
-	//m_ModelInfoMap.emplace("LowPoly_-_Fence_A", ModelInfo("../Resource/Models/LowPolyFence_01.bin", false));
 	m_ModelInfoMap.emplace("LowPolyFence_01", ModelInfo("../Resource/Models/LowPolyFence_01.bin", false));
 	// 0
-	//m_ModelInfoMap.emplace("LowPoly_-_Fence_B", ModelInfo("../Resource/Models/LowPolyFence_02.bin", false));
 	m_ModelInfoMap.emplace("LowPolyFence_02", ModelInfo("../Resource/Models/LowPolyFence_02.bin", false));
 
 	m_ModelInfoMap.emplace("Hammer", ModelInfo("../Resource/Models/Hammer.bin", false));
@@ -126,30 +129,24 @@ void CResourceManager::PrepareLoad()
 	//Effect 1
 	//m_ModelInfoMap.emplace("wind", ModelInfo("../Resource/Models/wind.bin", false));
 
-}
+	for (auto iter = m_ModelInfoMap.begin(); iter != m_ModelInfoMap.end(); ++iter)
+	{
+		wifstream in((*iter).second.m_Filename, ios::binary);
+		if (!in)
+		{
+			cout << (*iter).first << " - 파일 없음" << endl;
+			break;
+		}
 
-//void CResourceManager::CreateOffScreenRenderTargeViews(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList,int clientWidth,int clientHeight)
-//{
-//	CTexture *pTextureForCartoonProcessing = new CTexture(m_nCartoonScreenRenderTargetBuffers, RESOURCE_TEXTURE2D_ARRAY, 0);
-//
-//	D3D12_CLEAR_VALUE d3dClearValue = { DXGI_FORMAT_R8G8B8A8_UNORM, { 0.0f, 0.0f, 0.0f, 1.0f } };
-//
-//	for (UINT i = 0; i < m_nCartoonScreenRenderTargetBuffers; i++)
-//	{
-//		m_ppd3dCartoonScreenRenderTargetBuffers[i] = pTextureForCartoonProcessing->CreateTexture(pd3dDevice, pd3dCommandList, clientWidth, clientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, i);
-//		m_ppd3dCartoonScreenRenderTargetBuffers[i]->AddRef();
-//		m_TextureMap.emplace("CartoonRenderTarget" + to_string(i), pTextureForCartoonProcessing);
-//	}
-//
-//	//m_TextureMap.emplace("CartoonRenderTarget"+to_string(i),)
-//
-//
-//}
+		in.seekg(0, ios::end);
+		g_TotalSize += in.tellg();
+		in.seekg(0, ios::beg);
+		in.close();
+	}
+}
 
 void CResourceManager::LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	//CreateOffScreenRenderTargeViews(pd3dDevice,pd3dCommandList,clientWidth,clientHeight); //OffScreen RenderTarget 생성
-
 	for (auto iter = m_TextureInfoMap.begin(); iter != m_TextureInfoMap.end(); ++iter)
 	{
 		CTexture* pTexture = new CTexture(1, (*iter).second.m_ResourceType, 0);
@@ -264,90 +261,6 @@ void CResourceManager::LoadMapObjectInfo(ID3D12Device* pd3dDevice, ID3D12Graphic
 
 		m_RoundInfoMapObjectInfo.emplace(i, objectInfo);
 	}
-	//string filename;
-	//filename = "../Resource/MapObjectInfo/Position/Round1.bin";
-
-	//ifstream in(filename, ios::binary);
-
-	//if (!in)
-	//{
-	//	cout << filename << " - 바이너리 파일 없음" << endl;
-	//	return;
-	//}
-
-	//size_t nReads = 0;
-
-	//// 맵 오브젝트 개수
-	//int nObjects = 0;
-	//in.read(reinterpret_cast<char*>(&nObjects), sizeof(int));
-
-	//for (int i = 0; i < nObjects; ++i)
-	//{
-	//	MapObjectInfo* pMapObjectInfo = new MapObjectInfo;
-	//	// 모델 이름 문자열 길이 저장
-	//	in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-
-	//	// 길이 + 1만큼 자원 할당
-	//	char* p = new char[nReads + 1];
-	//	in.read(p, sizeof(char) * nReads);
-	//	p[nReads] = '\0';
-	//	//  모델 이름 저장
-	//	pMapObjectInfo->m_Name = p;
-	//	delete[] p;
-
-	//	// Position 문자열 길이 저장
-	//	in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-	//	p = new char[nReads + 1];
-	//	in.read(p, sizeof(char)*nReads);
-	//	p[nReads] = '\0';
-	//	delete[] p;
-
-	//	// Position x, y, z값 저장
-	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Position.x), sizeof(float));
-	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Position.y), sizeof(float));
-	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Position.z), sizeof(float));
-
-	//	// Look 문자열 길이 저장
-	//	in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-	//	p = new char[nReads + 1];
-	//	in.read(p, sizeof(char)*nReads);
-	//	p[nReads] = '\0';
-	//	delete[] p;
-
-	//	// <Look> x, y, z값 저장
-	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.x), sizeof(float));
-	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.y), sizeof(float));
-	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Look.z), sizeof(float));
-
-	//	// Up 문자열 길이 저장
-	//	in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-	//	p = new char[nReads + 1];
-	//	in.read(p, sizeof(char)*nReads);
-	//	p[nReads] = '\0';
-	//	delete[] p;
-
-	//	// <Up> x, y, z값 저장
-	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Up.x), sizeof(float));
-	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Up.y), sizeof(float));
-	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Up.z), sizeof(float));
-
-	//	// Right 문자열 길이 저장
-	//	in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-	//	p = new char[nReads + 1];
-	//	in.read(p, sizeof(char)*nReads);
-	//	p[nReads] = '\0';
-	//	delete[] p;
-
-	//	// <Right> x, y, z값 저장
-	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Right.x), sizeof(float));
-	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Right.y), sizeof(float));
-	//	in.read(reinterpret_cast<char*>(&pMapObjectInfo->m_Right.z), sizeof(float));
-
-	//	pMapObjectInfo->m_Position.y = 0.f;
-
-	//	m_MapObjectInfoMultiMap.emplace(pMapObjectInfo->m_Name, pMapObjectInfo);
-	//}
-	//in.close();
 }
 
 void CResourceManager::LoadBound(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)

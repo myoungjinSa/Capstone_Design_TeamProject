@@ -36,6 +36,7 @@ byte g_PlayerCharacter = CGameObject::BROWN;
 
 extern volatile size_t g_TotalSize;
 extern volatile size_t g_FileSize;
+extern volatile bool g_IsloadingStart;
 
 unsigned char g_Round = 0;
 
@@ -975,8 +976,6 @@ bool CGameFramework::BuildObjects()
 	// 윈도우 창 띄우기
 	m_nState = LOADING;
 	loadingThread.emplace_back(thread{ &CGameFramework::Worker_Thread, this });
-
-
 
 #ifdef _WITH_SERVER_
 	m_pLoginScene = new CLoginScene;
@@ -2458,6 +2457,9 @@ void CGameFramework::Worker_Thread()
 		m_pdxgiSwapChain->Present(0, 0);
 
 		MoveToNextFrame();
+
+		// 파일 크기 전체 알 때까지는 스레드 기다리기
+		while (g_IsloadingStart == false);
 
 		double totalSize = g_TotalSize;
 		double fileSize = g_FileSize;
