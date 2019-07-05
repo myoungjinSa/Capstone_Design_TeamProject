@@ -17,6 +17,7 @@ using namespace std;
 //using namespace DirectX;
 
 constexpr int MAX_USER = 6;
+constexpr int MAX_ROUND = 2;
 
 struct clientsInfo
 {
@@ -58,6 +59,7 @@ constexpr int SC_FREEZE = 19;
 constexpr int SC_RELEASE_FREEZE = 20;
 constexpr int SC_BOMB_EXPLOSION = 21;
 constexpr int SC_CHANGE_HOST_ID = 22;
+constexpr int SC_GET_ITEM = 23;
 
 
 
@@ -85,6 +87,7 @@ constexpr int CS_FREEZE = 20;
 constexpr int CS_RELEASE_FREEZE = 21;
 constexpr int CS_BOMB_EXPLOSION = 22;
 constexpr int CS_BOMBER_TOUCH = 23;
+constexpr int CS_GET_ITEM = 24;
 
 
 
@@ -219,6 +222,13 @@ struct CS_PACKET_NOT_PLAYER_COLLISION
 	unsigned char playerID;
 };
 
+struct CS_PACKET_GET_ITEM
+{
+	char size;
+	char type;
+	char itemId;
+};
+
 struct CS_PACKET_USE_ITEM
 {
 	char size;
@@ -329,7 +339,11 @@ struct SC_PACKET_ROUND_START
 	char type;
 	char clientCount;
 	char bomberID;
+	char goldTimerCnt;
+	char goldHammerCnt;
+	char hammerCnt;
 	unsigned short startTime;
+	char round;
 };
 
 struct SC_PACKET_PUT_PLAYER
@@ -424,6 +438,15 @@ struct SC_PACKET_CHATTING
 	char message[MAX_CHATTING_LENGTH];
 };
 // 플레이어가 아이템 사용 시
+
+struct SC_PACKET_GET_ITEM
+{
+	char size;
+	char type;
+	char itemId;
+	char id;
+};
+
 struct SC_PACKET_USE_ITEM
 {
 	char size;

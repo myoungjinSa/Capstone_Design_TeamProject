@@ -2031,6 +2031,12 @@ void CGameFramework::ProcessPacket(char *packet)
 		}
 		break;
 	}
+	case SC_GET_ITEM:
+	{
+		SC_PACKET_GET_ITEM *pGI = reinterpret_cast<SC_PACKET_GET_ITEM *>(packet);
+
+		// 어떤플레이어가 어떤 아이템을 획득했는지에 대한 정보가 담겨옴
+	}
 	case SC_USE_ITEM:
 	{
 		pUI = reinterpret_cast<SC_PACKET_USE_ITEM*>(packet);

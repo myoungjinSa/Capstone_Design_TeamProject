@@ -10,6 +10,7 @@
 #include <queue>
 #include <chrono>
 #include <iostream>
+#include <string>
 
 using std::cout;
 using std::mutex;

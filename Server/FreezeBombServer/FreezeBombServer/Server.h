@@ -147,6 +147,7 @@ struct MAPOBJECT
 class Server
 {
 private:
+	int round;
 	mutex gLock;
 	mutex clientsLock[MAX_USER];
 	SOCKET listenSocket;
@@ -167,13 +168,19 @@ private:
 	int bomberID;
 	int freezeCnt;			//얼음 상태인 도망자 수  
 	
+	int goldTimerCnt[MAX_ROUND];
+	int goldHammerCnt[MAX_ROUND];
+	int hammerCnt[MAX_ROUND];
 
 private:
 
 	priority_queue <EVENT_ST> timer_queue;
 	mutex		timer_l;
+	mutex		roundTime_l;
+	mutex		coolTime_l;
 private:
-	vector<MAPOBJECT> objects;
+	vector<MAPOBJECT> objects[MAX_ROUND];
+	vector<MAPOBJECT> items[MAX_ROUND];
 	MAPOBJECT recent_objects;		//최근에 부딪힌 오브젝트;
 	XMFLOAT3 recent_pos;
 	XMFLOAT3 player_pos;
@@ -216,6 +223,7 @@ public:
 	void SendBombExplosion(char toClient, char fromClient);
 	void SendChangeBomber(char toClient, char bomberId,char runnerId);
 	void SendChangeHostID(char toClient, char hostID);
+	void SendGetItem(char toClient, char fromClient, char itemId);
 public:
 	void SetAnimationState(char client,char animationNum);
 	void SetVelocityZero(char client);
