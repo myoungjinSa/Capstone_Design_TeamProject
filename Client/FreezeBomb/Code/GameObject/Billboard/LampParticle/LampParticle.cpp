@@ -86,7 +86,7 @@ void CLampParticle::ReleaseShaderVariables()
 	}
 }
 
-void CLampParticle::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World)
+void CLampParticle::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	if (m_pd3dcbWorld)
 	{

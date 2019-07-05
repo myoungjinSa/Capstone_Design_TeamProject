@@ -91,7 +91,7 @@ void CThunderBillboard::ReleaseShaderVariables()
 		m_pd3dcbAnimationClip->Release();
 	}
 }
-void CThunderBillboard::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World)
+void CThunderBillboard::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	if (m_pd3dcbWorld)
 	{

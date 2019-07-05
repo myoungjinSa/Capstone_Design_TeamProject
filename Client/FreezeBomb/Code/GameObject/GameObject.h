@@ -326,6 +326,9 @@ public:
 	void Tagger_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int matID, bool HasGoldTimer, int nPipelineState);
 	void RunAway_Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int matID, bool isICE, bool HasHammer, bool HasGoldHammer,bool isLightEffect ,int nPipelineState);
 
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) {}
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList) {}
+	virtual void ReleaseShaderVariables() {}
 	virtual void ReleaseUploadBuffers();
 
 	XMFLOAT3 GetPosition();
