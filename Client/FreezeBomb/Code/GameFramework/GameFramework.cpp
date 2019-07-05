@@ -406,7 +406,6 @@ void CGameFramework::CreateDirect2DDevice()
 	IWICBitmapFrameDecode *pwicFrameDecode;
 	pwicBitmapDecoder->GetFrame(0, &pwicFrameDecode);	//GetFrame() : Retrieves the specified frame of the image.
 
-
 	//CreateFormatConverter::Creates a new instance of the IWICFormatConverter class.
 	m_pwicImagingFactory->CreateFormatConverter(&m_pwicFormatConverter);
 
@@ -422,11 +421,22 @@ void CGameFramework::CreateDirect2DDevice()
 	//   WICBitmapPaletteTypeCustom -> An arbitrary custom palette provided by caller.
 	m_pwicFormatConverter->Initialize(pwicFrameDecode, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 0.0f, WICBitmapPaletteTypeCustom);
 
+	hResult = m_pd2dDeviceContext->CreateBitmapFromWicBitmap(m_pwicFormatConverter, &m_ScoreBoardBitmap);
+
 	//D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE : The IWICBitmapSource containing loaded. The type is IWICBitmapSource.
 	m_pd2dfxBitmapSource->SetValue(D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE, m_pwicFormatConverter);
 
-	D2D1_VECTOR_2F	vec{ 1.1f,1.6f };
+	D2D1_VECTOR_2F	 vec{ 1.f, 1.f };
 	m_pd2dfxBitmapSource->SetValue(D2D1_BITMAPSOURCE_PROP_SCALE, vec);
+
+	// 스코어 보드 이미지 위치
+	RECT r;
+	GetClientRect(m_hWnd, &r);
+	r.left = r.right / 5;
+	r.top = r.bottom / 5;
+	r.right = r.right * 4 / 5;
+	r.bottom = r.bottom * 4 / 5;
+	m_ScoreBoardPos = D2D1::RectF(r.left, r.top, r.right, r.bottom);
 
 	//ScoreBoard
 	if (pwicBitmapDecoder)
@@ -493,7 +503,6 @@ void CGameFramework::CreateDirect2DRenderTargetViews()
 
 	for (UINT i = 0; i < m_nSwapChainBuffers; i++)
 	{
-		
 		D3D11_RESOURCE_FLAGS d3d11Flags = { D3D11_BIND_RENDER_TARGET };
 		//CreateWrappedResource-> 이 함수는 D3D11On12 에서 사용가능한  D3D11 리소스들을 만들어준다.
 		m_pd3d11On12Device->CreateWrappedResource(m_ppd3dSwapChainBackBuffers[i], &d3d11Flags, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, __uuidof(ID3D11Resource), (void**)&m_ppd3d11WrappedBackBuffers[i]);
@@ -917,6 +926,8 @@ void CGameFramework::OnDestroy()
 	if (m_pd2dsbDrawingState) m_pd2dsbDrawingState->Release();
 	if (m_pwicFormatConverter) m_pwicFormatConverter->Release();
 	if (m_pwicImagingFactory) m_pwicImagingFactory->Release();
+	if (m_ScoreBoardBitmap)
+		m_ScoreBoardBitmap->Release();
 
 #endif
 	if (m_pd3dDepthStencilBuffer) m_pd3dDepthStencilBuffer->Release();
@@ -1337,10 +1348,12 @@ void CGameFramework::SetNamecard()
 
 void CGameFramework::ShowScoreboard()
 {
-	D2D1_RECT_F rcText{ 0,0,0,0 };
+	//D2D1_RECT_F rcText{ 0,0,0,0 };
 	if (m_pd2dfxBitmapSource && GetAsyncKeyState(VK_TAB) & 0x8000)
 	{
-		m_pd2dDeviceContext->DrawImage(m_pd2dfxBitmapSource);
+		// 스코어 보드 위치
+		m_pd2dDeviceContext->DrawBitmap(m_ScoreBoardBitmap, &m_ScoreBoardPos);
+
 		D2D1_RECT_F rcText = D2D1::RectF(0, 0, 240.f, 360.f);
 
 		// 이름

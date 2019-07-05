@@ -171,7 +171,6 @@ private:
 	ID2D1Device2					*m_pd2dDevice{ nullptr };//
 	ID2D1DeviceContext2				*m_pd2dDeviceContext{ nullptr };//
 
-
 	ID3D11Resource					*m_ppd3d11WrappedBackBuffers[m_nSwapChainBuffers];//
 	ID2D1Bitmap1					*m_ppd2dRenderTargets[m_nSwapChainBuffers];//
 
@@ -195,7 +194,9 @@ private:
 	ID2D1DrawingStateBlock1			*m_pd2dsbDrawingState{ nullptr };
 	IWICFormatConverter				*m_pwicFormatConverter{ nullptr };
 
-	
+	ID2D1Bitmap* m_ScoreBoardBitmap = nullptr;
+	D2D1_RECT_F m_ScoreBoardPos;
+
 	//한글인지 영어 인지
 	bool m_bHangeul{ false };
 #endif
