@@ -2,6 +2,8 @@
 #include "StandardShader.h"
 #include "../../GameObject/GameObject.h"
 
+
+extern unsigned char g_Round;
 CStandardShader::CStandardShader()
 {
 }
@@ -17,9 +19,11 @@ CStandardShader::~CStandardShader()
 	}
 }
 
+
+
 void CStandardShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
-	m_nPipelineStates = 2;
+	m_nPipelineStates = 3;
 	m_ppd3dPipelineStates = new ID3D12PipelineState*[m_nPipelineStates];
 
 
@@ -55,10 +59,14 @@ D3D12_SHADER_BYTECODE CStandardShader::CreateVertexShader(int nPipelineState)
 	switch (nPipelineState)
 	{
 	case GameObject:
+
 		return(CStandardShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSStandard", "vs_5_1", &m_pd3dVertexShaderBlob));
 		break;
 	case GameObject_Shadow:
 		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSShadow", "vs_5_1", &m_pd3dVertexShaderBlob));
+		break;
+	case No_FogObject:
+		return(CStandardShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSStandard", "vs_5_1", &m_pd3dVertexShaderBlob));
 		break;
 	}
 }
@@ -68,10 +76,13 @@ D3D12_SHADER_BYTECODE CStandardShader::CreatePixelShader(int nPipelineState)
 	switch (nPipelineState)
 	{
 	case GameObject:
-		return(CStandardShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSStandard", "ps_5_1", &m_pd3dPixelShaderBlob));
+		return(CStandardShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSFogStandard", "ps_5_1", &m_pd3dPixelShaderBlob));
 		break;
 	case GameObject_Shadow:
 		return(CStandardShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSShadow", "ps_5_1", &m_pd3dPixelShaderBlob));
+		break;
+	case No_FogObject:
+		return(CStandardShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSStandard", "ps_5_1", &m_pd3dPixelShaderBlob));
 		break;
 	}
 }
@@ -114,6 +125,23 @@ D3D12_BLEND_DESC CStandardShader::CreateBlendState(int nPipelineState)
 		//d3dBlendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_CLEAR;
 		d3dBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 		break;
+	case No_FogObject:
+		d3dBlendDesc.AlphaToCoverageEnable = false;
+		d3dBlendDesc.IndependentBlendEnable = false;
+		d3dBlendDesc.RenderTarget[0].BlendEnable = false;
+		d3dBlendDesc.RenderTarget[0].LogicOpEnable = false;
+		d3dBlendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_ONE;
+		d3dBlendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ZERO;
+		d3dBlendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+		d3dBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+		d3dBlendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+		d3dBlendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		d3dBlendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+		d3dBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+		break;
+
+
+
 	}
 
 	return(d3dBlendDesc);
@@ -169,6 +197,23 @@ D3D12_DEPTH_STENCIL_DESC CStandardShader::CreateDepthStencilState(int nPipelineS
 		d3dDepthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_EQUAL;
 		//d3dDepthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 		break;
+	case No_FogObject:
+		d3dDepthStencilDesc.DepthEnable = TRUE;
+		//d3dDepthStencilDesc.DepthEnable = false;
+		d3dDepthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+		d3dDepthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+		d3dDepthStencilDesc.StencilEnable = FALSE;
+		d3dDepthStencilDesc.StencilReadMask = 0x00;
+		d3dDepthStencilDesc.StencilWriteMask = 0x00;
+		d3dDepthStencilDesc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+		d3dDepthStencilDesc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+		d3dDepthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+		d3dDepthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
+		d3dDepthStencilDesc.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+		d3dDepthStencilDesc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+		d3dDepthStencilDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+		d3dDepthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
+		break;
 	}
 
 	return(d3dDepthStencilDesc);
@@ -212,8 +257,10 @@ D3D12_INPUT_LAYOUT_DESC CStandardShader::CreateInputLayout()
 
 void CStandardShader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState)
 {
+
 	if (m_ppd3dPipelineStates)
 	{
+		nPipelineState = MappingStageToPiplineStates(g_Round);
 		if(m_ppd3dPipelineStates[nPipelineState])
 			pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[nPipelineState]);
 	}
@@ -240,4 +287,25 @@ void CStandardShader::ReleaseUploadBuffers()
 	for (int i = 0; i < m_nObjects; ++i)
 		if (m_ppObjects[i])
 			m_ppObjects[i]->ReleaseUploadBuffers();
+}
+
+int CStandardShader::MappingStageToPiplineStates(int stage)
+{
+	enum STAGE {ROUND_1,ROUND_2,ROUND_3};
+	int ret = GameObject;
+	switch(stage)
+	{
+	case ROUND_1:
+		ret = GameObject;
+		break;
+	case ROUND_2:
+		ret = No_FogObject;
+		break;
+	case ROUND_3:
+		ret = GameObject;
+		break;
+
+	}
+
+	return ret;
 }

@@ -109,7 +109,7 @@ VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
 	return(output);
 }
 
-float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
+float4 PSFogSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtSkyCubeTexture.Sample(gssClamp, input.positionL);
 
@@ -119,6 +119,13 @@ float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 	return (lerp(cFog,cColor,0.3f));
 	//return (cColor);
 	
+}
+
+float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
+{
+	float4 cColor = gtxtSkyCubeTexture.Sample(gssClamp,input.positionL);
+
+	return (cColor);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Texture2D gtxtTerrainBaseTexture : register(t4);
@@ -158,7 +165,7 @@ VS_TERRAIN_OUTPUT VSTerrain(VS_TERRAIN_INPUT input)
 	return(output);
 }
 
-float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
+float4 PSFogTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 {
 	float4 cBaseTexColor = gtxtTerrainBaseTexture.Sample(gssWrap, input.uv0);
 	float4 cDetailTexColor = gtxtTerrainDetailTexture.Sample(gssWrap, input.uv1);
@@ -166,6 +173,16 @@ float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 	
 	float4 cFog = Fog(cBaseTexColor, input.positionW);
 	return (lerp(cFog,cBaseTexColor,0.7f));
+}
+
+float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
+{
+	float4 cBaseTexColor = gtxtTerrainBaseTexture.Sample(gssWrap, input.uv0);
+	float4 cDetailTexColor = gtxtTerrainDetailTexture.Sample(gssWrap, input.uv1);
+	float4 cColor = input.color * saturate((cBaseTexColor * 0.5f) + (cDetailTexColor * 0.5f));
+	
+
+	return (cBaseTexColor);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //#define _WITH_VERTEX_LIGHTING
@@ -218,7 +235,7 @@ VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
 	return(output);
 }
 
-float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
+float4 PSFogStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 {
 	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
@@ -258,6 +275,43 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 
 	//cColor = float4(1, 1, 1, 1);
 	//return cColor;
+}
+
+float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
+{
+	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
+
+	if (cAlbedoColor.a < 0.3f) discard;
+
+	float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_SPECULAR_MAP) cSpecularColor = gtxtSpecularTexture.Sample(gssWrap, input.uv);
+
+	float4 cNormalColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_NORMAL_MAP) cNormalColor = gtxtNormalTexture.Sample(gssWrap, input.uv);
+
+	float4 cMetallicColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_METALLIC_MAP) cMetallicColor = gtxtMetallicTexture.Sample(gssWrap, input.uv);
+
+	float4 cEmissionColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uv);
+
+	float3 normalW;
+	float4 cColor = cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor;
+	if (gnTexturesMask & MATERIAL_NORMAL_MAP)
+	{
+		float3x3 TBN = float3x3(normalize(input.tangentW), normalize(input.bitangentW), normalize(input.normalW));
+		float3 vNormal = normalize(cNormalColor.rgb * 2.0f - 1.0f); //[0, 1] ¡æ [-1, 1]
+		normalW = normalize(mul(vNormal, TBN));
+	}
+	else
+	{
+		normalW = normalize(input.normalW);
+	}
+	float4 cIllumination = Lighting(input.positionW, normalW);
+
+	return(lerp(cColor, cIllumination, 0.3f));
+
 }
 
 float4 PSEffectStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
@@ -341,6 +395,40 @@ struct InstanceData
 //	return(output);
 //}
 //
+
+float4 PSFogFoliage(VS_STANDARD_OUTPUT input) : SV_TARGET
+{
+	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
+	float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_SPECULAR_MAP) cSpecularColor = gtxtSpecularTexture.Sample(gssWrap, input.uv);
+	float4 cNormalColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_NORMAL_MAP) cNormalColor = gtxtNormalTexture.Sample(gssWrap, input.uv);
+	float4 cMetallicColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_METALLIC_MAP) cMetallicColor = gtxtMetallicTexture.Sample(gssWrap, input.uv);
+	float4 cEmissionColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uv);
+
+	float3 normalW;
+
+	cSpecularColor = cSpecularColor + float4(0.1f, 0.3f, 0.1f, 1.0f);
+	cEmissionColor = cEmissionColor + float4(0.05f, 0.6f, 0.1f, 1.0f);
+	float4 cColor = cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor;
+	if (gnTexturesMask & MATERIAL_NORMAL_MAP)
+	{
+		float3x3 TBN = float3x3(normalize(input.tangentW), normalize(input.bitangentW), normalize(input.normalW));
+		float3 vNormal = normalize(cNormalColor.rgb * 2.0f - 1.0f); //[0, 1] ¡æ [-1, 1]
+		normalW = normalize(mul(vNormal, TBN));
+	}
+	else
+	{
+		normalW = normalize(input.normalW);
+	}
+	float4 cIllumination = Lighting(input.positionW, normalW);
+	float4 cFog = Fog(cColor, input.positionW);
+
+	return(lerp(cFog, cIllumination, 0.35f));
+}
 
 float4 PSFoliage(VS_STANDARD_OUTPUT input) : SV_TARGET
 {

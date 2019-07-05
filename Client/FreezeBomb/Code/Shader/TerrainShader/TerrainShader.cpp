@@ -5,6 +5,7 @@
 #include "../../Texture/Texture.h"
 #include "../../Scene/Scene.h"
 
+extern unsigned char g_Round;
 CTerrainShader::CTerrainShader()
 {
 }
@@ -13,14 +14,60 @@ CTerrainShader::~CTerrainShader()
 {
 }
 
+void CTerrainShader::CreateShader(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList,ID3D12RootSignature *pd3dGraphicsRootSignature)
+{
+	m_nPipelineStates = 2;
+	m_ppd3dPipelineStates = new ID3D12PipelineState*[m_nPipelineStates];
+
+	for(int i=0; i <m_nPipelineStates;++i)
+	{
+		::ZeroMemory(&m_d3dPipelineStateDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+		m_d3dPipelineStateDesc.pRootSignature = pd3dGraphicsRootSignature;
+		m_d3dPipelineStateDesc.VS = CreateVertexShader();
+		m_d3dPipelineStateDesc.PS = CreatePixelShader(i);
+		m_d3dPipelineStateDesc.RasterizerState = CreateRasterizerState();
+		m_d3dPipelineStateDesc.BlendState = CreateBlendState();
+		m_d3dPipelineStateDesc.DepthStencilState = CreateDepthStencilState();
+		m_d3dPipelineStateDesc.InputLayout = CreateInputLayout();
+		m_d3dPipelineStateDesc.SampleMask = UINT_MAX;
+		m_d3dPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		m_d3dPipelineStateDesc.NumRenderTargets = 1;
+		m_d3dPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		m_d3dPipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		m_d3dPipelineStateDesc.SampleDesc.Count = 1;
+		m_d3dPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+
+		HRESULT hResult = pd3dDevice->CreateGraphicsPipelineState(&m_d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void**)&m_ppd3dPipelineStates[i]);	
+	}
+
+	if (m_pd3dVertexShaderBlob) m_pd3dVertexShaderBlob->Release();
+	if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
+
+	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
+}
+
 D3D12_SHADER_BYTECODE CTerrainShader::CreateVertexShader()
 {
 	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSTerrain", "vs_5_1", &m_pd3dVertexShaderBlob));
 }
 
-D3D12_SHADER_BYTECODE CTerrainShader::CreatePixelShader()
+D3D12_SHADER_BYTECODE CTerrainShader::CreatePixelShader(int shaderVersion)
 {
-	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSTerrain", "ps_5_1", &m_pd3dPixelShaderBlob));
+	D3D12_SHADER_BYTECODE p;
+	switch(shaderVersion)
+	{
+	case SHADER_TYPE::FOG:
+	{
+		p = CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSFogTerrain", "ps_5_1", &m_pd3dPixelShaderBlob);
+		break;
+	}
+	case SHADER_TYPE::NO_FOG:
+	{
+		p = CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSTerrain", "ps_5_1", &m_pd3dPixelShaderBlob);
+		break;
+	}		
+	}
+	return p;
 }
 
 D3D12_DEPTH_STENCIL_DESC CTerrainShader::CreateDepthStencilState()
@@ -103,9 +150,33 @@ void CTerrainShader::ReleaseUploadBuffers()
 		m_pTerrain->ReleaseUploadBuffers();
 }
 
+int CTerrainShader::MappingStageToPipelineState(int stage)
+{
+	enum ROUND {ROUND_1,ROUND_2,ROUND_3};
+	int ret = GameObject;
+	switch(stage)
+	{
+	case ROUND_1:
+		ret = FOG;
+		break;
+	case ROUND_2:
+		ret = NO_FOG;
+		break;
+	case ROUND_3:
+		ret = FOG;
+		break;
+	}
+
+	return ret;
+}
 void CTerrainShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
-	CShader::Render(pd3dCommandList, pCamera, nPipelineState);
+	//CShader::Render(pd3dCommandList, pCamera, nPipelineState);
+	nPipelineState = MappingStageToPipelineState(g_Round);
+	if (m_ppd3dPipelineStates[nPipelineState])
+		pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[nPipelineState]);
+
+
 
 	UpdateShaderVariables(pd3dCommandList);
 
