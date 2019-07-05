@@ -33,7 +33,6 @@ void CFoliageObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lod
 					m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
 				}
 
-				//((CLODMesh*)m_pMesh)->CLODMesh::Render(pd3dCommandList, i, lodlevel);
 				m_pMesh->Render(pd3dCommandList, i, lodlevel);
 			}
 		}
