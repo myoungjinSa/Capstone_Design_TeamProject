@@ -32,8 +32,8 @@ void CFoliageObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT lod
 						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
 					m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
 				}
-				//if (m_pMesh->GetLodLevel() == lodlevel) 
-					//((CLODMesh*)m_pMesh)->CLODMesh::Render(pd3dCommandList, i, lodlevel);
+
+				//((CLODMesh*)m_pMesh)->CLODMesh::Render(pd3dCommandList, i, lodlevel);
 				m_pMesh->Render(pd3dCommandList, i, lodlevel);
 			}
 		}
