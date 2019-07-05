@@ -24,6 +24,8 @@ public:
 	virtual void ReleaseObjects();
 	virtual void ReleaseUploadBuffers();
 
+	//스테이지에 따라 다른 Pipeline이 필요하기 때문에 Stage와 PSO를 매핑 해야한다.
+	int MappingStageToPiplineStates(int stage);
 protected:
 
 	ID3D12PipelineState**				m_ppd3dPipelineStates{ nullptr };

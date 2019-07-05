@@ -10,8 +10,9 @@ public:
 	CTerrainShader();
 	virtual ~CTerrainShader();
 
+	virtual void CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(int shaderVersion);
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
 
@@ -27,6 +28,7 @@ public:
 
 	CTerrain* getTerrain()	const { return m_pTerrain; }
 
+	int MappingStageToPipelineState(int stage);
 private:
 	struct CB_World
 	{
@@ -37,4 +39,6 @@ private:
 	ID3D12Resource*		m_pd3dcbWorld{ nullptr };
 	CB_World*				m_pcbMappedWorld{ nullptr };
 
+	ID3D12PipelineState**				m_ppd3dPipelineStates{ nullptr };
+	int												m_nPipelineStates = 0;
 };

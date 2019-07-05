@@ -88,7 +88,7 @@ extern HINSTANCE						ghAppInstance;
 #define FRAME_BUFFER_HEIGHT		800
 
 enum PIPELINESTATE_TYPE { GameObject, GameObject_Shadow };
-
+enum PIXELSHADER_TYPE{No_FogObject = 2 };
 
 //#define _WITH_CB_GAMEOBJECT_32BIT_CONSTANTS
 //#define _WITH_CB_GAMEOBJECT_ROOT_DESCRIPTOR

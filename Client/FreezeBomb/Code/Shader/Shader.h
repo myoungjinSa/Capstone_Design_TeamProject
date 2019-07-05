@@ -49,6 +49,8 @@ public:
 	float Random();
 	XMFLOAT3 RandomPositionInSphere(XMFLOAT3 xmf3Center, float fRadius, int nColumn, int nColumnSpace);
 
+	enum SHADER_TYPE {FOG=0,NO_FOG};
+
 protected:
 	float								m_fElapsedTime = 0.0f;
 
@@ -58,6 +60,7 @@ protected:
 	ID3D12PipelineState*	m_pd3dPipelineState = NULL;
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC	m_d3dPipelineStateDesc;
+
 
 public:
 	CGameObject**			m_ppObjects = 0;

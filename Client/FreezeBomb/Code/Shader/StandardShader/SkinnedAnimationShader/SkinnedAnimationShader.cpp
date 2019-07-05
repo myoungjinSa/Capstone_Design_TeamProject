@@ -11,7 +11,7 @@ CSkinnedAnimationShader::~CSkinnedAnimationShader()
 
 void CSkinnedAnimationShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
-	m_nPipelineStates = 2;
+	m_nPipelineStates = 3;
 	m_ppd3dPipelineStates = new ID3D12PipelineState*[m_nPipelineStates];
 
 	for (int i = 0; i < m_nPipelineStates; ++i)
@@ -46,11 +46,13 @@ D3D12_SHADER_BYTECODE CSkinnedAnimationShader::CreateVertexShader(int nPipelineS
 	switch (nPipelineState)
 	{
 	case GameObject:
+	case No_FogObject:
 		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSSkinnedAnimationStandard", "vs_5_1", &m_pd3dVertexShaderBlob));
 		break;
 	case GameObject_Shadow:
 		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSAnimationShadow", "vs_5_1", &m_pd3dVertexShaderBlob));
 		break;
+
 	}
 }
 

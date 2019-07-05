@@ -17,7 +17,7 @@ CFoliageShader::~CFoliageShader()
 
 void CFoliageShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
-	m_nPipelineStates = 1;
+	m_nPipelineStates = 3;
 	m_ppd3dPipelineStates = new ID3D12PipelineState*[m_nPipelineStates];
 
 	for (int i = 0; i < m_nPipelineStates; ++i)
@@ -49,7 +49,15 @@ void CFoliageShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 
 D3D12_SHADER_BYTECODE CFoliageShader::CreatePixelShader(int nPipelineState)
 {
-	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSFoliage", "ps_5_1", &m_pd3dPixelShaderBlob));
+	switch(nPipelineState)
+	{
+	case GameObject:
+	case GameObject_Shadow:
+		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSFogFoliage", "ps_5_1", &m_pd3dPixelShaderBlob));
+	case No_FogObject:
+		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "PSFoliage", "ps_5_1", &m_pd3dPixelShaderBlob));
+	}
+	
 }
 
 D3D12_BLEND_DESC CFoliageShader::CreateBlendState()
