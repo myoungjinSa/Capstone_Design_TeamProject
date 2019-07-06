@@ -41,6 +41,9 @@ public:
 #ifdef _WITH_DIRECT2D_
 	void CreateDirect2DRenderTargetViews();
 	void CreateDirect2DDevice();
+	
+	void Initialize_GameFont();
+
 	void SetNamecard();
 	void ShowScoreboard();
 	//HRESULT BindDC();
@@ -111,14 +114,13 @@ private:
 	UINT							m_nSwapChainBufferIndex;
 
 	ID3D12Resource*							m_ppd3dSwapChainBackBuffers[m_nSwapChainBuffers];
-	ID3D12DescriptorHeap*					m_pd3dRtvDescriptorHeap = nullptr;
-	UINT									m_nRtvDescriptorIncrementSize;
+	ID3D12DescriptorHeap*				m_pd3dRtvDescriptorHeap = nullptr;
+	UINT												m_nRtvDescriptorIncrementSize;
 	D3D12_CPU_DESCRIPTOR_HANDLE				m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBuffers];
 
 	ID3D12Resource*								m_pd3dDepthStencilBuffer = nullptr;
 	ID3D12DescriptorHeap*					m_pd3dDsvDescriptorHeap = nullptr;
 	UINT													m_nDsvDescriptorIncrementSize;
-
 
 	ID3D12CommandAllocator*					m_pd3dCommandAllocator = nullptr;
 	ID3D12CommandQueue*						m_pd3dCommandQueue = nullptr;
@@ -167,14 +169,19 @@ private:
 	ID3D11Resource				*m_ppd3d11WrappedBackBuffers[m_nSwapChainBuffers];
 	ID2D1Bitmap1					*m_ppd2dRenderTargets[m_nSwapChainBuffers];
 	
+	enum FONT_TYPE { PIOP_FONT, GOTHIC_FONT };
+
+	const int								m_FontNum = 2;
 	// 폰트 객체
-	IDWriteTextFormat*				m_pFont{ nullptr };
-	// 폰트 색상
-	ID2D1SolidColorBrush**		m_ppFontColor{ nullptr };
+	IDWriteTextFormat**			m_ppFont{ nullptr };
+
+	IDWriteTextLayout**				m_ppTextLayout{ nullptr };
+
 	// 폰트 색상 개수
 	enum COLOR_TYPE { PINK, BROWN, WHITE, BLACK, SKYBLUE, PANDA, RED, ORANGE };
 	const int								m_FontColorNum = 8;
-	IDWriteTextLayout*				m_pTextLayout{ nullptr };
+	// 폰트 색상
+	ID2D1SolidColorBrush**		m_ppFontColor{ nullptr };
 	
 	IWICImagingFactory				*m_pwicImagingFactory{ nullptr };
 	ID2D1Effect							*m_pd2dfxBitmapSource{ nullptr };

@@ -39,7 +39,7 @@ protected:
 public:
 	ChattingSystem();
 	virtual ~ChattingSystem();
-	void Initialize(IDWriteFactory*, ID2D1DeviceContext2*, IWICImagingFactory*, ID2D1SolidColorBrush*);
+	void Initialize(IDWriteTextFormat*, IDWriteTextLayout*, ID2D1SolidColorBrush*, IWICImagingFactory*, ID2D1DeviceContext2*);
 	void ProcessChatting(HWND hWnd,WPARAM wParam,LPARAM lParam,bool isIngame);
 	void PushChattingText(const string& user,const char* chat);
 	void ProcessSpecialCharacter(WPARAM wParam);
