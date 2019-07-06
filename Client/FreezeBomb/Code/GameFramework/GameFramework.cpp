@@ -32,7 +32,7 @@
 bool g_OnCartoonShading = false;
 bool g_IsSoundOn = true;
 
-byte g_PlayerCharacter = CGameObject::BROWN;
+byte g_PlayerCharacter = CGameObject::PINK;
 
 extern volatile size_t g_TotalSize;
 extern volatile size_t g_FileSize;
@@ -46,7 +46,6 @@ volatile HWND g_hWnd;
 #endif
 
 CGameFramework::CGameFramework()
-	:m_GameStage{ 0 }
 {
 	m_pdxgiFactory = NULL;
 	m_pdxgiSwapChain = NULL;
@@ -94,18 +93,13 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CreateDirect3DDevice();
 	CreateCommandQueueAndList();
 	CreateLoadingCommandList();
-//#ifdef _WITH_SERVER_
-//	CreateLoginCommandList();
-//	
-//#endif 
+
 #ifdef _WITH_DIRECT2D_
 	CreateDirect2DDevice();
 #endif
 	CreateRtvAndDsvDescriptorHeaps();
 	CreateSwapChain();
 	CreateDepthStencilView();
-	
-	//CoInitialize(NULL);
 
 	if (BuildObjects() == false)
 		return false;
@@ -343,59 +337,41 @@ void CGameFramework::CreateDirect2DDevice()
 	hResult = ::DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), (IUnknown **)&m_pdWriteFactory);
 
 	if (pdxgiDevice)
-	{
 		pdxgiDevice->Release();
-	}
 
 	m_pd2dDeviceContext->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
 
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(0.3f, 0.0f, 0.0f, 0.5f), &m_pd2dbrBackground);
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF(0x9ACD32, 1.0f)), &m_pd2dbrBorder);
-
-	m_pdwFont = new IDWriteTextFormat*[m_nNameFont];
-	m_pd2dbrText = new ID2D1SolidColorBrush*[m_nNameFont];
+	// 폰트 로드
 	wstring fontPath = L"../Resource/Font/a피오피동글.ttf";
 	AddFontResourceEx(fontPath.c_str(), FR_PRIVATE, 0);
-	for (int i = 0; i < m_nNameFont; ++i)
-	{	
-		hResult = m_pdWriteFactory->CreateTextFormat(L"a피오피동글", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 30.0f, L"en-US", &m_pdwFont[i]);
-		hResult = m_pdwFont[i]->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-		hResult = m_pdwFont[i]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-		hResult = m_pdWriteFactory->CreateTextLayout(L"텍스트 레이아웃", 8, m_pdwFont[i], 1024.0f, 1024.0f, &m_pdwTextLayout);
-	}
 
-
-
+	float fontSize = 25.f;
+	// 폰트 객체 생성
+	hResult = m_pdWriteFactory->CreateTextFormat(L"a피오피동글", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fontSize, L"en-US", &m_pFont);
+	// 폰트를 중앙에 정렬시키기
+	hResult = m_pFont->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+	hResult = m_pFont->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+	wstring wstr = L"TextLayout Initialize";
+	hResult = m_pdWriteFactory->CreateTextLayout(wstr.c_str(),  wstr.length(), m_pFont, 1024.0f, 1024.0f, &m_pTextLayout);
+	
+	m_ppFontColor = new ID2D1SolidColorBrush*[m_FontColorNum];
 	int index = 0;
-	//m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightBlue, 1.0f), &m_pd2dbrText[index++]);
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black, 1.0f), &m_pd2dbrText[index++]);
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Red, 1.0f), &m_pd2dbrText[index++]);
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrText[index++]);
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightGreen, 1.0f), &m_pd2dbrText[index++]);
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightCoral, 1.0f), &m_pd2dbrText[index++]);
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LavenderBlush, 1.0f), &m_pd2dbrText[index++]);
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Magenta, 1.0f), &m_pd2dbrText[index++]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Pink, 1.0f), &m_ppFontColor[index++]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Brown, 1.0f), &m_ppFontColor[index++]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White, 1.0f), &m_ppFontColor[index++]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black, 1.0f), &m_ppFontColor[index++]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::SkyBlue, 1.0f), &m_ppFontColor[index++]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LavenderBlush, 1.0f), &m_ppFontColor[index++]);
 
-
-	////////////////////////////////////
-	//Stage Font 생성 
-	//AddFontResourceEx(fontPath.c_str(), FR_PRIVATE, 0);
-	hResult = m_pdWriteFactory->CreateTextFormat(L"a피오피오 동글", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 50.0f, L"en_US", &m_pdwStageInfoFont);
-	hResult = m_pdwStageInfoFont->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-	hResult = m_pdwStageInfoFont->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-	hResult = m_pdWriteFactory->CreateTextLayout(L"텍스트 레이아웃", 8, m_pdwStageInfoFont, 64, 64, &m_pdwStageTextLayout);
-
-
-	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Coral, 1.0f), &m_pd2dbrStageInfoText);
-	////////////////////////////////////
-
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Red, 1.0f), &m_ppFontColor[index++]);
+	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Orange, 1.0f), &m_ppFontColor[index++]);
 
 	//Initializes the COM library on the current thread and identifies the concurrency model as single-thread apartment 
 	CoInitialize(NULL);
 	hResult = CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory), (void**)&m_pwicImagingFactory);
 
 	//채팅 시스템 객체 생성
-	ChattingSystem::GetInstance()->Initialize(m_pdWriteFactory, m_pd2dDeviceContext,m_pwicImagingFactory);
+	ChattingSystem::GetInstance()->Initialize(m_pdWriteFactory, m_pd2dDeviceContext,m_pwicImagingFactory, m_ppFontColor[COLOR_TYPE::BLACK]);
 
 	hResult = m_pd2dFactory->CreateDrawingStateBlock(&m_pd2dsbDrawingState);
 	hResult = m_pd2dDeviceContext->CreateEffect(CLSID_D2D1BitmapSource, &m_pd2dfxBitmapSource);
@@ -475,9 +451,7 @@ void CGameFramework::CreateRenderTargetViews()
 		d3dRtvCPUDescriptorHandle.ptr += m_nRtvDescriptorIncrementSize;
 	}
 #ifdef _WITH_DIRECT2D_
-
-	CreateDirect2DRenderTargetViews();
-	
+	CreateDirect2DRenderTargetViews();	
 #endif
 }
 
@@ -494,7 +468,6 @@ void CGameFramework::CreateDirect2DRenderTargetViews()
 
 	m_pd2dFactory->GetDesktopDpi(&fxDPI, &fyDPI); // 현재 데스크톱에 dots per inch(DPI)를 검색하고 ,각 변수들에 할당해준다.
 	
-	
 	//D2D1_BITMAP_PROPERTIES1	 : 
 	//1. D2D1_BITMAP_OPTIONS     : 비트맵의 용도 옵션.  EX> D2D1_BITMAP_OPTIONS_TARGET : the bitmap can be used as a device context target.
 	//												   EX> D2D1_BITMAP_OPTIONS_CANNOT_DRAW : the bitmap cannot be used an input.
@@ -510,7 +483,6 @@ void CGameFramework::CreateDirect2DRenderTargetViews()
 		IDXGISurface *pdxgiSurface = NULL;
 		m_ppd3d11WrappedBackBuffers[i]->QueryInterface(__uuidof(IDXGISurface), (void**)&pdxgiSurface);
 
-
 		//CreateBitmapFromDxgiSurface() -> DXGI표면에서 대상 표면으로 설정하거나 추가 색상 컨텍스트 정보를 지정할 수 있는 비트맵을 만듭니다. 
 		m_pd2dDeviceContext->CreateBitmapFromDxgiSurface(pdxgiSurface, &d2dBitmapProperties, &m_ppd2dRenderTargets[i]);
 		if (pdxgiSurface)
@@ -519,8 +491,8 @@ void CGameFramework::CreateDirect2DRenderTargetViews()
 		}
 	}
 }
-
 #endif
+
 void CGameFramework::CreateDepthStencilView()
 {
 	D3D12_RESOURCE_DESC d3dResourceDesc;
@@ -708,14 +680,12 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			if (wParam == '0')
 			{
 				g_Round = 0;
-				m_GameStage = g_Round;
 				m_pScene->ChangeRound();
 			}
 
 			else if (wParam == '1')
 			{
 				g_Round = 1;
-				m_GameStage = g_Round;
 				m_pScene->ChangeRound();
 			}
 
@@ -884,26 +854,23 @@ void CGameFramework::OnDestroy()
 
 	::CloseHandle(m_hFenceEvent);
 #ifdef _WITH_DIRECT2D_
+
 	//Direct2D
-	if (m_pd2dbrBackground) m_pd2dbrBackground->Release();
-	if (m_pd2dbrBorder) m_pd2dbrBorder->Release();
+	if (m_pFont)
+		m_pFont->Release();
 
-	if (m_pd2dbrStageInfoText) m_pd2dbrStageInfoText->Release();
-	if (m_pdwStageInfoFont) m_pdwStageInfoFont->Release();
-
-	for (int i = 0; i < m_nNameFont; ++i)
+	for (int i = 0; i < m_FontColorNum; ++i)
 	{
-		if (m_pdwFont[i]) m_pdwFont[i]->Release();
-		if (m_pd2dbrText[i]) m_pd2dbrText[i]->Release();
+		if (m_ppFontColor[i]) 
+			m_ppFontColor[i]->Release();
 	}
-	delete[]m_pdwFont;
-	m_pdwFont = nullptr;
-	delete[]m_pd2dbrText;
-	m_pd2dbrText = nullptr;
+	delete[] m_ppFontColor;
 
+	if (m_pTextLayout) 
+		m_pTextLayout->Release();
 
-	if (m_pdwStageTextLayout) m_pdwStageTextLayout->Release();
-	if (m_pdwTextLayout) m_pdwTextLayout->Release();
+	if (m_ScoreBoardBitmap)
+		m_ScoreBoardBitmap->Release();
 
 	ChattingSystem::GetInstance()->Destroy();
 	ChattingSystem::GetInstance()->DeleteInstance();
@@ -926,8 +893,6 @@ void CGameFramework::OnDestroy()
 	if (m_pd2dsbDrawingState) m_pd2dsbDrawingState->Release();
 	if (m_pwicFormatConverter) m_pwicFormatConverter->Release();
 	if (m_pwicImagingFactory) m_pwicImagingFactory->Release();
-	if (m_ScoreBoardBitmap)
-		m_ScoreBoardBitmap->Release();
 
 #endif
 	if (m_pd3dDepthStencilBuffer) m_pd3dDepthStencilBuffer->Release();
@@ -970,10 +935,8 @@ void CGameFramework::OnDestroy()
 #endif
 }
 
-
 bool CGameFramework::BuildObjects()
 {
-
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 #ifdef _WITH_SERVER_
 	//네트워크 연결을 위한 쓰레드
@@ -1298,7 +1261,6 @@ void CGameFramework::MoveToNextFrame()
 }
 
 #ifdef _WITH_DIRECT2D_
-
 void CGameFramework::SetNamecard()
 {
 	if (m_pScene)
@@ -1321,24 +1283,21 @@ void CGameFramework::SetNamecard()
 				MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), wname, nLen);
 				
 		
-				m_pd2dDeviceContext->DrawTextW(wname, nLen, m_pdwFont[id], &nameCard, m_pd2dbrText[id]);
+				m_pd2dDeviceContext->DrawTextW(wname, nLen, m_pdwFont[id], &nameCard, m_ppFontColor[id]);
 				
 			}
 #else
 
 			for (int i = 0; i < (*iter).second->m_nObjects; ++i)
 			{
-
 				XMFLOAT2& screenSpace = m_pScene->ProcessNameCard(i);
 				//	
 				D2D1_RECT_F nameCard{ 0.0f,0.0f,0.0f,0.0f };
 			
 				nameCard = D2D1::RectF(screenSpace.x - 60.0f, screenSpace.y - 60.0f, screenSpace.x + 60.0f, screenSpace.y + 60.0f);
 
-
-					//	//nameCard = D2D1::RectF(540.0f, 140.0f,  660.0f, 260.0f);		
 				m_pd2dDeviceContext->DrawTextW((*iter).second->m_ppObjects[i]->GetPlayerName(),
-					(UINT32)wcslen((*iter).second->m_ppObjects[i]->GetPlayerName()), m_pdwFont[i], &nameCard, m_pd2dbrText[i]);
+					(UINT32)wcslen((*iter).second->m_ppObjects[i]->GetPlayerName()), m_pFont, &nameCard, m_ppFontColor[i]);
 
 			}
 #endif
@@ -1348,24 +1307,48 @@ void CGameFramework::SetNamecard()
 
 void CGameFramework::ShowScoreboard()
 {
-	//D2D1_RECT_F rcText{ 0,0,0,0 };
-	if (m_pd2dfxBitmapSource && GetAsyncKeyState(VK_TAB) & 0x8000)
+	if (m_ScoreBoardBitmap && GetAsyncKeyState(VK_TAB) & 0x8000)
 	{
 		// 스코어 보드 위치
 		m_pd2dDeviceContext->DrawBitmap(m_ScoreBoardBitmap, &m_ScoreBoardPos);
+		
+		float width = m_ScoreBoardPos.right - m_ScoreBoardPos.left;
+		float height = m_ScoreBoardPos.bottom - m_ScoreBoardPos.top;
 
-		D2D1_RECT_F rcText = D2D1::RectF(0, 0, 240.f, 360.f);
+		D2D1_RECT_F rankPos;
+		rankPos.left = m_ScoreBoardPos.left + width * 1.f / 42.f;
+		rankPos.right = m_ScoreBoardPos.left + width * 11.f / 42.f;
+		rankPos.top = m_ScoreBoardPos.top + height * 3.f / 16.f;
+		rankPos.bottom = m_ScoreBoardPos.top + height * 5.f / 16.f;
 
-		// 이름
-		rcText = D2D1::RectF(0.0f, 0.0f, /*szRenderTarget.width * 0.2f*/ /*1150.0f*/1150.0f,/* szRenderTarget.height * 0.45f*/360.0f);
-		m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[6], &rcText, m_pd2dbrText[6]);
+		D2D1_RECT_F idPos;
+		idPos.left = m_ScoreBoardPos.left + width * 21.f / 42.f;
+		idPos.right = m_ScoreBoardPos.left + width * 31.f / 42.f;
+		idPos.top = m_ScoreBoardPos.top + height * 3.f / 16.f;
+		idPos.bottom = m_ScoreBoardPos.top + height * 5.f / 16.f;
 
+		D2D1_RECT_F idPos2;
+		idPos2.left = m_ScoreBoardPos.left + width * 21.f / 42.f;
+		idPos2.right = m_ScoreBoardPos.left + width * 31.f / 42.f;
+		idPos2.top = m_ScoreBoardPos.top + height * 5.f / 16.f;
+		idPos2.bottom = m_ScoreBoardPos.top + height * 7.f / 16.f;
+
+		D2D1_RECT_F scorePos;
+		scorePos.left = m_ScoreBoardPos.left + width * 30.f / 42.f;
+		scorePos.right = m_ScoreBoardPos.left + width * 40.f / 42.f;
+		scorePos.top = m_ScoreBoardPos.top + height * 3.f / 16.f;
+		scorePos.bottom = m_ScoreBoardPos.top + height * 5.f / 16.f;
+	
+		// ID
+		m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pFont, &idPos, m_ppFontColor[g_PlayerCharacter]);
 		// Score
-		rcText = D2D1::RectF(0, 0, 2200.f, 360.0f);
-		m_pd2dDeviceContext->DrawTextW((to_wstring(m_pPlayer->getScore())).c_str(), (UINT32)(to_wstring(m_pPlayer->getScore())).length(), m_pdwFont[6], &rcText, m_pd2dbrText[6]);
+		m_pd2dDeviceContext->DrawTextW((to_wstring(m_pPlayer->getScore())).c_str(), (UINT32)(to_wstring(m_pPlayer->getScore())).length(), m_pFont, &scorePos, m_ppFontColor[g_PlayerCharacter]);
+
+		// ID
+		m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pFont, &idPos2, m_ppFontColor[COLOR_TYPE::RED]);
 
 #ifdef _WITH_SERVER_
-
+		D2D1_RECT_F rcText = D2D1::RectF(0.f, 0.f, 0.f, 0.f);
 		map<string, CShader*> m = m_pScene->getShaderManager()->getShaderMap();
 		auto iter = m.find("OtherPlayer");
 		if (iter != m.end())
@@ -1373,48 +1356,26 @@ void CGameFramework::ShowScoreboard()
 			vector<pair<char, char>> vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
 			for (int i = 0; i < vec.size(); ++i)
 			{
-				char id = vec[i].first;
-				
+				char id = vec[i].first;			
 				wchar_t wname[16];
 				int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), NULL, NULL);
+
 				MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), wname, nLen);
 						
 				rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/515.0f + (i*155.0f));
-				m_pd2dDeviceContext->DrawTextW(wname, nLen, m_pdwFont[i], &rcText, m_pd2dbrText[i]);
+				m_pd2dDeviceContext->DrawTextW(wname, nLen, m_pFont, &rcText, m_ppFontColor[i]);
 			}
-
 		}
-
 #endif
-		//rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/515.0f);
-		//m_pd2dDeviceContext->DrawTextW(L"핑크", (UINT32)wcslen(L"핑크"), m_pdwFont[1], &rcText, m_pd2dbrText[1]);
-
-		//rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/670.0f);
-		//m_pd2dDeviceContext->DrawTextW(L"브라운", (UINT32)wcslen(L"브라운"), m_pdwFont[2], &rcText, m_pd2dbrText[2]);
-
-		//rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/825.0f);
-		//m_pd2dDeviceContext->DrawTextW(L"블랙", (UINT32)wcslen(L"블랙"), m_pdwFont[3], &rcText, m_pd2dbrText[3]);
-
-		//rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/980.0f);
-		//m_pd2dDeviceContext->DrawTextW(L"화이트", (UINT32)wcslen(L"화이트"), m_pdwFont[4], &rcText, m_pd2dbrText[4]);
-
-		////cout << index << endl;
-		//rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/1135.0f);
-		//m_pd2dDeviceContext->DrawTextW(L"펜더", (UINT32)wcslen(L"펜더"), m_pdwFont[5], &rcText, m_pd2dbrText[5]);
-
 	}
-
 }
 
 void CGameFramework::ShowReadyText()
 {
 	D2D1_RECT_F rcText = D2D1::RectF(0, 0, 200.f, 275.f);
-	WCHAR* ready = _T("READY");
-	//m_pd2dDeviceContext->DrawTextW(ready, (UINT32)wcslen(ready), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
-	// 준비 폰트 빨간색
-	m_pd2dDeviceContext->DrawTextW(ready, (UINT32)wcslen(ready), m_pdwFont[0], &rcText, m_pd2dbrText[1]);
+	wstring wstr = L"READY";
+	m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_pFont, &rcText, m_ppFontColor[COLOR_TYPE::RED]);
 }
-
 
 void CGameFramework::ShowPlayers()
 {
@@ -1433,12 +1394,12 @@ void CGameFramework::ShowPlayers()
 			rcText = D2D1::RectF(0.0f, 0.0f, 780.0f, ((i*110.0f)+290.0f) );
 			int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[id.first].name, strlen(m_mapClients[id.first].name), NULL, NULL);
 			MultiByteToWideChar(CP_ACP, 0, m_mapClients[id.first].name, strlen(m_mapClients[id.first].name), player, nLen);
-			m_pd2dDeviceContext->DrawTextW(player, nLen, m_pdwFont[i+1], &rcText, m_pd2dbrText[i+1]);
+			m_pd2dDeviceContext->DrawTextW(player, nLen, m_pFont, &rcText, m_ppFontColor[i+1]);
 			
 			if (m_mapClients[id.first].isReady)
 			{
 				readyText = D2D1::RectF(0.0f, 0.0f, 200.0f, ((i*110.0f) + 290.0f));
-				m_pd2dDeviceContext->DrawTextW(ready, (UINT32)wcslen(ready), m_pdwFont[0], &readyText, m_pd2dbrText[0]);
+				m_pd2dDeviceContext->DrawTextW(ready, (UINT32)wcslen(ready), m_pFont, &readyText, m_ppFontColor[0]);
 
 			}
 			i++;
@@ -1447,7 +1408,7 @@ void CGameFramework::ShowPlayers()
 
 #else
 	rcText = D2D1::RectF(0.0f, 0.0f,600.0f,290.0f);
-	m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pdwFont[0], &rcText, m_pd2dbrText[0]);
+	m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_pFont, &rcText, m_ppFontColor[0]);
 
 #endif
 	
@@ -1458,37 +1419,17 @@ void CGameFramework::ShowPlayers()
 void CGameFramework::DrawStageInfo()
 {
 	D2D1_RECT_F stageText = { 0.0f,0.0f,300.0f, 70.0f};
-	
-	switch (m_GameStage)
+	const wstring wstr = to_wstring((int)g_Round) + L" Round";
+
+	switch (g_Round)
 	{
 	case 0:
-	{
-		const wstring s = to_wstring(m_GameStage) + L" Round";
-		m_pd2dDeviceContext->DrawTextW(s.c_str(), (UINT32)wcslen(s.c_str()), m_pdwStageInfoFont, &stageText, m_pd2dbrStageInfoText);
-
-		break;
-	}
 	case 1:
-	{
-		const wstring s = to_wstring(m_GameStage) + L" Round";
-		m_pd2dDeviceContext->DrawTextW(s.c_str(), (UINT32)wcslen(s.c_str()), m_pdwStageInfoFont, &stageText,  m_pd2dbrStageInfoText);
-
-		break;
-	}
 	case 2:
-	{
-		const wstring s = to_wstring(m_GameStage) + L" Round";
-		m_pd2dDeviceContext->DrawTextW(s.c_str(), (UINT32)wcslen(s.c_str()), m_pdwStageInfoFont, &stageText,  m_pd2dbrStageInfoText);
-
-		break;
-	}
 	case 3:
-	{
-		const wstring s = to_wstring(m_GameStage) + L" Round";
-		m_pd2dDeviceContext->DrawTextW(s.c_str(), (UINT32)wcslen(s.c_str()), m_pdwStageInfoFont, &stageText, m_pd2dbrStageInfoText);
-
+		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length() , m_pFont, &stageText, m_ppFontColor[COLOR_TYPE::ORANGE]);
 		break;
-	}
+
 	default:
 		cout << "존재 하지 않는 스테이지 입니다.\n";
 		break;
@@ -1520,10 +1461,9 @@ void CGameFramework::ProcessDirect2D()
 		CShader* m = m_pLobbyScene->m_ppShaders[CLobbyScene::CHARACTER_SELECT];
 		bool isReady = dynamic_cast<CCharacterSelectUIShader*>(m)->IsReady();
 
-		//if (isReady)
-			//ShowReadyText();
+		if (isReady)
+			ShowReadyText();
 
-		
 		ShowPlayers();
 		ChattingSystem::GetInstance()->ShowLobbyChatting(m_pd2dDeviceContext);
 
@@ -1571,7 +1511,7 @@ void CGameFramework::ProcessDirect2D()
 	//D2D1_RECT_F rcUpperText = D2D1::RectF(0, 0, 200.0f, 1400.0f);
 
 	//IDWriteTextFormat (interface) : 텍스트 형식에 사용되는 폰트를 서술함. 
-	//m_pd2dDeviceContext->DrawTextW(m_pszFrameRate, (UINT32)wcslen(m_pszFrameRate), m_pdwFont[0], &rcUpperText, m_pd2dbrText[0]);
+	//m_pd2dDeviceContext->DrawTextW(m_pszFrameRate, (UINT32)wcslen(m_pszFrameRate), m_pdwFont[0], &rcUpperText, m_ppFontColor[0]);
 	m_pd2dDeviceContext->EndDraw();
 
 	//Releases D3D11 resources that were wrapped for D3D 11on12
@@ -2249,9 +2189,7 @@ void CGameFramework::ProcessInGame(D3D12_CPU_DESCRIPTOR_HANDLE& d3dDsvDepthStenc
 		WaitForGpuComplete();
 
 #ifdef _WITH_DIRECT2D_
-
 		ProcessDirect2D();
-
 #endif
 }
 
@@ -2290,6 +2228,7 @@ void CGameFramework::ProcessLobby()
 
 #endif
 }
+
 void CGameFramework::FrameAdvance()
 {
 	m_GameTimer.Tick(60.0f);

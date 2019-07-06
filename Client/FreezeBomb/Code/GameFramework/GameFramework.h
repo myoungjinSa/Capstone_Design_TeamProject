@@ -17,7 +17,6 @@ class ChattingSystem;
 class CIPScene;
 class CLoginScene;
 
-
 struct clientsInfo;
 
 class CGameFramework
@@ -83,12 +82,11 @@ public:
 	void SetHangeul(bool han) { m_bHangeul = han; }
 
 	int GetGameState() const { return m_nState; };
-	
+
 #ifdef _MAPTOOL_MODE_
 	void OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 #endif	
 
-	
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	bool IsInGame(); 
 	enum GAMESTATE {CHARACTER_SELECT=0, INGAME,PAUSE,OPTION,CONNECT,LOGIN,LOADING};
@@ -96,7 +94,6 @@ private:
 	HINSTANCE					m_hInstance;
 	HWND							m_hWnd;
 	
-
 	int 							m_nState{ GAMESTATE::INGAME };
 	//게임 상태 
 	
@@ -156,13 +153,9 @@ private:
 	ID3D12Resource*							m_ppd3dCartoonScreenRenderTargetBuffers[m_nCartoonScreenRenderTargetBuffers];
 	D3D12_CPU_DESCRIPTOR_HANDLE				m_pd3dCarttonScreenRenderTargetBufferCPUHandles[m_nCartoonScreenRenderTargetBuffers];
 
-	unsigned char							m_GameStage;
 	CSobelCartoonShader*					m_pCartoonShader{ nullptr };
 
-
 #ifdef _WITH_DIRECT2D_
-
-
 	ID3D11On12Device				*m_pd3d11On12Device{ nullptr };//
 	ID3D11DeviceContext				*m_pd3d11DeviceContext{ nullptr };//
 	ID2D1Factory3					*m_pd2dFactory{ nullptr };//
@@ -171,26 +164,20 @@ private:
 	ID2D1Device2					*m_pd2dDevice{ nullptr };//
 	ID2D1DeviceContext2				*m_pd2dDeviceContext{ nullptr };//
 
-	ID3D11Resource					*m_ppd3d11WrappedBackBuffers[m_nSwapChainBuffers];//
-	ID2D1Bitmap1					*m_ppd2dRenderTargets[m_nSwapChainBuffers];//
-
-	ID2D1SolidColorBrush			*m_pd2dbrBackground{ nullptr };//
-	ID2D1SolidColorBrush			*m_pd2dbrBorder{ nullptr };//
-	ID2D1SolidColorBrush			*m_pBlackBrush{ nullptr };
+	ID3D11Resource				*m_ppd3d11WrappedBackBuffers[m_nSwapChainBuffers];
+	ID2D1Bitmap1					*m_ppd2dRenderTargets[m_nSwapChainBuffers];
 	
-	IDWriteTextFormat				*m_pdwStageInfoFont{ nullptr };
-	IDWriteTextFormat				**m_pdwFont{ nullptr };//
-	const int						m_nNameFont=7;
-	//const int								m_nNameFont = 7;
-
-	IDWriteTextLayout				*m_pdwTextLayout{ nullptr };//
-	IDWriteTextLayout				*m_pdwStageTextLayout{ nullptr };
-	ID2D1SolidColorBrush			**m_pd2dbrText{ nullptr };//
-	ID2D1SolidColorBrush			*m_pd2dbrStageInfoText{ nullptr };
-	
+	// 폰트 객체
+	IDWriteTextFormat*				m_pFont{ nullptr };
+	// 폰트 색상
+	ID2D1SolidColorBrush**		m_ppFontColor{ nullptr };
+	// 폰트 색상 개수
+	enum COLOR_TYPE { PINK, BROWN, WHITE, BLACK, SKYBLUE, PANDA, RED, ORANGE };
+	const int								m_FontColorNum = 8;
+	IDWriteTextLayout*				m_pTextLayout{ nullptr };
 	
 	IWICImagingFactory				*m_pwicImagingFactory{ nullptr };
-	ID2D1Effect						*m_pd2dfxBitmapSource{ nullptr };
+	ID2D1Effect							*m_pd2dfxBitmapSource{ nullptr };
 	ID2D1DrawingStateBlock1			*m_pd2dsbDrawingState{ nullptr };
 	IWICFormatConverter				*m_pwicFormatConverter{ nullptr };
 

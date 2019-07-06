@@ -8,51 +8,47 @@
 
 #define NUMBER DIGIT_0 | DIGIT_1 | DIGIT_2 | DIGIT_3 | DIGIT_4
 #ifdef _WITH_DIRECT2D_
-
 ChattingSystem::ChattingSystem()
 {
 }
 
 ChattingSystem::~ChattingSystem()
 {
-	//cout << "Chattinng System ¼Ò¸ê" << endl;
 }
 
-void ChattingSystem::Initialize(IDWriteFactory* writeFactory, ID2D1DeviceContext2* pd2dDeviceContext, IWICImagingFactory* pwicImagingFactory)
+void ChattingSystem::Initialize(IDWriteFactory* writeFactory, ID2D1DeviceContext2* pd2dDeviceContext, IWICImagingFactory* pwicImagingFactory, ID2D1SolidColorBrush* color)
 {
 	HRESULT hResult;
-	m_pdwChattingFont = new IDWriteTextFormat*[m_maxChatSentenceCount];
-	m_pd2dbrChatText = new ID2D1SolidColorBrush*[m_maxChatSentenceCount];
-
-
 	m_chat = new TCHAR*[m_maxChatSentenceCount];
 
 	for (int i = 0; i < m_maxChatSentenceCount; ++i)
 	{
 		m_chat[i] = new TCHAR[256];
-
 	}
 
+	hResult = writeFactory->CreateTextFormat(L"°íµñ", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 30.0f, L"en-US", &m_pChattingFont);
+	hResult = m_pChattingFont->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+	hResult = m_pChattingFont->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
+	hResult = writeFactory->CreateTextLayout(L"ÅØ½ºÆ® ·¹ÀÌ¾Æ¿ô", 64, m_pChattingFont, 4096.0f, 4096.0f, &m_pChattingLayout);
+	m_pChattingFontColor = color;
 
 	for (int i = 0; i < m_maxChatSentenceCount; ++i)
 	{
-		if (i == 0)
-		{
-			hResult = writeFactory->CreateTextFormat(L"°íµñ", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 30.0f, L"en-US", &m_pdwChattingFont[i]);
-		}
-		else
-		{
-			hResult = writeFactory->CreateTextFormat(L"°íµñ", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 20.0f, L"en-US", &m_pdwChattingFont[i]);
+		//if (i == 0)
+		//{
+		//	hResult = writeFactory->CreateTextFormat(L"°íµñ", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 30.0f, L"en-US", &m_pChattingFont);
 
-		}
-		hResult = m_pdwChattingFont[i]->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
-		hResult = m_pdwChattingFont[i]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
-		hResult = writeFactory->CreateTextLayout(L"ÅØ½ºÆ® ·¹ÀÌ¾Æ¿ô", 64, m_pdwChattingFont[i], 4096.0f, 4096.0f, &m_pdwChattingLayout);
-		pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Coral, 1.0f), &m_pd2dbrChatText[i]);
+		//}
+		//else
+		//{
+		//	hResult = writeFactory->CreateTextFormat(L"°íµñ", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 20.0f, L"en-US", &m_pChattingFont);
+		//}
+		//hResult = m_pChattingFont->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+		//hResult = m_pChattingFont->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
+		//hResult = writeFactory->CreateTextLayout(L"ÅØ½ºÆ® ·¹ÀÌ¾Æ¿ô", 64, m_pChattingFont, 4096.0f, 4096.0f, &m_pChattingLayout);
+		//pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Coral, 1.0f), &m_pd2dbrChatText[i]);
 		//pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrChatText[i]);
 	}
-
-	/////////////////////////////////////////////////////ÆùÆ® »ö»ó
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////
 	IWICBitmapDecoder *pwicBitmapDecoder;
@@ -68,7 +64,7 @@ void ChattingSystem::Initialize(IDWriteFactory* writeFactory, ID2D1DeviceContext
 	m_pwicFormatConverter->Initialize(pwicFrameDecode, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 0.0f, WICBitmapPaletteTypeCustom);
 
 	m_pd2dfxBitmapSource->SetValue(D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE, m_pwicFormatConverter);
-	D2D1_VECTOR_2F	vec{ 1.3f,0.5f };
+	D2D1_VECTOR_2F vec{ 1.3f,0.5f };
 	m_pd2dfxBitmapSource->SetValue(D2D1_BITMAPSOURCE_PROP_SCALE, vec);
 }
 TCHAR* ChattingSystem::StringToTCHAR(string& s)
@@ -85,7 +81,6 @@ TCHAR* ChattingSystem::StringToTCHAR(string& s)
 	mbstowcs(t, all, len);
 
 	return (TCHAR*)t;
-
 }
 
 string ChattingSystem::TCHARToString(const TCHAR* ptsz)
@@ -104,23 +99,18 @@ void ChattingSystem::ShowLobbyChatting(ID2D1DeviceContext2* pd2dDeviceContext)
 {
 	D2D1_RECT_F chatText{ 0,0,0,0 };
 	if (IsChattingActive())
-	{
-		
+	{		
 		const TCHAR* t;
 		t = m_wsChat.c_str();
 
 		chatText = D2D1::RectF(680.0f, 645.0f, 1200.0f, 645.0f);
-		pd2dDeviceContext->DrawTextW(t, (UINT32)wcslen(t), m_pdwChattingFont[0], &chatText, m_pd2dbrChatText[0]);
-
-
+		pd2dDeviceContext->DrawTextW(t, (UINT32)wcslen(t), m_pChattingFont, &chatText, m_pChattingFontColor);
 	}
 
-	
 	for (int i = 1; i < m_dequeText.size()+1; ++i) 
 	{
-	
 		chatText = D2D1::RectF(680.0f, 600.0f - (i * 24), 1200.0f, 600.0f - (i * 24));
-		pd2dDeviceContext->DrawTextW(m_dequeText[i-1].first, m_dequeText[i-1].second, m_pdwChattingFont[i], &chatText, m_pd2dbrChatText[i-1]);
+		pd2dDeviceContext->DrawTextW(m_dequeText[i-1].first, m_dequeText[i-1].second, m_pChattingFont, &chatText, m_pChattingFontColor);
 	}
 }
 
@@ -138,10 +128,9 @@ void ChattingSystem::ShowIngameChatting(ID2D1DeviceContext2* pd2dDeviceContext,f
 		t = m_wsChat.c_str();
 
 		chatText = D2D1::RectF(20.0f, 750.0f, 600.0f, 750.0f);
-		pd2dDeviceContext->DrawTextW(t, (UINT32)wcslen(t), m_pdwChattingFont[0], &chatText, m_pd2dbrChatText[0]);
+		pd2dDeviceContext->DrawTextW(t, (UINT32)wcslen(t), m_pChattingFont, &chatText, m_pChattingFontColor);
 
 		m_showTime = 0.0f;
-	
 	}
 	else
 	{
@@ -153,7 +142,7 @@ void ChattingSystem::ShowIngameChatting(ID2D1DeviceContext2* pd2dDeviceContext,f
 		for (int i = 1; i < m_dequeText.size() + 1; ++i)
 		{
 			chatText = D2D1::RectF(20.0f, 705.0f - (i * 24), 600.0f, 705.0f - (i * 24));
-			pd2dDeviceContext->DrawTextW(m_dequeText[i - 1].first, m_dequeText[i - 1].second, m_pdwChattingFont[i], &chatText, m_pd2dbrChatText[i - 1]);
+			pd2dDeviceContext->DrawTextW(m_dequeText[i - 1].first, m_dequeText[i - 1].second, m_pChattingFont, &chatText, m_pChattingFontColor);
 		}
 	}
 }
@@ -340,8 +329,6 @@ void ChattingSystem::ProcessSpecialCharacter(WPARAM wParam)
 
 void ChattingSystem::ProcessChatting(HWND hWnd, WPARAM wParam, LPARAM lParam, bool isInGame)
 {
-
-	
 	if(wParam == VK_RETURN)
 	{
 		if (m_wsChat.size() > 0)
@@ -351,10 +338,7 @@ void ChattingSystem::ProcessChatting(HWND hWnd, WPARAM wParam, LPARAM lParam, bo
 			t = const_cast<TCHAR*>(m_wsChat.c_str());
 
 			Network::GetInstance()->SendChattingText((char)Network::GetInstance()->GetMyID(), t);
-
-#endif
-			
-			
+#endif			
 			m_wsChat.clear();
 			m_wsChat.shrink_to_fit();
 		}
@@ -431,13 +415,10 @@ void ChattingSystem::ProcessChatting(HWND hWnd, WPARAM wParam, LPARAM lParam, bo
 		m_composeCount = 0;
 		//return;
 	}
-
-
 }
 
 void ChattingSystem::Destroy()
 {
-
 	for (int i = 0; i < m_maxChatSentenceCount; ++i)
 	{
 		if (m_chat[i])
@@ -453,15 +434,15 @@ void ChattingSystem::Destroy()
 	m_dequeText.clear();
 	m_wsChat.clear();
 	m_wsChat.shrink_to_fit();
-	for (int i = 0; i < m_maxChatSentenceCount; ++i)
-	{
-		if (m_pdwChattingFont[i]) m_pdwChattingFont[i]->Release();
-		if (m_pd2dbrChatText[i]) m_pd2dbrChatText[i]->Release();
-	}
-	delete[]m_pdwChattingFont;
-	m_pdwChattingFont = nullptr;
-	delete[]m_pd2dbrChatText;
-	m_pd2dbrChatText = nullptr;
+
+	if (m_pChattingFont)
+		m_pChattingFont->Release();
+	//for (int i = 0; i < m_maxChatSentenceCount; ++i)
+	//{
+	//	if (m_pd2dbrChatText[i]) m_pd2dbrChatText[i]->Release();
+	//}
+	//delete[] m_pd2dbrChatText;
+	//m_pd2dbrChatText = nullptr;
 	if (m_pd2dfxBitmapSource) m_pd2dfxBitmapSource->Release();
 	if (m_pwicFormatConverter) m_pwicFormatConverter->Release();
 
