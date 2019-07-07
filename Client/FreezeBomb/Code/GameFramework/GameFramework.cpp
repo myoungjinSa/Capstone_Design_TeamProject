@@ -1298,7 +1298,7 @@ void CGameFramework::SetNamecard()
 				MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), wname, nLen);
 				
 		
-				m_pd2dDeviceContext->DrawTextW(wname, nLen, m_pdwFont[id], &nameCard, m_ppFontColor[id]);
+				m_pd2dDeviceContext->DrawTextW(wname, nLen, m_ppFont[FONT_TYPE::PIOP_FONT], &nameCard, m_ppFontColor[id]);
 				
 			}
 #else
@@ -1397,8 +1397,7 @@ void CGameFramework::ShowPlayers()
 	D2D1_RECT_F rcText{ 0,0,0,0 };
 	D2D1_RECT_F readyText{ 0,0,0,0 };
 
-#ifdef _WITH_SERVER_
-	WCHAR* ready = _T("ÁØºñ");
+	wstring wstr = L"READY";
 	
 	if (m_mapClients.size() > 0)
 	{
@@ -1406,29 +1405,19 @@ void CGameFramework::ShowPlayers()
 		int i = 0;
 		for (const auto& id : m_mapClients)
 		{
-			rcText = D2D1::RectF(0.0f, 0.0f, 780.0f, ((i*110.0f)+290.0f) );
+			rcText = D2D1::RectF(0.0f, 0.0f, 780.0f, ((i * 110.0f) + 290.0f) );
 			int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[id.first].name, strlen(m_mapClients[id.first].name), NULL, NULL);
 			MultiByteToWideChar(CP_ACP, 0, m_mapClients[id.first].name, strlen(m_mapClients[id.first].name), player, nLen);
-			m_pd2dDeviceContext->DrawTextW(player, nLen, m_pFont, &rcText, m_ppFontColor[i+1]);
+			m_pd2dDeviceContext->DrawTextW(player, nLen, m_ppFont[FONT_TYPE::PIOP_FONT], &rcText, m_ppFontColor[i+1]);
 			
 			if (m_mapClients[id.first].isReady)
 			{
 				readyText = D2D1::RectF(0.0f, 0.0f, 200.0f, ((i*110.0f) + 290.0f));
-				m_pd2dDeviceContext->DrawTextW(ready, (UINT32)wcslen(ready), m_pFont, &readyText, m_ppFontColor[0]);
-
+				m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyText, m_ppFontColor[COLOR_TYPE::RED]);
 			}
 			i++;
 		}
 	}
-
-#else
-	rcText = D2D1::RectF(0.0f, 0.0f,600.0f,290.0f);
-	m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_ppFont[FONT_TYPE::PIOP_FONT], &rcText, m_ppFontColor[0]);
-
-#endif
-	
-
-
 }
 
 void CGameFramework::DrawStageInfo()
@@ -1477,10 +1466,13 @@ void CGameFramework::ProcessDirect2D()
 		CShader* m = m_pLobbyScene->m_ppShaders[CLobbyScene::CHARACTER_SELECT];
 		bool isReady = dynamic_cast<CCharacterSelectUIShader*>(m)->IsReady();
 
+#ifdef _WITH_SERVER_
+		ShowPlayers();
+#else
 		if (isReady)
 			ShowReadyText();
+#endif
 
-		ShowPlayers();
 		ChattingSystem::GetInstance()->ShowLobbyChatting(m_pd2dDeviceContext);
 
 		break;
