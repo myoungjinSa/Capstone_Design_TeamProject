@@ -2,22 +2,16 @@
 #include "../Singleton/Singleton.h"
 #include <deque>
 
-constexpr int						m_maxChatSentenceCount = 20;
-
-
-
-
+constexpr int m_maxChatSentenceCount = 20;
 class ChattingSystem : public Singleton<ChattingSystem>
 {
 protected:
-
 	typedef basic_string<TCHAR> tstring;
-#ifdef _WITH_DIRECT2D_
 
-	IDWriteTextFormat				**m_pdwChattingFont{ nullptr };//채팅 폰트
-	
-	IDWriteTextLayout				*m_pdwChattingLayout{ nullptr };
-	ID2D1SolidColorBrush			**m_pd2dbrChatText{ nullptr };//
+#ifdef _WITH_DIRECT2D_
+	IDWriteTextFormat*				m_pChattingFont{ nullptr };
+	IDWriteTextLayout*				m_pChattingLayout{ nullptr };
+	ID2D1SolidColorBrush*			m_pChattingFontColor{ nullptr };
 
 	ID2D1Effect						*m_pd2dfxBitmapSource{ nullptr };
 	IWICFormatConverter				*m_pwicFormatConverter{ nullptr };
@@ -31,7 +25,6 @@ protected:
 
 	int								m_composeCount{ 0 };
 
-	
 	//LOBBY채팅에서의 최대 길이
 	enum class SENTENCE_LENGTH_LOBBY		{ENG=20,KOR=12};
 	
@@ -46,7 +39,7 @@ protected:
 public:
 	ChattingSystem();
 	virtual ~ChattingSystem();
-	void Initialize(IDWriteFactory*,ID2D1DeviceContext2*,IWICImagingFactory*);
+	void Initialize(IDWriteTextFormat*, IDWriteTextLayout*, ID2D1SolidColorBrush*, IWICImagingFactory*, ID2D1DeviceContext2*);
 	void ProcessChatting(HWND hWnd,WPARAM wParam,LPARAM lParam,bool isIngame);
 	void PushChattingText(const string& user,const char* chat);
 	void ProcessSpecialCharacter(WPARAM wParam);
