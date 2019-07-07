@@ -971,7 +971,7 @@ bool CGameFramework::BuildObjects()
 	m_pLoginScene = new CLoginScene;
 	if (m_pLoginScene)
 	{
-		m_pLoginScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pdWriteFactory, m_pd2dDeviceContext);
+		m_pLoginScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_ppFont[FONT_TYPE::MAPLE_FONT], m_ppTextLayout[FONT_TYPE::MAPLE_FONT], m_ppFontColor[COLOR_TYPE::BLACK]);
 	}
 #endif
 	m_pLobbyScene = new CLobbyScene;

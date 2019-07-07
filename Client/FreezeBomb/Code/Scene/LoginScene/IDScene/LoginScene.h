@@ -14,7 +14,7 @@ public:
 	~CLoginScene();
 	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 
-	void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,IDWriteFactory* writeFactory,ID2D1DeviceContext2* pd2dDeviceContext);
+	void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, IDWriteTextFormat* pFont, IDWriteTextLayout* pTextLayout, ID2D1SolidColorBrush* pFontColor);
 	void AnimateObjects(ID3D12GraphicsCommandList *pd3dCommandList, float fTimeElapsed);
 	void Render(ID3D12GraphicsCommandList *pd3dCommandList);
 	void ReleaseObjects();

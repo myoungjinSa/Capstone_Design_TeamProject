@@ -13,22 +13,13 @@ CIDInput::~CIDInput()
 
 }
 
-void CIDInput::Initialize(IDWriteFactory *writeFactory, ID2D1DeviceContext2* pd2dDeviceContext)
+void CIDInput::Initialize(IDWriteTextFormat* pFont, IDWriteTextLayout* pTextLayout, ID2D1SolidColorBrush* pFontColor)
 {
-	HRESULT hResult;
-	m_pdwFont = new IDWriteTextFormat*[m_maxFont];
-	m_pd2dbrFontText = new ID2D1SolidColorBrush*[m_maxFont];
-	for (int i = 0; i < m_maxFont; ++i)
-	{
-		hResult = writeFactory->CreateTextFormat(L"°íµñ", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 30.0f, L"en-US", &m_pdwFont[i]);
-		hResult = m_pdwFont[i]->SetTextAlignment( DWRITE_TEXT_ALIGNMENT_LEADING);
-		hResult = m_pdwFont[i]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-		hResult = writeFactory->CreateTextLayout(L"ÅØ½ºÆ® ·¹ÀÌ¾Æ¿ô", 64, m_pdwFont[i], 4096.0f, 4096.0f, &m_pdwFontLayout);
-		//pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow, 1.0f), &m_pd2dbrChatText[i]);
-	}
-	pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black, 1.0f), &m_pd2dbrFontText[0]);
-
+	m_pFont = pFont;
+	m_pTextLayout = pTextLayout;
+	m_pFontColor = pFontColor;
 }
+
 TCHAR* CIDInput::StringToTCHAR(string& s)
 {
 	tstring tstr;
@@ -227,35 +218,21 @@ void CIDInput::ProcessIDInput(HWND hWnd,WPARAM wParam,LPARAM lParam)
 		m_composeCount = 0;
 		//return;
 	}
-
-	
 }
+
 void CIDInput::ShowIDInput(ID2D1DeviceContext2* pd2dDeviceContext)
 {
-
 	D2D1_RECT_F idText{ 0,0,0,0 };
-	const TCHAR* t;
-	t = m_wsID.c_str();
+	wstring wstr = m_wsID.c_str();
 
-	idText = D2D1::RectF(420.0f,670.0f , 750.0f, 670.0f);
-	pd2dDeviceContext->DrawTextW(t, (UINT32)wcslen(t), m_pdwFont[0], &idText, m_pd2dbrFontText[0]);
-
+	idText = D2D1::RectF(420.0f, 660.0f , 750.0f, 660.0f);
+	pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_pFont, &idText, m_pFontColor);
 }
+
 void CIDInput::Destroy()
 {
 	m_wsID.clear();
 	m_wsID.shrink_to_fit();
-
-	for (int i = 0; i < m_maxFont; ++i)
-	{
-		if (m_pdwFont[i]) m_pdwFont[i]->Release();
-		if (m_pd2dbrFontText[i]) m_pd2dbrFontText[i]->Release();
-	}
-	delete[]m_pdwFont;
-	m_pdwFont = nullptr;
-	delete[]m_pd2dbrFontText;
-	m_pd2dbrFontText = nullptr;
-	
 }
 
 #endif
