@@ -169,7 +169,7 @@ private:
 	ID3D11Resource				*m_ppd3d11WrappedBackBuffers[m_nSwapChainBuffers];
 	ID2D1Bitmap1					*m_ppd2dRenderTargets[m_nSwapChainBuffers];
 	
-	enum FONT_TYPE { PIOP_FONT, GOTHIC_FONT };
+	enum FONT_TYPE { PIOP_FONT, MAPLE_FONT };
 
 	const int								m_FontNum = 2;
 	// ÆùÆ® °´Ã¼

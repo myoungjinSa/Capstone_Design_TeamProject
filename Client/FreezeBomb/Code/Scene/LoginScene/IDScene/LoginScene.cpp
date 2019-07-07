@@ -102,10 +102,9 @@ void CLoginScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 	m_pInput = new CIDInput;
 	if (m_pInput)
-		m_pInput->Initialize(writeFactory,pd2dDeviceContext);
-
-
+		m_pInput->Initialize(writeFactory, pd2dDeviceContext);
 }
+
 XMFLOAT3 CLoginScene::ScreenPosition(int x, int y)
 {
 	D3D12_VIEWPORT d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };

@@ -11,18 +11,13 @@ protected:
 	IDWriteTextLayout				*m_pdwFontLayout{ nullptr };
 	ID2D1SolidColorBrush			**m_pd2dbrFontText{ nullptr };//
 
-	
-
 	DWORD							m_conv;
-
-	
 	//string							m_sChat;
 	wstring							m_wsID;
 	
 	bool							m_bIDShow{ false };
 	
 	int								m_composeCount{ 0 };
-
 
 	enum LENGTH{ENG = 15,KOR = 8};
 

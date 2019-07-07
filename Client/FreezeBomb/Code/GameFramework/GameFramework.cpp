@@ -349,7 +349,7 @@ void CGameFramework::CreateDirect2DDevice()
 	hResult = CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory), (void**)&m_pwicImagingFactory);
 
 	//채팅 시스템 객체 생성
-	ChattingSystem::GetInstance()->Initialize(m_ppFont[FONT_TYPE::GOTHIC_FONT], m_ppTextLayout[FONT_TYPE::GOTHIC_FONT], m_ppFontColor[COLOR_TYPE::BLACK], m_pwicImagingFactory, m_pd2dDeviceContext);
+	ChattingSystem::GetInstance()->Initialize(m_ppFont[FONT_TYPE::MAPLE_FONT], m_ppTextLayout[FONT_TYPE::MAPLE_FONT], m_ppFontColor[COLOR_TYPE::BLACK], m_pwicImagingFactory, m_pd2dDeviceContext);
 
 	hResult = m_pd2dFactory->CreateDrawingStateBlock(&m_pd2dsbDrawingState);
 	hResult = m_pd2dDeviceContext->CreateEffect(CLSID_D2D1BitmapSource, &m_pd2dfxBitmapSource);
@@ -403,8 +403,9 @@ void CGameFramework::CreateDirect2DDevice()
 void CGameFramework::Initialize_GameFont()
 {
 	// 폰트 로드
-	wstring fontPath = L"../Resource/Font/a피오피동글.ttf";
-	AddFontResourceEx(fontPath.c_str(), FR_PRIVATE, 0);
+	wstring fontPath[] = { L"../Resource/Font/a피오피동글.ttf", L"../Resource/Font/메이플스토리.ttf" };
+	AddFontResourceEx(fontPath[0].c_str(), FR_PRIVATE, 0);
+	AddFontResourceEx(fontPath[1].c_str(), FR_PRIVATE, 0);
 
 	float fontSize = 25.f;
 
@@ -415,15 +416,15 @@ void CGameFramework::Initialize_GameFont()
 	hResult = m_ppFont[FONT_TYPE::PIOP_FONT]->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 	hResult = m_ppFont[FONT_TYPE::PIOP_FONT]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 
-	hResult = m_pdWriteFactory->CreateTextFormat(L"고딕", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fontSize, L"en-US", &m_ppFont[FONT_TYPE::GOTHIC_FONT]);
-	hResult = m_ppFont[FONT_TYPE::GOTHIC_FONT]->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
-	hResult = m_ppFont[FONT_TYPE::GOTHIC_FONT]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
+	hResult = m_pdWriteFactory->CreateTextFormat(L"메이플스토리", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fontSize, L"en-US", &m_ppFont[FONT_TYPE::MAPLE_FONT]);
+	hResult = m_ppFont[FONT_TYPE::MAPLE_FONT]->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+	hResult = m_ppFont[FONT_TYPE::MAPLE_FONT]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
 
 	m_ppTextLayout = new IDWriteTextLayout*[m_FontNum];
 	// 폰트 레이아웃 생성
 	wstring wstr = L"TextLayout Initialize";
 	hResult = m_pdWriteFactory->CreateTextLayout(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], 1024.0f, 1024.0f, &m_ppTextLayout[FONT_TYPE::PIOP_FONT]);
-	hResult = m_pdWriteFactory->CreateTextLayout(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::GOTHIC_FONT], 4096.0f, 4096.0f, &m_ppTextLayout[FONT_TYPE::GOTHIC_FONT]);
+	hResult = m_pdWriteFactory->CreateTextLayout(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::MAPLE_FONT], 4096.0f, 4096.0f, &m_ppTextLayout[FONT_TYPE::MAPLE_FONT]);
 
 	// 폰트 컬러 생성
 	m_ppFontColor = new ID2D1SolidColorBrush*[m_FontColorNum];
@@ -958,7 +959,7 @@ bool CGameFramework::BuildObjects()
 	//m_nState = CONNECT;
 
 	m_pIPScene = new CIPScene;
-	m_pIPScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList,m_pdWriteFactory,m_pd2dDeviceContext,m_pwicImagingFactory);
+	m_pIPScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_ppFont[FONT_TYPE::MAPLE_FONT], m_ppTextLayout[FONT_TYPE::MAPLE_FONT], m_ppFontColor[COLOR_TYPE::BLACK], m_pd2dDeviceContext);
 	Network::GetInstance()->SetGameFrameworkPtr(m_hWnd, this);
 
 #endif
@@ -977,7 +978,6 @@ bool CGameFramework::BuildObjects()
 	if(m_pLobbyScene)
 	{
 		m_pLobbyScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
-	
 	}
 
 	const int nPlayerCount = 6;		//임시로 플레이어 개수 지정. 
