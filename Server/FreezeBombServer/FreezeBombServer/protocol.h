@@ -337,8 +337,8 @@ struct SC_PACKET_ROUND_START
 	char goldTimerCnt;
 	char goldHammerCnt;
 	char hammerCnt;
-	unsigned short startTime;
 	char round;
+	unsigned short startTime;
 };
 
 struct SC_PACKET_PUT_PLAYER
