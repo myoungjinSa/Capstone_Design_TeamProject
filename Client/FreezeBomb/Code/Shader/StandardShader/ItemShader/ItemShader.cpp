@@ -17,13 +17,13 @@ CItemShader::~CItemShader()
 void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,
 	const map<string, CLoadedModelInfo*>& ModelMap, const unordered_map<unsigned char, RoundInfo>& RoundMapObjectInfo, const map<string, Bounds*>& BoundMap, void* pContext)
 {
-	int nNormalHammer = 0, nGoldHammer = 0, nGoldTimer = 0;
+	//int nNormalHammer = 0, nGoldHammer = 0, nGoldTimer = 0;
 	unsigned char round = 0;
 
 	for (auto iter = RoundMapObjectInfo.begin(); iter != RoundMapObjectInfo.end(); ++iter)
 	{
 		map<string, CItem*> itemList;
-
+		int nNormalHammer = 0, nGoldHammer = 0, nGoldTimer = 0;
 		auto iter2 = ModelMap.find("Hammer");
 		if (iter2 != ModelMap.end())
 		{

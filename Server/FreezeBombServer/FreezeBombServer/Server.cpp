@@ -673,9 +673,9 @@ void Server::ProcessPacket(char client, char *packet)
 
 		break;
 	}
-	case CS_NOT_OBJECT_COLLISION:
+	case CS_NOT_COLLISION:
 	{
-		CS_PACKET_NOT_OBJECT_COLLISION *p = reinterpret_cast<CS_PACKET_NOT_OBJECT_COLLISION *>(packet);
+		CS_PACKET_NOT_COLLISION *p = reinterpret_cast<CS_PACKET_NOT_COLLISION *>(packet);
 
 		//최근 검사한 recent_object와만 거리 검사를 실시
 		float dist = sqrt(pow(clients[client].pos.x - recent_objects.pos.x, 2) +
@@ -743,19 +743,7 @@ void Server::ProcessPacket(char client, char *packet)
 
 		break;
 	}
-	case CS_NOT_PLAYER_COLLISION:
-	{
-		CS_PACKET_NOT_PLAYER_COLLISION* p = reinterpret_cast<CS_PACKET_NOT_PLAYER_COLLISION*>(packet);
 
-		float dist = sqrt(pow(clients[client].pos.x - clients[recent_player].pos.x, 2) +
-		pow(clients[client].pos.y - clients[recent_player].pos.y, 2) +
-		pow(clients[client].pos.z - clients[recent_player].pos.z, 2));
-
-
-		clients[client].collision = CL_NONE;
-	
-		break;
-	}
 	case CS_ANIMATION_INFO:		//클라가 애니메이션이 변경되었을때 패킷을 서버에게 보내고.
 	{							//서버는 그 패킷을 받아서 다른 클라이언트에게 해당 애니메이션 정보를 보낸다.
 		CS_PACKET_ANIMATION* p = reinterpret_cast<CS_PACKET_ANIMATION*>(packet);
@@ -933,6 +921,7 @@ void Server::ProcessPacket(char client, char *packet)
 		float dist = 0.f;
 
 		token = strtok(p->itemIndex, " ");
+		cout << p->itemIndex << "\n";
 		if (strcmp(token, "GoldTimer") == 0)
 		{
 			token = strtok(NULL, " ");
@@ -952,7 +941,7 @@ void Server::ProcessPacket(char client, char *packet)
 				}
 			}
 
-			cout << dist << "\n";
+			//cout << dist << "\n";
 		}
 		else if (strcmp(token, "GoldHammer") == 0)
 		{
@@ -973,7 +962,7 @@ void Server::ProcessPacket(char client, char *packet)
 				}
 			}
 
-			cout << dist << "\n";
+			//cout << dist << "\n";
 		}
 		else
 		{
@@ -993,7 +982,7 @@ void Server::ProcessPacket(char client, char *packet)
 						SendGetItem(i, client, tmps);
 				}
 			}
-			cout << dist << "\n";
+			//cout << dist << "\n";
 		}
 
 		break;

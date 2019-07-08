@@ -767,7 +767,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 			}
 			if(isCollided == false)
 			{
-				Network::GetInstance()->SendNotSurroundingCollision();
+				Network::GetInstance()->SendNotCollision();
 			}
 			static bool bBreak = false;
 
@@ -937,14 +937,15 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				{
 					//(*iter2).second->SetObjectCollided(m_pPlayer);
 					//m_pPlayer->SetObjectCollided((*iter2).second);
-
+#ifdef _WITH_SERVER_
 					Network::GetInstance()->SendGetItem((*iter2).first);
-
+#else
 					// 충돌 된 아이템을 플레이어 인벤토리에 추가한다.
 					m_pPlayer->Add_Inventory((*iter2).first, (*iter2).second->getItemType());
 					// 맵에 있는 아이템 삭제
 					PlayGetItemEffect();
 					pItemShader->ItemDelete((*iter2).first);
+#endif
 					break;
 				}
 			}

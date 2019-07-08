@@ -80,7 +80,7 @@ constexpr int CS_ANIMATION_INFO = 12;
 constexpr int CS_NICKNAME_INFO = 13;
 constexpr int CS_CHATTING = 14;
 constexpr int CS_OBJECT_COLLISION = 15;
-constexpr int CS_NOT_OBJECT_COLLISION = 16;
+constexpr int CS_NOT_COLLISION = 16;
 constexpr int CS_PLAYER_COLLISION = 17;
 constexpr int CS_NOT_PLAYER_COLLISION = 18;
 constexpr int CS_USEITEM = 19;
@@ -205,18 +205,12 @@ struct CS_PACKET_OBJECT_COLLISION
 	unsigned short objId;		//object개수는 66536을 넘지 않기 때문에 unsigned short로 변경
 };
 
-struct CS_PACKET_NOT_OBJECT_COLLISION
+struct CS_PACKET_NOT_COLLISION
 {
 	char size;
 	char type;
 };
 struct CS_PACKET_PLAYER_COLLISION
-{
-	char size;
-	char type;
-	unsigned char playerID;
-};
-struct CS_PACKET_NOT_PLAYER_COLLISION
 {
 	char size;
 	char type;

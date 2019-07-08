@@ -322,11 +322,11 @@ void Network::SendSurroundingCollision(USHORT objID)
 	SendPacket();
 }
 
-void Network::SendNotSurroundingCollision()
+void Network::SendNotCollision()
 {
-	pNotCollide = reinterpret_cast<CS_PACKET_NOT_OBJECT_COLLISION*>(send_buffer);
+	pNotCollide = reinterpret_cast<CS_PACKET_NOT_COLLISION*>(send_buffer);
 	pNotCollide->size = sizeof(pNotCollide);
-	pNotCollide->type = CS_NOT_OBJECT_COLLISION;
+	pNotCollide->type = CS_NOT_COLLISION;
 	send_wsabuf.len = sizeof(pNotCollide);
 
 	SendPacket();
@@ -350,16 +350,6 @@ void Network::SendBomberTouch(char targetID)
 	pTouch->type = CS_BOMBER_TOUCH;
 	pTouch->touchId = targetID;
 	send_wsabuf.len = sizeof(pTouch);
-
-	SendPacket();
-}
-void Network::SendNotPlayerCollision(unsigned char playerID)
-{
-	pPlayerNotCollision = reinterpret_cast<CS_PACKET_NOT_PLAYER_COLLISION*>(send_buffer);
-	pPlayerNotCollision->size = sizeof(pPlayerCollision);
-	pPlayerNotCollision->type = CS_NOT_PLAYER_COLLISION;
-	pPlayerNotCollision->playerID = playerID;
-	send_wsabuf.len - sizeof(pPlayerNotCollision);
 
 	SendPacket();
 }

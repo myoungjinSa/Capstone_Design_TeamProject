@@ -47,9 +47,8 @@ private:
 	CS_PACKET_NICKNAME *pNickName = NULL;
 	CS_PACKET_CHATTING *pText = NULL;	
 	CS_PACKET_OBJECT_COLLISION *pCollide = NULL;
-	CS_PACKET_NOT_OBJECT_COLLISION *pNotCollide = NULL;
+	CS_PACKET_NOT_COLLISION *pNotCollide = NULL;
 	CS_PACKET_PLAYER_COLLISION* pPlayerCollision = NULL;
-	CS_PACKET_NOT_PLAYER_COLLISION* pPlayerNotCollision = NULL;
 	CS_PACKET_USE_ITEM *pItem = NULL;
 	CS_PACKET_FREEZE *pFreeze = NULL;
 	CS_PACKET_RELEASE_FREEZE *pReleaseFreeze = NULL;
@@ -99,7 +98,7 @@ public:
 	void SendNickName(char id,_TCHAR* name);
 	void SendChattingText(char id,const _TCHAR* text);
 	void SendSurroundingCollision(USHORT objID);
-	void SendNotSurroundingCollision();
+	void SendNotCollision();
 	void SendPlayerCollision(unsigned char playerID);
 	void SendNotPlayerCollision(unsigned char playerID);
 	void SendGetItem(const string& itemIndex);
