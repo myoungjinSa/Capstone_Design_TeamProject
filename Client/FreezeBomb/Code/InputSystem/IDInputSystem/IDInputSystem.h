@@ -6,16 +6,11 @@ class CIDInput
 {
 protected:
 	typedef basic_string<TCHAR> tstring;
-	IDWriteTextFormat				**m_pdwFont{ nullptr };//채팅 폰트
-	const int						m_maxFont = 1;
-	IDWriteTextLayout				*m_pdwFontLayout{ nullptr };
-	ID2D1SolidColorBrush			**m_pd2dbrFontText{ nullptr };//
-
-	
+	IDWriteTextFormat*				m_pFont{ nullptr };
+	IDWriteTextLayout*				m_pTextLayout{ nullptr };
+	ID2D1SolidColorBrush*			m_pFontColor{ nullptr };
 
 	DWORD							m_conv;
-
-	
 	//string							m_sChat;
 	wstring							m_wsID;
 	
@@ -23,14 +18,13 @@ protected:
 	
 	int								m_composeCount{ 0 };
 
-
 	enum LENGTH{ENG = 15,KOR = 8};
 
 public:
 	CIDInput();
 	virtual ~CIDInput();
 
-	void Initialize(IDWriteFactory*,ID2D1DeviceContext2*);
+	void Initialize(IDWriteTextFormat*, IDWriteTextLayout*, ID2D1SolidColorBrush*);
 
 	size_t IsIDLength() { return m_wsID.size(); }
 	void ProcessIDInput(HWND hWnd,WPARAM wParam,LPARAM lParam);

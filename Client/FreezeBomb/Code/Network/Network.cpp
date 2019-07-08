@@ -23,8 +23,6 @@ Network::~Network()
 
 bool Network::connectToServer(HWND hWnd)
 {
-
-
 		// 윈속 초기화
 	bool ret = false;
 	if (m_connect)
@@ -38,7 +36,6 @@ bool Network::connectToServer(HWND hWnd)
 		if (sock == INVALID_SOCKET)
 		{
 			err_quit("socket()");
-
 			return false;
 		}
 
@@ -70,10 +67,7 @@ bool Network::connectToServer(HWND hWnd)
 		ret = true;
 		//g_LoginFinished = true;
 	}
-	
 	return ret;
-	
-	
 }
 
 SOCKET Network::getSock()
@@ -86,9 +80,8 @@ void Network::ReadPacket()
 	DWORD iobyte, ioflag = 0;
 
 	int retval = WSARecv(sock, &recv_wsabuf, 1, &iobyte, &ioflag, NULL, NULL);
-	if (retval) {
+	if (retval) 
 		err_display("WSARecv()");
-	}
 
 	BYTE *ptr = reinterpret_cast<BYTE *>(recv_buffer);
 
@@ -143,7 +136,6 @@ void Network::SendPacket()
 {
 	DWORD iobyte = 0;
 	
-
 	int retval = WSASend(sock, &send_wsabuf, 1, &iobyte, 0, NULL, NULL);
 	if (retval)
 	{

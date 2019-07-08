@@ -85,7 +85,7 @@ void CLoginScene::ReleaseObjects()
 	}
 	delete[] m_ppShaders;
 }
-void CLoginScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,IDWriteFactory* writeFactory,ID2D1DeviceContext2* pd2dDeviceContext)
+void CLoginScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, IDWriteTextFormat* pFont, IDWriteTextLayout* pTextLayout, ID2D1SolidColorBrush* pFontColor)
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
@@ -99,13 +99,11 @@ void CLoginScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	pIDShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	m_ppShaders[index++] = pIDShader;
 
-
 	m_pInput = new CIDInput;
 	if (m_pInput)
-		m_pInput->Initialize(writeFactory,pd2dDeviceContext);
-
-
+		m_pInput->Initialize(pFont, pTextLayout, pFontColor);
 }
+
 XMFLOAT3 CLoginScene::ScreenPosition(int x, int y)
 {
 	D3D12_VIEWPORT d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };

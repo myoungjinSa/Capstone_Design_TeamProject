@@ -87,7 +87,7 @@ void CIPScene::ReleaseObjects()
 	delete[] m_ppShaders;
 }
 
-void CIPScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,IDWriteFactory* writeFactory,ID2D1DeviceContext2* pd2dDeviceContext,IWICImagingFactory* pwicImagingFactory)
+void CIPScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, IDWriteTextFormat* pFont, IDWriteTextLayout* pTextLayout, ID2D1SolidColorBrush* pFontColor, ID2D1DeviceContext2* pContext)
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
@@ -101,11 +101,9 @@ void CIPScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList*
 	pIPShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	m_ppShaders[index++] = pIPShader;
 
-
 	m_pInput = new CIPInputSystem;
 	if (m_pInput)
-		m_pInput->Initialize(writeFactory,pd2dDeviceContext,pwicImagingFactory);
-
+		m_pInput->Initialize(pFont, pTextLayout, pFontColor, pContext);
 }
 
 void CIPScene::ProcessInput(HWND hWnd)

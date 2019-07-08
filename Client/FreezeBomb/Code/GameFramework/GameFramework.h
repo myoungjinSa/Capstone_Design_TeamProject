@@ -156,6 +156,7 @@ private:
 	D3D12_CPU_DESCRIPTOR_HANDLE				m_pd3dCarttonScreenRenderTargetBufferCPUHandles[m_nCartoonScreenRenderTargetBuffers];
 
 	CSobelCartoonShader*					m_pCartoonShader{ nullptr };
+	map<int,clientsInfo>						m_mapClients;
 
 #ifdef _WITH_DIRECT2D_
 	ID3D11On12Device				*m_pd3d11On12Device{ nullptr };//
@@ -169,7 +170,7 @@ private:
 	ID3D11Resource				*m_ppd3d11WrappedBackBuffers[m_nSwapChainBuffers];
 	ID2D1Bitmap1					*m_ppd2dRenderTargets[m_nSwapChainBuffers];
 	
-	enum FONT_TYPE { PIOP_FONT, GOTHIC_FONT };
+	enum FONT_TYPE { PIOP_FONT, MAPLE_FONT };
 
 	const int								m_FontNum = 2;
 	// 폰트 객체
@@ -193,11 +194,12 @@ private:
 
 	//한글인지 영어 인지
 	bool m_bHangeul{ false };
+
 #endif
 
 #ifdef _WITH_SERVER_
 	//클라이언트 정보
-	map<int,clientsInfo>						m_mapClients;
+	
 	//Network m_Network;
 	int hostId;
 	int clientCount = 0;
