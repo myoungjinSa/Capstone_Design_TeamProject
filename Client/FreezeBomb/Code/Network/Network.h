@@ -100,7 +100,6 @@ public:
 	void SendSurroundingCollision(USHORT objID);
 	void SendNotCollision();
 	void SendPlayerCollision(unsigned char playerID);
-	void SendNotPlayerCollision(unsigned char playerID);
 	void SendGetItem(const string& itemIndex);
 	void SendUseItem(int useItem, int targetID);
 	void SendFreezeState();

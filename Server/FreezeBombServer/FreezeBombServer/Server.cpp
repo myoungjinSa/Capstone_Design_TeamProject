@@ -677,10 +677,14 @@ void Server::ProcessPacket(char client, char *packet)
 	{
 		CS_PACKET_NOT_COLLISION *p = reinterpret_cast<CS_PACKET_NOT_COLLISION *>(packet);
 
+		
 		//최근 검사한 recent_object와만 거리 검사를 실시
 		float dist = sqrt(pow(clients[client].pos.x - recent_objects.pos.x, 2) +
 			pow(clients[client].pos.y - recent_objects.pos.y, 2) +
 			pow(clients[client].pos.z - recent_objects.pos.z, 2));
+
+		
+
 
 		clients[client].collision = CL_NONE;
 

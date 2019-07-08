@@ -117,8 +117,11 @@ void CCubeParticleShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsC
 				pCubeParticle->Initialize_Shadow(pCubeParticle);
 			}
 			pCubeParticle->SetRotationSpeed(720.f);
-			pCubeParticle->SetMovingSpeed(Random(10, 10));
-			pCubeParticle->SetDuration(1.0f);
+			pCubeParticle->SetMovingSpeed(Random(10,100));
+		//	pCubeParticle->SetVelocity(XMFLOAT3(-5.0f, 25.0f, 5.0f));
+			pCubeParticle->SetAccel(XMFLOAT3(0.0f,-0.098f,0.0f));
+			pCubeParticle->SetMass(2.0f);
+			pCubeParticle->SetDuration(3.0f);
 			pCubeParticle->SetBlowingUp(false);
 			pCubeParticle->SetPosition(0, 0, 0);
 			pCubeParticle->PrepareExplosion();

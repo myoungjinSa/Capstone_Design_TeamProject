@@ -42,6 +42,7 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 				pItem->SetRightVector((*iter3).second->m_Right);
 				pItem->Initialize_Shadow((*iter2).second, pItem);
 
+#ifndef _WITH_SERVER_
 				// 황금망치, 일반망치 랜덤으로 결정
 				switch (rand() % 2)
 				{
@@ -57,6 +58,7 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 					itemList.emplace("GoldHammer " + to_string(nGoldHammer++), pItem);
 					break;
 				}
+#endif
 			}
 		}
 

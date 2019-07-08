@@ -20,27 +20,73 @@ void CCubeParticle::Initialize_Shadow(CGameObject* pGameObject)
 	m_pShadow = new CShadow(nullptr, this);
 }
 
+void CCubeParticle::SetMass(const double mass)
+{
+	assert(mass != 0);
+	m_InverseMass = ((double)1.0) / mass;
+}
+
+double CCubeParticle::GetMass() const
+{
+	if (m_InverseMass == 0)
+		return DBL_MAX;
+	else
+		return ((double)1.0 / m_InverseMass);
+}
 void CCubeParticle::Animate(float elapsedTime, CCamera* pCamera)
 {
 	m_elapsedTime += elapsedTime;
+	//m_elapsedTime*=0.001f;
+
+
 
 	if (m_elapsedTime <= m_Duration && m_BlowingUp == true)
 	{
 		XMFLOAT4X4 world = Matrix4x4::Identity();
 		XMFLOAT3 position = GetPosition();
 
-	//	if (m_InverseMass < 0.0f) return;
+		//if (m_InverseMass < 0.0f) return;
 
 		//Vector3::ScalarProduct(m_MovingSpeed, elapsedTime);
+		
 
-		world._41 = position.x + m_SphereVector.x * m_MovingSpeed * elapsedTime;
-		world._42 = position.y + m_SphereVector.y * m_MovingSpeed * elapsedTime;
-		world._43 = position.z + m_SphereVector.z * m_MovingSpeed * elapsedTime;
-		world = Matrix4x4::Multiply(Matrix4x4::RotationAxis(m_SphereVector, m_RotationSpeed * elapsedTime), world);
+		//world = Matrix4x4::Multiply(Matrix4x4::RotationAxis(m_SphereVector, m_RotationSpeed * elapsedTime), world);
+		//position = Vector3::Add(position, Vector3::ScalarProduct(m_velocity, m_elapsedTime,false));
+
+		//cout << m_xmf4x4World._41 << "," << m_xmf4x4World._42 << "," << m_xmf4x4World._43 << endl;
+		XMFLOAT3 resAcc = m_acceleration;
+		resAcc = Vector3::Add(resAcc,Vector3::ScalarProduct(resAcc,m_InverseMass,false));
+
+	/*	m_velocity = Vector3::Add(m_velocity,Vector3::ScalarProduct(resAcc, m_elapsedTime,false));
+		m_velocity = Vector3::ScalarProduct(m_velocity,pow(0.1f, m_elapsedTime));
+		SetPosition(position.x, position.y, position.z);*/
+
+
+		world._41 = position.x + (m_SphereVector.x * (m_MovingSpeed * elapsedTime));// +resAcc.y);
+		world._42 = position.y + (m_SphereVector.y * (m_MovingSpeed * elapsedTime)) + resAcc.y; //+ resAcc.y);
+		world._43 = position.z + (m_SphereVector.z * (m_MovingSpeed * elapsedTime));//+ resAcc.y);
+		if (world._42 <= 0.0f)
+		{
+			//world._41 = world._41;
+			world._42 = 0.1f;
+			//world._43 = world._43;
+			
+		}
+	
+		//SetPosition( XMFLOAT3(0.0f, -0.98f, 0.0f));
 		m_xmf4x4World = world;
+
+		
+		m_MovingSpeed*= pow(0.1f, m_elapsedTime);
 	}
 	else
 	{
+		random_device rd;
+		default_random_engine dre(rd());
+		//default_random_engine dre;
+		uniform_real_distribution<double> urd(10, 100);
+		
+		m_MovingSpeed =(float)urd(dre);
 		m_elapsedTime = 0.f;
 		m_BlowingUp = false;
 	}
@@ -95,7 +141,7 @@ XMVECTOR CCubeParticle::RandomUintVectorOnSphere()
 
 	while (true)
 	{
-		XMVECTOR v = XMVectorSet(RandF(-1.0f, 1.0f), RandF(-0.2f, 0.6f), RandF(-1.0f, 1.0f), 0.0f);
+		XMVECTOR v = XMVectorSet(RandF(-0.8f, 0.7f), RandF(-0.5f, 0.5f), RandF(-0.8f, 0.7f), 0.0f);
 
 		if (!XMVector3Greater(XMVector3LengthSq(v), xmvOne))
 		{

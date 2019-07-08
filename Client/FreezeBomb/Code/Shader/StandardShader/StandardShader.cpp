@@ -260,7 +260,7 @@ void CStandardShader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList
 
 	if (m_ppd3dPipelineStates)
 	{
-		nPipelineState = MappingStageToPiplineStates(g_Round);
+		nPipelineState = MappingStageToPiplineStates(g_Round,nPipelineState);
 		if(m_ppd3dPipelineStates[nPipelineState])
 			pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[nPipelineState]);
 	}
@@ -268,6 +268,7 @@ void CStandardShader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList
 
 void CStandardShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)
 {
+	
 	CStandardShader::OnPrepareRender(pd3dCommandList, nPipelineState);
 }
 
@@ -289,10 +290,16 @@ void CStandardShader::ReleaseUploadBuffers()
 			m_ppObjects[i]->ReleaseUploadBuffers();
 }
 
-int CStandardShader::MappingStageToPiplineStates(int stage)
+int CStandardShader::MappingStageToPiplineStates(int stage,int pipelineStates)
 {
 	enum STAGE {ROUND_1,ROUND_2,ROUND_3};
 	int ret = GameObject;
+	if (pipelineStates == GameObject_Shadow)
+	{
+		ret = GameObject_Shadow;
+		return ret;
+	}
+	
 	switch(stage)
 	{
 	case ROUND_1:

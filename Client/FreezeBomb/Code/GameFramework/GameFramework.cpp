@@ -1680,6 +1680,16 @@ void CGameFramework::ProcessPacket(char *packet)
 				(*iter).second->m_ppObjects[id]->SetIsBomb(true);
 
 			}
+
+			iter = m_pScene->getShaderManager()->getShaderMap().find("Item");
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				cout << "골드 해머 개수: " << pRS->goldHammerCnt<<"\n";
+				cout << "일반 해머 개수: " << pRS->hammerCnt << "\n";
+				cout << "골드 타이머 개수:" << pRS->goldTimerCnt << "\n";
+				cout << "라운드 : " << pRS->round<<"\n";
+			}
+
 			// 다른 클라가 술래일 경우 isBomber를 set해줘야 폭탄을 그리지 않을까?
 		}
 		clientCount = pRS->clientCount;

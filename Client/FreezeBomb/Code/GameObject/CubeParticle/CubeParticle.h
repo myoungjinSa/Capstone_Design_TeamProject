@@ -18,7 +18,9 @@ public:
 	void	SetDuration(float Duration) { m_Duration = Duration; }
 
 	void	SetVelocity(XMFLOAT3 vel) { m_velocity = vel; }
-
+	void    SetAccel(XMFLOAT3 acc) { m_acceleration = acc; }
+	void	SetMass(const double mass);
+	double  GetMass() const;
 	void PrepareExplosion();
 	XMVECTOR RandomUintVectorOnSphere();
 
@@ -34,7 +36,7 @@ private:
 
 	XMFLOAT3				m_forceAccum = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3				m_acceleration = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	XMFLOAT3				m_velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMFLOAT3				m_velocity = XMFLOAT3(-5.0f, 25.0f, 5.0f);
 	XMFLOAT3				m_gravity = XMFLOAT3(0.0f, -1.0f, 0.0f);
 	// ¿øÇü
 	XMFLOAT3				m_SphereVector = XMFLOAT3(0.f, 0.f, 0.f);
