@@ -1,4 +1,6 @@
 #pragma once
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <WinSock2.h>
 #include <Windows.h>
 #include <fstream>

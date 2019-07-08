@@ -12,6 +12,13 @@ Server::Server()
 	freezeCnt = 0;
 	//clients.reserve(MAX_USER);
 	
+	for (int i = 0; i < MAX_ROUND; ++i)
+	{
+		goldHammerCnt[i] = 0;
+		goldTimerCnt[i] = 0;
+		normalHammerCnt[i] = 0;
+	}
+
 	workerThreads.reserve(MAX_WORKER_THREAD);
 }
 
@@ -171,23 +178,29 @@ void Server::LoadMapObjectInfo()
 
 			if (0 == strcmp(pMapObjectInfo->name.c_str(), "GoldTimer"))
 			{
-				items[j].emplace_back(*pMapObjectInfo);
+				goldTimers[j].emplace_back(*pMapObjectInfo);
 				++goldTimerCnt[j];
 			}
 			else if (0 == strcmp(pMapObjectInfo->name.c_str(), "Hammer"))
 			{
-				items[j].emplace_back(*pMapObjectInfo);
-				++hammerCnt[j];
+				if (goldHammerCnt[j] < 2)
+				{
+					goldHammers[j].emplace_back(*pMapObjectInfo);
+					++goldHammerCnt[j];
+				}
+				else
+				{
+					NormalHammers[j].emplace_back(*pMapObjectInfo);
+					++normalHammerCnt[j];
+				}
 			}
 			else
 				objects[j].emplace_back(*pMapObjectInfo);
 		}
 		in.close();
 
-		// 황금망치의 수는 임의로 조정.
 		// 황금망치의 수 만큼 일반망치 수 감소.
-		goldHammerCnt[j] = 2;
-		hammerCnt[j] -= goldHammerCnt[j];
+		normalHammerCnt[j] -= goldHammerCnt[j];
 	}
 }
 
@@ -913,15 +926,74 @@ void Server::ProcessPacket(char client, char *packet)
 	{
 		CS_PACKET_GET_ITEM *p = reinterpret_cast<CS_PACKET_GET_ITEM *>(packet);
 
-		if (NORMALHAMMER == p->itemId)
-			clients[client].normalItem = p->itemId;
-		else
-			clients[client].specialItem = p->itemId;
+		string tmps = p->itemIndex;
 
-		for (int i = 0; i < MAX_USER; ++i)
+		char *token = NULL;
+		int itemIdx = 0;
+		float dist = 0.f;
+
+		token = strtok(p->itemIndex, " ");
+		if (strcmp(token, "GoldTimer") == 0)
 		{
-			if (true == clients[i].in_use)
-				SendGetItem(i, client, p->itemId);
+			token = strtok(NULL, " ");
+			itemIdx = atoi(token);
+
+			dist = sqrt(pow(clients[client].pos.x - goldTimers[round][itemIdx].pos.x, 2) +
+				pow(clients[client].pos.y - goldTimers[round][itemIdx].pos.y, 2) +
+				pow(clients[client].pos.z - goldTimers[round][itemIdx].pos.z, 2));
+
+			if (dist <= 5)
+			{
+				clients[client].specialItem = itemIdx;
+				for (int i = 0; i < MAX_USER; ++i)
+				{
+					if (true == clients[i].in_use)
+						SendGetItem(i, client, tmps);
+				}
+			}
+
+			cout << dist << "\n";
+		}
+		else if (strcmp(token, "GoldHammer") == 0)
+		{
+			token = strtok(NULL, " ");
+			itemIdx = atoi(token);
+
+			dist = sqrt(pow(clients[client].pos.x - goldHammers[round][itemIdx].pos.x, 2) +
+				pow(clients[client].pos.y - goldHammers[round][itemIdx].pos.y, 2) +
+				pow(clients[client].pos.z - goldHammers[round][itemIdx].pos.z, 2));
+
+			if (dist <= 5)
+			{
+				clients[client].specialItem = itemIdx;
+				for (int i = 0; i < MAX_USER; ++i)
+				{
+					if (true == clients[i].in_use)
+						SendGetItem(i, client, tmps);
+				}
+			}
+
+			cout << dist << "\n";
+		}
+		else
+		{
+			token = strtok(NULL, " ");
+			itemIdx = atoi(token);
+
+			dist = sqrt(pow(clients[client].pos.x - NormalHammers[round][itemIdx].pos.x, 2) +
+				pow(clients[client].pos.y - NormalHammers[round][itemIdx].pos.y, 2) +
+				pow(clients[client].pos.z - NormalHammers[round][itemIdx].pos.z, 2));
+
+			if (dist <= 5)
+			{
+				clients[client].normalItem = itemIdx;
+				for (int i = 0; i < MAX_USER; ++i)
+				{
+					if (true == clients[i].in_use)
+						SendGetItem(i, client, tmps);
+				}
+			}
+			cout << dist << "\n";
 		}
 
 		break;
@@ -1159,7 +1231,7 @@ void Server::SendRoundStart(char client,unsigned short& t)
 	packet.round = round;
 	packet.goldTimerCnt = goldTimerCnt[round];
 	packet.goldHammerCnt = goldHammerCnt[round];
-	packet.hammerCnt = hammerCnt[round];
+	packet.hammerCnt = normalHammerCnt[round];
 	packet.clientCount = clientCount;
 	packet.size = sizeof(packet);
 	packet.type = SC_ROUND_START;
@@ -1302,15 +1374,18 @@ void Server::SendChangeBomber(char toClient, char bomberID,char runnerID)
 
 }
 
-void Server::SendGetItem(char toClient, char fromClient, char itemId)
+void Server::SendGetItem(char toClient, char fromClient, string& itemIndex)
 {
 	SC_PACKET_GET_ITEM packet;
 
 	packet.id = fromClient;
-	packet.itemId = itemId;
-	packet.size = sizeof(packet);
+	packet.size = sizeof(SC_PACKET_GET_ITEM);
 	packet.type = SC_GET_ITEM;
-
+	ZeroMemory(packet.itemIndex, MAX_ITEM_NAME_LENGTH);
+	strncpy(packet.itemIndex, itemIndex.c_str(), itemIndex.length());
+	for (int i = 0; i < MAX_ITEM_NAME_LENGTH; ++i)
+		cout << packet.itemIndex[i];
+	cout << "\n";
 	SendFunc(toClient, &packet);
 }
 

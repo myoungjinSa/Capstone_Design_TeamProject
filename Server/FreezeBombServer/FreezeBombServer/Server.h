@@ -170,7 +170,7 @@ private:
 	
 	int goldTimerCnt[MAX_ROUND];
 	int goldHammerCnt[MAX_ROUND];
-	int hammerCnt[MAX_ROUND];
+	int normalHammerCnt[MAX_ROUND];
 
 private:
 
@@ -180,7 +180,9 @@ private:
 	mutex		coolTime_l;
 private:
 	vector<MAPOBJECT> objects[MAX_ROUND];
-	vector<MAPOBJECT> items[MAX_ROUND];
+	vector<MAPOBJECT> goldTimers[MAX_ROUND];
+	vector<MAPOBJECT> goldHammers[MAX_ROUND];
+	vector<MAPOBJECT> NormalHammers[MAX_ROUND];
 	MAPOBJECT recent_objects;		//최근에 부딪힌 오브젝트;
 	XMFLOAT3 recent_pos;
 	XMFLOAT3 player_pos;
@@ -223,7 +225,7 @@ public:
 	void SendBombExplosion(char toClient, char fromClient);
 	void SendChangeBomber(char toClient, char bomberId,char runnerId);
 	void SendChangeHostID(char toClient, char hostID);
-	void SendGetItem(char toClient, char fromClient, char itemId);
+	void SendGetItem(char toClient, char fromClient, string& itemIndex);
 public:
 	void SetAnimationState(char client,char animationNum);
 	void SetVelocityZero(char client);

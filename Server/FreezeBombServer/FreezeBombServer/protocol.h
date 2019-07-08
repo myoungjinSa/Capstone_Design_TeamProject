@@ -34,6 +34,7 @@ enum PLAYER_STATE { NONESTATE, ICE, BREAK };							// 플레이어 상태
 enum STATE_TYPE { Init, Run, Over };
 enum MATERIAL { PINK, BROWN, WHITE, BLACK, BLUE, PANDA, ICEMAT };
 
+constexpr int MAX_ITEM_NAME_LENGTH = 15;
 constexpr int MAX_CHATTING_LENGTH = 100;
 constexpr int COOLTIME = 3;
 
@@ -226,7 +227,7 @@ struct CS_PACKET_GET_ITEM
 {
 	char size;
 	char type;
-	char itemId;
+	char itemIndex[MAX_ITEM_NAME_LENGTH];
 };
 
 struct CS_PACKET_USE_ITEM
@@ -443,8 +444,8 @@ struct SC_PACKET_GET_ITEM
 {
 	char size;
 	char type;
-	char itemId;
 	char id;
+	char itemIndex[MAX_ITEM_NAME_LENGTH];
 };
 
 struct SC_PACKET_USE_ITEM
