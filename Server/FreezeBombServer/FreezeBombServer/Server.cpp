@@ -3,6 +3,7 @@
 
 Server::Server()
 {
+	round = 0;
 	recent_pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	player_pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	roundCurrTime = 0;
@@ -11,6 +12,13 @@ Server::Server()
 	freezeCnt = 0;
 	//clients.reserve(MAX_USER);
 	
+	for (int i = 0; i < MAX_ROUND; ++i)
+	{
+		goldHammerCnt[i] = 0;
+		goldTimerCnt[i] = 0;
+		normalHammerCnt[i] = 0;
+	}
+
 	workerThreads.reserve(MAX_WORKER_THREAD);
 }
 
@@ -20,8 +28,11 @@ Server::~Server()
 	//clients.clear();
 	if (heightMap)
 		delete heightMap;
-	if (false == objects.empty())
-		objects.clear();
+	for (int i = 0; i < MAX_ROUND; ++i)
+	{
+		if (false == objects[i].empty())
+			objects[i].clear();
+	}
 }
 
 bool Server::InitServer()
@@ -82,89 +93,115 @@ bool Server::InitServer()
 
 void Server::LoadMapObjectInfo()
 {
-	string filename;
-	filename = "../Resource/Position/Surrounding/MapVer0.bin";
-	ifstream in(filename, ios::binary);
-
-	if (!in)
+	for (int j = 0; j < MAX_ROUND; ++j)
 	{
-		cout << " - 바이너리 파일 없음" << endl;
-		return;
+		string filename;
+		filename = "../Resource/Position/Surrounding/Round" + to_string(j) + ".bin";
+		ifstream in(filename, ios::binary);
+
+		if (!in)
+		{
+			cout <<filename << " - 바이너리 파일 없음" << endl;
+			return;
+		}
+
+		size_t nReads = 0;
+		XMFLOAT3 tmp;
+
+		// 맵 오브젝트 개수
+		int nObjects = 0;
+		in.read(reinterpret_cast<char*>(&nObjects), sizeof(int));
+
+		for (int i = 0; i < nObjects; ++i)
+		{
+			MAPOBJECT* pMapObjectInfo = new MAPOBJECT;
+			// 모델 이름 문자열 길이 저장
+			in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+
+			// 길이 + 1만큼 자원 할당
+			char* p = new char[nReads + 1];
+			in.read(p, sizeof(char) * nReads);
+			p[nReads] = '\0';
+			//  모델 이름 저장
+			pMapObjectInfo->name = p;
+			delete[] p;
+
+			// Position 문자열 길이 저장
+			in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+			p = new char[nReads + 1];
+			in.read(p, sizeof(char)*nReads);
+			p[nReads] = '\0';
+			delete[] p;
+
+			// Position x, y, z값 저장
+			in.read(reinterpret_cast<char*>(&pMapObjectInfo->pos.x), sizeof(float));
+			in.read(reinterpret_cast<char*>(&pMapObjectInfo->pos.y), sizeof(float));
+			in.read(reinterpret_cast<char*>(&pMapObjectInfo->pos.z), sizeof(float));
+
+			// Look 문자열 길이 저장
+			in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+			p = new char[nReads + 1];
+			in.read(p, sizeof(char)*nReads);
+			p[nReads] = '\0';
+			delete[] p;
+
+			// <Look> x, y, z값 저장
+			in.read(reinterpret_cast<char*>(&tmp.x), sizeof(float));
+			in.read(reinterpret_cast<char*>(&tmp.y), sizeof(float));
+			in.read(reinterpret_cast<char*>(&tmp.z), sizeof(float));
+
+			// Up 문자열 길이 저장
+			in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+			p = new char[nReads + 1];
+			in.read(p, sizeof(char)*nReads);
+			p[nReads] = '\0';
+			delete[] p;
+
+			// <Up> x, y, z값 저장
+			in.read(reinterpret_cast<char*>(&tmp.x), sizeof(float));
+			in.read(reinterpret_cast<char*>(&tmp.y), sizeof(float));
+			in.read(reinterpret_cast<char*>(&tmp.z), sizeof(float));
+
+			// Right 문자열 길이 저장
+			in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
+			p = new char[nReads + 1];
+			in.read(p, sizeof(char)*nReads);
+			p[nReads] = '\0';
+			delete[] p;
+
+			// <Right> x, y, z값 저장
+			in.read(reinterpret_cast<char*>(&tmp.x), sizeof(float));
+			in.read(reinterpret_cast<char*>(&tmp.y), sizeof(float));
+			in.read(reinterpret_cast<char*>(&tmp.z), sizeof(float));
+
+			pMapObjectInfo->pos.y = 0.f;
+
+			if (0 == strcmp(pMapObjectInfo->name.c_str(), "GoldTimer"))
+			{
+				goldTimers[j].emplace_back(*pMapObjectInfo);
+				++goldTimerCnt[j];
+			}
+			else if (0 == strcmp(pMapObjectInfo->name.c_str(), "Hammer"))
+			{
+				if (goldHammerCnt[j] < 2)
+				{
+					goldHammers[j].emplace_back(*pMapObjectInfo);
+					++goldHammerCnt[j];
+				}
+				else
+				{
+					NormalHammers[j].emplace_back(*pMapObjectInfo);
+					++normalHammerCnt[j];
+				}
+			}
+			else
+				objects[j].emplace_back(*pMapObjectInfo);
+		}
+		in.close();
+
+		// 황금망치의 수 만큼 일반망치 수 감소.
+		normalHammerCnt[j] -= goldHammerCnt[j];
 	}
-
-	size_t nReads = 0;
-	XMFLOAT3 tmp;
-
-	// 맵 오브젝트 개수
-	int nObjects = 0;
-	in.read(reinterpret_cast<char*>(&nObjects), sizeof(int));
-
-	for (int i = 0; i < nObjects; ++i)
-	{
-		MAPOBJECT* pMapObjectInfo = new MAPOBJECT;
-		// 모델 이름 문자열 길이 저장
-		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-
-		// 길이 + 1만큼 자원 할당
-		char* p = new char[nReads + 1];
-		in.read(p, sizeof(char) * nReads);
-		p[nReads] = '\0';
-		//  모델 이름 저장
-		delete[] p;
-
-		// Position 문자열 길이 저장
-		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-		p = new char[nReads + 1];
-		in.read(p, sizeof(char)*nReads);
-		p[nReads] = '\0';
-		delete[] p;
-
-		// Position x, y, z값 저장
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->pos.x), sizeof(float));
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->pos.y), sizeof(float));
-		in.read(reinterpret_cast<char*>(&pMapObjectInfo->pos.z), sizeof(float));
-
-		// Look 문자열 길이 저장
-		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-		p = new char[nReads + 1];
-		in.read(p, sizeof(char)*nReads);
-		p[nReads] = '\0';
-		delete[] p;
-
-		// <Look> x, y, z값 저장
-		in.read(reinterpret_cast<char*>(&tmp.x), sizeof(float));
-		in.read(reinterpret_cast<char*>(&tmp.y), sizeof(float));
-		in.read(reinterpret_cast<char*>(&tmp.z), sizeof(float));
-
-		// Up 문자열 길이 저장
-		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-		p = new char[nReads + 1];
-		in.read(p, sizeof(char)*nReads);
-		p[nReads] = '\0';
-		delete[] p;
-
-		// <Up> x, y, z값 저장
-		in.read(reinterpret_cast<char*>(&tmp.x), sizeof(float));
-		in.read(reinterpret_cast<char*>(&tmp.y), sizeof(float));
-		in.read(reinterpret_cast<char*>(&tmp.z), sizeof(float));
-
-		// Right 문자열 길이 저장
-		in.read(reinterpret_cast<char*>(&nReads), sizeof(size_t));
-		p = new char[nReads + 1];
-		in.read(p, sizeof(char)*nReads);
-		p[nReads] = '\0';
-		delete[] p;
-
-		// <Right> x, y, z값 저장
-		in.read(reinterpret_cast<char*>(&tmp.x), sizeof(float));
-		in.read(reinterpret_cast<char*>(&tmp.y), sizeof(float));
-		in.read(reinterpret_cast<char*>(&tmp.z), sizeof(float));
-
-		pMapObjectInfo->pos.y = 0.f;
-
-		objects.emplace_back(*pMapObjectInfo);
-	}
-	in.close();
 }
 
 void Server::RunServer()
@@ -451,53 +488,86 @@ void Server::WorkerThreadFunc()
 		}
 		else if (EV_COUNT == over_ex->event_t)
 		{
-			timer_l.lock();
+			roundTime_l.lock();
 			unsigned short time = --roundCurrTime;
-			timer_l.unlock();
+			roundTime_l.unlock();
 
 			//서버 시간 현재 (남은 시간)
 		//	printf("RoundCurrentTime : %d", roundCurrTime);
 			for (int i = 0; i < MAX_USER; ++i)
 			{
 				if (true == clients[i].in_use)
-					SendCompareTime(i,time);
+					SendCompareTime(i, roundCurrTime);
 			}
 
 			// 라운드 종료 시
-			timer_l.lock();
+			roundTime_l.lock();
 			if (roundCurrTime <= 0)
 			{
-				timer_l.unlock();
-				for (int i = 0; i < MAX_USER; ++i)
+				roundTime_l.unlock();
+				if (round >= MAX_ROUND)
 				{
-					if (true == clients[i].in_use)
-						SendRoundEnd(i);
+					for (int i = 0; i < MAX_USER; ++i)
+					{
+						if (true == clients[i].in_use)
+							SendRoundEnd(i);
+					}
 				}
-				ResetTimer();
+				else
+				{
+					++round;
+
+					// 새 라운드 시작 시 초기화
+					StartTimer();
+
+					roundTime_l.lock();
+					unsigned short time = roundCurrTime;
+					roundTime_l.unlock();
+					for (int i = 0; i < MAX_USER; ++i)
+					{
+						if (true == clients[i].in_use)
+						{
+
+							for (int j = 0; j < MAX_USER; ++j)
+							{
+								if (true == clients[j].in_use)
+								{
+
+									clients[j].pos.x = (100.0f*j + 50);
+									clients[j].pos.z = 100.0f;
+
+									SendMovePlayer(i, j);
+
+								}
+							}
+							SendRoundStart(i, time);
+						}
+					}
+				}
 			}
 			else
 			{
-				timer_l.unlock();
+				roundTime_l.unlock();
 				add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
 			}
 		}
 		else if(EV_COOLTIME == over_ex->event_t)		//cooltime 계산
 		{
-			timer_l.lock();
+			coolTime_l.lock();
 			changeCoolTime--;
-			timer_l.unlock();
+			coolTime_l.unlock();
 
 			//printf("쿨타임:%d\n", changeCoolTime);
-			timer_l.lock();
+			coolTime_l.lock();
 			if(changeCoolTime<=0)
 			{
 			
 				changeCoolTime = 0;
-				timer_l.unlock();
+				coolTime_l.unlock();
 			}
 			else
 			{
-				timer_l.unlock();
+				coolTime_l.unlock();
 				add_timer(-1, EV_COOLTIME, chrono::high_resolution_clock::now() + 1s);
 			}
 
@@ -526,16 +596,16 @@ void Server::PickBomber()
 
 void Server::StartTimer()
 {
-	timer_l.lock();
+	roundTime_l.lock();
 	roundCurrTime = MAX_ROUND_TIME;
-	timer_l.unlock();
+	roundTime_l.unlock();
 }
 
 void Server::ResetTimer()
 {
-	timer_l.lock();
+	roundTime_l.lock();
 	roundCurrTime = 0;
-	timer_l.unlock();
+	roundTime_l.unlock();
 }
 
 void Server::ProcessPacket(char client, char *packet)
@@ -590,16 +660,13 @@ void Server::ProcessPacket(char client, char *packet)
 
 
 		// 서버에서 플레이어와 해당 맵 오브젝트 사이의 거리(위치+부피)를 측정하여 검증 후 broadcast
-		float dist = sqrt(pow(clients[client].pos.x - objects[p->objId].pos.x, 2) +
-			pow(clients[client].pos.y - objects[p->objId].pos.y, 2) +
-			pow(clients[client].pos.z - objects[p->objId].pos.z, 2));
+		float dist = sqrt(pow(clients[client].pos.x - objects[round][p->objId].pos.x, 2) +
+			pow(clients[client].pos.y - objects[round][p->objId].pos.y, 2) +
+			pow(clients[client].pos.z - objects[round][p->objId].pos.z, 2));
 		
 		clientsLock[client].lock();
-		recent_objects = objects[p->objId]; //최근에 부딪힌 오브젝트를 저장한다.
-		clientsLock[client].unlock();
-
-		clientsLock[client].lock();
-		recent_pos = objects[p->objId].pos;
+		recent_objects = objects[round][p->objId]; //최근에 부딪힌 오브젝트를 저장한다.
+		recent_pos = objects[round][p->objId].pos;
 		clientsLock[client].unlock();
 
 		clients[client].collision = CL_SURROUNDING;
@@ -624,22 +691,15 @@ void Server::ProcessPacket(char client, char *packet)
 	{
 		CS_PACKET_PLAYER_COLLISION* p = reinterpret_cast<CS_PACKET_PLAYER_COLLISION*>(packet);
 
-
-
-
 		float dist = sqrt(pow(clients[client].pos.x - clients[p->playerID].pos.x, 2) +
 		pow(clients[client].pos.y - clients[p->playerID].pos.y, 2) +
 			pow(clients[client].pos.z - clients[p->playerID].pos.z, 2));
 
-
-
 		clientsLock[client].lock();
 		recent_player = p->playerID;
-		clientsLock[client].unlock();
-
-		clientsLock[client].lock();
 		player_pos = clients[recent_player].pos;
 		clientsLock[client].unlock();
+
 		clients[client].collision = CL_PLAYER;
 
 		break;
@@ -658,29 +718,26 @@ void Server::ProcessPacket(char client, char *packet)
 		pow(clients[client].pos.y - clients[p->touchId].pos.y, 2) +
 			pow(clients[client].pos.z - clients[p->touchId].pos.z, 2));
 
-
 		clientsLock[client].lock();
 		bomberID = p->touchId;
 		clientsLock[client].unlock();
-		timer_l.lock();
+
+		coolTime_l.lock();
 		changeCoolTime = COOLTIME;
-		timer_l.unlock();
-		
-		timer_l.lock();
 		if (changeCoolTime == COOLTIME) 
 		{
-			timer_l.unlock();
+			coolTime_l.unlock();
 			add_timer(-1, EV_COOLTIME, chrono::high_resolution_clock::now() + 1s);
 		}
 		else
 		{
-			timer_l.unlock();
+			coolTime_l.unlock();
 		}
+
 		for(int i=0;i<MAX_USER;++i)
 		{
-			if (clients[i].in_use == true)
+			if (true == clients[i].in_use)
 				SendChangeBomber(i, bomberID,client);
-
 		}
 		
 
@@ -826,9 +883,9 @@ void Server::ProcessPacket(char client, char *packet)
 			// 라운드 시작시간 set
 			StartTimer();
 		
-			timer_l.lock();
+			roundTime_l.lock();
 			unsigned short time = roundCurrTime;
-			timer_l.unlock();
+			roundTime_l.unlock();
 			for(int i=0; i< MAX_USER ;++i)
 			{
 				if(true == clients[i].in_use)
@@ -865,7 +922,82 @@ void Server::ProcessPacket(char client, char *packet)
 			printf("Please Ready\n");
 		}
 		break;
+	case CS_GET_ITEM:
+	{
+		CS_PACKET_GET_ITEM *p = reinterpret_cast<CS_PACKET_GET_ITEM *>(packet);
 
+		string tmps = p->itemIndex;
+
+		char *token = NULL;
+		int itemIdx = 0;
+		float dist = 0.f;
+
+		token = strtok(p->itemIndex, " ");
+		if (strcmp(token, "GoldTimer") == 0)
+		{
+			token = strtok(NULL, " ");
+			itemIdx = atoi(token);
+
+			dist = sqrt(pow(clients[client].pos.x - goldTimers[round][itemIdx].pos.x, 2) +
+				pow(clients[client].pos.y - goldTimers[round][itemIdx].pos.y, 2) +
+				pow(clients[client].pos.z - goldTimers[round][itemIdx].pos.z, 2));
+
+			if (dist <= 5)
+			{
+				clients[client].specialItem = itemIdx;
+				for (int i = 0; i < MAX_USER; ++i)
+				{
+					if (true == clients[i].in_use)
+						SendGetItem(i, client, tmps);
+				}
+			}
+
+			cout << dist << "\n";
+		}
+		else if (strcmp(token, "GoldHammer") == 0)
+		{
+			token = strtok(NULL, " ");
+			itemIdx = atoi(token);
+
+			dist = sqrt(pow(clients[client].pos.x - goldHammers[round][itemIdx].pos.x, 2) +
+				pow(clients[client].pos.y - goldHammers[round][itemIdx].pos.y, 2) +
+				pow(clients[client].pos.z - goldHammers[round][itemIdx].pos.z, 2));
+
+			if (dist <= 5)
+			{
+				clients[client].specialItem = itemIdx;
+				for (int i = 0; i < MAX_USER; ++i)
+				{
+					if (true == clients[i].in_use)
+						SendGetItem(i, client, tmps);
+				}
+			}
+
+			cout << dist << "\n";
+		}
+		else
+		{
+			token = strtok(NULL, " ");
+			itemIdx = atoi(token);
+
+			dist = sqrt(pow(clients[client].pos.x - NormalHammers[round][itemIdx].pos.x, 2) +
+				pow(clients[client].pos.y - NormalHammers[round][itemIdx].pos.y, 2) +
+				pow(clients[client].pos.z - NormalHammers[round][itemIdx].pos.z, 2));
+
+			if (dist <= 5)
+			{
+				clients[client].normalItem = itemIdx;
+				for (int i = 0; i < MAX_USER; ++i)
+				{
+					if (true == clients[i].in_use)
+						SendGetItem(i, client, tmps);
+				}
+			}
+			cout << dist << "\n";
+		}
+
+		break;
+	}
 	case CS_USEITEM:
 	{
 		CS_PACKET_USE_ITEM *p = reinterpret_cast<CS_PACKET_USE_ITEM *>(packet);
@@ -886,9 +1018,9 @@ void Server::ProcessPacket(char client, char *packet)
 			//실제 이 클라이언트가 이 아이템을 들고 있는지 검사를 해야함.
 			//이 클라이언트가 도망자인지 검사해야함.
 
-			timer_l.lock();
+			roundTime_l.lock();
 			unsigned short time = roundCurrTime += 60;
-			timer_l.unlock();
+			roundTime_l.unlock();
 
 
 			for (int i = 0; i < MAX_USER; ++i)
@@ -1095,10 +1227,14 @@ void Server::SendRoundStart(char client,unsigned short& t)
 {
 	SC_PACKET_ROUND_START packet;
 	packet.bomberID = bomberID;
-	packet.size = sizeof(packet);
-	packet.clientCount = clientCount;
-	packet.type = SC_ROUND_START;
 	packet.startTime = t;
+	packet.round = round;
+	packet.goldTimerCnt = goldTimerCnt[round];
+	packet.goldHammerCnt = goldHammerCnt[round];
+	packet.hammerCnt = normalHammerCnt[round];
+	packet.clientCount = clientCount;
+	packet.size = sizeof(packet);
+	packet.type = SC_ROUND_START;
 
 	SendFunc(client, &packet);
 }
@@ -1237,6 +1373,22 @@ void Server::SendChangeBomber(char toClient, char bomberID,char runnerID)
 	SendFunc(toClient, &packet);
 
 }
+
+void Server::SendGetItem(char toClient, char fromClient, string& itemIndex)
+{
+	SC_PACKET_GET_ITEM packet;
+
+	packet.id = fromClient;
+	packet.size = sizeof(SC_PACKET_GET_ITEM);
+	packet.type = SC_GET_ITEM;
+	ZeroMemory(packet.itemIndex, MAX_ITEM_NAME_LENGTH);
+	strncpy(packet.itemIndex, itemIndex.c_str(), itemIndex.length());
+	for (int i = 0; i < MAX_ITEM_NAME_LENGTH; ++i)
+		cout << packet.itemIndex[i];
+	cout << "\n";
+	SendFunc(toClient, &packet);
+}
+
 void Server::SendUseItem(char toClient, char fromClient, char usedItem, char targetClient)
 {
 	SC_PACKET_USE_ITEM packet;

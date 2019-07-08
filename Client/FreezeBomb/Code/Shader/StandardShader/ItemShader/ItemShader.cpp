@@ -48,13 +48,13 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 				case CItem::NormalHammer:
 					pItem->setItemType(CItem::NormalHammer);
 					//m_ItemMap.emplace("NormalHammer" + to_string(nNormalHammer++), pItem);
-					itemList.emplace("NormalHammer" + to_string(nNormalHammer++), pItem);
+					itemList.emplace("NormalHammer " + to_string(nNormalHammer++), pItem);
 					break;
 
 				case CItem::GoldHammer:
 					pItem->setItemType(CItem::GoldHammer);
 					//m_ItemMap.emplace("GoldHammer" + to_string(nGoldHammer++), pItem);
-					itemList.emplace("GoldHammer" + to_string(nNormalHammer++), pItem);
+					itemList.emplace("GoldHammer " + to_string(nGoldHammer++), pItem);
 					break;
 				}
 			}
@@ -80,7 +80,7 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 				pItem->setItemType(CItem::GoldTimer);
 				//m_ItemMap.emplace("GoldTimer" + to_string(nGoldTimer++), pItem);
-				itemList.emplace("GoldTimer" + to_string(nNormalHammer++), pItem);
+				itemList.emplace("GoldTimer " + to_string(nGoldTimer++), pItem);
 			}
 		}
 		m_ItemList.emplace(round++, itemList);

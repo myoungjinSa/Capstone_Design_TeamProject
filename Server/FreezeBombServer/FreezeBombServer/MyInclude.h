@@ -1,4 +1,6 @@
 #pragma once
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <WinSock2.h>
 #include <Windows.h>
 #include <fstream>
@@ -10,6 +12,7 @@
 #include <queue>
 #include <chrono>
 #include <iostream>
+#include <string>
 
 using std::cout;
 using std::mutex;

@@ -55,6 +55,7 @@ private:
 	CS_PACKET_RELEASE_FREEZE *pReleaseFreeze = NULL;
 	CS_PACKET_BOMB_EXPLOSION *pBomb = NULL;
 	CS_PACKET_BOMBER_TOUCH* pTouch = NULL;
+	CS_PACKET_GET_ITEM *pGetItem = NULL;
 private:
 	//ReadPacket에서 받은 패킷들을 CGameFramework에 전달하기 위한 포인터
 	CGameFramework* m_pGameClient{nullptr};
@@ -101,6 +102,7 @@ public:
 	void SendNotSurroundingCollision();
 	void SendPlayerCollision(unsigned char playerID);
 	void SendNotPlayerCollision(unsigned char playerID);
+	void SendGetItem(const string& itemIndex);
 	void SendUseItem(int useItem, int targetID);
 	void SendFreezeState();
 	void SendReleaseFreezeState();

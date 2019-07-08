@@ -1992,6 +1992,17 @@ void CGameFramework::ProcessPacket(char *packet)
 		}
 		break;
 	}
+	case SC_GET_ITEM:
+	{
+		SC_PACKET_GET_ITEM *pGI = reinterpret_cast<SC_PACKET_GET_ITEM *>(packet);
+
+		// 어떤플레이어가 어떤 아이템을 획득했는지에 대한 정보가 담겨옴
+		for(int i=0;i<MAX_ITEM_NAME_LENGTH; ++i)
+			cout << pGI->itemIndex[i];
+		cout << "\n";
+
+		break;
+	}
 	case SC_USE_ITEM:
 	{
 		pUI = reinterpret_cast<SC_PACKET_USE_ITEM*>(packet);
