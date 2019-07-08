@@ -116,10 +116,10 @@ void CCubeParticleShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsC
 				pCubeParticle->SetMaterial(0, pMaterial);
 				pCubeParticle->Initialize_Shadow(pCubeParticle);
 			}
-			pCubeParticle->setRotationSpeed(720.f);
-			pCubeParticle->setMovingSpeed(Random(10, 10));
-			pCubeParticle->setDuration(1.0f);
-			pCubeParticle->setBlowingUp(false);
+			pCubeParticle->SetRotationSpeed(720.f);
+			pCubeParticle->SetMovingSpeed(Random(10, 10));
+			pCubeParticle->SetDuration(1.0f);
+			pCubeParticle->SetBlowingUp(false);
 			pCubeParticle->SetPosition(0, 0, 0);
 			pCubeParticle->PrepareExplosion();
 
@@ -172,10 +172,10 @@ void CCubeParticleShader::SetParticleBlowUp(XMFLOAT3& position)
 {
 	for (auto iter = m_CubeParticleList.begin(); iter != m_CubeParticleList.end(); ++iter)
 	{
-		if ((*iter)->getBlowingUp() == false)
+		if ((*iter)->GetBlowingUp() == false)
 		{
 			(*iter)->SetPosition(position);
-			(*iter)->setBlowingUp(true);
+			(*iter)->SetBlowingUp(true);
 		}
 	}
 }

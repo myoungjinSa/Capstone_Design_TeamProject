@@ -29,6 +29,10 @@ void CCubeParticle::Animate(float elapsedTime, CCamera* pCamera)
 		XMFLOAT4X4 world = Matrix4x4::Identity();
 		XMFLOAT3 position = GetPosition();
 
+	//	if (m_InverseMass < 0.0f) return;
+
+		//Vector3::ScalarProduct(m_MovingSpeed, elapsedTime);
+
 		world._41 = position.x + m_SphereVector.x * m_MovingSpeed * elapsedTime;
 		world._42 = position.y + m_SphereVector.y * m_MovingSpeed * elapsedTime;
 		world._43 = position.z + m_SphereVector.z * m_MovingSpeed * elapsedTime;
@@ -91,7 +95,7 @@ XMVECTOR CCubeParticle::RandomUintVectorOnSphere()
 
 	while (true)
 	{
-		XMVECTOR v = XMVectorSet(RandF(-1.0f, 1.0f), RandF(-1.0f, 1.0f), RandF(-1.0f, 1.0f), 0.0f);
+		XMVECTOR v = XMVectorSet(RandF(-1.0f, 1.0f), RandF(-0.2f, 0.6f), RandF(-1.0f, 1.0f), 0.0f);
 
 		if (!XMVector3Greater(XMVector3LengthSq(v), xmvOne))
 		{

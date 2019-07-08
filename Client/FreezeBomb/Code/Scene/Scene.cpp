@@ -882,7 +882,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 
 									m_pPlayer->Sub_Inventory(CItem::NormalHammer);
 								}
-								m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[i]->GetPosition());
+								m_pShaderManager->ProcessCollision(Vector3::Add((*iter).second->m_ppObjects[i]->GetPosition(),XMFLOAT3(0.0f,2.0f,0.0f)));
 
 								PlayIceBreakEffect(bBreak);
 								(*iter).second->m_ppObjects[i]->SetIsICE(false);
