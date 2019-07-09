@@ -149,7 +149,6 @@ class Server
 private:
 	int round;
 	mutex gLock;
-	mutex clientsLock[MAX_USER];
 	SOCKET listenSocket;
 	HANDLE iocp;
 	// vector로 했을 때 over_ex.messagebuffer에 값이 들어오질 않는다.
