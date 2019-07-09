@@ -290,7 +290,7 @@ void CStandardShader::ReleaseUploadBuffers()
 			m_ppObjects[i]->ReleaseUploadBuffers();
 }
 
-int CStandardShader::MappingStageToPiplineStates(int stage,int pipelineStates)
+int CStandardShader::MappingStageToPiplineStates(const int& stage,const int& pipelineStates)
 {
 	enum STAGE {ROUND_1,ROUND_2,ROUND_3};
 	int ret = GameObject;
