@@ -289,7 +289,6 @@ void Server::AcceptThreadFunc()
 			continue;
 		}
 		
-		clientsLock[new_id].lock();
 		///////////////////////////////////// 클라이언트 초기화 정보 수정 위치 /////////////////////////////////////
 		clients[new_id].socket = clientSocket;
 		if (-1 == hostId)
@@ -302,16 +301,11 @@ void Server::AcceptThreadFunc()
 		ZeroMemory(&clients[new_id].over_ex.over, sizeof(clients[new_id].over_ex.over));
 		
 		flags = 0;
-
 		CreateIoCompletionPort(reinterpret_cast<HANDLE>(clientSocket), iocp, new_id, 0);
 
 		clients[new_id].in_use = true;
 		clients[new_id].velocity = XMFLOAT3(0.0f, 0.0f, 1.0f);
-		
 		clients[new_id].gameState = GS_LOBBY;
-		clientsLock[new_id].unlock();
-
-		
 
 		SendAccessComplete(new_id);
 		// 기존 유저들에게 이후 접속한 유저들 출력
@@ -630,9 +624,7 @@ void Server::ProcessPacket(char client, char *packet)
 	{
 		SetDirection(client, packet[1]);
 
-		clientsLock[client].lock();
 		float time = gameTimer.GetTimeElapsed();
-		clientsLock[client].unlock();
 
 		UpdateClientPos(client, time);
 
@@ -664,10 +656,8 @@ void Server::ProcessPacket(char client, char *packet)
 			pow(clients[client].pos.y - objects[round][p->objId].pos.y, 2) +
 			pow(clients[client].pos.z - objects[round][p->objId].pos.z, 2));
 		
-		clientsLock[client].lock();
 		recent_objects = objects[round][p->objId]; //최근에 부딪힌 오브젝트를 저장한다.
 		recent_pos = objects[round][p->objId].pos;
-		clientsLock[client].unlock();
 
 		clients[client].collision = CL_SURROUNDING;
 
@@ -699,10 +689,8 @@ void Server::ProcessPacket(char client, char *packet)
 		pow(clients[client].pos.y - clients[p->playerID].pos.y, 2) +
 			pow(clients[client].pos.z - clients[p->playerID].pos.z, 2));
 
-		clientsLock[client].lock();
 		recent_player = p->playerID;
 		player_pos = clients[recent_player].pos;
-		clientsLock[client].unlock();
 
 		clients[client].collision = CL_PLAYER;
 
@@ -722,9 +710,7 @@ void Server::ProcessPacket(char client, char *packet)
 		pow(clients[client].pos.y - clients[p->touchId].pos.y, 2) +
 			pow(clients[client].pos.z - clients[p->touchId].pos.z, 2));
 
-		clientsLock[client].lock();
 		bomberID = p->touchId;
-		clientsLock[client].unlock();
 
 		coolTime_l.lock();
 		changeCoolTime = COOLTIME;
@@ -785,9 +771,6 @@ void Server::ProcessPacket(char client, char *packet)
 
 		printf("Ready한 클라 수: %d\n", readyCount);
 
-		clientsLock[client].lock();
-
-
 		clients[client].isReady = true;
 		clients[client].matID = packet[2];	// matID
 		for(int i=0;i<MAX_USER;++i)
@@ -795,7 +778,6 @@ void Server::ProcessPacket(char client, char *packet)
 			if (clients[i].in_use == true)
 				SendReadyStatePacket(i, client);
 		}
-		clientsLock[client].unlock();
 		//printf("Recv matID : %d\n", clients[client].matID);
 		break;
 	case CS_UNREADY:
@@ -807,7 +789,6 @@ void Server::ProcessPacket(char client, char *packet)
 
 		printf("Ready한 클라 수: %d\n", readyCount);
 
-		clientsLock[client].lock();
 		clients[client].isReady = false;
 
 		for(int i=0;i<MAX_USER;++i)
@@ -815,8 +796,6 @@ void Server::ProcessPacket(char client, char *packet)
 			if (clients[i].in_use == true)
 				SendUnReadyStatePacket(i, client);
 		}
-
-		clientsLock[client].unlock();
 		break;
 	}
 	case CS_NICKNAME_INFO:
@@ -1048,9 +1027,7 @@ void Server::ProcessPacket(char client, char *packet)
 		if (freezeCnt >= MAX_FREEZE_COUNT)	//최대 얼음할 수 있는 도망자 수를 넘으면 얼음을 하게 할 수 없다.
 			break;
 
-		clientsLock[client].lock();
 		++freezeCnt;
-		clientsLock[client].unlock();
 
 		for(int i=0;i<MAX_USER;++i)
 		{
@@ -1069,9 +1046,7 @@ void Server::ProcessPacket(char client, char *packet)
 		if (freezeCnt <= 0)
 			break;
 
-		clientsLock[client].lock();
 		--freezeCnt;
-		clientsLock[client].unlock();
 
 		for(int i=0;i<MAX_USER;++i)
 		{
@@ -1429,11 +1404,12 @@ void Server::SendBombExplosion(char toClient,char fromClient)
 }
 void Server::ClientDisconnect(char client)
 {
-	gLock.lock();
 	clients[client].in_use = false;
 	if (clients[client].isReady)
 	{
+		gLock.lock();
 		readyCount--;
+		gLock.unlock();
 		clients[client].isReady = false;
 	}
 	if (hostId == client)
@@ -1449,14 +1425,11 @@ void Server::ClientDisconnect(char client)
 			}
 		}
 	}
+	gLock.lock();
 	clientCount--;
 	gLock.unlock();
 	
-	clientsLock[client].lock();
-	GAME_STATE gs = clients[client].gameState;
-	clientsLock[client].unlock();
-
-	switch(gs)
+	switch(clients[client].gameState)
 	{
 	case GS_LOBBY:
 	{
@@ -1619,9 +1592,7 @@ void Server::UpdateClientPos(char client, float fTimeElapsed)
 	}
 
 
-	clientsLock[client].lock();
 	clients[client].pos = Vector3::Add(clients[client].pos, clients[client].velocity);
-	clientsLock[client].unlock();
 
 	//현재 높이값은 0으로 정해져있어서 필요없는 함수 
 	//ProcessClientHeight(client);
@@ -1630,9 +1601,7 @@ void Server::UpdateClientPos(char client, float fTimeElapsed)
 
 
 	//속도를 클라에게 보내주어 클라에서 기본적인 rUn,Backward,애니메이션을 결정하게 하기 위해.
-	clientsLock[client].lock();
 	clients[client].fVelocity = fLength;
-	clientsLock[client].unlock();
 
 	//cout << clients[client].fVelocity << endl;
 
