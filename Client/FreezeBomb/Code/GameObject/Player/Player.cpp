@@ -15,6 +15,7 @@
 #include "../../Chatting/Chatting.h"
 #include "../../Shader/BillboardShader/UIShader/TextUIShader/OutcomeUIShader/OutcomeUIShader.h"
 #include "../../Network/Network.h"
+#include "../../Shader/CubeParticleShader/ExplosionParticleShader/ExplosionParticleShader.h"
 
 extern byte g_PlayerCharacter;
 
@@ -40,6 +41,7 @@ CPlayer::CPlayer()
 	m_pPlayerUpdatedContext = nullptr;
 	m_pCameraUpdatedContext = nullptr;
 
+	//사운드 초기화
 	InitializeSound();
 }
 
@@ -674,13 +676,13 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 	// 특수 아이템 사용 버튼(ALT)
 	if (GetAsyncKeyState(VK_MENU) & 0x0001)
 	{
-		m_bLightening = true;
+		
 		if (m_Special_Inventory.size() > 0)
 		{
 			auto iter = m_Special_Inventory.begin();
 			if ((*iter).second->getItemType() == CItem::GoldHammer)
 			{	
-				
+				m_bLightening = true;
 				SetTrackAnimationSet(0, CAnimationController::USEGOLDHAMMER);
 				SetTrackAnimationPosition(0, 0.0f);
 				//m_pAnimationController->SetTrackSpeed(0, 2.0f);
@@ -695,8 +697,22 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 				//쿨타임 체크 set
 				countCoolTime = true;
 						
-
-				Sub_Inventory((*iter).second->getItemType());
+				if (countCoolTime)
+				{
+					eraseTime += fTimeElapsed;
+					if(eraseTime > 1.85f)		//1.75는 USEGOLDHAMMER 애니메이션에 길이 - 0.8f 해준 값
+					{
+						if (m_Special_Inventory.size() > 0)
+						{
+							auto iter = m_Special_Inventory.begin();
+							Sub_Inventory((*iter).second->getItemType());
+							eraseTime = 0.0f;
+				
+						}
+						m_bLightening = false;
+						countCoolTime = false;
+					}
+				}
 
 			}
 			else
@@ -740,9 +756,11 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 					{
 						auto outcomeIter = m_pShaderManager->getShaderMap().find("OutcomeUI");
 						auto iter2 = m_pShaderManager->getShaderMap().find("Bomb");
-						
+						auto explosionIter = m_pShaderManager->getShaderMap().find("ExplosionParticle");
+
 						if (iter2 != m_pShaderManager->getShaderMap().end()
-							&& outcomeIter != m_pShaderManager->getShaderMap().end())
+							&& outcomeIter != m_pShaderManager->getShaderMap().end()
+							&& explosionIter != m_pShaderManager->getShaderMap().end())
 						{
 							
 
@@ -759,9 +777,15 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 							Network::GetInstance()->SendBombExplosion();
 
 #endif
+					
 							m_BombParticle = ((CBombParticleShader*)(*iter2).second)->getBomb();
 							m_BombParticle->SetPosition(m_xmf3Position.x, m_xmf3Position.y, m_xmf3Position.z);
 							m_BombParticle->setIsBlowing(true);
+
+							dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetParticleBlowUp(m_xmf3Position);
+						
+
+
 							m_bBomb = false;
 						}
 					}

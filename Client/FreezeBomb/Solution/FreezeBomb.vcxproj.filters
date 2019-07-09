@@ -177,9 +177,6 @@
     <ClCompile Include="..\Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationShader.cpp">
       <Filter>Code\Shader\StandardShader\SkinnedAnimationShader</Filter>
     </ClCompile>
-    <ClCompile Include="..\Code\GameObject\CubeParticle\CubeParticle.cpp">
-      <Filter>Code\GameObject\CubeParticle</Filter>
-    </ClCompile>
     <ClCompile Include="..\Code\Shader\CubeParticleShader\CubeParticleShader.cpp">
       <Filter>Code\Shader\CubeParticleShader</Filter>
     </ClCompile>
@@ -248,6 +245,15 @@
     </ClCompile>
     <ClCompile Include="..\Code\Physics\Random.cpp">
       <Filter>Code\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\CubeParticleShader\ExplosionParticleShader\ExplosionParticleShader.cpp">
+      <Filter>Code\Shader\CubeParticleShader\ExplosionParticleShader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\CubeParticle\CubeParticle.cpp">
+      <Filter>Code\GameObject\CubeParticle\IceParticle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\GameObject\CubeParticle\ExplosionParticle.cpp">
+      <Filter>Code\GameObject\CubeParticle\ExplosionParticle</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -416,9 +422,6 @@
     <ClInclude Include="..\Code\FrameTransform\FrameTransform.h">
       <Filter>Code\FrameTransform</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\GameObject\CubeParticle\CubeParticle.h">
-      <Filter>Code\GameObject\CubeParticle</Filter>
-    </ClInclude>
     <ClInclude Include="..\Code\Shader\CubeParticleShader\CubeParticleShader.h">
       <Filter>Code\Shader\CubeParticleShader</Filter>
     </ClInclude>
@@ -496,6 +499,15 @@
     </ClInclude>
     <ClInclude Include="..\Code\Physics\Random.h">
       <Filter>Code\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\CubeParticleShader\ExplosionParticleShader\ExplosionParticleShader.h">
+      <Filter>Code\Shader\CubeParticleShader\ExplosionParticleShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\CubeParticle\CubeParticle.h">
+      <Filter>Code\GameObject\CubeParticle\IceParticle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\CubeParticle\ExplosionParticle.h">
+      <Filter>Code\GameObject\CubeParticle\ExplosionParticle</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -747,6 +759,15 @@
     </Filter>
     <Filter Include="Code\Physics\Particle\Firework">
       <UniqueIdentifier>{f32276c4-596f-40dd-b368-c0c9b81ac850}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\CubeParticleShader\ExplosionParticleShader">
+      <UniqueIdentifier>{042fd250-6523-4d33-a19c-0eb5fb3b5444}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\CubeParticle\ExplosionParticle">
+      <UniqueIdentifier>{03c13bbe-5a6f-4f33-b989-68c70722aa5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\CubeParticle\IceParticle">
+      <UniqueIdentifier>{4f63271b-caeb-4aa4-9ba4-cb989fe984b4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

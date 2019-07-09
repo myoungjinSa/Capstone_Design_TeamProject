@@ -19,6 +19,7 @@
 #include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
 #include "../Shader/BillboardShader/UIShader/CharacterSelectUIShader/CharacterSelectUIShader.h"
 #include "../Shader/BillboardShader/BombParticleShader/BombParticleShader.h"
+#include "../Shader/CubeParticleShader/ExplosionParticleShader/ExplosionParticleShader.h"
 #include "../Scene/LoginScene/IDScene/LoginScene.h"
 #include "../InputSystem/IDInputSystem/IDInputSystem.h"
 #include "../Shader/BillboardShader/UIShader/LoginShader/IDShader.h"
@@ -2061,14 +2062,17 @@ void CGameFramework::ProcessPacket(char *packet)
 			char id = pBE->bomberId;
 			auto bombIter = m_pScene->getShaderManager()->getShaderMap().find("Bomb");
 			auto enemyIter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
-
+			auto explosionIter = m_pScene->getShaderManager()->getShaderMap().find("ExplosionParticle");
 			if(bombIter != m_pScene->getShaderManager()->getShaderMap().end()
-				&& enemyIter != m_pScene->getShaderManager()->getShaderMap().end())
+				&& enemyIter != m_pScene->getShaderManager()->getShaderMap().end()
+				&& explosionIter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
 				CBomb *pBomb = ((CBombParticleShader*)(*bombIter).second)->getBomb();
 
 				pBomb->SetPosition((*enemyIter).second->m_ppObjects[id]->GetPosition());
 				pBomb->setIsBlowing(true);
+
+				dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetParticleBlowUp(pBomb->GetPosition());
 			}
 
 		}

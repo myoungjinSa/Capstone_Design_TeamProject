@@ -12,6 +12,7 @@
 #include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
 #include "../Shader/StandardShader/EffectShader/MagicRingEffectShader.h"
 
+#include "../Shader/CubeParticleShader/ExplosionParticleShader/ExplosionParticleShader.h"
 #include "../Shader/CubeParticleShader/CubeParticleShader.h"
 #include "../Shader/BillboardShader/BombParticleShader/BombParticleShader.h"
 #include "../Shader/BillboardShader/SnowShader/SnowShader.h"
@@ -38,7 +39,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_pResourceManager = new CResourceManager;
 	m_pResourceManager->Initialize(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	m_nShaders = 14;
+	m_nShaders = 15;
 
 	//맵툴 모드일때는 맵의 오브젝트들을 그리지 않게 하기 위해 
 	// 그래야 맵툴모드에서 적용해서 배치한 오브젝트들만 볼 수 있다.
@@ -100,17 +101,27 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ppShaders[index++] = pAnimationObjectShader;
 	m_ShaderMap.emplace("OtherPlayer", pAnimationObjectShader);
 
+	////////////////////particle//////////////////////////////
+
 	CBombParticleShader* pBombParticleShader = new CBombParticleShader;
 	pBombParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pBombParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
 	m_ppShaders[index++] = pBombParticleShader;
 	m_ShaderMap.emplace("Bomb", pBombParticleShader);
 
+	CExplosionParticleShader *pExplosionParticleShader = new CExplosionParticleShader;
+	pExplosionParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pExplosionParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, nullptr);
+	m_ppShaders[index++] = pExplosionParticleShader;
+	m_ShaderMap.emplace("ExplosionParticle", pExplosionParticleShader);
+
 	CCubeParticleShader* pCubeParticleShader = new CCubeParticleShader;
 	pCubeParticleShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pCubeParticleShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
 	m_ppShaders[index++] = pCubeParticleShader;
 	m_ShaderMap.emplace("CubeParticle", pCubeParticleShader);
+
+	///////////////////////////////////////////////////////////
 
 	CMagicRingShader* pMagicRingShader = new CMagicRingShader;
 	pMagicRingShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);

@@ -699,6 +699,51 @@ float4 PSCubeParticleShadow(VS_CUBEPARTICLE_OUTPUT input) : SV_Target
 {
 	return(float4(0.7f, 0.7f, 0.7f, 1.f));
 }
+
+struct VS_EXPLOSION_PARTICLE_INPUT
+{
+	float3 position : POSITION;
+	float4 color	: COLOR;
+};
+
+struct VS_EXPLOSION_PARTICLE_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float4 color	: COLOR;
+};
+
+VS_EXPLOSION_PARTICLE_OUTPUT VSExplosionParticle(VS_EXPLOSION_PARTICLE_INPUT input, uint nInstanceID : SV_InstanceID)
+{
+	VS_EXPLOSION_PARTICLE_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), g_InstanceCubeData[nInstanceID].m_InstanceWorld), gmtxView), gmtxProjection);
+	output.color = input.color;
+
+	return(output);
+}
+
+float4 PSExplosionParticle(VS_EXPLOSION_PARTICLE_OUTPUT input) : SV_Target
+{
+	return(input.color);
+}
+
+VS_EXPLOSION_PARTICLE_OUTPUT VSExplosionParticleShadow(VS_EXPLOSION_PARTICLE_INPUT input, uint nInstanceID : SV_InstanceID)
+{
+	VS_EXPLOSION_PARTICLE_OUTPUT output;
+
+	float4 position = mul(float4(input.position, 1.0f), g_InstanceCubeData[nInstanceID].m_InstanceWorld);
+
+	output.position = mul(mul(mul(position, gmtxShadow), gmtxView), gmtxProjection);
+	output.color = input.color;
+
+	return(output);
+}
+
+float4 PSExplosionParticleShadow(VS_EXPLOSION_PARTICLE_OUTPUT input) : SV_Target
+{
+	return(float4(0.7f, 0.7f, 0.7f, 1.f));
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 StructuredBuffer<InstanceData> g_InstanceData : register(t2);
 Texture2D SnowTexture : register (t15);

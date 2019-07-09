@@ -132,7 +132,7 @@ void CTimerUIShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 
 
 	// 게임시작시 시간 : 60초
-	m_Timer = 300.f;
+	m_Timer = 20.f;
 }
 
 void CTimerUIShader::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer* pPlayer)

@@ -2,6 +2,13 @@
 
 struct CB_GAMEOBJECT_INFO;
 class CGameObject;
+struct COLOR
+{
+	unsigned char red;
+	unsigned char green;
+	unsigned char blue;
+	unsigned char alpha;
+};
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -170,6 +177,7 @@ public:
 	virtual ~CSkyBoxMesh();
 };
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class CCubeMeshTextured : public CMesh
 {
@@ -182,14 +190,30 @@ public:
 
 protected:
 	XMFLOAT2						*m_pxmf2TexturedCoords0 = NULL;
-	XMFLOAT4						*m_pxmf4Colors = NULL;
+	//XMFLOAT4						*m_pxmf4Colors = NULL;
 
 	ID3D12Resource					*m_pd3dTexturedCoord0Buffer = NULL;
 	ID3D12Resource					*m_pd3dTexturedCoord0UploadBuffer = NULL;
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dTextureCoord0BufferView;
 };
 
+class CCubeMeshDiffused : public CMesh
+{
+public:
+	CCubeMeshDiffused(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,COLOR color ,float fWidth, float fHeight, float fDepth);
+	virtual ~CCubeMeshDiffused();
 
+	virtual void ReleaseUploadBuffers();
+	virtual void OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, int nSubSet, int nInstance);
+
+protected:
+	XMFLOAT4						*m_pxmf4Colors;
+
+	ID3D12Resource					*m_pd3dColorsBuffer = NULL;
+	ID3D12Resource					*m_pd3dColorsUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dColorsBufferView;
+};
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class CStandardMesh : public CMesh

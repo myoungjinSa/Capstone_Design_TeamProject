@@ -23,7 +23,7 @@
     <ProjectGuid>{23CA9C0E-EABB-4942-AEE9-990D6E896DDE}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>FreezeBomb</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -182,6 +182,7 @@
     <ClInclude Include="..\Code\GameObject\Billboard\Thunder\ThunderBillboard.h" />
     <ClInclude Include="..\Code\GameObject\Billboard\UI\UI.h" />
     <ClInclude Include="..\Code\GameObject\CubeParticle\CubeParticle.h" />
+    <ClInclude Include="..\Code\GameObject\CubeParticle\ExplosionParticle.h" />
     <ClInclude Include="..\Code\GameObject\Effect\MagicRing\MagicRing.h" />
     <ClInclude Include="..\Code\GameObject\EvilBear\EvilBear.h" />
     <ClInclude Include="..\Code\GameObject\Foliage\Foliage.h" />
@@ -228,6 +229,7 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\UIShader.h" />
     <ClInclude Include="..\Code\Shader\CubeParticleShader\CubeParticleShader.h" />
+    <ClInclude Include="..\Code\Shader\CubeParticleShader\ExplosionParticleShader\ExplosionParticleShader.h" />
     <ClInclude Include="..\Code\Shader\PostProcessShader\CartoonShader\SobelCartoonShader.h" />
     <ClInclude Include="..\Code\Shader\PostProcessShader\ComputeShader\ComputeShader.h" />
     <ClInclude Include="..\Code\Shader\Shader.h" />
@@ -263,6 +265,7 @@
     <ClCompile Include="..\Code\GameObject\Billboard\Thunder\ThunderBillboard.cpp" />
     <ClCompile Include="..\Code\GameObject\Billboard\UI\UI.cpp" />
     <ClCompile Include="..\Code\GameObject\CubeParticle\CubeParticle.cpp" />
+    <ClCompile Include="..\Code\GameObject\CubeParticle\ExplosionParticle.cpp" />
     <ClCompile Include="..\Code\GameObject\Effect\MagicRing\MagicRing.cpp" />
     <ClCompile Include="..\Code\GameObject\EvilBear\EvilBear.cpp" />
     <ClCompile Include="..\Code\GameObject\Foliage\Foliage.cpp" />
@@ -309,6 +312,7 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\UIShader.cpp" />
     <ClCompile Include="..\Code\Shader\CubeParticleShader\CubeParticleShader.cpp" />
+    <ClCompile Include="..\Code\Shader\CubeParticleShader\ExplosionParticleShader\ExplosionParticleShader.cpp" />
     <ClCompile Include="..\Code\Shader\PostProcessShader\CartoonShader\SobelCartoonShader.cpp" />
     <ClCompile Include="..\Code\Shader\PostProcessShader\ComputeShader\ComputeShader.cpp" />
     <ClCompile Include="..\Code\Shader\Shader.cpp" />

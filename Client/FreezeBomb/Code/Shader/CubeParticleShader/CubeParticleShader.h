@@ -26,11 +26,14 @@ public:
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseShaderVariables();
 
+	
 private:
+	list<CCubeParticle*>		m_CubeParticleList;
+protected:
 	ID3D12PipelineState**		m_ppd3dPipelineStates{ nullptr };
 	int										m_nPipelineStates = 0;
 
-	list<CCubeParticle*>		m_CubeParticleList;
+	
 
 	struct InstancingData
 	{

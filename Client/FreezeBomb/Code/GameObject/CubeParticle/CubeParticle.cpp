@@ -20,13 +20,13 @@ void CCubeParticle::Initialize_Shadow(CGameObject* pGameObject)
 	m_pShadow = new CShadow(nullptr, this);
 }
 
-void CCubeParticle::SetMass(const double mass)
+void CCubeParticle::SetMass(const double& mass)
 {
 	assert(mass != 0);
 	m_InverseMass = ((double)1.0) / mass;
 }
 
-double CCubeParticle::GetMass() const
+const double& CCubeParticle::GetMass() const
 {
 	if (m_InverseMass == 0)
 		return DBL_MAX;
@@ -62,15 +62,12 @@ void CCubeParticle::Animate(float elapsedTime, CCamera* pCamera)
 		SetPosition(position.x, position.y, position.z);*/
 
 
-		world._41 = position.x + (m_SphereVector.x * (m_MovingSpeed * elapsedTime));// +resAcc.y);
-		world._42 = position.y + (m_SphereVector.y * (m_MovingSpeed * elapsedTime)) + resAcc.y; //+ resAcc.y);
-		world._43 = position.z + (m_SphereVector.z * (m_MovingSpeed * elapsedTime));//+ resAcc.y);
+		world._41 = position.x + (m_SphereVector.x * m_MovingSpeed * elapsedTime);// +resAcc.y);
+		world._42 = position.y + (m_SphereVector.y * m_MovingSpeed * elapsedTime) + resAcc.y; //+ resAcc.y);
+		world._43 = position.z + (m_SphereVector.z * m_MovingSpeed * elapsedTime);//+ resAcc.y);
 		if (world._42 <= 0.0f)
 		{
-			//world._41 = world._41;
 			world._42 = 0.1f;
-			//world._43 = world._43;
-			
 		}
 	
 		//SetPosition( XMFLOAT3(0.0f, -0.98f, 0.0f));
