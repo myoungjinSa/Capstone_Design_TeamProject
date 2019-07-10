@@ -26,6 +26,7 @@
 #include "../GameObject/Item/Item.h"
 #include "../GameObject/Billboard/Bomb/Bomb.h"
 #include "../GameObject/EvilBear/EvilBear.h"
+#include "../Shader/StandardShader/ItemShader/ItemShader.h"
 
 // 전체모드할경우 주석풀으셈
 //#define FullScreenMode
@@ -1554,6 +1555,26 @@ void CGameFramework::ProcessDirect2D()
 //	
 //	
 //}
+void CGameFramework::MappingItemStringToItemType(const string& strItem,int& itemType)
+{
+	if(strstr(strItem.c_str(), "GoldTimer"))
+	{
+		itemType = CItem::ItemType::GoldTimer;
+	}
+	else if (strstr(strItem.c_str(), "GoldHammer"))
+	{
+		itemType = CItem::ItemType::GoldHammer;
+	}
+	else if(strstr(strItem.c_str(),"NormalHammer"))
+	{
+		itemType = CItem::ItemType::NormalHammer;
+	}
+	else
+	{
+		cout << "비 정상 아이템\n";
+		itemType = CItem::ItemType::Empty;
+	}
+}
 void CGameFramework::ProcessPacket(char *packet)
 {
 	switch (packet[1])
@@ -1735,6 +1756,9 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pPlayer->SetUpVector(up);
 			m_pPlayer->SetRightVector(right);
 			m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
+			//m_pPlayer->m_xmf4x4ToParent._11 = m_pPlayer->m_xmf4x4ToParent._11 * m_pPlayer->GetScale().x;
+			//m_pPlayer->m_xmf4x4ToParent._22 = m_pPlayer->m_xmf4x4ToParent._22 * m_pPlayer->GetScale().y;
+			//m_pPlayer->m_xmf4x4ToParent._33 = m_pPlayer->m_xmf4x4ToParent._33 * m_pPlayer->GetScale().z;
 
 
 			//m_pPlayer->SetDirection()
@@ -1790,7 +1814,11 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pPlayer->Rotate(pMP->pitch, pMP->yaw, pMP->roll);
 			m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
 			m_pPlayer->SetVelocityFromServer(pMP->fVelocity);
-	
+			/*m_pPlayer->m_xmf4x4ToParent._11 = m_pPlayer->m_xmf4x4ToParent._11 * 10.0f;
+			m_pPlayer->m_xmf4x4ToParent._22 = m_pPlayer->m_xmf4x4ToParent._22 * 10.0f;
+			m_pPlayer->m_xmf4x4ToParent._33 = m_pPlayer->m_xmf4x4ToParent._33 * 10.0f;*/
+
+			//cout << m_pPlayer->GetPosition().x << "," << m_pPlayer->GetPosition().y << "," << m_pPlayer->GetPosition().z << "\n";
 		}
 		else if (pMP->id < MAX_USER)
 		{
@@ -2007,11 +2035,79 @@ void CGameFramework::ProcessPacket(char *packet)
 	{
 		SC_PACKET_GET_ITEM *pGI = reinterpret_cast<SC_PACKET_GET_ITEM *>(packet);
 
-		// 어떤플레이어가 어떤 아이템을 획득했는지에 대한 정보가 담겨옴
-		for(int i=0;i<MAX_ITEM_NAME_LENGTH; ++i)
-			cout << pGI->itemIndex[i];
-		cout << "\n";
 
+		if(pGI->id == m_pPlayer->GetPlayerID())
+		{
+			string sItem = pGI->itemIndex;
+			//cout << sItem<<"\n";
+
+			int itemType = CItem::ItemType::Empty;
+			MappingItemStringToItemType(sItem,itemType);
+			
+			m_pPlayer->Add_Inventory(sItem,itemType);
+
+			switch(itemType)
+			{
+			case CItem::ItemType::GoldHammer:
+				m_pPlayer->setIsGoldHammer(true);
+				break;
+			case CItem::ItemType::NormalHammer:
+				m_pPlayer->SetIsHammer(true);
+				break;
+			case CItem::ItemType::GoldTimer:
+				m_pPlayer->setIsGoldTimer(true);
+				break;
+			case CItem::ItemType::Empty:
+				cout << "비정상적인 아이템\n";
+				break;
+			}
+			
+			
+		}
+		else if(pGI->id < MAX_USER)
+		{
+			char id = pGI->id;
+			string sItem = pGI->itemIndex;
+			//cout << sItem<<"\n";
+			int itemType = CItem::ItemType::Empty;
+			MappingItemStringToItemType(sItem,itemType);
+			
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+			auto itemIter = m_pScene->getShaderManager()->getShaderMap().find("Item");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end()
+				&& itemIter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				switch(itemType)
+				{
+				case CItem::ItemType::GoldHammer:
+				{
+					((*iter).second)->m_ppObjects[id]->setIsGoldHammer(true);
+					break;
+				}
+				case CItem::ItemType::NormalHammer:
+				{
+					((*iter).second)->m_ppObjects[id]->SetIsHammer(true);
+					break;
+				}
+				case CItem::ItemType::GoldTimer:
+				{
+					((*iter).second)->m_ppObjects[id]->setIsGoldTimer(true);
+					break;
+				}
+				case CItem::ItemType::Empty:
+					cout << "비정상적인 아이템\n";
+					break;
+				}
+				CItemShader* pItem = (CItemShader*)(*itemIter).second;
+				pItem->ItemDelete(sItem);
+			}
+			
+
+			//m_pPlayer->Add_Inventory(sItem,itemType);
+
+		}
+		
 		break;
 	}
 	case SC_USE_ITEM:
@@ -2028,6 +2124,7 @@ void CGameFramework::ProcessPacket(char *packet)
 				if (m_pPlayer->GetSpecialInventory().size() > 0)
 				{
 					map<string, CItem*>::iterator iter = m_pPlayer->GetSpecialInventory().begin();
+					
 					m_pPlayer->Sub_Inventory((*iter).second->getItemType());
 
 				}
@@ -2104,6 +2201,11 @@ void CGameFramework::ProcessPacket(char *packet)
 			{
 				m_pPlayer->SetIsBomb(false);
 				(*iter).second->m_ppObjects[bomberID]->SetIsBomb(true);
+				if((*iter).second->m_ppObjects[bomberID]->GetIsHammer())
+					(*iter).second->m_ppObjects[bomberID]->SetIsHammer(false);
+				if((*iter).second->m_ppObjects[bomberID]->getIsGoldHammer())
+					(*iter).second->m_ppObjects[bomberID]->setIsGoldHammer(false);
+
 			}
 		}
 		else if ( pRC->bomberId != m_pPlayer->GetPlayerID() && pRC->runnerId != m_pPlayer->GetPlayerID())
@@ -2114,7 +2216,13 @@ void CGameFramework::ProcessPacket(char *packet)
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
 				(*iter).second->m_ppObjects[runnerId]->SetIsBomb(false);
+
+
 				(*iter).second->m_ppObjects[bomberId]->SetIsBomb(true);
+				if((*iter).second->m_ppObjects[bomberId]->GetIsHammer())
+					(*iter).second->m_ppObjects[bomberId]->SetIsHammer(false);
+				if((*iter).second->m_ppObjects[bomberId]->getIsGoldHammer())
+					(*iter).second->m_ppObjects[bomberId]->setIsGoldHammer(false);
 
 			}
 		}

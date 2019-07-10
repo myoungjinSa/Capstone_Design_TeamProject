@@ -58,6 +58,9 @@ public:
 	//Network*getNetwork() { return &m_Network; }
 	CLoginScene* GetLoginScene()const { return m_pLoginScene; }
 	void ProcessPacket(char *ptr);
+
+	void MappingItemStringToItemType(const string& strItem,int& itemType);
+
 	//void CreateLoginCommandList();
 	//void InitializeIPSystem();
 	void ProcessLogin();

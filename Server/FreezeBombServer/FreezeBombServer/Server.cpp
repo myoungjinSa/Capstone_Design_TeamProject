@@ -183,7 +183,7 @@ void Server::LoadMapObjectInfo()
 			}
 			else if (0 == strcmp(pMapObjectInfo->name.c_str(), "Hammer"))
 			{
-				if (goldHammerCnt[j] < 2)
+				if (goldHammerCnt[j] < GOLD_HAMMER_COUNT)
 				{
 					goldHammers[j].emplace_back(*pMapObjectInfo);
 					++goldHammerCnt[j];
@@ -199,8 +199,7 @@ void Server::LoadMapObjectInfo()
 		}
 		in.close();
 
-		// 황금망치의 수 만큼 일반망치 수 감소.
-		normalHammerCnt[j] -= goldHammerCnt[j];
+		
 	}
 }
 
@@ -537,6 +536,8 @@ void Server::WorkerThreadFunc()
 							SendRoundStart(i, time);
 						}
 					}
+					//여기서도 add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s) 를 호출해주지 않으면 
+					//다음 라운드로 넘어가서 시간이 감소하지 않음, 확인 바람 - 명진
 				}
 			}
 			else
@@ -551,7 +552,7 @@ void Server::WorkerThreadFunc()
 			changeCoolTime--;
 			coolTime_l.unlock();
 
-			//printf("쿨타임:%d\n", changeCoolTime);
+			printf("쿨타임:%d\n", changeCoolTime);
 			coolTime_l.lock();
 			if(changeCoolTime<=0)
 			{
@@ -904,7 +905,7 @@ void Server::ProcessPacket(char client, char *packet)
 		float dist = 0.f;
 
 		token = strtok(p->itemIndex, " ");
-		cout << p->itemIndex << "\n";
+		//cout << p->itemIndex << "\n";
 		if (strcmp(token, "GoldTimer") == 0)
 		{
 			token = strtok(NULL, " ");
@@ -914,7 +915,10 @@ void Server::ProcessPacket(char client, char *packet)
 				pow(clients[client].pos.y - goldTimers[round][itemIdx].pos.y, 2) +
 				pow(clients[client].pos.z - goldTimers[round][itemIdx].pos.z, 2));
 
-			if (dist <= 5)
+			// 거리 체크는 적당히 넓도록 그렇지 않으면 
+			// 클라는 아이템과 충돌해서 월드상에 아이템을 지우는데
+			// 인벤토리에는 아이템 등록이 안됨.
+			if (dist <= 50)
 			{
 				clients[client].specialItem = itemIdx;
 				for (int i = 0; i < MAX_USER; ++i)
@@ -935,7 +939,10 @@ void Server::ProcessPacket(char client, char *packet)
 				pow(clients[client].pos.y - goldHammers[round][itemIdx].pos.y, 2) +
 				pow(clients[client].pos.z - goldHammers[round][itemIdx].pos.z, 2));
 
-			if (dist <= 5)
+			// 거리 체크는 적당히 넓도록 그렇지 않으면 
+			// 클라는 아이템과 충돌해서 월드상에 아이템을 지우는데
+			// 인벤토리에는 아이템 등록이 안됨.
+			if (dist <= 50)
 			{
 				clients[client].specialItem = itemIdx;
 				for (int i = 0; i < MAX_USER; ++i)
@@ -956,7 +963,10 @@ void Server::ProcessPacket(char client, char *packet)
 				pow(clients[client].pos.y - NormalHammers[round][itemIdx].pos.y, 2) +
 				pow(clients[client].pos.z - NormalHammers[round][itemIdx].pos.z, 2));
 
-			if (dist <= 5)
+			// 거리 체크는 적당히 넓도록 그렇지 않으면 
+			// 클라는 아이템과 충돌해서 월드상에 아이템을 지우는데
+			// 인벤토리에는 아이템 등록이 안됨.
+			if (dist <= 50)		
 			{
 				clients[client].normalItem = itemIdx;
 				for (int i = 0; i < MAX_USER; ++i)

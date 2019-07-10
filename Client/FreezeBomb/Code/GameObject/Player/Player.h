@@ -47,6 +47,7 @@ public:
 	//사운드 볼륨 조절을 위해 가장 가까운 적과의 거리를 멤버 변수로 저장한다.
 	void SetMinDistanceWithEnemy(float fDistance) { m_fMinDistance = fDistance; }
 	void SetScale(XMFLOAT3& xmf3Scale) { m_xmf3Scale = xmf3Scale; }
+	XMFLOAT3& GetScale() { return m_xmf3Scale; }
 
 	const XMFLOAT3& GetVelocity() const { return(m_xmf3Velocity); }
 	float GetYaw() const { return(m_fYaw); }

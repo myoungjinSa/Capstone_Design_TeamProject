@@ -112,7 +112,7 @@ void CIPScene::ProcessInput(HWND hWnd)
 
 	POINT ptCursorPos;
 	
-	SetCursor(NULL);
+	//SetCursor(NULL);
 
 	GetCursorPos(&ptCursorPos);
 	ScreenToClient(hWnd,&ptCursorPos);

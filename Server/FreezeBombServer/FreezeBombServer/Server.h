@@ -35,7 +35,7 @@ constexpr float VELOCITY = 0.7f;
 constexpr int MAX_FREEZE_COUNT = MAX_USER - 2;
 constexpr int MAX_WORKER_THREAD = 2;
 
-
+constexpr int GOLD_HAMMER_COUNT = 2;
 
 enum EVENT_TYPE
 {

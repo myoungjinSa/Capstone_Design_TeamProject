@@ -359,8 +359,10 @@ void Network::SendGetItem(const string& itemIndex)
 	pGetItem = reinterpret_cast<CS_PACKET_GET_ITEM *>(send_buffer);
 	pGetItem->size = sizeof(CS_PACKET_GET_ITEM);
 	send_wsabuf.len = sizeof(CS_PACKET_GET_ITEM);
-	cout << send_wsabuf.len << "\n";
 	pGetItem->type = CS_GET_ITEM;
+	//for (int i = 0; i < 15; ++i)
+	//	cout << pGetItem->itemIndex;
+	//cout << "\n";
 	ZeroMemory(pGetItem->itemIndex, MAX_ITEM_NAME_LENGTH);
 	strncpy(pGetItem->itemIndex, itemIndex.c_str(), itemIndex.length());
 	

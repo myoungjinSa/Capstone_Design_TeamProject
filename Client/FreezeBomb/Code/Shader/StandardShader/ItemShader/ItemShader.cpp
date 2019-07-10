@@ -28,10 +28,12 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 		if (iter2 != ModelMap.end())
 		{
 			string name = (*iter2).first;
+			int index=0;
 			// multimap 컨테이너에서 같은 키를 갖는 벨류를 찾을 때, 사용하는 루프
 			for (auto iter3 = (*iter).second.lower_bound(name); iter3 != (*iter).second.upper_bound(name); ++iter3)
 			{
 				CItem* pItem = new CItem;
+				
 				pItem->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter2).second);
 
 				pItem->SetChild((*iter2).second->m_pModelRootObject, true);
@@ -41,8 +43,25 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 				pItem->SetUpVector((*iter3).second->m_Up);
 				pItem->SetRightVector((*iter3).second->m_Right);
 				pItem->Initialize_Shadow((*iter2).second, pItem);
+#ifdef _WITH_SERVER_
+				auto iter4 = BoundMap.find(name);
+				if (iter4 != BoundMap.end())
+				{
+					pItem->SetOOBB((*iter4).second->m_xmf3Center, Vector3::Multiply((*iter4).second->m_xmf3Extent, XMFLOAT3(3.0f, 3.0f, 3.0f)), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+				}
 
-#ifndef _WITH_SERVER_
+				if(index++ < 2)
+				{
+					pItem->setItemType(CItem::GoldHammer);
+					itemList.emplace("GoldHammer " + to_string(nGoldHammer++), pItem);
+				}
+				else
+				{
+					pItem->setItemType(CItem::NormalHammer);
+					itemList.emplace("NormalHammer " + to_string(nNormalHammer++), pItem);
+				}
+				
+#else
 				// 황금망치, 일반망치 랜덤으로 결정
 				switch (rand() % 2)
 				{
@@ -58,7 +77,10 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 					itemList.emplace("GoldHammer " + to_string(nGoldHammer++), pItem);
 					break;
 				}
+
+
 #endif
+
 			}
 		}
 
@@ -79,10 +101,17 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 				pItem->SetUpVector((*iter3).second->m_Up);
 				pItem->SetRightVector((*iter3).second->m_Right);
 				pItem->Initialize_Shadow((*iter2).second, pItem);
-
+#ifdef _WITH_SERVER_
+				auto iter4 = BoundMap.find("Pocket_Watch");
+				if (iter4 != BoundMap.end()) 
+				{
+					pItem->SetOOBB((*iter4).second->m_xmf3Center, XMFLOAT3(3.0f, 3.0f, 3.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+				}
+#endif
 				pItem->setItemType(CItem::GoldTimer);
 				//m_ItemMap.emplace("GoldTimer" + to_string(nGoldTimer++), pItem);
 				itemList.emplace("GoldTimer " + to_string(nGoldTimer++), pItem);
+
 			}
 		}
 		m_ItemList.emplace(round++, itemList);
@@ -162,7 +191,7 @@ void CItemShader::ItemDelete(string key)
 		auto iter2 = (*iter).second.find(key);
 		if (iter2 != (*iter).second.end())
 		{
-			cout << (*iter2).first << " 획득" << endl;
+			//cout << (*iter2).first << " 획득" << endl;
 			
 			//// 각 라운드에 해당하는 제거된 아이템 리스트에 넣어줌
 			RoundItemList list;

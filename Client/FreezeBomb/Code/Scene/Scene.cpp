@@ -698,7 +698,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 
 			
 
-			
+			//m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
 			for (auto iter2 = MapObjectsList.begin(); iter2 != MapObjectsList.end(); ++iter2)
 			{
 				
@@ -933,17 +933,30 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 			CItemShader* pItemShader = dynamic_cast<CItemShader*>((*iter).second);
 			for (auto iter2 = pItemShader->getItemList().begin(); iter2 != pItemShader->getItemList().end(); ++iter2)
 			{
+				
+
 				if ((*iter2).second->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
+
+
 					//(*iter2).second->SetObjectCollided(m_pPlayer);
 					//m_pPlayer->SetObjectCollided((*iter2).second);
+
+					cout <<"플레이어:"<< m_pPlayer->GetBoundingBox().Extents.x << "," << m_pPlayer->GetBoundingBox().Extents.y << "," << m_pPlayer->GetBoundingBox().Extents.z << "\n";
+					cout << "아이템:" << (*iter2).second->GetBoundingBox().Extents.x << "," << (*iter2).second->GetBoundingBox().Extents.y << "," << (*iter2).second->GetBoundingBox().Extents.z << "\n";
+					PlayGetItemEffect();
+					
 #ifdef _WITH_SERVER_
+					
 					Network::GetInstance()->SendGetItem((*iter2).first);
+					// 클라이언트 단에서 지우는 이유는
+					// 여러번에 충돌처리로 인하여 여러번 패킷이 보내지지 않도록 함과  동시에
+					// 인벤토리에 아이템 등록 처리가 중복되게 하지 않게 하기 위해서다.
+					pItemShader->ItemDelete((*iter2).first);
 #else
 					// 충돌 된 아이템을 플레이어 인벤토리에 추가한다.
 					m_pPlayer->Add_Inventory((*iter2).first, (*iter2).second->getItemType());
 					// 맵에 있는 아이템 삭제
-					PlayGetItemEffect();
 					pItemShader->ItemDelete((*iter2).first);
 #endif
 					break;

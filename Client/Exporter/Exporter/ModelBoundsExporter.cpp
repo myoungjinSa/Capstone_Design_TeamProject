@@ -23,8 +23,8 @@ int main()
 
 	Bound bounds[Model_Size] =
 	{
-		// EvilBear
-		"EvilBear", XMFLOAT3(-7.450581E-09, 0.2553082, 0), XMFLOAT3(0.2006836, 0.256561, 0.1354234),
+		// EvilBear 
+		"EvilBear", XMFLOAT3(-7.450581E-09, 0.2553082, 0), XMFLOAT3(2.0068360, 2.565610, 1.3542340),
 		// Bomb
 		"Bomb", XMFLOAT3(0, 1.396984E-09, 0.00459197), XMFLOAT3(0.01163526, 0.01163526, 0.01459197),
 		// Hammer

@@ -364,6 +364,7 @@ public:
 
 	UINT GetMeshType() { return((m_pMesh) ? m_pMesh->GetType() : 0x00); }
 
+
 public:
 	const enum MATERIALTYPE { PINK, BROWN, WHITE, BLACK, BLUE, PANDA, ICEMAT };		//°õÀÇ Á¾·ù
 	const enum LODLEVEL {
@@ -419,7 +420,7 @@ public:
 
 	bool GetIsLightEffect() const { return m_bLightening; }
 	void SetIsLightEffect(bool value) { m_bLightening = value; }
-
+	
 protected:
 
 	_TCHAR		m_playerName[256];
@@ -462,9 +463,12 @@ public:
 	//const int GetMaterialID() { return m_matID; }
 	//const bool GetBoolIce() { return m_bIce; }
 
+	//BoundingOrientedBox* GetBoundingBox() { return &m_xmOOBB; }
+	
 	BoundingOrientedBox GetBoundingBox() const { return m_xmOOBB; }
 	void SetOOBB(XMFLOAT3& xmCenter, XMFLOAT3& xmExtents, XMFLOAT4& xmOrientation)
 	{ m_xmOOBBTransformed = m_xmOOBB = BoundingOrientedBox(xmCenter, xmExtents, xmOrientation); }
+
 
 	CGameObject* GetObjectCollided() { return m_pObjectCollided; }
 	void SetObjectCollided(CGameObject* value) { m_pObjectCollided = value; }
