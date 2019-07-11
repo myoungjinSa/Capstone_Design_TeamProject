@@ -285,7 +285,7 @@ void CSkinnedAnimationObjectShader::Render(ID3D12GraphicsCommandList* pd3dComman
 		
 		m_ppObjects[id]->Animate(m_elapsedTime);
 		m_ppObjects[id]->UpdateTransform(NULL);
-		m_ppObjects[id]->Render(pd3dCommandList, m_ppObjects[id]->GetIsHammer(), m_ppObjects[id]->GetIsBomb(), m_ppObjects[id]->GetIsICE(), matID, pCamera, nPipelineState);
+		dynamic_cast<CEvilBear*>(m_ppObjects[id])->Render(pd3dCommandList, pCamera,matID ,nPipelineState);
 		
 	}
 	//cout << "m_vMaterial Size" << m_vMaterial.size() << "\n";

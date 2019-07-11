@@ -934,11 +934,10 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 			for (auto iter2 = pItemShader->getItemList().begin(); iter2 != pItemShader->getItemList().end(); ++iter2)
 			{
 				
-
 				if ((*iter2).second->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
 
-
+					
 					//(*iter2).second->SetObjectCollided(m_pPlayer);
 					//m_pPlayer->SetObjectCollided((*iter2).second);
 
@@ -1147,3 +1146,24 @@ void CScene::ChangeRound()
 
 	m_pPlayer->ChangeRound();
 }
+//bool CScene::CheckPlayerInventory(CItem::ItemType itemType)
+//{
+//	bool ret =false;
+//	if(m_pPlayer)
+//	{
+//		switch(itemType)
+//		{
+//		case CItem::ItemType::NormalHammer:
+//			ret = m_pPlayer->CheckInventoryToGet(itemType, m_NormalHammerCnt);
+//				break;
+//		case CItem::ItemType::GoldHammer:
+//			ret = m_pPlayer->CheckInventoryToGet(itemType, m_GoldHammerCnt);
+//				break;
+//		case CItem::ItemType::GoldTimer:
+//			ret = m_pPlayer->CheckInventoryToGet(itemType, m_GoldTimerCnt);
+//				break;
+//		}
+//	}
+//
+//	return ret;
+//}

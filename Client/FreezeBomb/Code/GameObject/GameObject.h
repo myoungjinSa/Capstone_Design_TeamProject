@@ -420,7 +420,9 @@ public:
 
 	bool GetIsLightEffect() const { return m_bLightening; }
 	void SetIsLightEffect(bool value) { m_bLightening = value; }
-	
+#ifdef _WITH_SERVER_
+	void SetVelocityFromServer(float fVel) { m_fVelocityFromServer = fVel; }
+#endif
 protected:
 
 	_TCHAR		m_playerName[256];
@@ -447,6 +449,9 @@ protected:
 
 #ifdef _WITH_SERVER_
 	bool								m_bCollided{ false };
+
+	float						m_fVelocityFromServer = 0.0f;
+
 #endif
 
 	//플레이어와의 거리
