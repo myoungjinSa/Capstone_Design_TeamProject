@@ -409,6 +409,37 @@ void CPlayer::Sub_Inventory(int ItemType)
 		}
 	}
 }
+////이미 인벤의 존재하는 종류의 아이템인지 검사하고 없다면 true 반환
+//bool CPlayer::CheckInventoryToGet(CItem::ItemType itemType,int itemCnt)
+//{
+//	bool ret = false; 
+//	switch (itemType)
+//	{
+//	case CItem::ItemType::NormalHammer:
+//		if (m_Normal_Inventory.size() <= 0)
+//			ret = true;
+//		break;
+//	case CItem::ItemType::GoldHammer:
+//		for (int i = 0; i < itemCnt; ++i) 
+//		{
+//			if (m_Special_Inventory.size() <= 0 && m_Special_Inventory.count("GoldHammer " + to_string(i)) == 0)
+//			{
+//				ret = true;
+//			}
+//		}
+//		break;
+//	case CItem::ItemType::GoldTimer:
+//		for (int i = 0; i < itemCnt; ++i) 
+//		{
+//			if (m_Special_Inventory.size() <= 0 && m_Special_Inventory.count("GoldTimer " + to_string(i)) == 0)
+//			{
+//				ret = true;
+//			}
+//		}
+//		break;
+//	}
+//	return ret;
+//}
 
 void CPlayer::ChangeRound()
 {

@@ -49,6 +49,7 @@ struct LIGHTS
 class CPlayer;
 class CShaderManager;
 class CSoundSystem;
+//class CItem;
 class CScene
 {
 public:
@@ -118,7 +119,15 @@ public:
 	void SceneSoundStop();
 
 	void ChangeRound();
+	void SetNormalHammerCnt(char cnt) { m_NormalHammerCnt = cnt; }
+	void SetGoldHammerCnt(char cnt) { m_GoldHammerCnt = cnt; }
+	void SetGoldTimerCnt(char cnt){ m_GoldTimerCnt = cnt; }
 
+	char GetNormalHammerCnt() { return m_NormalHammerCnt; }
+	char GetGoldHammerCnt() { return m_GoldHammerCnt; }
+	char GetGoldTimerCnt() { return m_GoldTimerCnt;	}
+
+	//bool CheckPlayerInventory(CItem::ItemType itemType);
 protected:
 	ID3D12RootSignature*						m_pd3dGraphicsRootSignature = NULL;
 
@@ -134,6 +143,10 @@ protected:
 	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dSrvCPUDescriptorNextHandle;
 	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dSrvGPUDescriptorNextHandle;
 
+private:
+	char m_NormalHammerCnt{ 0 };
+	char m_GoldHammerCnt{ 0 };
+	char m_GoldTimerCnt{ 0 };
 public:
 	static void CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews);
 

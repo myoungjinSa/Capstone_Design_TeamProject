@@ -1690,6 +1690,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		if (pRS->bomberID == m_pPlayer->GetPlayerID())
 		{
 			m_pPlayer->SetIsBomb(true);
+			
 		}
 		else if (pRS->bomberID < MAX_USER)
 		{
@@ -1700,19 +1701,26 @@ void CGameFramework::ProcessPacket(char *packet)
 				char id = pRS->bomberID;
 				//vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
 				(*iter).second->m_ppObjects[id]->SetIsBomb(true);
-
-			}
-
-			iter = m_pScene->getShaderManager()->getShaderMap().find("Item");
-			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
-			{
-				cout << "골드 해머 개수: " << pRS->goldHammerCnt<<"\n";
-				cout << "일반 해머 개수: " << pRS->hammerCnt << "\n";
-				cout << "골드 타이머 개수:" << pRS->goldTimerCnt << "\n";
-				cout << "라운드 : " << pRS->round<<"\n";
 			}
 
 			// 다른 클라가 술래일 경우 isBomber를 set해줘야 폭탄을 그리지 않을까?
+		}
+		auto itemIter = m_pScene->getShaderManager()->getShaderMap().find("Item");
+		if (itemIter != m_pScene->getShaderManager()->getShaderMap().end())
+		{
+			m_pScene->SetGoldHammerCnt(pRS->goldHammerCnt);
+			m_pScene->SetNormalHammerCnt(pRS->hammerCnt);
+			m_pScene->SetGoldTimerCnt(pRS->goldTimerCnt);
+			if(pRS->round > MAX_ROUND) 
+			{
+				cout << "라운드 범위 초과\n";
+			}
+			else
+			{
+				g_Round = pRS->round;
+			}
+			
+			
 		}
 		clientCount = pRS->clientCount;
 		if (m_pLobbyScene)
@@ -1722,11 +1730,11 @@ void CGameFramework::ProcessPacket(char *packet)
 		}
 		m_nState = INGAME;
 		//시간을 받아야함.
-		auto iter = m_pScene->getShaderManager()->getShaderMap().find("TimerUI");
+		auto timerIter = m_pScene->getShaderManager()->getShaderMap().find("TimerUI");
 
-		if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+		if (timerIter != m_pScene->getShaderManager()->getShaderMap().end())
 		{
-			dynamic_cast<CTimerUIShader*>((*iter).second)->CompareServerTimeAndSet(pRS->startTime);
+			dynamic_cast<CTimerUIShader*>((*timerIter).second)->CompareServerTimeAndSet(pRS->startTime);
 		}
 
 		ChattingSystem::GetInstance()->SetActive(false);
@@ -1756,6 +1764,11 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pPlayer->SetUpVector(up);
 			m_pPlayer->SetRightVector(right);
 			m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
+
+			//모든 아이템 보유 초기화
+			m_pPlayer->setIsGoldHammer(false);
+			m_pPlayer->setIsGoldTimer(false);
+			m_pPlayer->SetIsHammer(false);
 			//m_pPlayer->m_xmf4x4ToParent._11 = m_pPlayer->m_xmf4x4ToParent._11 * m_pPlayer->GetScale().x;
 			//m_pPlayer->m_xmf4x4ToParent._22 = m_pPlayer->m_xmf4x4ToParent._22 * m_pPlayer->GetScale().y;
 			//m_pPlayer->m_xmf4x4ToParent._33 = m_pPlayer->m_xmf4x4ToParent._33 * m_pPlayer->GetScale().z;
@@ -1786,7 +1799,11 @@ void CGameFramework::ProcessPacket(char *packet)
 				(*iter).second->m_ppObjects[id]->SetLookVector(look);
 				(*iter).second->m_ppObjects[id]->SetRightVector(right);
 				(*iter).second->m_ppObjects[id]->SetUpVector(up);
-				(*iter).second->m_ppObjects[id]->SetScale(10, 10, 10);
+				(*iter).second->m_ppObjects[id]->SetScale(10.0f, 10.0f, 10.0f);
+				//모든 아이템 보유 초기화
+				(*iter).second->m_ppObjects[id]->setIsGoldTimer(false);
+				(*iter).second->m_ppObjects[id]->setIsGoldHammer(false);
+				(*iter).second->m_ppObjects[id]->SetIsHammer(false);
 			}
 		}
 
@@ -1839,6 +1856,7 @@ void CGameFramework::ProcessPacket(char *packet)
 				(*iter).second->m_ppObjects[id]->SetRightVector(right);
 				(*iter).second->m_ppObjects[id]->SetUpVector(up);
 				(*iter).second->m_ppObjects[id]->SetScale(10, 10, 10);
+				(*iter).second->m_ppObjects[id]->SetVelocityFromServer(pMP->fVelocity);
 			}
 
 		}
@@ -2088,6 +2106,7 @@ void CGameFramework::ProcessPacket(char *packet)
 				case CItem::ItemType::NormalHammer:
 				{
 					((*iter).second)->m_ppObjects[id]->SetIsHammer(true);
+					
 					break;
 				}
 				case CItem::ItemType::GoldTimer:
@@ -2100,6 +2119,7 @@ void CGameFramework::ProcessPacket(char *packet)
 					break;
 				}
 				CItemShader* pItem = (CItemShader*)(*itemIter).second;
+				cout << "상대방이 먹은 아이템" << sItem << "\n";
 				pItem->ItemDelete(sItem);
 			}
 			
@@ -2181,10 +2201,12 @@ void CGameFramework::ProcessPacket(char *packet)
 	{
 		pRC = reinterpret_cast<SC_PACKET_ROLE_CHANGE*>(packet);
 
+		//상대방이 자신에게 폭탄을 주었을 경우
 		if(pRC->bomberId == m_pPlayer->GetPlayerID())
 		{
 			char runnerID = pRC->runnerId;
 
+			
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
@@ -2193,7 +2215,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			}
 
 		}
-		else if (pRC->runnerId == m_pPlayer->GetPlayerID())
+		else if (pRC->runnerId == m_pPlayer->GetPlayerID())		//자신이 상대방에게  폭탄을 넘겨줬을 경우
 		{
 			char bomberID = pRC->bomberId;
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
@@ -2201,14 +2223,14 @@ void CGameFramework::ProcessPacket(char *packet)
 			{
 				m_pPlayer->SetIsBomb(false);
 				(*iter).second->m_ppObjects[bomberID]->SetIsBomb(true);
-				if((*iter).second->m_ppObjects[bomberID]->GetIsHammer())
+				/*if((*iter).second->m_ppObjects[bomberID]->GetIsHammer())
 					(*iter).second->m_ppObjects[bomberID]->SetIsHammer(false);
 				if((*iter).second->m_ppObjects[bomberID]->getIsGoldHammer())
-					(*iter).second->m_ppObjects[bomberID]->setIsGoldHammer(false);
+					(*iter).second->m_ppObjects[bomberID]->setIsGoldHammer(false);*/
 
 			}
 		}
-		else if ( pRC->bomberId != m_pPlayer->GetPlayerID() && pRC->runnerId != m_pPlayer->GetPlayerID())
+		else if ( pRC->bomberId != m_pPlayer->GetPlayerID() && pRC->runnerId != m_pPlayer->GetPlayerID())//상대방끼리 폭탄을 주고받을 경우
 		{
 			char bomberId = pRC->bomberId;
 			char runnerId = pRC->runnerId;
@@ -2218,10 +2240,10 @@ void CGameFramework::ProcessPacket(char *packet)
 				(*iter).second->m_ppObjects[runnerId]->SetIsBomb(false);
 
 				(*iter).second->m_ppObjects[bomberId]->SetIsBomb(true);
-				if((*iter).second->m_ppObjects[bomberId]->GetIsHammer())
+				/*if((*iter).second->m_ppObjects[bomberId]->GetIsHammer())
 					(*iter).second->m_ppObjects[bomberId]->SetIsHammer(false);
 				if((*iter).second->m_ppObjects[bomberId]->getIsGoldHammer())
-					(*iter).second->m_ppObjects[bomberId]->setIsGoldHammer(false);
+					(*iter).second->m_ppObjects[bomberId]->setIsGoldHammer(false);*/
 			}
 		}
 		

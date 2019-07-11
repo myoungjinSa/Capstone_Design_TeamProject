@@ -112,9 +112,7 @@ public:
 	};
 	std::map<MUSIC_ENUM, std::string> m_mapMusicList;
 
-#ifdef _WITH_SERVER_
-	void SetVelocityFromServer(float fVel) { m_fVelocityFromServer = fVel; }
-#endif
+
 	void setScore(short score) { m_Score = score; }
 	short getScore()		const { return m_Score; }
 	bool IsCameraVibe() const { return m_bCameraVibe; }
@@ -122,6 +120,7 @@ public:
 	bool IsSpike() const { return m_bSpike; }
 	void SetSpike(bool spike) { m_bSpike = spike; }
 
+	//bool CheckInventoryToGet(CItem::ItemType itemType,int itemCnt);		//이미 인벤의 존재하는 종류의 아이템인지 검사하고 없다면 true 반환
 	void ChangeRole();
 	map<string, CItem*>& GetSpecialInventory() { return m_Special_Inventory; }
 	map<string, CItem*>& GetNormalInventory() { return m_Normal_Inventory; }
@@ -144,9 +143,7 @@ protected:
 	float           			m_fMaxVelocityXZ = 0.0f;
 	float           			m_fMaxVelocityY = 0.0f;
 	float           			m_fFriction = 0.0f;
-#ifdef _WITH_SERVER_
-	float						m_fVelocityFromServer = 0.0f;
-#endif
+
 	float						m_fMinDistance = 0.0f;
 
 	LPVOID						m_pPlayerUpdatedContext{ nullptr };

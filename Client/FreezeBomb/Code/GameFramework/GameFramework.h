@@ -198,6 +198,7 @@ private:
 	//한글인지 영어 인지
 	bool m_bHangeul{ false };
 
+	
 #endif
 
 #ifdef _WITH_SERVER_
