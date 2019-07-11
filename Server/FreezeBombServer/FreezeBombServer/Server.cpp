@@ -239,6 +239,32 @@ void Server::RunServer()
 		th.join();
 }
 
+void Server::InitGame()
+{
+	round = 0;
+	ResetTimer();
+	readyCount = 0;
+	clientCount = 0;
+	hostId = 0;
+	bomberID = 0;
+	freezeCnt = 0;
+	timer_l.lock();
+	while (false == timer_queue.empty())
+		timer_queue.pop();
+	timer_l.unlock();
+}
+
+void Server::InitRound()
+{
+	ResetTimer();
+	bomberID = 0;
+	freezeCnt = 0;
+	timer_l.lock();
+	while (false == timer_queue.empty())
+		timer_queue.pop();
+	timer_l.unlock();
+}
+
 void Server::add_timer(int obj_id, EVENT_TYPE et, chrono::high_resolution_clock::time_point start_time)
 {
 	// lock에서 오류남.. 수정 필요
@@ -508,36 +534,23 @@ void Server::WorkerThreadFunc()
 				}
 				else
 				{
-					++round;
-
-					// 새 라운드 시작 시 초기화
-					StartTimer();
-
-					roundTime_l.lock();
-					unsigned short time = roundCurrTime;
-					roundTime_l.unlock();
+					// 술래 제외한 플레이어 점수 1점씩 증가
 					for (int i = 0; i < MAX_USER; ++i)
 					{
-						if (true == clients[i].in_use)
-						{
-
-							for (int j = 0; j < MAX_USER; ++j)
-							{
-								if (true == clients[j].in_use)
-								{
-
-									clients[j].pos.x = (100.0f*j + 50);
-									clients[j].pos.z = 100.0f;
-
-									SendMovePlayer(i, j);
-
-								}
-							}
-							SendRoundStart(i, time);
-						}
+						if (false == clients[i].in_use)
+							continue;
+						if (i == bomberID)
+							continue;
+						++clients[i].score;
 					}
-					//여기서도 add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s) 를 호출해주지 않으면 
-					//다음 라운드로 넘어가서 시간이 감소하지 않음, 확인 바람 - 명진
+					for (int i = 0; i < MAX_USER; ++i)
+					{
+						if (false == clients[i].in_use)
+							continue;
+						SendRoundScore(i);
+					}
+					InitRound();
+					add_timer(-1, EV_NEXTROUNDSTART,high_resolution_clock::now() + 10s);
 				}
 			}
 			else
@@ -566,6 +579,38 @@ void Server::WorkerThreadFunc()
 				add_timer(-1, EV_COOLTIME, chrono::high_resolution_clock::now() + 1s);
 			}
 
+		}
+		else if (EV_NEXTROUNDSTART == over_ex->event_t)
+		{
+			++round;
+
+			// 새 라운드 시작 시 초기화
+			StartTimer();
+
+			roundTime_l.lock();
+			unsigned short time = roundCurrTime;
+			roundTime_l.unlock();
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (true == clients[i].in_use)
+				{
+
+					for (int j = 0; j < MAX_USER; ++j)
+					{
+						if (true == clients[j].in_use)
+						{
+
+							clients[j].pos.x = (100.0f*j + 50);
+							clients[j].pos.z = 100.0f;
+
+							SendMovePlayer(i, j);
+
+						}
+					}
+					SendRoundStart(i, time);
+				}
+			}
+			add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
 		}
 		else
 		{
@@ -843,7 +888,6 @@ void Server::ProcessPacket(char client, char *packet)
 		if (clientCount <= readyCount)
 		{
 			PickBomber();
-			
 			
 			for(int i=0;i<MAX_USER;++i)
 			{
@@ -1379,6 +1423,23 @@ void Server::SendUseItem(char toClient, char fromClient, char usedItem, char tar
 	SendFunc(toClient, &packet);
 }
 
+void Server::SendRoundScore(char client)
+{
+	SC_PACKET_ROUND_SCORE packet;
+	// 매 클라마다 배열 set 해주는건 비효율적인듯 나중에 수정
+	for (int i = 0; i < MAX_USER; ++i)
+	{
+		if (false == clients[i].in_use)
+			packet.score[i] = -1;
+		else
+			packet.score[i] = clients[i].score;
+	}
+	packet.size = sizeof(SC_PACKET_ROUND_SCORE);
+	packet.type = SC_ROUND_SCORE;
+
+	SendFunc(client, &packet);
+}
+
 void Server::SendFreeze(char toClient,char fromClient)
 {
 	SC_PACKET_FREEZE packet;
@@ -1435,9 +1496,6 @@ void Server::ClientDisconnect(char client)
 			}
 		}
 	}
-	gLock.lock();
-	clientCount--;
-	gLock.unlock();
 	
 	switch(clients[client].gameState)
 	{
@@ -1447,24 +1505,40 @@ void Server::ClientDisconnect(char client)
 		{
 			if (false == clients[i].in_use)
 				continue;
-			if (i == client)
-				continue;
 			SendClientLobbyOut(i, client);
 		}
 		break;
 	}
 	case GS_INGAME:
 	{
+		if (client == bomberID)
+		{
+			PickBomber();
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (false == clients[i].in_use)
+					continue;
+				SendChangeBomber(i, bomberID, client);
+			}
+		}
 		for (int i = 0; i < MAX_USER; ++i)
 		{
 			if (false == clients[i].in_use)
-				continue;
-			if (i == client)
 				continue;
 			SendRemovePlayer(i, client);
 		}
 		break;
 	}
+	}
+
+	gLock.lock();
+	clientCount--;
+	gLock.unlock();
+
+	// 모든 플레이어가 접속 종료했을 때
+	if (0 >= clientCount)
+	{
+		InitGame();
 	}
 
 	

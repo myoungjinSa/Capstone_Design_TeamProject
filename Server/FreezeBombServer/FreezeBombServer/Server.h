@@ -42,7 +42,8 @@ enum EVENT_TYPE
 	EV_RECV,
 	EV_SEND,
 	EV_COUNT,
-	EV_COOLTIME
+	EV_COOLTIME,
+	EV_NEXTROUNDSTART
 };
 enum COLLISION_TYPE		//어느 객체와 충돌했는지 
 {
@@ -158,7 +159,6 @@ private:
 	CGameTimer gameTimer;
 	CHeightMapImage* heightMap;
 	XMFLOAT3 gravity;
-	unsigned short roundStartTime;
 	unsigned short roundCurrTime;
 	short changeCoolTime;	//Bomber와 충돌했을때 어느정도 시간만큼은 지나야 됨 
 	int clientCount;
@@ -225,6 +225,7 @@ public:
 	void SendChangeBomber(char toClient, char bomberId,char runnerId);
 	void SendChangeHostID(char toClient, char hostID);
 	void SendGetItem(char toClient, char fromClient, string& itemIndex);
+	void SendRoundScore(char client);
 public:
 	void SetAnimationState(char client,char animationNum);
 	void SetVelocityZero(char client);
@@ -237,8 +238,9 @@ public:
 	void ProcessClientHeight(char client);
 	void ProcessFriction(char client, float& fLength);
 public:
+	void InitGame();
+	void InitRound();
 	void PickBomber();
-	
 	void StartTimer();
 	void ResetTimer();
 

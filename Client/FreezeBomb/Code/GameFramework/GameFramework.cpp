@@ -2217,20 +2217,28 @@ void CGameFramework::ProcessPacket(char *packet)
 			{
 				(*iter).second->m_ppObjects[runnerId]->SetIsBomb(false);
 
-
 				(*iter).second->m_ppObjects[bomberId]->SetIsBomb(true);
 				if((*iter).second->m_ppObjects[bomberId]->GetIsHammer())
 					(*iter).second->m_ppObjects[bomberId]->SetIsHammer(false);
 				if((*iter).second->m_ppObjects[bomberId]->getIsGoldHammer())
 					(*iter).second->m_ppObjects[bomberId]->setIsGoldHammer(false);
-
 			}
 		}
 		
+		break;
+	}
+	case SC_ROUND_SCORE:
+	{
+		SC_PACKET_ROUND_SCORE *pRS = reinterpret_cast<SC_PACKET_ROUND_SCORE *>(packet);
+
+		cout << "SCORE: ";
+		for (int i = 0; i < MAX_USER; ++i)
+			cout << (int)pRS->score[i] << ", ";
+		cout << "\n";
 
 		break;
 	}
-
+		
 	}
 }
 

@@ -61,6 +61,7 @@ constexpr int SC_RELEASE_FREEZE = 20;
 constexpr int SC_BOMB_EXPLOSION = 21;
 constexpr int SC_CHANGE_HOST_ID = 22;
 constexpr int SC_GET_ITEM = 23;
+constexpr int SC_ROUND_SCORE = 24;
 
 
 
@@ -92,7 +93,7 @@ constexpr int CS_GET_ITEM = 24;
 
 
 
-constexpr int MAX_ROUND_TIME = 300;
+constexpr int MAX_ROUND_TIME = 10;
 
 //[클라->서버]
 
@@ -517,5 +518,12 @@ struct SC_PACKET_ROLE_CHANGE
 	char type;
 	char bomberId;
 	char runnerId;
+};
+
+struct SC_PACKET_ROUND_SCORE
+{
+	char size;
+	char type;
+	char score[MAX_USER];
 };
 //////////////////////////////////////////////////////
