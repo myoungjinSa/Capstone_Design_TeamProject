@@ -1432,6 +1432,7 @@ void Server::SendUseItem(char toClient, char fromClient, char usedItem, char tar
 
 	packet.id = fromClient;
 	packet.target = targetClient;
+	packet.usedItem = usedItem;
 	packet.size = sizeof(packet);
 	packet.type = SC_USE_ITEM;
 
@@ -1528,7 +1529,8 @@ void Server::ClientDisconnect(char client)
 	{
 		if (client == bomberID)
 		{
-			PickBomber();
+			if(clientCount > 1 )
+				PickBomber();
 			for (int i = 0; i < MAX_USER; ++i)
 			{
 				if (false == clients[i].in_use)

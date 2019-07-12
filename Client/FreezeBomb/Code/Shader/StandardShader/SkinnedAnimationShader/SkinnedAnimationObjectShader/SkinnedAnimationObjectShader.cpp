@@ -296,7 +296,7 @@ void CSkinnedAnimationObjectShader::Render(ID3D12GraphicsCommandList* pd3dComman
 		{
 			m_ppObjects[i]->Animate(m_elapsedTime);
 			m_ppObjects[i]->UpdateTransform(NULL,false);
-			m_ppObjects[i]->Render(pd3dCommandList, pCamera, nPipelineState);
+			m_ppObjects[i]->Render(pd3dCommandList,pCamera, nPipelineState);
 		}
 	}
 #endif

@@ -17,6 +17,7 @@
 #include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
 #include "../Shader/BillboardShader/UIShader/TextUIShader/OutcomeUIShader/OutcomeUIShader.h"
 #include "../Network/Network.h"
+#include "../GameObject/Item/Item.h"
 
 
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
@@ -941,24 +942,33 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 					
 					//(*iter2).second->SetObjectCollided(m_pPlayer);
 					//m_pPlayer->SetObjectCollided((*iter2).second);
-
-					cout <<"플레이어:"<< m_pPlayer->GetBoundingBox().Extents.x << "," << m_pPlayer->GetBoundingBox().Extents.y << "," << m_pPlayer->GetBoundingBox().Extents.z << "\n";
-					cout << "아이템:" << (*iter2).second->GetBoundingBox().Extents.x << "," << (*iter2).second->GetBoundingBox().Extents.y << "," << (*iter2).second->GetBoundingBox().Extents.z << "\n";
-					PlayGetItemEffect();
+					//cout <<"플레이어:"<< m_pPlayer->GetBoundingBox().Extents.x << "," << m_pPlayer->GetBoundingBox().Extents.y << "," << m_pPlayer->GetBoundingBox().Extents.z << "\n";
+					//cout << "아이템:" << (*iter2).second->GetBoundingBox().Extents.x << "," << (*iter2).second->GetBoundingBox().Extents.y << "," << (*iter2).second->GetBoundingBox().Extents.z << "\n";
+					int itemType = CItem::ItemType::Empty;
+					MappingItemStringToItemType((*iter2).first,itemType);
+					if (CheckPlayerInventory(itemType)) 
+					{
+						PlayGetItemEffect();
 					
 #ifdef _WITH_SERVER_
+					//if(CheckPlayerInventory((*iter2).second))
 					
-					Network::GetInstance()->SendGetItem((*iter2).first);
-					// 클라이언트 단에서 지우는 이유는
-					// 여러번에 충돌처리로 인하여 여러번 패킷이 보내지지 않도록 함과  동시에
-					// 인벤토리에 아이템 등록 처리가 중복되게 하지 않게 하기 위해서다.
-					pItemShader->ItemDelete((*iter2).first);
+						Network::GetInstance()->SendGetItem((*iter2).first);
+
+						// 클라이언트 단에서 지우는 이유는
+						// 여러번에 충돌처리로 인하여 여러번 패킷이 보내지지 않도록 함과  동시에
+						// 인벤토리에 아이템 등록 처리가 중복되게 하지 않게 하기 위해서다.
+						pItemShader->ItemDelete((*iter2).first);
+					
 #else
-					// 충돌 된 아이템을 플레이어 인벤토리에 추가한다.
-					m_pPlayer->Add_Inventory((*iter2).first, (*iter2).second->getItemType());
-					// 맵에 있는 아이템 삭제
-					pItemShader->ItemDelete((*iter2).first);
+						m_pPlayer->Add_Inventory((*iter2).first, (*iter2).second->getItemType());
+						// 맵에 있는 아이템 삭제
+						pItemShader->ItemDelete((*iter2).first);
+				
+						// 충돌 된 아이템을 플레이어 인벤토리에 추가한다.
+					
 #endif
+					}
 					break;
 				}
 			}
@@ -1147,24 +1157,45 @@ void CScene::ChangeRound()
 
 	m_pPlayer->ChangeRound();
 }
-//bool CScene::CheckPlayerInventory(CItem::ItemType itemType)
-//{
-//	bool ret =false;
-//	if(m_pPlayer)
-//	{
-//		switch(itemType)
-//		{
-//		case CItem::ItemType::NormalHammer:
-//			ret = m_pPlayer->CheckInventoryToGet(itemType, m_NormalHammerCnt);
-//				break;
-//		case CItem::ItemType::GoldHammer:
-//			ret = m_pPlayer->CheckInventoryToGet(itemType, m_GoldHammerCnt);
-//				break;
-//		case CItem::ItemType::GoldTimer:
-//			ret = m_pPlayer->CheckInventoryToGet(itemType, m_GoldTimerCnt);
-//				break;
-//		}
-//	}
-//
-//	return ret;
-//}
+
+void CScene::MappingItemStringToItemType(const string& strItem,int& itemType)
+{
+	if(strstr(strItem.c_str(), "GoldTimer"))
+	{
+		itemType = CItem::ItemType::GoldTimer;
+	}
+	else if (strstr(strItem.c_str(), "GoldHammer"))
+	{
+		itemType = CItem::ItemType::GoldHammer;
+	}
+	else if(strstr(strItem.c_str(),"NormalHammer"))
+	{
+		itemType = CItem::ItemType::NormalHammer;
+	}
+	else
+	{
+		cout << "비 정상 아이템\n";
+		itemType = CItem::ItemType::Empty;
+	}
+}
+bool CScene::CheckPlayerInventory(const int& itemType)
+{
+	bool ret =false;
+	if(m_pPlayer)
+	{
+		switch(itemType)
+		{
+		case CItem::ItemType::NormalHammer:
+			ret = m_pPlayer->CheckInventoryToGet(itemType);
+				break;
+		case CItem::ItemType::GoldHammer:
+			ret = m_pPlayer->CheckInventoryToGet(itemType);
+				break;
+		case CItem::ItemType::GoldTimer:
+			ret = m_pPlayer->CheckInventoryToGet(itemType);
+				break;
+		}
+	}
+
+	return ret;
+}

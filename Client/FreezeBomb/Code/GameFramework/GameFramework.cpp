@@ -1555,26 +1555,26 @@ void CGameFramework::ProcessDirect2D()
 //	
 //	
 //}
-void CGameFramework::MappingItemStringToItemType(const string& strItem,int& itemType)
-{
-	if(strstr(strItem.c_str(), "GoldTimer"))
-	{
-		itemType = CItem::ItemType::GoldTimer;
-	}
-	else if (strstr(strItem.c_str(), "GoldHammer"))
-	{
-		itemType = CItem::ItemType::GoldHammer;
-	}
-	else if(strstr(strItem.c_str(),"NormalHammer"))
-	{
-		itemType = CItem::ItemType::NormalHammer;
-	}
-	else
-	{
-		cout << "비 정상 아이템\n";
-		itemType = CItem::ItemType::Empty;
-	}
-}
+//void CGameFramework::MappingItemStringToItemType(const string& strItem,int& itemType)
+//{
+//	if(strstr(strItem.c_str(), "GoldTimer"))
+//	{
+//		itemType = CItem::ItemType::GoldTimer;
+//	}
+//	else if (strstr(strItem.c_str(), "GoldHammer"))
+//	{
+//		itemType = CItem::ItemType::GoldHammer;
+//	}
+//	else if(strstr(strItem.c_str(),"NormalHammer"))
+//	{
+//		itemType = CItem::ItemType::NormalHammer;
+//	}
+//	else
+//	{
+//		cout << "비 정상 아이템\n";
+//		itemType = CItem::ItemType::Empty;
+//	}
+//}
 void CGameFramework::ProcessPacket(char *packet)
 {
 	switch (packet[1])
@@ -1687,6 +1687,8 @@ void CGameFramework::ProcessPacket(char *packet)
 	{
 		//SC_PACKET_ROUND_START *pRS = m_Network.GetRS();
 		pRS = reinterpret_cast<SC_PACKET_ROUND_START *>(packet);
+
+		//라운드가 시작할 때 마다 플레이어의 아이템 소지를 모두 초기화 시켜야한다.
 		m_pPlayer->setIsGoldHammer(false);
 		m_pPlayer->setIsGoldTimer(false);
 		m_pPlayer->SetIsHammer(false);
@@ -2066,13 +2068,14 @@ void CGameFramework::ProcessPacket(char *packet)
 		SC_PACKET_GET_ITEM *pGI = reinterpret_cast<SC_PACKET_GET_ITEM *>(packet);
 
 
-		if(pGI->id == m_pPlayer->GetPlayerID())
+		if(pGI->id == m_pPlayer->GetPlayerID() && m_pScene != nullptr)
 		{
 			string sItem = pGI->itemIndex;
 			//cout << sItem<<"\n";
 
 			int itemType = CItem::ItemType::Empty;
-			MappingItemStringToItemType(sItem,itemType);
+			
+			m_pScene->MappingItemStringToItemType(sItem,itemType);
 			
 			m_pPlayer->Add_Inventory(sItem,itemType);
 
@@ -2094,13 +2097,13 @@ void CGameFramework::ProcessPacket(char *packet)
 			
 			
 		}
-		else if(pGI->id < MAX_USER)
+		else if(pGI->id < MAX_USER && m_pScene != nullptr)
 		{
 			char id = pGI->id;
 			string sItem = pGI->itemIndex;
 			//cout << sItem<<"\n";
 			int itemType = CItem::ItemType::Empty;
-			MappingItemStringToItemType(sItem,itemType);
+			m_pScene->MappingItemStringToItemType(sItem,itemType);
 			
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 			auto itemIter = m_pScene->getShaderManager()->getShaderMap().find("Item");
@@ -2150,15 +2153,31 @@ void CGameFramework::ProcessPacket(char *packet)
 		{
 		case ITEM::GOLD_TIMER:
 		{
-			cout << "GOLD_TIMER 사용\n";
+			//cout << "GOLD_TIMER 사용\n";
 
 			if (pUI->id == m_pPlayer->GetPlayerID()) {
 				if (m_pPlayer->GetSpecialInventory().size() > 0)
 				{
-					map<string, CItem*>::iterator iter = m_pPlayer->GetSpecialInventory().begin();
-					
-					m_pPlayer->Sub_Inventory((*iter).second->getItemType());
+						for (auto iter : m_pPlayer->GetSpecialInventory())
+						{
+							if (iter.second->getItemType() == CItem::ItemType::GoldTimer)
+							{
+								m_pPlayer->Sub_Inventory(iter.second->getItemType());
+								m_pPlayer->setIsGoldTimer(false);
+							}
+						}
+						
+				}
+			}
+			else if (pUI->id < MAX_USER)
+			{
+				char id = pUI->id;
 
+				auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+				if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+				{
+					(*iter).second->m_ppObjects[id]->setIsGoldTimer(false);
 				}
 			}
 			break;

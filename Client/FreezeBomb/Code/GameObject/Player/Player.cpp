@@ -17,6 +17,7 @@
 #include "../../Network/Network.h"
 #include "../../Shader/CubeParticleShader/ExplosionParticleShader/ExplosionParticleShader.h"
 
+
 extern byte g_PlayerCharacter;
 
 CPlayer::CPlayer()
@@ -354,7 +355,7 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 	}
 }
 
-void CPlayer::Add_Inventory(string key, int ItemType)
+void CPlayer::Add_Inventory(const string& key, int ItemType)
 {
 	if (ItemType == CItem::NormalHammer)
 	{
@@ -362,23 +363,44 @@ void CPlayer::Add_Inventory(string key, int ItemType)
 			Sub_Inventory(ItemType);
 		CItem* pItem = new CItem;
 		pItem->setItemType(ItemType);
-
+#ifndef _WITH_SERVER_
 		m_bHammer = true;
-
+#endif
 		m_Normal_Inventory.emplace(key, pItem);
 	}
 	else
 	{
-		if (m_Special_Inventory.size() > 0)
-			Sub_Inventory(ItemType);
-		CItem* pItem = new CItem;
-		pItem->setItemType(ItemType);
-
-		if (ItemType == CItem::GoldHammer)
-			m_bGoldHammer = true;
-		else
-			m_bGoldTimer = true;
-		m_Special_Inventory.emplace(key, pItem);
+		//if (m_Special_Inventory.size() > 0)
+		//	Sub_Inventory(ItemType);
+		if ( m_Special_Inventory.size() >= 0 && m_Special_Inventory.size() < 2) 
+		{
+			if(m_Special_Inventory.size() == 0)
+			{
+			
+				CItem* pItem = new CItem;
+				pItem->setItemType(ItemType);
+#ifndef _WITH_SERVER_
+				if (ItemType == CItem::GoldHammer)
+						m_bGoldHammer = true;
+				else
+					m_bGoldTimer = true;
+#endif
+				m_Special_Inventory.emplace(key, pItem);
+			}
+			else if (m_Special_Inventory.begin()->second->getItemType() != ItemType )
+			{
+				CItem* pItem = new CItem;
+				pItem->setItemType(ItemType);
+#ifndef _WITH_SERVER_
+				if (ItemType == CItem::GoldHammer)
+						m_bGoldHammer = true;
+				else
+					m_bGoldTimer = true;
+#endif
+				m_Special_Inventory.emplace(key, pItem);
+			}
+			
+		}
 	}
 }
 
@@ -386,8 +408,10 @@ void CPlayer::Sub_Inventory(int ItemType)
 {
 	if (ItemType == CItem::NormalHammer)
 	{
+#ifndef _WITH_SERVER_
 		if(m_bHammer)
 			m_bHammer = false;
+#endif
 		for (auto iter = m_Normal_Inventory.begin(); iter != m_Normal_Inventory.end();)
 		{
 			m_RemovedItemList.emplace_back((*iter).second);
@@ -397,49 +421,68 @@ void CPlayer::Sub_Inventory(int ItemType)
 	// 특수 아이템
 	else
 	{
-		for (auto iter = m_Special_Inventory.begin(); iter != m_Special_Inventory.end();)
+		for (auto iter = m_Special_Inventory.begin(); iter != m_Special_Inventory.end();++iter)
 		{
+#ifndef _WITH_SERVER_
 			if (ItemType == CItem::GoldHammer)
 				m_bGoldHammer = false;
 			else
 				m_bGoldTimer = false;
-
-			m_RemovedItemList.emplace_back((*iter).second);
-			iter = m_Special_Inventory.erase(iter);
+#endif
+			if (ItemType == (*iter).second->getItemType()) 
+			{
+				m_RemovedItemList.emplace_back((*iter).second);
+				iter = m_Special_Inventory.erase(iter);
+			}
 		}
 	}
 }
 ////이미 인벤의 존재하는 종류의 아이템인지 검사하고 없다면 true 반환
-//bool CPlayer::CheckInventoryToGet(CItem::ItemType itemType,int itemCnt)
-//{
-//	bool ret = false; 
-//	switch (itemType)
-//	{
-//	case CItem::ItemType::NormalHammer:
-//		if (m_Normal_Inventory.size() <= 0)
-//			ret = true;
-//		break;
-//	case CItem::ItemType::GoldHammer:
-//		for (int i = 0; i < itemCnt; ++i) 
-//		{
-//			if (m_Special_Inventory.size() <= 0 && m_Special_Inventory.count("GoldHammer " + to_string(i)) == 0)
-//			{
-//				ret = true;
-//			}
-//		}
-//		break;
-//	case CItem::ItemType::GoldTimer:
-//		for (int i = 0; i < itemCnt; ++i) 
-//		{
-//			if (m_Special_Inventory.size() <= 0 && m_Special_Inventory.count("GoldTimer " + to_string(i)) == 0)
-//			{
-//				ret = true;
-//			}
-//		}
-//		break;
-//	}
-//	return ret;
-//}
+bool CPlayer::CheckInventoryToGet(const int& itemType)
+{
+	bool ret = false; 
+	switch (itemType)
+	{
+	case CItem::ItemType::NormalHammer:
+		if (m_Normal_Inventory.size() <= 0)
+			ret = true;
+		break;
+	case CItem::ItemType::GoldHammer:
+
+		if (m_Special_Inventory.size() <= 0)
+		{
+			ret = true;
+		}
+		else if(m_Special_Inventory.size() < 2)
+		{
+			for (auto iter : m_Special_Inventory)
+			{
+				if (iter.second->getItemType() != CItem::ItemType::GoldHammer)
+				{
+					ret = true;
+				}
+			}
+		}
+		break;
+	case CItem::ItemType::GoldTimer:
+		if (m_Special_Inventory.size() <= 0) 
+		{
+			ret = true;
+		}
+		else if(m_Special_Inventory.size() < 2)
+		{
+			for (auto iter : m_Special_Inventory)
+			{
+				if (iter.second->getItemType() != CItem::ItemType::GoldTimer)
+				{
+					ret = true;
+				}
+			}
+		}
+		break;
+	}
+	return ret;
+}
 
 void CPlayer::ChangeRound()
 {
@@ -694,10 +737,13 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		{
 			if (m_Special_Inventory.size() > 0)
 			{
-				auto iter = m_Special_Inventory.begin();
-				Sub_Inventory((*iter).second->getItemType());
-				eraseTime = 0.0f;
-				
+				for (auto iter : m_Special_Inventory) 
+				{
+					if (!m_bBomb && iter.second->getItemType() == GOLD_HAMMER) {
+						Sub_Inventory( iter.second->getItemType());
+						eraseTime = 0.0f;
+					}
+				}
 			}
 			m_bLightening = false;
 			countCoolTime = false;
@@ -710,8 +756,8 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		
 		if (m_Special_Inventory.size() > 0)
 		{
-			auto iter = m_Special_Inventory.begin();
-			if ((*iter).second->getItemType() == CItem::GoldHammer)
+			
+			if (!m_bBomb)
 			{	
 				m_bLightening = true;
 				SetTrackAnimationSet(0, CAnimationController::USEGOLDHAMMER);
@@ -733,14 +779,19 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 					eraseTime += fTimeElapsed;
 					if(eraseTime > 1.85f)		//1.75는 USEGOLDHAMMER 애니메이션에 길이 - 0.8f 해준 값
 					{
-						if (m_Special_Inventory.size() > 0)
+						
+#ifndef _WITH_SERVER_
+						for (auto iter2 : m_Special_Inventory)
 						{
-							auto iter = m_Special_Inventory.begin();
-							Sub_Inventory((*iter).second->getItemType());
-							eraseTime = 0.0f;
-				
+							if (iter2.second->getItemType() == CItem::ItemType::GoldHammer)
+							{
+								Sub_Inventory(iter2.second->getItemType());
+								eraseTime = 0.0f;
+							}
 						}
+#endif				
 						m_bLightening = false;
+
 						countCoolTime = false;
 					}
 				}
@@ -763,7 +814,11 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 						// 30초 증가
 						dynamic_cast<CTimerUIShader*>((*iter2).second)->setTimer(30.f);
 
-						Sub_Inventory((*iter).second->getItemType());
+						for (auto iter : m_Special_Inventory) 
+						{
+							if(iter.second->getItemType() == CItem::ItemType::GoldTimer)
+							Sub_Inventory(iter.second->getItemType());
+						}
 #endif					
 					}
 				}
