@@ -709,6 +709,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 					isCollided = true;
 					
 					Network::GetInstance()->SendSurroundingCollision(dynamic_cast<CSurrounding*>(*iter2)->GetIndex());
+					//cout << "index: " << dynamic_cast<CSurrounding*>((*iter2))->GetIndex()<<"\n";
 #else
 					XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize((*iter2)->GetPosition() ,m_pPlayer->GetPosition());
 					xmf3CollisionDir=Vector3::ScalarProduct(xmf3CollisionDir, m_pPlayer->GetMaxVelocity()*0.3f);

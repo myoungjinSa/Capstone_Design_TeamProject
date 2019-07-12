@@ -1687,6 +1687,9 @@ void CGameFramework::ProcessPacket(char *packet)
 	{
 		//SC_PACKET_ROUND_START *pRS = m_Network.GetRS();
 		pRS = reinterpret_cast<SC_PACKET_ROUND_START *>(packet);
+		m_pPlayer->setIsGoldHammer(false);
+		m_pPlayer->setIsGoldTimer(false);
+		m_pPlayer->SetIsHammer(false);
 		if (pRS->bomberID == m_pPlayer->GetPlayerID())
 		{
 			m_pPlayer->SetIsBomb(true);
@@ -1699,8 +1702,16 @@ void CGameFramework::ProcessPacket(char *packet)
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
 				char id = pRS->bomberID;
-				//vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+				
+				vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
 				(*iter).second->m_ppObjects[id]->SetIsBomb(true);
+				
+				for (int i = 0; i<MAX_USER;++i)
+				{
+					(*iter).second->m_ppObjects[i]->setIsGoldHammer(false);
+					(*iter).second->m_ppObjects[i]->setIsGoldTimer(false);
+					(*iter).second->m_ppObjects[i]->SetIsHammer(false);
+				}
 			}
 
 			// 다른 클라가 술래일 경우 isBomber를 set해줘야 폭탄을 그리지 않을까?
@@ -1718,6 +1729,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			else
 			{
 				g_Round = pRS->round;
+				cout << "라운드:" << (int)g_Round<<"\n";
 			}
 			
 			
@@ -2223,10 +2235,10 @@ void CGameFramework::ProcessPacket(char *packet)
 			{
 				m_pPlayer->SetIsBomb(false);
 				(*iter).second->m_ppObjects[bomberID]->SetIsBomb(true);
-				/*if((*iter).second->m_ppObjects[bomberID]->GetIsHammer())
+				if((*iter).second->m_ppObjects[bomberID]->GetIsHammer())
 					(*iter).second->m_ppObjects[bomberID]->SetIsHammer(false);
 				if((*iter).second->m_ppObjects[bomberID]->getIsGoldHammer())
-					(*iter).second->m_ppObjects[bomberID]->setIsGoldHammer(false);*/
+					(*iter).second->m_ppObjects[bomberID]->setIsGoldHammer(false);
 
 			}
 		}
@@ -2240,10 +2252,10 @@ void CGameFramework::ProcessPacket(char *packet)
 				(*iter).second->m_ppObjects[runnerId]->SetIsBomb(false);
 
 				(*iter).second->m_ppObjects[bomberId]->SetIsBomb(true);
-				/*if((*iter).second->m_ppObjects[bomberId]->GetIsHammer())
+				if((*iter).second->m_ppObjects[bomberId]->GetIsHammer())
 					(*iter).second->m_ppObjects[bomberId]->SetIsHammer(false);
 				if((*iter).second->m_ppObjects[bomberId]->getIsGoldHammer())
-					(*iter).second->m_ppObjects[bomberId]->setIsGoldHammer(false);*/
+					(*iter).second->m_ppObjects[bomberId]->setIsGoldHammer(false);
 			}
 		}
 		

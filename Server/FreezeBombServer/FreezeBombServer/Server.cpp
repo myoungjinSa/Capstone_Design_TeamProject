@@ -194,8 +194,17 @@ void Server::LoadMapObjectInfo()
 					++normalHammerCnt[j];
 				}
 			}
-			else
+			else if(0 == strcmp(pMapObjectInfo->name.c_str(),"Foliage0")		//Foliage는 충돌 객체가 아니여서 그냥 인덱스만 넘기면 된다
+					|| 0 == strcmp(pMapObjectInfo->name.c_str(),"Foliage1")		//Foliage == 풀,잡초같은 LOD메시를 가진 객체 
+					||0 == strcmp(pMapObjectInfo->name.c_str(),"Foliage2"))
+			{
+				continue;
+			}
+			else 
+			{
+				
 				objects[j].emplace_back(*pMapObjectInfo);
+			}
 		}
 		in.close();
 
@@ -229,6 +238,8 @@ void Server::RunServer()
 	heightMap = new CHeightMapImage("../../../Client/FreezeBomb/Resource/Textures/Terrain/Terrain.raw", 256, 256, XMFLOAT3(2.0f, 1.0f, 2.0f));
 	
 	gameTimer.Tick(60.0f);
+	
+	//스레드의 수가 2개인 이유는? - 명진
 	for (int i = 0; i < MAX_WORKER_THREAD; ++i)
 		workerThreads.emplace_back(thread{ WorkerThread, (LPVOID)this });
 	thread accpetThread{ AcceptThread, (LPVOID)this };
@@ -549,8 +560,10 @@ void Server::WorkerThreadFunc()
 							continue;
 						SendRoundScore(i);
 					}
+					
 					InitRound();
-					add_timer(-1, EV_NEXTROUNDSTART,high_resolution_clock::now() + 10s);
+					add_timer(-1, EV_NEXTROUNDSTART, high_resolution_clock::now() + 10s);
+					
 				}
 			}
 			else
@@ -704,6 +717,8 @@ void Server::ProcessPacket(char client, char *packet)
 		
 		recent_objects = objects[round][p->objId]; //최근에 부딪힌 오브젝트를 저장한다.
 		recent_pos = objects[round][p->objId].pos;
+
+		
 
 		clients[client].collision = CL_SURROUNDING;
 
