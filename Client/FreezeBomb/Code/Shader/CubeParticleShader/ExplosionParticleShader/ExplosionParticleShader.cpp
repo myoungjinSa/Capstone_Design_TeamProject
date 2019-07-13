@@ -147,8 +147,6 @@ void CExplosionParticleShader::SetParticleBlowUp(XMFLOAT3& position)
 	}
 }
 
-
-
 void CExplosionParticleShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	m_pd3dInstancingData = ::CreateBufferResource(pd3dDevice, pd3dCommandList, nullptr, m_ExplosionParticleList.size() * sizeof(InstancingData), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);

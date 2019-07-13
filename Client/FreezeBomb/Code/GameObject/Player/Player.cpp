@@ -17,7 +17,6 @@
 #include "../../Network/Network.h"
 #include "../../Shader/CubeParticleShader/ExplosionParticleShader/ExplosionParticleShader.h"
 
-
 extern byte g_PlayerCharacter;
 
 CPlayer::CPlayer()
@@ -990,29 +989,29 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pAnimationController->SetCallbackKeys(m_pAnimationController->USEGOLDHAMMER, 1);
 	m_pAnimationController->SetCallbackKey(m_pAnimationController->USEGOLDHAMMER, 0, 0.3f, (void*)CSoundSystem::SOUND_TYPE::GOLDHAMMER_EFFECT);
 
-	CAnimationCallbackHandler* pRunAnimationCallbackHandler = new CSoundCallbackHandler();
-	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RUNFAST, pRunAnimationCallbackHandler,
-		GetSoundData());
+	CAnimationCallbackHandler* pRunAnimationCallbackHandler = new CSoundCallbackHandler;
+	pRunAnimationCallbackHandler->SetAdditianalData(5);
+	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RUNFAST, pRunAnimationCallbackHandler);
 
-	CAnimationCallbackHandler* pBackRunAnimationCallbackHandler = new CSoundCallbackHandler();
-	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RUNBACKWARD, pBackRunAnimationCallbackHandler,
-		GetSoundData());
+	CAnimationCallbackHandler* pBackRunAnimationCallbackHandler = new CSoundCallbackHandler;
+	pBackRunAnimationCallbackHandler->SetAdditianalData(5);
+	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RUNBACKWARD, pBackRunAnimationCallbackHandler);
 
-	CAnimationCallbackHandler* pRaiseHandAnimationCallbackHandler = new CSoundCallbackHandler();
-	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RAISEHAND, pRaiseHandAnimationCallbackHandler,
-		GetSoundData());
+	CAnimationCallbackHandler* pRaiseHandAnimationCallbackHandler = new CSoundCallbackHandler;
+	pRaiseHandAnimationCallbackHandler->SetAdditianalData(5);
+	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RAISEHAND, pRaiseHandAnimationCallbackHandler);
 	
-	CAnimationCallbackHandler* pDieAnimationCallbackHandler = new CSoundCallbackHandler();
-	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->DIE, pDieAnimationCallbackHandler,
-		GetSoundData());
+	CAnimationCallbackHandler* pDieAnimationCallbackHandler = new CSoundCallbackHandler;
+	pDieAnimationCallbackHandler->SetAdditianalData(5);
+	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->DIE, pDieAnimationCallbackHandler);
 
-	CAnimationCallbackHandler* pAttackAnimationCallbackHandler = new CSoundCallbackHandler();
-	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->ATTACK, pAttackAnimationCallbackHandler,
-		GetSoundData());
+	CAnimationCallbackHandler* pAttackAnimationCallbackHandler = new CSoundCallbackHandler;
+	pAttackAnimationCallbackHandler->SetAdditianalData(5);
+	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->ATTACK, pAttackAnimationCallbackHandler);
 
-	CAnimationCallbackHandler* pUseGoldHammerCallbackHandler = new CSoundCallbackHandler();
-	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->USEGOLDHAMMER, pUseGoldHammerCallbackHandler,
-		GetSoundData());
+	CAnimationCallbackHandler* pUseGoldHammerCallbackHandler = new CSoundCallbackHandler;
+	pUseGoldHammerCallbackHandler->SetAdditianalData(5);
+	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->USEGOLDHAMMER, pUseGoldHammerCallbackHandler);
 
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 

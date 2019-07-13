@@ -1750,9 +1750,10 @@ void CGameFramework::ProcessPacket(char *packet)
 		clientCount = pRS->clientCount;
 		if (m_pLobbyScene)
 		{
-			m_pLobbyScene->SetMusicStart(false);
-			m_pLobbyScene->StopBackgroundMusic();
+			CSoundSystem::StopSound(CSoundSystem::LOBBY_BGM);
+			CSoundSystem::StopSound(CSoundSystem::CHARACTER_SELECT);
 		}
+
 		m_nState = INGAME;
 		//시간을 받아야함.
 		auto timerIter = m_pScene->getShaderManager()->getShaderMap().find("TimerUI");

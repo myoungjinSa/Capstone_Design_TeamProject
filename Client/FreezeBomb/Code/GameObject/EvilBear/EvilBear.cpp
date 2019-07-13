@@ -67,6 +67,7 @@ void CEvilBear::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCam
 
 	}
 }
+
 void CEvilBear::Animate(float fTimeElapsed)
 {
 	// 루트 오브젝트를 제외한 나머지는 모두 nullptr이다. 왜냐하면, 루트 오브젝트를 제어하기 위함이므로

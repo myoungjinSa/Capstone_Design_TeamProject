@@ -20,6 +20,7 @@ CResourceManager::~CResourceManager()
 
 void CResourceManager::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
+	CSoundSystem::Initialize();
 	PrepareLoad();
 	g_IsloadingStart = true;
 
@@ -42,27 +43,31 @@ void CResourceManager::PrepareSound()
 	};
 
 	vector<info> v;
-	v.emplace_back(info(CSoundSystem::SOUND_TYPE::LOBBY_BGM, "../Resource/Sound/MP3/Remembrance.mp3", FMOD_LOOP_NORMAL));
-	v.emplace_back(info(CSoundSystem::SOUND_TYPE::CHARACTER_SELECT, "../Resource/Sound/MP3/Allow.mp3", FMOD_LOOP_OFF));
-	v.emplace_back(info(CSoundSystem::SOUND_TYPE::INGAME_BGM, "../Resource/Sound/SnowDrop.wav", FMOD_LOOP_NORMAL));
-	v.emplace_back(info(CSoundSystem::SOUND_TYPE::TIMER_WARNING, "../Resource/Sound/Effect/TimerWarning.wav", FMOD_LOOP_NORMAL));
-	v.emplace_back(info(CSoundSystem::SOUND_TYPE::ICE_BREAK, "../Resource/Sound/Effect/ICEBreak.wav", FMOD_LOOP_OFF));
-	v.emplace_back(info(CSoundSystem::SOUND_TYPE::GET_ITEM, "../Resource/Sound/MP3/GetItem.mp3", FMOD_LOOP_OFF));
-	v.emplace_back(info(CSoundSystem::SOUND_TYPE::CLICK, "../Resource/Sound/Click.wav", FMOD_LOOP_OFF));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::LOBBY_BGM, "../Resource/Sound/Used/BGM/Remembrance.wav", FMOD_LOOP_NORMAL));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::INGAME_BGM, "../Resource/Sound/Used/BGM/SnowDrop.wav", FMOD_LOOP_NORMAL));
 
-	v.emplace_back(info(CSoundSystem::SOUND_TYPE::RUN1, "../Resource/Sound/Run1.wav", FMOD_LOOP_OFF));
-	//v.emplace_back(info(CSoundSystem::SOUND_TYPE::RUN2, "../Resource/Sound/Run2.wav", FMOD_LOOP_OFF));
-	v.emplace_back(info(CSoundSystem::SOUND_TYPE::RUN2, "../Resource/Sound/Run1.wav", FMOD_LOOP_OFF));
-	v.emplace_back(info(CSoundSystem::SOUND_TYPE::BOMBEXPLOSION_EFFECT, "../Resource/Sound/BombExplosion_Effect.wav", FMOD_LOOP_OFF));
-	v.emplace_back(info(CSoundSystem::SOUND_TYPE::GOLDTIMER_EFFECT, "../Resource/Sound/GoldTimer_Effect.wav", FMOD_LOOP_OFF));
-	v.emplace_back(info(CSoundSystem::SOUND_TYPE::HAMMERSWING_EFFECT, "../Resource/Sound/HammerSwing_Effect.wav", FMOD_LOOP_OFF));
-	v.emplace_back(info(CSoundSystem::SOUND_TYPE::GOLDHAMMER_EFFECT, "../Resource/Sound/GoldHammer_Effect.wav", FMOD_LOOP_OFF));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::CHARACTER_SELECT, "../Resource/Sound/Used/Effect/Allow.wav", FMOD_LOOP_OFF));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::TIMER_WARNING, "../Resource/Sound/Used/Effect/TimerWarning.wav", FMOD_LOOP_NORMAL));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::ICE_BREAK, "../Resource/Sound/Used/Effect/ICEBreak.wav", FMOD_LOOP_OFF));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::GET_ITEM, "../Resource/Sound/Used/Effect/GetItem.wav", FMOD_LOOP_OFF));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::CLICK, "../Resource/Sound/Used/Effect/Click.wav", FMOD_LOOP_OFF));
+
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::RUN1, "../Resource/Sound/Used/Effect/Run1.wav", FMOD_LOOP_OFF));
+	//v.emplace_back(info(CSoundSystem::SOUND_TYPE::RUN2, "../Resource/Sound/Used/Effect/Run2.wav", FMOD_LOOP_OFF));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::RUN2, "../Resource/Sound/Used/Effect/Run1.wav", FMOD_LOOP_OFF));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::BOMBEXPLOSION_EFFECT, "../Resource/Sound/Used/Effect/BombExplosion_Effect.wav", FMOD_LOOP_OFF));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::GOLDTIMER_EFFECT, "../Resource/Sound/Used/Effect/GoldTimer_Effect.wav", FMOD_LOOP_OFF));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::HAMMERSWING_EFFECT, "../Resource/Sound/Used/Effect/HammerSwing_Effect.wav", FMOD_LOOP_OFF));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::GOLDHAMMER_EFFECT, "../Resource/Sound/Used/Effect/GoldHammer_Effect.wav", FMOD_LOOP_OFF));
 
 	for (int i = 0; i < v.size(); ++i)
 	{
 		ifstream in(v[i].path, ios::binary);
 		if (!in)
+		{
+			cout << v[i].path << " 파일이 없습니다." << endl;
 			break;
+		}
 
 		in.seekg(0, ios::end);
 
@@ -74,8 +79,6 @@ void CResourceManager::PrepareSound()
 
 		CSoundSystem::AddGameSound(v[i].type, v[i].path, fileSize, v[i].mode);
 	}
-
-	CSoundSystem::Initialize();
 }
 
 void CResourceManager::PrepareLoad()

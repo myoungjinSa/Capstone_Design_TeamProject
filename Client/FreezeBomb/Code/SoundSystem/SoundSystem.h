@@ -14,13 +14,19 @@ using namespace std;
 struct GameSound
 {
 	GameSound(string path, size_t size, int mode) 
-		: m_filePath(path), m_fileSize(size), m_mode(mode), m_pSound(nullptr), m_pChannel(nullptr) { }
+		: m_filePath(path), m_fileSize(size), m_mode(mode) 
+	{
+		m_pSound = nullptr;
+		for (int i = 0; i < 6; ++i)
+			m_pChannel[i] = nullptr;
+	}
 
 	string				m_filePath;
 	size_t				m_fileSize;
 	FMOD_MODE	m_mode;	
 	Sound*				m_pSound;
-	Channel*			m_pChannel;
+	// 플레이어의 인원 수 만큼 채널을 가져야 함
+	Channel*			m_pChannel[6];
 };
 
 class CSoundSystem
@@ -44,6 +50,7 @@ public:
 	static void AddGameSound(int type, string path, size_t size, int mode) { m_GameSoundList.emplace(type, GameSound(path, size, mode)); }
 	static bool Initialize();
 	static bool PlayingSound(int key, float volume = 1.0f);
+	static bool PlayingPlayerSound(int key, int channel, float volume = 1.0f);
 	static bool StopSound(int key);
 	static bool PauseSound(int key);
 	static bool ResumeSound(int key);
@@ -53,7 +60,7 @@ public:
 	{ 
 		LOBBY_BGM, CHARACTER_SELECT, 
 		INGAME_BGM, TIMER_WARNING, ICE_BREAK, GET_ITEM, CLICK, 
-		RUN1, RUN2, BOMBEXPLOSION_EFFECT, HAMMERSWING_EFFECT, GOLDHAMMER_EFFECT, GOLDTIMER_EFFECT 
+		RUN1, RUN2, BOMBEXPLOSION_EFFECT, HAMMERSWING_EFFECT, GOLDHAMMER_EFFECT, GOLDTIMER_EFFECT
 	};
 
 private:

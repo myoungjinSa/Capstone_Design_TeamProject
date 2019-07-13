@@ -113,13 +113,12 @@ bool CSoundSystem::Initialize()
 	if (result != FMOD_OK)
 		return false;
 
-	result = m_pSystem->init(32, FMOD_INIT_NORMAL, nullptr);
+	result = m_pSystem->init(6, FMOD_INIT_NORMAL, nullptr);
 	if (result != FMOD_OK)
 		return false;
 
 	for (auto iter = m_GameSoundList.begin(); iter != m_GameSoundList.end(); ++iter)
 	{
-		cout << (*iter).second.m_filePath << endl;
 		m_pSystem->createSound((*iter).second.m_filePath.c_str(), (*iter).second.m_mode, nullptr, &(*iter).second.m_pSound);
 		if (result != FMOD_OK)
 			return false;
@@ -143,8 +142,8 @@ bool CSoundSystem::PlayingSound(int key, float volume)
 		// 처음 재생할 때,
 		if ((*iter).second.m_pChannel == nullptr)
 		{
-			result = m_pSystem->playSound((*iter).second.m_pSound, nullptr, false, &(*iter).second.m_pChannel);
-			(*iter).second.m_pChannel->setVolume(volume);
+			result = m_pSystem->playSound((*iter).second.m_pSound, nullptr, false, &(*iter).second.m_pChannel[0]);
+			(*iter).second.m_pChannel[0]->setVolume(volume);
 
 			if (result != FMOD_OK)
 				return false;
@@ -154,7 +153,7 @@ bool CSoundSystem::PlayingSound(int key, float volume)
 
 		// 재생 중인지 확인함
 		bool isPlaying = false;
-		(*iter).second.m_pChannel->isPlaying(&isPlaying);
+		(*iter).second.m_pChannel[0]->isPlaying(&isPlaying);
 
 		// 만약 재생중이라면, isPlaying이 true가 된다.
 		if (isPlaying == true)
@@ -163,8 +162,52 @@ bool CSoundSystem::PlayingSound(int key, float volume)
 			return true;
 		}
 
-		result = m_pSystem->playSound((*iter).second.m_pSound, nullptr, false, &(*iter).second.m_pChannel);
-		(*iter).second.m_pChannel->setVolume(volume);
+		result = m_pSystem->playSound((*iter).second.m_pSound, nullptr, false, &(*iter).second.m_pChannel[0]);
+		(*iter).second.m_pChannel[0]->setVolume(volume);
+
+		if (result != FMOD_OK)
+			return false;
+
+		return true;
+	}
+	return false;
+}
+
+bool CSoundSystem::PlayingPlayerSound(int key, int channel, float volume)
+{
+	if (g_IsSoundOn == false)
+		return false;
+
+	auto iter = m_GameSoundList.find(key);
+	if (iter != m_GameSoundList.end())
+	{
+		FMOD_RESULT result;
+
+		// 처음 재생할 때,
+		if ((*iter).second.m_pChannel == nullptr)
+		{
+			result = m_pSystem->playSound((*iter).second.m_pSound, nullptr, false, &(*iter).second.m_pChannel[channel]);
+			(*iter).second.m_pChannel[channel]->setVolume(volume);
+
+			if (result != FMOD_OK)
+				return false;
+
+			return true;
+		}
+
+		// 재생 중인지 확인함
+		bool isPlaying = false;
+		(*iter).second.m_pChannel[channel]->isPlaying(&isPlaying);
+
+		// 만약 재생중이라면, isPlaying이 true가 된다.
+		if (isPlaying == true)
+		{
+			m_pSystem->update();
+			return true;
+		}
+
+		result = m_pSystem->playSound((*iter).second.m_pSound, nullptr, false, &(*iter).second.m_pChannel[channel]);
+		(*iter).second.m_pChannel[channel]->setVolume(volume);
 
 		if (result != FMOD_OK)
 			return false;
@@ -183,7 +226,7 @@ bool CSoundSystem::StopSound(int key)
 		if ((*iter).second.m_pChannel == nullptr)
 			return true;
 
-		FMOD_RESULT result = (*iter).second.m_pChannel->stop();
+		FMOD_RESULT result = (*iter).second.m_pChannel[0]->stop();
 
 		if (result != FMOD_OK)
 			return false;
@@ -203,11 +246,11 @@ bool CSoundSystem::PauseSound(int key)
 		switch ((*iter).second.m_mode)
 		{
 		case FMOD_LOOP_OFF:
-			result = (*iter).second.m_pChannel->stop();
+			result = (*iter).second.m_pChannel[0]->stop();
 			break;
 
 		case FMOD_LOOP_NORMAL:
-			result = (*iter).second.m_pChannel->setPaused(true);
+			result = (*iter).second.m_pChannel[0]->setPaused(true);
 			break;
 
 		default:
@@ -231,7 +274,7 @@ bool CSoundSystem::ResumeSound(int key)
 		if ((*iter).second.m_mode == FMOD_LOOP_OFF)
 			return false;
 
-		FMOD_RESULT result = (*iter).second.m_pChannel->setPaused(false);
+		FMOD_RESULT result = (*iter).second.m_pChannel[0]->setPaused(false);
 
 		if (result != FMOD_OK)
 			return false;

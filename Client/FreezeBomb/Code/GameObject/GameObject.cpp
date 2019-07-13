@@ -41,7 +41,7 @@ void* CAnimationSet::GetCallbackData()
 }
 
 
-void CAnimationSet::SetPosition(CAnimationController& AnimationController, float& fTrackPosition, void* pContext)
+void CAnimationSet::SetPosition(CAnimationController& AnimationController, float& fTrackPosition, void* pAdditionalData)
 {
 	m_fPosition = fTrackPosition;
 
@@ -87,8 +87,8 @@ void CAnimationSet::SetPosition(CAnimationController& AnimationController, float
 		void* pCallbackData = GetCallbackData();
 		if (pCallbackData)
 		{
-			if (pContext)
-				m_pAnimationCallbackHandler->HandleCallback(pCallbackData, pContext);
+			if (pAdditionalData)
+				m_pAnimationCallbackHandler->HandleCallback(pCallbackData, pAdditionalData);
 
 			else 
 				m_pAnimationCallbackHandler->HandleCallback(pCallbackData);
@@ -154,18 +154,15 @@ void CAnimationSet::SetCallbackKeys(int nCallbackKeys)
 	m_pCallbackKeys = new CALLBACKKEY[nCallbackKeys];
 }
 
-void CAnimationSet::SetCallbackKey(int nKeyIndex, float fKeyTime, void *pData)
+void CAnimationSet::SetCallbackKey(int nKeyIndex, float fKeyTime, void* pData)
 {
 	m_pCallbackKeys[nKeyIndex].m_fTime = fKeyTime;
 	m_pCallbackKeys[nKeyIndex].m_pCallbackData = pData;
 }
 
-void CAnimationSet::SetAnimationCallbackHandler(CAnimationCallbackHandler *pCallbackHandler, void* pContext)
+void CAnimationSet::SetAnimationCallbackHandler(CAnimationCallbackHandler* pCallbackHandler)
 {
 	m_pAnimationCallbackHandler = pCallbackHandler;
-
-	if (pContext)
-		m_pAnimationCallbackHandler->SetAdditianalData(pContext);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -192,9 +189,9 @@ void CAnimationSets::SetCallbackKey(int nAnimationSet, int nKeyIndex, float fKey
 	m_pAnimationSets[nAnimationSet].m_pCallbackKeys[nKeyIndex].m_pCallbackData = pData;
 }
 
-void CAnimationSets::SetAnimationCallbackHandler(int nAnimationSet, CAnimationCallbackHandler *pCallbackHandler, void* pSoundContext)
+void CAnimationSets::SetAnimationCallbackHandler(int nAnimationSet, CAnimationCallbackHandler *pCallbackHandler)
 {
-	m_pAnimationSets[nAnimationSet].SetAnimationCallbackHandler(pCallbackHandler, pSoundContext);
+	m_pAnimationSets[nAnimationSet].SetAnimationCallbackHandler(pCallbackHandler);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -204,7 +201,6 @@ CAnimationController::CAnimationController(int nAnimationTracks, CAnimationSets 
 {
 	m_nAnimationTracks = nAnimationTracks;
 	m_pAnimationTracks = new CAnimationTrack[nAnimationTracks];
-
 
 	SetAnimationSets(pAnimationSets);
 }
@@ -226,9 +222,9 @@ void CAnimationController::SetCallbackKey(int nAnimationSet, int nKeyIndex, floa
 	if (m_pAnimationSets) m_pAnimationSets->SetCallbackKey(nAnimationSet, nKeyIndex, fKeyTime, pData);
 }
 
-void CAnimationController::SetAnimationCallbackHandler(int nAnimationSet, CAnimationCallbackHandler *pCallbackHandler, void* pSoundContext)
+void CAnimationController::SetAnimationCallbackHandler(int nAnimationSet, CAnimationCallbackHandler *pCallbackHandler)
 {
-	if (m_pAnimationSets) m_pAnimationSets->SetAnimationCallbackHandler(nAnimationSet, pCallbackHandler, pSoundContext);
+	if (m_pAnimationSets) m_pAnimationSets->SetAnimationCallbackHandler(nAnimationSet, pCallbackHandler);
 }
 
 void CAnimationController::SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet)
@@ -273,7 +269,7 @@ void CAnimationController::SetAnimationSets(CAnimationSets *pAnimationSets)
 	pAnimationSets->AddRef();
 }
 
-void CAnimationController::AdvanceTime(float fTimeElapsed, void* pContext)
+void CAnimationController::AdvanceTime(float fTimeElapsed, void* pAdditionalData)
 {
 	m_fTime += fTimeElapsed;
 	if (m_pAnimationSets && m_pAnimationTracks)
@@ -288,7 +284,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, void* pContext)
 
 			CAnimationSet *pAnimationSet = m_pAnimationTracks[j].m_pAnimationSet;
 			pAnimationSet->m_fPosition += (fTimeElapsed * m_pAnimationTracks[j].m_fSpeed);
-			m_pAnimationTracks[j].m_pAnimationSet->SetPosition(*this, m_pAnimationTracks[j].m_fPosition, pContext);
+			m_pAnimationTracks[j].m_pAnimationSet->SetPosition(*this, m_pAnimationTracks[j].m_fPosition, pAdditionalData);
 			//m_pAnimationTracks[j].m_pAnimationSet->m_fLength;
 			if (m_pAnimationTracks[j].m_bEnable)
 			{
@@ -311,7 +307,7 @@ void CSoundCallbackHandler::HandleCallback(void* pCallbackData, void* pAdditiona
 	{
 		if (m_pContextData)
 		{
-			CSoundSystem* pSound = (CSoundSystem*)m_pContextData;
+			int channel = (int)m_pContextData;
 
 			int sound = (int)pCallbackData;
 
@@ -319,22 +315,22 @@ void CSoundCallbackHandler::HandleCallback(void* pCallbackData, void* pAdditiona
 			{
 				float* fDistance = (float*)pAdditionalData;
 
-				float fDistRate = *fDistance / 100.0f;
-				fDistRate = 1 - fDistRate;
-
+				float volume = *fDistance / 100.0f;
+				volume = 1 - volume;
+				if (volume < 0.f)
+					volume = 0.f;
 				//사운드 배열은 0부터지만 넘어오는 데이터는 1부터 시작하기 때문에 인자에서 1빼서 넘겨준다.
 				//pSound->SoundPlay((int)pCallbackData - 1, 1 - fDistRate);
-				CSoundSystem::PlayingSound(sound, fDistRate);
+				CSoundSystem::PlayingPlayerSound(sound, channel, volume);
 			}
 			else
 			{
 				//pSound->SoundPlay((int)pCallbackData - 1);
-				CSoundSystem::PlayingSound(sound);
+				CSoundSystem::PlayingPlayerSound(sound, channel);
 			}
 		}
 	}
 }
-
 
 CSkinningBoneTransforms::CSkinningBoneTransforms(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CLoadedModelInfo *pModel)
 {
