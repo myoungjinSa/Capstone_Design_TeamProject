@@ -222,15 +222,6 @@ void CTimerUIShader::setReduceTimer(float value)
 {
 	m_Timer -= value;
 
-	if (m_Timer < 15.f)
-		m_Timer = 15.f;
+	if (m_Timer < 0.f)
+		m_Timer = 0.f;
 }
-#ifdef _WITH_SERVER_
-void CTimerUIShader::CompareServerTimeAndSet(float time)
-{
-	//if (m_Timer - time >= 1.0f)
-
-	m_Timer = time;
-
-}
-#endif

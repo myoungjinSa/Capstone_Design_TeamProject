@@ -201,9 +201,6 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\MenuUIShader\MenuUIShader.cpp">
       <Filter>Code\Shader\BillboardShader\UIShader\MenuUIShader</Filter>
     </ClCompile>
-    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TextUIShader\OutcomeUIShader\OutcomeUIShader.cpp">
-      <Filter>Code\Shader\BillboardShader\UIShader\TextUIShader\OutcomeUIShader</Filter>
-    </ClCompile>
     <ClCompile Include="..\Code\Physics\Particle\Particle.cpp">
       <Filter>Code\Physics\Particle</Filter>
     </ClCompile>
@@ -254,6 +251,9 @@
     </ClCompile>
     <ClCompile Include="..\Code\GameObject\CubeParticle\ExplosionParticle.cpp">
       <Filter>Code\GameObject\CubeParticle\ExplosionParticle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\OutcomeUIShader\OutcomeUIShader.cpp">
+      <Filter>Code\Shader\BillboardShader\UIShader\OutcomeUIShader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -455,9 +455,6 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\MenuUIShader\MenuUIShader.h">
       <Filter>Code\Shader\BillboardShader\UIShader\MenuUIShader</Filter>
     </ClInclude>
-    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TextUIShader\OutcomeUIShader\OutcomeUIShader.h">
-      <Filter>Code\Shader\BillboardShader\UIShader\TextUIShader\OutcomeUIShader</Filter>
-    </ClInclude>
     <ClInclude Include="..\Code\Physics\Particle\Particle.h">
       <Filter>Code\Physics\Particle</Filter>
     </ClInclude>
@@ -508,6 +505,9 @@
     </ClInclude>
     <ClInclude Include="..\Code\GameObject\CubeParticle\ExplosionParticle.h">
       <Filter>Code\GameObject\CubeParticle\ExplosionParticle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\OutcomeUIShader\OutcomeUIShader.h">
+      <Filter>Code\Shader\BillboardShader\UIShader\OutcomeUIShader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -709,12 +709,6 @@
     <Filter Include="Code\Shader\BillboardShader\UIShader\MenuUIShader">
       <UniqueIdentifier>{455c3907-511f-4790-b0d1-7df24d4d523f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Shader\BillboardShader\UIShader\TextUIShader">
-      <UniqueIdentifier>{a6f7390e-29cc-424f-b009-61740494e17e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\BillboardShader\UIShader\TextUIShader\OutcomeUIShader">
-      <UniqueIdentifier>{ed3e803f-f0a7-4d78-9952-3b0ba728d558}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\Physics\Particle">
       <UniqueIdentifier>{4599c934-497b-4574-8017-1fd87afd26f7}</UniqueIdentifier>
     </Filter>
@@ -768,6 +762,9 @@
     </Filter>
     <Filter Include="Code\GameObject\CubeParticle\IceParticle">
       <UniqueIdentifier>{4f63271b-caeb-4aa4-9ba4-cb989fe984b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\UIShader\OutcomeUIShader">
+      <UniqueIdentifier>{ed3e803f-f0a7-4d78-9952-3b0ba728d558}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

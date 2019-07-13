@@ -22,11 +22,10 @@ public:
 	void CreateConstantBufferViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, ID3D12Resource *pd3dConstantBuffers, UINT nStride);
 
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext);
-//	virtual void AnimateObjects(float fTimeElapsed);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipelineStates);
 	virtual void ReleaseObjects();
 
-	void DecideTextureByCursorPosition(CSoundSystem* sound,UINT nMessageID,float mouseX, float mouseY);
+	void DecideTextureByCursorPosition(UINT nMessageID,float mouseX, float mouseY);
 	
 	byte SelectedCharacter() const { return m_characterSelect; };
 
@@ -63,6 +62,4 @@ private:
 	bool							isReady{ false };
 	int								m_currentTexture;
 	byte							m_characterSelect;
-
-
 };

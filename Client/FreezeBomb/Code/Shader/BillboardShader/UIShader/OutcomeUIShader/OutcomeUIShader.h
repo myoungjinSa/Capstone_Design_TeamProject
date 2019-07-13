@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../UIShader.h"
+#include "../UIShader.h"
 
 class CTexture;
 class CUI;

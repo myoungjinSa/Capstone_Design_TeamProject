@@ -42,6 +42,7 @@ public:
 	void CreateDirect2DRenderTargetViews();
 	void CreateDirect2DDevice();
 	
+	void Initialize_BitmapImage();
 	void Initialize_GameFont();
 
 	void SetNamecard();
@@ -165,6 +166,7 @@ private:
 	ID3D11On12Device				*m_pd3d11On12Device{ nullptr };//
 	ID3D11DeviceContext				*m_pd3d11DeviceContext{ nullptr };//
 	ID2D1Factory3					*m_pd2dFactory{ nullptr };//
+
 	IDWriteFactory					*m_pdWriteFactory{ nullptr };//
 
 	ID2D1Device2					*m_pd2dDevice{ nullptr };//
@@ -185,20 +187,17 @@ private:
 	enum COLOR_TYPE { PINK, BROWN, WHITE, BLACK, SKYBLUE, PANDA, RED, ORANGE };
 	const int								m_FontColorNum = 8;
 	// 폰트 색상
-	ID2D1SolidColorBrush**		m_ppFontColor{ nullptr };
-	
-	IWICImagingFactory				*m_pwicImagingFactory{ nullptr };
-	ID2D1Effect							*m_pd2dfxBitmapSource{ nullptr };
-	ID2D1DrawingStateBlock1			*m_pd2dsbDrawingState{ nullptr };
-	IWICFormatConverter				*m_pwicFormatConverter{ nullptr };
+	ID2D1SolidColorBrush**		m_ppFontColor{ nullptr };	
+
+	IWICImagingFactory* m_pwicImagingFactory{ nullptr };
 
 	ID2D1Bitmap* m_ScoreBoardBitmap = nullptr;
 	D2D1_RECT_F m_ScoreBoardPos;
+	ID2D1Bitmap* m_TimeOverBitmap = nullptr;
+	D2D1_RECT_F m_TimeOverPos;
 
 	//한글인지 영어 인지
-	bool m_bHangeul{ false };
-
-	
+	bool m_bHangeul{ false };	
 #endif
 
 #ifdef _WITH_SERVER_
@@ -241,7 +240,6 @@ private:
 	vector<thread> soundThreads;
 	vector<thread> loadingThread;
 
-	
 	void Worker_Thread();
 
 #ifdef _MAPTOOL_MODE_

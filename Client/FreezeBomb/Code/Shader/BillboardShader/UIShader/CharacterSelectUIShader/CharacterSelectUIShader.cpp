@@ -172,7 +172,7 @@ void CCharacterSelectUIShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12Graph
 	}
 }
 
-void CCharacterSelectUIShader::DecideTextureByCursorPosition(CSoundSystem* sound,UINT nMessgeID, float mouseX, float mouseY)
+void CCharacterSelectUIShader::DecideTextureByCursorPosition(UINT nMessgeID, float mouseX, float mouseY)
 {
 	if (-0.928f <= mouseX && mouseX <= -0.74f && -0.585f <= mouseY && mouseY <= -0.345f)
 	{
@@ -180,15 +180,12 @@ void CCharacterSelectUIShader::DecideTextureByCursorPosition(CSoundSystem* sound
 		{
 			m_currentTexture = PINK;
 
-			sound->PlayIndex(CLobbyScene::emusic::BUTTON);
 			if (nMessgeID == WM_LBUTTONUP)	//버튼이 눌렸을때만 캐릭터 선택됨
 			{
 				cout << "PINK" << endl;
 				m_characterSelect = PINK;
-				sound->PlayIndex(CLobbyScene::emusic::BUTTON);
 			}
 		}
-
 	}
 	else if (-0.69f <= mouseX && mouseX <= -0.515f && -0.585f <= mouseY && mouseY <= -0.345f)
 	{
@@ -196,12 +193,10 @@ void CCharacterSelectUIShader::DecideTextureByCursorPosition(CSoundSystem* sound
 		{
 			m_currentTexture = BROWN;
 
-			sound->PlayIndex(CLobbyScene::emusic::BUTTON);
 			if (nMessgeID == WM_LBUTTONUP)	//버튼이 눌렸을때만 
 			{
 				cout << "BROWN" << endl;
 				m_characterSelect = BROWN;
-				sound->PlayIndex(CLobbyScene::emusic::BUTTON);
 			}
 		}
 	}
@@ -211,12 +206,10 @@ void CCharacterSelectUIShader::DecideTextureByCursorPosition(CSoundSystem* sound
 		{
 			m_currentTexture = WHITE;
 
-			sound->PlayIndex(CLobbyScene::emusic::BUTTON);
 			if (nMessgeID == WM_LBUTTONUP)	//버튼이 눌렸을때만 
 			{
 				cout << "WHITE" << endl;
 				m_characterSelect = WHITE;
-				sound->PlayIndex(CLobbyScene::emusic::BUTTON);
 			}
 		}
 	}
@@ -226,12 +219,10 @@ void CCharacterSelectUIShader::DecideTextureByCursorPosition(CSoundSystem* sound
 		{
 			m_currentTexture = BLACK;
 
-			sound->PlayIndex(CLobbyScene::emusic::BUTTON);
 			if (nMessgeID == WM_LBUTTONUP)	//버튼이 눌렸을때만 
 			{
 				cout << "BLACK" << endl;
 				m_characterSelect = BLACK;
-				sound->PlayIndex(CLobbyScene::emusic::BUTTON);
 			}
 		}
 	}
@@ -241,12 +232,10 @@ void CCharacterSelectUIShader::DecideTextureByCursorPosition(CSoundSystem* sound
 		{
 			m_currentTexture = BLUE;
 
-			sound->PlayIndex(CLobbyScene::emusic::BUTTON);
 			if (nMessgeID == WM_LBUTTONUP)	//버튼이 눌렸을때만 
 			{
 				cout << "BLUE" << endl;
 				m_characterSelect = BLUE;
-				sound->PlayIndex(CLobbyScene::emusic::BUTTON);
 			}
 		}
 	}
@@ -256,12 +245,10 @@ void CCharacterSelectUIShader::DecideTextureByCursorPosition(CSoundSystem* sound
 		{
 			m_currentTexture = PANDA;
 
-			sound->PlayIndex(CLobbyScene::emusic::BUTTON);
 			if (nMessgeID == WM_LBUTTONUP)	//버튼이 눌렸을때만 
 			{
 				cout << "PANDA" << endl;
 				m_characterSelect = PANDA;
-				sound->PlayIndex(CLobbyScene::emusic::BUTTON);
 			}
 		}
 	}
@@ -275,6 +262,8 @@ void CCharacterSelectUIShader::DecideTextureByCursorPosition(CSoundSystem* sound
 			m_currentTexture = BASE;
 		}
 	}
+
+	CSoundSystem::PlayingSound(CSoundSystem::CHARACTER_SELECT);
 
 	if (nMessgeID == WM_LBUTTONUP)
 	{
@@ -320,7 +309,6 @@ void CCharacterSelectUIShader::DecideTextureByCursorPosition(CSoundSystem* sound
 		else if (0.736f <= mouseX && mouseX <= 0.965f && 0.835f <= mouseY && mouseY <= 0.973f)
 			::PostQuitMessage(0);
 	}
-
 }
 
 void CCharacterSelectUIShader::Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipelineState)

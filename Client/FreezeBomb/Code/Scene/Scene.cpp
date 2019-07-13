@@ -15,9 +15,7 @@
 #include "../GameObject/Surrounding/Surrounding.h"
 #include "../Shader/BillboardShader/UIShader/MenuUIShader/MenuUIShader.h"
 #include "../Shader/StandardShader/SkinnedAnimationShader/SkinnedAnimationObjectShader/SkinnedAnimationObjectShader.h"
-#include "../Shader/BillboardShader/UIShader/TextUIShader/OutcomeUIShader/OutcomeUIShader.h"
 #include "../Network/Network.h"
-
 
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -33,13 +31,11 @@ D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvGPUDescriptorNextHandle;
 
 extern unsigned char g_Round;
 
-extern bool g_IsSoundOn;
 #ifndef _WITH_SERVER_
 float CScene::m_TaggerCoolTime = 0.f;
 #endif
-bool CScene::m_IsPlay = false;
 
-CScene::CScene() :m_musicCount(0), m_playerCount(0)
+CScene::CScene()
 {
 }
 
@@ -149,12 +145,6 @@ void CScene::ReleaseObjects()
 
 	ReleaseShaderVariables();
 
-	if (m_pSound) 
-		m_pSound->Release();
-
-	if (m_musicList)
-		delete[] m_musicList;
-
 	if (m_pLights)
 		delete[] m_pLights;
 
@@ -163,7 +153,7 @@ void CScene::ReleaseObjects()
 }
 
 
-ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevice)
+ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevice)
 {
 	ID3D12RootSignature *pd3dGraphicsRootSignature = NULL;
 
@@ -479,7 +469,6 @@ void CScene::ReleaseShaderVariables()
 		m_pd3dcbFog->Unmap(0, NULL);
 		m_pd3dcbFog->Release();
 	}
-
 }
 
 void CScene::ReleaseUploadBuffers()
@@ -552,14 +541,24 @@ void CScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	case WM_LBUTTONDOWN:
 		if (m_pShaderManager)
 		{
-			auto iter = m_pShaderManager->getShaderMap().find("MenuUI");
+			auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
 			if (iter != m_pShaderManager->getShaderMap().end())
 			{
-				((CMenuUIShader*)(*iter).second)->SetScene(this);
-;				((CMenuUIShader*)(*iter).second)->ProcessMessage(CMenuUIShader::MOUSE, nMessageID, ScreenPosition(mouseX, mouseY));
+				float timer = reinterpret_cast<CTimerUIShader*>((*iter).second)->getTimer();
+
+				iter = m_pShaderManager->getShaderMap().find("MenuUI");
+				if (iter != m_pShaderManager->getShaderMap().end())
+				{
+					CMenuUIShader* menu = reinterpret_cast<CMenuUIShader*>((*iter).second);
+					if (timer < 0.f)
+						menu->setIsRender(false);
+					else
+						menu->ProcessMessage(CMenuUIShader::MOUSE, nMessageID, ScreenPosition(mouseX, mouseY));
+				}		
 			}
 		}
 		break;
+
 	case WM_RBUTTONDOWN:
 		//cout << "마우스 오른쪽 클릭 - x : " << mouseX << ", y : " << mouseY << endl;
 		break;
@@ -584,29 +583,26 @@ void CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 				{
 					if (m_pShaderManager)
 					{
-						auto iter = m_pShaderManager->getShaderMap().find("MenuUI");
+						auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
 						if (iter != m_pShaderManager->getShaderMap().end())
 						{
-							((CMenuUIShader*)(*iter).second)->ProcessMessage(CMenuUIShader::KEYBOARD, nMessageID, XMFLOAT2(0, 0));
+							float timer = reinterpret_cast<CTimerUIShader*>((*iter).second)->getTimer();
+
+							iter = m_pShaderManager->getShaderMap().find("MenuUI");
+							if (iter != m_pShaderManager->getShaderMap().end())
+							{
+								CMenuUIShader* menu = reinterpret_cast<CMenuUIShader*>((*iter).second);
+
+								if (timer < 0.f)
+									menu->setIsRender(false);
+
+								else
+									menu->ProcessMessage(CMenuUIShader::KEYBOARD, nMessageID, XMFLOAT2(0, 0));
+							}
 						}
 					}
 				}
 				break;
-				case 'N':
-				{
-					if (m_pShaderManager)
-					{
-						auto iter = m_pShaderManager->getShaderMap().find("OutcomeUI");
-						if (iter != m_pShaderManager->getShaderMap().end())
-						{
-							if (((COutcomeUIShader*)(*iter).second)->getIsRender() == false)
-								((COutcomeUIShader*)(*iter).second)->setIsRender(true);
-							else
-								((COutcomeUIShader*)(*iter).second)->setIsRender(false);
-						}
-					}
-				}
-				break;	
 			}
 		break;
 	}
@@ -620,10 +616,7 @@ bool CScene::ProcessInput(UCHAR *pKeysBuffer)
 void CScene::AnimateObjects(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed)
 {
 	if (m_pShaderManager) 
-	{
 		m_pShaderManager->AnimateObjects(fTimeElapsed, m_pPlayer->GetCamera(), m_pPlayer);
-		CheckWarningTimer();
-	}
 
 	if (m_pLights)
 	{
@@ -634,8 +627,10 @@ void CScene::AnimateObjects(ID3D12GraphicsCommandList *pd3dCommandList,float fTi
 	}
 }
 
-void CScene::PreRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed, CCamera *pCamera)
+void CScene::PreRender(ID3D12GraphicsCommandList *pd3dCommandList, float fTimeElapsed, CCamera *pCamera)
 {
+	CheckWarningTimer();
+
 	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 	if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
@@ -696,12 +691,8 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 			for (auto iter2 = MapObjectsList.begin(); iter2 != MapObjectsList.end(); ++iter2)
 				(*iter2)->SetObjectCollided(nullptr);
 
-			
-
-			//m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
 			for (auto iter2 = MapObjectsList.begin(); iter2 != MapObjectsList.end(); ++iter2)
-			{
-				
+			{		
 				if((*iter2)->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
 
@@ -883,12 +874,10 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 									m_pPlayer->Sub_Inventory(CItem::NormalHammer);
 								}
 								m_pShaderManager->ProcessCollision(Vector3::Add((*iter).second->m_ppObjects[i]->GetPosition(),XMFLOAT3(0.0f,2.0f,0.0f)));
-
-								PlayIceBreakEffect(bBreak);
+								CSoundSystem::PlayingSound(CSoundSystem::ICE_BREAK);
 								(*iter).second->m_ppObjects[i]->SetIsICE(false);
 								//cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
 								break;
-
 							}
 						}
 						//if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[i]->GetBoundingBox()))
@@ -936,15 +925,10 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				
 				if ((*iter2).second->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
-
-					
-					//(*iter2).second->SetObjectCollided(m_pPlayer);
-					//m_pPlayer->SetObjectCollided((*iter2).second);
-
 					cout <<"플레이어:"<< m_pPlayer->GetBoundingBox().Extents.x << "," << m_pPlayer->GetBoundingBox().Extents.y << "," << m_pPlayer->GetBoundingBox().Extents.z << "\n";
 					cout << "아이템:" << (*iter2).second->GetBoundingBox().Extents.x << "," << (*iter2).second->GetBoundingBox().Extents.y << "," << (*iter2).second->GetBoundingBox().Extents.z << "\n";
-					PlayGetItemEffect();
-					
+					CSoundSystem::PlayingSound(CSoundSystem::GET_ITEM);
+
 #ifdef _WITH_SERVER_
 					
 					Network::GetInstance()->SendGetItem((*iter2).first);
@@ -965,104 +949,17 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 	}
 }
 
-void CScene::PlayGetItemEffect()
-{
-	if (m_pSound && g_IsSoundOn == true)
-		m_pSound->PlayIndex(ITEMGET);
-}
-
-void CScene::PlayIceBreakEffect(bool bBreak)
-{
-	if (bBreak)
-	{
-		if(m_pSound && g_IsSoundOn == true)
-			m_pSound->PlayIndex(ICEBREAK);
-
-		if (m_pPlayer->IsCameraVibe() == false)
-			m_pPlayer->SetCameraVibe(true);
-	
-		//m_pPlayer->SetCameraVibe(true);
-		//cout << "ICEBREAK" << endl;
-	}
-}
-
-void CScene::SetWarningTimer()
-{
-	m_pSound->PlayIndex(TIMERWARNING);
-}
-
-void CScene::StopWarningTimer()
-{
-	m_pSound->StopIndex(TIMERWARNING);
-}
-
 void CScene::CheckWarningTimer()
 {
-	if (m_pSound && g_IsSoundOn == true)
-	{
-		map<string, CShader*> m = m_pShaderManager->getShaderMap();
+	map<string, CShader*> m = m_pShaderManager->getShaderMap();
 
-		auto iter = m.find("TimerUI");
-		float sec = dynamic_cast<CTimerUIShader*>((*iter).second)->getTimer();
-		
-		if(sec > 0 && sec < 10.0f)
-		{
-			if (m_bWarningSet == false) {
-				m_bWarningSet = true;
-				SetWarningTimer();
-			}
-		}
-		else
-		{
-			if(m_bWarningSet == true)
-			{
-				m_bWarningSet = false;
-				StopWarningTimer();
-			}
-		}
-	}
-}
+	auto iter = m.find("TimerUI");
+	float timer = dynamic_cast<CTimerUIShader*>((*iter).second)->getTimer();
 
-void CScene::PlayBackgroundMusic()
-{
-	if (m_pSound && g_IsSoundOn == true)
-		m_pSound->PlayIndex(BACKGROUNDMUSIC,0.5f);
-
-}
-
-void CScene::SetBackgroundMusicOn(bool bStart)
-{
-	if (bStart)
-		m_musicStart = bStart;
-
-}
-
-void CScene::CreateSoundSystem()
-{
-	//사운드 생성
-	m_pSound = new CSoundSystem;
-
-	m_musicCount = 5;
-	m_musicList = new const char*[m_musicCount];
-
-	//m_musicList[0] = "../Resource/Sound/SnowyVillage.wav";
-	m_musicList[0] = "../Resource/Sound/SnowDrop.wav";
-	m_musicList[1] = "../Resource/Sound/Effect/TimerWarning.wav";
-	m_musicList[2] = "../Resource/Sound/Effect/ICEBreak.wav";
-	m_musicList[3] = "../Resource/Sound/MP3/GetItem.mp3";
-	m_musicList[4] = "../Resource/Sound/Click.wav";
-
-	//2개 동시에 재생도 가능하다
-	if (m_pSound)
-	{
-		m_pSound->Initialize(m_musicCount, m_musicList, FMOD_LOOP_NORMAL);
-		m_musicStart = false;
-		//m_pSound->PlayIndex(BACKGROUNDMUSIC);
-	}
-
-	//PlaySound(_T("../Resource/Sound/town.wav"), GetModuleHandle(NULL), SND_MEMORY | SND_ASYNC | SND_LOOP);
-	//PlaySound(MAKEINTRESOURCE(IDR_WAVE3), ::ghAppInstance, SND_RESOURCE | SND_ASYNC | SND_LOOP);
-
+	if (0 <= timer && timer <= 10.f)
+		CSoundSystem::PlayingSound(CSoundSystem::TIMER_WARNING);
+	else
+		CSoundSystem::StopSound(CSoundSystem::TIMER_WARNING);	
 }
 
 bool CScene::DistanceToTarget(XMFLOAT3& pos)
@@ -1116,23 +1013,11 @@ XMFLOAT2 CScene::ScreenPosition(int x, int y)
 		XMFLOAT2 screenPosition = XMFLOAT2(0.f, 0.f);
 		screenPosition.x = (((2.0f * x) / Viewport.Width) - 1) / 1;
 		screenPosition.y = - (((2.0f * y) / Viewport.Height) - 1) / 1;
-		//screenPosition.z = 0.0f;
 
 		return screenPosition;
 	}
 
 	return XMFLOAT2(0.f, 0.f);
-}
-
-void CScene::SceneSoundPlay()
-{
-	PlayBackgroundMusic();
-	PlayIceBreakEffect(false);
-}
-
-void CScene::SceneSoundStop()
-{
-	m_pSound->AllStop();
 }
 
 void CScene::ChangeRound()
@@ -1146,24 +1031,3 @@ void CScene::ChangeRound()
 
 	m_pPlayer->ChangeRound();
 }
-//bool CScene::CheckPlayerInventory(CItem::ItemType itemType)
-//{
-//	bool ret =false;
-//	if(m_pPlayer)
-//	{
-//		switch(itemType)
-//		{
-//		case CItem::ItemType::NormalHammer:
-//			ret = m_pPlayer->CheckInventoryToGet(itemType, m_NormalHammerCnt);
-//				break;
-//		case CItem::ItemType::GoldHammer:
-//			ret = m_pPlayer->CheckInventoryToGet(itemType, m_GoldHammerCnt);
-//				break;
-//		case CItem::ItemType::GoldTimer:
-//			ret = m_pPlayer->CheckInventoryToGet(itemType, m_GoldTimerCnt);
-//				break;
-//		}
-//	}
-//
-//	return ret;
-//}

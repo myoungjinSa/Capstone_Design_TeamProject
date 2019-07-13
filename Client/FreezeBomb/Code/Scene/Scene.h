@@ -49,21 +49,12 @@ struct LIGHTS
 class CPlayer;
 class CShaderManager;
 class CSoundSystem;
-//class CItem;
 class CScene
 {
 public:
     CScene();
     ~CScene();
 	
-	void CreateSoundSystem();
-	void PlayIceBreakEffect(bool bBreak);
-	void PlayGetItemEffect();
-
-	bool GetBackgroundMusicOn() { return m_musicStart; }
-	void SetBackgroundMusicOn(bool bStart);
-	void PlayBackgroundMusic();
-
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
@@ -81,8 +72,8 @@ public:
 
 	bool ProcessInput(UCHAR *pKeysBuffer);
     void AnimateObjects(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed);
-    void PreRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed, CCamera *pCamera=NULL);
-	void PostRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed, CCamera *pCamera=NULL);
+    void PreRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed, CCamera *pCamera=nullptr);
+	void PostRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeElapsed, CCamera *pCamera=nullptr);
 
 	//네임 카드를 위해서는 월드 좌표계에서 화면좌표계로 대응되는 위치벡터가 필요하다
 	//XMFLOAT3& CalculateNDCSpace();
@@ -99,24 +90,8 @@ public:
 	void CheckObjectByObjectCollisions(float elapsedTime);
 
 	bool DistanceToTarget(XMFLOAT3& pos);
-	void CheckWarningTimer();
-	void SetWarningTimer();
-	void StopWarningTimer();
 
 	XMFLOAT2 ScreenPosition(int x, int y);
-
-	enum MucicEnum
-	{
-		BACKGROUNDMUSIC = 0,
-		TIMERWARNING,
-		ICEBREAK,
-		ITEMGET,
-		MENU_INPUT
-	};
-
-	CSoundSystem* GetSceneSound() { return m_pSound; }
-	void SceneSoundPlay();
-	void SceneSoundStop();
 
 	void ChangeRound();
 	void SetNormalHammerCnt(char cnt) { m_NormalHammerCnt = cnt; }
@@ -127,9 +102,10 @@ public:
 	char GetGoldHammerCnt() { return m_GoldHammerCnt; }
 	char GetGoldTimerCnt() { return m_GoldTimerCnt;	}
 
+	void CheckWarningTimer();
 	//bool CheckPlayerInventory(CItem::ItemType itemType);
 protected:
-	ID3D12RootSignature*						m_pd3dGraphicsRootSignature = NULL;
+	ID3D12RootSignature*						m_pd3dGraphicsRootSignature = nullptr;
 
 	static ID3D12DescriptorHeap*			m_pd3dCbvSrvDescriptorHeap;
 
@@ -163,31 +139,21 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvDescriptorNextHandle() { return(m_d3dSrvCPUDescriptorNextHandle); }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorNextHandle() { return(m_d3dSrvGPUDescriptorNextHandle); }
 
-	FOG*						m_pFog = NULL;
+	FOG*						m_pFog = nullptr;
 
-	ID3D12Resource				*m_pd3dcbFog = NULL;
-	FOG							*m_pcbMappedFog = NULL;
+	ID3D12Resource*		m_pd3dcbFog = nullptr;
+	FOG*						m_pcbMappedFog = nullptr;
 
-	LIGHT*						m_pLights = NULL;
-	int								m_nLights = 0;
+	LIGHT*					m_pLights = nullptr;
+	int							m_nLights = 0;
+	XMFLOAT4			m_xmf4GlobalAmbient;
 
-	XMFLOAT4					m_xmf4GlobalAmbient;
+	ID3D12Resource*	m_pd3dcbLights = nullptr;
+	LIGHTS*				m_pcbMappedLights = nullptr;
 
-	ID3D12Resource*				m_pd3dcbLights = NULL;
-	LIGHTS*						m_pcbMappedLights = NULL;
-
-	//FMOD 사운드 시스템
-	//씬마다 음악이 달라져야 할수 있기 때문에 씬이 사운드를 관리함.
-	CSoundSystem*		m_pSound=NULL;
-
-	const char**			m_musicList = NULL;
-	int							m_musicCount;
-
-	bool						m_musicStart{ false };
-	CPlayer*					m_pPlayer = NULL;
+	CPlayer*				m_pPlayer = nullptr;
 
 	float						m_bVibeTime{ 0.0f };
-	bool						m_bWarningSet{ false };		//경고음 울리는지 여부 
 
 	//게임 플레이어 수
 	UINT						m_playerCount;
@@ -218,5 +184,4 @@ public:
 	// 술래 변경할 수 있는 시간
 	static float m_TaggerCoolTime;
 #endif
-	static bool m_IsPlay;
 };

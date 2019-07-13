@@ -149,7 +149,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
@@ -224,8 +224,8 @@
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\IDShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\IPShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\MenuUIShader\MenuUIShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\OutcomeUIShader\OutcomeUIShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\ProgressBarUIShader\ProgressBarUIShader.h" />
-    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TextUIShader\OutcomeUIShader\OutcomeUIShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\UIShader.h" />
     <ClInclude Include="..\Code\Shader\CubeParticleShader\CubeParticleShader.h" />
@@ -307,8 +307,8 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\IDShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\IPShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\MenuUIShader\MenuUIShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\OutcomeUIShader\OutcomeUIShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\ProgressBarUIShader\ProgressBarUIShader.cpp" />
-    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TextUIShader\OutcomeUIShader\OutcomeUIShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\UIShader.cpp" />
     <ClCompile Include="..\Code\Shader\CubeParticleShader\CubeParticleShader.cpp" />

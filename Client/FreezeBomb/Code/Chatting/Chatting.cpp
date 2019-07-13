@@ -75,11 +75,8 @@ void ChattingSystem::ShowLobbyChatting(ID2D1DeviceContext2* pd2dDeviceContext)
 	D2D1_RECT_F chatText{ 0,0,0,0 };
 	if (IsChattingActive())
 	{		
-		const TCHAR* t;
-		t = m_wsChat.c_str();
-
-		chatText = D2D1::RectF(680.0f, 645.0f, 1200.0f, 645.0f);
-		pd2dDeviceContext->DrawTextW(t, (UINT32)wcslen(t), m_pChattingFont, &chatText, m_pChattingFontColor);
+		chatText = D2D1::RectF(680.0f, 655.0f, 1200.0f, 655.0f);
+		pd2dDeviceContext->DrawTextW(m_wsChat.c_str(), m_wsChat.length(), m_pChattingFont, &chatText, m_pChattingFontColor);
 	}
 
 	for (int i = 1; i < m_dequeText.size()+1; ++i) 
@@ -93,15 +90,13 @@ void ChattingSystem::ShowIngameChatting(ID2D1DeviceContext2* pd2dDeviceContext, 
 {
 	if (IsChattingActive() && m_pd2dfxBitmapSource)
 	{
-		D2D_POINT_2F p{ -360.0f,660.0f };
+		D2D_POINT_2F p{ -360.0f, 660.0f };
 
 		pd2dDeviceContext->DrawImage(m_pd2dfxBitmapSource, p);
-		D2D1_RECT_F chatText{ 0,0,0,0 };
-		const TCHAR* t;
-		t = m_wsChat.c_str();
+		D2D1_RECT_F chatText{ 0, 0, 0, 0 };
 
 		chatText = D2D1::RectF(20.0f, 750.0f, 600.0f, 750.0f);
-		pd2dDeviceContext->DrawTextW(t, (UINT32)wcslen(t), m_pChattingFont, &chatText, m_pChattingFontColor);
+		pd2dDeviceContext->DrawTextW(m_wsChat.c_str(), m_wsChat.length(), m_pChattingFont, &chatText, m_pChattingFontColor);
 
 		m_showTime = 0.0f;
 	}
@@ -128,9 +123,9 @@ void ChattingSystem::ProcessSpecialCharacter(WPARAM wParam)
 		if (m_wsChat.size() <= (size_t)18)
 		{
 			m_wsChat += (TCHAR)wParam;
-		}
-		
+		}		
 	}
+
 	switch(wParam)
 	{
 	case '?':

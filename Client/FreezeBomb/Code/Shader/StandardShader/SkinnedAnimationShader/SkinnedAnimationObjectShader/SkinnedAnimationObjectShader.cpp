@@ -41,9 +41,6 @@ void CSkinnedAnimationObjectShader::InitializeSound()
 	std::string s3(m_SoundList[3]);
 	std::string s4(m_SoundList[4]);
 	
-	////m_SoundList[1] = "../Resource/Sound/bell1.wav";
-
-
 	m_mapMusicList.emplace(FOOTSTEP, s0);
 	m_mapMusicList.emplace(USETIMER, s1);
 	m_mapMusicList.emplace(DIE, s2);
@@ -276,7 +273,6 @@ void CSkinnedAnimationObjectShader::AnimateObjects(float fTimeElapsed, CCamera* 
 
 void CSkinnedAnimationObjectShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)
 {
-
 #ifdef _WITH_SERVER_
 	for (int i = 0; i < m_vMaterial.size(); ++i)
 	{
@@ -285,17 +281,15 @@ void CSkinnedAnimationObjectShader::Render(ID3D12GraphicsCommandList* pd3dComman
 		
 		m_ppObjects[id]->Animate(m_elapsedTime);
 		m_ppObjects[id]->UpdateTransform(NULL);
-		dynamic_cast<CEvilBear*>(m_ppObjects[id])->Render(pd3dCommandList, pCamera,matID ,nPipelineState);
-		
+		dynamic_cast<CEvilBear*>(m_ppObjects[id])->Render(pd3dCommandList, pCamera, matID ,nPipelineState);		
 	}
-	//cout << "m_vMaterial Size" << m_vMaterial.size() << "\n";
 #else
 	for (int i = 0; i < m_nObjects; ++i)
 	{
 		if (m_ppObjects[i])
 		{
 			m_ppObjects[i]->Animate(m_elapsedTime);
-			m_ppObjects[i]->UpdateTransform(NULL,false);
+			m_ppObjects[i]->UpdateTransform(NULL, false);
 			m_ppObjects[i]->Render(pd3dCommandList, pCamera, nPipelineState);
 		}
 	}

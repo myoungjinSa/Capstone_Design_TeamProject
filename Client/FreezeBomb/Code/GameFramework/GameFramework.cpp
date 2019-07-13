@@ -28,6 +28,9 @@
 #include "../GameObject/EvilBear/EvilBear.h"
 #include "../Shader/StandardShader/ItemShader/ItemShader.h"
 
+#include "../ResourceManager/ResourceManager.h"
+#include "../SoundSystem/SoundSystem.h"
+
 // 전체모드할경우 주석풀으셈
 //#define FullScreenMode
 
@@ -41,6 +44,8 @@ extern volatile size_t g_FileSize;
 extern volatile bool g_IsloadingStart;
 
 unsigned char g_Round = 0;
+
+CSoundSystem* g_SoundSystem;
 
 #ifdef _WITH_SERVER_
 //extern volatile bool g_LoginFinished;
@@ -343,47 +348,57 @@ void CGameFramework::CreateDirect2DDevice()
 
 	m_pd2dDeviceContext->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
 
+	// Bitmap 이미지를 생성한다.
+	Initialize_BitmapImage();
 	// 게임에 필요한 폰트를 생성한다.
 	Initialize_GameFont();
 	
-	//Initializes the COM library on the current thread and identifies the concurrency model as single-thread apartment 
-	CoInitialize(NULL);
-	hResult = CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory), (void**)&m_pwicImagingFactory);
-
 	//채팅 시스템 객체 생성
 	ChattingSystem::GetInstance()->Initialize(m_ppFont[FONT_TYPE::MAPLE_FONT], m_ppTextLayout[FONT_TYPE::MAPLE_FONT], m_ppFontColor[COLOR_TYPE::BLACK], m_pwicImagingFactory, m_pd2dDeviceContext);
+}
 
-	hResult = m_pd2dFactory->CreateDrawingStateBlock(&m_pd2dsbDrawingState);
-	hResult = m_pd2dDeviceContext->CreateEffect(CLSID_D2D1BitmapSource, &m_pd2dfxBitmapSource);
+void CGameFramework::Initialize_BitmapImage()
+{
+	// [ Bitmap 이미지 초기화 방법 ] 
+	// 1. Com객체 초기화
+	// 2. IWICImagingFactory 생성
+	// 3. Decoder 생성
+	// 4. 이미지의 프레임 얻어오기
+	// 5. Converter 생성
+	// 6. Bitmap 생성
 
-	IWICBitmapDecoder *pwicBitmapDecoder;
-	hResult = m_pwicImagingFactory->CreateDecoderFromFilename(L"../Resource/Png/ScoreBoard.png", NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &pwicBitmapDecoder);
+	CoInitialize(NULL);
+	HRESULT hResult = CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory), (void**)&m_pwicImagingFactory);
 
-	IWICBitmapFrameDecode *pwicFrameDecode;
-	pwicBitmapDecoder->GetFrame(0, &pwicFrameDecode);	//GetFrame() : Retrieves the specified frame of the image.
+	constexpr int imageNum = 2;
+	wstring imagePath[imageNum] = { L"../Resource/Png/ScoreBoard.png", L"../Resource/Png/TimeOver.png" };
 
-	//CreateFormatConverter::Creates a new instance of the IWICFormatConverter class.
-	m_pwicImagingFactory->CreateFormatConverter(&m_pwicFormatConverter);
+	for (int i = 0; i < imageNum; ++i)
+	{
+		IWICBitmapDecoder* pBitmapDecoder;
+		hResult = m_pwicImagingFactory->CreateDecoderFromFilename(imagePath[i].c_str(), NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &pBitmapDecoder);
 
-	//Initializes the format converter.
-	//1. WIICBitmapSource* : the input bitmap to convert
-	//2. REFWICPixelFormatGUID : The destination pixel format GUID.
-	//3. WICBitmapDitherType : The WICBitmapDitherType used for conversation.
-	// WICBitmapDitherTypeNone -> A solid color algorithm without dither.
-	//							//떨림이 없는 단색 알고리즘	
-	//4. IWICPalette*  : The palette to use for conversation.
-	//5. double : the alpha threshold to use for conversation.
-	//6. WICBitmapPaletteType : the palette translation type to use for conversation.
-	//   WICBitmapPaletteTypeCustom -> An arbitrary custom palette provided by caller.
-	m_pwicFormatConverter->Initialize(pwicFrameDecode, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 0.0f, WICBitmapPaletteTypeCustom);
+		IWICBitmapFrameDecode* pFrameDecode;
+		pBitmapDecoder->GetFrame(0, &pFrameDecode);
 
-	hResult = m_pd2dDeviceContext->CreateBitmapFromWicBitmap(m_pwicFormatConverter, &m_ScoreBoardBitmap);
+		IWICFormatConverter* pFormatConverter;
+		m_pwicImagingFactory->CreateFormatConverter(&pFormatConverter);
+		pFormatConverter->Initialize(pFrameDecode, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 0.0f, WICBitmapPaletteTypeCustom);
 
-	//D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE : The IWICBitmapSource containing loaded. The type is IWICBitmapSource.
-	m_pd2dfxBitmapSource->SetValue(D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE, m_pwicFormatConverter);
+		if(i == 0)
+			hResult = m_pd2dDeviceContext->CreateBitmapFromWicBitmap(pFormatConverter, &m_ScoreBoardBitmap);
+		else
+			hResult = m_pd2dDeviceContext->CreateBitmapFromWicBitmap(pFormatConverter, &m_TimeOverBitmap);
 
-	D2D1_VECTOR_2F	 vec{ 1.f, 1.f };
-	m_pd2dfxBitmapSource->SetValue(D2D1_BITMAPSOURCE_PROP_SCALE, vec);
+		if (pBitmapDecoder)
+			pBitmapDecoder->Release();
+
+		if (pFrameDecode)
+			pFrameDecode->Release();
+
+		if (pFormatConverter)
+			pFormatConverter->Release();
+	}
 
 	// 스코어 보드 이미지 위치
 	RECT r;
@@ -394,12 +409,7 @@ void CGameFramework::CreateDirect2DDevice()
 	r.bottom = r.bottom * 4 / 5;
 	m_ScoreBoardPos = D2D1::RectF(r.left, r.top, r.right, r.bottom);
 
-	//ScoreBoard
-	if (pwicBitmapDecoder)
-		pwicBitmapDecoder->Release();
-
-	if (pwicFrameDecode)
-		pwicFrameDecode->Release();
+	m_TimeOverPos = { m_ScoreBoardPos.left, 80, m_ScoreBoardPos.right, 230 };
 }
 
 void CGameFramework::Initialize_GameFont()
@@ -754,11 +764,11 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					}
 				}
 #else
-								//여기 부분은 서버 연동 없이 클라로만 동작시킬때
+				//여기 부분은 서버 연동 없이 클라로만 동작시킬때
 				if (m_pLobbyScene)
 				{
-					m_pLobbyScene->SetMusicStart(false);
-					m_pLobbyScene->StopBackgroundMusic();
+					CSoundSystem::StopSound(CSoundSystem::LOBBY_BGM);
+					CSoundSystem::StopSound(CSoundSystem::CHARACTER_SELECT);
 				}
 				m_nState = INGAME;
 #endif
@@ -890,8 +900,13 @@ void CGameFramework::OnDestroy()
 	if (m_ScoreBoardBitmap)
 		m_ScoreBoardBitmap->Release();
 
+	if (m_TimeOverBitmap)
+		m_TimeOverBitmap->Release();
+
 	ChattingSystem::GetInstance()->Destroy();
 	ChattingSystem::GetInstance()->DeleteInstance();
+
+	if (m_pwicImagingFactory) m_pwicImagingFactory->Release();
 
 	//Direct11
 	if (m_pd2dDeviceContext) m_pd2dDeviceContext->Release();
@@ -906,12 +921,6 @@ void CGameFramework::OnDestroy()
 		if (m_ppd3d11WrappedBackBuffers[i]) m_ppd3d11WrappedBackBuffers[i]->Release();
 		if (m_ppd2dRenderTargets[i]) m_ppd2dRenderTargets[i]->Release();
 	}
-
-	if (m_pd2dfxBitmapSource) m_pd2dfxBitmapSource->Release();
-	if (m_pd2dsbDrawingState) m_pd2dsbDrawingState->Release();
-	if (m_pwicFormatConverter) m_pwicFormatConverter->Release();
-	if (m_pwicImagingFactory) m_pwicImagingFactory->Release();
-
 #endif
 	if (m_pd3dDepthStencilBuffer) m_pd3dDepthStencilBuffer->Release();
 	if (m_pd3dDsvDescriptorHeap) m_pd3dDsvDescriptorHeap->Release();
@@ -930,13 +939,6 @@ void CGameFramework::OnDestroy()
 		m_pLoadingCommandAllocator->Release();
 	if (m_pLoadingCommandList)
 		m_pLoadingCommandList->Release();
-
-#ifdef _WITH_SERVER_
-	/*if (m_pLoginCommandAllocator)
-		m_pLoginCommandAllocator->Release();
-	if (m_pLoginCommandList)
-		m_pLoginCommandList->Release();*/
-#endif
 
 	if (m_pd3dFence) m_pd3dFence->Release();
 
@@ -976,18 +978,23 @@ bool CGameFramework::BuildObjects()
 		m_pLoginScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_ppFont[FONT_TYPE::MAPLE_FONT], m_ppTextLayout[FONT_TYPE::MAPLE_FONT], m_ppFontColor[COLOR_TYPE::BLACK]);
 	}
 #endif
+
+	// 사운드 로딩
+	CResourceManager::PrepareSound();
+
 	m_pLobbyScene = new CLobbyScene;
-	if(m_pLobbyScene)
-	{
-		m_pLobbyScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
-	}
+	if (!m_pLobbyScene)
+		return false;
+
+	m_pLobbyScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 
 	const int nPlayerCount = 6;		//임시로 플레이어 개수 지정. 
 	//추후에 서버에서 접속 인원을 씬 BuildObject 호출 전에 받아와서 세팅하면 될듯함.
 	m_pScene = new CScene;
 	if (m_pScene)
 	{
-		soundThreads.emplace_back(thread{ &CScene::CreateSoundSystem, m_pScene });
+		//soundThreads.emplace_back(thread{ &CScene::CreateSoundSystem, m_pScene });
+		
 		//GameFramework에서 관리하는 CPlayer를 제외한 나머지 넘겨준다.
 		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, nPlayerCount);
 
@@ -1075,14 +1082,11 @@ void CGameFramework::ReleaseObjects()
 	if (m_pPlayer)
 		m_pPlayer->Release();
 
-
-
 	if (m_pScene)
 	{
 		m_pScene->ReleaseObjects();
 		delete m_pScene;
 	}
-
 
 	if (m_pCartoonShader)
 	{
@@ -1298,10 +1302,8 @@ void CGameFramework::SetNamecard()
 				wchar_t wname[16];
 				int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), NULL, NULL);
 				MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), wname, nLen);
-				
-		
-				m_pd2dDeviceContext->DrawTextW(wname, nLen, m_ppFont[FONT_TYPE::PIOP_FONT], &nameCard, m_ppFontColor[id]);
-				
+						
+				m_pd2dDeviceContext->DrawTextW(wname, nLen, m_ppFont[FONT_TYPE::PIOP_FONT], &nameCard, m_ppFontColor[id]);				
 			}
 #else
 
@@ -1315,7 +1317,6 @@ void CGameFramework::SetNamecard()
 
 				m_pd2dDeviceContext->DrawTextW((*iter).second->m_ppObjects[i]->GetPlayerName(),
 					(UINT32)wcslen((*iter).second->m_ppObjects[i]->GetPlayerName()), m_ppFont[FONT_TYPE::PIOP_FONT], &nameCard, m_ppFontColor[i]);
-
 			}
 #endif
 		}
@@ -1324,66 +1325,80 @@ void CGameFramework::SetNamecard()
 
 void CGameFramework::ShowScoreboard()
 {
-	if (m_ScoreBoardBitmap && GetAsyncKeyState(VK_TAB) & 0x8000)
+	if (m_ScoreBoardBitmap == nullptr)
+		return;
+
+	map<string, CShader*> shaderMap = m_pScene->getShaderManager()->getShaderMap();
+	auto iter = shaderMap.find("TimerUI");
+	if (iter != shaderMap.end())
 	{
-		// 스코어 보드 위치
-		m_pd2dDeviceContext->DrawBitmap(m_ScoreBoardBitmap, &m_ScoreBoardPos);
-		
-		float width = m_ScoreBoardPos.right - m_ScoreBoardPos.left;
-		float height = m_ScoreBoardPos.bottom - m_ScoreBoardPos.top;
+		float timer = reinterpret_cast<CTimerUIShader*>((*iter).second)->getTimer();
 
-		D2D1_RECT_F rankPos;
-		rankPos.left = m_ScoreBoardPos.left + width * 1.f / 42.f;
-		rankPos.right = m_ScoreBoardPos.left + width * 11.f / 42.f;
-		rankPos.top = m_ScoreBoardPos.top + height * 3.f / 16.f;
-		rankPos.bottom = m_ScoreBoardPos.top + height * 5.f / 16.f;
+		if (timer <= 0.f || GetAsyncKeyState(VK_TAB) & 0x8000)
+		{
+			// ScoreBoard 이미지 그리기
+			m_pd2dDeviceContext->DrawBitmap(m_ScoreBoardBitmap, &m_ScoreBoardPos);
 
-		D2D1_RECT_F idPos;
-		idPos.left = m_ScoreBoardPos.left + width * 21.f / 42.f;
-		idPos.right = m_ScoreBoardPos.left + width * 31.f / 42.f;
-		idPos.top = m_ScoreBoardPos.top + height * 3.f / 16.f;
-		idPos.bottom = m_ScoreBoardPos.top + height * 5.f / 16.f;
+			float width = m_ScoreBoardPos.right - m_ScoreBoardPos.left;
+			float height = m_ScoreBoardPos.bottom - m_ScoreBoardPos.top;
 
-		D2D1_RECT_F idPos2;
-		idPos2.left = m_ScoreBoardPos.left + width * 21.f / 42.f;
-		idPos2.right = m_ScoreBoardPos.left + width * 31.f / 42.f;
-		idPos2.top = m_ScoreBoardPos.top + height * 5.f / 16.f;
-		idPos2.bottom = m_ScoreBoardPos.top + height * 7.f / 16.f;
+			D2D1_RECT_F rankPos;
+			rankPos.left = m_ScoreBoardPos.left + width * 1.f / 42.f;
+			rankPos.right = m_ScoreBoardPos.left + width * 11.f / 42.f;
+			rankPos.top = m_ScoreBoardPos.top + height * 3.f / 16.f;
+			rankPos.bottom = m_ScoreBoardPos.top + height * 5.f / 16.f;
 
-		D2D1_RECT_F scorePos;
-		scorePos.left = m_ScoreBoardPos.left + width * 30.f / 42.f;
-		scorePos.right = m_ScoreBoardPos.left + width * 40.f / 42.f;
-		scorePos.top = m_ScoreBoardPos.top + height * 3.f / 16.f;
-		scorePos.bottom = m_ScoreBoardPos.top + height * 5.f / 16.f;
-	
-		// ID
-		m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_ppFont[FONT_TYPE::PIOP_FONT], &idPos, m_ppFontColor[g_PlayerCharacter]);
-		// Score
-		m_pd2dDeviceContext->DrawTextW((to_wstring(m_pPlayer->getScore())).c_str(), (UINT32)(to_wstring(m_pPlayer->getScore())).length(), m_ppFont[FONT_TYPE::PIOP_FONT], &scorePos, m_ppFontColor[g_PlayerCharacter]);
+			D2D1_RECT_F idPos;
+			idPos.left = m_ScoreBoardPos.left + width * 21.f / 42.f;
+			idPos.right = m_ScoreBoardPos.left + width * 31.f / 42.f;
+			idPos.top = m_ScoreBoardPos.top + height * 3.f / 16.f;
+			idPos.bottom = m_ScoreBoardPos.top + height * 5.f / 16.f;
 
-		// ID
-		m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_ppFont[FONT_TYPE::PIOP_FONT], &idPos2, m_ppFontColor[COLOR_TYPE::RED]);
+			D2D1_RECT_F idPos2;
+			idPos2.left = m_ScoreBoardPos.left + width * 21.f / 42.f;
+			idPos2.right = m_ScoreBoardPos.left + width * 31.f / 42.f;
+			idPos2.top = m_ScoreBoardPos.top + height * 5.f / 16.f;
+			idPos2.bottom = m_ScoreBoardPos.top + height * 7.f / 16.f;
+
+			D2D1_RECT_F scorePos;
+			scorePos.left = m_ScoreBoardPos.left + width * 30.f / 42.f;
+			scorePos.right = m_ScoreBoardPos.left + width * 40.f / 42.f;
+			scorePos.top = m_ScoreBoardPos.top + height * 3.f / 16.f;
+			scorePos.bottom = m_ScoreBoardPos.top + height * 5.f / 16.f;
+
+			// ID
+			m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_ppFont[FONT_TYPE::PIOP_FONT], &idPos, m_ppFontColor[g_PlayerCharacter]);
+			// Score
+			m_pd2dDeviceContext->DrawTextW((to_wstring(m_pPlayer->getScore())).c_str(), (UINT32)(to_wstring(m_pPlayer->getScore())).length(), m_ppFont[FONT_TYPE::PIOP_FONT], &scorePos, m_ppFontColor[g_PlayerCharacter]);
+
+			// ID
+			m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_ppFont[FONT_TYPE::PIOP_FONT], &idPos2, m_ppFontColor[COLOR_TYPE::RED]);
 
 #ifdef _WITH_SERVER_
-		D2D1_RECT_F rcText = D2D1::RectF(0.f, 0.f, 0.f, 0.f);
-		map<string, CShader*> m = m_pScene->getShaderManager()->getShaderMap();
-		auto iter = m.find("OtherPlayer");
-		if (iter != m.end())
-		{
-			vector<pair<char, char>> vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
-			for (int i = 0; i < vec.size(); ++i)
+			D2D1_RECT_F rcText = D2D1::RectF(0.f, 0.f, 0.f, 0.f);
+			map<string, CShader*> m = m_pScene->getShaderManager()->getShaderMap();
+			auto iter = m.find("OtherPlayer");
+			if (iter != m.end())
 			{
-				char id = vec[i].first;			
-				wchar_t wname[16];
-				int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), NULL, NULL);
+				vector<pair<char, char>> vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+				for (int i = 0; i < vec.size(); ++i)
+				{
+					char id = vec[i].first;
+					wchar_t wname[16];
+					int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), NULL, NULL);
 
-				MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), wname, nLen);
-						
-				rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/515.0f + (i*155.0f));
-				m_pd2dDeviceContext->DrawTextW(wname, nLen, m_ppFont[FONT_TYPE::PIOP_FONT], &rcText, m_ppFontColor[i]);
+					MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), wname, nLen);
+
+					rcText = D2D1::RectF(0, 0, /*szRenderTarget.width * 0.2f*/ 1150.0f,/* szRenderTarget.height * 0.45f*/515.0f + (i*155.0f));
+					m_pd2dDeviceContext->DrawTextW(wname, nLen, m_ppFont[FONT_TYPE::PIOP_FONT], &rcText, m_ppFontColor[i]);
+				}
 			}
-		}
 #endif
+		}
+
+		if (timer <= 0.f)
+			m_pd2dDeviceContext->DrawBitmap(m_TimeOverBitmap, &m_TimeOverPos);
+
 	}
 }
 
@@ -1529,10 +1544,9 @@ void CGameFramework::ProcessDirect2D()
 
 	//,커맨드 버퍼에 대기중인 커맨드를 gpu로 전송
 	m_pd3d11DeviceContext->Flush();
-
-	
 }
 #endif
+
 #ifdef _WITH_SERVER_
 
 //void CGameFramework::InitializeIPSystem() 
@@ -1689,9 +1703,9 @@ void CGameFramework::ProcessPacket(char *packet)
 		pRS = reinterpret_cast<SC_PACKET_ROUND_START *>(packet);
 		if (pRS->bomberID == m_pPlayer->GetPlayerID())
 		{
-			m_pPlayer->SetIsBomb(true);
-			
+			m_pPlayer->SetIsBomb(true);			
 		}
+
 		else if (pRS->bomberID < MAX_USER)
 		{
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
@@ -1718,10 +1732,9 @@ void CGameFramework::ProcessPacket(char *packet)
 			else
 			{
 				g_Round = pRS->round;
-			}
-			
-			
+			}	
 		}
+
 		clientCount = pRS->clientCount;
 		if (m_pLobbyScene)
 		{
@@ -2296,14 +2309,7 @@ void CGameFramework::ProcessInGame(D3D12_CPU_DESCRIPTOR_HANDLE& d3dDsvDepthStenc
 	//카툰 렌더링 해야할 쉐이더들은 PreRender에서 그린다.
 	if (m_pScene)
 	{
-		static bool bStart = true;
-
-		if (m_pScene->GetBackgroundMusicOn() == false)
-		{
-			m_pScene->SetBackgroundMusicOn(bStart);
-			m_pScene->PlayBackgroundMusic();
-		}
-
+		CSoundSystem::PlayingSound(CSoundSystem::INGAME_BGM, 0.75f);
 		m_pScene->PreRender(m_pd3dCommandList, m_GameTimer.GetTimeElapsed(), m_pCamera);
 	}
 
@@ -2345,13 +2351,10 @@ void CGameFramework::ProcessInGame(D3D12_CPU_DESCRIPTOR_HANDLE& d3dDsvDepthStenc
 		}
 
 		//Direct2D를 사용하면 스왑체인 버퍼 리소스 전이를 Present로 바꿔주면 안된다. 
-
 #ifndef _WITH_DIRECT2D_
 	//if (m_bStart == false)
 		::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 #endif
-
-
 		HRESULT hResult = m_pd3dCommandList->Close();
 
 		ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -2374,14 +2377,8 @@ void CGameFramework::ProcessLobby()
 	static bool bStart = true;
 	if (m_pLobbyScene)
 	{
-		if (m_pLobbyScene->IsMusicStart() == false)
-		{
-			m_pLobbyScene->SetMusicStart(bStart);
-			m_pLobbyScene->PlayBackgroundMusic();
-			bStart=false;
-		}
+		CSoundSystem::PlayingSound(CSoundSystem::LOBBY_BGM);
 		m_pLobbyScene->Render(m_pd3dCommandList);
-
 	}
 
 	//::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
@@ -2429,53 +2426,51 @@ void CGameFramework::FrameAdvance()
 	switch(m_nState)
 	{
 	case INGAME:
-	{
-		ProcessInGame(d3dDsvDepthStencilBufferCPUHandle);
+		{
+			ProcessInGame(d3dDsvDepthStencilBufferCPUHandle);
+			break;
+		}
 
-		break;
-	}
 	case CHARACTER_SELECT:
-	{
-		ProcessLobby();
-		break;
-	}
+		{
+			ProcessLobby();
+			break;
+		}
 #ifdef _WITH_SERVER_
 	case LOGIN:
-	{
-		ProcessLogin();
-		
-		break;
-	}
+		{
+			ProcessLogin();		
+			break;
+		}
+
 	case CONNECT:
-	{
-		D3D12_VIEWPORT	d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
-		D3D12_RECT		d3dScissorRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
-		m_pd3dCommandList->RSSetViewports(1, &d3dViewport);
-		m_pd3dCommandList->RSSetScissorRects(1, &d3dScissorRect);
+		{
+			D3D12_VIEWPORT	d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
+			D3D12_RECT		d3dScissorRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
+			m_pd3dCommandList->RSSetViewports(1, &d3dViewport);
+			m_pd3dCommandList->RSSetScissorRects(1, &d3dScissorRect);
 	
-		if(m_pIPScene)
-			m_pIPScene->Render(m_pd3dCommandList);
+			if(m_pIPScene)
+				m_pIPScene->Render(m_pd3dCommandList);
 
-		//::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+			//::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 		
-		HRESULT hResult = m_pd3dCommandList->Close();
+			HRESULT hResult = m_pd3dCommandList->Close();
 
-		ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
-		m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+			ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
+			m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 
-		WaitForGpuComplete();
+			WaitForGpuComplete();
 
-#ifdef _WITH_DIRECT2D_
+	#ifdef _WITH_DIRECT2D_
 
-		ProcessDirect2D();
+			ProcessDirect2D();
 
+	#endif
+			break;
+		}
 #endif
 	}
-		break;
-
-#endif
-	}
-
 
 #ifdef _WITH_PRESENT_PARAMETERS
 	DXGI_PRESENT_PARAMETERS dxgiPresentParameters;

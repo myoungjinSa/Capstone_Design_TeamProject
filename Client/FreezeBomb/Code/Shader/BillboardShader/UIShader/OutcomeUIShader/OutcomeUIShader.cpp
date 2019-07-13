@@ -1,10 +1,10 @@
-#include "../../../../../Stdafx/Stdafx.h"
+#include "../../../../Stdafx/Stdafx.h"
 #include "OutcomeUIShader.h"
-#include "../../../../../Mesh/BillboardMesh/BillboardMesh.h"
-#include "../../../../../Texture/Texture.h"
-#include "../../../../../Material/Material.h"
-#include "../../../../../Scene/Scene.h"
-#include "../../../../../GameObject/Billboard/UI/UI.h"
+#include "../../../../Mesh/BillboardMesh/BillboardMesh.h"
+#include "../../../../Texture/Texture.h"
+#include "../../../../Material/Material.h"
+#include "../../../../Scene/Scene.h"
+#include "../../../../GameObject/Billboard/UI/UI.h"
 
 COutcomeUIShader::COutcomeUIShader()
 {
@@ -101,11 +101,12 @@ void COutcomeUIShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamer
 	if (m_IsRender && m_ElaspedTime > 1.5f)
 	{
 		CUIShader::OnPrepareRender(pd3dCommandList, 0);
-		auto iter = m_UIMap.find(m_outcome);
-		if (iter != m_UIMap.end())
-			(*iter).second->Render(pd3dCommandList, nPipelineState, 0);
+		//auto iter = m_UIMap.find(m_outcome);
+		//if (iter != m_UIMap.end())
+		//	(*iter).second->Render(pd3dCommandList, nPipelineState, 0);
 	}
 }
+
 void COutcomeUIShader::ReleaseObjects()
 {
 	for (auto iter = m_UIMap.begin(); iter != m_UIMap.end();)

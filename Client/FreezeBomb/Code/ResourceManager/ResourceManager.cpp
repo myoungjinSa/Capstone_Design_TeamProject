@@ -4,8 +4,8 @@
 #include "../Scene/Scene.h"
 #include "../GameObject/Foliage/Foliage.h"
 #include "../Material/Material.h"
+#include "../SoundSystem/SoundSystem.h"
 
-//volatile size_t g_TotalSize = 30062795 + 88336 + 74552;
 volatile size_t g_TotalSize = 0;
 volatile size_t g_FileSize = 0;
 extern volatile bool g_IsloadingStart = false;
@@ -27,6 +27,47 @@ void CResourceManager::Initialize(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	LoadModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	LoadMapObjectInfo(pd3dDevice, pd3dCommandList);
 	LoadBound(pd3dDevice, pd3dCommandList);
+}
+
+void CResourceManager::PrepareSound()
+{
+	struct info
+	{
+		info(CSoundSystem::SOUND_TYPE t, string s, int m)
+			: type(t), path(s), mode(m) {}
+		
+		CSoundSystem::SOUND_TYPE type;
+		string path;
+		int mode;
+	};
+
+	vector<info> v;
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::LOBBY_BGM, "../Resource/Sound/MP3/Remembrance.mp3", FMOD_LOOP_NORMAL));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::CHARACTER_SELECT, "../Resource/Sound/MP3/Allow.mp3", FMOD_LOOP_OFF));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::INGAME_BGM, "../Resource/Sound/SnowDrop.wav", FMOD_LOOP_NORMAL));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::TIMER_WARNING, "../Resource/Sound/Effect/TimerWarning.wav", FMOD_LOOP_NORMAL));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::ICE_BREAK, "../Resource/Sound/Effect/ICEBreak.wav", FMOD_LOOP_OFF));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::GET_ITEM, "../Resource/Sound/MP3/GetItem.mp3", FMOD_LOOP_OFF));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::CLICK, "../Resource/Sound/Click.wav", FMOD_LOOP_OFF));
+
+	for (int i = 0; i < v.size(); ++i)
+	{
+		ifstream in(v[i].path, ios::binary);
+		if (!in)
+			break;
+
+		in.seekg(0, ios::end);
+
+		size_t fileSize = in.tellg();
+		g_TotalSize += fileSize;
+		
+		in.seekg(0, ios::beg);
+		in.close();
+
+		CSoundSystem::AddGameSound(v[i].type, v[i].path, fileSize, v[i].mode);
+	}
+
+	CSoundSystem::Initialize();
 }
 
 void CResourceManager::PrepareLoad()

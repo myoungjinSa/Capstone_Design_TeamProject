@@ -13,7 +13,7 @@
 #include "../Billboard/Bomb/Bomb.h"
 #include "../../FrameTransform/FrameTransform.h"
 #include "../../Chatting/Chatting.h"
-#include "../../Shader/BillboardShader/UIShader/TextUIShader/OutcomeUIShader/OutcomeUIShader.h"
+#include "../../Shader/BillboardShader/UIShader/OutcomeUIShader/OutcomeUIShader.h"
 #include "../../Network/Network.h"
 #include "../../Shader/CubeParticleShader/ExplosionParticleShader/ExplosionParticleShader.h"
 
@@ -865,14 +865,11 @@ void CPlayer::InitializeSound()
 	m_SoundList[3] = "../Resource/Sound/Effect/HammerSwing.wav";
 	m_SoundList[4] = "../Resource/Sound/Effect/Electricity.wav";
 	
-
 	std::string s0(m_SoundList[0]);
 	std::string s1(m_SoundList[1]);
 	std::string s2(m_SoundList[2]);
 	std::string s3(m_SoundList[3]);
 	std::string s4(m_SoundList[4]);
-
-
 
 	////m_SoundList[1] = "../Resource/Sound/bell1.wav";
 
@@ -882,7 +879,6 @@ void CPlayer::InitializeSound()
 	m_mapMusicList.emplace(ATTACK, s3);
 	m_mapMusicList.emplace(ELECTRIC, s4);
 
-	
 	if (m_pSound)
 		m_pSound->Initialize(m_SoundCount, m_SoundList, FMOD_LOOP_OFF);
 }
@@ -924,11 +920,9 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 0, 0.1f, (void*)CPlayer::MUSIC_ENUM::FOOTSTEP);
 	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 1, 0.5f, (void*)CPlayer::MUSIC_ENUM::FOOTSTEP);
 
-
 	m_pAnimationController->SetCallbackKeys(m_pAnimationController->RUNBACKWARD, 2);
 	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNBACKWARD, 0, 0.1f, (void*)CPlayer::MUSIC_ENUM::FOOTSTEP);
 	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNBACKWARD, 1, 0.3f, (void*)CPlayer::MUSIC_ENUM::FOOTSTEP);
-
 
 	m_pAnimationController->SetCallbackKeys(m_pAnimationController->RAISEHAND, 1);
 	m_pAnimationController->SetCallbackKey(m_pAnimationController->RAISEHAND, 0, 0.3f, (void*)CPlayer::MUSIC_ENUM::USETIMER);

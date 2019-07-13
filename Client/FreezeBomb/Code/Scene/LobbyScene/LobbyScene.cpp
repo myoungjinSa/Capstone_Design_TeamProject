@@ -2,14 +2,12 @@
 #include "LobbyScene.h"
 #include "../../Texture/Texture.h"
 #include "../../Shader/BillboardShader/UIShader/CharacterSelectUIShader/CharacterSelectUIShader.h"
-#include "../../SoundSystem/SoundSystem.h"
 #include "../../Shader/BillboardShader/UIShader/LobbyShader/LobbyShader.h"
 #include "../../Chatting/Chatting.h"
 
 extern byte g_PlayerCharacter;
 
 CLobbyScene::CLobbyScene()
-	:m_musicCount{ 0 }
 {
 }
 
@@ -77,9 +75,6 @@ void CLobbyScene::ReleaseObjects()
 
 	m_shaderMap.clear();
 
-	if (m_pSound)
-		m_pSound->Release();
-
 	for (int i = 0; i < m_nShaders; i++)
 	{
 		m_ppShaders[i]->ReleaseShaderVariables();
@@ -96,80 +91,24 @@ void CLobbyScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_nShaders = 1;
 	m_ppShaders = new CShader*[m_nShaders];
 
-
 	CCharacterSelectUIShader* pSelectShader = new CCharacterSelectUIShader;
 	pSelectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nullptr);
 	pSelectShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	m_ppShaders[index++] = pSelectShader;
 	m_shaderMap.emplace("Select", pSelectShader);
-
-
-	CreateSoundSystem();
-	m_musicStart = false;
 }
 
 void CLobbyScene::AnimateObjects(ID3D12GraphicsCommandList* pd3dCommandList, float elapsedTime)
 {
-	/*for (int i = 0; i < m_nShaders; ++i)
-	{
-		if (m_ppShaders[i])
-		{
-			m_ppShaders[i]->AnimateObjects(elapsedTime, nullptr, nullptr);
-		}
-	}*/
 }
-
-
 
 void CLobbyScene::Render(ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	if (m_pd3dGraphicsRootSignature)
-	{
 		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
-	}
 	
 	for(int i=0;i<m_nShaders;++i)
 		m_ppShaders[i]->Render(pd3dCommandList,0 );
-
-	
-	
-}
-
-void CLobbyScene::CreateSoundSystem()
-{
-	//사운드 생성
-	m_pSound = new CSoundSystem;
-
-	m_musicCount = 3;
-	m_musicList = new const char*[m_musicCount];
-
-	m_musicList[0] = "../Resource/Sound/MP3/Remembrance.mp3";
-	m_musicList[1] = "../Resource/Sound/MP3/catureTheFlag.mp3";
-	m_musicList[2] = "../Resource/Sound/MP3/btAllow.mp3";
-
-	if(m_pSound)
-	{
-		m_pSound->Initialize(m_musicCount, m_musicList, FMOD_LOOP_NORMAL);
-	}
-}
-
-void CLobbyScene::StopBackgroundMusic()
-{
-	if (m_pSound)
-		m_pSound->Stop(m_musicCount);
-}
-void CLobbyScene::PlayBackgroundMusic()
-{
-	if (m_pSound)
-		m_pSound->PlayIndex(BACKGROUNDMUSIC);
-}
-bool CLobbyScene::IsMusicStart()
-{
-	return m_musicStart;
-}
-void CLobbyScene::SetMusicStart(bool bStart)
-{
-	m_musicStart = bStart;
 }
 
 XMFLOAT3 CLobbyScene::ScreenPosition(int x, int y)
@@ -203,7 +142,7 @@ void CLobbyScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wPar
 				auto iter = m_shaderMap.find("Select");
 				if (iter != m_shaderMap.end())
 				{
-					dynamic_cast<CCharacterSelectUIShader*>(m_ppShaders[CHARACTER_SELECT])->DecideTextureByCursorPosition(m_pSound,nMessageID, position.x, position.y);
+					dynamic_cast<CCharacterSelectUIShader*>(m_ppShaders[CHARACTER_SELECT])->DecideTextureByCursorPosition(nMessageID, position.x, position.y);
 					g_PlayerCharacter = dynamic_cast<CCharacterSelectUIShader*>(m_ppShaders[CHARACTER_SELECT])->SelectedCharacter();
 				}
 			}

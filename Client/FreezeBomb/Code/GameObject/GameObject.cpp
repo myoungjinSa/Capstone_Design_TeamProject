@@ -320,16 +320,17 @@ void CSoundCallbackHandler::HandleCallback(void *pCallbackData, void* pAdditiona
 		{
 			CSoundSystem* pSound = (CSoundSystem*)m_pContextData;
 
-			if (pAdditionalData) {
+			if (pAdditionalData) 
+			{
 				float* fDistance = (float*)pAdditionalData;
 
 				float fDistRate = *fDistance / 100.0f;
 				//사운드 배열은 0부터지만 넘어오는 데이터는 1부터 시작하기 때문에 인자에서 1빼서 넘겨준다.
-				pSound->PlayIndex((int)pCallbackData - 1, 1 - fDistRate);
+				pSound->SoundPlay((int)pCallbackData - 1, 1 - fDistRate);
 			}
 			else
 			{
-				pSound->PlayIndex((int)pCallbackData - 1);
+				pSound->SoundPlay((int)pCallbackData - 1);
 			}
 
 		}
@@ -555,12 +556,10 @@ void CGameObject::UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent, bool isLocalFrameRo
 		}
 	}
 
-
 	if (m_pSibling)
 		m_pSibling->UpdateTransform(pxmf4x4Parent, isLocalFrameRotate);
 	if (m_pChild)
 		m_pChild->UpdateTransform(&m_xmf4x4World, isLocalFrameRotate);
-
 }
 
 void CGameObject::SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet)

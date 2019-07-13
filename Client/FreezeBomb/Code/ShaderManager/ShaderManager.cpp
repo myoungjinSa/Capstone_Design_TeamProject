@@ -20,9 +20,7 @@
 #include "../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
 #include "../Shader/BillboardShader/UIShader/ItemUIShader/ItemUIShader.h"
 #include "../Shader/BillboardShader/UIShader/MenuUIShader/MenuUIShader.h"
-#include "../Shader/BillboardShader/UIShader/TextUIShader/OutcomeUIShader/OutcomeUIShader.h"
-
-//#include "../Shader/PostProcessShader/CartoonShader/SobelCartoonShader.h"
+#include "../Shader/BillboardShader/UIShader/OutcomeUIShader/OutcomeUIShader.h"
 
 #include "../GameObject/Player/Player.h"
 
@@ -85,13 +83,6 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ShaderMap.emplace("Item", pItemShader);
 #endif
 
-	/*
-	CSobelCartoonShader *pCartoonShader = new CSobelCartoonShader;
-	pCartoonShader->CreateGraphicsRootSignature(pd3dDevice);
-	pCartoonShader->CreateShader(pd3dDevice, pCartoonShader->GetGraphicsRootSignature(), 1);
-	pCartoonShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pResourceManager->getTextureMap());
-	*/
-
 	CSkinnedAnimationObjectShader* pAnimationObjectShader = new CSkinnedAnimationObjectShader;
 //#ifndef _WITH_SERVER_
 	//서버랑 연동 되어있을경우 여기서 BuildObjects를 하면 안된다.
@@ -130,6 +121,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	m_ShaderMap.emplace("wind", pMagicRingShader);
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////
+
 	//아래 shader들은 카툰처리가 되면 안되는 shader
 	CSnowShader * pSnowShader = new CSnowShader;
 	pSnowShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -181,12 +173,12 @@ void CShaderManager::ReleaseObjects()
 		delete[] m_ppShaders;
 	}
 
-#ifdef _MAPTOOL_MODE_
-	m_pResourceManager->ReleaseModel();
-#endif
-
 	if (m_pResourceManager)
 	{
+#ifdef _MAPTOOL_MODE_
+		m_pResourceManager->ReleaseModel();
+#endif
+
 		m_pResourceManager->Release();
 		delete m_pResourceManager;
 	}
@@ -202,9 +194,8 @@ void CShaderManager::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer
 {
 	m_pPlayer = pPlayer;
 
-	for (int i = 0; i < m_nShaders; i++) {
+	for (int i = 0; i < m_nShaders; i++) 
 		m_ppShaders[i]->AnimateObjects(elapsedTime, pCamera, pPlayer);
-	}
 }
 
 //카툰 렌더링 하지 않고 그려야할 쉐이더 

@@ -26,8 +26,9 @@ public:
 
 	void setReduceTimer(float value);
 #ifdef _WITH_SERVER_
-	void CompareServerTimeAndSet(float time);
+	void CompareServerTimeAndSet(float time) { m_Timer = time };
 #endif
+
 private:
 	enum UIType { OneSec, TenSec, OneMin, Colon };
 
