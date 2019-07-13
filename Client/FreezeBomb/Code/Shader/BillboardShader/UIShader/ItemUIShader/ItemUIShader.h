@@ -23,7 +23,7 @@ public:
 	void setRender(bool value) { m_Render = value; }
 
 private:
-	enum UIType { ItemBoxUI, NormalItemUI, SpecialItemUI };
+	enum UIType { ItemBoxUI, NormalItemUI, SpecialItemUI,SubSpecialItemUI };
 
 	bool m_Render = false;
 

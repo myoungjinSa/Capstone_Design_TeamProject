@@ -93,7 +93,7 @@ constexpr int CS_GET_ITEM = 24;
 
 
 
-constexpr int MAX_ROUND_TIME = 10;
+constexpr int MAX_ROUND_TIME = 100;
 
 //[클라->서버]
 

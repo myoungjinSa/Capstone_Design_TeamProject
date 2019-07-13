@@ -24,14 +24,14 @@ struct FOG
 
 struct LIGHT
 {
-	XMFLOAT4	m_xmf4Ambient;
-	XMFLOAT4	m_xmf4Diffuse;
-	XMFLOAT4	m_xmf4Specular;
-	XMFLOAT3	m_xmf3Position;
+	XMFLOAT4			m_xmf4Ambient;
+	XMFLOAT4			m_xmf4Diffuse;
+	XMFLOAT4			m_xmf4Specular;
+	XMFLOAT3			m_xmf3Position;
 	float 				m_fFalloff;
-	XMFLOAT3	m_xmf3Direction;
+	XMFLOAT3			m_xmf3Direction;
 	float 				m_fTheta; //cos(m_fTheta)
-	XMFLOAT3	m_xmf3Attenuation;
+	XMFLOAT3			m_xmf3Attenuation;
 	float				m_fPhi;		//cos(m_fPhi)
 	bool				m_bEnable;
 	int					m_nType;
@@ -48,7 +48,6 @@ struct LIGHTS
 
 class CPlayer;
 class CShaderManager;
-class CSoundSystem;
 class CScene
 {
 public:
@@ -103,7 +102,10 @@ public:
 	char GetGoldTimerCnt() { return m_GoldTimerCnt;	}
 
 	void CheckWarningTimer();
-	//bool CheckPlayerInventory(CItem::ItemType itemType);
+
+	void MappingItemStringToItemType(const string& strItem,int& itemType);
+	bool CheckPlayerInventory(const int& itemType);
+
 protected:
 	ID3D12RootSignature*						m_pd3dGraphicsRootSignature = nullptr;
 
@@ -152,7 +154,6 @@ public:
 	LIGHTS*				m_pcbMappedLights = nullptr;
 
 	CPlayer*				m_pPlayer = nullptr;
-
 	float						m_bVibeTime{ 0.0f };
 
 	//게임 플레이어 수

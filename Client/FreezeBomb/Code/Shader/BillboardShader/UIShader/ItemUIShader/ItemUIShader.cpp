@@ -18,7 +18,7 @@ CItemUIShader::~CItemUIShader()
 
 void CItemUIShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
-	m_nPipelineStates = 3;
+	m_nPipelineStates = 4;
 	m_ppd3dPipelineStates = new ID3D12PipelineState*[m_nPipelineStates];
 
 	for (int i = 0; i < m_nPipelineStates; ++i)
@@ -63,6 +63,10 @@ D3D12_SHADER_BYTECODE CItemUIShader::CreateVertexShader(int UIType)
 	case SpecialItemUI:
 		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "VSSpecialItemUI", "vs_5_1", &m_pd3dVertexShaderBlob));
 		break;
+
+	case SubSpecialItemUI:
+		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "VSSubSpecialItemUI", "vs_5_1", &m_pd3dVertexShaderBlob));
+		break;
 	}
 }
 
@@ -77,9 +81,9 @@ void CItemUIShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 
 	m_ppUIMaterial[CItem::Empty] = new CMaterial(1);
 	auto iter = Context.find("ItemBox");
-	if (iter != Context.end())
+	if (iter != Context.end()) 
 		m_ppUIMaterial[CItem::Empty]->SetTexture((*iter).second, 0);
-
+	
 	m_ppUIMaterial[CItem::NormalHammer] = new CMaterial(1);
 	iter = Context.find("NormalHammer");
 	if (iter != Context.end())
@@ -94,6 +98,7 @@ void CItemUIShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	iter = Context.find("GoldTimer");
 	if (iter != Context.end())
 		m_ppUIMaterial[CItem::GoldTimer]->SetTexture((*iter).second, 0);
+
 
 	for (int i = 0; i < m_nObjects; ++i)
 	{
@@ -128,11 +133,65 @@ void CItemUIShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* 
 
 		if (m_pPlayer->get_Special_InventorySize() > 0)
 		{
-			CUIShader::OnPrepareRender(pd3dCommandList, SpecialItemUI);
-			byte itemType = m_pPlayer->get_Special_Inventory().begin()->second->getItemType();
-			auto iter = m_UIMap.find( itemType);
-			if (iter != m_UIMap.end())
-				(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
+			for (auto item : m_pPlayer->get_Special_Inventory())
+			{
+				byte itemType = item.second->getItemType();
+				auto iter2 = m_UIMap.find(itemType);
+				if (iter2 != m_UIMap.end() && m_pPlayer->GetIsBomb() == true)
+				{
+					if(itemType == CItem::ItemType::GoldTimer)
+					{
+						CUIShader::OnPrepareRender(pd3dCommandList, SpecialItemUI);
+						(*iter2).second->Render(pd3dCommandList, pCamera, nPipelineState);
+					}
+					else
+					{
+						CUIShader::OnPrepareRender(pd3dCommandList, SubSpecialItemUI);
+						(*iter2).second->Render(pd3dCommandList, pCamera, nPipelineState);
+					}
+				}
+				else if(iter2 != m_UIMap.end() && m_pPlayer->GetIsBomb() == false)
+				{
+					if(itemType == CItem::ItemType::GoldHammer)
+					{
+						CUIShader::OnPrepareRender(pd3dCommandList, SpecialItemUI);
+						(*iter2).second->Render(pd3dCommandList, pCamera, nPipelineState);
+					}
+					else
+					{
+						CUIShader::OnPrepareRender(pd3dCommandList, SubSpecialItemUI);
+						(*iter2).second->Render(pd3dCommandList, pCamera, nPipelineState);
+					}
+				}
+			}
+				
+				/*byte itemType = m_pPlayer->get_Special_Inventory().begin()->second->getItemType();
+				auto iter = m_UIMap.find(itemType);
+				if (iter != m_UIMap.end()) 
+				{
+					if (m_pPlayer->GetIsBomb() == true && itemType == CItem::ItemType::GoldTimer)
+					{
+						CUIShader::OnPrepareRender(pd3dCommandList, SpecialItemUI);
+						(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
+					}
+					if(m_pPlayer->GetIsBomb() == true && itemType == CItem::ItemType::GoldHammer)
+					{
+						CUIShader::OnPrepareRender(pd3dCommandList, SubSpecialItemUI);
+						(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
+					}
+					if(m_pPlayer->GetIsBomb() == false && itemType == CItem::ItemType::GoldHammer)
+					{
+						CUIShader::OnPrepareRender(pd3dCommandList, SpecialItemUI);
+						(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
+					}
+					if(m_pPlayer->GetIsBomb() == false && itemType == CItem::ItemType::GoldTimer)
+					{
+						CUIShader::OnPrepareRender(pd3dCommandList, SubSpecialItemUI);
+						(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
+					}
+				}*/
+				
+			
 		}
 	}
 }

@@ -29,8 +29,11 @@ void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 		for (auto iter2 = ModelMap.begin(); iter2 != ModelMap.end(); ++iter2)
 		{
 			string name = (*iter2).first;
-			if (name == "Hammer" || name == "GoldTimer")	continue;
-
+			if (name == "Hammer" || name == "GoldTimer" )
+			{
+				//index++;
+				continue;
+			}
 			// multimap 컨테이너에서 같은 키를 갖는 벨류를 찾을 때, 사용하는 루프
 			for (auto iter3 = (*iter).second.lower_bound(name); iter3 != (*iter).second.upper_bound(name); ++iter3)
 			{
@@ -59,6 +62,7 @@ void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 			}
 		}
 
+		
 		m_MapObjectList.emplace(round++, objectList);
 	}
 
@@ -132,6 +136,7 @@ D3D12_RASTERIZER_DESC CMapObjectsShader::CreateRasterizerState()
 const list<CGameObject*>& CMapObjectsShader::getMapObjectList()	const
 {
 	auto iter = m_MapObjectList.find(g_Round);
+	//cout << "라운드: " << (int)g_Round << "\n";
 	if (iter != m_MapObjectList.end())
 		return (*iter).second;
 }

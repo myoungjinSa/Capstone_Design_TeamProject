@@ -60,7 +60,7 @@ public:
 	CLoginScene* GetLoginScene()const { return m_pLoginScene; }
 	void ProcessPacket(char *ptr);
 
-	void MappingItemStringToItemType(const string& strItem,int& itemType);
+
 
 	//void CreateLoginCommandList();
 	//void InitializeIPSystem();

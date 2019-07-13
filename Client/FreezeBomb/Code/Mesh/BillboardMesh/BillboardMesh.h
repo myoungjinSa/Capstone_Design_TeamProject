@@ -14,7 +14,10 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, int nSubSet, int nInstance);
 	//void SetLodLevel(UINT lodlevel) { m_LodLevel = lodlevel; }
 	//UINT GetLodLevel()	const { return m_LodLevel; }
-
+	
+	void SetVertexPosition(UINT index,XMFLOAT3 pos) {
+		m_pxmf3Positions[index] = pos;
+	}
 private:
 	XMFLOAT2*									m_pxmf2TextureCoords0 = nullptr;
 	ID3D12Resource*							m_pd3dTextureCoord0Buffer = nullptr;

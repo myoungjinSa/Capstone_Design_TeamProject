@@ -48,6 +48,25 @@ void CEvilBear::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCam
 	}
 }
 
+void CEvilBear::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int nPipelineState)
+{
+	if (IsVisible(pCamera) == true)
+	{
+		if (m_bBomb == true)
+		{
+			CGameObject::Tagger_Render(pd3dCommandList, pCamera, m_matID, m_bGoldTimer, GameObject);
+			if (m_pShadow)
+				m_pShadow->Tagger_Render(pd3dCommandList, pCamera, m_matID, m_bGoldTimer, GameObject_Shadow);
+		}
+		else
+		{
+			CGameObject::RunAway_Render(pd3dCommandList, pCamera, m_matID, m_bIce, m_bHammer, m_bGoldHammer,m_bLightening ,nPipelineState);
+			if (m_pShadow)
+				m_pShadow->RunAway_Render(pd3dCommandList, pCamera, m_matID, m_bIce, m_bHammer, m_bGoldHammer, GameObject_Shadow);
+		}
+
+	}
+}
 void CEvilBear::Animate(float fTimeElapsed)
 {
 	// 루트 오브젝트를 제외한 나머지는 모두 nullptr이다. 왜냐하면, 루트 오브젝트를 제어하기 위함이므로
