@@ -5,7 +5,7 @@ unordered_map<int, GameSound> CSoundSystem::m_GameSoundList;
 extern volatile size_t g_FileSize;
 extern bool g_IsSoundOn;
 
-CSoundSystem::CSoundSystem() : m_soundCount(0), pSound(nullptr)
+CSoundSystem::CSoundSystem()
 {
 }
 
@@ -144,7 +144,7 @@ bool CSoundSystem::PlayingSound(int key, float volume)
 		if ((*iter).second.m_pChannel == nullptr)
 		{
 			result = m_pSystem->playSound((*iter).second.m_pSound, nullptr, false, &(*iter).second.m_pChannel);
-			(*iter).second.m_pChannel->setVolume(1.f);
+			(*iter).second.m_pChannel->setVolume(volume);
 
 			if (result != FMOD_OK)
 				return false;
@@ -164,7 +164,7 @@ bool CSoundSystem::PlayingSound(int key, float volume)
 		}
 
 		result = m_pSystem->playSound((*iter).second.m_pSound, nullptr, false, &(*iter).second.m_pChannel);
-		(*iter).second.m_pChannel->setVolume(1.f);
+		(*iter).second.m_pChannel->setVolume(volume);
 
 		if (result != FMOD_OK)
 			return false;

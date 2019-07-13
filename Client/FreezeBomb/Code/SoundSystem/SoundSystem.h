@@ -49,7 +49,12 @@ public:
 	static bool ResumeSound(int key);
 	static void UpdateSound() { m_pSystem->update(); };
 
-	enum SOUND_TYPE { LOBBY_BGM, CHARACTER_SELECT, INGAME_BGM, TIMER_WARNING, ICE_BREAK, GET_ITEM, CLICK };
+	enum SOUND_TYPE 
+	{ 
+		LOBBY_BGM, CHARACTER_SELECT, 
+		INGAME_BGM, TIMER_WARNING, ICE_BREAK, GET_ITEM, CLICK, 
+		RUN1, RUN2, BOMBEXPLOSION_EFFECT, HAMMERSWING_EFFECT, GOLDHAMMER_EFFECT, GOLDTIMER_EFFECT 
+	};
 
 private:
 	static System* m_pSystem;

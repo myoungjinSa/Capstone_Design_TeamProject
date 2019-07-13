@@ -46,8 +46,6 @@ public:
 	CAnimationCallbackHandler() { }
 	~CAnimationCallbackHandler() { }
 
-
-public:
    virtual void HandleCallback(void *pCallbackData,void* pAdditionalData = nullptr) { }
 
    void SetAdditianalData(void* pContext) { m_pContextData = pContext; }

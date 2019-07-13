@@ -14,7 +14,6 @@
 extern volatile size_t g_FileSize;
 extern bool g_IsSoundOn;
 
-class CSoundSystem;
 CAnimationSet::CAnimationSet()
 {
 }
@@ -29,7 +28,7 @@ CAnimationSet::~CAnimationSet()
 	if (m_pAnimationCallbackHandler) delete m_pAnimationCallbackHandler;
 }
 
-void *CAnimationSet::GetCallbackData()
+void* CAnimationSet::GetCallbackData()
 {
 	// 애니메이션이 동작하는 시간과 읽어가는 위치를 비교하여, 소리를 재생하게 만듬.
 	// 근사값으로 비교하여 CallbackKey를 만든다. => ANIMATION_CALLBACK_EPSILON : 근사값
@@ -85,18 +84,14 @@ void CAnimationSet::SetPosition(CAnimationController& AnimationController, float
 
 	if (m_pAnimationCallbackHandler)
 	{
-		void *pCallbackData = GetCallbackData();
+		void* pCallbackData = GetCallbackData();
 		if (pCallbackData)
 		{
 			if (pContext)
-			{
 				m_pAnimationCallbackHandler->HandleCallback(pCallbackData, pContext);
-			}
-			else {
+
+			else 
 				m_pAnimationCallbackHandler->HandleCallback(pCallbackData);
-
-			}
-
 		}
 	}
 }
@@ -168,11 +163,9 @@ void CAnimationSet::SetCallbackKey(int nKeyIndex, float fKeyTime, void *pData)
 void CAnimationSet::SetAnimationCallbackHandler(CAnimationCallbackHandler *pCallbackHandler, void* pContext)
 {
 	m_pAnimationCallbackHandler = pCallbackHandler;
-	if (pContext)
-	{
-		m_pAnimationCallbackHandler->SetAdditianalData(pContext);
-	}
 
+	if (pContext)
+		m_pAnimationCallbackHandler->SetAdditianalData(pContext);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -312,7 +305,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, void* pContext)
 }
 
 
-void CSoundCallbackHandler::HandleCallback(void *pCallbackData, void* pAdditionalData)
+void CSoundCallbackHandler::HandleCallback(void* pCallbackData, void* pAdditionalData)
 {
 	if (g_IsSoundOn == true)
 	{
@@ -320,19 +313,24 @@ void CSoundCallbackHandler::HandleCallback(void *pCallbackData, void* pAdditiona
 		{
 			CSoundSystem* pSound = (CSoundSystem*)m_pContextData;
 
+			int sound = (int)pCallbackData;
+
 			if (pAdditionalData) 
 			{
 				float* fDistance = (float*)pAdditionalData;
 
 				float fDistRate = *fDistance / 100.0f;
+				fDistRate = 1 - fDistRate;
+
 				//사운드 배열은 0부터지만 넘어오는 데이터는 1부터 시작하기 때문에 인자에서 1빼서 넘겨준다.
-				pSound->SoundPlay((int)pCallbackData - 1, 1 - fDistRate);
+				//pSound->SoundPlay((int)pCallbackData - 1, 1 - fDistRate);
+				CSoundSystem::PlayingSound(sound, fDistRate);
 			}
 			else
 			{
-				pSound->SoundPlay((int)pCallbackData - 1);
+				//pSound->SoundPlay((int)pCallbackData - 1);
+				CSoundSystem::PlayingSound(sound);
 			}
-
 		}
 	}
 }

@@ -2338,7 +2338,7 @@ void CGameFramework::ProcessInGame(D3D12_CPU_DESCRIPTOR_HANDLE& d3dDsvDepthStenc
 	//카툰 렌더링 해야할 쉐이더들은 PreRender에서 그린다.
 	if (m_pScene)
 	{
-		CSoundSystem::PlayingSound(CSoundSystem::INGAME_BGM, 0.75f);
+		CSoundSystem::PlayingSound(CSoundSystem::INGAME_BGM, 0.5f);
 		m_pScene->PreRender(m_pd3dCommandList, m_GameTimer.GetTimeElapsed(), m_pCamera);
 	}
 
@@ -2406,7 +2406,7 @@ void CGameFramework::ProcessLobby()
 	static bool bStart = true;
 	if (m_pLobbyScene)
 	{
-		CSoundSystem::PlayingSound(CSoundSystem::LOBBY_BGM);
+		CSoundSystem::PlayingSound(CSoundSystem::LOBBY_BGM, 0.75f);
 		m_pLobbyScene->Render(m_pd3dCommandList);
 	}
 

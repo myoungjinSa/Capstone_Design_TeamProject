@@ -50,6 +50,14 @@ void CResourceManager::PrepareSound()
 	v.emplace_back(info(CSoundSystem::SOUND_TYPE::GET_ITEM, "../Resource/Sound/MP3/GetItem.mp3", FMOD_LOOP_OFF));
 	v.emplace_back(info(CSoundSystem::SOUND_TYPE::CLICK, "../Resource/Sound/Click.wav", FMOD_LOOP_OFF));
 
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::RUN1, "../Resource/Sound/Run1.wav", FMOD_LOOP_OFF));
+	//v.emplace_back(info(CSoundSystem::SOUND_TYPE::RUN2, "../Resource/Sound/Run2.wav", FMOD_LOOP_OFF));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::RUN2, "../Resource/Sound/Run1.wav", FMOD_LOOP_OFF));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::BOMBEXPLOSION_EFFECT, "../Resource/Sound/BombExplosion_Effect.wav", FMOD_LOOP_OFF));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::GOLDTIMER_EFFECT, "../Resource/Sound/GoldTimer_Effect.wav", FMOD_LOOP_OFF));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::HAMMERSWING_EFFECT, "../Resource/Sound/HammerSwing_Effect.wav", FMOD_LOOP_OFF));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::GOLDHAMMER_EFFECT, "../Resource/Sound/GoldHammer_Effect.wav", FMOD_LOOP_OFF));
+
 	for (int i = 0; i < v.size(); ++i)
 	{
 		ifstream in(v[i].path, ios::binary);

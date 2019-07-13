@@ -69,7 +69,9 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 
 	m_ppObjects = new CGameObject*[m_nObjects];
 	
-	InitializeSound();
+	//InitializeSound();
+
+
 	auto Model = ModelMap.find("EvilBear");
 	if (Model != ModelMap.end())
 	{

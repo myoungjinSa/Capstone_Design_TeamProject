@@ -934,8 +934,8 @@ void CPlayer::InitializeSound()
 	m_mapMusicList.emplace(ATTACK, s3);
 	m_mapMusicList.emplace(ELECTRIC, s4);
 
-	if (m_pSound)
-		m_pSound->Initialize(m_SoundCount, m_SoundList, FMOD_LOOP_OFF);
+	//if (m_pSound)
+	//	m_pSound->Initialize(m_SoundCount, m_SoundList, FMOD_LOOP_OFF);
 }
 
 void CPlayer::ReleaseSound()
@@ -970,29 +970,25 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 	// RUNFAST번 애니메이션 동작에 사운드 2개를 Set해준다.
 	m_pAnimationController->SetCallbackKeys(m_pAnimationController->RUNFAST, 2);
-
 	// 애니메이션 1번동작 0.1초일때 Footstep01 소리를 재생, 1번동작 0.5초일때 Footstep02 소리를 재생, 1번동작 0.9초일때 Footstep03 소리를 재생
-	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 0, 0.1f, (void*)CPlayer::MUSIC_ENUM::FOOTSTEP);
-	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 1, 0.5f, (void*)CPlayer::MUSIC_ENUM::FOOTSTEP);
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 0, 0.1f, (void*)CSoundSystem::SOUND_TYPE::RUN1);
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNFAST, 1, 0.4f, (void*)CSoundSystem::SOUND_TYPE::RUN2);
 
 	m_pAnimationController->SetCallbackKeys(m_pAnimationController->RUNBACKWARD, 2);
-	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNBACKWARD, 0, 0.1f, (void*)CPlayer::MUSIC_ENUM::FOOTSTEP);
-	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNBACKWARD, 1, 0.3f, (void*)CPlayer::MUSIC_ENUM::FOOTSTEP);
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNBACKWARD, 0, 0.1f, (void*)CSoundSystem::SOUND_TYPE::RUN1);
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->RUNBACKWARD, 1, 0.25f, (void*)CSoundSystem::SOUND_TYPE::RUN2);
 
 	m_pAnimationController->SetCallbackKeys(m_pAnimationController->RAISEHAND, 1);
-	m_pAnimationController->SetCallbackKey(m_pAnimationController->RAISEHAND, 0, 0.3f, (void*)CPlayer::MUSIC_ENUM::USETIMER);
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->RAISEHAND, 0, 0.3f, (void*)CSoundSystem::SOUND_TYPE::GOLDTIMER_EFFECT);
 
 	m_pAnimationController->SetCallbackKeys(m_pAnimationController->DIE, 1);
-	m_pAnimationController->SetCallbackKey(m_pAnimationController->DIE, 0, 0.1f, (void*)CPlayer::MUSIC_ENUM::DIE);
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->DIE, 0, 0.1f, (void*)CSoundSystem::SOUND_TYPE::BOMBEXPLOSION_EFFECT);
 
 	m_pAnimationController->SetCallbackKeys(m_pAnimationController->ATTACK, 1);
-	m_pAnimationController->SetCallbackKey(m_pAnimationController->ATTACK, 0, 0.2f, (void*)CPlayer::MUSIC_ENUM::ATTACK);
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->ATTACK, 0, 0.2f, (void*)CSoundSystem::SOUND_TYPE::HAMMERSWING_EFFECT);
 
-	
 	m_pAnimationController->SetCallbackKeys(m_pAnimationController->USEGOLDHAMMER, 1);
-	m_pAnimationController->SetCallbackKey(m_pAnimationController->USEGOLDHAMMER, 0, 0.3f, (void*)CPlayer::MUSIC_ENUM::ELECTRIC);
-
-
+	m_pAnimationController->SetCallbackKey(m_pAnimationController->USEGOLDHAMMER, 0, 0.3f, (void*)CSoundSystem::SOUND_TYPE::GOLDHAMMER_EFFECT);
 
 	CAnimationCallbackHandler* pRunAnimationCallbackHandler = new CSoundCallbackHandler();
 	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RUNFAST, pRunAnimationCallbackHandler,
