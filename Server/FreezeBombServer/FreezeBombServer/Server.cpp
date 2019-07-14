@@ -1682,7 +1682,7 @@ void Server::UpdateClientPos(char client, float fTimeElapsed)
 	case CL_PLAYER:
 	{
 		XMFLOAT3 xmf3CollisionDir = Vector3::Subtract(player_pos,clients[client].pos);
-		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, 0.5f );
+		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir,VELOCITY );
 		clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
 		
 		break;

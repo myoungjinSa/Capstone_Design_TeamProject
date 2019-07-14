@@ -1715,17 +1715,27 @@ void CGameFramework::ProcessPacket(char *packet)
 
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
-				char id = pRS->bomberID;
+				char bomber_id = pRS->bomberID;
 				
 				vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
-				(*iter).second->m_ppObjects[id]->SetIsBomb(true);
 				
-				for (int i = 0; i<MAX_USER;++i)
+				for (auto id : vec)
 				{
-					(*iter).second->m_ppObjects[i]->setIsGoldHammer(false);
-					(*iter).second->m_ppObjects[i]->setIsGoldTimer(false);
-					(*iter).second->m_ppObjects[i]->SetIsHammer(false);
+					if (id.first == bomber_id) 
+					{
+						(*iter).second->m_ppObjects[bomber_id]->SetIsBomb(true);
+					}
+					else
+					{
+						(*iter).second->m_ppObjects[id.first]->setIsGoldHammer(false);
+						(*iter).second->m_ppObjects[id.first]->setIsGoldTimer(false);
+						(*iter).second->m_ppObjects[id.first]->SetIsHammer(false);
+
+					}
 				}
+				
+
+				
 			}
 
 			// 다른 클라가 술래일 경우 isBomber를 set해줘야 폭탄을 그리지 않을까?
