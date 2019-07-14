@@ -1701,9 +1701,14 @@ void CGameFramework::ProcessPacket(char *packet)
 		pRS = reinterpret_cast<SC_PACKET_ROUND_START *>(packet);
 
 		//라운드가 시작할 때 마다 플레이어의 아이템 소지를 모두 초기화 시켜야한다.
+		m_pPlayer->SetIsBomb(false);
 		m_pPlayer->setIsGoldHammer(false);
 		m_pPlayer->setIsGoldTimer(false);
 		m_pPlayer->SetIsHammer(false);
+		m_pPlayer->Sub_Inventory(CItem::ItemType::GoldHammer);
+		m_pPlayer->Sub_Inventory(CItem::ItemType::NormalHammer);
+		m_pPlayer->Sub_Inventory(CItem::ItemType::GoldTimer);
+
 		if (pRS->bomberID == m_pPlayer->GetPlayerID())
 		{
 			m_pPlayer->SetIsBomb(true);			
@@ -1724,9 +1729,13 @@ void CGameFramework::ProcessPacket(char *packet)
 					if (id.first == bomber_id) 
 					{
 						(*iter).second->m_ppObjects[bomber_id]->SetIsBomb(true);
+						(*iter).second->m_ppObjects[bomber_id]->setIsGoldTimer(false);
+						(*iter).second->m_ppObjects[bomber_id]->setIsGoldHammer(false);
+						(*iter).second->m_ppObjects[bomber_id]->SetIsHammer(false);
 					}
 					else
 					{
+						(*iter).second->m_ppObjects[bomber_id]->SetIsBomb(false);
 						(*iter).second->m_ppObjects[id.first]->setIsGoldHammer(false);
 						(*iter).second->m_ppObjects[id.first]->setIsGoldTimer(false);
 						(*iter).second->m_ppObjects[id.first]->SetIsHammer(false);
