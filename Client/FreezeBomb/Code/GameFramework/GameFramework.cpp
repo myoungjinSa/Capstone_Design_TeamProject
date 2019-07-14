@@ -1620,6 +1620,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		if (pLI->id < MAX_USER)
 		{
 			m_mapClients[(int)pLI->id] = pLI->client_state;
+			m_mapClients[(int)pLI->id].isReady = pLI->client_state.isReady;
 			//맵의 emplace는 한번 생성하면 똑같은 키에 value를 넣는 작업을 하지 않는다.(중복을 허용하지 않기 때문에)
 			string user = m_mapClients[(int)pLI->id].name;
 			string s = "님이 입장하였습니다.";
@@ -1672,7 +1673,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	{
 		pNotReady = reinterpret_cast<SC_PACKET_UNREADY_STATE*>(packet);
 
-		m_mapClients[pReady->id].isReady = false;
+		m_mapClients[pNotReady->id].isReady = false;
 
 
 		break;
