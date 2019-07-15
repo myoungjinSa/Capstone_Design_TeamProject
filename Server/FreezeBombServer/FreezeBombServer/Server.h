@@ -204,7 +204,7 @@ public:
 public:
 	void SendAccessComplete(char client);
 	void SendAccessPlayer(char toClient, char fromClient);
-	void SendClientLobbyIn(char toClient, char fromClient,char *name);
+	void SendClientLobbyIn(char toClient, char fromClient,char *name,const bool& isReady);
 	void SendClientLobbyOut(char toClient, char fromClient);
 	void SendChattinPacket(char to, char from, char *message);
 	void SendPlayerAnimation(char toClient, char fromCllient);

@@ -420,18 +420,25 @@ void CPlayer::Sub_Inventory(int ItemType)
 	// 특수 아이템
 	else
 	{
-		for (auto iter = m_Special_Inventory.begin(); iter != m_Special_Inventory.end();++iter)
+		if (m_Special_Inventory.size() > 0)
 		{
-#ifndef _WITH_SERVER_
-			if (ItemType == CItem::GoldHammer)
-				m_bGoldHammer = false;
-			else
-				m_bGoldTimer = false;
-#endif
-			if (ItemType == (*iter).second->getItemType()) 
+			for (auto iter = m_Special_Inventory.begin(); iter != m_Special_Inventory.end();)
 			{
-				m_RemovedItemList.emplace_back((*iter).second);
-				iter = m_Special_Inventory.erase(iter);
+#ifndef _WITH_SERVER_
+				if (ItemType == CItem::GoldHammer)
+					m_bGoldHammer = false;
+				else
+					m_bGoldTimer = false;
+#endif
+				if (ItemType == (*iter).second->getItemType())
+				{
+					m_RemovedItemList.emplace_back((*iter).second);
+					iter = m_Special_Inventory.erase(iter);
+				}
+				else
+				{
+					++iter;
+				}
 			}
 		}
 	}
@@ -734,16 +741,14 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		eraseTime += fTimeElapsed;
 		if(eraseTime > 1.85f)		//1.75는 USEGOLDHAMMER 애니메이션에 길이 - 0.8f 해준 값
 		{
-			if (m_Special_Inventory.size() > 0)
-			{
-				for (auto iter : m_Special_Inventory) 
-				{
-					if (!m_bBomb && iter.second->getItemType() == GOLD_HAMMER) {
-						Sub_Inventory( iter.second->getItemType());
-						eraseTime = 0.0f;
-					}
-				}
+			
+			
+			if (!m_bBomb ) {
+				Sub_Inventory(GOLD_HAMMER);
+				eraseTime = 0.0f;
 			}
+				//}
+			m_bLocalRotation = false;
 			m_bLightening = false;
 			countCoolTime = false;
 		}
@@ -753,10 +758,21 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 	if (GetAsyncKeyState(VK_MENU) & 0x0001)
 	{
 		
-		if (m_Special_Inventory.size() > 0)
+		if (m_Special_Inventory.size() > 0 )
 		{
-			
-			if (!m_bBomb)
+			bool isGoldHammer = false;
+			bool isGoldTimer = false;
+			for(const pair<string,CItem*>& iter : m_Special_Inventory){
+				if(iter.second->getItemType() == GOLD_HAMMER)
+				{
+					isGoldHammer = true;
+				}
+				if(iter.second->getItemType() == GOLD_HAMMER)
+				{
+					isGoldTimer = true;
+				}
+			}
+			if (!m_bBomb && isGoldHammer == true)
 			{	
 				m_bLightening = true;
 				SetTrackAnimationSet(0, CAnimationController::USEGOLDHAMMER);
@@ -772,33 +788,12 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 
 				//쿨타임 체크 set
 				countCoolTime = true;
-						
-				if (countCoolTime)
-				{
-					eraseTime += fTimeElapsed;
-					if(eraseTime > 1.85f)		//1.75는 USEGOLDHAMMER 애니메이션에 길이 - 0.8f 해준 값
-					{
-						
-#ifndef _WITH_SERVER_
-						for (auto iter2 : m_Special_Inventory)
-						{
-							if (iter2.second->getItemType() == CItem::ItemType::GoldHammer)
-							{
-								Sub_Inventory(iter2.second->getItemType());
-								eraseTime = 0.0f;
-							}
-						}
-#endif				
-						m_bLightening = false;
-
-						countCoolTime = false;
-					}
-				}
+				
 
 			}
-			else
+			else if(m_bBomb && m_bGoldTimer == true)
 			{
-				if (m_pShaderManager && m_bBomb == true)
+				if (m_pShaderManager)
 				{
 					auto iter2 = m_pShaderManager->getShaderMap().find("TimerUI");
 					if (iter2 != m_pShaderManager->getShaderMap().end())
@@ -813,11 +808,11 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 						// 30초 증가
 						dynamic_cast<CTimerUIShader*>((*iter2).second)->setTimer(30.f);
 
-						for (auto iter : m_Special_Inventory) 
-						{
-							if(iter.second->getItemType() == CItem::ItemType::GoldTimer)
-							Sub_Inventory(iter.second->getItemType());
-						}
+					//	for (auto iter : m_Special_Inventory) 
+					//	{
+							
+						Sub_Inventory(GOLD_TIMER);
+						//}
 #endif					
 					}
 				}

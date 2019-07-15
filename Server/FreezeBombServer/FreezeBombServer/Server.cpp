@@ -867,7 +867,7 @@ void Server::ProcessPacket(char client, char *packet)
 		strcpy_s(clients[client].nickname, sizeof(p->name), p->name);
 		for (int i = 0; i < MAX_USER; ++i)
 			if (true == clients[i].in_use)
-				SendClientLobbyIn(i, client,clients[client].nickname);
+				SendClientLobbyIn(i, client,clients[client].nickname,false);
 
 		// 처음 접속한 나에게 기존 유저들 출력
 		for (int i = 0; i < MAX_USER; ++i)
@@ -876,7 +876,7 @@ void Server::ProcessPacket(char client, char *packet)
 				continue;
 			if (i == client)
 				continue;
-			SendClientLobbyIn(client, i,clients[i].nickname);
+			SendClientLobbyIn(client, i,clients[i].nickname,clients[i].isReady);
 		}
 		cout << clients[client].nickname << endl;
 		cout <<(int)p->id << endl;
@@ -1203,13 +1203,13 @@ void Server::SendChangeHostID(char toClient,char hostID)
 	SendFunc(toClient, &packet);
 }
 
-void Server::SendClientLobbyIn(char toClient,char fromClient,char* name)
+void Server::SendClientLobbyIn(char toClient,char fromClient,char* name,const bool& isReady)
 {
 	SC_PACKET_LOBBY_IN packet;
 	packet.id = fromClient;
 	packet.size = sizeof(packet);
 	packet.type = SC_CLIENT_LOBBY_IN;
-	packet.client_state.isReady = false;
+	packet.client_state.isReady = isReady;
 	strcpy_s(packet.client_state.name, name);
 
 	SendFunc(toClient, &packet);

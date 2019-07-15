@@ -1131,7 +1131,11 @@ void CGameFramework::ProcessInput()
 			DWORD dwDirection = 0;
 			if (pKeysBuffer[VK_UP] & 0xF0)
 			{
-				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
+				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE
+					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE
+					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
+					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
+					)
 				{
 					//#ifdef 을 선언하지 않으면 무조건 서버가 켜있지 않을경우 무한 대기에 빠짐
 #ifdef _WITH_SERVER_
@@ -1989,6 +1993,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 				string s = "님이 나갔습니다.";
 				string user = m_mapClients[id].name;
+				//채팅 창에서 보여지는 시간 reset
 				ChattingSystem::GetInstance()->ResetShowTime(0.0f);
 				ChattingSystem::GetInstance()->PushChattingText(user,s.c_str());
 			}
