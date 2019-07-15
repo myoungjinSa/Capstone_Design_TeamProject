@@ -137,6 +137,7 @@ void CGameFramework::CreateSwapChain()
 	dxgiSwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	dxgiSwapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 	dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+	//dxgiSwapChainDesc.Flags = 
 
 	DXGI_SWAP_CHAIN_FULLSCREEN_DESC dxgiSwapChainFullScreenDesc;
 	::ZeroMemory(&dxgiSwapChainFullScreenDesc, sizeof(DXGI_SWAP_CHAIN_FULLSCREEN_DESC));
@@ -146,7 +147,7 @@ void CGameFramework::CreateSwapChain()
 	dxgiSwapChainFullScreenDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 	dxgiSwapChainFullScreenDesc.Windowed = FALSE;
 
-	HRESULT hResult = m_pdxgiFactory->CreateSwapChainForHwnd(m_pd3dCommandQueue, m_hWnd, &dxgiSwapChainDesc, &dxgiSwapChainFullScreenDesc, NULL, (IDXGISwapChain1 **)&m_pdxgiSwapChain);
+	HRESULT hResult = m_pdxgiFactory->CreateSwapChainForHwnd(m_pd3dCommandQueue, m_hWnd, &dxgiSwapChainDesc, NULL/*&dxgiSwapChainFullScreenDesc*/, NULL, (IDXGISwapChain1 **)&m_pdxgiSwapChain);
 #else
 	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
 	::ZeroMemory(&dxgiSwapChainDesc, sizeof(dxgiSwapChainDesc));
@@ -214,11 +215,11 @@ void CGameFramework::CreateSwapChain()
 	// Alt + Enter키로 전체모드 비활성화
 	hResult = m_pdxgiFactory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER);
 
-#ifndef _WITH_SWAPCHAIN_FULLSCREEN_STATE
+//#ifndef _WITH_SWAPCHAIN_FULLSCREEN_STATE
 	CreateRenderTargetViews();
 
 	//ChangeSwapChainState();
-#endif
+//#endif
 }
 
 void CGameFramework::CreateDirect3DDevice()
@@ -238,6 +239,11 @@ void CGameFramework::CreateDirect3DDevice()
 #endif
 
 	hResult = ::CreateDXGIFactory2(nDXGIFactoryFlags, __uuidof(IDXGIFactory4), (void **)&m_pdxgiFactory);
+	if (FAILED(hResult))
+	{
+		printf("CreateDXGIFactory2 Error\n");
+		return;
+	}
 
 	IDXGIAdapter1* pd3dAdapter = NULL;
 
@@ -245,6 +251,7 @@ void CGameFramework::CreateDirect3DDevice()
 	{
 		DXGI_ADAPTER_DESC1 dxgiAdapterDesc;
 		pd3dAdapter->GetDesc1(&dxgiAdapterDesc);
+		
 		if (dxgiAdapterDesc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) continue;
 		if (SUCCEEDED(D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), (void **)&m_pd3dDevice))) break;
 	}
@@ -253,7 +260,12 @@ void CGameFramework::CreateDirect3DDevice()
 	if (pd3dAdapter == nullptr)
 	{
 		hResult = m_pdxgiFactory->EnumWarpAdapter(_uuidof(IDXGIAdapter1), (void **)&pd3dAdapter);
+		if (FAILED(hResult))
+			cout << "EnumWarpAdater 에러\n";
 		hResult = D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), (void **)&m_pd3dDevice);
+		if (FAILED(hResult))
+			cout << "CreateWarpDevice 에러\n";
+		
 	}
 
 	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS d3dMsaaQualityLevels;
@@ -266,6 +278,8 @@ void CGameFramework::CreateDirect3DDevice()
 	m_bMsaa4xEnable = (m_nMsaa4xQualityLevels > 1) ? true : false;
 
 	hResult = m_pd3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), (void **)&m_pd3dFence);
+	if (FAILED(hResult))
+		cout << "CreateFence 에러\n";
 	for (UINT i = 0; i < m_nSwapChainBuffers; i++) m_nFenceValues[i] = 0;
 
 	m_hFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -285,6 +299,8 @@ void CGameFramework::CreateCommandQueueAndList()
 	d3dCommandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	d3dCommandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	hResult = m_pd3dDevice->CreateCommandQueue(&d3dCommandQueueDesc, _uuidof(ID3D12CommandQueue), (void **)&m_pd3dCommandQueue);
+	if (FAILED(hResult))
+		cout << "CreateCommandQueue 에러\n";
 
 	hResult = m_pd3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), (void **)&m_pd3dCommandAllocator);
 	
@@ -506,6 +522,7 @@ void CGameFramework::CreateDirect2DRenderTargetViews()
 		D3D11_RESOURCE_FLAGS d3d11Flags = { D3D11_BIND_RENDER_TARGET };
 		//CreateWrappedResource-> 이 함수는 D3D11On12 에서 사용가능한  D3D11 리소스들을 만들어준다.
 		m_pd3d11On12Device->CreateWrappedResource(m_ppd3dSwapChainBackBuffers[i], &d3d11Flags, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, __uuidof(ID3D11Resource), (void**)&m_ppd3d11WrappedBackBuffers[i]);
+		
 
 		IDXGISurface *pdxgiSurface = NULL;
 		m_ppd3d11WrappedBackBuffers[i]->QueryInterface(__uuidof(IDXGISurface), (void**)&pdxgiSurface);
@@ -566,13 +583,19 @@ void CGameFramework::ChangeSwapChainState()
 
 	BOOL bFullScreenState = FALSE;
 	HRESULT hResult = m_pdxgiSwapChain->GetFullscreenState(&bFullScreenState, NULL);
-	if (hResult == E_FAIL)
+	if (FAILED(hResult))
+	{
+		cout << "GetFullScreenState 에러\n";
 		return;
+	}
+		
 
 	hResult = m_pdxgiSwapChain->SetFullscreenState(!bFullScreenState, NULL);
-	if (hResult == E_FAIL)
+	if (FAILED(hResult))
+	{
+		cout << "SetFullScreenState 에러\n";
 		return;
-
+	}
 	DXGI_MODE_DESC dxgiTargetParameters;
 	dxgiTargetParameters.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	dxgiTargetParameters.Width = m_nWndClientWidth;
@@ -595,7 +618,10 @@ void CGameFramework::ChangeSwapChainState()
 	m_pdxgiSwapChain->GetDesc(&dxgiSwapChainDesc);
 	m_pdxgiSwapChain->ResizeBuffers(m_nSwapChainBuffers, m_nWndClientWidth, m_nWndClientHeight, dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
 
+
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
+
+
 
 	CreateRenderTargetViews();
 }
@@ -1135,6 +1161,7 @@ void CGameFramework::ProcessInput()
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
+					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
 					)
 				{
 					//#ifdef 을 선언하지 않으면 무조건 서버가 켜있지 않을경우 무한 대기에 빠짐
@@ -1156,7 +1183,12 @@ void CGameFramework::ProcessInput()
 			}
 			if (pKeysBuffer[VK_DOWN] & 0xF0)
 			{
-				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE)
+				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE
+					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE
+					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
+					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
+					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
+					)
 				{
 #ifdef _WITH_SERVER_
 					Network::GetInstance()->SendDownKey();
@@ -1814,7 +1846,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pPlayer->SetUpVector(up);
 			m_pPlayer->SetRightVector(right);
 			m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
-
+			
 			//모든 아이템 보유 초기화
 			m_pPlayer->setIsGoldHammer(false);
 			m_pPlayer->setIsGoldTimer(false);
@@ -1881,6 +1913,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pPlayer->Rotate(pMP->pitch, pMP->yaw, pMP->roll);
 			m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
 			m_pPlayer->SetVelocityFromServer(pMP->fVelocity);
+			m_pPlayer->SetMoveRotate(pMP->isMoveRotate);
 			/*m_pPlayer->m_xmf4x4ToParent._11 = m_pPlayer->m_xmf4x4ToParent._11 * 10.0f;
 			m_pPlayer->m_xmf4x4ToParent._22 = m_pPlayer->m_xmf4x4ToParent._22 * 10.0f;
 			m_pPlayer->m_xmf4x4ToParent._33 = m_pPlayer->m_xmf4x4ToParent._33 * 10.0f;*/
@@ -1921,6 +1954,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		{
 			m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
 			m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
+			//m_pPlayer->SetMoveRotate(false);
 		}
 		else if (pPA->id < MAX_USER)
 		{

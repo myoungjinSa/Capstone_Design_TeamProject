@@ -519,15 +519,18 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 {
 	CAnimationController* pController = m_pAnimationController;
 
-	if (fLength == 0.0f
-		&& (pController->GetAnimationState() != CAnimationController::ATTACK
+	
+	if (fLength == 0.0f 
+		&& m_isMoveRotate == false
+		&&(pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::DIGGING
 			&& pController->GetAnimationState() != CAnimationController::JUMP
 			&& pController->GetAnimationState() != CAnimationController::RAISEHAND
 			&& pController->GetAnimationState() != CAnimationController::DIE
 			&& pController->GetAnimationState() != CAnimationController::ICE
 			&& pController->GetAnimationState() != CAnimationController::SLIDE
-			&& pController->GetAnimationState() != CAnimationController::USEGOLDHAMMER))
+			&& pController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
+			))
 	{
 		if (pController->GetAnimationState() == CAnimationController::RUNFAST)
 		{
@@ -543,7 +546,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		Network::GetInstance()->SendAnimationState(CAnimationController::IDLE);
 #endif
 	}
-	else
+	else 
 	{
 		if (GetAsyncKeyState(VK_UP) & 0x8000
 			&& pController->GetAnimationState() != CAnimationController::ATTACK
@@ -601,6 +604,11 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		}
 
 
+	}
+
+	if (m_isMoveRotate)
+	{
+		m_isMoveRotate = false;
 	}
 	if (GetAsyncKeyState(VK_SPACE) & 0x8000
 		&& pController->GetAnimationState() != CAnimationController::JUMP
@@ -873,6 +881,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			}
 		}
 	}
+
 }
 
 bool CPlayer::AnimationCollision(byte AnimationType)

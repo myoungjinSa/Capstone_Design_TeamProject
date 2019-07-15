@@ -1318,7 +1318,7 @@ void Server::SendMovePlayer(char to,char client)
 	packet.roll = clients[client].roll;
 
 	packet.fVelocity = clients[client].fVelocity;
-
+	packet.isMoveRotate = clients[client].isMoveRotate;
 	SendFunc(to, &packet);
 }
 
@@ -1362,6 +1362,7 @@ void Server::SendPlayerAnimation(char toClient,char fromClient)
 	packet.size = sizeof(packet);
 	packet.type = SC_ANIMATION_INFO;
 	packet.animation = clients[fromClient].animation;
+	//packet.isMoveRotate = clients[fromClient].isMoveRotate;
 
 
 	SendFunc(toClient, &packet);
@@ -1703,7 +1704,8 @@ void Server::UpdateClientPos(char client, float fTimeElapsed)
 
 	//속도를 클라에게 보내주어 클라에서 기본적인 rUn,Backward,애니메이션을 결정하게 하기 위해.
 	clients[client].fVelocity = fLength;
-
+	
+;
 	//cout << clients[client].fVelocity << endl;
 
 }
@@ -1718,7 +1720,7 @@ void Server::RotateClientAxisY(char client, float fTimeElapsed)
 	clients[client].lastRightVector = xmf3Right;
 	clients[client].lastUpVector = xmf3Up;
 
-		
+	bool isMoveRotate{ false };
 
 	if (clients[client].direction & DIR_RIGHT)
 	{
@@ -1755,32 +1757,34 @@ void Server::RotateClientAxisY(char client, float fTimeElapsed)
 	}
 	if (clients[client].direction & DIR_FORWARDRIGHT )
 	{	
-		
-		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, 0.001f);
+		isMoveRotate = true;
+		//clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, 0.001f);
 	}
 	if (clients[client].direction & DIR_FORWARDLEFT)
 	{
-		
-		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, 0.001f);
+		isMoveRotate = true;
+		//clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, 0.001f);
 	}
 	if (clients[client].direction & DIR_BACKRIGHT)
 	{
-		
-		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -0.001f);
+		isMoveRotate = true;
+		//clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -0.001f);
 	}
 	if (clients[client].direction & DIR_BACKLEFT)
 	{
-		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -0.001f);
+		isMoveRotate = true;
+		//clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -0.001f);
 	}
 
 	xmf3Look = Vector3::Normalize(xmf3Look);
 	xmf3Right = Vector3::CrossProduct(xmf3Up, xmf3Look, true);
 	xmf3Up = Vector3::CrossProduct(xmf3Look, xmf3Right, true);
 
+	
 	clients[client].look = xmf3Look;
 	clients[client].right = xmf3Right;
 	clients[client].up = xmf3Up;
-
+	clients[client].isMoveRotate = isMoveRotate;
 }
 
 void Server::RotateModel(char client, float x, float y, float z)

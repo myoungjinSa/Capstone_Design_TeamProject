@@ -101,6 +101,9 @@ private:
 	HINSTANCE					m_hInstance;
 	HWND							m_hWnd;
 	
+	bool							m_bTearingMode{ false };
+	bool							m_WindowMode{ false };
+
 	int 							m_nState{ GAMESTATE::INGAME };
 	//게임 상태 
 	

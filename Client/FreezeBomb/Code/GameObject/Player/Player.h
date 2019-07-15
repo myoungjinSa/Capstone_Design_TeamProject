@@ -112,7 +112,7 @@ public:
 	};
 	std::map<MUSIC_ENUM, std::string> m_mapMusicList;
 
-
+	void SetMoveRotate(bool mv) { m_isMoveRotate = mv; }
 	void setScore(short score) { m_Score = score; }
 	short getScore()		const { return m_Score; }
 	bool IsCameraVibe() const { return m_bCameraVibe; }
@@ -137,6 +137,8 @@ protected:
 	float           			m_fPitch = 0.0f;
 	float           			m_fYaw = 0.0f;
 	float           			m_fRoll = 0.0f;
+
+	bool						m_isMoveRotate{ false };
 
 	XMFLOAT3					m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3     				m_xmf3Gravity = XMFLOAT3(0.0f, 0.0f, 0.0f);

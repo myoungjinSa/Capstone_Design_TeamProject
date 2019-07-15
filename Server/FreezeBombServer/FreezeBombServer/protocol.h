@@ -394,6 +394,7 @@ struct SC_PACKET_MOVE_PLAYER
 	//¼Óµµ
 	float fVelocity;
 
+	bool  isMoveRotate;
 };
 
 struct SC_PACKET_PLAYER_ANIMATION
@@ -402,7 +403,7 @@ struct SC_PACKET_PLAYER_ANIMATION
 	char type;
 	char id;
 	char animation;
-	//float animationTime;		
+	
 };
 struct SC_PACKET_STOP_RUN_ANIM
 {
