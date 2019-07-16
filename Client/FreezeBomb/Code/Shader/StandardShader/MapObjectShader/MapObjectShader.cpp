@@ -12,9 +12,7 @@ CMapObjectsShader::CMapObjectsShader()
 
 CMapObjectsShader::~CMapObjectsShader()
 {
-
 }
-
 
 void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,
 	const map<string, CLoadedModelInfo*>& ModelMap, const unordered_map<unsigned char, RoundInfo>& RoundMapObjectInfo, const map<string, Bounds*>& BoundMap, void* pContext)
@@ -36,7 +34,6 @@ void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 			{
 				CSurrounding* pSurrounding = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 				pSurrounding->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter2).second);
-
 				pSurrounding->SetChild((*iter2).second->m_pModelRootObject, true);
 				pSurrounding->SetPosition((*iter3).second->m_Position);
 				pSurrounding->SetLookVector((*iter3).second->m_Look);
@@ -45,9 +42,9 @@ void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 
 				dynamic_cast<CSurrounding*>(pSurrounding)->SetIndex(index++);
 
-				if(name != "SM_FirePit")
+				if (name != "SM_FirePit")
 					pSurrounding->Initialize_Shadow((*iter2).second, pSurrounding);
-
+				
 				auto iter4 = BoundMap.find(name);
 				if (iter4 != BoundMap.end())
 				{
@@ -95,6 +92,7 @@ void CMapObjectsShader::ReleaseObjects()
 			(*iter2)->Release();
 
 			iter2 = (*iter).second.erase(iter2);
+			
 		}
 		(*iter).second.clear();
 		iter = m_MapObjectList.erase(iter);
