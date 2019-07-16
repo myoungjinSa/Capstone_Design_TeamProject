@@ -1345,6 +1345,9 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 
 			else if (strstr(pGameObject->m_pstrFrameName, "LOD2"))
 				pGameObject->m_lodLevel = 2;
+			else
+				pGameObject->m_lodLevel = 100;
+			
 		}
 		else if (!strcmp(pstrToken, "<Transform>:"))
 		{

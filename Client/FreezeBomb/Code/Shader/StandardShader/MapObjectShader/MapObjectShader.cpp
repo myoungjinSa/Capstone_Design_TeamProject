@@ -91,7 +91,9 @@ void CMapObjectsShader::ReleaseObjects()
 	{
 		for (auto iter2 = (*iter).second.begin(); iter2 != (*iter).second.end(); )
 		{
+		
 			(*iter2)->Release();
+
 			iter2 = (*iter).second.erase(iter2);
 		}
 		(*iter).second.clear();

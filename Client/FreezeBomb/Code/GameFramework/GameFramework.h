@@ -98,7 +98,7 @@ public:
 
 	bool IsInGame(); 
 private:
-	HINSTANCE					m_hInstance;
+	HINSTANCE						m_hInstance;
 	HWND							m_hWnd;
 	
 	bool							m_bTearingMode{ false };

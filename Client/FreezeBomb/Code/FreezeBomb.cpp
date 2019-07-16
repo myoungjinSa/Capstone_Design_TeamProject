@@ -13,6 +13,8 @@ TCHAR							szWindowClass[MAX_LOADSTRING];
 
 CGameFramework		gGameFramework;
 
+extern int g_State;
+
 ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -140,7 +142,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (ChattingSystem::GetInstance()->IsChattingActive())
 			ChattingSystem::GetInstance()->ProcessChatting(hWnd,wParam,lParam,gGameFramework.IsInGame());
 #ifdef _WITH_SERVER_
-		if(gGameFramework.GetGameState() == CGameFramework::GAMESTATE::LOGIN)
+		if(g_State == GAMESTATE::LOGIN)
 		{
 			CLoginScene* p = gGameFramework.GetLoginScene();
 			CIDInput* input = p->GetIDInstance();
@@ -181,7 +183,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			//ChattingSystem::GetInstance()->ComposeHangeul(hWnd, wParam,lParam);
 		}
 #ifdef _WITH_SERVER_
-		if(gGameFramework.GetGameState() == CGameFramework::GAMESTATE::LOGIN)
+		if(g_State == GAMESTATE::LOGIN)
 		{
 			CLoginScene* p = gGameFramework.GetLoginScene();
 			CIDInput* input = p->GetIDInstance();
