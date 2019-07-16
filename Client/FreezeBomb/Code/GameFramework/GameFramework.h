@@ -174,9 +174,7 @@ private:
 	ID2D1Bitmap1					*m_ppd2dRenderTargets[m_nSwapChainBuffers];
 	
 	enum FONT_TYPE { PIOP_FONT, MAPLE_FONT };
-	//IDWriteFactory*					m_pdWriteFactory{ nullptr };
 	IDWriteFactory5*					m_pdWriteFactory{ nullptr };
-
 	IDWriteFontCollection1*		m_pFontCollection{ nullptr };
 
 	const int								m_FontNum = 2;

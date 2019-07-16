@@ -30,7 +30,6 @@
 #include <random>
 using namespace std;
 
-
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <D3Dcompiler.h>
@@ -42,12 +41,9 @@ using namespace std;
 //쓰레드
 #include <thread>
 
-
 //다이렉트 2D 헤더
 #include <d2d1_3.h>		//This header is used by Direct2D. 
 #include <d3d11on12.h>	//11이랑 12의 호환을 담당
-#include <dwrite.h>		//This header is used by DirectWrite. For more information, see: MSDN
-#include <dwrite_1.h>
 #include <dwrite_3.h>
 
 #include <d2d1effects.h>

@@ -441,30 +441,34 @@ void CGameFramework::Initialize_GameFont()
 	//AddFontResourceEx(fontPath[0].c_str(), FR_PRIVATE, 0);
 	//AddFontResourceEx(fontPath[1].c_str(), FR_PRIVATE, 0);
 
+	// 폰트를 설치하지 않고, 메모리에 올려서 사용할 경우
 	// 빌더 생성
 	IDWriteFontSetBuilder1* pFontSetBuilder;
 	hResult = m_pdWriteFactory->CreateFontSetBuilder(&pFontSetBuilder);
 
-	// 폰트 로드
 	IDWriteFontFile* pFontFile[2];
 	IDWriteFontSet* pFontSet[2];
 	wstring FontName[2];
+	unsigned int max_length = 64;
+
 	for (int i = 0; i < m_FontNum; ++i)
 	{
-		// 폰트 로드
+		// 해당하는 경로에서 폰트 파일을 로드한다.
 		hResult = m_pdWriteFactory->CreateFontFileReference(fontPath[i].c_str(), nullptr, &pFontFile[i]);
 		// 빌더에 폰트 추가
 		hResult = pFontSetBuilder->AddFontFile(pFontFile[i]);
 		hResult = pFontSetBuilder->CreateFontSet(&pFontSet[i]);
-		// 폰트 Collection에 폰트 추가
+		// 폰트 Collection에 폰트 추가 => 폰트 Collection에서 내가 사용할 폰트가 저장되어 있음
 		hResult = m_pdWriteFactory->CreateFontCollectionFromFontSet(pFontSet[i], &m_pFontCollection);
 
+		// 폰트 이름을 얻어오는 방법
 		IDWriteFontFamily* pFontFamily;
 		IDWriteLocalizedStrings* pLocalizedFontName;
 
 		hResult = m_pFontCollection->GetFontFamily(i, &pFontFamily);
 		hResult = pFontFamily->GetFamilyNames(&pLocalizedFontName);
-		hResult = pLocalizedFontName->GetString(0, const_cast<wchar_t*>(FontName[i].c_str()), 128);
+		// 저장되어있는 폰트의 이름을 얻어옴
+		hResult = pLocalizedFontName->GetString(0, const_cast<wchar_t*>(FontName[i].c_str()), max_length);
 
 		pFontFamily->Release();
 		pLocalizedFontName->Release();
@@ -789,6 +793,11 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				m_pScene->ChangeRound();
 			}
 
+			else if (wParam == '2')
+			{
+				g_Round = 2;
+				m_pScene->ChangeRound();
+			}
 		}	
 		break;
 	}

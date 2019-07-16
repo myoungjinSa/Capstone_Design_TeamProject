@@ -637,7 +637,9 @@ void CScene::PostRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeEl
 		m_pShaderManager->PostRender(pd3dCommandList,fTimeElapsed, pCamera);
 	}
 
+#ifndef _MAPTOOL_MODE_
 	CheckWarningTimer();
+#endif
 }
 
 void CScene::CheckObjectByObjectCollisions(float elapsedTime)

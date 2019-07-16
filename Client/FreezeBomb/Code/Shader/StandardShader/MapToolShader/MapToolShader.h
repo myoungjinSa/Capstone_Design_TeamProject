@@ -13,8 +13,9 @@ public:
 	void InstallMapObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CPlayer* pPlayer, char MapObjectType);
 
 	void InsertObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CPlayer *pPlayer, const string& model);
-
-	void InsertItem(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CPlayer *pPlayer, const string& model);
+	void InsertIFirePit(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CPlayer *pPlayer, const string& model);
+	void InsertFence(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	void InsertRandomFoliage(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CPlayer *pPlayer, const string& model);
 
 	void SortDescByName();	//오브젝트 이름의 내림차순으로 정렬 (동일한 이름일 경우 순서 정할수 없음)
 
@@ -52,8 +53,6 @@ public:
 		Hammer = 0x48, GoldTimer = 0x54,
 		DeleteAllObject = 0x44, DeleteObject = 0x52, OutputFile = 0x4F 
 	};
-
-	void BuildWall(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 
 private:
 	map<string, CLoadedModelInfo*> m_ModelsList;			// 모델들을 관리하는 맵 

@@ -177,11 +177,13 @@ void CResourceManager::PrepareLoad()
 	m_ModelInfoMap.emplace("EvilBear", ModelInfo("../Resource/Models/EvilBear.bin", true));
 
 	// 3
-	m_ModelInfoMap.emplace("SM_FirePit", ModelInfo("../Resource/Models/FirePit.bin", false));
+	m_ModelInfoMap.emplace("SM_FirePit", ModelInfo("../Resource/Models/SM_FirePit.bin", false));
 
-	//m_ModelInfoMap.emplace("Foliage0", ModelInfo("../Resource/Models/Grass_C_01.bin", false));
-	//m_ModelInfoMap.emplace("Foliage1", ModelInfo("../Resource/Models/Grass_D_01.bin", false));
-	//m_ModelInfoMap.emplace("Foliage2", ModelInfo("../Resource/Models/Plant_c_01.bin", false));
+#ifdef _MAPTOOL_MODE_
+	m_ModelInfoMap.emplace("Foliage0", ModelInfo("../Resource/Models/Grass_C_01.bin", false));
+	m_ModelInfoMap.emplace("Foliage1", ModelInfo("../Resource/Models/Grass_D_01.bin", false));
+	m_ModelInfoMap.emplace("Foliage2", ModelInfo("../Resource/Models/Plant_c_01.bin", false));
+#endif
 
 	//Effect 1
 	//m_ModelInfoMap.emplace("wind", ModelInfo("../Resource/Models/wind.bin", false));
@@ -225,7 +227,7 @@ void CResourceManager::LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 
 void CResourceManager::LoadMapObjectInfo(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	int totalRound = 2;
+	int totalRound = 3;
 	for (int i = 0; i < totalRound; ++i)
 	{
 		multimap<string, MapObjectInfo*> objectInfo;
