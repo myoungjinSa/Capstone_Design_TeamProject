@@ -161,10 +161,32 @@ void CIPShader::AnimateObjects(float fTimeElapsed)
 
 }
 
-void CIPShader::DecideTextureByCursor(LONG mouseX,LONG mouseY,UINT& p)
+void CIPShader::DecideTextureByCursor(const RECT& rect,const LONG& mouseX,const LONG& mouseY,UINT& p)
 {
 	//cout << mouseX << "," << mouseY<<endl;
-	if (339 <= mouseX && mouseX <= 827 && 656 <= mouseY && mouseY <= 692)
+
+	
+	RECT ipBox{ 0,0 };
+
+	//현재 창의 크기
+	UINT width = FRAME_BUFFER_WIDTH;
+	UINT height = FRAME_BUFFER_HEIGHT;
+	
+
+	//측정을 한 기준이 되는 클라이언트 크기
+	UINT originX = 1280;
+	UINT originY = 720;
+
+
+	ipBox.left = (363 * width )/originX;
+	ipBox.top = (590 * height) / originY;
+	ipBox.right = (881 * width) / originX;
+	ipBox.bottom = (622 * height )/ originY;
+
+	cout << ipBox.left;
+
+	
+	if (ipBox.left <= mouseX && mouseX <= ipBox.right && ipBox.top <= mouseY && mouseY <= ipBox.bottom)
 	{
 			g_CurrentTexture = IP_SELECT;
 			p = IP_SELECT;

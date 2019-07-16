@@ -174,6 +174,7 @@ void CCharacterSelectUIShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12Graph
 
 void CCharacterSelectUIShader::DecideTextureByCursorPosition(UINT nMessgeID, float mouseX, float mouseY)
 {
+
 	if (-0.928f <= mouseX && mouseX <= -0.74f && -0.585f <= mouseY && mouseY <= -0.345f)
 	{
 		if (isReady == false)
@@ -186,6 +187,7 @@ void CCharacterSelectUIShader::DecideTextureByCursorPosition(UINT nMessgeID, flo
 				m_characterSelect = PINK;
 			}
 		}
+		CSoundSystem::PlayingSound(CSoundSystem::CHARACTER_SELECT);
 	}
 	else if (-0.69f <= mouseX && mouseX <= -0.515f && -0.585f <= mouseY && mouseY <= -0.345f)
 	{
@@ -199,6 +201,7 @@ void CCharacterSelectUIShader::DecideTextureByCursorPosition(UINT nMessgeID, flo
 				m_characterSelect = BROWN;
 			}
 		}
+		CSoundSystem::PlayingSound(CSoundSystem::CHARACTER_SELECT);
 	}
 	else if (-0.455f <= mouseX && mouseX <= -0.28f && -0.585f <= mouseY && mouseY <= -0.345f)
 	{
@@ -212,6 +215,7 @@ void CCharacterSelectUIShader::DecideTextureByCursorPosition(UINT nMessgeID, flo
 				m_characterSelect = WHITE;
 			}
 		}
+		CSoundSystem::PlayingSound(CSoundSystem::CHARACTER_SELECT);
 	}
 	else if (-0.92f <= mouseX && mouseX <= -0.748f && -0.88f <= mouseY && mouseY <= -0.645f)
 	{
@@ -225,6 +229,7 @@ void CCharacterSelectUIShader::DecideTextureByCursorPosition(UINT nMessgeID, flo
 				m_characterSelect = BLACK;
 			}
 		}
+		CSoundSystem::PlayingSound(CSoundSystem::CHARACTER_SELECT);
 	}
 	else if (-0.69f <= mouseX && mouseX <= -0.515f && -0.88f <= mouseY && mouseY <= -0.645f)
 	{
@@ -238,6 +243,7 @@ void CCharacterSelectUIShader::DecideTextureByCursorPosition(UINT nMessgeID, flo
 				m_characterSelect = BLUE;
 			}
 		}
+		CSoundSystem::PlayingSound(CSoundSystem::CHARACTER_SELECT);
 	}
 	else if (-0.458f <= mouseX && mouseX <= -0.28f && -0.88f <= mouseY && mouseY <= -0.645f)
 	{
@@ -251,10 +257,13 @@ void CCharacterSelectUIShader::DecideTextureByCursorPosition(UINT nMessgeID, flo
 				m_characterSelect = PANDA;
 			}
 		}
+		CSoundSystem::PlayingSound(CSoundSystem::CHARACTER_SELECT);
 	}
 	else if (0.736f <= mouseX && mouseX <= 0.965f && 0.835f <= mouseY && mouseY <= 0.973f)
+	{
 		m_currentTexture = QUIT;
-
+		CSoundSystem::PlayingSound(CSoundSystem::CHARACTER_SELECT);
+	}
 	else
 	{
 		if (isReady == false)
@@ -263,12 +272,12 @@ void CCharacterSelectUIShader::DecideTextureByCursorPosition(UINT nMessgeID, flo
 		}
 	}
 
-	CSoundSystem::PlayingSound(CSoundSystem::CHARACTER_SELECT);
+	
 
 	if (nMessgeID == WM_LBUTTONUP)
 	{
 		// 풀스크린일 경우 UI 좌표가 조금씩 달라짐...
-#ifndef FullScreenMode
+//#ifndef FullScreenMode
 		if (0.426f <= mouseX && mouseX <= 0.978f && -0.95f <= mouseY && mouseY <= -0.775f)
 		{
 			isReady = !isReady;
@@ -292,20 +301,21 @@ void CCharacterSelectUIShader::DecideTextureByCursorPosition(UINT nMessgeID, flo
 #endif
 				m_currentTexture = BASE;
 			}
+			CSoundSystem::PlayingSound(CSoundSystem::CHARACTER_SELECT);
 
 		}
-#else
-		if (0.75f <= mouseX && mouseX <= 1.5f && -1.5f <= mouseY && mouseY <= -0.75f)
-		{
-			isReady = !isReady;
-			cout << "x: " << mouseX << ", " << "y: " << mouseY << endl;
-			if (isReady)
-				m_currentTexture = READY;
-			else
-				m_currentTexture = BASE;
-
-		}
-#endif
+//#else
+//		if (0.426f <= mouseX && mouseX <= 0.978f && -0.95f <= mouseY && mouseY <= -0.775f)
+//		{
+//			isReady = !isReady;
+//			
+//			if (isReady)
+//				m_currentTexture = READY;
+//			else
+//				m_currentTexture = BASE;
+//
+//		}
+//#endif
 		else if (0.736f <= mouseX && mouseX <= 0.965f && 0.835f <= mouseY && mouseY <= 0.973f)
 			::PostQuitMessage(0);
 	}

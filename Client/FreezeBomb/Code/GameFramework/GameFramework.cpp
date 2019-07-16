@@ -114,7 +114,7 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	return true;
 }
 
-//#define _WITH_CREATE_SWAPCHAIN_FOR_HWND
+#define _WITH_CREATE_SWAPCHAIN_FOR_HWND
 void CGameFramework::CreateSwapChain()
 {
 	RECT rcClient;
@@ -136,7 +136,7 @@ void CGameFramework::CreateSwapChain()
 	dxgiSwapChainDesc.Scaling = DXGI_SCALING_NONE;
 	dxgiSwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	dxgiSwapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-	dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+	dxgiSwapChainDesc.Flags =  DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 	//dxgiSwapChainDesc.Flags = 
 
 	DXGI_SWAP_CHAIN_FULLSCREEN_DESC dxgiSwapChainFullScreenDesc;
@@ -145,11 +145,35 @@ void CGameFramework::CreateSwapChain()
 	dxgiSwapChainFullScreenDesc.RefreshRate.Denominator = 1;
 	dxgiSwapChainFullScreenDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	dxgiSwapChainFullScreenDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-	dxgiSwapChainFullScreenDesc.Windowed = FALSE;
+	dxgiSwapChainFullScreenDesc.Windowed = true;
 
-	HRESULT hResult = m_pdxgiFactory->CreateSwapChainForHwnd(m_pd3dCommandQueue, m_hWnd, &dxgiSwapChainDesc, NULL/*&dxgiSwapChainFullScreenDesc*/, NULL, (IDXGISwapChain1 **)&m_pdxgiSwapChain);
+	HRESULT hResult = m_pdxgiFactory->CreateSwapChainForHwnd(m_pd3dCommandQueue, m_hWnd, &dxgiSwapChainDesc, &dxgiSwapChainFullScreenDesc, NULL, (IDXGISwapChain1 **)&m_pdxgiSwapChain);
 #else
-	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
+	DXGI_SWAP_CHAIN_DESC1 dxgiSwapChainDesc;
+	::ZeroMemory(&dxgiSwapChainDesc, sizeof(DXGI_SWAP_CHAIN_DESC1));
+	dxgiSwapChainDesc.Width = m_nWndClientWidth;
+	dxgiSwapChainDesc.Height = m_nWndClientHeight;
+	dxgiSwapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	dxgiSwapChainDesc.SampleDesc.Count = (m_bMsaa4xEnable) ? 4 : 1;
+	dxgiSwapChainDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
+	dxgiSwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	dxgiSwapChainDesc.BufferCount = m_nSwapChainBuffers;
+	dxgiSwapChainDesc.Scaling = DXGI_SCALING_NONE;
+	dxgiSwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	dxgiSwapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+	dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+	//dxgiSwapChainDesc.Flags = 
+
+	//DXGI_SWAP_CHAIN_FULLSCREEN_DESC dxgiSwapChainFullScreenDesc;
+	//::ZeroMemory(&dxgiSwapChainFullScreenDesc, sizeof(DXGI_SWAP_CHAIN_FULLSCREEN_DESC));
+	//dxgiSwapChainFullScreenDesc.RefreshRate.Numerator = 60;
+	//dxgiSwapChainFullScreenDesc.RefreshRate.Denominator = 1;
+	//dxgiSwapChainFullScreenDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	//dxgiSwapChainFullScreenDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+	//dxgiSwapChainFullScreenDesc.Windowed = true;
+
+	HRESULT hResult = m_pdxgiFactory->CreateSwapChainForHwnd(m_pd3dCommandQueue, m_hWnd, &dxgiSwapChainDesc, NULL, NULL, (IDXGISwapChain1 **)&m_pdxgiSwapChain);
+	/*DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
 	::ZeroMemory(&dxgiSwapChainDesc, sizeof(dxgiSwapChainDesc));
 	dxgiSwapChainDesc.BufferDesc.Width = m_nWndClientWidth;
 	dxgiSwapChainDesc.BufferDesc.Height = m_nWndClientHeight;
@@ -168,21 +192,28 @@ void CGameFramework::CreateSwapChain()
 
 	dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-	HRESULT hResult = m_pdxgiFactory->CreateSwapChain(m_pd3dCommandQueue, &dxgiSwapChainDesc, (IDXGISwapChain**)&m_pdxgiSwapChain);
+	HRESULT hResult = m_pdxgiFactory->CreateSwapChain(m_pd3dCommandQueue, &dxgiSwapChainDesc, (IDXGISwapChain**)&m_pdxgiSwapChain);*/
 #endif	
 #ifdef FullScreenMode
 	hResult = m_pdxgiSwapChain->GetFullscreenState(false, NULL);
+	if (FAILED(hResult))
+	{
+		cout << "GetFullScreenState 에러\n";
+	}
 	//전체 모드로 시작
 	hResult = m_pdxgiSwapChain->SetFullscreenState(true, NULL);
-	if (hResult == E_FAIL)
+	if (FAILED(hResult)) 
+	{
+		cout << "SetFullScreenState 에러\n";
 		return;
+	}
 	if (hResult == DXGI_ERROR_NOT_CURRENTLY_AVAILABLE)
 	{
 		
 	}
-	if (hResult == S_OK)
+	if (SUCCEEDED(hResult))
 	{
-		
+	
 		DXGI_MODE_DESC dxgiTargetParameters;
 		dxgiTargetParameters.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		dxgiTargetParameters.Width = m_nWndClientWidth;
@@ -200,7 +231,7 @@ void CGameFramework::CreateSwapChain()
 
 		DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
 		m_pdxgiSwapChain->GetDesc(&dxgiSwapChainDesc);
-		m_pdxgiSwapChain->ResizeBuffers(m_nSwapChainBuffers, m_nWndClientWidth, m_nWndClientHeight, dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
+		m_pdxgiSwapChain->ResizeBuffers(m_nSwapChainBuffers, m_nWndClientWidth,m_nWndClientHeight,dxgiSwapChainDesc.BufferDesc.Format,dxgiSwapChainDesc.Flags);
 
 	}
 
@@ -213,7 +244,14 @@ void CGameFramework::CreateSwapChain()
 	// 스왑체인의 현재 후면버퍼 인덱스를 저장
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
 	// Alt + Enter키로 전체모드 비활성화
-	hResult = m_pdxgiFactory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER);
+	hResult = m_pdxgiFactory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER | DXGI_MWA_NO_WINDOW_CHANGES);
+	//DXGI_MWA_NO_WINDOW_CHANGES -> DXGI가 윈도우 메세지큐를 감시하지 않는 옵션
+	if (FAILED(hResult))
+	{
+		cout << "MakeWindowAssociation 에러\n";
+		return;
+	}
+
 
 //#ifndef _WITH_SWAPCHAIN_FULLSCREEN_STATE
 	CreateRenderTargetViews();
@@ -246,12 +284,21 @@ void CGameFramework::CreateDirect3DDevice()
 	}
 
 	IDXGIAdapter1* pd3dAdapter = NULL;
-
+	IDXGIOutput* pOutput = NULL;
+	UINT nModes = 0;
+	UINT nFlags = DXGI_ENUM_MODES_SCALING;
 	for (UINT i = 0; DXGI_ERROR_NOT_FOUND != m_pdxgiFactory->EnumAdapters1(i, &pd3dAdapter); i++)
 	{
 		DXGI_ADAPTER_DESC1 dxgiAdapterDesc;
+		/*pd3dAdapter->EnumOutputs(0, &pOutput);
+		pOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, nFlags, &nModes, NULL);
+		m_pDisplayMode = new DXGI_MODE_DESC[nModes];*/
+
+
 		pd3dAdapter->GetDesc1(&dxgiAdapterDesc);
 		
+		//pOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, 0, &nModes, &m_pDisplayMode[0]);
+
 		if (dxgiAdapterDesc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) continue;
 		if (SUCCEEDED(D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), (void **)&m_pd3dDevice))) break;
 	}
@@ -285,7 +332,7 @@ void CGameFramework::CreateDirect3DDevice()
 	m_hFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
 
 	if (pd3dAdapter) pd3dAdapter->Release();
-
+	if (pOutput) pOutput->Release();
 	// IncrementSize를 컴퓨터에 맞게 설정해줌
 	::gnCbvSrvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
@@ -362,13 +409,13 @@ void CGameFramework::CreateDirect2DDevice()
 
 	m_pd2dDeviceContext->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
 
+
 	// Bitmap 이미지를 생성한다.
 	Initialize_BitmapImage();
 	// 게임에 필요한 폰트를 생성한다.
 	Initialize_GameFont();
 	
-	//채팅 시스템 객체 생성
-	ChattingSystem::GetInstance()->Initialize(m_ppFont[FONT_TYPE::MAPLE_FONT], m_ppTextLayout[FONT_TYPE::MAPLE_FONT], m_ppFontColor[COLOR_TYPE::BLACK], m_pwicImagingFactory, m_pd2dDeviceContext);
+	
 }
 
 void CGameFramework::Initialize_BitmapImage()
@@ -433,8 +480,17 @@ void CGameFramework::Initialize_GameFont()
 	AddFontResourceEx(fontPath[0].c_str(), FR_PRIVATE, 0);
 	AddFontResourceEx(fontPath[1].c_str(), FR_PRIVATE, 0);
 
-	float fontSize = 25.f;
 
+	float dx = ((float)FRAME_BUFFER_WIDTH/(float)1280);
+	float dy = ((float)FRAME_BUFFER_HEIGHT/(float)720);
+
+	float dTotal = dx * dy;
+
+	printf("%f", dTotal);
+	float fontSize = (25.f * dTotal) ;
+		//채팅 시스템 객체 생성
+	
+	
 	m_ppFont = new IDWriteTextFormat*[m_FontNum];
 	// 폰트 객체 생성
 	HRESULT hResult = m_pdWriteFactory->CreateTextFormat(L"a피오피동글", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fontSize, L"en-US", &m_ppFont[FONT_TYPE::PIOP_FONT]);
@@ -463,6 +519,11 @@ void CGameFramework::Initialize_GameFont()
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LavenderBlush, 1.0f), &m_ppFontColor[index++]);
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Red, 1.0f), &m_ppFontColor[index++]);
 	m_pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Orange, 1.0f), &m_ppFontColor[index++]);
+
+	ChattingSystem::GetInstance()->Initialize(m_ppFont[FONT_TYPE::MAPLE_FONT], m_ppTextLayout[FONT_TYPE::MAPLE_FONT], m_ppFontColor[COLOR_TYPE::BLACK], m_pwicImagingFactory, m_pd2dDeviceContext);
+
+	ChattingSystem::GetInstance()->SetFontSize(fontSize);
+	ChattingSystem::GetInstance()->CreateChattingFont();
 }
 
 #endif
@@ -905,6 +966,8 @@ void CGameFramework::OnDestroy()
 {
 	ReleaseObjects();
 
+	//if (m_pDisplayMode)
+	//	delete m_pDisplayMode;
 	::CloseHandle(m_hFenceEvent);
 #ifdef _WITH_DIRECT2D_
 
@@ -1450,20 +1513,35 @@ void CGameFramework::ShowPlayers()
 
 	wstring wstr = L"READY";
 	
+	UINT originX = 1200;
+	UINT originY = 800;
+
+	D2D1_RECT_F rect{ 0.0f, };
+	D2D1_RECT_F readyRect{ 0.0f, };
+	rect.right = (780.0f * FRAME_BUFFER_WIDTH) / originX;
+	rect.bottom = (290.0f * FRAME_BUFFER_HEIGHT) / originY;
+
+	
+	readyRect.right = (200.0f * FRAME_BUFFER_WIDTH) / originX;
+	readyRect.bottom = (290.0f * FRAME_BUFFER_HEIGHT) / originY;
+	
+	//이름 간격
+	float diff = (110.0f * FRAME_BUFFER_HEIGHT) / originY;
+
 	if (m_mapClients.size() > 0)
 	{
 		wchar_t player[16];
 		int i = 0;
 		for (const auto& id : m_mapClients)
 		{
-			rcText = D2D1::RectF(0.0f, 0.0f, 780.0f, ((i * 110.0f) + 290.0f) );
+			rcText = D2D1::RectF(0.0f, 0.0f,rect.right, ((i * diff) + rect.bottom) );
 			int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[id.first].name, strlen(m_mapClients[id.first].name), NULL, NULL);
 			MultiByteToWideChar(CP_ACP, 0, m_mapClients[id.first].name, strlen(m_mapClients[id.first].name), player, nLen);
 			m_pd2dDeviceContext->DrawTextW(player, nLen, m_ppFont[FONT_TYPE::PIOP_FONT], &rcText, m_ppFontColor[i+1]);
 			
 			if (m_mapClients[id.first].isReady)
 			{
-				readyText = D2D1::RectF(0.0f, 0.0f, 200.0f, ((i*110.0f) + 290.0f));
+				readyText = D2D1::RectF(0.0f, 0.0f, readyRect.right, ((i*diff) + readyRect.bottom));
 				m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyText, m_ppFontColor[COLOR_TYPE::RED]);
 			}
 			i++;

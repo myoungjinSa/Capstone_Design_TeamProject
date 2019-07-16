@@ -106,7 +106,17 @@ void CIPInputSystem::ShowIPInput()
 
 	wstring wstr = StringToTCHAR(m_wsIP);
 
-	ipText = D2D1::RectF(480.0f, 660.0f, 750.0f, 660.0f);
+	UINT originX = 1200;
+	UINT originY = 800;
+
+	RECT rect{0,};
+
+	rect.left = (480 * FRAME_BUFFER_WIDTH) / originX;
+	rect.right = (750 * FRAME_BUFFER_WIDTH) / originX;
+	rect.top = (645 * FRAME_BUFFER_HEIGHT) / originY;
+	rect.bottom = (645 * FRAME_BUFFER_HEIGHT) / originY;
+
+	ipText = D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom);
 	m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_pFont, &ipText, m_pFontColor);
 }
 

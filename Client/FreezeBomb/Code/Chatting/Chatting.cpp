@@ -16,6 +16,28 @@ ChattingSystem::~ChattingSystem()
 {
 }
 
+void ChattingSystem::CreateChattingFont()
+{
+	if(m_fontSize < 30)
+	{
+		m_maxChatSentenceCount = 19;
+	}
+	else if( m_fontSize < 40)
+	{
+		m_maxChatSentenceCount = 15;
+	}
+	else if(m_fontSize < 50)
+	{
+		m_maxChatSentenceCount = 12;
+	}
+	else
+	{
+		m_maxChatSentenceCount = 9;
+	}
+	m_chat = new TCHAR*[m_maxChatSentenceCount];
+	for (int i = 0; i < m_maxChatSentenceCount; ++i)
+		m_chat[i] = new TCHAR[256];
+}
 void ChattingSystem::Initialize(IDWriteTextFormat* pFont, IDWriteTextLayout* pTextLayout, ID2D1SolidColorBrush* pFontColor, IWICImagingFactory* pFactory, ID2D1DeviceContext2* pContext)
 {
 	m_pChattingFont = pFont;
@@ -23,9 +45,7 @@ void ChattingSystem::Initialize(IDWriteTextFormat* pFont, IDWriteTextLayout* pTe
 	m_pChattingFontColor = pFontColor;
 
 	HRESULT hResult;
-	m_chat = new TCHAR*[m_maxChatSentenceCount];
-	for (int i = 0; i < m_maxChatSentenceCount; ++i)
-		m_chat[i] = new TCHAR[256];
+
 
 	IWICBitmapDecoder *pwicBitmapDecoder;
 	hResult = pFactory->CreateDecoderFromFilename(L"../Resource/Png/chatting.png", NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &pwicBitmapDecoder);
@@ -72,16 +92,30 @@ string ChattingSystem::TCHARToString(const TCHAR* ptsz)
 
 void ChattingSystem::ShowLobbyChatting(ID2D1DeviceContext2* pd2dDeviceContext)
 {
+
 	D2D1_RECT_F chatText{ 0,0,0,0 };
+
+	UINT originX = 1280;
+	UINT originY = 720;
+
+	chatText.left = (690.0f * FRAME_BUFFER_WIDTH) / originX;
+	chatText.top = (590.0f * FRAME_BUFFER_HEIGHT) / originY;
+	chatText.right = (1280.0f * FRAME_BUFFER_WIDTH) / originX;
+	chatText.bottom = (590.0f * FRAME_BUFFER_HEIGHT) / originY;
+
+	int boxStart = (545 * FRAME_BUFFER_HEIGHT) / originY;
+
+
+	int diff = (m_fontSize * FRAME_BUFFER_HEIGHT) / originY;
+
 	if (IsChattingActive())
 	{		
-		chatText = D2D1::RectF(680.0f, 655.0f, 1200.0f, 655.0f);
+		chatText = D2D1::RectF(chatText.left, chatText.top, chatText.right, chatText.bottom);
 		pd2dDeviceContext->DrawTextW(m_wsChat.c_str(), m_wsChat.length(), m_pChattingFont, &chatText, m_pChattingFontColor);
 	}
-
 	for (int i = 1; i < m_dequeText.size()+1; ++i) 
 	{
-		chatText = D2D1::RectF(680.0f, 600.0f - (i * 24), 1200.0f, 600.0f - (i * 24));
+		chatText = D2D1::RectF(chatText.left, boxStart - (i*diff), chatText.right, boxStart- (i*diff));
 		pd2dDeviceContext->DrawTextW(m_dequeText[i-1].first, m_dequeText[i-1].second, m_pChattingFont, &chatText, m_pChattingFontColor);
 	}
 }
@@ -90,12 +124,23 @@ void ChattingSystem::ShowIngameChatting(ID2D1DeviceContext2* pd2dDeviceContext, 
 {
 	if (IsChattingActive() && m_pd2dfxBitmapSource)
 	{
-		D2D_POINT_2F p{ -360.0f, 660.0f };
+		UINT originX = 1280;
+		UINT originY = 720;
 
+		
+		
+		D2D_POINT_2F p{ 0.0f,0.0f };
+		p.x = (-360.0f * FRAME_BUFFER_WIDTH) / originX;
+		p.y = (590.0f * FRAME_BUFFER_HEIGHT) / originY;
+		
 		pd2dDeviceContext->DrawImage(m_pd2dfxBitmapSource, p);
 		D2D1_RECT_F chatText{ 0, 0, 0, 0 };
+		chatText.left = (20.0f * FRAME_BUFFER_WIDTH) / originX;
+		chatText.top = (680.0f * FRAME_BUFFER_HEIGHT) / originY;
+		chatText.right = (720.0f * FRAME_BUFFER_WIDTH) / originX;
+		chatText.bottom = (680.0f * FRAME_BUFFER_HEIGHT) / originY;
 
-		chatText = D2D1::RectF(20.0f, 750.0f, 600.0f, 750.0f);
+		chatText = D2D1::RectF(chatText.left, chatText.top, chatText.right, chatText.bottom);
 		pd2dDeviceContext->DrawTextW(m_wsChat.c_str(), m_wsChat.length(), m_pChattingFont, &chatText, m_pChattingFontColor);
 
 		m_showTime = 0.0f;
@@ -107,13 +152,23 @@ void ChattingSystem::ShowIngameChatting(ID2D1DeviceContext2* pd2dDeviceContext, 
 	if (m_showTime <= 5.0f) 
 	{
 		D2D1_RECT_F chatText{ 0,0,0,0 };
+		UINT originX = 1280;
+		UINT originY = 720;
+
+		chatText.left = (20.0f * FRAME_BUFFER_WIDTH) / originX;
+		chatText.top = (655.0f * FRAME_BUFFER_HEIGHT) / originY;
+		chatText.right = (720.0f * FRAME_BUFFER_WIDTH) / originX;
+		chatText.bottom = (655.0f * FRAME_BUFFER_HEIGHT) / originY;
+
+		int diff = (m_fontSize * FRAME_BUFFER_HEIGHT) / originY;
+
 		for (int i = 1; i < m_dequeText.size() + 1; ++i)
 		{
-			chatText = D2D1::RectF(20.0f, 705.0f - (i * 24), 600.0f, 705.0f - (i * 24));
+			chatText = D2D1::RectF(chatText.left, chatText.top - (i + diff), chatText.right, chatText.bottom - (i + diff));
 			pd2dDeviceContext->DrawTextW(m_dequeText[i - 1].first, m_dequeText[i - 1].second, m_pChattingFont, &chatText, m_pChattingFontColor);
 		}
-	}
 }
+	}
 
 void ChattingSystem::ProcessSpecialCharacter(WPARAM wParam)
 {

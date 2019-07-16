@@ -74,7 +74,7 @@ extern HINSTANCE						ghAppInstance;
 
 
 // 전체모드할경우 주석풀으셈
-//#define FullScreenMode
+#define FullScreenMode
 
 
 //맵툴 모드
@@ -82,10 +82,10 @@ extern HINSTANCE						ghAppInstance;
 
 //서버 연동을 할 경우 
 
-//#define _WITH_SERVER_
+#define _WITH_SERVER_
 
-#define FRAME_BUFFER_WIDTH		1200
-#define FRAME_BUFFER_HEIGHT		800
+#define FRAME_BUFFER_WIDTH		1280
+#define FRAME_BUFFER_HEIGHT		720
 
 enum PIPELINESTATE_TYPE { GameObject,GameObject_Shadow };
 enum PIXELSHADER_TYPE{No_FogObject = 2 };

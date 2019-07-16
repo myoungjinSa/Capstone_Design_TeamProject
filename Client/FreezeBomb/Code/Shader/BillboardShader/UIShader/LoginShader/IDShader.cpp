@@ -161,18 +161,42 @@ void CIDShader::AnimateObjects(float fTimeElapsed)
 
 }
 
-int CIDShader::DecideTextureByCursor(WPARAM wParam,LONG mouseX,LONG mouseY)
+int CIDShader::DecideTextureByCursor(const RECT& rect,const LONG& mouseX,const LONG& mouseY)
 {
-	//cout << mouseX << "," << mouseY<<endl;
+	cout << mouseX << "," << mouseY<<endl;
 
 	
-	if (339 <= mouseX && mouseX <= 827 && 656 <= mouseY && mouseY <= 692)
+	RECT name{ 0, };
+	RECT bt_connection{ 0, };
+	UINT width = FRAME_BUFFER_WIDTH;
+	UINT height = FRAME_BUFFER_HEIGHT;
+	
+
+	//측정을 한 기준이 되는 클라이언트 크기
+	UINT originX = 1280;
+	UINT originY = 720;
+
+	
+	//y =( 364 * width ) / originX
+
+	name.left = (360 * width )/originX  ;							//364
+	name.top = (588 * height) / originY ; 							//742
+	name.right = (875 * width) / originX ;						//875
+	name.bottom = (619 * height )/ originY;						//790
+
+
+	bt_connection.left = (940*width) / originX;									//943
+	bt_connection.top = (588*height) / originY;											//742
+	bt_connection.right = (1127 *width) / originX;				//1130	
+	bt_connection.bottom = (619 *height) / originY;										//790
+	
+	if (name.left <= mouseX && mouseX <= name.right && name.top <= mouseY && mouseY <= name.bottom)
 	{
 		
 		m_currentTexture = ID_SELECT;
 
 	}
-	else if (887 <= mouseX && mouseX <= 1051 && 652 <= mouseY && mouseY <= 692)
+	else if (bt_connection.left <= mouseX && mouseX <= bt_connection.right && bt_connection.top <= mouseY && mouseY <= bt_connection.bottom)
 	{
 		m_currentTexture = REQUEST_LOGIN;
 

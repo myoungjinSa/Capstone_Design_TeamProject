@@ -91,6 +91,7 @@ void CIPScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList*
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
+
 	int index = 0;
 
 	m_nShaders = 1;
@@ -117,10 +118,14 @@ void CIPScene::ProcessInput(HWND hWnd)
 	GetCursorPos(&ptCursorPos);
 	ScreenToClient(hWnd,&ptCursorPos);
 	
+	RECT rect;
+	GetClientRect(hWnd, &rect);
+
+
 	UINT sel=0;
 	if(GetKeyState(VK_LBUTTON) & 0x8000)
 	{
-		dynamic_cast<CIPShader*>(m_ppShaders[0])->DecideTextureByCursor(ptCursorPos.x, ptCursorPos.y,sel);
+		dynamic_cast<CIPShader*>(m_ppShaders[0])->DecideTextureByCursor(rect,ptCursorPos.x, ptCursorPos.y,sel);
 	}
 	size_t IP_Length = 0;
 	

@@ -225,7 +225,22 @@ void CIDInput::ShowIDInput(ID2D1DeviceContext2* pd2dDeviceContext)
 	D2D1_RECT_F idText{ 0,0,0,0 };
 	wstring wstr = m_wsID.c_str();
 
-	idText = D2D1::RectF(420.0f, 660.0f , 750.0f, 660.0f);
+
+	//420 은 1200프레임에서의 left값 
+	UINT originX = 1200;
+	UINT originY = 800;
+
+	//바뀐 현재 프레임 크기 
+	UINT currFrameX = FRAME_BUFFER_WIDTH;
+	UINT currFrameY = FRAME_BUFFER_HEIGHT;
+
+	RECT nameRect{ 0, };
+	nameRect.left = (480 * currFrameX) / originX;
+	nameRect.top = (645 * currFrameY) / originY;
+	nameRect.right = (750 * currFrameX) / originX;
+	nameRect.bottom = (645 * currFrameY) / originY;
+
+	idText = D2D1::RectF(nameRect.left, nameRect.top , nameRect.right, nameRect.bottom);
 	pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_pFont, &idText, m_pFontColor);
 }
 

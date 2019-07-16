@@ -136,7 +136,7 @@ private:
 	ID3D12CommandAllocator*					m_pLoadingCommandAllocator = nullptr;
 	ID3D12GraphicsCommandList*				m_pLoadingCommandList = nullptr;
 
-	
+	//DXGI_MODE_DESC *						m_pDisplayMode;
 	ID3D12Fence*							m_pd3dFence = nullptr;
 	UINT64										m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE									m_hFenceEvent;

@@ -41,7 +41,7 @@ public:
 	
 	enum state{NO_SELECT,ID_SELECT,REQUEST_LOGIN};
 	
-	int DecideTextureByCursor(WPARAM wParam,LONG mouseX, LONG mouseY);
+	int DecideTextureByCursor(const RECT& rect,const LONG& mouseX,const LONG& mouseY);
 	//사용자가 어떤 유아이를 클릭했는지 
 	
 protected:

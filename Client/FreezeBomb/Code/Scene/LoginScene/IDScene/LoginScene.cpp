@@ -139,7 +139,9 @@ int CLoginScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wPara
 		//XMFLOAT3 position = ScreenPosition(mouseX, mouseY);
 		//cout << mouseX << ", " << mouseY << "--------------" << position.x << ", " << position.y << endl;
 			
-		ret = dynamic_cast<CIDShader*>(m_ppShaders[0])->DecideTextureByCursor(wParam,ptCursorPos.x, ptCursorPos.y);
+		RECT rect{ 0,0 };
+		GetClientRect(hWnd, &rect);
+		ret = dynamic_cast<CIDShader*>(m_ppShaders[0])->DecideTextureByCursor(rect,ptCursorPos.x, ptCursorPos.y);
 		
 		if(ret == CIDShader::state::REQUEST_LOGIN)
 		{
