@@ -34,6 +34,9 @@
 // 전체모드할경우 주석풀으셈
 //#define FullScreenMode
 
+//게임 상태 
+int g_State = GAMESTATE::INGAME;
+
 bool g_OnCartoonShading = false;
 bool g_IsSoundOn = true;
 
@@ -355,7 +358,8 @@ void CGameFramework::CreateDirect2DDevice()
 	hResult = m_pd3d11On12Device->QueryInterface(__uuidof(IDXGIDevice), (void **)&pdxgiDevice);
 	hResult = m_pd2dFactory->CreateDevice(pdxgiDevice, &m_pd2dDevice);
 	hResult = m_pd2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_pd2dDeviceContext);
-	hResult = ::DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), (IUnknown **)&m_pdWriteFactory);
+	//hResult = ::DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), (IUnknown **)&m_pdWriteFactory);
+	hResult = ::DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory5), (IUnknown **)&m_pdWriteFactory);
 
 	if (pdxgiDevice)
 		pdxgiDevice->Release();
@@ -428,21 +432,63 @@ void CGameFramework::Initialize_BitmapImage()
 
 void CGameFramework::Initialize_GameFont()
 {
-	// 폰트 로드
+	HRESULT hResult;
+
+	// 폰트 경로
 	wstring fontPath[] = { L"../Resource/Font/a피오피동글.ttf", L"../Resource/Font/메이플스토리.ttf" };
-	AddFontResourceEx(fontPath[0].c_str(), FR_PRIVATE, 0);
-	AddFontResourceEx(fontPath[1].c_str(), FR_PRIVATE, 0);
+	
+	// 폰트를 직접 설치할때 사용
+	//AddFontResourceEx(fontPath[0].c_str(), FR_PRIVATE, 0);
+	//AddFontResourceEx(fontPath[1].c_str(), FR_PRIVATE, 0);
+
+	// 빌더 생성
+	IDWriteFontSetBuilder1* pFontSetBuilder;
+	hResult = m_pdWriteFactory->CreateFontSetBuilder(&pFontSetBuilder);
+
+	// 폰트 로드
+	IDWriteFontFile* pFontFile[2];
+	IDWriteFontSet* pFontSet[2];
+	wstring FontName[2];
+	for (int i = 0; i < m_FontNum; ++i)
+	{
+		// 폰트 로드
+		hResult = m_pdWriteFactory->CreateFontFileReference(fontPath[i].c_str(), nullptr, &pFontFile[i]);
+		// 빌더에 폰트 추가
+		hResult = pFontSetBuilder->AddFontFile(pFontFile[i]);
+		hResult = pFontSetBuilder->CreateFontSet(&pFontSet[i]);
+		// 폰트 Collection에 폰트 추가
+		hResult = m_pdWriteFactory->CreateFontCollectionFromFontSet(pFontSet[i], &m_pFontCollection);
+
+		IDWriteFontFamily* pFontFamily;
+		IDWriteLocalizedStrings* pLocalizedFontName;
+
+		hResult = m_pFontCollection->GetFontFamily(i, &pFontFamily);
+		hResult = pFontFamily->GetFamilyNames(&pLocalizedFontName);
+		hResult = pLocalizedFontName->GetString(0, const_cast<wchar_t*>(FontName[i].c_str()), 128);
+
+		pFontFamily->Release();
+		pLocalizedFontName->Release();
+	}
+
+	pFontSetBuilder->Release();
+	for (int i = 0; i < m_FontNum; ++i)
+	{
+		pFontFile[i]->Release();
+		pFontSet[i]->Release();
+	}
 
 	float fontSize = 25.f;
 
 	m_ppFont = new IDWriteTextFormat*[m_FontNum];
-	// 폰트 객체 생성
-	HRESULT hResult = m_pdWriteFactory->CreateTextFormat(L"a피오피동글", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fontSize, L"en-US", &m_ppFont[FONT_TYPE::PIOP_FONT]);
+
+	// 폰트 객체 생성	
+	for(int i = 0; i < m_FontNum; ++i)
+		hResult = m_pdWriteFactory->CreateTextFormat(FontName[i].c_str(), m_pFontCollection, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fontSize, L"en-US", &m_ppFont[i]);
+	
 	// 폰트를 중앙에 정렬시키기
 	hResult = m_ppFont[FONT_TYPE::PIOP_FONT]->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 	hResult = m_ppFont[FONT_TYPE::PIOP_FONT]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 
-	hResult = m_pdWriteFactory->CreateTextFormat(L"메이플스토리", nullptr, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fontSize, L"en-US", &m_ppFont[FONT_TYPE::MAPLE_FONT]);
 	hResult = m_ppFont[FONT_TYPE::MAPLE_FONT]->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
 	hResult = m_ppFont[FONT_TYPE::MAPLE_FONT]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
 
@@ -657,8 +703,15 @@ void CGameFramework::CreateOffScreenRenderTargetViews()
 
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	switch (m_nState)
+	switch (g_State)
 	{
+	case CHARACTER_SELECT:
+	{
+		if (m_pLobbyScene)
+			m_pLobbyScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam, g_State);
+		break;
+	}
+
 	case INGAME:
 	{
 		if (m_pScene)
@@ -666,12 +719,6 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		break;
 	}
 
-	case CHARACTER_SELECT:
-	{
-		if (m_pLobbyScene)
-			m_pLobbyScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam,m_nState);
-		break;
-	}
 #ifdef _WITH_SERVER_
 	case LOGIN:
 	{
@@ -688,7 +735,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 			
 			if (m_pLoginScene->IsLogin())
 			{
-				m_nState = CHARACTER_SELECT;
+				g_State = CHARACTER_SELECT;
 				m_pPlayer->SetPlayerName(m_pLoginScene->GetIDInstance()->GetPlayerName());
 			}
 		}
@@ -721,7 +768,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 
 void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	switch (m_nState)
+	switch (g_State)
 	{
 	case INGAME:
 	{
@@ -769,7 +816,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			break;
 		case VK_F5:
 		{			
-			if (m_nState == CHARACTER_SELECT)
+			if (g_State == CHARACTER_SELECT)
 			{
 #ifdef _WITH_SERVER_
 
@@ -794,7 +841,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					CSoundSystem::StopSound(CSoundSystem::LOBBY_BGM);
 					CSoundSystem::StopSound(CSoundSystem::CHARACTER_SELECT);
 				}
-				m_nState = INGAME;
+				g_State = INGAME;
 #endif
 			}
 			break;
@@ -814,12 +861,12 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 #ifdef _WITH_DIRECT2D_
 		case VK_RETURN:
 		{
-			if (m_nState == INGAME)
+			if (g_State == INGAME)
 			{
 				(ChattingSystem::GetInstance()->IsChattingActive()) ? ChattingSystem::GetInstance()->SetActive(false)
 					: ChattingSystem::GetInstance()->SetActive(true);
 			}
-			if (m_nState == CHARACTER_SELECT)
+			if (g_State == CHARACTER_SELECT)
 			{
 				(ChattingSystem::GetInstance()->IsChattingActive()) ? ChattingSystem::GetInstance()->SetActive(false)
 					: ChattingSystem::GetInstance()->SetActive(true);
@@ -830,7 +877,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			(m_bHangeul) ? m_bHangeul = false : m_bHangeul = true;
 			ChattingSystem::GetInstance()->SetIMEMode(hWnd, m_bHangeul);
 #ifdef _WITH_SERVER_
-			if (m_nState == LOGIN)
+			if (g_State == LOGIN)
 			{
 				if (m_pLoginScene)
 					m_pLoginScene->GetIDInstance()->SetIMEMode(hWnd, m_bHangeul);
@@ -904,6 +951,7 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 void CGameFramework::OnDestroy()
 {
 	ReleaseObjects();
+	CSoundSystem::Release();
 
 	::CloseHandle(m_hFenceEvent);
 #ifdef _WITH_DIRECT2D_
@@ -921,6 +969,11 @@ void CGameFramework::OnDestroy()
 			m_ppFontColor[i]->Release();
 	delete[] m_ppFontColor;
 
+	if (m_pFontCollection)
+		m_pFontCollection->Release();
+	if (m_pdWriteFactory) 
+		m_pdWriteFactory->Release();
+
 	if (m_ScoreBoardBitmap)
 		m_ScoreBoardBitmap->Release();
 
@@ -935,7 +988,6 @@ void CGameFramework::OnDestroy()
 	//Direct11
 	if (m_pd2dDeviceContext) m_pd2dDeviceContext->Release();
 	if (m_pd2dDevice) m_pd2dDevice->Release();
-	if (m_pdWriteFactory) m_pdWriteFactory->Release();
 	if (m_pd3d11On12Device) m_pd3d11On12Device->Release();
 	if (m_pd3d11DeviceContext) m_pd3d11DeviceContext->Release();
 	if (m_pd2dFactory) m_pd2dFactory->Release();
@@ -984,7 +1036,7 @@ bool CGameFramework::BuildObjects()
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 #ifdef _WITH_SERVER_
 	//네트워크 연결을 위한 쓰레드
-	//m_nState = CONNECT;
+	//g_State = CONNECT;
 
 	m_pIPScene = new CIPScene;
 	m_pIPScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_ppFont[FONT_TYPE::MAPLE_FONT], m_ppTextLayout[FONT_TYPE::MAPLE_FONT], m_ppFontColor[COLOR_TYPE::BLACK], m_pd2dDeviceContext);
@@ -992,7 +1044,7 @@ bool CGameFramework::BuildObjects()
 
 #endif
 	// 윈도우 창 띄우기
-	m_nState = LOADING;
+	g_State = LOADING;
 	loadingThread.emplace_back(thread{ &CGameFramework::Worker_Thread, this });
 
 #ifdef _WITH_SERVER_
@@ -1022,7 +1074,7 @@ bool CGameFramework::BuildObjects()
 		//GameFramework에서 관리하는 CPlayer를 제외한 나머지 넘겨준다.
 		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, nPlayerCount);
 
-		//m_nState = INGAME;
+		//g_State = INGAME;
 	}
 	CTerrainPlayer* pPlayer{ nullptr };
 
@@ -1077,9 +1129,9 @@ bool CGameFramework::BuildObjects()
 
 	WaitForGpuComplete();
 #ifdef _WITH_SERVER_
-	m_nState = CONNECT;
+	g_State = CONNECT;
 #else
-	m_nState = CHARACTER_SELECT;
+	g_State = CHARACTER_SELECT;
 #endif
 	if (m_pScene)
 		m_pScene->ReleaseUploadBuffers();
@@ -1150,7 +1202,7 @@ void CGameFramework::ProcessInput()
 	bool bProcessedByScene = false;
 
 	if (GetKeyboardState(pKeysBuffer) && m_pScene) bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
-	if (m_nState == INGAME)
+	if (g_State == INGAME)
 	{
 		if (!bProcessedByScene)
 		{
@@ -1251,7 +1303,7 @@ void CGameFramework::ProcessInput()
 
 #endif
 		}
-		if (m_nState == INGAME) 
+		if (g_State == INGAME) 
 		{
 			m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
 		}
@@ -1261,7 +1313,7 @@ void CGameFramework::ProcessInput()
 void CGameFramework::AnimateObjects()
 {
 	m_elapsedTime = m_GameTimer.GetTimeElapsed();
-	switch(m_nState)
+	switch(g_State)
 	{
 	case INGAME:
 	{
@@ -1277,7 +1329,7 @@ void CGameFramework::AnimateObjects()
 			m_pIPScene->ProcessInput(m_hWnd);
 
 			if (Network::GetInstance()->connectToServer(m_hWnd))
-				m_nState = LOGIN;
+				g_State = LOGIN;
 		}
 		break;
 	}
@@ -1366,7 +1418,7 @@ void CGameFramework::ShowScoreboard()
 	auto iter = shaderMap.find("TimerUI");
 	if (iter != shaderMap.end())
 	{
-		float timer = reinterpret_cast<CTimerUIShader*>((*iter).second)->getTimer();
+		float timer = CTimerUIShader::getTimer();
 
 		if (timer <= 0.f || GetAsyncKeyState(VK_TAB) & 0x8000)
 		{
@@ -1510,7 +1562,7 @@ void CGameFramework::ProcessDirect2D()
 	//D2D1_SIZE_F : float형태의 가로 세로 쌍을 저장한 구조체
 	D2D1_SIZE_F szRenderTarget = m_ppd2dRenderTargets[m_nSwapChainBufferIndex]->GetSize();
 
-	switch (m_nState)
+	switch (g_State)
 	{
 	case CHARACTER_SELECT:
 	{
@@ -1778,10 +1830,7 @@ void CGameFramework::ProcessPacket(char *packet)
 						(*iter).second->m_ppObjects[id.first]->SetIsHammer(false);
 
 					}
-				}
-				
-
-				
+				}				
 			}
 
 			// 다른 클라가 술래일 경우 isBomber를 set해줘야 폭탄을 그리지 않을까?
@@ -1810,7 +1859,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			CSoundSystem::StopSound(CSoundSystem::CHARACTER_SELECT);
 		}
 
-		m_nState = INGAME;
+		g_State = INGAME;
 		//시간을 받아야함.
 		auto timerIter = m_pScene->getShaderManager()->getShaderMap().find("TimerUI");
 
@@ -2466,7 +2515,7 @@ void CGameFramework::ProcessLobby()
 	static bool bStart = true;
 	if (m_pLobbyScene)
 	{
-		CSoundSystem::PlayingSound(CSoundSystem::LOBBY_BGM, 0.75f);
+		CSoundSystem::PlayingSound(CSoundSystem::LOBBY_BGM, 0.5f);
 		m_pLobbyScene->Render(m_pd3dCommandList);
 	}
 
@@ -2512,7 +2561,7 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3dCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBufferIndex], TRUE, &d3dDsvDepthStencilBufferCPUHandle);
 
-	switch(m_nState)
+	switch(g_State)
 	{
 	case INGAME:
 		{
@@ -2679,7 +2728,7 @@ bool CGameFramework::IsInGame()
 { 
 	bool ret;
 	
-	(m_nState == INGAME) ? ret = true : ret = false;
+	(g_State == INGAME) ? ret = true : ret = false;
 				
 	return ret;
 }

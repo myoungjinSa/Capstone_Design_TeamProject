@@ -94,11 +94,6 @@ public:
 	size_t get_Special_InventorySize() const { return m_Special_Inventory.size(); }
 	
 	void setShaderManager(CShaderManager* pShaderManager) { m_pShaderManager = pShaderManager; }
-
-	void InitializeSound();
-	void ReleaseSound();
-
-	void* GetSoundData() const { return static_cast<void*>(m_pSound); }
 	
 	DWORD				m_dwDirection = 0x00;
 
@@ -155,13 +150,9 @@ protected:
 
 	map<string, CItem*>			m_Normal_Inventory;
 	map<string, CItem*>			m_Special_Inventory;
-	list<CItem*>					m_RemovedItemList;
+	list<CItem*>							m_RemovedItemList;
 
 	CShaderManager* m_pShaderManager{ nullptr };
-
-	CSoundSystem*	m_pSound{ nullptr };
-	const char**	m_SoundList;
-	int					m_SoundCount;
 
 	short				m_Score = 0;
 	float				m_Time = 0.f;

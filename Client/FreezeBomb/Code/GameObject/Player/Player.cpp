@@ -5,8 +5,6 @@
 #include "../../Shader/Shader.h"
 #include "../Item/Item.h"
 #include "../Shadow/Shadow.h"
-
-#include "../../SoundSystem/SoundSystem.h"
 #include "../../ShaderManager/ShaderManager.h"
 #include "../../Shader/BillboardShader/UIShader/TimerUIShader/TimerUIShader.h"
 #include "../../Shader/BillboardShader/BombParticleShader/BombParticleShader.h"
@@ -16,6 +14,8 @@
 #include "../../Shader/BillboardShader/UIShader/OutcomeUIShader/OutcomeUIShader.h"
 #include "../../Network/Network.h"
 #include "../../Shader/CubeParticleShader/ExplosionParticleShader/ExplosionParticleShader.h"
+
+#include "../../SoundSystem/SoundSystem.h"
 
 extern byte g_PlayerCharacter;
 
@@ -40,9 +40,6 @@ CPlayer::CPlayer()
 
 	m_pPlayerUpdatedContext = nullptr;
 	m_pCameraUpdatedContext = nullptr;
-
-	//사운드 초기화
-	InitializeSound();
 }
 
 CPlayer::~CPlayer()
@@ -75,8 +72,6 @@ CPlayer::~CPlayer()
 
 	if (m_pShadow)
 		delete m_pShadow;
-
-	ReleaseSound();
 }
 
 void CPlayer::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
@@ -659,24 +654,13 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 	if (GetAsyncKeyState(VK_T) & 0x0001)
 	{
 		if (m_pShaderManager)
-		{
-			auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
-			if (iter != m_pShaderManager->getShaderMap().end())
-			{
-				((CTimerUIShader*)(*iter).second)->setTimer(10.f);
-			}
-		}
+			CTimerUIShader::setTimer(10.f);
 	}
+
 	if (GetAsyncKeyState(VK_R) & 0x0001)
 	{
 		if (m_pShaderManager)
-		{
-			auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
-			if (iter != m_pShaderManager->getShaderMap().end())
-			{
-				((CTimerUIShader*)(*iter).second)->setReduceTimer(10.f);
-			}
-		}
+			CTimerUIShader::setReduceTimer(10.f);
 	}
 
 	if(GetAsyncKeyState(VK_X) & 0x0001
@@ -803,26 +787,17 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			{
 				if (m_pShaderManager)
 				{
-					auto iter2 = m_pShaderManager->getShaderMap().find("TimerUI");
-					if (iter2 != m_pShaderManager->getShaderMap().end())
-					{
-						SetTrackAnimationSet(0, CAnimationController::RAISEHAND);
-						SetTrackAnimationPosition(0, 0.0f);
-						pController->SetAnimationState(CAnimationController::RAISEHAND);
+					SetTrackAnimationSet(0, CAnimationController::RAISEHAND);
+					SetTrackAnimationPosition(0, 0.0f);
+					pController->SetAnimationState(CAnimationController::RAISEHAND);
 #ifdef _WITH_SERVER_
-						Network::GetInstance()->SendAnimationState(CAnimationController::RAISEHAND);
-						Network::GetInstance()->SendUseItem(ITEM::GOLD_TIMER,GetPlayerID());
+					Network::GetInstance()->SendAnimationState(CAnimationController::RAISEHAND);
+					Network::GetInstance()->SendUseItem(ITEM::GOLD_TIMER, GetPlayerID());
 #else
-						// 30초 증가
-						dynamic_cast<CTimerUIShader*>((*iter2).second)->setTimer(30.f);
-
-					//	for (auto iter : m_Special_Inventory) 
-					//	{
-							
-						Sub_Inventory(GOLD_TIMER);
-						//}
+					// 30초 증가
+					CTimerUIShader::setTimer(30.f);
+					Sub_Inventory(GOLD_TIMER);
 #endif					
-					}
 				}
 			}	
 		}
@@ -836,26 +811,16 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			if (pController->GetAnimationState() != CAnimationController::DIE)
 			{
 				auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
-			
-				//auto outcomeIter = m_pShaderManager->getShaderMap().find("OutcomeUI");
 				if (iter != m_pShaderManager->getShaderMap().end())
 				{
-					if (((CTimerUIShader*)((*iter).second))->getTimer() <= 0.f)
+					if (CTimerUIShader::getTimer() <= 0.f)
 					{
-						auto outcomeIter = m_pShaderManager->getShaderMap().find("OutcomeUI");
 						auto iter2 = m_pShaderManager->getShaderMap().find("Bomb");
 						auto explosionIter = m_pShaderManager->getShaderMap().find("ExplosionParticle");
 
 						if (iter2 != m_pShaderManager->getShaderMap().end()
-							&& outcomeIter != m_pShaderManager->getShaderMap().end()
 							&& explosionIter != m_pShaderManager->getShaderMap().end())
 						{
-							
-
-							if (((COutcomeUIShader*)(*outcomeIter).second)->getIsRender() == false)
-								((COutcomeUIShader*)(*outcomeIter).second)->setIsRender(true);
-							else
-								((COutcomeUIShader*)(*outcomeIter).second)->setIsRender(false);
 							pController->SetTrackPosition(0, 0.0f);
 							pController->SetTrackAnimationSet(0, CAnimationController::DIE);
 							pController->SetAnimationState(CAnimationController::DIE);
@@ -864,16 +829,12 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 							
 							Network::GetInstance()->SendBombExplosion();
 
-#endif
-					
+#endif		
 							m_BombParticle = ((CBombParticleShader*)(*iter2).second)->getBomb();
 							m_BombParticle->SetPosition(m_xmf3Position.x, m_xmf3Position.y, m_xmf3Position.z);
 							m_BombParticle->setIsBlowing(true);
 
 							dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetParticleBlowUp(m_xmf3Position);
-						
-
-
 							m_bBomb = false;
 						}
 					}
@@ -907,44 +868,6 @@ bool CPlayer::AnimationCollision(byte AnimationType)
 		break;
 	}
 	return false;
-}
-
-void CPlayer::InitializeSound()
-{
-	m_pSound = new CSoundSystem;
-
-	m_SoundCount = 5;
-
-	m_SoundList = new const char*[m_SoundCount];
-
-	m_SoundList[0] = "../Resource/Sound/BtnDown03.wav";
-	m_SoundList[1] = "../Resource/Sound/bell1.wav";
-	m_SoundList[2] = "../Resource/Sound/BombExplode2.wav";
-	m_SoundList[3] = "../Resource/Sound/Effect/HammerSwing.wav";
-	m_SoundList[4] = "../Resource/Sound/Effect/Electricity.wav";
-	
-	std::string s0(m_SoundList[0]);
-	std::string s1(m_SoundList[1]);
-	std::string s2(m_SoundList[2]);
-	std::string s3(m_SoundList[3]);
-	std::string s4(m_SoundList[4]);
-
-	////m_SoundList[1] = "../Resource/Sound/bell1.wav";
-
-	m_mapMusicList.emplace(FOOTSTEP, s0);
-	m_mapMusicList.emplace(USETIMER, s1);
-	m_mapMusicList.emplace(DIE, s2);
-	m_mapMusicList.emplace(ATTACK, s3);
-	m_mapMusicList.emplace(ELECTRIC, s4);
-
-	//if (m_pSound)
-	//	m_pSound->Initialize(m_SoundCount, m_SoundList, FMOD_LOOP_OFF);
-}
-
-void CPlayer::ReleaseSound()
-{
-	if (m_pSound)
-		m_pSound->Release();
 }
 
 void CPlayer::ChangeRole()

@@ -124,7 +124,8 @@ XMFLOAT3 CLobbyScene::ScreenPosition(int x, int y)
 
 	return screenPosition;
 }
-void CLobbyScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wParam,LPARAM lParam,int gameState)
+
+void CLobbyScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wParam,LPARAM lParam, int gameState)
 {
 	int mouseX = LOWORD(lParam);
 	int mouseY = HIWORD(lParam);

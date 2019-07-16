@@ -5,7 +5,7 @@
 #include "../../../../Material/Material.h"
 #include "../../../../GameObject/Billboard/UI/UI.h"
 #include "../../../../SoundSystem/SoundSystem.h"
-#include "../../../../Scene/Scene.h"
+#include "../TimerUIShader/TimerUIShader.h"
 
 byte CMenuUIShader::m_MenuState = MenuBoard;
 extern bool g_IsSoundOn;
@@ -163,13 +163,20 @@ void CMenuUIShader::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer*
 }
 
 void CMenuUIShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)
-{
+{	
 	UpdateShaderVariables(pd3dCommandList);
 
 	CUIShader::OnPrepareRender(pd3dCommandList, Menu_ICON);
 	auto iter = m_UIMap.find(Menu_ICON);
 	if (iter != m_UIMap.end())
 		(*iter).second->Render(pd3dCommandList, pCamera, nPipelineState);
+
+	if (CTimerUIShader::getTimer() <= 0.f)
+	{
+		m_IsRender = false;
+		m_MenuState = MenuBoard;
+		return;
+	}
 
 	if (m_IsRender == true)
 	{
@@ -450,21 +457,14 @@ void CMenuUIShader::ProcessMouseMessage(UINT message, XMFLOAT2& mousePos)
 						m_MenuInfo.m_MenuSound_MenuCartoon_UV.x = 0.f;
 						m_MenuInfo.m_MenuSound_MenuCartoon_UV.y = 0.5f;
 
-						CSoundSystem::ResumeSound(CSoundSystem::INGAME_BGM);
-						CSoundSystem::ResumeSound(CSoundSystem::TIMER_WARNING);
+						CSoundSystem::AllSoundVolume(1.f);
 					}
 					else
 					{
 						m_MenuInfo.m_MenuSound_MenuCartoon_UV.x = 0.5f;
 						m_MenuInfo.m_MenuSound_MenuCartoon_UV.y = 1.f;
 
-						CSoundSystem::PauseSound(CSoundSystem::INGAME_BGM);
-						CSoundSystem::PauseSound(CSoundSystem::TIMER_WARNING);
-						CSoundSystem::PauseSound(CSoundSystem::ICE_BREAK);
-						CSoundSystem::PauseSound(CSoundSystem::GET_ITEM);
-						CSoundSystem::PauseSound(CSoundSystem::CLICK);
-
-						//g_IsSoundOn = false;
+						CSoundSystem::AllSoundVolume(0.f);
 					}
 				}
 

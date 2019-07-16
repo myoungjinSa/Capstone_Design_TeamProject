@@ -6,6 +6,8 @@
 #include "../../../../Scene/Scene.h"
 #include "../../../../GameObject/Billboard/UI/UI.h"
 
+float CTimerUIShader::m_Timer = 0.f;
+
 CTimerUIShader::CTimerUIShader()
 {
 }
@@ -218,9 +220,9 @@ void CTimerUIShader::setTimer(float value)
 		m_Timer = 300.f;
 }
 
-void CTimerUIShader::setReduceTimer(float value)
+void CTimerUIShader::setReduceTimer(float timer)
 {
-	m_Timer -= value;
+	m_Timer -= timer;
 
 	if (m_Timer < 0.f)
 		m_Timer = 0.f;
