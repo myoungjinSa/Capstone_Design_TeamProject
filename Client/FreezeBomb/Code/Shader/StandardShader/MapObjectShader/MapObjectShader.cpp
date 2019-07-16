@@ -27,23 +27,24 @@ void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 		for (auto iter2 = ModelMap.begin(); iter2 != ModelMap.end(); ++iter2)
 		{
 			string name = (*iter2).first;
-			if (name == "Hammer" || name == "GoldTimer" )				continue;
+			if (name == "Hammer" || name == "GoldTimer")				continue;
 
 			// multimap 컨테이너에서 같은 키를 갖는 벨류를 찾을 때, 사용하는 루프
 			for (auto iter3 = (*iter).second.lower_bound(name); iter3 != (*iter).second.upper_bound(name); ++iter3)
 			{
 				CSurrounding* pSurrounding = new CSurrounding(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 				pSurrounding->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter2).second);
+
 				pSurrounding->SetChild((*iter2).second->m_pModelRootObject, true);
+				if(name == "SM_FirePit")
+					(*iter3).second->m_Position.y = 0.001f;
 				pSurrounding->SetPosition((*iter3).second->m_Position);
 				pSurrounding->SetLookVector((*iter3).second->m_Look);
 				pSurrounding->SetUpVector((*iter3).second->m_Up);
 				pSurrounding->SetRightVector((*iter3).second->m_Right);
 
 				dynamic_cast<CSurrounding*>(pSurrounding)->SetIndex(index++);
-
-				if (name != "SM_FirePit")
-					pSurrounding->Initialize_Shadow((*iter2).second, pSurrounding);
+				pSurrounding->Initialize_Shadow((*iter2).second, pSurrounding);
 				
 				auto iter4 = BoundMap.find(name);
 				if (iter4 != BoundMap.end())

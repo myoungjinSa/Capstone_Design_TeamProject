@@ -16,11 +16,7 @@ private:
 
 public:
 	void AddRef() { m_nReferences++; }
-	void Release() 
-	{ 
-		if (--m_nReferences == 0) 
-			delete this; 
-	}
+	void Release() { if (--m_nReferences <= 0) delete this; }
 
 	virtual void CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader();

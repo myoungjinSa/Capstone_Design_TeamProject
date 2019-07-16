@@ -32,11 +32,8 @@ CMaterial::CMaterial(int nTextures)
 
 CMaterial::~CMaterial()
 {
-	if (m_pShader != nullptr)
-	{
+	if (m_pShader)
 		m_pShader->Release();
-		m_pShader = nullptr;
-	}
 	
 	if (m_nTextures > 0)
 	{
