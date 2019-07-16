@@ -17,10 +17,6 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState);
 
 	void MappingUserToEvilbear(char id,char matID);
-	void InitializeSound();
-	void ReleaseSound();
-
-	void* GetSoundData() const { return static_cast<void*>(m_pSound); }
 public:
 
 	enum MUSIC_ENUM
@@ -31,14 +27,9 @@ public:
 		ATTACK,
 		ELECTRIC
 	};
-	std::map<MUSIC_ENUM, std::string> m_mapMusicList;
-	vector<pair<char,char>> m_vMaterial;
-private:
-	
-	const char**	m_SoundList;
-	int			m_SoundCount;
-	CSoundSystem* m_pSound;
 
+	vector<pair<char, char>> m_vMaterial;
+private:
 	const int max_Material = 6;
 	//map<int, CGameObject*> m_EvilbearMap;
 	char  m_userID;

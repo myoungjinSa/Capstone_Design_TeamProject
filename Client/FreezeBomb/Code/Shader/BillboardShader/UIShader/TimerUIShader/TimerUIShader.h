@@ -21,13 +21,12 @@ public:
 
 	void TimerUpdate();
 
-	void setTimer(float value);
-	float getTimer() const { return m_Timer; }
+	static void setTimer(float timer);
+	static float getTimer() { return m_Timer; }
 
-	void setReduceTimer(float value);
-#ifdef _WITH_SERVER_
-	void CompareServerTimeAndSet(float time) { m_Timer = time; }
-#endif
+	static void setReduceTimer(float value);
+
+	static void CompareServerTimeAndSet(float timer) { m_Timer = timer; }
 
 private:
 	enum UIType { OneSec, TenSec, OneMin, Colon };
@@ -37,7 +36,7 @@ private:
 	map<int, CUI*>	m_OneMinUIMap;
 
 	// √ ¥‹¿ß
-	float m_Timer = 0;
+	static float m_Timer;
 
 	int		m_Sec = 0;
 	int		m_TenSec = 0;

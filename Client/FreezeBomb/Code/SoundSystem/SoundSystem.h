@@ -11,6 +11,8 @@ using namespace FMOD;
 #include <unordered_map>
 using namespace std;
 
+constexpr int MAX_CHANNEL = 6;
+
 struct GameSound
 {
 	GameSound(string path, size_t size, int mode) 
@@ -26,7 +28,7 @@ struct GameSound
 	FMOD_MODE	m_mode;	
 	Sound*				m_pSound;
 	// 플레이어의 인원 수 만큼 채널을 가져야 함
-	Channel*			m_pChannel[6];
+	Channel*			m_pChannel[MAX_CHANNEL];
 };
 
 class CSoundSystem
@@ -35,18 +37,6 @@ public:
 	CSoundSystem();
 	~CSoundSystem();
 
-	void Initialize(const int soundNum, const char** musicList,int nFlags);
-
-	void AllSoundPlay(float volume = 1.0f);
-	void AllSoundStop();
-	void SoundPlay(int index, float volume = 1.0f);
-
-	void SoundPause(int index);
-
-	void Release();
-
-	const int& GetSoundCount()		const { return m_soundCount; }
-
 	static void AddGameSound(int type, string path, size_t size, int mode) { m_GameSoundList.emplace(type, GameSound(path, size, mode)); }
 	static bool Initialize();
 	static bool PlayingSound(int key, float volume = 1.0f);
@@ -54,7 +44,8 @@ public:
 	static bool StopSound(int key);
 	static bool PauseSound(int key);
 	static bool ResumeSound(int key);
-	static void UpdateSound() { m_pSystem->update(); };
+	static void AllSoundVolume(float volume);
+	static void Release();
 
 	enum SOUND_TYPE 
 	{ 
@@ -66,9 +57,4 @@ public:
 private:
 	static System* m_pSystem;
 	static unordered_map<int, GameSound>	m_GameSoundList;
-
-	System* pSystem;
-	Sound** pSound;
-	int m_soundCount;
-	Channel* pChannel[5];		//사운드 믹싱에 필요
 };

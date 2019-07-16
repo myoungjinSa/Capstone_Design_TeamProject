@@ -3,6 +3,8 @@
 #include "../GameTimer/GameTimer.h"
 #include "../Network/Network.h"
 
+enum GAMESTATE { CHARACTER_SELECT, INGAME, PAUSE, OPTION, CONNECT, LOGIN, LOADING };
+
 // 전체모드할경우 CharacterSelectUIShader에서도 
 // FULLSCREENMODE 여부를 확인해야해서 CPP말고 헤더로 옮김 - 명진
 //#define FullScreenMode
@@ -88,24 +90,19 @@ public:
 	bool IsHangeul() { return m_bHangeul; }
 	void SetHangeul(bool han) { m_bHangeul = han; }
 
-	int GetGameState() const { return m_nState; };
-
 #ifdef _MAPTOOL_MODE_
 	void OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 #endif	
 
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+
 	bool IsInGame(); 
-	enum GAMESTATE {CHARACTER_SELECT=0, INGAME,PAUSE,OPTION,CONNECT,LOGIN,LOADING};
 private:
 	HINSTANCE					m_hInstance;
 	HWND							m_hWnd;
 	
 	bool							m_bTearingMode{ false };
 	bool							m_WindowMode{ false };
-
-	int 							m_nState{ GAMESTATE::INGAME };
-	//게임 상태 
 	
 	int								m_nWndClientWidth;
 	int								m_nWndClientHeight;
@@ -170,8 +167,6 @@ private:
 	ID3D11DeviceContext				*m_pd3d11DeviceContext{ nullptr };//
 	ID2D1Factory3					*m_pd2dFactory{ nullptr };//
 
-	IDWriteFactory					*m_pdWriteFactory{ nullptr };//
-
 	ID2D1Device2					*m_pd2dDevice{ nullptr };//
 	ID2D1DeviceContext2				*m_pd2dDeviceContext{ nullptr };//
 
@@ -179,16 +174,18 @@ private:
 	ID2D1Bitmap1					*m_ppd2dRenderTargets[m_nSwapChainBuffers];
 	
 	enum FONT_TYPE { PIOP_FONT, MAPLE_FONT };
+	IDWriteFactory5*					m_pdWriteFactory{ nullptr };
+	IDWriteFontCollection1*		m_pFontCollection{ nullptr };
 
 	const int								m_FontNum = 2;
 	// 폰트 객체
 	IDWriteTextFormat**			m_ppFont{ nullptr };
-
 	IDWriteTextLayout**				m_ppTextLayout{ nullptr };
 
 	// 폰트 색상 개수
 	enum COLOR_TYPE { PINK, BROWN, WHITE, BLACK, SKYBLUE, PANDA, RED, ORANGE };
 	const int								m_FontColorNum = 8;
+
 	// 폰트 색상
 	ID2D1SolidColorBrush**		m_ppFontColor{ nullptr };	
 

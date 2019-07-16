@@ -13,107 +13,13 @@ CSoundSystem::~CSoundSystem()
 {
 }
 
-void CSoundSystem::Initialize(const int soundNum ,const char** musicList, int nFlags)
-{
-	System_Create(&pSystem);
-
-	m_soundCount = soundNum;
-	pSound = new Sound*[m_soundCount];
-
-	const int maxSound = 8;
-
-	if (soundNum <= maxSound) 
-	{
-		pSystem->init(soundNum, FMOD_INIT_NORMAL, nullptr);
-
-		for (int i = 0; i < soundNum; i++) 
-		{
-			if(i == 2 || i == 3 || i == 4)
-				pSystem->createSound(musicList[i] , FMOD_DEFAULT, nullptr, &pSound[i]);
-			else
-				pSystem->createSound(musicList[i] , nFlags | FMOD_DEFAULT, nullptr, &pSound[i]);
-		}
-	}
-}
-
-void CSoundSystem::AllSoundPlay(float volume)
-{
-	if (pSystem)
-	{
-		for (int i = 0; i < m_soundCount; i++)
-		{
-			if (pSound[i])
-			{
-				pSystem->playSound(pSound[i], nullptr, false, &pChannel[i]);
-				pChannel[i]->setVolume(volume);
-			}
-		}
-	}
-}
-
-void CSoundSystem::AllSoundStop()
-{
-	if (pSystem)
-	{
-		for (int i = 0; i < m_soundCount; i++)
-		{
-			if (pChannel[i])
-			{
-				pChannel[i]->setPaused(true);
-			}
-		}
-	}
-}
-
-void CSoundSystem::SoundPlay(int index, float volume)
-{
-	if (pSystem)
-	{
-		if (pChannel[index])
-		{
-			pChannel[index]->setPaused(false);
-		}
-		else
-		{
-			pSystem->playSound(pSound[index], nullptr, false, &pChannel[index]);
-			(volume > 0) ? pChannel[index]->setVolume(volume) : pChannel[index]->setVolume(0);
-		}
-	}
-}
-
-void CSoundSystem::SoundPause(int index)
-{
-	if (pSystem)
-	{
-		if (pChannel[index])
-		{
-			pChannel[index]->setPaused(true);
-		}
-	}
-}
-
-void CSoundSystem::Release()
-{
-	for (int i = 0; i < m_soundCount; i++)
-	{	
-		if (pSound[i])
-			pSound[i]->release();
-	}
-
-	delete[] pSound;
-	pSound = nullptr;
-
-	if (pSystem) 
-		pSystem->release();
-}
-
 bool CSoundSystem::Initialize()
 {
 	FMOD_RESULT result = System_Create(&m_pSystem);
 	if (result != FMOD_OK)
 		return false;
 
-	result = m_pSystem->init(6, FMOD_INIT_NORMAL, nullptr);
+	result = m_pSystem->init(MAX_CHANNEL, FMOD_INIT_NORMAL, nullptr);
 	if (result != FMOD_OK)
 		return false;
 
@@ -283,4 +189,27 @@ bool CSoundSystem::ResumeSound(int key)
 	}
 
 	return false;
+}
+
+void CSoundSystem::AllSoundVolume(float volume)
+{
+	for (auto iter = m_GameSoundList.begin(); iter != m_GameSoundList.end(); ++iter)
+	{
+		for (int i = 0; i < MAX_CHANNEL; ++i)
+		{
+			(*iter).second.m_pChannel[i]->setVolume(volume);
+		}
+	}
+}
+
+void CSoundSystem::Release()
+{
+	for (auto iter = m_GameSoundList.begin(); iter != m_GameSoundList.end(); )
+	{
+		(*iter).second.m_pSound->release();
+		iter = m_GameSoundList.erase(iter);
+	}
+
+	m_pSystem->close();
+	m_pSystem->release();
 }

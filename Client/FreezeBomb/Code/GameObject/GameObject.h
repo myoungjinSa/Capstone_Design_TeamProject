@@ -9,9 +9,6 @@
 
 #define ANIMATION_CALLBACK_EPSILON	0.03f
 
-
-class CSoundSystem;
-
 struct CALLBACKKEY
 {
 	// ½Ã°£

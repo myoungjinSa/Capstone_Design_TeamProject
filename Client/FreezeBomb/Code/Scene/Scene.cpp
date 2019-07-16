@@ -540,22 +540,13 @@ void CScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	{
 	case WM_MOUSEMOVE:
 	case WM_LBUTTONDOWN:
-		if (m_pShaderManager)
+		if (m_pShaderManager && CTimerUIShader::getTimer() > 0.f )
 		{
-			auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
+			auto iter = m_pShaderManager->getShaderMap().find("MenuUI");
 			if (iter != m_pShaderManager->getShaderMap().end())
 			{
-				float timer = reinterpret_cast<CTimerUIShader*>((*iter).second)->getTimer();
-
-				iter = m_pShaderManager->getShaderMap().find("MenuUI");
-				if (iter != m_pShaderManager->getShaderMap().end())
-				{
-					CMenuUIShader* menu = reinterpret_cast<CMenuUIShader*>((*iter).second);
-					if (timer < 0.f)
-						menu->setIsRender(false);
-					else
-						menu->ProcessMessage(CMenuUIShader::MOUSE, nMessageID, ScreenPosition(mouseX, mouseY));
-				}		
+				CMenuUIShader* menu = reinterpret_cast<CMenuUIShader*>((*iter).second);
+				menu->ProcessMessage(CMenuUIShader::MOUSE, nMessageID, ScreenPosition(mouseX, mouseY));
 			}
 		}
 		break;
@@ -582,26 +573,16 @@ void CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 			{	
 				case VK_ESCAPE:
 				{
-					if (m_pShaderManager)
+					if (m_pShaderManager && CTimerUIShader::getTimer() > 0.f)
 					{
-						auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
+						auto iter = m_pShaderManager->getShaderMap().find("MenuUI");
 						if (iter != m_pShaderManager->getShaderMap().end())
 						{
-							float timer = reinterpret_cast<CTimerUIShader*>((*iter).second)->getTimer();
+							CMenuUIShader* menu = reinterpret_cast<CMenuUIShader*>((*iter).second);
 
-							iter = m_pShaderManager->getShaderMap().find("MenuUI");
-							if (iter != m_pShaderManager->getShaderMap().end())
-							{
-								CMenuUIShader* menu = reinterpret_cast<CMenuUIShader*>((*iter).second);
-
-								if (timer < 0.f)
-									menu->setIsRender(false);
-
-								else
-									menu->ProcessMessage(CMenuUIShader::KEYBOARD, nMessageID, XMFLOAT2(0, 0));
-							}
+							menu->ProcessMessage(CMenuUIShader::KEYBOARD, nMessageID, XMFLOAT2(0, 0));
 						}
-					}
+					}					
 				}
 				break;
 			}
@@ -630,8 +611,6 @@ void CScene::AnimateObjects(ID3D12GraphicsCommandList *pd3dCommandList,float fTi
 
 void CScene::PreRender(ID3D12GraphicsCommandList *pd3dCommandList, float fTimeElapsed, CCamera *pCamera)
 {
-	CheckWarningTimer();
-
 	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 	if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
@@ -653,11 +632,14 @@ void CScene::PostRender(ID3D12GraphicsCommandList *pd3dCommandList,float fTimeEl
 	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 	if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
-
 	if (m_pShaderManager)
 	{
 		m_pShaderManager->PostRender(pd3dCommandList,fTimeElapsed, pCamera);
 	}
+
+#ifndef _MAPTOOL_MODE_
+	CheckWarningTimer();
+#endif
 }
 
 void CScene::CheckObjectByObjectCollisions(float elapsedTime)
@@ -966,12 +948,9 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 
 void CScene::CheckWarningTimer()
 {
-	map<string, CShader*> m = m_pShaderManager->getShaderMap();
+	float timer = CTimerUIShader::getTimer();
 
-	auto iter = m.find("TimerUI");
-	float timer = dynamic_cast<CTimerUIShader*>((*iter).second)->getTimer();
-
-	if (0 <= timer && timer <= 10.f)
+	if (0 < timer && timer <= 10.f)
 		CSoundSystem::PlayingSound(CSoundSystem::TIMER_WARNING);
 	else
 		CSoundSystem::StopSound(CSoundSystem::TIMER_WARNING);	

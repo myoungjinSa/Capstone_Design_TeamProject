@@ -46,32 +46,35 @@ void CMapToolShader::InstallMapObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 		break;
 		// 5
 	case Fence:
-		BuildWall(pd3dDevice, pd3dCommandList);
+		InsertFence(pd3dDevice, pd3dCommandList);
 		break;
 		// 6
 	case FirePit:
-		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "SM_FirePit");
+		InsertIFirePit(pd3dDevice, pd3dCommandList, pPlayer, "SM_FirePit");
 		break;
 		// 7
 	case Foliage0:
-		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "Foliage0");
+		InsertRandomFoliage(pd3dDevice, pd3dCommandList, pPlayer, "Foliage0");
+		//InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "Foliage0");
 		break;
 		// 8
 	case Foliage1:
-		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "Foliage1");
+		InsertRandomFoliage(pd3dDevice, pd3dCommandList, pPlayer, "Foliage1");
+		//InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "Foliage1");
 		break;
 		// 9
 	case Foliage2:
-		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "Foliage2");
+		InsertRandomFoliage(pd3dDevice, pd3dCommandList, pPlayer, "Foliage2");
+		//InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "Foliage2");
 		break;
 
 		// H
 	case Hammer:
-		InsertItem(pd3dDevice, pd3dCommandList, pPlayer, "Hammer");
+		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "Hammer");
 		break;
 		// T
 	case GoldTimer:
-		InsertItem(pd3dDevice, pd3dCommandList, pPlayer, "GoldTimer");
+		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "GoldTimer");
 		break;
 
 		// D
@@ -122,20 +125,19 @@ void CMapToolShader::InsertObject(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	}
 }
 
-void CMapToolShader::InsertItem(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CPlayer *pPlayer, const string& model)
+void CMapToolShader::InsertIFirePit(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CPlayer *pPlayer, const string& model)
 {
 	auto iter = m_ModelsList.find(model);
-
 	if (iter != m_ModelsList.end())
 	{
 		if (pPlayer == nullptr)
 			return;
 
-		CItem* pGameObject = new CItem;
+		CSurrounding* pGameObject = new CSurrounding(pd3dDevice, pd3dCommandList, nullptr);
 		pGameObject->SetChild((*iter).second->m_pModelRootObject, true);
 		pGameObject->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter).second);
 
-		XMFLOAT3 position = pPlayer->GetPosition();
+		XMFLOAT3 position = XMFLOAT3(250.f, 0.f, 150.f);
 		XMFLOAT3 lookVec = pPlayer->GetLookVector();
 		XMFLOAT3 upVec = pPlayer->GetUpVector();
 		XMFLOAT3 rightVec = pPlayer->GetRightVector();
@@ -149,6 +151,81 @@ void CMapToolShader::InsertItem(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 
 		m_Objects.emplace_back(make_pair((*iter).first, pGameObject));
 	}
+}
+
+void CMapToolShader::InsertFence(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+{
+	string s = "LowPolyFence_01";
+	auto iter = m_ModelsList.find(s);
+	if (iter != m_ModelsList.end())
+	{
+		int size = 11;
+		for (int i = 0; i < 2; ++i)
+		{
+			for (int j = 1; j < 46; ++j)
+			{
+				CSurrounding* pGameObject = new CSurrounding(pd3dDevice, pd3dCommandList, nullptr);
+				pGameObject->SetChild((*iter).second->m_pModelRootObject, true);
+				pGameObject->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter).second);
+
+				if (i == 0)
+					pGameObject->SetPosition(j * size, 0, 2);
+				else
+					pGameObject->SetPosition(j * size, 0, 305);
+
+				m_Objects.emplace_back(make_pair("LowPolyFence_01", pGameObject));
+
+			}
+
+			for (int i = 0; i < 2; ++i)
+			{
+				for (int j = 1; j < 27; ++j)
+				{
+					CSurrounding* pGameObject = new CSurrounding(pd3dDevice, pd3dCommandList, nullptr);
+					pGameObject->SetChild((*iter).second->m_pModelRootObject, true);
+					pGameObject->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter).second);
+
+					if (i == 0)
+					{
+						pGameObject->SetPosition(1, 0, j * size + 4);
+						XMFLOAT3 rotate = XMFLOAT3(0, 1, 0);
+						pGameObject->Rotate(&rotate, 90);
+					}
+					else
+					{
+						pGameObject->SetPosition(508, 0, j * size + 4);
+						XMFLOAT3 rotate = XMFLOAT3(0, 1, 0);
+						pGameObject->Rotate(&rotate, 90);
+					}
+
+					m_Objects.emplace_back(make_pair("LowPolyFence_01", pGameObject));
+				}
+			}
+		}
+	}
+}
+
+void CMapToolShader::InsertRandomFoliage(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CPlayer *pPlayer, const string& model)
+{
+	random_device seed;
+	default_random_engine dre(seed());
+	uniform_int_distribution<> uid_x(10, 500);
+	uniform_int_distribution<> uid_z(10, 300);
+
+	auto iter = m_ModelsList.find(model);
+	if (iter != m_ModelsList.end())
+	{
+		for (int i = 0; i < 100; ++i)
+		{
+			CSurrounding* pGameObject = new CSurrounding(pd3dDevice, pd3dCommandList, nullptr);
+			pGameObject->SetChild((*iter).second->m_pModelRootObject, true);
+			pGameObject->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter).second);
+
+			pGameObject->SetPosition(uid_x(dre), 0, uid_z(dre));
+			m_Objects.emplace_back(make_pair((*iter).first, pGameObject));
+		}
+	}
+
 }
 
 void CMapToolShader::SortDescByName()
@@ -360,57 +437,5 @@ void CMapToolShader::Delete()
 		--iter;
 		m_RemovedObjectList.emplace_back((*iter).second);
 		iter = m_Objects.erase(iter);
-	}
-}
-
-void CMapToolShader::BuildWall(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
-{
-	string s = "LowPolyFence_01";
-	auto iter = m_ModelsList.find(s);
-	if (iter != m_ModelsList.end())
-	{
-		int size = 11;
-		for (int i = 0; i < 2; ++i)
-		{
-			for (int j = 1; j < 46; ++j)
-			{
-				CSurrounding* pGameObject = new CSurrounding(pd3dDevice, pd3dCommandList, nullptr);
-				pGameObject->SetChild((*iter).second->m_pModelRootObject, true);
-				pGameObject->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter).second);
-
-				if(i == 0)
-					pGameObject->SetPosition(j * size, 0, 2);
-				else
-					pGameObject->SetPosition(j * size, 0, 305);
-
-				m_Objects.emplace_back(make_pair("LowPolyFence_01", pGameObject));
-
-			}
-		
-			for (int i = 0; i < 2; ++i)
-			{
-				for (int j = 1; j < 27; ++j)
-				{
-					CSurrounding* pGameObject = new CSurrounding(pd3dDevice, pd3dCommandList, nullptr);
-					pGameObject->SetChild((*iter).second->m_pModelRootObject, true);
-					pGameObject->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter).second);
-
-					if (i == 0)
-					{
-						pGameObject->SetPosition(1, 0, j * size + 4);
-						XMFLOAT3 rotate = XMFLOAT3(0, 1, 0);
-						pGameObject->Rotate(&rotate, 90);
-					}
-					else
-					{
-						pGameObject->SetPosition(508, 0, j * size + 4);
-						XMFLOAT3 rotate = XMFLOAT3(0, 1, 0);
-						pGameObject->Rotate(&rotate, 90);
-					}
-
-					m_Objects.emplace_back(make_pair("LowPolyFence_01", pGameObject));
-				}
-			}
-		}
 	}
 }

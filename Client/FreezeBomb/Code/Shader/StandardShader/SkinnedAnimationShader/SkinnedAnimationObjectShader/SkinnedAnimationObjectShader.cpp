@@ -17,48 +17,6 @@ CSkinnedAnimationObjectShader::CSkinnedAnimationObjectShader()	:m_userID{ 0 }
 CSkinnedAnimationObjectShader::~CSkinnedAnimationObjectShader()
 {
 	m_vMaterial.clear();
-	m_mapMusicList.clear();
-	ReleaseSound();
-}
-
-void CSkinnedAnimationObjectShader::InitializeSound()
-{
-	m_pSound = new CSoundSystem;
-
-	m_SoundCount = 5;
-		
-	m_SoundList = new const char*[m_SoundCount];
-
-	m_SoundList[0] = "../Resource/Sound/BtnDown03.wav";
-	m_SoundList[1] = "../Resource/Sound/bell1.wav";
-	m_SoundList[2] = "../Resource/Sound/Bomb.mp3";
-	m_SoundList[3] = "../Resource/Sound/Effect/HammerSwing.wav";
-	m_SoundList[4] = "../Resource/Sound/Effect/Electricity.wav";
-
-	std::string s0(m_SoundList[0]);
-	std::string s1(m_SoundList[1]);
-	std::string s2(m_SoundList[2]);
-	std::string s3(m_SoundList[3]);
-	std::string s4(m_SoundList[4]);
-	
-	m_mapMusicList.emplace(FOOTSTEP, s0);
-	m_mapMusicList.emplace(USETIMER, s1);
-	m_mapMusicList.emplace(DIE, s2);
-	m_mapMusicList.emplace(ATTACK, s3);
-	m_mapMusicList.emplace(ELECTRIC, s4);
-
-	if(m_pSound)
-	{
-		m_pSound->Initialize(m_SoundCount, m_SoundList, FMOD_LOOP_OFF);
-	}
-}
-void CSkinnedAnimationObjectShader::ReleaseSound()
-{
-	
-	if (m_SoundList)
-		delete[] m_SoundList;
-	if (m_pSound)
-		m_pSound->Release();
 }
 
 void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature,
@@ -69,8 +27,6 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 
 	m_ppObjects = new CGameObject*[m_nObjects];
 	
-	//InitializeSound();
-
 	auto Model = ModelMap.find("EvilBear");
 	if (Model != ModelMap.end())
 	{
