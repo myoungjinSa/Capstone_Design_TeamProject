@@ -227,18 +227,18 @@ void CIDInput::ShowIDInput(ID2D1DeviceContext2* pd2dDeviceContext)
 
 
 	//420 은 1200프레임에서의 left값 
-	UINT originX = 1200;
-	UINT originY = 800;
+	UINT originX = 1280;
+	UINT originY = 780;
 
 	//바뀐 현재 프레임 크기 
 	UINT currFrameX = FRAME_BUFFER_WIDTH;
 	UINT currFrameY = FRAME_BUFFER_HEIGHT;
 
 	RECT nameRect{ 0, };
-	nameRect.left = (480 * currFrameX) / originX;
-	nameRect.top = (645 * currFrameY) / originY;
-	nameRect.right = (750 * currFrameX) / originX;
-	nameRect.bottom = (645 * currFrameY) / originY;
+	nameRect.left = (480 *  FRAME_BUFFER_WIDTH) / originX;
+	nameRect.top = (650 *  FRAME_BUFFER_HEIGHT) / originY;
+	nameRect.right = (750 *  FRAME_BUFFER_WIDTH) / originX;
+	nameRect.bottom = (650 *  FRAME_BUFFER_HEIGHT) / originY;
 
 	idText = D2D1::RectF(nameRect.left, nameRect.top , nameRect.right, nameRect.bottom);
 	pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_pFont, &idText, m_pFontColor);

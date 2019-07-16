@@ -179,16 +179,16 @@ int CIDShader::DecideTextureByCursor(const RECT& rect,const LONG& mouseX,const L
 	
 	//y =( 364 * width ) / originX
 
-	name.left = (360 * width )/originX  ;							//364
-	name.top = (588 * height) / originY ; 							//742
-	name.right = (875 * width) / originX ;						//875
-	name.bottom = (619 * height )/ originY;						//790
+	name.left = (360 * FRAME_BUFFER_WIDTH )/originX  ;							//364
+	name.top = (588 * FRAME_BUFFER_HEIGHT) / originY ; 							//742
+	name.right = (875 * FRAME_BUFFER_WIDTH) / originX ;						//875
+	name.bottom = (619 * FRAME_BUFFER_HEIGHT )/ originY;						//790
 
 
-	bt_connection.left = (940*width) / originX;									//943
-	bt_connection.top = (588*height) / originY;											//742
-	bt_connection.right = (1127 *width) / originX;				//1130	
-	bt_connection.bottom = (619 *height) / originY;										//790
+	bt_connection.left = (940*FRAME_BUFFER_WIDTH) / originX;									//943
+	bt_connection.top = (588*FRAME_BUFFER_HEIGHT) / originY;											//742
+	bt_connection.right = (1127 *FRAME_BUFFER_WIDTH) / originX;				//1130	
+	bt_connection.bottom = (619 * FRAME_BUFFER_HEIGHT) / originY;										//790
 	
 	if (name.left <= mouseX && mouseX <= name.right && name.top <= mouseY && mouseY <= name.bottom)
 	{

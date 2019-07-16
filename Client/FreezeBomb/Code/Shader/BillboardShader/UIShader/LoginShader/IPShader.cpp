@@ -169,8 +169,6 @@ void CIPShader::DecideTextureByCursor(const RECT& rect,const LONG& mouseX,const 
 	RECT ipBox{ 0,0 };
 
 	//현재 창의 크기
-	UINT width = FRAME_BUFFER_WIDTH;
-	UINT height = FRAME_BUFFER_HEIGHT;
 	
 
 	//측정을 한 기준이 되는 클라이언트 크기
@@ -178,10 +176,10 @@ void CIPShader::DecideTextureByCursor(const RECT& rect,const LONG& mouseX,const 
 	UINT originY = 720;
 
 
-	ipBox.left = (363 * width )/originX;
-	ipBox.top = (590 * height) / originY;
-	ipBox.right = (881 * width) / originX;
-	ipBox.bottom = (622 * height )/ originY;
+	ipBox.left = (363 * FRAME_BUFFER_WIDTH )/originX;
+	ipBox.top = (588 * FRAME_BUFFER_HEIGHT) / originY;
+	ipBox.right = (881 * FRAME_BUFFER_WIDTH) / originX;
+	ipBox.bottom = (619 * FRAME_BUFFER_HEIGHT )/ originY;
 
 	cout << ipBox.left;
 

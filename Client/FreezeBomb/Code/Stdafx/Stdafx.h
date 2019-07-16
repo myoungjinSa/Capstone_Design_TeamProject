@@ -78,7 +78,7 @@ extern HINSTANCE						ghAppInstance;
 
 //서버 연동을 할 경우 
 
-//#define _WITH_SERVER_
+#define _WITH_SERVER_
 
 //1280 , 720 은 전체모드에 특화되어있는 크기여서 전체모드시 잘리지 않는다.
 #define FRAME_BUFFER_WIDTH		1280

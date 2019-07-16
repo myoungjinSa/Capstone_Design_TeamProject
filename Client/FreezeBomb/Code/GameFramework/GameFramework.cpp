@@ -212,7 +212,8 @@ void CGameFramework::CreateSwapChain()
 	}
 	if (hResult == DXGI_ERROR_NOT_CURRENTLY_AVAILABLE)
 	{
-		
+		cout << "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE\n";
+		return;
 	}
 	if (SUCCEEDED(hResult))
 	{
@@ -247,7 +248,7 @@ void CGameFramework::CreateSwapChain()
 	// 스왑체인의 현재 후면버퍼 인덱스를 저장
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
 	// Alt + Enter키로 전체모드 비활성화
-	hResult = m_pdxgiFactory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER | DXGI_MWA_NO_WINDOW_CHANGES);
+	hResult = m_pdxgiFactory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER);
 	//DXGI_MWA_NO_WINDOW_CHANGES -> DXGI가 윈도우 메세지큐를 감시하지 않는 옵션
 	if (FAILED(hResult))
 	{
@@ -1613,7 +1614,7 @@ void CGameFramework::ShowPlayers()
 void CGameFramework::DrawStageInfo()
 {
 	D2D1_RECT_F stageText = { 0.0f, 0.0f, 300.0f, 70.0f};
-	const wstring wstr = to_wstring((int)g_Round) + L" Round";
+	const wstring wstr = to_wstring((int)g_Round+1) + L" Round";
 
 	switch (g_Round)
 	{
