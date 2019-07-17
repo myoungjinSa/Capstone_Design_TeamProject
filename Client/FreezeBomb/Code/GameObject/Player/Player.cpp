@@ -738,15 +738,17 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			if (!m_bBomb ) {
 #ifndef _WITH_SERVER_
 				Sub_Inventory(GOLD_HAMMER);
-				eraseTime = 0.0f;
+			
 #else
 				Network::GetInstance()->SendUseItem(ITEM::GOLD_HAMMER, GetPlayerID());
+				eraseTime = 0.0f;
 #endif
 			}
 				//}
 			m_bLocalRotation = false;
 			m_bLightening = false;
 			countCoolTime = false;
+
 		}
 	}
 	
@@ -779,7 +781,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 				
 #ifdef _WITH_SERVER_
 			Network::GetInstance()->SendAnimationState(CAnimationController::USEGOLDHAMMER);
-		//	Network::GetInstance()->SendUseItem(ITEM::GOLD_HAMMER, GetPlayerID());
+			Network::GetInstance()->SendUseItem(ITEM::GOLD_HAMMER, 0);
 #endif
 
 				//쿨타임 체크 set
