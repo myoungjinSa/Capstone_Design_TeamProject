@@ -2385,6 +2385,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		}
 		case ITEM::GOLD_HAMMER:
 		{
+			cout << pUI->id << "가 Gold Hammer 아이템 사용\n";
 			if (pUI->id == m_pPlayer->GetPlayerID())
 			{
 				m_pPlayer->Sub_Inventory(CItem::ItemType::GoldHammer);
@@ -2408,6 +2409,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		}
 		case ITEM::NORMALHAMMER:
 		{
+			cout << pUI->id << "가 " << pUI->target << "에게 Normal Hammer 아이템 사용\n";
 			break;
 		}
 		case ITEM::EMPTY:

@@ -961,7 +961,7 @@ void Server::ProcessPacket(char client, char *packet)
 
 		char *token = NULL;
 		int itemIdx = 0;
-		float dist = 0.f;
+		float dist = 999.f;
 
 		token = strtok(p->itemIndex, " ");
 		//cout << p->itemIndex << "\n";
@@ -1042,17 +1042,37 @@ void Server::ProcessPacket(char client, char *packet)
 	case CS_USEITEM:
 	{
 		CS_PACKET_USE_ITEM *p = reinterpret_cast<CS_PACKET_USE_ITEM *>(packet);
-
+		float dist = 999.f;
 
 		switch(p->usedItem)
 		{
 		case NORMALHAMMER:
 		{
+			dist = sqrt(pow(clients[client].pos.x - clients[p->target].pos.x, 2) +
+				pow(clients[client].pos.y - clients[p->target].pos.y, 2) +
+				pow(clients[client].pos.z - clients[p->target].pos.z, 2));
+
+			if (dist <= 50)
+			{
+				clients[p->target].isFreeze = false;
+				for (int i = 0; i < MAX_USER; ++i)
+				{
+					if (true == clients[i].in_use)
+					{
+						SendUseItem(i, client, ITEM::NORMALHAMMER, p->target);
+					}
+				}
+			}
+
 			break;
 		}
 		case GOLD_HAMMER:
 		{
-
+			// 보안 상 체크
+			if (client == bomberID)
+				break;
+			if (ITEM::GOLD_HAMMER != clients[client].specialItem)
+				break;
 			
 			for(int i=0 ; i<MAX_USER;++i)
 			{
@@ -1066,8 +1086,11 @@ void Server::ProcessPacket(char client, char *packet)
 		}
 		case GOLD_TIMER:
 		{
-			//실제 이 클라이언트가 이 아이템을 들고 있는지 검사를 해야함.
-			//이 클라이언트가 도망자인지 검사해야함.
+			// 보안 상 체크
+			if (client != bomberID)
+				break;
+			if (ITEM::GOLD_TIMER != clients[client].specialItem)
+				break;
 
 			roundTime_l.lock();
 			unsigned short time = roundCurrTime += 60;

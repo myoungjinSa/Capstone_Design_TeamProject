@@ -781,7 +781,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 				
 #ifdef _WITH_SERVER_
 			Network::GetInstance()->SendAnimationState(CAnimationController::USEGOLDHAMMER);
-		//	Network::GetInstance()->SendUseItem(ITEM::GOLD_HAMMER, GetPlayerID());
+			Network::GetInstance()->SendUseItem(ITEM::GOLD_HAMMER, 0);
 #endif
 
 				//쿨타임 체크 set

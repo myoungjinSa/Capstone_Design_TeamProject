@@ -756,6 +756,9 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 						char id = vec[i].first;
 						if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[id]->GetBoundingBox()))
 						{
+							Network::GetInstance()->SendUseItem(ITEM::NORMALHAMMER, id);
+
+							// 이 아래 부분 processPacket으로 옮겨야할듯
 							if (m_pPlayer->get_Normal_InventorySize() > 0)
 							{
 								if (bBreak == false)
