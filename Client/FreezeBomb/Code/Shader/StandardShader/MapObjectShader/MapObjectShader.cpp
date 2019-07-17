@@ -36,8 +36,11 @@ void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 				pSurrounding->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter2).second);
 
 				pSurrounding->SetChild((*iter2).second->m_pModelRootObject, true);
-				if(name == "SM_FirePit")
+				if (name == "SM_FirePit") {
 					(*iter3).second->m_Position.y = 0.001f;
+					//크기 조절
+					(*iter2).second->m_pModelRootObject->m_xmf3Scale = Vector3::Multiply((*iter2).second->m_pModelRootObject->m_xmf3Scale, XMFLOAT3(0.95f, 0.95f, 0.95f));
+				}
 				pSurrounding->SetPosition((*iter3).second->m_Position);
 				pSurrounding->SetLookVector((*iter3).second->m_Look);
 				pSurrounding->SetUpVector((*iter3).second->m_Up);

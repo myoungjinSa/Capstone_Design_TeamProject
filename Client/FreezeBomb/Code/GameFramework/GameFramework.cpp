@@ -1763,6 +1763,35 @@ void CGameFramework::ProcessDirect2D()
 //		itemType = CItem::ItemType::Empty;
 //	}
 //}
+void CGameFramework::ResetAnimationForRoundStart()
+{
+	if (m_pPlayer) 
+	{
+		m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
+		m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+		m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
+	}
+	if (m_pScene)
+	{
+		auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+		if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+		{
+
+			vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+
+			for (auto enemyID : vec)
+			{
+				(*iter).second->m_ppObjects[enemyID.first]->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
+				(*iter).second->m_ppObjects[enemyID.first]->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+				(*iter).second->m_ppObjects[enemyID.first]->m_pAnimationController->SetTrackPosition(0, 0.0f);
+
+
+			}
+
+		}
+	}
+}
 void CGameFramework::ProcessPacket(char *packet)
 {
 	switch (packet[1])
@@ -1877,6 +1906,9 @@ void CGameFramework::ProcessPacket(char *packet)
 		//SC_PACKET_ROUND_START *pRS = m_Network.GetRS();
 		pRS = reinterpret_cast<SC_PACKET_ROUND_START *>(packet);
 
+		//애니메이션 리셋
+		ResetAnimationForRoundStart();
+
 		//라운드가 시작할 때 마다 플레이어의 아이템 소지를 모두 초기화 시켜야한다.
 		m_pPlayer->SetIsBomb(false);
 		m_pPlayer->setIsGoldHammer(false);
@@ -1885,6 +1917,8 @@ void CGameFramework::ProcessPacket(char *packet)
 		m_pPlayer->Sub_Inventory(CItem::ItemType::GoldHammer);
 		m_pPlayer->Sub_Inventory(CItem::ItemType::NormalHammer);
 		m_pPlayer->Sub_Inventory(CItem::ItemType::GoldTimer);
+		
+
 
 		if (pRS->bomberID == m_pPlayer->GetPlayerID())
 		{
@@ -1954,6 +1988,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		if (timerIter != m_pScene->getShaderManager()->getShaderMap().end())
 		{
 			dynamic_cast<CTimerUIShader*>((*timerIter).second)->CompareServerTimeAndSet(pRS->startTime);
+
 		}
 
 		ChattingSystem::GetInstance()->SetActive(false);
@@ -2186,6 +2221,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 		{
 			dynamic_cast<CTimerUIShader*>((*iter).second)->CompareServerTimeAndSet(pCT->serverTime);
+
 		}
 		//printf("ServerTime: %f\n", pCT->serverTime);
 		//cout << "ServerTime: " << pCT->serverTime << "\n";
@@ -2240,6 +2276,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
 
 			m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+			m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
 		}
 		else if (pRF->id < MAX_USER)
 		{
@@ -2256,6 +2293,7 @@ void CGameFramework::ProcessPacket(char *packet)
 				}
 				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
 				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackPosition(0,0.0f);
 
 			}
 			
@@ -2390,10 +2428,37 @@ void CGameFramework::ProcessPacket(char *packet)
 			{
 				m_pPlayer->Sub_Inventory(CItem::ItemType::GoldHammer);
 				m_pPlayer->setIsGoldHammer(false);
+
+				auto iceParticle = m_pScene->getShaderManager()->getShaderMap().find("CubeParticle");
+				auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+				if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+				{
+
+
+					vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+
+					for (auto enemyID : vec)
+					{
+						if ((*iter).second->m_ppObjects[enemyID.first]->GetIsICE())
+						{
+							dynamic_cast<CCubeParticleShader*>((*iceParticle).second)->SetParticleBlowUp((*iter).second->m_ppObjects[enemyID.first]->GetPosition());
+							(*iter).second->m_ppObjects[enemyID.first]->SetIsICE(false);
+						}
+					}
+				}
+
 			}
 			else if(pUI->id < MAX_USER)
 			{
 				char id = pUI->id;
+
+				auto iceParticle = m_pScene->getShaderManager()->getShaderMap().find("CubeParticle");
+				if(m_pPlayer->GetIsICE() && iceParticle != m_pScene->getShaderManager()->getShaderMap().end())
+				{
+					dynamic_cast<CCubeParticleShader*>((*iceParticle).second)->SetParticleBlowUp(m_pPlayer->GetPosition());
+					m_pPlayer->SetIsICE(false);
+				}
 
 				auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 
@@ -2401,6 +2466,18 @@ void CGameFramework::ProcessPacket(char *packet)
 				{
 
 					(*iter).second->m_ppObjects[id]->setIsGoldHammer(false);
+
+
+					vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+
+					for (auto enemyID : vec)
+					{
+						if ((*iter).second->m_ppObjects[enemyID.first]->GetIsICE())
+						{
+							dynamic_cast<CCubeParticleShader*>((*iceParticle).second)->SetParticleBlowUp((*iter).second->m_ppObjects[enemyID.first]->GetPosition());
+							(*iter).second->m_ppObjects[enemyID.first]->SetIsICE(false);
+						}
+					}
 				}
 			}
 
@@ -2506,6 +2583,38 @@ void CGameFramework::ProcessPacket(char *packet)
 	{
 		SC_PACKET_ROUND_SCORE *pRS = reinterpret_cast<SC_PACKET_ROUND_SCORE *>(packet);
 
+
+		
+		if (m_pPlayer && m_pPlayer->GetIsBomb() == false) 
+		{
+			m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::VICTORY);
+			m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::VICTORY);
+			m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
+
+		}
+		if (m_pScene)
+		{
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+
+				for (auto enemyID : vec) 
+				{
+					if ((*iter).second->m_ppObjects[enemyID.first]->GetIsBomb()==false)
+					{
+						(*iter).second->m_ppObjects[enemyID.first]->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::VICTORY);
+						(*iter).second->m_ppObjects[enemyID.first]->m_pAnimationController->SetAnimationState(CAnimationController::VICTORY);
+						(*iter).second->m_ppObjects[enemyID.first]->m_pAnimationController->SetTrackPosition(0, 0.0f);
+
+					}
+				}
+			}
+		}
+		
+
+			
 		cout << "SCORE: ";
 		for (int i = 0; i < MAX_USER; ++i)
 			cout << (int)pRS->score[i] << ", ";

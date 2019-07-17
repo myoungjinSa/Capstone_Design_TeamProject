@@ -17,7 +17,7 @@ using namespace std;
 //using namespace DirectX;
 
 constexpr int MAX_USER = 6;
-constexpr int MAX_ROUND = 2;
+constexpr int MAX_ROUND = 3;
 
 struct clientsInfo
 {
@@ -93,7 +93,7 @@ constexpr int CS_GET_ITEM = 24;
 
 
 
-constexpr int MAX_ROUND_TIME = 100;
+constexpr int MAX_ROUND_TIME = 200;
 
 //[클라->서버]
 

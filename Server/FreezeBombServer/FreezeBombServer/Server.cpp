@@ -578,7 +578,7 @@ void Server::WorkerThreadFunc()
 			changeCoolTime--;
 			coolTime_l.unlock();
 
-			printf("쿨타임:%d\n", changeCoolTime);
+			//printf("쿨타임:%d\n", changeCoolTime);
 			coolTime_l.lock();
 			if(changeCoolTime<=0)
 			{
@@ -979,7 +979,7 @@ void Server::ProcessPacket(char client, char *packet)
 			// 인벤토리에는 아이템 등록이 안됨.
 			if (dist <= 50)
 			{
-				clients[client].specialItem = itemIdx;
+				clients[client].specialItem = ITEM::GOLD_TIMER;
 				for (int i = 0; i < MAX_USER; ++i)
 				{
 					if (true == clients[i].in_use)
@@ -1003,7 +1003,7 @@ void Server::ProcessPacket(char client, char *packet)
 			// 인벤토리에는 아이템 등록이 안됨.
 			if (dist <= 50)
 			{
-				clients[client].specialItem = itemIdx;
+				clients[client].specialItem = ITEM::GOLD_HAMMER;
 				for (int i = 0; i < MAX_USER; ++i)
 				{
 					if (true == clients[i].in_use)
@@ -1027,7 +1027,7 @@ void Server::ProcessPacket(char client, char *packet)
 			// 인벤토리에는 아이템 등록이 안됨.
 			if (dist <= 50)		
 			{
-				clients[client].normalItem = itemIdx;
+				clients[client].normalItem = ITEM::NORMALHAMMER;
 				for (int i = 0; i < MAX_USER; ++i)
 				{
 					if (true == clients[i].in_use)
@@ -1074,10 +1074,18 @@ void Server::ProcessPacket(char client, char *packet)
 			if (ITEM::GOLD_HAMMER != clients[client].specialItem)
 				break;
 			
+			gLock.lock();
+			freezeCnt = 0;
+			gLock.unlock();
+
 			for(int i=0 ; i<MAX_USER;++i)
 			{
+				if (clients[i].isFreeze == true)
+					clients[i].isFreeze = false;
+
 				if(clients[i].in_use == true)
 				{
+					
 					//NormalHammer를 제외한 나머지 아이템은 TargetClient는 의미x
 					SendUseItem(i, client, ITEM::GOLD_HAMMER, 0);
 				}
@@ -1126,10 +1134,16 @@ void Server::ProcessPacket(char client, char *packet)
 		if (client == bomberID)		//술래라면 얼음을 할 수 없다.
 			break;
 
-		if (freezeCnt >= MAX_FREEZE_COUNT)	//최대 얼음할 수 있는 도망자 수를 넘으면 얼음을 하게 할 수 없다.
+		gLock.lock();
+		int fCount = freezeCnt;
+		gLock.unlock();
+		if (fCount >= MAX_FREEZE_COUNT)	//최대 얼음할 수 있는 도망자 수를 넘으면 얼음을 하게 할 수 없다.
 			break;
-
+		
+		
+		gLock.lock();
 		++freezeCnt;
+		gLock.unlock();
 
 		for(int i=0;i<MAX_USER;++i)
 		{

@@ -14,10 +14,11 @@
 #include "../../Shader/BillboardShader/UIShader/OutcomeUIShader/OutcomeUIShader.h"
 #include "../../Network/Network.h"
 #include "../../Shader/CubeParticleShader/ExplosionParticleShader/ExplosionParticleShader.h"
-
+#include "../../GameFramework/GameFramework.h"
 #include "../../SoundSystem/SoundSystem.h"
 
 extern byte g_PlayerCharacter;
+extern int g_State;
 
 CPlayer::CPlayer()
 {
@@ -525,6 +526,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			&& pController->GetAnimationState() != CAnimationController::ICE
 			&& pController->GetAnimationState() != CAnimationController::SLIDE
 			&& pController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
+			&& pController->GetAnimationState() != CAnimationController::VICTORY
 			))
 	{
 		if (pController->GetAnimationState() == CAnimationController::RUNFAST)
@@ -550,6 +552,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			&& pController->GetAnimationState() != CAnimationController::RAISEHAND
 			&& pController->GetAnimationState() != CAnimationController::DIE
 			&& pController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
+			&& pController->GetAnimationState() != CAnimationController::VICTORY
 			)
 		{
 			
@@ -563,11 +566,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			//m_pAnimationController->SetTrackPosition(0, 0.0f);
 		}
 #ifdef _WITH_SERVER_
-		
-		//서버와 연동시 이동과 회전을 동시에 처리가 안되서 
-		// 서버에서 fLength = 0.001의 속도를 부여하고 그속도로 
-		//이동과 회전을 동시에 처리함. 
-		// 그러다보니 제자리에서 회전 했을때도 달리는 애니메이션이 발생해서
+		// 제자리에서 회전 했을때도 달리는 애니메이션이 발생해서
 		// 아래와 같은 처리를 하였음 - 명진
 		if ((GetAsyncKeyState(VK_RIGHT) &0x8000
 			|| GetAsyncKeyState(VK_LEFT) &0x8000)
@@ -589,6 +588,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			&& pController->GetAnimationState() != CAnimationController::ICE
 			&& pController->GetAnimationState() != CAnimationController::RAISEHAND
 			&& pController->GetAnimationState() != CAnimationController::DIE
+			&& pController->GetAnimationState() != CAnimationController::VICTORY
 			)
 		{
 			m_pAnimationController->SetAnimationState(CAnimationController::RUNBACKWARD);
@@ -605,20 +605,23 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 	{
 		m_isMoveRotate = false;
 	}
-	if (GetAsyncKeyState(VK_SPACE) & 0x8000
-		&& pController->GetAnimationState() != CAnimationController::JUMP
-		&& pController->GetAnimationState() != CAnimationController::ICE
-		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
-		)
-	{
-		SetTrackAnimationSet(0, CAnimationController::JUMP);
-		SetTrackAnimationPosition(0, 0);
-		pController->SetAnimationState(CAnimationController::JUMP);
-#ifdef _WITH_SERVER_
-			Network::GetInstance()->SendAnimationState(CAnimationController::JUMP);
-#endif
-		//pController->SetTrackSpeed(0, 1.5f);
-	}
+
+	//점프 주석
+//	if (GetAsyncKeyState(VK_SPACE) & 0x8000
+//		&& pController->GetAnimationState() != CAnimationController::JUMP
+//		&& pController->GetAnimationState() != CAnimationController::ICE
+//		&& pController->GetAnimationState() != CAnimationController::VICTORY
+//		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
+//		)
+//	{
+//		SetTrackAnimationSet(0, CAnimationController::JUMP);
+//		SetTrackAnimationPosition(0, 0);
+//		pController->SetAnimationState(CAnimationController::JUMP);
+//#ifdef _WITH_SERVER_
+//			Network::GetInstance()->SendAnimationState(CAnimationController::JUMP);
+//#endif
+//		//pController->SetTrackSpeed(0, 1.5f);
+//	}
 
 #ifndef _WITH_SERVER_			//서버와의 연동시에는 적용 x
 	// 치트키
@@ -677,7 +680,8 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 
 
 	////얼음으로 변신
-	if (GetAsyncKeyState(VK_A) & 0x0001 && ChattingSystem::GetInstance()->IsChattingActive() ==false && m_bBomb == false)
+	if (GetAsyncKeyState(VK_A) & 0x0001 && ChattingSystem::GetInstance()->IsChattingActive() ==false && m_bBomb == false
+		&& g_State == GAMESTATE::INGAME)
 	{
 #ifdef _WITH_SERVER_
 		if (m_bIce == false)
@@ -708,6 +712,10 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 	if (GetAsyncKeyState(VK_CONTROL) & 0x0001
 		&& pController->GetAnimationState() != CAnimationController::ATTACK
 		&& pController->GetAnimationState() != CAnimationController::ICE
+		&& pController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
+		&& pController->GetAnimationState() != CAnimationController::DIE
+		&& pController->GetAnimationState() != CAnimationController::RAISEHAND
+		&& pController->GetAnimationState() != CAnimationController::VICTORY
 		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
 		)
 	{

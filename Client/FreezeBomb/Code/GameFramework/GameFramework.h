@@ -61,7 +61,7 @@ public:
 	//Network*getNetwork() { return &m_Network; }
 	CLoginScene* GetLoginScene()const { return m_pLoginScene; }
 	void ProcessPacket(char *ptr);
-
+	void ResetAnimationForRoundStart();
 
 
 	//void CreateLoginCommandList();
@@ -81,7 +81,7 @@ public:
 	void ShowPlayers();
 	void WaitForGpuComplete();
 	void MoveToNextFrame();
-
+	
 	void CreateOffScreenRenderTargetViews();
 
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
