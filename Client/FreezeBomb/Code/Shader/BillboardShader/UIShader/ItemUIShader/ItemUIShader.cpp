@@ -18,7 +18,7 @@ CItemUIShader::~CItemUIShader()
 
 void CItemUIShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
-	m_nPipelineStates = 4;
+	m_nPipelineStates = 3;
 	m_ppd3dPipelineStates = new ID3D12PipelineState*[m_nPipelineStates];
 
 	for (int i = 0; i < m_nPipelineStates; ++i)
@@ -64,9 +64,9 @@ D3D12_SHADER_BYTECODE CItemUIShader::CreateVertexShader(int UIType)
 		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "VSSpecialItemUI", "vs_5_1", &m_pd3dVertexShaderBlob));
 		break;
 
-	case SubSpecialItemUI:
-		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "VSSubSpecialItemUI", "vs_5_1", &m_pd3dVertexShaderBlob));
-		break;
+	//case SubSpecialItemUI:
+	//	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "VSSubSpecialItemUI", "vs_5_1", &m_pd3dVertexShaderBlob));
+	//	break;
 	}
 }
 
@@ -137,20 +137,20 @@ void CItemUIShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* 
 			{
 				byte itemType = item.second->getItemType();
 				auto iter2 = m_UIMap.find(itemType);
-				if (iter2 != m_UIMap.end() && m_pPlayer->GetIsBomb() == true)
+				if (iter2 != m_UIMap.end())
 				{
-					if(itemType == CItem::ItemType::GoldTimer)
-					{
-						CUIShader::OnPrepareRender(pd3dCommandList, SpecialItemUI);
-						(*iter2).second->Render(pd3dCommandList, pCamera, nPipelineState);
-					}
-					else
+					//if(itemType == CItem::ItemType::GoldTimer)
+				//	{
+					CUIShader::OnPrepareRender(pd3dCommandList, SpecialItemUI);
+					(*iter2).second->Render(pd3dCommandList, pCamera, nPipelineState);
+				//	}
+					/*else
 					{
 						CUIShader::OnPrepareRender(pd3dCommandList, SubSpecialItemUI);
 						(*iter2).second->Render(pd3dCommandList, pCamera, nPipelineState);
-					}
+					}*/
 				}
-				else if(iter2 != m_UIMap.end() && m_pPlayer->GetIsBomb() == false)
+				/*else if(iter2 != m_UIMap.end() && m_pPlayer->GetIsBomb() == false)
 				{
 					if(itemType == CItem::ItemType::GoldHammer)
 					{
@@ -162,7 +162,7 @@ void CItemUIShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* 
 						CUIShader::OnPrepareRender(pd3dCommandList, SubSpecialItemUI);
 						(*iter2).second->Render(pd3dCommandList, pCamera, nPipelineState);
 					}
-				}
+				}*/
 			}
 				
 				/*byte itemType = m_pPlayer->get_Special_Inventory().begin()->second->getItemType();
