@@ -1159,10 +1159,15 @@ void Server::ProcessPacket(char client, char *packet)
 		if (client == bomberID)		//술래라면 얼음을 할 수 없다.
 			break;
 
-		if (freezeCnt <= 0)
+		gLock.lock();
+		int fCount = freezeCnt;
+		gLock.unlock();
+		if (fCount <= 0)
 			break;
 
+		gLock.lock();
 		--freezeCnt;
+		gLock.unlock();
 
 		for(int i=0;i<MAX_USER;++i)
 		{

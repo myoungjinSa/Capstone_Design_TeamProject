@@ -211,32 +211,32 @@ VS_UI_OUTPUT VSNormalItemUI(uint nVertexID : SV_VertexID)
 
 	if (nVertexID == 0)
 	{
-		output.position = float4(0.680f, -0.555f, 0.f, 1.f); //float4(0.635f, -0.552f, 0.f, 1.f);
+		output.position = float4(0.298f, -0.556f, 0.f, 1.f); //float4(0.635f, -0.552f, 0.f, 1.f);
 		output.uv = float2(0.f, 0.f);
 	}
 	else if (nVertexID == 1)
 	{
-		output.position = float4(0.680f, -0.910f, 0.f, 1.f);//float4(0.635f, -0.907f, 0.f, 1.f);
+		output.position = float4(0.298f, -0.909f, 0.f, 1.f);//float4(0.635f, -0.907f, 0.f, 1.f);
 		output.uv = float2(0.f, 1.f);
 	}
 	else if (nVertexID == 2)
 	{
-		output.position = float4(0.927f, -0.910f, 0.f, 1.f);//float4(0.907f, -0.907f, 0.f, 1.f);
+		output.position = float4(0.572f, -0.909f, 0.f, 1.f);//float4(0.907f, -0.907f, 0.f, 1.f);
 		output.uv = float2(1.f, 1.f);
 	}
 	else if (nVertexID == 3)
 	{
-		output.position = float4(0.927f, -0.910f, 0.f, 1.f);//float4(0.907f, -0.907f, 0.f, 1.f);
+		output.position = float4(0.572f, -0.909f, 0.f, 1.f);//float4(0.907f, -0.907f, 0.f, 1.f);
 		output.uv = float2(1.f, 1.f);
 	}
 	else if (nVertexID == 4)
 	{
-		output.position = float4(0.927f, -0.555f, 0.f, 1.f);//float4(0.907f, -0.552f, 0.f, 1.f);
+		output.position = float4(0.572f, -0.556f, 0.f, 1.f);//float4(0.907f, -0.552f, 0.f, 1.f);
 		output.uv = float2(1.f, 0.f);
 	}
 	else if (nVertexID == 5)
 	{
-		output.position = float4(0.680f, -0.555f, 0.f, 1.f);//float4(0.635f, -0.552f, 0.f, 1.f);
+		output.position = float4(0.298f, -0.556f, 0.f, 1.f);//float4(0.635f, -0.552f, 0.f, 1.f);
 		output.uv = float2(0.f, 0.f);
 	}
 
@@ -249,75 +249,75 @@ VS_UI_OUTPUT VSSpecialItemUI(uint nVertexID : SV_VertexID)
 
 	if (nVertexID == 0)
 	{
-		output.position = float4(0.380f, -0.556f, 0.f, 1.f);// float4(0.298f, -0.556f, 0.f, 1.f);
+		output.position = float4(0.635f, -0.552f, 0.f, 1.f);
 		output.uv = float2(0.f, 0.f);
 	}
 	else if (nVertexID == 1)
 	{
-		output.position = float4(0.380f, -0.909f, 0.f, 1.f);//float4(0.298f, -0.909f, 0.f, 1.f);
+		output.position = float4(0.635f, -0.907f, 0.f, 1.f);
 		output.uv = float2(0.f, 1.f);
 	}
 	else if (nVertexID == 2)
 	{
-		output.position = float4(0.627f, -0.909f, 0.f, 1.f);// float4(0.572f, -0.909f, 0.f, 1.f);
+		output.position =float4(0.907f, -0.907f, 0.f, 1.f);
 		output.uv = float2(1.f, 1.f);
 	}
 	else if (nVertexID == 3)
 	{
-		output.position = float4(0.627f, -0.909f, 0.f, 1.f);//float4(0.572f, -0.909f, 0.f, 1.f);
+		output.position = float4(0.907f, -0.907f, 0.f, 1.f);
 		output.uv = float2(1.f, 1.f);
 	}
 	else if (nVertexID == 4)
 	{
-		output.position = float4(0.627f, -0.556f, 0.f, 1.f);//float4(0.572f, -0.556f, 0.f, 1.f);
+		output.position = float4(0.907f, -0.552f, 0.f, 1.f);
 		output.uv = float2(1.f, 0.f);
 	}
 	else if (nVertexID == 5)
 	{
-		output.position = float4(0.380f, -0.556f, 0.f, 1.f);//float4(0.298f, -0.556f, 0.f, 1.f);
+		output.position = float4(0.635f, -0.552f, 0.f, 1.f);
 		output.uv = float2(0.f, 0.f);
 	}
 
 	return(output);
 }
 
-VS_UI_OUTPUT VSSubSpecialItemUI(uint nVertexID : SV_VertexID)
-{
-	VS_UI_OUTPUT output;
-
-	if (nVertexID == 0)
-	{
-		output.position = float4(0.222f, -0.550f, 0.f, 1.f);// float4(0.298f, -0.556f, 0.f, 1.f);
-		output.uv = float2(0.f, 0.f);
-	}
-	else if (nVertexID == 1)
-	{
-		output.position = float4(0.222f, -0.720f, 0.f, 1.f);//float4(0.298f, -0.909f, 0.f, 1.f);
-		output.uv = float2(0.f, 1.f);
-	}
-	else if (nVertexID == 2)
-	{
-		output.position = float4(0.339f, -0.720f, 0.f, 1.f);// float4(0.572f, -0.909f, 0.f, 1.f);
-		output.uv = float2(1.f, 1.f);
-	}
-	else if (nVertexID == 3)
-	{
-		output.position = float4(0.339f, -0.720f, 0.f, 1.f);//float4(0.572f, -0.909f, 0.f, 1.f);
-		output.uv = float2(1.f, 1.f);
-	}
-	else if (nVertexID == 4)
-	{
-		output.position = float4(0.339f, -0.550f, 0.f, 1.f);//float4(0.572f, -0.556f, 0.f, 1.f);
-		output.uv = float2(1.f, 0.f);
-	}
-	else if (nVertexID == 5)
-	{
-		output.position = float4(0.222f, -0.550f, 0.f, 1.f);//float4(0.298f, -0.556f, 0.f, 1.f);
-		output.uv = float2(0.f, 0.f);
-	}
-
-	return(output);
-}
+//VS_UI_OUTPUT VSSubSpecialItemUI(uint nVertexID : SV_VertexID)
+//{
+//	VS_UI_OUTPUT output;
+//
+//	if (nVertexID == 0)
+//	{
+//		output.position = float4(0.222f, -0.550f, 0.f, 1.f);// float4(0.298f, -0.556f, 0.f, 1.f);
+//		output.uv = float2(0.f, 0.f);
+//	}
+//	else if (nVertexID == 1)
+//	{
+//		output.position = float4(0.222f, -0.720f, 0.f, 1.f);//float4(0.298f, -0.909f, 0.f, 1.f);
+//		output.uv = float2(0.f, 1.f);
+//	}
+//	else if (nVertexID == 2)
+//	{
+//		output.position = float4(0.339f, -0.720f, 0.f, 1.f);// float4(0.572f, -0.909f, 0.f, 1.f);
+//		output.uv = float2(1.f, 1.f);
+//	}
+//	else if (nVertexID == 3)
+//	{
+//		output.position = float4(0.339f, -0.720f, 0.f, 1.f);//float4(0.572f, -0.909f, 0.f, 1.f);
+//		output.uv = float2(1.f, 1.f);
+//	}
+//	else if (nVertexID == 4)
+//	{
+//		output.position = float4(0.339f, -0.550f, 0.f, 1.f);//float4(0.572f, -0.556f, 0.f, 1.f);
+//		output.uv = float2(1.f, 0.f);
+//	}
+//	else if (nVertexID == 5)
+//	{
+//		output.position = float4(0.222f, -0.550f, 0.f, 1.f);//float4(0.298f, -0.556f, 0.f, 1.f);
+//		output.uv = float2(0.f, 0.f);
+//	}
+//
+//	return(output);
+//}
 
 //float2 m_MenuBoard_MinPos	: packoffset(c0.x);
 //float2 m_MenuBoard_MaxPos	: packoffset(c0.z);

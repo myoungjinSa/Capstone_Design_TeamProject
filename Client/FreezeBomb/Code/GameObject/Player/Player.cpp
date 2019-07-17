@@ -354,8 +354,6 @@ void CPlayer::Add_Inventory(const string& key, int ItemType)
 {
 	if (ItemType == CItem::NormalHammer)
 	{
-		if (m_Normal_Inventory.size() > 0)
-			Sub_Inventory(ItemType);
 		CItem* pItem = new CItem;
 		pItem->setItemType(ItemType);
 #ifndef _WITH_SERVER_
@@ -365,10 +363,6 @@ void CPlayer::Add_Inventory(const string& key, int ItemType)
 	}
 	else
 	{
-		//if (m_Special_Inventory.size() > 0)
-		//	Sub_Inventory(ItemType);
-		if ( m_Special_Inventory.size() >= 0 && m_Special_Inventory.size() < 2) 
-		{
 			if(m_Special_Inventory.size() == 0)
 			{
 			
@@ -382,20 +376,7 @@ void CPlayer::Add_Inventory(const string& key, int ItemType)
 #endif
 				m_Special_Inventory.emplace(key, pItem);
 			}
-			else if (m_Special_Inventory.begin()->second->getItemType() != ItemType )
-			{
-				CItem* pItem = new CItem;
-				pItem->setItemType(ItemType);
-#ifndef _WITH_SERVER_
-				if (ItemType == CItem::GoldHammer)
-						m_bGoldHammer = true;
-				else
-					m_bGoldTimer = true;
-#endif
-				m_Special_Inventory.emplace(key, pItem);
-			}
-			
-		}
+
 	}
 }
 
@@ -455,7 +436,7 @@ bool CPlayer::CheckInventoryToGet(const int& itemType)
 		{
 			ret = true;
 		}
-		else if(m_Special_Inventory.size() < 2)
+		else if(m_Special_Inventory.size() < 1)
 		{
 			for (auto iter : m_Special_Inventory)
 			{
@@ -471,7 +452,7 @@ bool CPlayer::CheckInventoryToGet(const int& itemType)
 		{
 			ret = true;
 		}
-		else if(m_Special_Inventory.size() < 2)
+		else if(m_Special_Inventory.size() < 1)
 		{
 			for (auto iter : m_Special_Inventory)
 			{
@@ -789,7 +770,6 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 				
 #ifdef _WITH_SERVER_
 			Network::GetInstance()->SendAnimationState(CAnimationController::USEGOLDHAMMER);
-			Network::GetInstance()->SendUseItem(ITEM::GOLD_HAMMER, 0);
 #endif
 
 				//쿨타임 체크 set
