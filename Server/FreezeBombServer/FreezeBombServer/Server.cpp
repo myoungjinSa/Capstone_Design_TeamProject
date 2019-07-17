@@ -1052,6 +1052,16 @@ void Server::ProcessPacket(char client, char *packet)
 		}
 		case GOLD_HAMMER:
 		{
+
+			
+			for(int i=0 ; i<MAX_USER;++i)
+			{
+				if(clients[i].in_use == true)
+				{
+					//NormalHammer를 제외한 나머지 아이템은 TargetClient는 의미x
+					SendUseItem(i, client, ITEM::GOLD_HAMMER, 0);
+				}
+			}
 			break;
 		}
 		case GOLD_TIMER:
@@ -1069,7 +1079,7 @@ void Server::ProcessPacket(char client, char *packet)
 				if (clients[i].in_use == true)
 				{
 					SendCompareTime(i,time);
-					SendUseItem(i, client, ITEM::GOLD_TIMER, client);
+					SendUseItem(i, client, ITEM::GOLD_TIMER, 0);
 				}
 			}
 			break;

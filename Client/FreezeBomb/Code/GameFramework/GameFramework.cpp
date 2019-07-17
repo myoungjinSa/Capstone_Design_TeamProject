@@ -2104,10 +2104,17 @@ void CGameFramework::ProcessPacket(char *packet)
 			{
 				(*iter).second->m_ppObjects[id]->SetTrackAnimationSet(0, animNum);
 				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)animNum);
-				if((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::RAISEHAND
-					|| (CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::DIE)
+				if ((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::RAISEHAND
+					|| (CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::DIE
+					|| (CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::USEGOLDHAMMER)
+				{
 					(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackPosition(0, 0.0f);
-				
+				}
+
+				if ((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::USEGOLDHAMMER)
+				{
+					(*iter).second->m_ppObjects[id]->SetIsLightEffect(true);
+				}
 			}
 		}
 
@@ -2366,14 +2373,14 @@ void CGameFramework::ProcessPacket(char *packet)
 			if (pUI->id == m_pPlayer->GetPlayerID()) {
 				if (m_pPlayer->GetSpecialInventory().size() > 0)
 				{
-						for (auto iter : m_pPlayer->GetSpecialInventory())
+					for (auto iter : m_pPlayer->GetSpecialInventory())
+					{
+						if (iter.second->getItemType() == CItem::ItemType::GoldTimer)
 						{
-							if (iter.second->getItemType() == CItem::ItemType::GoldTimer)
-							{
-								m_pPlayer->Sub_Inventory(iter.second->getItemType());
-								m_pPlayer->setIsGoldTimer(false);
-							}
+							m_pPlayer->Sub_Inventory(CItem::ItemType::GoldTimer);
+							m_pPlayer->setIsGoldTimer(false);
 						}
+					}
 						
 				}
 			}
@@ -2392,6 +2399,34 @@ void CGameFramework::ProcessPacket(char *packet)
 		}
 		case ITEM::GOLD_HAMMER:
 		{
+			if (pUI->id == m_pPlayer->GetPlayerID())
+			{
+			//	if (m_pPlayer->GetSpecialInventory().size() > 0)
+			//	{
+					//for (auto iter : m_pPlayer->GetSpecialInventory())
+					//	{
+						//	if (iter.second->getItemType() == CItem::ItemType::GoldHammer)
+						//	{
+					m_pPlayer->Sub_Inventory(CItem::ItemType::GoldHammer);
+					m_pPlayer->setIsGoldHammer(false);
+						//	}
+					//	}
+			//	}
+			}
+			else if(pUI->id < MAX_USER)
+			{
+				char id = pUI->id;
+
+				auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+				if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+				{
+
+					(*iter).second->m_ppObjects[id]->setIsGoldHammer(false);
+				}
+			}
+
+
 			break;
 		}
 		case ITEM::NORMALHAMMER:
