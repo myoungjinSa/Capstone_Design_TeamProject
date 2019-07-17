@@ -37,11 +37,10 @@ CThunderBillboard::~CThunderBillboard()
 
 void CThunderBillboard::Animate(float elapsedTime)
 {
-	static float totalTime = 0.0f;
-	totalTime += 30.0f * elapsedTime;
 
-	
-	//printf("TotalTime: %f\n", totalTime);
+	static float totalTime = 0.0f;
+	totalTime += 60.0f * elapsedTime;
+
 	if (totalTime > 1.0f) 
 	{
 		//printf("Animation Clip : %d\n", m_AnimationClip);

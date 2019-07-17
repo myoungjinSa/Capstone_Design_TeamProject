@@ -161,7 +161,7 @@ void CSkinnedAnimationObjectShader::Render(ID3D12GraphicsCommandList* pd3dComman
 		char matID = m_vMaterial[i].second;
 		char id = m_vMaterial[i].first;
 		
-		m_ppObjects[id]->Animate(m_elapsedTime);
+		dynamic_cast<CEvilBear*>(m_ppObjects[id])->Animate(m_elapsedTime);
 		m_ppObjects[id]->UpdateTransform(NULL);
 		dynamic_cast<CEvilBear*>(m_ppObjects[id])->Render(pd3dCommandList, pCamera, matID ,nPipelineState);		
 	}
