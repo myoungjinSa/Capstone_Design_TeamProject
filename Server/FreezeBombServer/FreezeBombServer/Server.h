@@ -226,6 +226,7 @@ public:
 	void SendChangeHostID(char toClient, char hostID);
 	void SendGetItem(char toClient, char fromClient, string& itemIndex);
 	void SendRoundScore(char client);
+	void SendChoiceCharacter(char toClient, char fromClient, char matID);
 public:
 	void SetAnimationState(char client,char animationNum);
 	void SetVelocityZero(char client);

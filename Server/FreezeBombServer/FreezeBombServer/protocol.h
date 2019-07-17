@@ -50,7 +50,6 @@ constexpr int SC_BOMB_EXPLOSION = 21;
 constexpr int SC_CHANGE_HOST_ID = 22;
 constexpr int SC_GET_ITEM = 23;
 constexpr int SC_ROUND_SCORE = 24;
-// 애들 재질정보
 constexpr int SC_CHOICE_CHARACTER = 25;
 
 constexpr int CS_UP_KEY = 0;
@@ -78,7 +77,6 @@ constexpr int CS_RELEASE_FREEZE = 21;
 constexpr int CS_BOMB_EXPLOSION = 22;
 constexpr int CS_BOMBER_TOUCH = 23;
 constexpr int CS_GET_ITEM = 24;
-
 constexpr int CS_CHOICE_CHARACTER = 25;
 
 

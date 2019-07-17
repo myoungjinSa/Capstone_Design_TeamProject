@@ -1192,6 +1192,18 @@ void Server::ProcessPacket(char client, char *packet)
 
 		break;
 	}
+	case CS_CHOICE_CHARACTER:
+	{
+		CS_PACKET_CHOICE_CHARACTER *p = reinterpret_cast<CS_PACKET_CHOICE_CHARACTER *>(packet);
+
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (false == clients[i].in_use)
+				continue;
+			SendChoiceCharacter(i, client, p->matID);
+		}
+		break;
+	}
 	default:
 		wcout << L"정의되지 않은 패킷 도착 오류!!\n";
 		while (true);
@@ -1542,6 +1554,19 @@ void Server::SendBombExplosion(char toClient,char fromClient)
 
 	SendFunc(toClient, &packet);
 }
+
+void Server::SendChoiceCharacter(char toClient, char fromClient, char matID)
+{
+	SC_PACKET_CHOICE_CHARACTER packet;
+
+	packet.size = sizeof(packet);
+	packet.type = SC_CHOICE_CHARACTER;
+	packet.matID = matID;
+	packet.id = fromClient;
+
+	SendFunc(toClient, &packet);
+}
+
 void Server::ClientDisconnect(char client)
 {
 	clients[client].in_use = false;
