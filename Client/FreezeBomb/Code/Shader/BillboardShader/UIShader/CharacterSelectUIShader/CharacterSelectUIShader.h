@@ -2,11 +2,7 @@
 
 #include "../UIShader.h"
 
-//lobby
 class CTexture;
-class CMaterial;
-class CUI;
-class CSoundSystem;
 class CCharacterSelectUIShader: public CUIShader
 {
 public:
@@ -24,11 +20,7 @@ public:
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipelineStates);
 	virtual void ReleaseObjects();
-
-	void DecideTextureByCursorPosition(UINT nMessageID,float mouseX, float mouseY);
 	
-	byte SelectedCharacter() const { return m_characterSelect; };
-
 		//cpu,gpu 디스크립터 핸들을 반환해주는 함수가 각각 필요 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandleForHeapStart() { return(m_pd3dCbvSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart()); }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandleForHeapStart() { return(m_pd3dCbvSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart()); }
@@ -41,15 +33,14 @@ public:
 
 	enum LOBBY_CHARACTERSEL { PINK, BROWN, WHITE, BLACK, BLUE, PANDA, BASE, READY, QUIT };
 	
-	bool IsReady() { return isReady; }
+	void CallbackMouse(UINT nMessgeID, float mouseX, float mouseY);
+	void ClickInteraction(int click);
+	bool UICollisionCheck(XMFLOAT2& mousePos, XMFLOAT2& minUIPos, XMFLOAT2& maxUIPos);
 
-#ifdef _WITH_SERVER_
-	bool isSelectDone() { return isCharacterSelectDone; }
-	bool  isCharacterSelectDone{ false };
-#endif
+	static bool GetIsReady() { return m_IsReady; }
+	static char GetChoiceCharacter() { return m_ChoiceCharacter; }
+
 private:
-	CTexture** pSelectTextures;
-
 	ID3D12DescriptorHeap*						m_pd3dCbvSrvDescriptorHeap = nullptr;			//cbv,srv의 서술자 힙
 
 	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dCbvCPUDescriptorStartHandle;
@@ -57,9 +48,14 @@ private:
 	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dSrvCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dSrvGPUDescriptorStartHandle;
 	
-	vector<CTexture*> vTexture;
+	CTexture** m_ppTextures { nullptr };
 
-	bool							isReady{ false };
-	int								m_currentTexture;
-	byte							m_characterSelect;
+	enum MOUSE_STATE { NONE = -1, MOUSE_ON, MOUSE_CLICK };
+
+	static bool m_IsReady;
+	static char	 m_ChoiceCharacter;
+
+	int	 m_RenderingTexture = LOBBY_CHARACTERSEL::BASE;
+
+	MOUSE_STATE m_MouseState = MOUSE_STATE::NONE;
 };

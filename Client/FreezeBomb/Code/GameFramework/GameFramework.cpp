@@ -893,11 +893,8 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 
 				CShader* sel = m_pLobbyScene->m_ppShaders[CLobbyScene::gamestate::CHARACTER_SELECT];
 
-				bool isSelectDone = dynamic_cast<CCharacterSelectUIShader*>(sel)->isCharacterSelectDone;
-
-				//auto iter = 
-
-				if (isSelectDone)
+				bool isStart = CCharacterSelectUIShader::GetIsReady();
+				if (isStart)
 				{
 					if (hostId == m_pPlayer->GetPlayerID() && !Network::GetInstance()->GetRS())
 					{
@@ -1654,8 +1651,7 @@ void CGameFramework::ProcessDirect2D()
 	{
 	case CHARACTER_SELECT:
 	{
-		CShader* m = m_pLobbyScene->m_ppShaders[CLobbyScene::CHARACTER_SELECT];
-		bool isReady = dynamic_cast<CCharacterSelectUIShader*>(m)->IsReady();
+		bool isReady = CCharacterSelectUIShader::GetIsReady();
 
 #ifdef _WITH_SERVER_
 		ShowPlayers();
@@ -1665,7 +1661,6 @@ void CGameFramework::ProcessDirect2D()
 #endif
 
 		ChattingSystem::GetInstance()->ShowLobbyChatting(m_pd2dDeviceContext);
-
 		break;
 	}
 	case INGAME:

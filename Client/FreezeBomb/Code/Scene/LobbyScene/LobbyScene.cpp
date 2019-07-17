@@ -5,8 +5,6 @@
 #include "../../Shader/BillboardShader/UIShader/LobbyShader/LobbyShader.h"
 #include "../../Chatting/Chatting.h"
 
-extern byte g_PlayerCharacter;
-
 CLobbyScene::CLobbyScene()
 {
 }
@@ -138,13 +136,11 @@ void CLobbyScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wPar
 		{
 			if (gameState == CHARACTER_SELECT)
 			{
-				XMFLOAT3 position = ScreenPosition(mouseX, mouseY);
-				//cout << mouseX << ", " << mouseY << "--------------" << position.x << ", " << position.y << endl;
 				auto iter = m_shaderMap.find("Select");
 				if (iter != m_shaderMap.end())
 				{
-					dynamic_cast<CCharacterSelectUIShader*>(m_ppShaders[CHARACTER_SELECT])->DecideTextureByCursorPosition(nMessageID, position.x, position.y);
-					g_PlayerCharacter = dynamic_cast<CCharacterSelectUIShader*>(m_ppShaders[CHARACTER_SELECT])->SelectedCharacter();
+					XMFLOAT3 position = ScreenPosition(mouseX, mouseY);
+					reinterpret_cast<CCharacterSelectUIShader*>(m_ppShaders[CHARACTER_SELECT])->CallbackMouse(nMessageID, position.x, position.y);
 				}
 			}
 			break;

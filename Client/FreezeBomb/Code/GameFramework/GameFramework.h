@@ -61,9 +61,6 @@ public:
 	//Network*getNetwork() { return &m_Network; }
 	CLoginScene* GetLoginScene()const { return m_pLoginScene; }
 	void ProcessPacket(char *ptr);
-
-
-
 	//void CreateLoginCommandList();
 	//void InitializeIPSystem();
 	void ProcessLogin();

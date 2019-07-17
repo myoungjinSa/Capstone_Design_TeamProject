@@ -46,7 +46,7 @@ void CResourceManager::PrepareSound()
 	v.emplace_back(info(CSoundSystem::SOUND_TYPE::LOBBY_BGM, "../Resource/Sound/Used/BGM/Remembrance.wav", FMOD_LOOP_NORMAL));
 	v.emplace_back(info(CSoundSystem::SOUND_TYPE::INGAME_BGM, "../Resource/Sound/Used/BGM/SnowDrop.wav", FMOD_LOOP_NORMAL));
 
-	v.emplace_back(info(CSoundSystem::SOUND_TYPE::CHARACTER_SELECT, "../Resource/Sound/Used/Effect/Allow.wav", FMOD_LOOP_OFF));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::CHARACTER_SELECT, "../Resource/Sound/Used/Effect/MouseOver.wav", FMOD_LOOP_OFF));
 	v.emplace_back(info(CSoundSystem::SOUND_TYPE::TIMER_WARNING, "../Resource/Sound/Used/Effect/TimerWarning.wav", FMOD_LOOP_NORMAL));
 	v.emplace_back(info(CSoundSystem::SOUND_TYPE::ICE_BREAK, "../Resource/Sound/Used/Effect/ICEBreak.wav", FMOD_LOOP_OFF));
 	v.emplace_back(info(CSoundSystem::SOUND_TYPE::GET_ITEM, "../Resource/Sound/Used/Effect/GetItem.wav", FMOD_LOOP_OFF));

@@ -242,7 +242,6 @@ void Network::SendNotReady()
 	send_wsabuf.len = sizeof(pUnReady);
 
 	SendPacket();
-
 }
 
 void Network::SendReqStart()
