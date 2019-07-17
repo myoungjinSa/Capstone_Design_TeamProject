@@ -1988,12 +1988,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pPlayer->setIsGoldHammer(false);
 			m_pPlayer->setIsGoldTimer(false);
 			m_pPlayer->SetIsHammer(false);
-			//m_pPlayer->m_xmf4x4ToParent._11 = m_pPlayer->m_xmf4x4ToParent._11 * m_pPlayer->GetScale().x;
-			//m_pPlayer->m_xmf4x4ToParent._22 = m_pPlayer->m_xmf4x4ToParent._22 * m_pPlayer->GetScale().y;
-			//m_pPlayer->m_xmf4x4ToParent._33 = m_pPlayer->m_xmf4x4ToParent._33 * m_pPlayer->GetScale().z;
-
-
-			//m_pPlayer->SetDirection()
+			
 		}
 		else if (pPP->id < MAX_USER)
 		{
@@ -2051,11 +2046,7 @@ void CGameFramework::ProcessPacket(char *packet)
 			m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
 			m_pPlayer->SetVelocityFromServer(pMP->fVelocity);
 			m_pPlayer->SetMoveRotate(pMP->isMoveRotate);
-			/*m_pPlayer->m_xmf4x4ToParent._11 = m_pPlayer->m_xmf4x4ToParent._11 * 10.0f;
-			m_pPlayer->m_xmf4x4ToParent._22 = m_pPlayer->m_xmf4x4ToParent._22 * 10.0f;
-			m_pPlayer->m_xmf4x4ToParent._33 = m_pPlayer->m_xmf4x4ToParent._33 * 10.0f;*/
-
-			//cout << m_pPlayer->GetPosition().x << "," << m_pPlayer->GetPosition().y << "," << m_pPlayer->GetPosition().z << "\n";
+			
 		}
 		else if (pMP->id < MAX_USER)
 		{
@@ -2115,6 +2106,10 @@ void CGameFramework::ProcessPacket(char *packet)
 				{
 					(*iter).second->m_ppObjects[id]->SetIsLightEffect(true);
 				}
+				else
+				{
+					(*iter).second->m_ppObjects[id]->SetIsLightEffect(false);
+				}
 			}
 		}
 
@@ -2127,16 +2122,7 @@ void CGameFramework::ProcessPacket(char *packet)
 		{
 			m_pPlayer->SetVelocityFromServer(0.0f);
 		}
-		else if (pSTA->id < MAX_USER)
-		{
-			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 
-			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
-			{
-				// 적 캐릭터들과의 애니메이션도 동기화 하게 되면 작성
-				//(*iter).second->m_ppObjects[pSTA->id]
-			}
-		}
 		//printf("SetVelocityFromServer\n");
 		break;
 	}
@@ -2401,17 +2387,8 @@ void CGameFramework::ProcessPacket(char *packet)
 		{
 			if (pUI->id == m_pPlayer->GetPlayerID())
 			{
-			//	if (m_pPlayer->GetSpecialInventory().size() > 0)
-			//	{
-					//for (auto iter : m_pPlayer->GetSpecialInventory())
-					//	{
-						//	if (iter.second->getItemType() == CItem::ItemType::GoldHammer)
-						//	{
-					m_pPlayer->Sub_Inventory(CItem::ItemType::GoldHammer);
-					m_pPlayer->setIsGoldHammer(false);
-						//	}
-					//	}
-			//	}
+				m_pPlayer->Sub_Inventory(CItem::ItemType::GoldHammer);
+				m_pPlayer->setIsGoldHammer(false);
 			}
 			else if(pUI->id < MAX_USER)
 			{
