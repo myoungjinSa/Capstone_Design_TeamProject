@@ -8,14 +8,17 @@
 #include "../../../../Scene/LobbyScene/LobbyScene.h"
 #include "../../../../GameFramework/GameFramework.h"
 
+bool CCharacterSelectUIShader::m_IsReady = false;
+char CCharacterSelectUIShader::m_ChoiceCharacter = NONE;
+
+extern byte g_PlayerCharacter;
+
 CCharacterSelectUIShader::CCharacterSelectUIShader()
 {
-
 }
 
 CCharacterSelectUIShader::~CCharacterSelectUIShader()
 {
-
 }
 
 void CCharacterSelectUIShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
@@ -111,213 +114,175 @@ D3D12_SHADER_BYTECODE CCharacterSelectUIShader::CreatePixelShader()
 {
 	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "PSCharacterSelect", "ps_5_1", &m_pd3dVertexShaderBlob));
 }
+
 void CCharacterSelectUIShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
 {
-	const int m_nTextures = 9;
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_nTextures);
-	pSelectTextures = new CTexture*[m_nTextures];
+	m_nObjects = 9;
 
-	pSelectTextures[BASE] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pSelectTextures[BASE]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Base.dds", 0);
-	
-	pSelectTextures[READY] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pSelectTextures[READY]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Ready.dds", 0);
+	m_ppTextures = new CTexture*[m_nObjects];
 
-	pSelectTextures[QUIT] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pSelectTextures[QUIT]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Quit.dds", 0);
+	m_ppTextures[PINK] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	m_ppTextures[PINK]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Character_Select1.dds", 0);
+	
+	m_ppTextures[BROWN] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	m_ppTextures[BROWN]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Character_Select2.dds", 0);
 
-	pSelectTextures[PINK] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pSelectTextures[PINK]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Character_Select1.dds", 0);
+	m_ppTextures[WHITE] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	m_ppTextures[WHITE]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Character_Select3.dds", 0);
 	
-	pSelectTextures[BROWN] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pSelectTextures[BROWN]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Character_Select2.dds", 0);
+	m_ppTextures[BLACK] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	m_ppTextures[BLACK]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Character_Select4.dds", 0);
+	
+	m_ppTextures[BLUE] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	m_ppTextures[BLUE]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Character_Select5.dds", 0);
+	
+	m_ppTextures[PANDA] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	m_ppTextures[PANDA]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Character_Select6.dds", 0);
+	
+	m_ppTextures[BASE] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	m_ppTextures[BASE]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Base.dds", 0);
 
-	pSelectTextures[WHITE] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pSelectTextures[WHITE]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Character_Select3.dds", 0);
-	
-	pSelectTextures[BLACK] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pSelectTextures[BLACK]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Character_Select4.dds", 0);
-	
-	pSelectTextures[BLUE] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pSelectTextures[BLUE]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Character_Select5.dds", 0);
-	
-	pSelectTextures[PANDA] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pSelectTextures[PANDA]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Character_Select6.dds", 0);
-	
+	m_ppTextures[READY] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	m_ppTextures[READY]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Ready.dds", 0);
 
-	for (int i = 0; i < m_nTextures; ++i)
-	{
-		vTexture.emplace_back(pSelectTextures[i]);
-		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pSelectTextures[i], 0, false);
-	}
-	
+	m_ppTextures[QUIT] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	m_ppTextures[QUIT]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Quit.dds", 0);
+
 	CBillboardMesh* pSelectMesh = new CBillboardMesh(pd3dDevice, pd3dCommandList, 20.f, 20.f, 0.0f, 0.0f, 0.0f, 0.0f);
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_nObjects);
 
-	m_nObjects = m_nTextures;	
-	m_ppUIMaterial = new CMaterial*[m_nObjects];
+	int index = 0;
+	// minX, minY, maxX, maxY
+	XMFLOAT4* minmaxPos = new XMFLOAT4[m_nObjects];
 
-	m_ppUIMaterial[0] = new CMaterial(m_nObjects);
-
-	for(int i=0; i < m_nObjects;++i)
-	{
-		m_ppUIMaterial[0]->SetTexture(vTexture[i], i);
-	}
+	// PINK ~ PANDA
+	minmaxPos[index++] = { -0.928f, -0.585f, -0.74f, -0.345f };
+	minmaxPos[index++] = { -0.69f, -0.585f , -0.515f, -0.345f };
+	minmaxPos[index++] = { -0.455f, -0.585f, -0.28f, -0.345f };
+	minmaxPos[index++] = { -0.92f, -0.88f, -0.748f, -0.645f };
+	minmaxPos[index++] = { -0.69f, -0.88f, -0.515f, -0.645f };
+	minmaxPos[index++] = { -0.458f, -0.88f, -0.28f, -0.645f };
+	// BASE
+	minmaxPos[index++] = { 0.f, 0.f, 0.f, 0.f };
+	// READY
+	minmaxPos[index++] = { 0.426f, -0.95f, 0.978f, -0.775f };
+	// QUIT
+	minmaxPos[index++] = { 0.736f, 0.835f, 0.965f, 0.973f };
 
 	for (int i = 0; i < m_nObjects; ++i)
 	{
+		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_ppTextures[i], 0, false);
+		CMaterial* pMaterial = new CMaterial(1);
+		pMaterial->SetTexture(m_ppTextures[i], 0);
+
 		CUI* pUI = new CUI(1);
 		pUI->SetMesh(pSelectMesh);
-		pUI->SetMaterial(0, m_ppUIMaterial[0]);
+		pUI->SetMaterial(0, pMaterial);
+
+		pUI->SetUIMinPos(XMFLOAT2(minmaxPos[i].x, minmaxPos[i].y));
+		pUI->SetUIMaxPos(XMFLOAT2(minmaxPos[i].z, minmaxPos[i].w));
+
 		m_UIMap.emplace(i, pUI);
+	}
+
+	delete[] minmaxPos;
+	
+}
+
+void CCharacterSelectUIShader::CallbackMouse(UINT nMessgeID, float mouseX, float mouseY)
+{
+	for (auto iter = m_UIMap.begin(); iter != m_UIMap.end(); ++iter)
+	{
+		if ((*iter).first == LOBBY_CHARACTERSEL::BASE)	continue;
+
+		XMFLOAT2 min = reinterpret_cast<CUI*>((*iter).second)->GetUIMinPos();
+		XMFLOAT2 max = reinterpret_cast<CUI*>((*iter).second)->GetUIMaxPos();
+
+		if (UICollisionCheck(XMFLOAT2(mouseX, mouseY), min, max) == false)	continue;
+		
+		if (m_IsReady == false)
+		{
+			// 충돌된 것을 텍스쳐로 결정
+			m_RenderingTexture = (*iter).first;
+		}
+
+		if (nMessgeID == WM_LBUTTONUP)
+		{
+			ClickInteraction((*iter).first);
+			m_MouseState = MOUSE_STATE::MOUSE_CLICK;
+			CSoundSystem::PlayingSound(CSoundSystem::CLICK);
+			return;
+		}
+
+		// BASE였다가 캐릭터를 고를때,
+		if (m_MouseState == MOUSE_STATE::NONE)
+		{
+			m_MouseState = MOUSE_STATE::MOUSE_ON;
+			CSoundSystem::PlayingSound(CSoundSystem::CHARACTER_SELECT);
+			return;
+		}
+
+		// 계속 마우스가 메뉴에 올려있을 때,
+		else if (m_MouseState == MOUSE_STATE::MOUSE_ON)
+			return;
+		
+	}
+
+	if (m_IsReady == false)
+	{
+		// 로비 중에서 아무것도 충돌된 것이 없을 때,
+		m_MouseState = MOUSE_STATE::NONE;
+		m_RenderingTexture = LOBBY_CHARACTERSEL::BASE;
 	}
 }
 
-void CCharacterSelectUIShader::DecideTextureByCursorPosition(UINT nMessgeID, float mouseX, float mouseY)
+void CCharacterSelectUIShader::ClickInteraction(int click)
 {
-
-	if (-0.928f <= mouseX && mouseX <= -0.74f && -0.585f <= mouseY && mouseY <= -0.345f)
+	switch (click)
 	{
-		if (isReady == false)
-		{
-			m_currentTexture = PINK;
+	case PINK: 
+	case BROWN:
+	case WHITE:
+	case BLACK:
+	case BLUE:
+	case PANDA:
+		if(m_IsReady == false)
+			m_ChoiceCharacter = static_cast<unsigned char>(click);
+		break;
 
-			if (nMessgeID == WM_LBUTTONUP)	//버튼이 눌렸을때만 캐릭터 선택됨
-			{
-				cout << "PINK" << endl;
-				m_characterSelect = PINK;
-			}
+	case READY:
+		if (m_ChoiceCharacter == NONE)
+		{
+			cout << "캐릭터가 선택되지 않았습니다." << endl;
+			break;
 		}
-		CSoundSystem::PlayingSound(CSoundSystem::CHARACTER_SELECT);
-	}
-	else if (-0.69f <= mouseX && mouseX <= -0.515f && -0.585f <= mouseY && mouseY <= -0.345f)
-	{
-		if (isReady == false)
-		{
-			m_currentTexture = BROWN;
 
-			if (nMessgeID == WM_LBUTTONUP)	//버튼이 눌렸을때만 
-			{
-				cout << "BROWN" << endl;
-				m_characterSelect = BROWN;
-			}
-		}
-		CSoundSystem::PlayingSound(CSoundSystem::CHARACTER_SELECT);
-	}
-	else if (-0.455f <= mouseX && mouseX <= -0.28f && -0.585f <= mouseY && mouseY <= -0.345f)
-	{
-		if (isReady == false)
-		{
-			m_currentTexture = WHITE;
-
-			if (nMessgeID == WM_LBUTTONUP)	//버튼이 눌렸을때만 
-			{
-				cout << "WHITE" << endl;
-				m_characterSelect = WHITE;
-			}
-		}
-		CSoundSystem::PlayingSound(CSoundSystem::CHARACTER_SELECT);
-	}
-	else if (-0.92f <= mouseX && mouseX <= -0.748f && -0.88f <= mouseY && mouseY <= -0.645f)
-	{
-		if (isReady == false)
-		{
-			m_currentTexture = BLACK;
-
-			if (nMessgeID == WM_LBUTTONUP)	//버튼이 눌렸을때만 
-			{
-				cout << "BLACK" << endl;
-				m_characterSelect = BLACK;
-			}
-		}
-		CSoundSystem::PlayingSound(CSoundSystem::CHARACTER_SELECT);
-	}
-	else if (-0.69f <= mouseX && mouseX <= -0.515f && -0.88f <= mouseY && mouseY <= -0.645f)
-	{
-		if (isReady == false)
-		{
-			m_currentTexture = BLUE;
-
-			if (nMessgeID == WM_LBUTTONUP)	//버튼이 눌렸을때만 
-			{
-				cout << "BLUE" << endl;
-				m_characterSelect = BLUE;
-			}
-		}
-		CSoundSystem::PlayingSound(CSoundSystem::CHARACTER_SELECT);
-	}
-	else if (-0.458f <= mouseX && mouseX <= -0.28f && -0.88f <= mouseY && mouseY <= -0.645f)
-	{
-		if (isReady == false)
-		{
-			m_currentTexture = PANDA;
-
-			if (nMessgeID == WM_LBUTTONUP)	//버튼이 눌렸을때만 
-			{
-				cout << "PANDA" << endl;
-				m_characterSelect = PANDA;
-			}
-		}
-		CSoundSystem::PlayingSound(CSoundSystem::CHARACTER_SELECT);
-	}
-	else if (0.736f <= mouseX && mouseX <= 0.965f && 0.835f <= mouseY && mouseY <= 0.973f)
-	{
-		m_currentTexture = QUIT;
-		CSoundSystem::PlayingSound(CSoundSystem::CHARACTER_SELECT);
-	}
-	else
-	{
-		if (isReady == false)
-		{
-			m_currentTexture = BASE;
-		}
-	}
-
-	
-
-	if (nMessgeID == WM_LBUTTONUP)
-	{
-		// 풀스크린일 경우 UI 좌표가 조금씩 달라짐...
-//#ifndef FullScreenMode
-		if (0.426f <= mouseX && mouseX <= 0.978f && -0.95f <= mouseY && mouseY <= -0.775f)
-		{
-			isReady = !isReady;
-			if (isReady)
-			{
+		m_IsReady = !m_IsReady;
 #ifdef _WITH_SERVER_
-				if (isCharacterSelectDone == false)
-				{
-					Network::GetInstance()->SendReady(m_characterSelect);
-					//m_Network.SendReady(g_PlayerCharacter);
-					isCharacterSelectDone = true;
-				}
-#endif
-				m_currentTexture = READY;
-			}
-			else
-			{
-#ifdef _WITH_SERVER_
-				isCharacterSelectDone = false;
-				Network::GetInstance()->SendNotReady();
-#endif
-				m_currentTexture = BASE;
-			}
-			CSoundSystem::PlayingSound(CSoundSystem::CHARACTER_SELECT);
-
+		if (m_IsReady == false)
+		{
+			Network::GetInstance()->SendNotReady();
+			m_RenderingTexture = LOBBY_CHARACTERSEL::BASE;
 		}
-//#else
-//		if (0.426f <= mouseX && mouseX <= 0.978f && -0.95f <= mouseY && mouseY <= -0.775f)
-//		{
-//			isReady = !isReady;
-//			
-//			if (isReady)
-//				m_currentTexture = READY;
-//			else
-//				m_currentTexture = BASE;
-//
-//		}
-//#endif
-		else if (0.736f <= mouseX && mouseX <= 0.965f && 0.835f <= mouseY && mouseY <= 0.973f)
-			::PostQuitMessage(0);
+		else
+		{
+			g_PlayerCharacter = m_ChoiceCharacter;
+			Network::GetInstance()->SendReady(m_ChoiceCharacter);
+		}
+#else
+		if (m_IsReady == false)
+			m_RenderingTexture = LOBBY_CHARACTERSEL::BASE;
+		else
+			g_PlayerCharacter = m_ChoiceCharacter;
+#endif
+		break;
+
+	case QUIT:
+		::PostQuitMessage(0);
+		break;
+
+	default:
+		break;
 	}
 }
 
@@ -328,9 +293,9 @@ void CCharacterSelectUIShader::Render(ID3D12GraphicsCommandList *pd3dCommandList
 
 	CUIShader::OnPrepareRender(pd3dCommandList, 0);
 	
-	auto iter = m_UIMap.find(m_currentTexture);
+	auto iter = m_UIMap.find(m_RenderingTexture);
 	if (iter != m_UIMap.end())
-		(*iter).second->Render(pd3dCommandList, nPipelineState,m_currentTexture);
+		(*iter).second->Render(pd3dCommandList, nPipelineState);
 }
 
 void CCharacterSelectUIShader::ReleaseObjects()
@@ -340,5 +305,19 @@ void CCharacterSelectUIShader::ReleaseObjects()
 
 	CUIShader::ReleaseObjects();
 
-	delete[] pSelectTextures;
+	delete[] m_ppTextures;
+}
+
+bool CCharacterSelectUIShader::UICollisionCheck(XMFLOAT2& mousePos, XMFLOAT2& minUIPos, XMFLOAT2& maxUIPos)
+{
+	if (mousePos.x < minUIPos.x)
+		return false;
+	else if (mousePos.x > maxUIPos.x)
+		return false;
+	else if (mousePos.y > maxUIPos.y)
+		return false;
+	else if (mousePos.y < minUIPos.y)
+		return false;
+
+	return true;
 }

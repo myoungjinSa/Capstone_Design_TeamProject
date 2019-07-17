@@ -2,8 +2,6 @@
 
 class CTexture;
 class CShader;
-class CCharacterSelectionShader;
-class CLobbyShader;
 class CLobbyScene
 {
 public:

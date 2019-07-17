@@ -67,7 +67,7 @@ void CUI::Render(ID3D12GraphicsCommandList *pd3dCommandList, int nPipelineState,
 					if (m_ppMaterials[i]->m_pShader)
 						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, nPipelineState);
 
-					m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList,nTexture);
+					m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList, nTexture);
 				}
 				m_pMesh->Render(pd3dCommandList, 0);
 			}
