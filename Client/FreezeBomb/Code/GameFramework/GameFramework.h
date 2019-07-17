@@ -207,6 +207,7 @@ private:
 	//Network m_Network;
 	int hostId;
 	int clientCount = 0;
+
 	SC_PACKET_ACCESS_COMPLETE *pAC = NULL;
 	SC_PACKET_ACCESS_PLAYER *pAP = NULL;
 	SC_PACKET_PUT_PLAYER *pPP = NULL;

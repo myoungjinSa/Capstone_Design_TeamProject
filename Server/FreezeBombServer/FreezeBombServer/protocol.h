@@ -1,20 +1,8 @@
 #pragma once
-//#include <iostream>
-//#include <windows.h>
-//#include <DirectXMath.h>
 
-//#define SERVER_IP "192.168.22.199"
-//#define SERVER_IP "127.0.0.1"
-//#define SERVER_IP "192.168.60.161"
-//#define SERVER_IP "192.168.200.103"
-//#define SERVER_IP "192.168.0.34"
-//#define SERVER_IP "192.168.0.27"
-//#define SERVER_IP "175.210.100.248"
 #define SERVER_IP "172.30.1.1"
 
-
 using namespace std;
-//using namespace DirectX;
 
 constexpr int MAX_USER = 6;
 constexpr int MAX_ROUND = 3;
@@ -62,8 +50,8 @@ constexpr int SC_BOMB_EXPLOSION = 21;
 constexpr int SC_CHANGE_HOST_ID = 22;
 constexpr int SC_GET_ITEM = 23;
 constexpr int SC_ROUND_SCORE = 24;
-
-
+// 애들 재질정보
+constexpr int SC_CHOICE_CHARACTER = 25;
 
 constexpr int CS_UP_KEY = 0;
 constexpr int CS_DOWN_KEY = 1;
@@ -91,6 +79,7 @@ constexpr int CS_BOMB_EXPLOSION = 22;
 constexpr int CS_BOMBER_TOUCH = 23;
 constexpr int CS_GET_ITEM = 24;
 
+constexpr int CS_CHOICE_CHARACTER = 25;
 
 
 constexpr int MAX_ROUND_TIME = 200;
@@ -128,7 +117,7 @@ struct CS_PACKET_DOWN_KEY
 	char type;
 };
 
-struct CS_PACKET_FREEZE				//얼음변신 알림 패킷
+struct CS_PACKET_FREEZE					//얼음변신 알림 패킷
 {
 	char size;
 	char type;
@@ -144,8 +133,8 @@ struct CS_PACKET_READY
 {
 	char size;
 	char type;
-	char matID;
 };
+
 struct CS_PACKET_UNREADY
 {
 	char size;
@@ -239,6 +228,13 @@ struct CS_PACKET_BOMB_EXPLOSION
 	char type;
 };
 
+struct CS_PACKET_CHOICE_CHARACTER
+{
+	char size;
+	char type;
+	char matID;
+};
+
 //////////////////////////////////////////////////////
 
 //[서버->클라]
@@ -280,7 +276,6 @@ struct SC_PACKET_INGAME_PACKET
 };
 
 //<< Ready Room 패킷 종류 >>
-
 struct SC_PACKET_ACCESS_COMPLETE
 {
 	char size;
@@ -305,7 +300,6 @@ struct SC_PACKET_CHANGE_HOST
 	char type;
 	char hostID;
 };
-
 //입장한 클라이언트의 정보
 struct SC_PACKET_LOBBY_IN
 {
@@ -405,13 +399,13 @@ struct SC_PACKET_PLAYER_ANIMATION
 	char animation;
 	
 };
+
 struct SC_PACKET_STOP_RUN_ANIM
 {
 	char size;
 	char type;
 	char id;
 };
-
 //현재 Ready중인 플레이어의 정보를 담은 패킷
 struct SC_PACKET_READY_STATE
 {
@@ -426,6 +420,7 @@ struct SC_PACKET_UNREADY_STATE
 	char type;
 	char id;
 };
+
 struct SC_PACKET_CHATTING
 {
 	char size;
@@ -435,7 +430,6 @@ struct SC_PACKET_CHATTING
 	char message[MAX_CHATTING_LENGTH];
 };
 // 플레이어가 아이템 사용 시
-
 struct SC_PACKET_GET_ITEM
 {
 	char size;
@@ -461,7 +455,6 @@ struct SC_PACKET_COMPARE_TIME
 	char type;
 	unsigned short serverTime;				// 서버 시간
 };
-
 
 struct SC_PACKET_REMOVE_PLAYER
 {
@@ -526,5 +519,14 @@ struct SC_PACKET_ROUND_SCORE
 	char size;
 	char type;
 	char score[MAX_USER];
+};
+
+// 애들 재질정보 패킷
+struct SC_PACKET_CHOICE_CHARACTER
+{
+	char size;
+	char type;
+	char id;
+	char matID;
 };
 //////////////////////////////////////////////////////

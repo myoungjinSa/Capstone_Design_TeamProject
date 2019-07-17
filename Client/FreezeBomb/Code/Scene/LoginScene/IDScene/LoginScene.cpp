@@ -127,35 +127,24 @@ int CLoginScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wPara
 	{
 //	case WM_MOUSEMOVE:
 	//case WM_LBUTTONDOWN:
-	case WM_LBUTTONUP:
-	{
-		POINT ptCursorPos;
-	
-		//SetCursor(hWnd);
-	
-		GetCursorPos(&ptCursorPos);
-		ScreenToClient(hWnd,&ptCursorPos);
-		
-		//XMFLOAT3 position = ScreenPosition(mouseX, mouseY);
-		//cout << mouseX << ", " << mouseY << "--------------" << position.x << ", " << position.y << endl;
-			
-		RECT rect{ 0,0 };
-		GetClientRect(hWnd, &rect);
-		ret = dynamic_cast<CIDShader*>(m_ppShaders[0])->DecideTextureByCursor(rect,ptCursorPos.x, ptCursorPos.y);
-		
-		if(ret == CIDShader::state::REQUEST_LOGIN)
+		case WM_LBUTTONUP:
 		{
-			m_bLogin = true;
-			return ret;
+			POINT ptCursorPos;
+	
+			GetCursorPos(&ptCursorPos);
+			ScreenToClient(hWnd,&ptCursorPos);
+					
+			RECT rect{ 0,0 };
+			GetClientRect(hWnd, &rect);
+			ret = dynamic_cast<CIDShader*>(m_ppShaders[0])->DecideTextureByCursor(rect,ptCursorPos.x, ptCursorPos.y);
+		
+			if(ret == CIDShader::state::REQUEST_LOGIN)
+			{
+				m_bLogin = true;
+				return ret;
+			}
+			break;
 		}
-			/*m_bLogin = true : m_bLogin = false;
-*/
-
-		break;
-	}
-
-
-		//break;
 	}
 	return ret;
 }

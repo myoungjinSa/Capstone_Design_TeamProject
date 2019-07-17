@@ -175,7 +175,6 @@ void Network::SendUpLeftKey()
 	SendPacket();
 }
 
-
 void Network::SendDownKey()
 {
 	pDown = reinterpret_cast<CS_PACKET_DOWN_KEY *>(send_buffer);
@@ -185,6 +184,7 @@ void Network::SendDownKey()
 
 	SendPacket();
 }
+
 void Network::SendDownRightKey()
 {
 	pDown = reinterpret_cast<CS_PACKET_DOWN_KEY *>(send_buffer);
@@ -194,6 +194,7 @@ void Network::SendDownRightKey()
 
 	SendPacket();
 }
+
 void Network::SendDownLeftKey()
 {
 	pDown = reinterpret_cast<CS_PACKET_DOWN_KEY *>(send_buffer);
@@ -213,6 +214,7 @@ void Network::SendRightKey()
 
 	SendPacket();
 }
+
 void Network::SendLeftKey()
 {
 	pLeft = reinterpret_cast<CS_PACKET_LEFT_KEY *>(send_buffer);
@@ -222,14 +224,26 @@ void Network::SendLeftKey()
 
 	SendPacket();
 }
-void Network::SendReady(int matID)
+
+void Network::SendChoiceCharacter(int matID)
+{
+	CS_PACKET_CHOICE_CHARACTER* packet = reinterpret_cast<CS_PACKET_CHOICE_CHARACTER *>(send_buffer);
+
+	send_wsabuf.len = sizeof(CS_PACKET_CHOICE_CHARACTER);
+
+	packet->size = sizeof(CS_PACKET_CHOICE_CHARACTER);
+	packet->type = CS_CHOICE_CHARACTER;
+	packet->matID = matID;
+
+	SendPacket();
+}
+
+void Network::SendReady()
 {
 	pReady = reinterpret_cast<CS_PACKET_READY *>(send_buffer);
-	pReady->matID = matID;
 	pReady->size = sizeof(pReady);
 	send_wsabuf.len = sizeof(pReady);
 	pReady->type = CS_READY;
-	printf("Send matID : %d\n", pReady->matID);
 	SendPacket();
 }
 

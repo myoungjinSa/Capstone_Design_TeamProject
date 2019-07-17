@@ -246,8 +246,14 @@ void CCharacterSelectUIShader::ClickInteraction(int click)
 	case BLACK:
 	case BLUE:
 	case PANDA:
-		if(m_IsReady == false)
+		if (m_IsReady == false)
+		{
 			m_ChoiceCharacter = static_cast<unsigned char>(click);
+#ifdef _WITH_SERVER_
+			// 내가 무슨캐릭터를 선택했는지 보냄
+			Network::GetInstance()->SendChoiceCharacter(m_ChoiceCharacter);
+#endif
+		}
 		break;
 
 	case READY:
@@ -267,7 +273,7 @@ void CCharacterSelectUIShader::ClickInteraction(int click)
 		else
 		{
 			g_PlayerCharacter = m_ChoiceCharacter;
-			Network::GetInstance()->SendReady(m_ChoiceCharacter);
+			Network::GetInstance()->SendReady();
 		}
 #else
 		if (m_IsReady == false)

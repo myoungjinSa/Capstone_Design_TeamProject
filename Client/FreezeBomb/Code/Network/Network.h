@@ -15,10 +15,8 @@ constexpr int BUF_SIZE = 1024;
 
 class CGameFramework;
 
-
 #ifdef _WITH_SERVER_
 //싱글톤 
-
 
 class Network : public Singleton<Network>
 {
@@ -32,7 +30,6 @@ private:
 	char	packet_buffer[BUF_SIZE];
 	DWORD	in_packet_size = 0;
 	int		saved_packet_size = 0;
-
 
 private:
 	CS_PACKET_UP_KEY *pUp = NULL;
@@ -55,10 +52,12 @@ private:
 	CS_PACKET_BOMB_EXPLOSION *pBomb = NULL;
 	CS_PACKET_BOMBER_TOUCH* pTouch = NULL;
 	CS_PACKET_GET_ITEM *pGetItem = NULL;
+
 private:
 	//ReadPacket에서 받은 패킷들을 CGameFramework에 전달하기 위한 포인터
 	CGameFramework* m_pGameClient{nullptr};
 	const  char *   m_ServerIP{ nullptr };
+
 public:
 	void err_quit(const char *msg);
 	void err_display(const char *msg);
@@ -66,8 +65,10 @@ public:
 	void SetMyID(int id) { myId = id; }
 	void SetServerIP(const char* ip) { m_ServerIP = ip; }
 	const char* GetServerIP() { return m_ServerIP; }
+
 public:
 	bool m_connect{ false };
+
 public:
 	Network();
 	~Network();
@@ -81,6 +82,7 @@ public:
 	void ReadPacket();
 	void SendPacket();
 	void SendPacket(DWORD dataBytes);
+
 public:
 	void SendUpKey();
 	void SendUpRightKey();
@@ -90,7 +92,11 @@ public:
 	void SendDownLeftKey();
 	void SendRightKey();
 	void SendLeftKey();
-	void SendReady(int matID);
+	
+	// 무슨 캐릭터 선택했는지 보냄
+	void SendChoiceCharacter(int matID);
+
+	void SendReady();
 	void SendNotReady();
 	void SendReqStart();
 	void SendReleaseKey();
@@ -106,6 +112,7 @@ public:
 	void SendReleaseFreezeState();
 	void SendBombExplosion();
 	void SendBomberTouch(char targetID);
+
 public:
 	CS_PACKET_REQUEST_START* GetRS() { return pRequestStart; }
 	void SetNullRS() { pRequestStart = NULL; }

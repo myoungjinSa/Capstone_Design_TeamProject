@@ -163,27 +163,20 @@ void CIDShader::AnimateObjects(float fTimeElapsed)
 
 int CIDShader::DecideTextureByCursor(const RECT& rect,const LONG& mouseX,const LONG& mouseY)
 {
-	cout << mouseX << "," << mouseY<<endl;
-
-	
 	RECT name{ 0, };
 	RECT bt_connection{ 0, };
 	UINT width = FRAME_BUFFER_WIDTH;
 	UINT height = FRAME_BUFFER_HEIGHT;
 	
-
 	//측정을 한 기준이 되는 클라이언트 크기
 	UINT originX = 1280;
 	UINT originY = 720;
 
-	
 	//y =( 364 * width ) / originX
-
 	name.left = (360 * FRAME_BUFFER_WIDTH )/originX  ;							//364
 	name.top = (588 * FRAME_BUFFER_HEIGHT) / originY ; 							//742
 	name.right = (875 * FRAME_BUFFER_WIDTH) / originX ;						//875
 	name.bottom = (619 * FRAME_BUFFER_HEIGHT )/ originY;						//790
-
 
 	bt_connection.left = (940*FRAME_BUFFER_WIDTH) / originX;									//943
 	bt_connection.top = (588*FRAME_BUFFER_HEIGHT) / originY;											//742
