@@ -182,6 +182,22 @@ void CSkinnedAnimationObjectShader::MappingUserToEvilbear(char id,char matID)
 {
 	if (id < MAX_USER && matID <max_Material)
 	{
-		m_vMaterial.emplace_back(id,matID);
+		bool isExist = false;
+		for(int i=0;i < m_vMaterial.size();++i)
+		{
+			if(m_vMaterial[i].first == id)
+			{
+				m_vMaterial[i].second = matID;
+				isExist = true;
+			}
+		}
+		if (isExist == false) 
+		{
+			m_vMaterial.emplace_back(id, matID);
+		}
+	
+		cout << "id" << (int)id << endl;
+		cout << "재질:" << (int)matID << endl;
+		cout << "벡터 크기" << m_vMaterial.size()<<endl;
 	}
 }

@@ -1852,7 +1852,9 @@ void CGameFramework::ProcessPacket(char *packet)
 			char matID = pChoiceCharacter->matID;
 
 			// 다른애들꺼만 받으면 됨
-			if (playerID < MAX_USER)
+		
+			//플레이어 아이디와 달라야만 SkinnedObjectsShader에 넣어야함, - 명진
+			if (playerID < MAX_USER && playerID != m_pPlayer->GetPlayerID())
 			{
 				auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 				if (iter != m_pScene->getShaderManager()->getShaderMap().end())
@@ -2085,6 +2087,9 @@ void CGameFramework::ProcessPacket(char *packet)
 				auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");			
 				if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 				{
+					vector<pair<char,char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+					
+				
 					(*iter).second->m_ppObjects[id]->SetPosition(pos);
 					(*iter).second->m_ppObjects[id]->SetLookVector(look);
 					(*iter).second->m_ppObjects[id]->SetRightVector(right);
