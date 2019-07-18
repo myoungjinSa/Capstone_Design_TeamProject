@@ -150,7 +150,6 @@ class Server
 {
 private:
 	int round;
-	mutex gLock;
 	SOCKET listenSocket;
 	HANDLE iocp;
 	// vector로 했을 때 over_ex.messagebuffer에 값이 들어오질 않는다.
@@ -180,6 +179,10 @@ private:
 	mutex		timer_l;
 	mutex		roundTime_l;
 	mutex		coolTime_l;
+	mutex		freezeCnt_l;
+	mutex		readyCnt_l;
+	mutex		clientCnt_l;
+
 private:
 	vector<MAPOBJECT> objects[MAX_ROUND];
 	vector<MAPOBJECT> goldTimers[MAX_ROUND];

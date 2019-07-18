@@ -363,9 +363,9 @@ void Server::AcceptThreadFunc()
 				continue;
 			SendAccessPlayer(new_id, i);
 		}
-		gLock.lock();
+		clientCnt_l.lock();
 		++clientCount;
-		gLock.unlock();
+		clientCnt_l.unlock();
 		printf("%d 클라이언트 접속 완료, 현재 클라이언트 수: %d\n", new_id, clientCount);
 		RecvFunc(new_id);
 	}
@@ -749,9 +749,9 @@ void Server::ProcessPacket(char client, char *packet)
 		printf("전체 클라 수: %d\n", clientCount);
 		// 클라가 엔터누르고 F5누를때마다 CS_READY 패킷이 날아온다면 ++readyCount는 clientCount보다 증가하게 되고 
 		// 아래 CS_REQUEST_START안에 if(clientCount<= readyCount) 안으로 들어가지 않는 현상 발생
-		gLock.lock();
+		readyCnt_l.lock();
 		++readyCount;
-		gLock.unlock();
+		readyCnt_l.unlock();
 
 		printf("Ready한 클라 수: %d\n", readyCount);
 
@@ -765,9 +765,9 @@ void Server::ProcessPacket(char client, char *packet)
 	}
 	case CS_UNREADY:
 	{
-		gLock.lock();
+		readyCnt_l.lock();
 		--readyCount;
-		gLock.unlock();
+		readyCnt_l.unlock();
 
 
 		printf("Ready한 클라 수: %d\n", readyCount);
@@ -1121,9 +1121,9 @@ void Server::ProcessPacket(char client, char *packet)
 			if (ITEM::GOLD_HAMMER != clients[client].specialItem)
 				break;
 			
-			gLock.lock();
+			freezeCnt_l.lock();
 			freezeCnt = 0;
-			gLock.unlock();
+			freezeCnt_l.unlock();
 
 			for(int i=0 ; i<MAX_USER;++i)
 			{
@@ -1181,16 +1181,11 @@ void Server::ProcessPacket(char client, char *packet)
 		if (client == bomberID)		//술래라면 얼음을 할 수 없다.
 			break;
 
-		gLock.lock();
-		int fCount = freezeCnt;
-		gLock.unlock();
-		if (fCount >= MAX_FREEZE_COUNT)	//최대 얼음할 수 있는 도망자 수를 넘으면 얼음을 하게 할 수 없다.
+		freezeCnt_l.lock();
+		if (freezeCnt >= MAX_FREEZE_COUNT)	//최대 얼음할 수 있는 도망자 수를 넘으면 얼음을 하게 할 수 없다.
 			break;
-		
-		
-		gLock.lock();
 		++freezeCnt;
-		gLock.unlock();
+		freezeCnt_l.unlock();
 
 		for(int i=0;i<MAX_USER;++i)
 		{
@@ -1206,15 +1201,11 @@ void Server::ProcessPacket(char client, char *packet)
 		if (client == bomberID)		//술래라면 얼음을 할 수 없다.
 			break;
 
-		gLock.lock();
-		int fCount = freezeCnt;
-		gLock.unlock();
-		if (fCount <= 0)
+		freezeCnt_l.lock();
+		if (freezeCnt <= 0)
 			break;
-
-		gLock.lock();
 		--freezeCnt;
-		gLock.unlock();
+		freezeCnt_l.unlock();
 
 		for(int i=0;i<MAX_USER;++i)
 		{
@@ -1614,9 +1605,9 @@ void Server::ClientDisconnect(char client)
 	clients[client].in_use = false;
 	if (clients[client].isReady)
 	{
-		gLock.lock();
+		readyCnt_l.lock();
 		readyCount--;
-		gLock.unlock();
+		readyCnt_l.unlock();
 		clients[client].isReady = false;
 	}
 	if (hostId == client)
@@ -1668,15 +1659,18 @@ void Server::ClientDisconnect(char client)
 	}
 	}
 
-	gLock.lock();
+	clientCnt_l.lock();
 	clientCount--;
-	gLock.unlock();
 
 	// 모든 플레이어가 접속 종료했을 때
 	if (0 >= clientCount)
 	{
+		clientCnt_l.unlock();
 		InitGame();
 	}
+	else
+		clientCnt_l.unlock();
+
 
 	
 	closesocket(clients[client].socket);

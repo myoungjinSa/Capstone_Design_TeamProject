@@ -342,6 +342,7 @@ struct SC_PACKET_PUT_PLAYER
 	char type;
 	char posIdx[MAX_USER];
 };
+
 // 플레이어 이동 시
 struct SC_PACKET_MOVE_PLAYER
 {
