@@ -19,6 +19,11 @@ Server::Server()
 		normalHammerCnt[i] = 0;
 	}
 
+	for (int i = 0; i < MAX_USER; ++i)
+	{
+		randomPosIdx[i] = i;
+	}
+
 	workerThreads.reserve(MAX_WORKER_THREAD);
 }
 
@@ -596,6 +601,7 @@ void Server::WorkerThreadFunc()
 		else if (EV_NEXTROUNDSTART == over_ex->event_t)
 		{
 			++round;
+			ShuffleStartPosIndex();
 
 			// 새 라운드 시작 시 초기화
 			StartTimer();
@@ -605,23 +611,22 @@ void Server::WorkerThreadFunc()
 			roundTime_l.unlock();
 			for (int i = 0; i < MAX_USER; ++i)
 			{
-				if (true == clients[i].in_use)
+				if (false == clients[i].in_use)
+					continue;
+				/*for (int j = 0; j < MAX_USER; ++j)
 				{
-
-					for (int j = 0; j < MAX_USER; ++j)
+					if (true == clients[j].in_use)
 					{
-						if (true == clients[j].in_use)
-						{
 
-							clients[j].pos.x = (100.0f*j + 50);
-							clients[j].pos.z = 100.0f;
+						clients[j].pos.x = (100.0f*j + 50);
+						clients[j].pos.z = 100.0f;
 
-							SendMovePlayer(i, j);
+						SendMovePlayer(i, j);
 
-						}
 					}
-					SendRoundStart(i, time);
-				}
+				}*/
+				SendPutPlayer(i);
+				SendRoundStart(i, time);
 			}
 			add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
 		}
@@ -646,6 +651,10 @@ void Server::PickBomber()
 	cout << "술래 ID:" << bomberID << "\n";
 }
 
+void Server::ShuffleStartPosIndex()
+{
+	std::random_shuffle(randomPosIdx[0], randomPosIdx[MAX_USER - 1]);
+}
 
 void Server::StartTimer()
 {
@@ -772,7 +781,7 @@ void Server::ProcessPacket(char client, char *packet)
 		if (clientCount <= readyCount)
 		{
 			PickBomber();
-
+			ShuffleStartPosIndex();
 			for (int i = 0; i < MAX_USER; ++i)
 			{
 				if (clients[i].in_use == true)
@@ -780,6 +789,7 @@ void Server::ProcessPacket(char client, char *packet)
 					clients[i].gameState = GS_INGAME;
 				}
 			}
+
 			// 라운드 시작시간 set
 			StartTimer();
 
@@ -788,23 +798,23 @@ void Server::ProcessPacket(char client, char *packet)
 			roundTime_l.unlock();
 			for (int i = 0; i < MAX_USER; ++i)
 			{
-				if (true == clients[i].in_use)
+				if (false == clients[i].in_use)
+					continue;
+
+				/*for (int j = 0; j < MAX_USER; ++j)
 				{
-
-					for (int j = 0; j < MAX_USER; ++j)
+					if (true == clients[j].in_use)
 					{
-						if (true == clients[j].in_use)
-						{
 
-							clients[j].pos.x = (100.0f*j + 50);
-							clients[j].pos.z = 100.0f;
+						clients[j].pos.x = (100.0f*j + 50);
+						clients[j].pos.z = 100.0f;
 
-							SendPutPlayer(i, j);
+						SendPutPlayer(i, j);
 
-						}
 					}
-					SendRoundStart(i, time);
-				}
+				}*/
+				SendPutPlayer(i);
+				SendRoundStart(i, time);
 			}
 			add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
 
@@ -1327,25 +1337,15 @@ void Server::SendChattinPacket(char toClient,char fromClient,char* message)
 	SendFunc(toClient, &packet);
 
 }
-void Server::SendPutPlayer(char toClient, char fromClient)
+void Server::SendPutPlayer(char toClient)
 {
 	SC_PACKET_PUT_PLAYER packet;
-	packet.id = fromClient;
-	packet.size = sizeof(packet);
+	packet.size = sizeof(SC_PACKET_PUT_PLAYER);
 	packet.type = SC_PUT_PLAYER;
-	packet.xPos = clients[fromClient].pos.x;
-	packet.yPos = clients[fromClient].pos.y;
-	packet.zPos = clients[fromClient].pos.z;
-	packet.xLook = clients[fromClient].look.x;
-	packet.yLook = clients[fromClient].look.y;
-	packet.zLook = clients[fromClient].look.z;
-	packet.xUp = clients[fromClient].up.x;
-	packet.yUp = clients[fromClient].up.y;
-	packet.zUp = clients[fromClient].up.z;
-	packet.xRight = clients[fromClient].right.x;
-	packet.yRight = clients[fromClient].right.y;
-	packet.zRight = clients[fromClient].right.z;
-	packet.matID = clients[fromClient].matID;
+	for (int i = 0; i < MAX_USER; ++i)
+	{
+		packet.posIdx[i] = randomPosIdx[i];
+	}
 
 	SendFunc(toClient, &packet);
 }

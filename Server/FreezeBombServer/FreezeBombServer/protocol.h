@@ -340,21 +340,7 @@ struct SC_PACKET_PUT_PLAYER
 	//4바이트 정렬을 할 필요가 있다.
 	char size;
 	char type;
-	char id;
-	char score;		// 플레이어 점수
-	float xPos;		// 오브젝트들 위치
-	float yPos;
-	float zPos;
-	float xLook;
-	float yLook;
-	float zLook;
-	float xUp;
-	float yUp;
-	float zUp;
-	float xRight;
-	float yRight;
-	float zRight;
-	char matID;			//유저가 원하는 캐릭터는 재질정보가 필요하다.
+	char posIdx[MAX_USER];
 };
 // 플레이어 이동 시
 struct SC_PACKET_MOVE_PLAYER

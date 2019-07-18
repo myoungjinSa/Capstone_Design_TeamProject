@@ -172,6 +172,8 @@ private:
 	int goldHammerCnt[MAX_ROUND];
 	int normalHammerCnt[MAX_ROUND];
 
+	int randomPosIdx[MAX_USER];
+
 private:
 
 	priority_queue <EVENT_ST> timer_queue;
@@ -209,7 +211,7 @@ public:
 	void SendClientLobbyOut(char toClient, char fromClient);
 	void SendChattinPacket(char to, char from, char *message);
 	void SendPlayerAnimation(char toClient, char fromCllient);
-	void SendPutPlayer(char toClient, char fromClient);
+	void SendPutPlayer(char toClient);
 	void SendRoundStart(char client,unsigned short& time);
 	void SendPleaseReady(char client);
 	void SendReadyStatePacket(char toClient, char fromClient);
@@ -240,6 +242,7 @@ public:
 	void UpdateClientPos(char client, float fTimeElapsed);
 	void ProcessClientHeight(char client);
 	void ProcessFriction(char client, float& fLength);
+	void ShuffleStartPosIndex();
 public:
 	void InitGame();
 	void InitRound();

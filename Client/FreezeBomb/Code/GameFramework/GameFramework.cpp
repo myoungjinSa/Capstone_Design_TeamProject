@@ -2001,6 +2001,10 @@ void CGameFramework::ProcessPacket(char *packet)
 		{
 			SC_PACKET_PUT_PLAYER *pPP = reinterpret_cast<SC_PACKET_PUT_PLAYER*>(packet);
 
+			// 앞으로 Put Player는 라운드 시작 시 캐릭터들의 시작 위치를 받는 패킷으로 사용
+			// posIdx로 받는 인덱스 값을 이용해 시작 위치와 방향 값을 배열에서 가져와 적용 필요
+			// 클라이언트 id값은 Lobby In 할 때 받는 id를 저장하면 될 듯. - 혜린
+
 			// 아래 주석 코드는 PUT_PLAYER 부분이 아닌 InGame이 시작됐다는 패킷이 들어오면
 			// 해줘야함- 명진.
 			if (pPP->id == m_pPlayer->GetPlayerID())
