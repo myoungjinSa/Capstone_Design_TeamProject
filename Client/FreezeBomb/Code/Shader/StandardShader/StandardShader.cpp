@@ -1,7 +1,7 @@
 #include "../../Stdafx/Stdafx.h"
 #include "StandardShader.h"
 #include "../../GameObject/GameObject.h"
-
+#include "../../GameFramework/GameFramework.h"
 
 extern unsigned char g_Round;
 CStandardShader::CStandardShader()
@@ -292,7 +292,7 @@ void CStandardShader::ReleaseUploadBuffers()
 
 int CStandardShader::MappingStageToPiplineStates(const int& stage,const int& pipelineStates)
 {
-	enum STAGE {ROUND_1,ROUND_2,ROUND_3};
+	
 	int ret = GameObject;
 	if (pipelineStates == GameObject_Shadow)
 	{
@@ -302,13 +302,13 @@ int CStandardShader::MappingStageToPiplineStates(const int& stage,const int& pip
 	
 	switch(stage)
 	{
-	case ROUND_1:
+	case CGameFramework::STAGE::ROUND_1:
 		ret = GameObject;
 		break;
-	case ROUND_2:
+	case CGameFramework::STAGE::ROUND_2:
 		ret = No_FogObject;
 		break;
-	case ROUND_3:
+	case CGameFramework::STAGE::ROUND_3:
 		ret = GameObject;
 		break;
 

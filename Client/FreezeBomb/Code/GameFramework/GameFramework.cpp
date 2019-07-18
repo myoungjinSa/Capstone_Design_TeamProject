@@ -828,19 +828,22 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		
 			if (wParam == '0')
 			{
-				g_Round = 0;
+				g_Round = STAGE::ROUND_1;
+				CSoundSystem::StopSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND);
 				m_pScene->ChangeRound();
 			}
 
 			else if (wParam == '1')
 			{
-				g_Round = 1;
+				g_Round = STAGE::ROUND_2;
+				CSoundSystem::StopSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND);
 				m_pScene->ChangeRound();
 			}
 
 			else if (wParam == '2')
 			{
-				g_Round = 2;
+				g_Round = STAGE::ROUND_3;
+				CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND, 0.5f);
 				m_pScene->ChangeRound();
 			}
 		}	
@@ -1699,46 +1702,6 @@ void CGameFramework::ProcessDirect2D()
 #endif
 
 #ifdef _WITH_SERVER_
-//void CGameFramework::InitializeIPSystem() 
-//{
-//	g_hWnd = m_hWnd;
-//	if (m_pLoginCommandList)
-//		m_pLoginCommandList->Reset(m_pLoginCommandAllocator, nullptr);
-//
-//	m_pIPScene = new CIPScene;
-//	m_pIPScene->BuildObjects(m_pd3dDevice, m_pLoginCommandList,m_pdWriteFactory,m_pd2dDeviceContext,m_pwicImagingFactory);
-//
-//	m_pLoginCommandList->Close();
-//
-//	ID3D12CommandList* ppd3dLoginCommandLists[] = { m_pLoginCommandList };
-//	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dLoginCommandLists);
-//	WaitForGpuComplete();
-//
-//	loginThread.emplace_back(thread{ &CGameFramework::Connect_Thread,this,m_pIPScene});
-//
-//	
-//	
-//}
-//void CGameFramework::MappingItemStringToItemType(const string& strItem,int& itemType)
-//{
-//	if(strstr(strItem.c_str(), "GoldTimer"))
-//	{
-//		itemType = CItem::ItemType::GoldTimer;
-//	}
-//	else if (strstr(strItem.c_str(), "GoldHammer"))
-//	{
-//		itemType = CItem::ItemType::GoldHammer;
-//	}
-//	else if(strstr(strItem.c_str(),"NormalHammer"))
-//	{
-//		itemType = CItem::ItemType::NormalHammer;
-//	}
-//	else
-//	{
-//		cout << "비 정상 아이템\n";
-//		itemType = CItem::ItemType::Empty;
-//	}
-//}
 
 void CGameFramework::ResetAnimationForRoundStart()
 {
@@ -1947,7 +1910,7 @@ void CGameFramework::ProcessPacket(char *packet)
 						}
 						else
 						{
-							(*iter).second->m_ppObjects[bomber_id]->SetIsBomb(false);
+							(*iter).second->m_ppObjects[id.first]->SetIsBomb(false);
 							(*iter).second->m_ppObjects[id.first]->setIsGoldHammer(false);
 							(*iter).second->m_ppObjects[id.first]->setIsGoldTimer(false);
 							(*iter).second->m_ppObjects[id.first]->SetIsHammer(false);
@@ -1971,6 +1934,10 @@ void CGameFramework::ProcessPacket(char *packet)
 				else
 				{
 					g_Round = pRS->round;
+					if (g_Round == ROUND_3)
+						CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND,0.5f);
+					else
+						CSoundSystem::StopSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND);
 					cout << "라운드:" << (int)g_Round<<"\n";
 				}
 			}
@@ -2654,10 +2621,15 @@ void CGameFramework::ProcessLogin()
 void CGameFramework::ProcessInGame(D3D12_CPU_DESCRIPTOR_HANDLE& d3dDsvDepthStencilBufferCPUHandle)
 {
 	//카툰 렌더링 해야할 쉐이더들은 PreRender에서 그린다.
+	
 	if (m_pScene)
 	{
+	
 		CSoundSystem::PlayingSound(CSoundSystem::INGAME_BGM, 0.5f);
+		
 		m_pScene->PreRender(m_pd3dCommandList, m_GameTimer.GetTimeElapsed(), m_pCamera);
+
+
 	}
 
 #ifdef _MAPTOOL_MODE_

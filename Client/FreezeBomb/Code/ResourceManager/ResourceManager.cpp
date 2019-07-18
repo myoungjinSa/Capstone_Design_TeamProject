@@ -59,6 +59,8 @@ void CResourceManager::PrepareSound()
 	v.emplace_back(info(CSoundSystem::SOUND_TYPE::GOLDTIMER_EFFECT, "../Resource/Sound/Used/Effect/GoldTimer_Effect.wav", FMOD_LOOP_OFF));
 	v.emplace_back(info(CSoundSystem::SOUND_TYPE::HAMMERSWING_EFFECT, "../Resource/Sound/Used/Effect/HammerSwing_Effect.wav", FMOD_LOOP_OFF));
 	v.emplace_back(info(CSoundSystem::SOUND_TYPE::GOLDHAMMER_EFFECT, "../Resource/Sound/Used/Effect/GoldHammer_Effect.wav", FMOD_LOOP_OFF));
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::FIRE_SOUND, "../Resource/Sound/Used/Effect/Fire.mp3", FMOD_LOOP_NORMAL));
+
 
 	for (int i = 0; i < v.size(); ++i)
 	{

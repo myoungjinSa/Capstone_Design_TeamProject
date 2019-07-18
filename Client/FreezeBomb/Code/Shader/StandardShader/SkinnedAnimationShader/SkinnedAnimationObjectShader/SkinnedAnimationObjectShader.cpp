@@ -196,8 +196,6 @@ void CSkinnedAnimationObjectShader::MappingUserToEvilbear(char id,char matID)
 			m_vMaterial.emplace_back(id, matID);
 		}
 	
-		cout << "id" << (int)id << endl;
-		cout << "재질:" << (int)matID << endl;
-		cout << "벡터 크기" << m_vMaterial.size()<<endl;
+		
 	}
 }
