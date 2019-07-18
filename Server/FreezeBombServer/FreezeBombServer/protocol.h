@@ -80,7 +80,7 @@ constexpr int CS_GET_ITEM = 24;
 constexpr int CS_CHOICE_CHARACTER = 25;
 
 
-constexpr int MAX_ROUND_TIME = 30;
+constexpr int MAX_ROUND_TIME = 100;
 
 //[클라->서버]
 

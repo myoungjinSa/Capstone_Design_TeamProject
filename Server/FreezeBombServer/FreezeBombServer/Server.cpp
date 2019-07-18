@@ -576,20 +576,22 @@ void Server::WorkerThreadFunc()
 		{
 			coolTime_l.lock();
 			changeCoolTime--;
+			//printf("쿨타임:%d\n", changeCoolTime);
 			coolTime_l.unlock();
 
-			//printf("쿨타임:%d\n", changeCoolTime);
-			coolTime_l.lock();
-			if(changeCoolTime<=0)
-			{
 			
+			coolTime_l.lock();
+			
+			if(changeCoolTime <= 0)
+			{
 				changeCoolTime = 0;
 				coolTime_l.unlock();
 			}
 			else
 			{
+				timer_queue.emplace(EVENT_ST{ -1, EV_COOLTIME,  chrono::high_resolution_clock::now() + 1s });
 				coolTime_l.unlock();
-				add_timer(-1, EV_COOLTIME, chrono::high_resolution_clock::now() + 1s);
+				//add_timer(-1, EV_COOLTIME, chrono::high_resolution_clock::now() + 1s);
 			}
 
 		}
@@ -600,6 +602,10 @@ void Server::WorkerThreadFunc()
 			// 새 라운드 시작 시 초기화
 			StartTimer();
 
+			coolTime_l.lock();
+			changeCoolTime = 0;		//라운드가 바뀔때 기존에 카운트하던 changeCoolTime을 
+									//바꿔줘야 한다.
+			coolTime_l.unlock();
 			roundTime_l.lock();
 			unsigned short time = roundCurrTime;
 			roundTime_l.unlock();
@@ -764,8 +770,20 @@ void Server::ProcessPacket(char client, char *packet)
 		if (client != bomberID)
 			break;
 		
-		if (changeCoolTime > 0 || changeCoolTime < 0 )		//쿨타임이 아직 남아있으면 RoleChange를 하지 않는다.
+		
+		coolTime_l.lock();
+		if (changeCoolTime < 0 || changeCoolTime > 0)
+		{//쿨타임이 아직 남아있으면 RoleChange를 하지 않는다.
+			//changeCoolTime = COOLTIME;
+			coolTime_l.unlock();
 			break;
+		}
+		else
+		{
+			coolTime_l.unlock();
+		}
+
+		//printf("CS_BOMBER_TOUCH");
 
 		float dist = sqrt(pow(clients[client].pos.x - clients[p->touchId].pos.x, 2) +
 		pow(clients[client].pos.y - clients[p->touchId].pos.y, 2) +
@@ -777,8 +795,10 @@ void Server::ProcessPacket(char client, char *packet)
 		changeCoolTime = COOLTIME;
 		if (changeCoolTime == COOLTIME) 
 		{
+			
+			timer_queue.emplace(EVENT_ST{ -1, EV_COOLTIME,  chrono::high_resolution_clock::now() +1s });
 			coolTime_l.unlock();
-			add_timer(-1, EV_COOLTIME, chrono::high_resolution_clock::now() + 1s);
+			//add_timer(-1, EV_COOLTIME, chrono::high_resolution_clock::now() + 1s);
 		}
 		else
 		{
@@ -914,6 +934,8 @@ void Server::ProcessPacket(char client, char *packet)
 			// 라운드 시작시간 set
 			StartTimer();
 		
+		
+
 			roundTime_l.lock();
 			unsigned short time = roundCurrTime;
 			roundTime_l.unlock();
