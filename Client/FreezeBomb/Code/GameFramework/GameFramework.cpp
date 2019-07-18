@@ -1775,8 +1775,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	{
 		case SC_ACCESS_COMPLETE:
 		{
-			//SC_PACKET_ACCESS_COMPLETE* pAC = m_Network.GetAC();
-			pAC = reinterpret_cast<SC_PACKET_ACCESS_COMPLETE*>(packet);
+			SC_PACKET_ACCESS_COMPLETE *pAC = reinterpret_cast<SC_PACKET_ACCESS_COMPLETE*>(packet);
 			//플레이어 아이디 Set
 			m_pPlayer->SetPlayerID(pAC->myId);
 			Network::GetInstance()->SetMyID(pAC->myId);
@@ -1789,8 +1788,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		case SC_ACCESS_PLAYER:
 		{
-			//SC_PACKET_ACCESS_PLAYER* pAP = m_Network.GetAP();
-			pAP = reinterpret_cast<SC_PACKET_ACCESS_PLAYER*>(packet);
+			SC_PACKET_ACCESS_PLAYER *pAP = reinterpret_cast<SC_PACKET_ACCESS_PLAYER*>(packet);
 
 			printf("Access Player ID: %d\n", pAP->id);
 			break;
@@ -1798,7 +1796,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		case SC_CLIENT_LOBBY_IN:
 		{
-			pLI = reinterpret_cast<SC_PACKET_LOBBY_IN*>(packet);
+			SC_PACKET_LOBBY_IN *pLI = reinterpret_cast<SC_PACKET_LOBBY_IN*>(packet);
 
 			if (pLI->id < MAX_USER)
 			{
@@ -1814,10 +1812,19 @@ void CGameFramework::ProcessPacket(char *packet)
 			break;
 		}
 
+		case SC_CHOSEN_CHARACTER:
+		{
+			SC_PACKET_CHOSEN_CHARACTER *pCC = reinterpret_cast<SC_PACKET_CHOSEN_CHARACTER *>(packet);
+			
+			// 아직 선택하지 않은 유저들은 matID값이 -1로 세팅되어있음
+			// char형 배열로 넘어오니 int로 변환해서 사용하면 될 듯
+
+			break;
+		}
 		case SC_CLIENT_LOBBY_OUT:
 		{
 			printf("SC_CLIENT_LOBBY_OUT 호출");
-			pLO = reinterpret_cast<SC_PACKET_LOBBY_OUT*>(packet);
+			SC_PACKET_LOBBY_OUT *pLO = reinterpret_cast<SC_PACKET_LOBBY_OUT*>(packet);
 
 			if (pLO->id < MAX_USER)
 			{
@@ -1833,7 +1840,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		case SC_CHANGE_HOST_ID:
 		{
-			pCH = reinterpret_cast<SC_PACKET_CHANGE_HOST*>(packet);
+			SC_PACKET_CHANGE_HOST *pCH = reinterpret_cast<SC_PACKET_CHANGE_HOST*>(packet);
 		
 			if (pCH->hostID < MAX_USER)
 			{
@@ -1865,7 +1872,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		case SC_READY_STATE:
 		{
-			pReady = reinterpret_cast<SC_PACKET_READY_STATE*>(packet);
+			SC_PACKET_READY_STATE *pReady = reinterpret_cast<SC_PACKET_READY_STATE*>(packet);
 
 			m_mapClients[pReady->id].isReady = true;
 			break;
@@ -1873,7 +1880,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		case SC_UNREADY_STATE: 
 		{
-			pNotReady = reinterpret_cast<SC_PACKET_UNREADY_STATE*>(packet);
+			SC_PACKET_UNREADY_STATE *pNotReady = reinterpret_cast<SC_PACKET_UNREADY_STATE*>(packet);
 
 			m_mapClients[pNotReady->id].isReady = false;
 			break;
@@ -1881,7 +1888,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		case SC_CHATTING:
 		{
-			pCh = reinterpret_cast<SC_PACKET_CHATTING*>(packet);
+			SC_PACKET_CHATTING *pCh = reinterpret_cast<SC_PACKET_CHATTING*>(packet);
 
 			const string& clientName = m_mapClients[pCh->id].name;
 		
@@ -1900,8 +1907,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		case SC_ROUND_START:
 		{
-			//SC_PACKET_ROUND_START *pRS = m_Network.GetRS();
-			pRS = reinterpret_cast<SC_PACKET_ROUND_START *>(packet);
+			SC_PACKET_ROUND_START *pRS = reinterpret_cast<SC_PACKET_ROUND_START *>(packet);
 
 			//애니메이션 리셋
 			ResetAnimationForRoundStart();
@@ -1993,8 +1999,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		case SC_PUT_PLAYER:
 		{
-			//SC_PACKET_PUT_PLAYER* pPP = m_Network.GetPP();
-			pPP = reinterpret_cast<SC_PACKET_PUT_PLAYER*>(packet);
+			SC_PACKET_PUT_PLAYER *pPP = reinterpret_cast<SC_PACKET_PUT_PLAYER*>(packet);
 
 			// 아래 주석 코드는 PUT_PLAYER 부분이 아닌 InGame이 시작됐다는 패킷이 들어오면
 			// 해줘야함- 명진.
@@ -2054,8 +2059,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		case SC_MOVE_PLAYER:
 		{
-			//SC_PACKET_MOVE_PLAYER* pMP = m_Network.GetMP();
-			pMP = reinterpret_cast<SC_PACKET_MOVE_PLAYER*>(packet);
+			SC_PACKET_MOVE_PLAYER *pMP = reinterpret_cast<SC_PACKET_MOVE_PLAYER*>(packet);
 
 			if(pMP->id==m_pPlayer->GetPlayerID())
 			{
@@ -2104,7 +2108,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 	case SC_ANIMATION_INFO:
 	{
-		pPA = reinterpret_cast<SC_PACKET_PLAYER_ANIMATION*>(packet);
+		SC_PACKET_PLAYER_ANIMATION *pPA = reinterpret_cast<SC_PACKET_PLAYER_ANIMATION*>(packet);
 		if (pPA->id == m_pPlayer->GetPlayerID())
 		{
 			m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
@@ -2143,7 +2147,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	}
 	case SC_STOP_RUN_ANIM:
 	{
-		pSTA = reinterpret_cast<SC_PACKET_STOP_RUN_ANIM*>(packet);
+		SC_PACKET_STOP_RUN_ANIM *pSTA = reinterpret_cast<SC_PACKET_STOP_RUN_ANIM*>(packet);
 		if (pSTA->id == m_pPlayer->GetPlayerID())
 		{
 			m_pPlayer->SetVelocityFromServer(0.0f);
@@ -2154,8 +2158,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	}
 	case SC_REMOVE_PLAYER:
 	{
-		//SC_PACKET_REMOVE_PLAYER* pRP = m_Network.GetRP();
-		pRP = reinterpret_cast<SC_PACKET_REMOVE_PLAYER*>(packet);
+		SC_PACKET_REMOVE_PLAYER *pRP = reinterpret_cast<SC_PACKET_REMOVE_PLAYER*>(packet);
 		hostId = pRP->hostId;
 
 
@@ -2195,7 +2198,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	}
 	case SC_ROUND_END:
 	{
-		pRE = reinterpret_cast<SC_PACKET_ROUND_END*>(packet);
+		SC_PACKET_ROUND_END *pRE = reinterpret_cast<SC_PACKET_ROUND_END*>(packet);
 		if (pRE->isWinner)
 			printf("Win!\n");
 		else
@@ -2204,7 +2207,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	}
 	case SC_COMPARE_TIME:
 	{
-		pCT = reinterpret_cast<SC_PACKET_COMPARE_TIME*>(packet);
+		SC_PACKET_COMPARE_TIME *pCT = reinterpret_cast<SC_PACKET_COMPARE_TIME*>(packet);
 
 		auto iter = m_pScene->getShaderManager()->getShaderMap().find("TimerUI");
 
@@ -2220,7 +2223,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	}
 	case SC_FREEZE:
 	{
-		pFR = reinterpret_cast<SC_PACKET_FREEZE*>(packet);
+		SC_PACKET_FREEZE *pFR = reinterpret_cast<SC_PACKET_FREEZE*>(packet);
 
 		if (pFR->id == m_pPlayer->GetPlayerID())
 		{
@@ -2256,7 +2259,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	}
 	case SC_RELEASE_FREEZE:
 	{
-		pRF = reinterpret_cast<SC_PACKET_RELEASE_FREEZE*>(packet);
+		SC_PACKET_RELEASE_FREEZE *pRF = reinterpret_cast<SC_PACKET_RELEASE_FREEZE*>(packet);
 		
 		if(pRF->id == m_pPlayer->GetPlayerID())
 		{
@@ -2377,7 +2380,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	}
 	case SC_USE_ITEM:
 	{
-		pUI = reinterpret_cast<SC_PACKET_USE_ITEM*>(packet);
+		SC_PACKET_USE_ITEM *pUI = reinterpret_cast<SC_PACKET_USE_ITEM*>(packet);
 
 		switch (pUI->usedItem)
 		{
@@ -2493,7 +2496,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	}
 	case SC_BOMB_EXPLOSION:
 	{
-		pBE = reinterpret_cast<SC_PACKET_BOMB_EXPLOSION*>(packet);
+		SC_PACKET_BOMB_EXPLOSION *pBE = reinterpret_cast<SC_PACKET_BOMB_EXPLOSION*>(packet);
 
 		if (pBE->bomberId != m_pPlayer->GetPlayerID())
 		{
@@ -2520,7 +2523,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	}
 	case SC_ROLE_CHANGE:
 	{
-		pRC = reinterpret_cast<SC_PACKET_ROLE_CHANGE*>(packet);
+		SC_PACKET_ROLE_CHANGE *pRC = reinterpret_cast<SC_PACKET_ROLE_CHANGE*>(packet);
 
 		//상대방이 자신에게 폭탄을 주었을 경우
 		if(pRC->bomberId == m_pPlayer->GetPlayerID())

@@ -672,6 +672,157 @@ void Server::ProcessPacket(char client, char *packet)
 	// 0번은 사이즈, 1번이 패킷타입
 	switch (packet[1])
 	{
+	case CS_NICKNAME_INFO:
+	{
+		CS_PACKET_NICKNAME* p = reinterpret_cast<CS_PACKET_NICKNAME*>(packet);
+
+		strcpy_s(clients[client].nickname, sizeof(p->name), p->name);
+		
+		// 기존 유저들의 matID 전송
+		if(clientCount > 0)
+			SendChosenCharacter(client);
+
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (false == clients[i].in_use)
+				continue;
+			SendClientLobbyIn(i, client, clients[client].nickname, false);
+		}
+		// 처음 접속한 나에게 기존 유저들 출력
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (false == clients[i].in_use)
+				continue;
+			if (i == client)
+				continue;
+			SendClientLobbyIn(client, i, clients[i].nickname, clients[i].isReady);
+		}
+		cout << clients[client].nickname << endl;
+		cout << (int)p->id << endl;
+		break;
+	}
+	case CS_CHATTING:
+	{
+		CS_PACKET_CHATTING* p = reinterpret_cast<CS_PACKET_CHATTING*>(packet);
+
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (true == clients[i].in_use)
+			{
+				cout << sizeof(p->chatting) << endl;
+				SendChattinPacket(i, client, p->chatting);
+			}
+		}
+		cout << p->chatting << endl;
+
+
+		break;
+	}
+	case CS_CHOICE_CHARACTER:
+	{
+		CS_PACKET_CHOICE_CHARACTER *p = reinterpret_cast<CS_PACKET_CHOICE_CHARACTER *>(packet);
+		clients[client].matID = p->matID;
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (false == clients[i].in_use)
+				continue;
+			SendChoiceCharacter(i, client, p->matID);
+		}
+		break;
+	}
+	case CS_READY:
+	{
+		printf("전체 클라 수: %d\n", clientCount);
+		// 클라가 엔터누르고 F5누를때마다 CS_READY 패킷이 날아온다면 ++readyCount는 clientCount보다 증가하게 되고 
+		// 아래 CS_REQUEST_START안에 if(clientCount<= readyCount) 안으로 들어가지 않는 현상 발생
+		gLock.lock();
+		++readyCount;
+		gLock.unlock();
+
+		printf("Ready한 클라 수: %d\n", readyCount);
+
+		clients[client].isReady = true;
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (clients[i].in_use == true)
+				SendReadyStatePacket(i, client);
+		}
+		break;
+	}
+	case CS_UNREADY:
+	{
+		gLock.lock();
+		--readyCount;
+		gLock.unlock();
+
+
+		printf("Ready한 클라 수: %d\n", readyCount);
+
+		clients[client].isReady = false;
+
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (clients[i].in_use == true)
+				SendUnReadyStatePacket(i, client);
+		}
+		break;
+	}
+	case CS_REQUEST_START:
+	{
+		if (clientCount <= readyCount)
+		{
+			PickBomber();
+
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (clients[i].in_use == true)
+				{
+					clients[i].gameState = GS_INGAME;
+				}
+			}
+			// 라운드 시작시간 set
+			StartTimer();
+
+			roundTime_l.lock();
+			unsigned short time = roundCurrTime;
+			roundTime_l.unlock();
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (true == clients[i].in_use)
+				{
+
+					for (int j = 0; j < MAX_USER; ++j)
+					{
+						if (true == clients[j].in_use)
+						{
+
+							clients[j].pos.x = (100.0f*j + 50);
+							clients[j].pos.z = 100.0f;
+
+							SendPutPlayer(i, j);
+
+						}
+					}
+					SendRoundStart(i, time);
+				}
+			}
+			add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
+
+
+			printf("Round Start\n");
+		}
+		else
+		{
+			//이 부분 READYCOUNT 보다
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (true == clients[i].in_use)
+					SendPleaseReady(i);
+			}
+			printf("Please Ready\n");
+		}
+		break;
+	}
 	case CS_UP_KEY:
 	case CS_DOWN_KEY:
 	case CS_LEFT_KEY:
@@ -705,8 +856,20 @@ void Server::ProcessPacket(char client, char *packet)
 		}
 		break;
 	}
+	case CS_RELEASE_KEY:
+	{
+		if (clients[client].fVelocity > 0)
+		{
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (true == clients[i].in_use)
+					SendStopRunAnim(i, client);
+			}
+		}
+		break;
+	}
 	case CS_OBJECT_COLLISION:
-	{	
+	{
 		CS_PACKET_OBJECT_COLLISION *p = reinterpret_cast<CS_PACKET_OBJECT_COLLISION *>(packet);
 
 
@@ -714,11 +877,11 @@ void Server::ProcessPacket(char client, char *packet)
 		float dist = sqrt(pow(clients[client].pos.x - objects[round][p->objId].pos.x, 2) +
 			pow(clients[client].pos.y - objects[round][p->objId].pos.y, 2) +
 			pow(clients[client].pos.z - objects[round][p->objId].pos.z, 2));
-		
+
 		recent_objects = objects[round][p->objId]; //최근에 부딪힌 오브젝트를 저장한다.
 		recent_pos = objects[round][p->objId].pos;
 
-		
+
 
 		clients[client].collision = CL_SURROUNDING;
 
@@ -728,13 +891,13 @@ void Server::ProcessPacket(char client, char *packet)
 	{
 		CS_PACKET_NOT_COLLISION *p = reinterpret_cast<CS_PACKET_NOT_COLLISION *>(packet);
 
-		
+
 		//최근 검사한 recent_object와만 거리 검사를 실시
 		float dist = sqrt(pow(clients[client].pos.x - recent_objects.pos.x, 2) +
 			pow(clients[client].pos.y - recent_objects.pos.y, 2) +
 			pow(clients[client].pos.z - recent_objects.pos.z, 2));
 
-		
+
 
 
 		clients[client].collision = CL_NONE;
@@ -747,7 +910,7 @@ void Server::ProcessPacket(char client, char *packet)
 		CS_PACKET_PLAYER_COLLISION* p = reinterpret_cast<CS_PACKET_PLAYER_COLLISION*>(packet);
 
 		float dist = sqrt(pow(clients[client].pos.x - clients[p->playerID].pos.x, 2) +
-		pow(clients[client].pos.y - clients[p->playerID].pos.y, 2) +
+			pow(clients[client].pos.y - clients[p->playerID].pos.y, 2) +
 			pow(clients[client].pos.z - clients[p->playerID].pos.z, 2));
 
 		recent_player = p->playerID;
@@ -763,19 +926,19 @@ void Server::ProcessPacket(char client, char *packet)
 
 		if (client != bomberID)
 			break;
-		
-		if (changeCoolTime > 0 || changeCoolTime < 0 )		//쿨타임이 아직 남아있으면 RoleChange를 하지 않는다.
+
+		if (changeCoolTime > 0 || changeCoolTime < 0)		//쿨타임이 아직 남아있으면 RoleChange를 하지 않는다.
 			break;
 
 		float dist = sqrt(pow(clients[client].pos.x - clients[p->touchId].pos.x, 2) +
-		pow(clients[client].pos.y - clients[p->touchId].pos.y, 2) +
+			pow(clients[client].pos.y - clients[p->touchId].pos.y, 2) +
 			pow(clients[client].pos.z - clients[p->touchId].pos.z, 2));
 
 		bomberID = p->touchId;
 
 		coolTime_l.lock();
 		changeCoolTime = COOLTIME;
-		if (changeCoolTime == COOLTIME) 
+		if (changeCoolTime == COOLTIME)
 		{
 			coolTime_l.unlock();
 			add_timer(-1, EV_COOLTIME, chrono::high_resolution_clock::now() + 1s);
@@ -785,16 +948,15 @@ void Server::ProcessPacket(char client, char *packet)
 			coolTime_l.unlock();
 		}
 
-		for(int i=0;i<MAX_USER;++i)
+		for (int i = 0; i < MAX_USER; ++i)
 		{
 			if (true == clients[i].in_use)
-				SendChangeBomber(i, bomberID,client);
+				SendChangeBomber(i, bomberID, client);
 		}
-		
+
 
 		break;
 	}
-
 	case CS_ANIMATION_INFO:		//클라가 애니메이션이 변경되었을때 패킷을 서버에게 보내고.
 	{							//서버는 그 패킷을 받아서 다른 클라이언트에게 해당 애니메이션 정보를 보낸다.
 		CS_PACKET_ANIMATION* p = reinterpret_cast<CS_PACKET_ANIMATION*>(packet);
@@ -812,147 +974,6 @@ void Server::ProcessPacket(char client, char *packet)
 
 		break;
 	}
-	case CS_RELEASE_KEY:
-		if (clients[client].fVelocity > 0)
-		{
-			for (int i = 0; i < MAX_USER; ++i)
-			{
-				if (true == clients[i].in_use)
-					SendStopRunAnim(i, client);
-			}
-		}
-		break;
-	case CS_READY:
-		printf("전체 클라 수: %d\n", clientCount);
-		// 클라가 엔터누르고 F5누를때마다 CS_READY 패킷이 날아온다면 ++readyCount는 clientCount보다 증가하게 되고 
-		// 아래 CS_REQUEST_START안에 if(clientCount<= readyCount) 안으로 들어가지 않는 현상 발생
-		gLock.lock();
-		++readyCount;
-		gLock.unlock();
-
-		printf("Ready한 클라 수: %d\n", readyCount);
-
-		clients[client].isReady = true;
-		clients[client].matID = packet[2];	// matID
-		for(int i=0;i<MAX_USER;++i)
-		{
-			if (clients[i].in_use == true)
-				SendReadyStatePacket(i, client);
-		}
-		//printf("Recv matID : %d\n", clients[client].matID);
-		break;
-	case CS_UNREADY:
-	{
-		gLock.lock();
-		--readyCount;
-		gLock.unlock();
-
-
-		printf("Ready한 클라 수: %d\n", readyCount);
-
-		clients[client].isReady = false;
-
-		for(int i=0;i<MAX_USER;++i)
-		{
-			if (clients[i].in_use == true)
-				SendUnReadyStatePacket(i, client);
-		}
-		break;
-	}
-	case CS_NICKNAME_INFO:
-	{
-		CS_PACKET_NICKNAME* p = reinterpret_cast<CS_PACKET_NICKNAME*>(packet);
-		
-	
-		strcpy_s(clients[client].nickname, sizeof(p->name), p->name);
-		for (int i = 0; i < MAX_USER; ++i)
-			if (true == clients[i].in_use)
-				SendClientLobbyIn(i, client,clients[client].nickname,false);
-
-		// 처음 접속한 나에게 기존 유저들 출력
-		for (int i = 0; i < MAX_USER; ++i)
-		{
-			if (false == clients[i].in_use)
-				continue;
-			if (i == client)
-				continue;
-			SendClientLobbyIn(client, i,clients[i].nickname,clients[i].isReady);
-		}
-		cout << clients[client].nickname << endl;
-		cout <<(int)p->id << endl;
-		break;
-	}
-	case CS_CHATTING:
-	{
-		CS_PACKET_CHATTING* p = reinterpret_cast<CS_PACKET_CHATTING*>(packet);
-
-		for(int i =0; i<MAX_USER ;++i)
-		{
-			if(true == clients[i].in_use)
-			{
-				cout << sizeof(p->chatting) << endl;
-				SendChattinPacket(i, client, p->chatting);
-			}
-		}
-		cout << p->chatting << endl;
-
-
-		break;
-	}
-	case CS_REQUEST_START:
-		if (clientCount <= readyCount)
-		{
-			PickBomber();
-			
-			for(int i=0;i<MAX_USER;++i)
-			{
-				if (clients[i].in_use == true)
-				{
-					clients[i].gameState = GS_INGAME;
-				}
-			}
-			// 라운드 시작시간 set
-			StartTimer();
-		
-			roundTime_l.lock();
-			unsigned short time = roundCurrTime;
-			roundTime_l.unlock();
-			for(int i=0; i< MAX_USER ;++i)
-			{
-				if(true == clients[i].in_use)
-				{
-				
-					for (int j = 0; j < MAX_USER; ++j)
-					{
-						if (true == clients[j].in_use)
-						{
-							
-							clients[j].pos.x = (100.0f*j + 50);
-							clients[j].pos.z = 100.0f;
-							
-							SendPutPlayer(i, j);
-							
-						}
-					}
-					SendRoundStart(i,time);
-				}
-			}
-			add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
-
-			
-			printf("Round Start\n");
-		}
-		else
-		{
-			//이 부분 READYCOUNT 보다
-			for (int i = 0; i < MAX_USER; ++i)
-			{
-				if (true == clients[i].in_use)
-					SendPleaseReady(i);
-			}
-			printf("Please Ready\n");
-		}
-		break;
 	case CS_GET_ITEM:
 	{
 		CS_PACKET_GET_ITEM *p = reinterpret_cast<CS_PACKET_GET_ITEM *>(packet);
@@ -1192,18 +1213,6 @@ void Server::ProcessPacket(char client, char *packet)
 
 		break;
 	}
-	case CS_CHOICE_CHARACTER:
-	{
-		CS_PACKET_CHOICE_CHARACTER *p = reinterpret_cast<CS_PACKET_CHOICE_CHARACTER *>(packet);
-
-		for (int i = 0; i < MAX_USER; ++i)
-		{
-			if (false == clients[i].in_use)
-				continue;
-			SendChoiceCharacter(i, client, p->matID);
-		}
-		break;
-	}
 	default:
 		wcout << L"정의되지 않은 패킷 도착 오류!!\n";
 		while (true);
@@ -1278,6 +1287,23 @@ void Server::SendClientLobbyIn(char toClient,char fromClient,char* name,const bo
 
 	SendFunc(toClient, &packet);
 }
+
+void Server::SendChosenCharacter(char toClient)
+{
+	SC_PACKET_CHOSEN_CHARACTER packet;
+	packet.size = sizeof(SC_PACKET_CHOSEN_CHARACTER);
+	packet.type = SC_CHOSEN_CHARACTER;
+	for (int i = 0; i < MAX_USER; ++i)
+	{
+		if (false == clients[i].in_use)
+			packet.matID[i] = -1;
+		else
+			packet.matID[i] = clients[i].matID;
+	}
+
+	SendFunc(toClient, &packet);
+}
+
 void Server::SendClientLobbyOut(char toClient,char fromClient)
 {
 	SC_PACKET_LOBBY_OUT packet;

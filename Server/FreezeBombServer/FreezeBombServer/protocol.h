@@ -51,6 +51,7 @@ constexpr int SC_CHANGE_HOST_ID = 22;
 constexpr int SC_GET_ITEM = 23;
 constexpr int SC_ROUND_SCORE = 24;
 constexpr int SC_CHOICE_CHARACTER = 25;
+constexpr int SC_CHOSEN_CHARACTER = 26;
 
 constexpr int CS_UP_KEY = 0;
 constexpr int CS_DOWN_KEY = 1;
@@ -519,12 +520,18 @@ struct SC_PACKET_ROUND_SCORE
 	char score[MAX_USER];
 };
 
-// 애들 재질정보 패킷
 struct SC_PACKET_CHOICE_CHARACTER
 {
 	char size;
 	char type;
 	char id;
 	char matID;
+};
+
+struct SC_PACKET_CHOSEN_CHARACTER
+{
+	char size;
+	char type;
+	char matID[MAX_USER];
 };
 //////////////////////////////////////////////////////

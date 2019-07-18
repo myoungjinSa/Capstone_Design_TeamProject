@@ -129,6 +129,7 @@ public:
 		normalItem = ITEM::EMPTY;
 		specialItem = ITEM::EMPTY;
 		role = ROLE::RUNNER;
+		matID = 0;
 		isReady = false;
 		ZeroMemory(nickname, sizeof(wchar_t) * 12);
 		ZeroMemory(&over_ex.messageBuffer, sizeof(over_ex.messageBuffer));
@@ -227,6 +228,7 @@ public:
 	void SendGetItem(char toClient, char fromClient, string& itemIndex);
 	void SendRoundScore(char client);
 	void SendChoiceCharacter(char toClient, char fromClient, char matID);
+	void SendChosenCharacter(char toClient);
 public:
 	void SetAnimationState(char client,char animationNum);
 	void SetVelocityZero(char client);
