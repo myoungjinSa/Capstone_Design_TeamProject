@@ -9,6 +9,7 @@
 #include "../FrameTransform/FrameTransform.h"
 #include "Billboard/Thunder/ThunderBillboard.h"
 #include "../Mesh/LODMesh/LODMesh.h.h"
+#include "Billboard\Fire\FireBillboard.h"
 
 //int CGameObject::m_AnimationType = CGameObject::ANIMATIONTYPE::IDLE;
 extern volatile size_t g_FileSize;
@@ -688,7 +689,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, bool bHamme
 	}
 
 
-	if (!strcmp(this->m_pstrFrameName, "Lamp"))		//불꽅 파티클은 일반 GameObject Render하는 방식을 해야한다. 
+	if (!strcmp(this->m_pstrFrameName, "Lamp") || !strcmp(this->m_pstrFrameName,"FirePoint"))		//불꽅 파티클은 일반 GameObject Render하는 방식을 해야한다. 
 	{
 		if (m_pSibling)
 			m_pSibling->Render(pd3dCommandList, pCamera, nPipelineState);
@@ -1336,7 +1337,12 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 				pGameObject->m_pThunderEffect = new CThunderBillboard(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 				pGameObject->SetChild(pGameObject->m_pThunderEffect, true);
 			}
-
+			else if (!strcmp(pGameObject->m_pstrFrameName, "FirePoint"))
+			{
+				pGameObject->m_pFireBillboard = new CFireBillboard(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+				pGameObject->SetChild(pGameObject->m_pFireBillboard, true);
+				//cout << "FirePoint" << endl;
+			}
 			else if (strstr(pGameObject->m_pstrFrameName, "LOD0"))
 				pGameObject->m_lodLevel = 0;
 

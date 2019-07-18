@@ -28,5 +28,10 @@
 			<DetailAlbedoMap>: null
 			<DetailNormalMap>: null
 	</Materials>
-	<Children>: 0
+	<Children>: 1
+		<Frame>: 1 0 FirePoint
+			<Transform>: 0 0.1 0 0 0 0 1 1 1 0 0 0 1  
+			<TransformMatrix>: 1 0 0 0 0 1 0 0 0 0 1 0 0 0.1 0 1  
+			<Children>: 0
+		</Frame>
 </Frame>

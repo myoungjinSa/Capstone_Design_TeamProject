@@ -528,7 +528,7 @@ cbuffer cbAnimationClip	: register(b7)
 	uint	gAnimationClip	: packoffset(c0);
 };
 
-Texture2D FireTexture : register (t13);
+Texture2D lampTexture : register (t13);
 
 struct VS_LAMPPARTICLE_INPUT
 {
@@ -556,7 +556,7 @@ float4 PSLampParticle(VS_LAMPPARTICLE_OUTPUT input) : SV_TARGET
 {
 	float2 texcoord = input.uv;
 	texcoord.x = texcoord.x / 6.0f + (1.0f / 6.0f) * gAnimationClip;
-	float4 cColor = FireTexture.Sample(gssWrap, texcoord);
+	float4 cColor = lampTexture.Sample(gssWrap, texcoord);
 
 	return (cColor);
 }
@@ -587,7 +587,7 @@ float4 PSBombParticle(VS_BOMBPARTICLE_OUTPUT input) : SV_TARGET
 {
 	float2 texcoord = input.uv;
 	texcoord.x = texcoord.x / 6.0f + (1.0f / 6.0f) * gAnimationClip;
-	float4 cColor = FireTexture.Sample(gssWrap, texcoord);
+	float4 cColor = lampTexture.Sample(gssWrap, texcoord);
 
 	return (cColor);
 }
@@ -629,6 +629,45 @@ float4 PSThunder(VS_THUNDER_OUTPUT input) : SV_TARGET
 	
 	return (cColor + float4(0.9f,0.9f,-2.0f,0.0f));
 }
+
+Texture2D FireTexture : register(t18);
+
+
+struct VS_FIRE_BILLBOARD_INPUT
+{
+	float3 position	: POSITION;
+	float2 uv			: TEXCOORD;
+};
+
+struct VS_FIRE_BILLBOARD_OUTPUT
+{
+	float4 position		: SV_POSITION;
+	float2 uv			: TEXCOORD;
+};
+
+VS_FIRE_BILLBOARD_OUTPUT VSFireBillboard(VS_FIRE_BILLBOARD_INPUT input)
+{
+	
+	VS_FIRE_BILLBOARD_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection);
+	output.uv = input.uv;
+
+	return (output);
+}
+
+float4 PSFireBillboard(VS_FIRE_BILLBOARD_OUTPUT input) : SV_TARGET
+{
+	float2 texcoord = input.uv;
+	texcoord.x = texcoord.x / 8.0f + (1.0f / 8.0f) * gAnimationClip;
+	texcoord.y = texcoord.y / 8.0f + (1.0f / 8.0f) * gAnimationClip;
+	float4 cColor = FireTexture.Sample(gssWrap, texcoord);
+
+	
+	
+	return (cColor);
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

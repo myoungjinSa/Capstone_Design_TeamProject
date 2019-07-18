@@ -261,6 +261,7 @@ class CShadow;
 class CLampParticle;
 class CFrameTransform;
 class CThunderBillboard;
+class CFireBillboard;
 class CGameObject
 {
 private:
@@ -424,6 +425,7 @@ protected:
 
 	CLampParticle*				m_pLampParticle{ nullptr };	
 	CThunderBillboard*			m_pThunderEffect{ nullptr };
+	CFireBillboard*				m_pFireBillboard{ nullptr };
 
 	string							m_ID;													
 	CGameObject*				m_pObjectCollided{ nullptr };

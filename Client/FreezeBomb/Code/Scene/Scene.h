@@ -178,7 +178,7 @@ public:
 	{
 		SkyBox = 2, Terrain = 2, MapObjects = 71, Item = 8,
 		EvilBear = 19, Player = 19, BombParticle = 1, CubeParticle = 1, Snow = 1, TimerUI = 11, ItemUI = 4, MenuUI = 6,
-		Thunder = 2
+		Thunder = 2, FirePit = 1
 	};
 
 #ifndef _WITH_SERVER_

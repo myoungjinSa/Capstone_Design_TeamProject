@@ -98,6 +98,10 @@ public:
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 	bool IsInGame(); 
+
+public:
+
+	static enum STAGE {ROUND_1,ROUND_2,ROUND_3};
 private:
 	HINSTANCE						m_hInstance;
 	HWND							m_hWnd;

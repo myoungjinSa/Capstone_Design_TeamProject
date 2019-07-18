@@ -255,6 +255,12 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\OutcomeUIShader\OutcomeUIShader.cpp">
       <Filter>Code\Shader\BillboardShader\UIShader\OutcomeUIShader</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\GameObject\Billboard\Fire\FireBillboard.cpp">
+      <Filter>Code\GameObject\Billboard\Fire</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Shader\BillboardShader\FireBillboardShader\FireBillboardShader.cpp">
+      <Filter>Code\Shader\BillboardShader\FireBillboardShader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h">
@@ -508,6 +514,12 @@
     </ClInclude>
     <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\OutcomeUIShader\OutcomeUIShader.h">
       <Filter>Code\Shader\BillboardShader\UIShader\OutcomeUIShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\GameObject\Billboard\Fire\FireBillboard.h">
+      <Filter>Code\GameObject\Billboard\Fire</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Shader\BillboardShader\FireBillboardShader\FireBillboardShader.h">
+      <Filter>Code\Shader\BillboardShader\FireBillboardShader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -765,6 +777,12 @@
     </Filter>
     <Filter Include="Code\Shader\BillboardShader\UIShader\OutcomeUIShader">
       <UniqueIdentifier>{ed3e803f-f0a7-4d78-9952-3b0ba728d558}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\GameObject\Billboard\Fire">
+      <UniqueIdentifier>{c536f683-6999-4b03-bbe8-d6b1b62461a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Shader\BillboardShader\FireBillboardShader">
+      <UniqueIdentifier>{2e179d14-7b33-405f-b83e-f7e439a549f8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

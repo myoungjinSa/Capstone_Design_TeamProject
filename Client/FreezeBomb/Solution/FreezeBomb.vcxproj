@@ -177,6 +177,7 @@
     <ClInclude Include="..\Code\GameFramework\GameFramework.h" />
     <ClInclude Include="..\Code\GameObject\Billboard\Billboard.h" />
     <ClInclude Include="..\Code\GameObject\Billboard\Bomb\Bomb.h" />
+    <ClInclude Include="..\Code\GameObject\Billboard\Fire\FireBillboard.h" />
     <ClInclude Include="..\Code\GameObject\Billboard\LampParticle\LampParticle.h" />
     <ClInclude Include="..\Code\GameObject\Billboard\Snow\Snow.h" />
     <ClInclude Include="..\Code\GameObject\Billboard\Thunder\ThunderBillboard.h" />
@@ -214,6 +215,7 @@
     <ClInclude Include="..\Code\ShaderManager\ShaderManager.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\BillboardShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\BombParticleShader\BombParticleShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\FireBillboardShader\FireBillboardShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\LampParticleShader\LampParticleShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\SnowShader\SnowShader.h" />
     <ClInclude Include="..\Code\Shader\BillboardShader\ThunderShader\ThunderShader.h" />
@@ -260,6 +262,7 @@
     <ClCompile Include="..\Code\GameFramework\GameFramework.cpp" />
     <ClCompile Include="..\Code\GameObject\Billboard\Billboard.cpp" />
     <ClCompile Include="..\Code\GameObject\Billboard\Bomb\Bomb.cpp" />
+    <ClCompile Include="..\Code\GameObject\Billboard\Fire\FireBillboard.cpp" />
     <ClCompile Include="..\Code\GameObject\Billboard\LampParticle\LampParticle.cpp" />
     <ClCompile Include="..\Code\GameObject\Billboard\Snow\Snow.cpp" />
     <ClCompile Include="..\Code\GameObject\Billboard\Thunder\ThunderBillboard.cpp" />
@@ -297,6 +300,7 @@
     <ClCompile Include="..\Code\ShaderManager\ShaderManager.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\BillboardShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\BombParticleShader\BombParticleShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\FireBillboardShader\FireBillboardShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\LampParticleShader\LampParticleShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\SnowShader\SnowShader.cpp" />
     <ClCompile Include="..\Code\Shader\BillboardShader\ThunderShader\ThunderShader.cpp" />
