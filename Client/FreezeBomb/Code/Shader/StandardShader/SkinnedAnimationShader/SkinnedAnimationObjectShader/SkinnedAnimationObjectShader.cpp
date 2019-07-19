@@ -132,7 +132,7 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 	for (int i = 0; i < m_nObjects; ++i)
 	{
 		XMFLOAT3 scale = XMFLOAT3(10.0f, 10.0f, 10.0f);
-		m_ppObjects[i]->SetScale(scale.x,scale.y,scale.z);
+		m_ppObjects[i]->SetScale(scale.x, scale.y, scale.z);
 
 		m_ppObjects[i]->setID("EvilBear");
 		auto iter = Context.find(m_ppObjects[i]->getID());

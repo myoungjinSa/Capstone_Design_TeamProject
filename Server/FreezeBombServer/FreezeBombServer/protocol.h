@@ -13,7 +13,6 @@ struct clientsInfo
 	char	name[32];
 };
 
-
 enum ROLE { RUNNER, BOMBER };
 enum ITEM { NORMALHAMMER=0, GOLD_HAMMER, GOLD_TIMER,EMPTY };
 

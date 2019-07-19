@@ -319,14 +319,6 @@ VS_UI_OUTPUT VSSpecialItemUI(uint nVertexID : SV_VertexID)
 //	return(output);
 //}
 
-//float2 m_MenuBoard_MinPos	: packoffset(c0.x);
-//float2 m_MenuBoard_MaxPos	: packoffset(c0.z);
-//float2 m_MenuBoard_UV			: packoffset(c1.x);
-//
-//float2 m_MenuICON_MinPos	: packoffset(c1.z);
-//float2 m_MenuICON_MaxPos	: packoffset(c2.x);
-//float2 m_MenuICON_UV			: packoffset(c2.z);
-
 cbuffer cbMenuUV					: register(b9)
 {
 	float4 m_MenuBoard_MinMaxPos				: packoffset(c0);
@@ -802,11 +794,26 @@ float4 PSIDScene(VS_UI_OUTPUT input) : SV_TARGET
 	return(cColor);
 }
 
-
 /////////////////////////////////////////////////////////////////////////////////////////////
+
+cbuffer cbLobbyInfo							: register(b10)
+{
+	float4 m_Ready_MinMaxPos			: packoffset(c0);
+	float4 m_Quit_MinMaxPos			: packoffset(c1);
+	float4 m_ReadyAndQuitUV			: packoffset(c2);
+
+	//float4 m_MenuOption_MinMaxPos				: packoffset(c3);
+	//float4 m_MenuGameOver_MinMaxPos			: packoffset(c4);
+	//float4 m_MenuOption_MenuGameOver_UV	: packoffset(c5);
+
+	//float4 m_MenuSound_MinMaxPos				: packoffset(c6);
+	//float4 m_MenuCartoon_MinMaxPos				: packoffset(c7);
+	//float4 m_MenuSound_MenuCartoon_UV		: packoffset(c8);
+};
+
 //CharacterSelect
 Texture2D gtxtSelectTexture : register(t21);
-VS_UI_OUTPUT VSCharacterSelect(uint nVertexID : SV_VertexID)
+VS_UI_OUTPUT VSLobbyBase(uint nVertexID : SV_VertexID)
 {
 	VS_UI_OUTPUT output;
 
@@ -839,6 +846,83 @@ VS_UI_OUTPUT VSCharacterSelect(uint nVertexID : SV_VertexID)
 	{
 		output.position = float4(-1.0f, -1.0f, 0.0f, 1.0f);
 		output.uv = float2(0.0f, 1.0f);
+	}
+	return (output);
+}
+
+VS_UI_OUTPUT VSLobbyReady(uint nVertexID : SV_VertexID)
+{
+	VS_UI_OUTPUT output;
+
+	if (nVertexID == 0)
+	{
+		output.position = float4(m_Ready_MinMaxPos.x, m_Ready_MinMaxPos.w, 0.0f, 1.0f);
+		output.uv = float2(m_ReadyAndQuitUV.x, 0.0f);
+
+	}
+	if (nVertexID == 1)
+	{
+		output.position = float4(m_Ready_MinMaxPos.x, m_Ready_MinMaxPos.y, 0.0f, 1.0f);
+		output.uv = float2(m_ReadyAndQuitUV.x, 1.0f);
+	}
+	if (nVertexID == 2)
+	{
+		output.position = float4(m_Ready_MinMaxPos.z, m_Ready_MinMaxPos.y, 0.0f, 1.0f);
+		output.uv = float2(m_ReadyAndQuitUV.y, 1.0f);
+	}
+	if (nVertexID == 3)
+	{
+		output.position = float4(m_Ready_MinMaxPos.z, m_Ready_MinMaxPos.y, 0.0f, 1.0f);
+		output.uv = float2(m_ReadyAndQuitUV.y, 1.0f);
+	}
+	if (nVertexID == 4)
+	{
+		output.position = float4(m_Ready_MinMaxPos.z, m_Ready_MinMaxPos.w, 0.0f, 1.0f);
+		output.uv = float2(m_ReadyAndQuitUV.y, 0.0f);
+	}
+	if (nVertexID == 5)
+	{
+		output.position = float4(m_Ready_MinMaxPos.x, m_Ready_MinMaxPos.w, 0.0f, 1.0f);
+		output.uv = float2(m_ReadyAndQuitUV.x, 0.0f);
+	}
+
+	return output;
+}
+
+VS_UI_OUTPUT VSLobbyQuit(uint nVertexID : SV_VertexID)
+{
+	VS_UI_OUTPUT output;
+
+	if (nVertexID == 0)
+	{
+		output.position = float4(m_Quit_MinMaxPos.x, m_Quit_MinMaxPos.w, 0.0f, 1.0f);
+		output.uv = float2(m_ReadyAndQuitUV.z, 0.0f);
+
+	}
+	if (nVertexID == 1)
+	{
+		output.position = float4(m_Quit_MinMaxPos.x, m_Quit_MinMaxPos.y, 0.0f, 1.0f);
+		output.uv = float2(m_ReadyAndQuitUV.z, 1.0f);
+	}
+	if (nVertexID == 2)
+	{
+		output.position = float4(m_Quit_MinMaxPos.z, m_Quit_MinMaxPos.y, 0.0f, 1.0f);
+		output.uv = float2(m_ReadyAndQuitUV.w, 1.0f);
+	}
+	if (nVertexID == 3)
+	{
+		output.position = float4(m_Quit_MinMaxPos.z, m_Quit_MinMaxPos.y, 0.0f, 1.0f);
+		output.uv = float2(m_ReadyAndQuitUV.w, 1.0f);
+	}
+	if (nVertexID == 4)
+	{
+		output.position = float4(m_Quit_MinMaxPos.z, m_Quit_MinMaxPos.w, 0.0f, 1.0f);
+		output.uv = float2(m_ReadyAndQuitUV.w, 0.0f);
+	}
+	if (nVertexID == 5)
+	{
+		output.position = float4(m_Quit_MinMaxPos.x, m_Quit_MinMaxPos.w, 0.0f, 1.0f);
+		output.uv = float2(m_ReadyAndQuitUV.z, 0.0f);
 	}
 	return (output);
 }

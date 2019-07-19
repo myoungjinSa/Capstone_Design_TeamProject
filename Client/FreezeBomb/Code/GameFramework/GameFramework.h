@@ -44,6 +44,9 @@ public:
 	void CreateDirect2DRenderTargetViews();
 	void CreateDirect2DDevice();
 	
+	static  ID2D1DeviceContext2*	GetDeviceContext() { return m_pd2dDeviceContext; }
+	static  IWICImagingFactory* GetWICImagingFactory() { return m_pwicImagingFactory; };
+
 	void Initialize_BitmapImage();
 	void Initialize_GameFont();
 
@@ -62,8 +65,6 @@ public:
 	CLoginScene* GetLoginScene()const { return m_pLoginScene; }
 	void ProcessPacket(char *ptr);
 	void ResetAnimationForRoundStart();
-
-
 
 	//void CreateLoginCommandList();
 	//void InitializeIPSystem();
@@ -165,15 +166,15 @@ private:
 	D3D12_CPU_DESCRIPTOR_HANDLE				m_pd3dCarttonScreenRenderTargetBufferCPUHandles[m_nCartoonScreenRenderTargetBuffers];
 
 	CSobelCartoonShader*					m_pCartoonShader{ nullptr };
-	map<int,clientsInfo>						m_mapClients;
+	map<int, clientsInfo>						m_mapClients;
 
 #ifdef _WITH_DIRECT2D_
 	ID3D11On12Device				*m_pd3d11On12Device{ nullptr };//
-	ID3D11DeviceContext				*m_pd3d11DeviceContext{ nullptr };//
-	ID2D1Factory3					*m_pd2dFactory{ nullptr };//
+	ID3D11DeviceContext			*m_pd3d11DeviceContext{ nullptr };//
+	ID2D1Factory3						*m_pd2dFactory{ nullptr };//
 
-	ID2D1Device2					*m_pd2dDevice{ nullptr };//
-	ID2D1DeviceContext2				*m_pd2dDeviceContext{ nullptr };//
+	ID2D1Device2*					m_pd2dDevice{ nullptr };//
+	static ID2D1DeviceContext2*		m_pd2dDeviceContext;
 
 	ID3D11Resource				*m_ppd3d11WrappedBackBuffers[m_nSwapChainBuffers];
 	ID2D1Bitmap1					*m_ppd2dRenderTargets[m_nSwapChainBuffers];
@@ -193,13 +194,7 @@ private:
 
 	// 폰트 색상
 	ID2D1SolidColorBrush**		m_ppFontColor{ nullptr };	
-
-	IWICImagingFactory* m_pwicImagingFactory{ nullptr };
-
-	ID2D1Bitmap* m_ScoreBoardBitmap = nullptr;
-	D2D1_RECT_F m_ScoreBoardPos;
-	ID2D1Bitmap* m_TimeOverBitmap = nullptr;
-	D2D1_RECT_F m_TimeOverPos;
+	static IWICImagingFactory* m_pwicImagingFactory;
 
 	//한글인지 영어 인지
 	bool m_bHangeul{ false };	

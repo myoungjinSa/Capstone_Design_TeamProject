@@ -1,5 +1,7 @@
 #include "../Stdafx/Stdafx.h"
 #include "GameFramework.h"
+#include "../Direct2D/Direct2D.h"
+
 #include "../Network/Network.h"
 
 #include "../Scene/Scene.h"
@@ -30,6 +32,10 @@
 
 #include "../ResourceManager/ResourceManager.h"
 #include "../SoundSystem/SoundSystem.h"
+
+
+ID2D1DeviceContext2*	CGameFramework::m_pd2dDeviceContext = nullptr;
+IWICImagingFactory* CGameFramework::m_pwicImagingFactory = nullptr;
 
 // 전체모드할경우 주석풀으셈
 //#define FullScreenMode
@@ -294,7 +300,6 @@ void CGameFramework::CreateDirect3DDevice()
 		pOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, nFlags, &nModes, NULL);
 		m_pDisplayMode = new DXGI_MODE_DESC[nModes];*/
 
-
 		pd3dAdapter->GetDesc1(&dxgiAdapterDesc);
 		
 		//pOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, 0, &nModes, &m_pDisplayMode[0]);
@@ -312,7 +317,6 @@ void CGameFramework::CreateDirect3DDevice()
 		hResult = D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), (void **)&m_pd3dDevice);
 		if (FAILED(hResult))
 			cout << "CreateWarpDevice 에러\n";
-		
 	}
 
 	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS d3dMsaaQualityLevels;
@@ -402,7 +406,6 @@ void CGameFramework::CreateDirect2DDevice()
 	hResult = m_pd3d11On12Device->QueryInterface(__uuidof(IDXGIDevice), (void **)&pdxgiDevice);
 	hResult = m_pd2dFactory->CreateDevice(pdxgiDevice, &m_pd2dDevice);
 	hResult = m_pd2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_pd2dDeviceContext);
-	//hResult = ::DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), (IUnknown **)&m_pdWriteFactory);
 	hResult = ::DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory5), (IUnknown **)&m_pdWriteFactory);
 
 	if (pdxgiDevice)
@@ -418,46 +421,20 @@ void CGameFramework::CreateDirect2DDevice()
 
 void CGameFramework::Initialize_BitmapImage()
 {
-	// [ Bitmap 이미지 초기화 방법 ] 
-	// 1. Com객체 초기화
-	// 2. IWICImagingFactory 생성
-	// 3. Decoder 생성
-	// 4. 이미지의 프레임 얻어오기
-	// 5. Converter 생성
-	// 6. Bitmap 생성
-
 	CoInitialize(NULL);
 	HRESULT hResult = CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory), (void**)&m_pwicImagingFactory);
 
-	constexpr int imageNum = 2;
-	wstring imagePath[imageNum] = { L"../Resource/Png/ScoreBoard.png", L"../Resource/Png/TimeOver.png" };
-
-	for (int i = 0; i < imageNum; ++i)
+	constexpr int imageNum = 3;
+	wstring imagePath[] = 
 	{
-		IWICBitmapDecoder* pBitmapDecoder;
-		hResult = m_pwicImagingFactory->CreateDecoderFromFilename(imagePath[i].c_str(), NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &pBitmapDecoder);
+		L"../Resource/Png/Characters.png",
+		L"../Resource/Png/ChoiceCharacter.png",
+		L"../Resource/Png/ScoreBoard.png",
+		L"../Resource/Png/TimeOver.png", 
+	};
 
-		IWICBitmapFrameDecode* pFrameDecode;
-		pBitmapDecoder->GetFrame(0, &pFrameDecode);
-
-		IWICFormatConverter* pFormatConverter;
-		m_pwicImagingFactory->CreateFormatConverter(&pFormatConverter);
-		pFormatConverter->Initialize(pFrameDecode, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 0.0f, WICBitmapPaletteTypeCustom);
-
-		if(i == 0)
-			hResult = m_pd2dDeviceContext->CreateBitmapFromWicBitmap(pFormatConverter, &m_ScoreBoardBitmap);
-		else
-			hResult = m_pd2dDeviceContext->CreateBitmapFromWicBitmap(pFormatConverter, &m_TimeOverBitmap);
-
-		if (pBitmapDecoder)
-			pBitmapDecoder->Release();
-
-		if (pFrameDecode)
-			pFrameDecode->Release();
-
-		if (pFormatConverter)
-			pFormatConverter->Release();
-	}
+	UINT originX = 1280;
+	UINT originY = 720;
 
 	// 스코어 보드 이미지 위치
 	RECT r;
@@ -466,9 +443,16 @@ void CGameFramework::Initialize_BitmapImage()
 	r.top = r.bottom / 5;
 	r.right = r.right * 4 / 5;
 	r.bottom = r.bottom * 4 / 5;
-	m_ScoreBoardPos = D2D1::RectF(r.left, r.top, r.right, r.bottom);
 
-	m_TimeOverPos = { m_ScoreBoardPos.left, 80, m_ScoreBoardPos.right, 230 };
+	D2D1_RECT_F charactersPos = D2D1::RectF((781 * FRAME_BUFFER_WIDTH) / originX, (17 * FRAME_BUFFER_HEIGHT) / originY, (1262 * FRAME_BUFFER_WIDTH) / originX, (412 * FRAME_BUFFER_HEIGHT) / originY);
+	D2D1_RECT_F choicePos = D2D1::RectF((90 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (210 * FRAME_BUFFER_WIDTH) / originX, (186 * FRAME_BUFFER_HEIGHT) / originY);
+	D2D1_RECT_F scoreboardPos = D2D1::RectF(r.left, r.top, r.right, r.bottom);
+	D2D1_RECT_F timeoverPos = { scoreboardPos.left, 80, scoreboardPos.right, 230 };
+	
+	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[0], charactersPos, 5271, 620, 7, 1, 0, 0), "Characters");
+	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[1], choicePos, 600, 102, 6, 1, 0, 0), "ChoiceCharacter");
+	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[2], scoreboardPos, 1638, 1009, 1, 1, 0, 0), "ScoreBoard");
+	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[3], timeoverPos, 2138, 569, 1, 1, 0, 0), "TimeOver");
 }
 
 void CGameFramework::Initialize_GameFont()
@@ -756,6 +740,9 @@ void CGameFramework::CreateOffScreenRenderTargetViews()
 
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
+	int mouseX = LOWORD(lParam);
+	int mouseY = HIWORD(lParam);
+	cout << mouseX << ", " << mouseY << endl;
 	switch (g_State)
 	{
 	case CHARACTER_SELECT:
@@ -953,9 +940,9 @@ void CGameFramework::OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM w
 	{
 	case WM_KEYUP:
 		if(m_pMapToolShader && m_pPlayer)
-			m_pMapToolShader->InstallMapObject(m_pd3dDevice, m_pd3dCommandList, m_pPlayer, wParam);
+			m_pMapToolShader->InstallMapObject(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), m_pPlayer, wParam);
 		break;
-
+		
 	default:
 		break;
 	}
@@ -1012,6 +999,9 @@ void CGameFramework::OnDestroy()
 	::CloseHandle(m_hFenceEvent);
 #ifdef _WITH_DIRECT2D_
 
+	CDirect2D::GetInstance()->Release();
+	CDirect2D::GetInstance()->DeleteInstance();
+
 	//Direct2D
 	for (int i = 0; i < m_FontNum; ++i)
 	{
@@ -1029,12 +1019,6 @@ void CGameFramework::OnDestroy()
 		m_pFontCollection->Release();
 	if (m_pdWriteFactory) 
 		m_pdWriteFactory->Release();
-
-	if (m_ScoreBoardBitmap)
-		m_ScoreBoardBitmap->Release();
-
-	if (m_TimeOverBitmap)
-		m_TimeOverBitmap->Release();
 
 	ChattingSystem::GetInstance()->Destroy();
 	ChattingSystem::GetInstance()->DeleteInstance();
@@ -1466,9 +1450,6 @@ void CGameFramework::SetNamecard()
 
 void CGameFramework::ShowScoreboard()
 {
-	if (m_ScoreBoardBitmap == nullptr)
-		return;
-
 	map<string, CShader*> shaderMap = m_pScene->getShaderManager()->getShaderMap();
 	auto iter = shaderMap.find("TimerUI");
 	if (iter != shaderMap.end())
@@ -1478,34 +1459,35 @@ void CGameFramework::ShowScoreboard()
 		if (timer <= 0.f || GetAsyncKeyState(VK_TAB) & 0x8000)
 		{
 			// ScoreBoard 이미지 그리기
-			m_pd2dDeviceContext->DrawBitmap(m_ScoreBoardBitmap, &m_ScoreBoardPos);
-
-			float width = m_ScoreBoardPos.right - m_ScoreBoardPos.left;
-			float height = m_ScoreBoardPos.bottom - m_ScoreBoardPos.top;
+			CDirect2D::GetInstance()->Render("ScoreBoard");
+			ImageInfo info = CDirect2D::GetInstance()->GetImageInfo("ScoreBoard");
+			
+			float width = info.m_Pos.right - info.m_Pos.left;
+			float height = info.m_Pos.bottom - info.m_Pos.top;
 
 			D2D1_RECT_F rankPos;
-			rankPos.left = m_ScoreBoardPos.left + width * 1.f / 42.f;
-			rankPos.right = m_ScoreBoardPos.left + width * 11.f / 42.f;
-			rankPos.top = m_ScoreBoardPos.top + height * 3.f / 16.f;
-			rankPos.bottom = m_ScoreBoardPos.top + height * 5.f / 16.f;
+			rankPos.left = info.m_Pos.left + width * 1.f / 42.f;
+			rankPos.right = info.m_Pos.left + width * 11.f / 42.f;
+			rankPos.top = info.m_Pos.top + height * 3.f / 16.f;
+			rankPos.bottom = info.m_Pos.top + height * 5.f / 16.f;
 
 			D2D1_RECT_F idPos;
-			idPos.left = m_ScoreBoardPos.left + width * 21.f / 42.f;
-			idPos.right = m_ScoreBoardPos.left + width * 31.f / 42.f;
-			idPos.top = m_ScoreBoardPos.top + height * 3.f / 16.f;
-			idPos.bottom = m_ScoreBoardPos.top + height * 5.f / 16.f;
+			idPos.left = info.m_Pos.left + width * 21.f / 42.f;
+			idPos.right = info.m_Pos.left + width * 31.f / 42.f;
+			idPos.top = info.m_Pos.top + height * 3.f / 16.f;
+			idPos.bottom = info.m_Pos.top + height * 5.f / 16.f;
 
 			D2D1_RECT_F idPos2;
-			idPos2.left = m_ScoreBoardPos.left + width * 21.f / 42.f;
-			idPos2.right = m_ScoreBoardPos.left + width * 31.f / 42.f;
-			idPos2.top = m_ScoreBoardPos.top + height * 5.f / 16.f;
-			idPos2.bottom = m_ScoreBoardPos.top + height * 7.f / 16.f;
+			idPos2.left = info.m_Pos.left + width * 21.f / 42.f;
+			idPos2.right = info.m_Pos.left + width * 31.f / 42.f;
+			idPos2.top = info.m_Pos.top + height * 5.f / 16.f;
+			idPos2.bottom = info.m_Pos.top + height * 7.f / 16.f;
 
 			D2D1_RECT_F scorePos;
-			scorePos.left = m_ScoreBoardPos.left + width * 30.f / 42.f;
-			scorePos.right = m_ScoreBoardPos.left + width * 40.f / 42.f;
-			scorePos.top = m_ScoreBoardPos.top + height * 3.f / 16.f;
-			scorePos.bottom = m_ScoreBoardPos.top + height * 5.f / 16.f;
+			scorePos.left = info.m_Pos.left + width * 30.f / 42.f;
+			scorePos.right = info.m_Pos.left + width * 40.f / 42.f;
+			scorePos.top = info.m_Pos.top + height * 3.f / 16.f;
+			scorePos.bottom = info.m_Pos.top + height * 5.f / 16.f;
 
 			// ID
 			m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), m_ppFont[FONT_TYPE::PIOP_FONT], &idPos, m_ppFontColor[g_PlayerCharacter]);
@@ -1538,16 +1520,35 @@ void CGameFramework::ShowScoreboard()
 		}
 
 		if (timer <= 0.f)
-			m_pd2dDeviceContext->DrawBitmap(m_TimeOverBitmap, &m_TimeOverPos);
-
+			CDirect2D::GetInstance()->Render("TimeOver");
 	}
 }
 
 void CGameFramework::ShowReadyText()
 {
-	D2D1_RECT_F rcText = D2D1::RectF(0, 0, 200.f, 275.f);
 	wstring wstr = L"READY";
-	m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &rcText, m_ppFontColor[COLOR_TYPE::RED]);
+
+	UINT originX = 1200;
+	UINT originY = 800;
+	D2D1_RECT_F readyRect{ 0.0f, };
+
+	readyRect = D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
+	m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
+
+	readyRect = D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
+	m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
+
+	readyRect = D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
+	m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
+
+	readyRect = D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
+	m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
+
+	readyRect = D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
+	m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
+
+	readyRect = D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
+	m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
 }
 
 void CGameFramework::ShowPlayers()
@@ -1565,7 +1566,6 @@ void CGameFramework::ShowPlayers()
 	rect.right = (780.0f * FRAME_BUFFER_WIDTH) / originX;
 	rect.bottom = (290.0f * FRAME_BUFFER_HEIGHT) / originY;
 
-	
 	readyRect.right = (200.0f * FRAME_BUFFER_WIDTH) / originX;
 	readyRect.bottom = (290.0f * FRAME_BUFFER_HEIGHT) / originY;
 	
@@ -1636,6 +1636,8 @@ void CGameFramework::ProcessDirect2D()
 	{
 	case CHARACTER_SELECT:
 	{
+		m_pLobbyScene->UIRender();
+
 		bool isReady = CCharacterSelectUIShader::GetIsReady();
 
 #ifdef _WITH_SERVER_

@@ -23,12 +23,14 @@ public:
 	ID3D12RootSignature *GetGraphicsRootSignature() { return(m_pd3dGraphicsRootSignature); }
 	enum gamestate {CHARACTER_SELECT};
 
+	void UIRender();
+
 protected:
 	ID3D12RootSignature*		m_pd3dGraphicsRootSignature = NULL;
 	map<string, CShader*>	m_shaderMap;
 	
 public:
-	CShader						**m_ppShaders{ nullptr };
+	CShader**			m_ppShaders{ nullptr };
 	int							m_nShaders = 0;
 };
 

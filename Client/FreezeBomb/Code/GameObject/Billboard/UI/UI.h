@@ -17,8 +17,11 @@ public:
 	void SetUIMinPos(XMFLOAT2 minPos) { m_UIMinPos = minPos; }
 	const XMFLOAT2& GetUIMaxPos()	const { return m_UIMaxPos; }
 	void SetUIMaxPos(XMFLOAT2 maxPos) { m_UIMaxPos = maxPos; }
+	const XMFLOAT2& GetUV()	const { return m_UV; }
+	void SetUV(XMFLOAT2 uv) { m_UV = uv; }
 
 private:
 	XMFLOAT2 m_UIMinPos;
 	XMFLOAT2 m_UIMaxPos;
+	XMFLOAT2 m_UV = XMFLOAT2(0.f, 0.5f);
 };

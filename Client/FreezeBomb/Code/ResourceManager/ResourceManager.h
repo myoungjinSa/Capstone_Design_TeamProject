@@ -52,8 +52,9 @@ public:
 	void LoadTexture(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void LoadModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	void LoadMapObjectInfo(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-	void LoadBound(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	void LoadCharactersInfo(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 
+	void LoadBound(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void ReleaseModel();
 	void Release();
 
@@ -64,8 +65,10 @@ public:
 	const multimap<string, MapObjectInfo*>& getMapObjectInfo()	const {}
 
 	const unordered_map<unsigned char, RoundInfo>& getRoundMapObjectInfo()	const { return m_RoundInfoMapObjectInfo; }
+
+	static const XMFLOAT3& GetCharactersPosition(int index) { return m_CharactersInfoMap[index]->m_Position; }
+
 private:
-	
 	map<string, CTexture*>					m_TextureMap;
 	map<string, CLoadedModelInfo*>	m_ModelMap;
 	map<string, Bounds*>						m_BoundMap;
@@ -77,4 +80,6 @@ private:
 	map<string, ModelInfo>		m_ModelInfoMap;
 
 	unordered_map<unsigned char, RoundInfo> m_RoundInfoMapObjectInfo;
+
+	static vector<MapObjectInfo*> m_CharactersInfoMap;
 };

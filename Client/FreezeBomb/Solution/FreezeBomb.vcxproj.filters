@@ -261,6 +261,9 @@
     <ClCompile Include="..\Code\Shader\BillboardShader\FireBillboardShader\FireBillboardShader.cpp">
       <Filter>Code\Shader\BillboardShader\FireBillboardShader</Filter>
     </ClCompile>
+    <ClCompile Include="..\Code\Direct2D\Direct2D.cpp">
+      <Filter>Code\Direct2D</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Code\Camera\Camera.h">
@@ -520,6 +523,9 @@
     </ClInclude>
     <ClInclude Include="..\Code\Shader\BillboardShader\FireBillboardShader\FireBillboardShader.h">
       <Filter>Code\Shader\BillboardShader\FireBillboardShader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Direct2D\Direct2D.h">
+      <Filter>Code\Direct2D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -783,6 +789,9 @@
     </Filter>
     <Filter Include="Code\Shader\BillboardShader\FireBillboardShader">
       <UniqueIdentifier>{2e179d14-7b33-405f-b83e-f7e439a549f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Direct2D">
+      <UniqueIdentifier>{fcf35f84-0fc4-477e-9a87-8e2ae1957980}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

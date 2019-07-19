@@ -7,6 +7,7 @@
 #include "../../../../SoundSystem/SoundSystem.h"
 #include "../../../../Scene/LobbyScene/LobbyScene.h"
 #include "../../../../GameFramework/GameFramework.h"
+#include "../../../../Direct2D/Direct2D.h"
 
 bool CCharacterSelectUIShader::m_IsReady = false;
 char CCharacterSelectUIShader::m_ChoiceCharacter = NONE;
@@ -23,14 +24,14 @@ CCharacterSelectUIShader::~CCharacterSelectUIShader()
 
 void CCharacterSelectUIShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
-	m_nPipelineStates = 1;
+	m_nPipelineStates = 3;
 	m_ppd3dPipelineStates = new ID3D12PipelineState*[m_nPipelineStates];
 
 	for (int i = 0; i < m_nPipelineStates; ++i)
 	{
 		::ZeroMemory(&m_d3dPipelineStateDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 		m_d3dPipelineStateDesc.pRootSignature = pd3dGraphicsRootSignature;
-		m_d3dPipelineStateDesc.VS = CreateVertexShader();
+		m_d3dPipelineStateDesc.VS = CreateVertexShader(i);
 		m_d3dPipelineStateDesc.PS = CreatePixelShader();
 		m_d3dPipelineStateDesc.RasterizerState = CreateRasterizerState();
 		m_d3dPipelineStateDesc.BlendState = CreateBlendState();
@@ -105,9 +106,23 @@ void CCharacterSelectUIShader::CreateShaderResourceViews(ID3D12Device *pd3dDevic
 	}
 }
 
-D3D12_SHADER_BYTECODE CCharacterSelectUIShader::CreateVertexShader()
+D3D12_SHADER_BYTECODE CCharacterSelectUIShader::CreateVertexShader(int UIType)
 {
-	return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "VSCharacterSelect", "vs_5_1", &m_pd3dVertexShaderBlob));
+	switch ((UITYPE)UIType)
+	{
+	case UITYPE::BASE:
+		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "VSLobbyBase", "vs_5_1", &m_pd3dVertexShaderBlob));
+		break;
+	case UITYPE::READY:
+		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "VSLobbyReady", "vs_5_1", &m_pd3dVertexShaderBlob));
+		break;
+	case UITYPE::QUIT:
+		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/UI.hlsl", "VSLobbyQuit", "vs_5_1", &m_pd3dVertexShaderBlob));
+		break;
+	default:
+		break;
+	}
+
 }
 
 D3D12_SHADER_BYTECODE CCharacterSelectUIShader::CreatePixelShader()
@@ -118,35 +133,17 @@ D3D12_SHADER_BYTECODE CCharacterSelectUIShader::CreatePixelShader()
 void CCharacterSelectUIShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
 {
 	m_nObjects = 9;
-
-	m_ppTextures = new CTexture*[m_nObjects];
-
-	m_ppTextures[PINK] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	m_ppTextures[PINK]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Character_Select1.dds", 0);
-	
-	m_ppTextures[BROWN] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	m_ppTextures[BROWN]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Character_Select2.dds", 0);
-
-	m_ppTextures[WHITE] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	m_ppTextures[WHITE]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Character_Select3.dds", 0);
-	
-	m_ppTextures[BLACK] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	m_ppTextures[BLACK]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Character_Select4.dds", 0);
-	
-	m_ppTextures[BLUE] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	m_ppTextures[BLUE]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Character_Select5.dds", 0);
-	
-	m_ppTextures[PANDA] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	m_ppTextures[PANDA]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Character_Select6.dds", 0);
+	int nTextures = 3;
+	m_ppTextures = new CTexture*[nTextures];
 	
 	m_ppTextures[BASE] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	m_ppTextures[BASE]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Base.dds", 0);
+	m_ppTextures[BASE]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/New/LobbyBase.dds", 0);
 
 	m_ppTextures[READY] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	m_ppTextures[READY]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Ready.dds", 0);
+	m_ppTextures[READY]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/New/Ready.dds", 0);
 
 	m_ppTextures[QUIT] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	m_ppTextures[QUIT]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Lobby_Quit.dds", 0);
+	m_ppTextures[QUIT]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/New/Quit.dds", 0);
 
 	CBillboardMesh* pSelectMesh = new CBillboardMesh(pd3dDevice, pd3dCommandList, 20.f, 20.f, 0.0f, 0.0f, 0.0f, 0.0f);
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_nObjects);
@@ -155,55 +152,62 @@ void CCharacterSelectUIShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12Graph
 	// minX, minY, maxX, maxY
 	XMFLOAT4* minmaxPos = new XMFLOAT4[m_nObjects];
 
-	// PINK ~ PANDA
-	minmaxPos[index++] = { -0.928f, -0.585f, -0.74f, -0.345f };
-	minmaxPos[index++] = { -0.69f, -0.585f , -0.515f, -0.345f };
-	minmaxPos[index++] = { -0.455f, -0.585f, -0.28f, -0.345f };
-	minmaxPos[index++] = { -0.92f, -0.88f, -0.748f, -0.645f };
-	minmaxPos[index++] = { -0.69f, -0.88f, -0.515f, -0.645f };
-	minmaxPos[index++] = { -0.458f, -0.88f, -0.28f, -0.645f };
+	float widthSize = 0.209375f, heightSize = 0.3694441f;
+	float widthGap = 0.03125f, heightGap = 0.0611109f;
+
 	// BASE
 	minmaxPos[index++] = { 0.f, 0.f, 0.f, 0.f };
 	// READY
-	minmaxPos[index++] = { 0.426f, -0.95f, 0.978f, -0.775f };
+	minmaxPos[index++] = { 0.220312f, -0.538889f, 0.971875f, -0.208333f };
 	// QUIT
-	minmaxPos[index++] = { 0.736f, 0.835f, 0.965f, 0.973f };
+	minmaxPos[index++] = { 0.220312f, -0.941667f, 0.971875f, -0.611111f };
+
+	// PINK ~ PANDA
+	minmaxPos[index++] = { 0.25f, 0.3388889f, 0.459375f, 0.708333f };
+	minmaxPos[index++] = { 0.459375f + widthGap, 0.3388889f , 0.459375f + widthGap + widthSize, 0.708333f };
+	minmaxPos[index++] = { 0.459375f + 2 * widthGap + widthSize, 0.3388889f , 0.459375f + 2 * widthGap + 2 * widthSize, 0.708333f };
+	minmaxPos[index++] = { 0.25f, 0.3388889f - heightGap - heightSize, 0.459375f, 0.3388889f - heightGap };
+	minmaxPos[index++] = { 0.459375f + widthGap, 0.3388889f - heightGap - heightSize, 0.459375f + widthGap + widthSize, 0.3388889f - heightGap };
+	minmaxPos[index++] = { 0.459375f + 2 * widthGap + widthSize, 0.3388889f - heightGap - heightSize, 0.459375f + 2 * widthGap + 2 * widthSize, 0.3388889f - heightGap };
 
 	for (int i = 0; i < m_nObjects; ++i)
 	{
-		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_ppTextures[i], 0, false);
-		CMaterial* pMaterial = new CMaterial(1);
-		pMaterial->SetTexture(m_ppTextures[i], 0);
-
 		CUI* pUI = new CUI(1);
-		pUI->SetMesh(pSelectMesh);
-		pUI->SetMaterial(0, pMaterial);
-
 		pUI->SetUIMinPos(XMFLOAT2(minmaxPos[i].x, minmaxPos[i].y));
 		pUI->SetUIMaxPos(XMFLOAT2(minmaxPos[i].z, minmaxPos[i].w));
 
+		if (i < UITYPE::PINK)
+		{
+			pUI->SetMesh(pSelectMesh);
+			CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_ppTextures[i], 0, false);
+			CMaterial* pMaterial = new CMaterial(1);
+			pMaterial->SetTexture(m_ppTextures[i], 0);
+			pUI->SetMaterial(0, pMaterial);
+		}
 		m_UIMap.emplace(i, pUI);
 	}
 
 	delete[] minmaxPos;
 	
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void CCharacterSelectUIShader::CallbackMouse(UINT nMessgeID, float mouseX, float mouseY)
 {
 	for (auto iter = m_UIMap.begin(); iter != m_UIMap.end(); ++iter)
 	{
-		if ((*iter).first == LOBBY_CHARACTERSEL::BASE)	continue;
+		if ((*iter).first == UITYPE::BASE)	continue;
 
 		XMFLOAT2 min = reinterpret_cast<CUI*>((*iter).second)->GetUIMinPos();
 		XMFLOAT2 max = reinterpret_cast<CUI*>((*iter).second)->GetUIMaxPos();
 
 		if (UICollisionCheck(XMFLOAT2(mouseX, mouseY), min, max) == false)	continue;
 		
+		CUI* p = reinterpret_cast<CUI*>((*iter).second);
+
 		if (m_IsReady == false)
 		{
-			// 충돌된 것을 텍스쳐로 결정
-			m_RenderingTexture = (*iter).first;
+			MoveInteraction((*iter).first);
 		}
 
 		if (nMessgeID == WM_LBUTTONUP)
@@ -232,20 +236,54 @@ void CCharacterSelectUIShader::CallbackMouse(UINT nMessgeID, float mouseX, float
 	{
 		// 로비 중에서 아무것도 충돌된 것이 없을 때,
 		m_MouseState = MOUSE_STATE::NONE;
-		m_RenderingTexture = LOBBY_CHARACTERSEL::BASE;
+
+		for (auto iter = m_UIMap.begin(); iter != m_UIMap.end(); ++iter)
+		{
+			CUI* p = reinterpret_cast<CUI*>((*iter).second);
+			p->SetUV(XMFLOAT2(0.f, 0.5f));
+			CDirect2D::GetInstance()->GetImageInfo("Characters").m_FrameXNum = 0;
+		}
 	}
+}
+
+void CCharacterSelectUIShader::MoveInteraction(int key)
+{
+	int frame = 0;
+
+	switch (key)
+	{
+	case UITYPE::PINK:			frame = 1;		break;
+	case UITYPE::BROWN:		frame = 2;	break;
+	case UITYPE::WHITE:			frame = 3;	break;
+	case UITYPE::BLACK:			frame = 4;	break;
+	case UITYPE::BLUE:			frame = 5;	break;
+	case UITYPE::PANDA:		frame = 6;	break;
+	case UITYPE::READY:
+	case UITYPE::QUIT:
+		{
+			auto iter = m_UIMap.find(key);
+			if (iter != m_UIMap.end())
+				reinterpret_cast<CUI*>((*iter).second)->SetUV(XMFLOAT2(0.5f, 1.f));
+			break;
+		}
+
+	default:
+		break;
+	}
+
+	CDirect2D::GetInstance()->GetImageInfo("Characters").m_FrameXNum = frame;
 }
 
 void CCharacterSelectUIShader::ClickInteraction(int click)
 {
 	switch (click)
 	{
-	case PINK: 
-	case BROWN:
-	case WHITE:
-	case BLACK:
-	case BLUE:
-	case PANDA:
+	case UITYPE::PINK:
+	case UITYPE::BROWN:
+	case UITYPE::WHITE:
+	case UITYPE::BLACK:
+	case UITYPE::BLUE:
+	case UITYPE::PANDA:
 		if (m_IsReady == false)
 		{
 			m_ChoiceCharacter = static_cast<unsigned char>(click);
@@ -256,7 +294,7 @@ void CCharacterSelectUIShader::ClickInteraction(int click)
 		}
 		break;
 
-	case READY:
+	case UITYPE::READY:
 		if (m_ChoiceCharacter == NONE)
 		{
 			cout << "캐릭터가 선택되지 않았습니다." << endl;
@@ -268,22 +306,18 @@ void CCharacterSelectUIShader::ClickInteraction(int click)
 		if (m_IsReady == false)
 		{
 			Network::GetInstance()->SendNotReady();
-			m_RenderingTexture = LOBBY_CHARACTERSEL::BASE;
 		}
 		else
 		{
 			g_PlayerCharacter = m_ChoiceCharacter;
-			Network::GetInstance()->SendReady();
 		}
 #else
-		if (m_IsReady == false)
-			m_RenderingTexture = LOBBY_CHARACTERSEL::BASE;
-		else
+		if (m_IsReady == true)
 			g_PlayerCharacter = m_ChoiceCharacter;
 #endif
 		break;
 
-	case QUIT:
+	case UITYPE::QUIT:
 		::PostQuitMessage(0);
 		break;
 
@@ -294,12 +328,23 @@ void CCharacterSelectUIShader::ClickInteraction(int click)
 
 void CCharacterSelectUIShader::Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipelineState)
 {
+	UpdateShaderVariables(pd3dCommandList);
+
 	if (m_pd3dCbvSrvDescriptorHeap) 
 		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
-	CUIShader::OnPrepareRender(pd3dCommandList, 0);
-	
-	auto iter = m_UIMap.find(m_RenderingTexture);
+	CUIShader::OnPrepareRender(pd3dCommandList, (int)UITYPE::BASE);
+	auto iter = m_UIMap.find(UITYPE::BASE);
+	if (iter != m_UIMap.end())
+		(*iter).second->Render(pd3dCommandList, nPipelineState);
+
+	CUIShader::OnPrepareRender(pd3dCommandList, (int)UITYPE::READY);
+	iter = m_UIMap.find(UITYPE::READY);
+	if (iter != m_UIMap.end())
+		(*iter).second->Render(pd3dCommandList, nPipelineState);
+
+	CUIShader::OnPrepareRender(pd3dCommandList, (int)UITYPE::QUIT);
+	iter = m_UIMap.find(UITYPE::QUIT);
 	if (iter != m_UIMap.end())
 		(*iter).second->Render(pd3dCommandList, nPipelineState);
 }
@@ -326,4 +371,51 @@ bool CCharacterSelectUIShader::UICollisionCheck(XMFLOAT2& mousePos, XMFLOAT2& mi
 		return false;
 
 	return true;
+}
+
+void CCharacterSelectUIShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	UINT ncbElementBytes = ((sizeof(CB_UI) + 255) & ~255); //256의 배수
+	m_pd3dUIData = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pd3dUIData->Map(0, nullptr, (void**)&m_pMappedUIData);
+}
+
+void CCharacterSelectUIShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	if (m_pd3dUIData)
+	{
+		auto iter = m_UIMap.find(UITYPE::READY);
+		if(iter != m_UIMap.end())
+		{
+			CUI* p = reinterpret_cast<CUI*>((*iter).second);
+			XMFLOAT4 pos = XMFLOAT4(p->GetUIMinPos().x, p->GetUIMinPos().y, p->GetUIMaxPos().x, p->GetUIMaxPos().y);
+			m_pMappedUIData->m_Ready_MinMaxPos = pos;
+
+			m_pMappedUIData->m_ReadyAndQuit_UV.x = p->GetUV().x;
+			m_pMappedUIData->m_ReadyAndQuit_UV.y = p->GetUV().y;
+		}
+
+		iter = m_UIMap.find(UITYPE::QUIT);
+		if (iter != m_UIMap.end())
+		{
+			CUI* p = reinterpret_cast<CUI*>((*iter).second);
+			XMFLOAT4 pos = XMFLOAT4(p->GetUIMinPos().x, p->GetUIMinPos().y, p->GetUIMaxPos().x, p->GetUIMaxPos().y);
+			m_pMappedUIData->m_Quit_MinMaxPos = pos;
+
+			m_pMappedUIData->m_ReadyAndQuit_UV.z = p->GetUV().x;
+			m_pMappedUIData->m_ReadyAndQuit_UV.w = p->GetUV().y;
+		}
+
+		D3D12_GPU_VIRTUAL_ADDRESS GPUVirtualAddress = m_pd3dUIData->GetGPUVirtualAddress();
+		pd3dCommandList->SetGraphicsRootConstantBufferView(1, GPUVirtualAddress);
+	}
+}
+
+void CCharacterSelectUIShader::ReleaseShaderVariables()
+{
+	if (m_pd3dUIData)
+	{
+		m_pd3dUIData->Unmap(0, nullptr);
+		m_pd3dUIData->Release();
+	}
 }

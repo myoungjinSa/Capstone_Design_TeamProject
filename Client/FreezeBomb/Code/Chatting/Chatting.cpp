@@ -98,13 +98,17 @@ void ChattingSystem::ShowLobbyChatting(ID2D1DeviceContext2* pd2dDeviceContext)
 	UINT originX = 1280;
 	UINT originY = 720;
 
-	chatText.left = (690.0f * FRAME_BUFFER_WIDTH) / originX;
-	chatText.top = (590.0f * FRAME_BUFFER_HEIGHT) / originY;
-	chatText.right = (1280.0f * FRAME_BUFFER_WIDTH) / originX;
-	chatText.bottom = (590.0f * FRAME_BUFFER_HEIGHT) / originY;
+	//chatText.left = (690.0f * FRAME_BUFFER_WIDTH) / originX;
+	//chatText.top = (590.0f * FRAME_BUFFER_HEIGHT) / originY;
+	//chatText.right = (1280.0f * FRAME_BUFFER_WIDTH) / originX;
+	//chatText.bottom = (590.0f * FRAME_BUFFER_HEIGHT) / originY;
+	chatText.left = (24.0f * FRAME_BUFFER_WIDTH) / originX;
+	chatText.top = (665.0f * FRAME_BUFFER_HEIGHT) / originY;
+	chatText.right = (760.0f * FRAME_BUFFER_WIDTH) / originX;
+	chatText.bottom = (687.0f * FRAME_BUFFER_HEIGHT) / originY;
 
-	int boxStart = (545 * FRAME_BUFFER_HEIGHT) / originY;
-
+	//int boxStart = (545 * FRAME_BUFFER_HEIGHT) / originY;
+	int boxStart = (630 * FRAME_BUFFER_HEIGHT) / originY;
 
 	int diff = (m_fontSize * FRAME_BUFFER_HEIGHT) / originY;
 
@@ -115,7 +119,7 @@ void ChattingSystem::ShowLobbyChatting(ID2D1DeviceContext2* pd2dDeviceContext)
 	}
 	for (int i = 1; i < m_dequeText.size()+1; ++i) 
 	{
-		chatText = D2D1::RectF(chatText.left, boxStart - (i*diff), chatText.right, boxStart- (i*diff));
+		chatText = D2D1::RectF(chatText.left, boxStart - (i * diff), chatText.right, boxStart- (i * diff));
 		pd2dDeviceContext->DrawTextW(m_dequeText[i-1].first, m_dequeText[i-1].second, m_pChattingFont, &chatText, m_pChattingFontColor);
 	}
 }

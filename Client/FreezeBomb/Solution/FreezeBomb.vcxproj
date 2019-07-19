@@ -170,6 +170,7 @@
     <ClInclude Include="..\Code\Cube\Cube.h" />
     <ClInclude Include="..\Code\Default\Resource.h" />
     <ClInclude Include="..\Code\Default\targetver.h" />
+    <ClInclude Include="..\Code\Direct2D\Direct2D.h" />
     <ClInclude Include="..\Code\DirectX12\d3dx12.h" />
     <ClInclude Include="..\Code\DirectX12\DDSTextureLoader\DDSTextureLoader12.h" />
     <ClInclude Include="..\Code\DirectX12\WICTextureLoader\WICTextureLoader12.h" />
@@ -255,6 +256,7 @@
     <ClCompile Include="..\Code\Camera\Camera.cpp" />
     <ClCompile Include="..\Code\Chatting\Chatting.cpp" />
     <ClCompile Include="..\Code\Cube\Cube.cpp" />
+    <ClCompile Include="..\Code\Direct2D\Direct2D.cpp" />
     <ClCompile Include="..\Code\DirectX12\DDSTextureLoader\DDSTextureLoader12.cpp" />
     <ClCompile Include="..\Code\DirectX12\WICTextureLoader\WICTextureLoader12.cpp" />
     <ClCompile Include="..\Code\FrameTransform\FrameTransform.cpp" />

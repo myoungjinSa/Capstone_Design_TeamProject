@@ -150,7 +150,6 @@ void CLobbyShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	}
 }
 
-
 void CLobbyShader::Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipelineState)
 {
 	if (m_pd3dCbvSrvDescriptorHeap) 

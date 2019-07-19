@@ -2,8 +2,8 @@
 #include "LobbyScene.h"
 #include "../../Texture/Texture.h"
 #include "../../Shader/BillboardShader/UIShader/CharacterSelectUIShader/CharacterSelectUIShader.h"
-#include "../../Shader/BillboardShader/UIShader/LobbyShader/LobbyShader.h"
-#include "../../Chatting/Chatting.h"
+#include "../../Direct2D/Direct2D.h"
+#include "../../GameFramework/GameFramework.h"
 
 CLobbyScene::CLobbyScene()
 {
@@ -25,12 +25,17 @@ ID3D12RootSignature *CLobbyScene::CreateGraphicsRootSignature(ID3D12Device *pd3d
 	pd3dDescriptorRanges[0].RegisterSpace = 0;
 	pd3dDescriptorRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[1];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[2];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	pd3dRootParameters[0].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[0].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[0]);
 	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	pd3dRootParameters[1].Descriptor.ShaderRegister = 10;	
+	pd3dRootParameters[1].Descriptor.RegisterSpace = 0;
+	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[1];
 
@@ -146,4 +151,34 @@ void CLobbyScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wPar
 			break;
 		}
 	}
+}
+
+void CLobbyScene::UIRender()
+{
+	CDirect2D::GetInstance()->Render("Characters");
+
+	UINT originX = 1280;
+	UINT originY = 720;
+	D2D1_RECT_F pos;
+
+	if (CCharacterSelectUIShader::GetChoiceCharacter() >= 0)
+	{
+		pos = D2D1::RectF((89 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (209 * FRAME_BUFFER_WIDTH) / originX, (187 * FRAME_BUFFER_HEIGHT) / originY);
+		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, CCharacterSelectUIShader::GetChoiceCharacter(), 0);
+	}
+
+	pos = D2D1::RectF((330 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (450 * FRAME_BUFFER_WIDTH) / originX, (187 * FRAME_BUFFER_HEIGHT) / originY);
+	CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, 1, 0);
+
+	pos = D2D1::RectF((571 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (691 * FRAME_BUFFER_WIDTH) / originX, (187 * FRAME_BUFFER_HEIGHT) / originY);
+	CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, 2, 0);
+
+	pos = D2D1::RectF((89 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (209 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY);
+	CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, 3, 0);
+
+	pos = D2D1::RectF((330 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (450 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY);
+	CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, 4, 0);
+
+	pos = D2D1::RectF((571 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (691 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY);
+	CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, 5, 0);
 }

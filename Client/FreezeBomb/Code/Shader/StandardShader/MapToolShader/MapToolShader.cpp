@@ -2,6 +2,7 @@
 #include "MapToolShader.h"
 #include "../../../GameObject/Surrounding/Surrounding.h"
 #include "../../../GameObject/Item/Item.h"
+#include "../../../GameObject/EvilBear/EvilBear.h"
 #include "../../../GameObject/Terrain/Terrain.h"
 #include "../../../GameObject/Player/Player.h"
 #include "../../../FrameTransform/FrameTransform.h"
@@ -21,7 +22,7 @@ CMapToolShader::~CMapToolShader()
 {
 }
 
-void CMapToolShader::InstallMapObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CPlayer* pPlayer, char MapObjectType)
+void CMapToolShader::InstallMapObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CPlayer* pPlayer, char MapObjectType)
 {
 	switch (MapObjectType)
 	{
@@ -72,9 +73,15 @@ void CMapToolShader::InstallMapObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	case Hammer:
 		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "Hammer");
 		break;
+
 		// T
 	case GoldTimer:
 		InsertObject(pd3dDevice, pd3dCommandList, pPlayer, "GoldTimer");
+		break;
+
+		// E
+	case EvilBear:
+		InsertCharacters(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pPlayer, "EvilBear");
 		break;
 
 		// D
@@ -226,6 +233,41 @@ void CMapToolShader::InsertRandomFoliage(ID3D12Device *pd3dDevice, ID3D12Graphic
 		}
 	}
 
+}
+
+void CMapToolShader::InsertCharacters(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CPlayer *pPlayer, const string& model)
+{
+	auto iter = m_ModelsList.find(model);
+	if (iter != m_ModelsList.end())
+	{
+		XMFLOAT3 position[6] =
+		{
+			XMFLOAT3(125.f, 0.f, 50.f),
+			XMFLOAT3(250.f, 0.f, 50.f),
+			XMFLOAT3(375.f, 0.f, 50.f),
+			XMFLOAT3(125.f, 0.f, 240.f),
+			XMFLOAT3(250.f, 0.f, 240.f),
+			XMFLOAT3(375.f, 0.f, 240.f)
+		};
+
+		for (int i = 0; i < 6; ++i)
+		{
+			CEvilBear* pGameObject = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, 0);
+			pGameObject->SetChild((*iter).second->m_pModelRootObject, true);
+			pGameObject->m_pAnimationController = new CAnimationController(1, (*iter).second->m_pAnimationSets);
+			// 0번 트랙에 0번 애니메이션을 Set
+			pGameObject->m_pAnimationController->SetTrackAnimationSet(0, pGameObject->m_pAnimationController->IDLE);
+			pGameObject->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*iter).second);
+			pGameObject->m_pFrameTransform = new CFrameTransform(pd3dDevice, pd3dCommandList, (*iter).second);
+
+			XMFLOAT3 scale = XMFLOAT3(10.0f, 10.0f, 10.0f);
+			pGameObject->SetScale(scale.x, scale.y, scale.z);
+			//Object 위치 설정
+			pGameObject->SetPosition(position[i]);
+
+			m_Objects.emplace_back(make_pair((*iter).first, pGameObject));
+		}
+	}
 }
 
 void CMapToolShader::SortDescByName()
@@ -405,12 +447,12 @@ void CMapToolShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera 
 {
 	CShader::Render(pd3dCommandList, pCamera, nPipelineState);
 
-	for (auto iter = m_Objects.begin(); iter != m_Objects.end();iter++)
+	for (auto iter = m_Objects.begin(); iter != m_Objects.end(); iter++)
 	{
 		if (iter->second)
 		{
 			iter->second->Animate(m_fElapsedTime);
-			iter->second->UpdateTransform(nullptr,false);
+			iter->second->UpdateTransform(nullptr, false);
 			iter->second->Render(pd3dCommandList, pCamera, nPipelineState);
 		}
 	}
