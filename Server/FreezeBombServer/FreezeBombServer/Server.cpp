@@ -1,6 +1,5 @@
 #include "Server.h"
 
-
 Server::Server()
 {
 	round = 0;
@@ -658,7 +657,8 @@ void Server::PickBomber()
 
 void Server::ShuffleStartPosIndex()
 {
-	std::random_shuffle(randomPosIdx[0], randomPosIdx[MAX_USER - 1]);
+	
+	std::random_shuffle(&randomPosIdx[0], &randomPosIdx[MAX_USER-1]);
 }
 
 void Server::StartTimer()

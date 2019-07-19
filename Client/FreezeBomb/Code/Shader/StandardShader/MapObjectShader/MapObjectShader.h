@@ -21,7 +21,18 @@ public:
 	const list<CGameObject*>& getMapObjectList()	const;
 
 
+public:
+	typedef struct PLAYER_SPAWN_INFO
+	{
+		XMFLOAT3 pos;
+	
+	}SPAWN_INFO;
+
+	static SPAWN_INFO spawn[3][6];
+
+	static void LoadSpawnInfo(const string& filename,const int& round);
 private:
 	using RoundMapObjectList = list<CGameObject*>;
 	unordered_map<unsigned char, RoundMapObjectList> m_MapObjectList;
 };
+

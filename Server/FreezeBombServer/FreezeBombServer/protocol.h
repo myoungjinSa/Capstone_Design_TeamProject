@@ -9,6 +9,7 @@ constexpr int MAX_ROUND = 3;
 
 struct clientsInfo
 {
+	char    id;
 	bool	isReady;
 	char	name[32];
 };

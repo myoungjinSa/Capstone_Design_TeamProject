@@ -4,7 +4,14 @@
 #include "../../../GameObject/Terrain/Terrain.h"
 #include "../../../FrameTransform/FrameTransform.h"
 
+
 extern unsigned char g_Round;
+
+CMapObjectsShader::SPAWN_INFO CMapObjectsShader::spawn[3][6] = {
+	{{{0.0f,0.0f,0.0f}},{{0.0f,0.0f,0.0f}},{{0.0f,0.0f,0.0f}},{{0.0f,0.0f,0.0f}},{{0.0f,0.0f,0.0f}},{{0.0f,0.0f,0.0f}}},
+	{{{0.0f,0.0f,0.0f}},{{0.0f,0.0f,0.0f}},{{0.0f,0.0f,0.0f}},{{0.0f,0.0f,0.0f}},{{0.0f,0.0f,0.0f}},{{0.0f,0.0f,0.0f}}},
+	{{{0.0f,0.0f,0.0f}},{{0.0f,0.0f,0.0f}},{{0.0f,0.0f,0.0f}},{{0.0f,0.0f,0.0f}},{{0.0f,0.0f,0.0f}},{{0.0f,0.0f,0.0f}}}
+};
 
 CMapObjectsShader::CMapObjectsShader()
 {
@@ -65,6 +72,13 @@ void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 		m_MapObjectList.emplace(round++, objectList);
 	}
 
+	const int MAX_ROUND = 3;
+	for (int i = 0; i < MAX_ROUND; ++i)
+	{
+		string filename = "../Resource/MapObjectInfo/SpawnPosition/Round" + to_string(i);
+		filename +="Spawn.bin";
+		LoadSpawnInfo(filename, i);
+	}
 }
 
 void CMapObjectsShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer* pPlayer)
@@ -141,4 +155,33 @@ const list<CGameObject*>& CMapObjectsShader::getMapObjectList()	const
 	//cout << "라운드: " << (int)g_Round << "\n";
 	if (iter != m_MapObjectList.end())
 		return (*iter).second;
+}
+
+
+void CMapObjectsShader::LoadSpawnInfo(const string& filename,const int& round)
+{
+	ifstream in(filename,ios::binary);
+
+	if(!in)
+	{
+		cout << "존재하지 않는 파일입니다." << filename << endl;
+		cout << "Player Spawn 정보 로딩 실패"<<endl;
+		return;
+	}
+
+
+	int playerCount = 0;
+	in.read(reinterpret_cast<char*>(&playerCount), sizeof(int));
+
+	for(int i=0;i<playerCount;++i)
+	{
+		in.read(reinterpret_cast<char*>(&spawn[round][i].pos.x), sizeof(float));
+		in.read(reinterpret_cast<char*>(&spawn[round][i].pos.y), sizeof(float));
+		in.read(reinterpret_cast<char*>(&spawn[round][i].pos.z), sizeof(float));
+
+		cout << spawn[round][i].pos.x << "," << spawn[round][i].pos.y << "," << spawn[round][i].pos.z << endl;
+	}
+
+
+	
 }
