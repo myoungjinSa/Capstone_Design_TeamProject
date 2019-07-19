@@ -1,6 +1,5 @@
 #pragma once
 
-class CTexture;
 class CShader;
 class CLobbyScene
 {
@@ -25,10 +24,12 @@ public:
 
 	void UIRender();
 
+	static void AddClientsCharacter(char id, char matID) { m_ClientsCharacter[id] = matID; }
 protected:
 	ID3D12RootSignature*		m_pd3dGraphicsRootSignature = NULL;
 	map<string, CShader*>	m_shaderMap;
-	
+	static array<char, 6> m_ClientsCharacter;
+
 public:
 	CShader**			m_ppShaders{ nullptr };
 	int							m_nShaders = 0;

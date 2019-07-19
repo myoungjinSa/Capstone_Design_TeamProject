@@ -286,7 +286,7 @@ void CCharacterSelectUIShader::ClickInteraction(int click)
 	case UITYPE::PANDA:
 		if (m_IsReady == false)
 		{
-			m_ChoiceCharacter = static_cast<unsigned char>(click);
+			m_ChoiceCharacter = static_cast<unsigned char>(click) - PINK;
 #ifdef _WITH_SERVER_
 			// 내가 무슨캐릭터를 선택했는지 보냄
 			Network::GetInstance()->SendChoiceCharacter(m_ChoiceCharacter);

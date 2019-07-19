@@ -1110,8 +1110,6 @@ bool CGameFramework::BuildObjects()
 	m_pScene = new CScene;
 	if (m_pScene)
 	{
-		//soundThreads.emplace_back(thread{ &CScene::CreateSoundSystem, m_pScene });
-		
 		//GameFramework에서 관리하는 CPlayer를 제외한 나머지 넘겨준다.
 		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, nPlayerCount);
 
@@ -1158,11 +1156,6 @@ bool CGameFramework::BuildObjects()
 
 	for (auto& thread : loadingThread)
 		thread.join();
-
-
-	//사운드 스레드 조인
-	for (auto & th : soundThreads)
-		th.join();
 
 	m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -1824,6 +1817,9 @@ void CGameFramework::ProcessPacket(char *packet)
 			
 			char playerID = pChoiceCharacter->id;
 			char matID = pChoiceCharacter->matID;
+
+			CLobbyScene::AddClientsCharacter(playerID, matID);
+
 			if (playerID == m_pPlayer->GetPlayerID()) {
 				// 다른애들꺼만 받으면 됨
 				m_pPlayer->SetMaterialID(matID);

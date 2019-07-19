@@ -52,8 +52,6 @@ public:
 
 	void SetNamecard();
 	void ShowScoreboard();
-	//HRESULT BindDC();
-	//HRESULT CreateDCRenderTarget();
 	void ShowReadyText();
 	void DrawStageInfo();
 	void ProcessDirect2D();
@@ -65,10 +63,9 @@ public:
 	CLoginScene* GetLoginScene()const { return m_pLoginScene; }
 	void ProcessPacket(char *ptr);
 	void ResetAnimationForRoundStart();
-
-	//void CreateLoginCommandList();
 	//void InitializeIPSystem();
 	void ProcessLogin();
+
 #endif
 	void ChangeSwapChainState();
 
@@ -165,8 +162,8 @@ private:
 	ID3D12Resource*							m_ppd3dCartoonScreenRenderTargetBuffers[m_nCartoonScreenRenderTargetBuffers];
 	D3D12_CPU_DESCRIPTOR_HANDLE				m_pd3dCarttonScreenRenderTargetBufferCPUHandles[m_nCartoonScreenRenderTargetBuffers];
 
-	CSobelCartoonShader*					m_pCartoonShader{ nullptr };
-	map<int, clientsInfo>						m_mapClients;
+	CSobelCartoonShader*		m_pCartoonShader{ nullptr };
+	map<int, clientsInfo>		m_mapClients;
 
 #ifdef _WITH_DIRECT2D_
 	ID3D11On12Device				*m_pd3d11On12Device{ nullptr };//
@@ -201,23 +198,14 @@ private:
 #endif
 
 #ifdef _WITH_SERVER_
-	//클라이언트 정보
-	
 	//Network m_Network;
 	int hostId;
 	int clientCount = 0;
 
-	bool isCharacterSelectDone = false;
-
-	CLoginScene*			m_pLoginScene{ nullptr };
-	CIPScene*				m_pIPScene{ nullptr };
-	vector<thread> loginThread;
-
+	CLoginScene*	m_pLoginScene{ nullptr };
+	CIPScene*			m_pIPScene{ nullptr };
 #endif
-	//사운드 쓰레드 풀
-	vector<thread> soundThreads;
 	vector<thread> loadingThread;
-
 	void Worker_Thread();
 
 #ifdef _MAPTOOL_MODE_
