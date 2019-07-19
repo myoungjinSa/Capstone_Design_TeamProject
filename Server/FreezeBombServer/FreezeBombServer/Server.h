@@ -4,6 +4,7 @@
 #include "MyDefine.h"
 #include "protocol.h"
 #include "Terrain.h"
+
 #include "GameTimer.h"
 
 #pragma comment(lib, "Ws2_32.lib")
@@ -129,6 +130,7 @@ public:
 		normalItem = ITEM::EMPTY;
 		specialItem = ITEM::EMPTY;
 		role = ROLE::RUNNER;
+		matID = 0;
 		isReady = false;
 		ZeroMemory(nickname, sizeof(wchar_t) * 12);
 		ZeroMemory(&over_ex.messageBuffer, sizeof(over_ex.messageBuffer));
@@ -149,7 +151,6 @@ class Server
 {
 private:
 	int round;
-	mutex gLock;
 	SOCKET listenSocket;
 	HANDLE iocp;
 	// vector로 했을 때 over_ex.messagebuffer에 값이 들어오질 않는다.
@@ -171,12 +172,18 @@ private:
 	int goldHammerCnt[MAX_ROUND];
 	int normalHammerCnt[MAX_ROUND];
 
+	int randomPosIdx[MAX_USER];
+
 private:
 
 	priority_queue <EVENT_ST> timer_queue;
 	mutex		timer_l;
 	mutex		roundTime_l;
 	mutex		coolTime_l;
+	mutex		freezeCnt_l;
+	mutex		readyCnt_l;
+	mutex		clientCnt_l;
+
 private:
 	vector<MAPOBJECT> objects[MAX_ROUND];
 	vector<MAPOBJECT> goldTimers[MAX_ROUND];
@@ -208,7 +215,7 @@ public:
 	void SendClientLobbyOut(char toClient, char fromClient);
 	void SendChattinPacket(char to, char from, char *message);
 	void SendPlayerAnimation(char toClient, char fromCllient);
-	void SendPutPlayer(char toClient, char fromClient);
+	void SendPutPlayer(char toClient);
 	void SendRoundStart(char client,unsigned short& time);
 	void SendPleaseReady(char client);
 	void SendReadyStatePacket(char toClient, char fromClient);
@@ -227,6 +234,7 @@ public:
 	void SendGetItem(char toClient, char fromClient, string& itemIndex);
 	void SendRoundScore(char client);
 	void SendChoiceCharacter(char toClient, char fromClient, char matID);
+	void SendChosenCharacter(char toClient);
 public:
 	void SetAnimationState(char client,char animationNum);
 	void SetVelocityZero(char client);
@@ -238,6 +246,7 @@ public:
 	void UpdateClientPos(char client, float fTimeElapsed);
 	void ProcessClientHeight(char client);
 	void ProcessFriction(char client, float& fLength);
+	void ShuffleStartPosIndex();
 public:
 	void InitGame();
 	void InitRound();

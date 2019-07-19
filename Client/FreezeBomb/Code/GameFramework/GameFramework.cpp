@@ -14,6 +14,7 @@
 #include "../GameObject/Terrain/Terrain.h"
 #include "../ResourceManager/ResourceManager.h"
 #include "../Shader/StandardShader/MapToolShader/MapToolShader.h"
+#include "../Shader/StandardShader/MapObjectShader/MapObjectShader.h"
 #include "../Texture/Texture.h"
 #include "../Shader/PostProcessShader/CartoonShader/SobelCartoonShader.h"
 #include "../Chatting/Chatting.h"
@@ -1740,8 +1741,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	{
 		case SC_ACCESS_COMPLETE:
 		{
-			//SC_PACKET_ACCESS_COMPLETE* pAC = m_Network.GetAC();
-			pAC = reinterpret_cast<SC_PACKET_ACCESS_COMPLETE*>(packet);
+			SC_PACKET_ACCESS_COMPLETE *pAC = reinterpret_cast<SC_PACKET_ACCESS_COMPLETE*>(packet);
 			//플레이어 아이디 Set
 			m_pPlayer->SetPlayerID(pAC->myId);
 			Network::GetInstance()->SetMyID(pAC->myId);
@@ -1754,8 +1754,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		case SC_ACCESS_PLAYER:
 		{
-			//SC_PACKET_ACCESS_PLAYER* pAP = m_Network.GetAP();
-			pAP = reinterpret_cast<SC_PACKET_ACCESS_PLAYER*>(packet);
+			SC_PACKET_ACCESS_PLAYER *pAP = reinterpret_cast<SC_PACKET_ACCESS_PLAYER*>(packet);
 
 			printf("Access Player ID: %d\n", pAP->id);
 			break;
@@ -1763,12 +1762,13 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		case SC_CLIENT_LOBBY_IN:
 		{
-			pLI = reinterpret_cast<SC_PACKET_LOBBY_IN*>(packet);
+			SC_PACKET_LOBBY_IN *pLI = reinterpret_cast<SC_PACKET_LOBBY_IN*>(packet);
 
 			if (pLI->id < MAX_USER)
 			{
 				m_mapClients[(int)pLI->id] = pLI->client_state;
 				m_mapClients[(int)pLI->id].isReady = pLI->client_state.isReady;
+				m_mapClients[(int)pLI->id].id = pLI->id;
 				//맵의 emplace는 한번 생성하면 똑같은 키에 value를 넣는 작업을 하지 않는다.(중복을 허용하지 않기 때문에)
 				string user = m_mapClients[(int)pLI->id].name;
 				string s = "님이 입장하였습니다.";
@@ -1779,10 +1779,19 @@ void CGameFramework::ProcessPacket(char *packet)
 			break;
 		}
 
+		case SC_CHOSEN_CHARACTER:
+		{
+			SC_PACKET_CHOSEN_CHARACTER *pCC = reinterpret_cast<SC_PACKET_CHOSEN_CHARACTER *>(packet);
+			
+			// 아직 선택하지 않은 유저들은 matID값이 -1로 세팅되어있음
+			// char형 배열로 넘어오니 int로 변환해서 사용하면 될 듯
+
+			break;
+		}
 		case SC_CLIENT_LOBBY_OUT:
 		{
 			printf("SC_CLIENT_LOBBY_OUT 호출");
-			pLO = reinterpret_cast<SC_PACKET_LOBBY_OUT*>(packet);
+			SC_PACKET_LOBBY_OUT *pLO = reinterpret_cast<SC_PACKET_LOBBY_OUT*>(packet);
 
 			if (pLO->id < MAX_USER)
 			{
@@ -1798,7 +1807,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		case SC_CHANGE_HOST_ID:
 		{
-			pCH = reinterpret_cast<SC_PACKET_CHANGE_HOST*>(packet);
+			SC_PACKET_CHANGE_HOST *pCH = reinterpret_cast<SC_PACKET_CHANGE_HOST*>(packet);
 		
 			if (pCH->hostID < MAX_USER)
 			{
@@ -1815,11 +1824,12 @@ void CGameFramework::ProcessPacket(char *packet)
 			
 			char playerID = pChoiceCharacter->id;
 			char matID = pChoiceCharacter->matID;
-
-			// 다른애들꺼만 받으면 됨
-		
+			if (playerID == m_pPlayer->GetPlayerID()) {
+				// 다른애들꺼만 받으면 됨
+				m_pPlayer->SetMaterialID(matID);
+			}
 			//플레이어 아이디와 달라야만 SkinnedObjectsShader에 넣어야함, - 명진
-			if (playerID < MAX_USER && playerID != m_pPlayer->GetPlayerID())
+			else if (playerID < MAX_USER && playerID != m_pPlayer->GetPlayerID())
 			{
 				auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 				if (iter != m_pScene->getShaderManager()->getShaderMap().end())
@@ -1830,7 +1840,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		case SC_READY_STATE:
 		{
-			pReady = reinterpret_cast<SC_PACKET_READY_STATE*>(packet);
+			SC_PACKET_READY_STATE *pReady = reinterpret_cast<SC_PACKET_READY_STATE*>(packet);
 
 			m_mapClients[pReady->id].isReady = true;
 			break;
@@ -1838,7 +1848,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		case SC_UNREADY_STATE: 
 		{
-			pNotReady = reinterpret_cast<SC_PACKET_UNREADY_STATE*>(packet);
+			SC_PACKET_UNREADY_STATE *pNotReady = reinterpret_cast<SC_PACKET_UNREADY_STATE*>(packet);
 
 			m_mapClients[pNotReady->id].isReady = false;
 			break;
@@ -1846,7 +1856,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		case SC_CHATTING:
 		{
-			pCh = reinterpret_cast<SC_PACKET_CHATTING*>(packet);
+			SC_PACKET_CHATTING *pCh = reinterpret_cast<SC_PACKET_CHATTING*>(packet);
 
 			const string& clientName = m_mapClients[pCh->id].name;
 		
@@ -1865,8 +1875,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		case SC_ROUND_START:
 		{
-			//SC_PACKET_ROUND_START *pRS = m_Network.GetRS();
-			pRS = reinterpret_cast<SC_PACKET_ROUND_START *>(packet);
+			SC_PACKET_ROUND_START *pRS = reinterpret_cast<SC_PACKET_ROUND_START *>(packet);
 
 			//애니메이션 리셋
 			ResetAnimationForRoundStart();
@@ -1962,60 +1971,57 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		case SC_PUT_PLAYER:
 		{
-			//SC_PACKET_PUT_PLAYER* pPP = m_Network.GetPP();
-			pPP = reinterpret_cast<SC_PACKET_PUT_PLAYER*>(packet);
+			SC_PACKET_PUT_PLAYER *pPP = reinterpret_cast<SC_PACKET_PUT_PLAYER*>(packet);
+
+			// 앞으로 Put Player는 라운드 시작 시 캐릭터들의 시작 위치를 받는 패킷으로 사용
+			// posIdx로 받는 인덱스 값을 이용해 시작 위치와 방향 값을 배열에서 가져와 적용 필요
+			// 클라이언트 id값은 Lobby In 할 때 받는 id를 저장하면 될 듯. - 혜린
 
 			// 아래 주석 코드는 PUT_PLAYER 부분이 아닌 InGame이 시작됐다는 패킷이 들어오면
 			// 해줘야함- 명진.
-			if (pPP->id == m_pPlayer->GetPlayerID())
-			{
-				XMFLOAT3 pos = XMFLOAT3(pPP->xPos, pPP->yPos, pPP->zPos);
-				XMFLOAT3 look = XMFLOAT3(pPP->xLook, pPP->yLook, pPP->zLook);
-				XMFLOAT3 up = XMFLOAT3(pPP->xUp, pPP->yUp, pPP->zUp);
-				XMFLOAT3 right = XMFLOAT3(pPP->xRight, pPP->yRight, pPP->zRight);
+			
 
-				//	MappingUserToEvilbear(pPP->id, clientCount/*현재 접속한 유저 수를 받아야함 */);
-				//cout <<"플레이어 ID-"<<(int)pPP->id<<",재질 -" <<(int)pPP->matID << "\n";
-				m_pPlayer->SetMaterialID(pPP->matID);	//플레이어 재질정	보 SET
-				m_pPlayer->SetPosition(pos);
-				m_pPlayer->SetLookVector(look);
-				m_pPlayer->SetUpVector(up);
-				m_pPlayer->SetRightVector(right);
-				m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
+			//	MappingUserToEvilbear(pPP->id, clientCount/*현재 접속한 유저 수를 받아야함 */);
+			//cout <<"플레이어 ID-"<<(int)pPP->id<<",재질 -" <<(int)pPP->matID << "\n";
+			//m_pPlayer->SetMaterialID(pPP->matID);	//플레이어 재질정	보 SET
+			XMFLOAT3 pos = CMapObjectsShader::spawn[g_Round][m_pPlayer->GetPlayerID()].pos;
+			m_pPlayer->SetPosition(pos);
+			m_pPlayer->SetLookVector(XMFLOAT3(0.0f, 0.0f, 1.0f));
+			m_pPlayer->SetUpVector(XMFLOAT3(0.0f,1.0f,0.0f));
+			m_pPlayer->SetRightVector(XMFLOAT3(1.0f,0.0f,0.0f));
+			m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
 			
 				//모든 아이템 보유 초기화
-				m_pPlayer->setIsGoldHammer(false);
-				m_pPlayer->setIsGoldTimer(false);
-				m_pPlayer->SetIsHammer(false);	
-			}
+			m_pPlayer->setIsGoldHammer(false);
+			m_pPlayer->setIsGoldTimer(false);
+			m_pPlayer->SetIsHammer(false);	
+			
 
-			else if (pPP->id < MAX_USER)
+			
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
-				char id = pPP->id;
-
-				XMFLOAT3 pos = XMFLOAT3(pPP->xPos, pPP->yPos, pPP->zPos);
-				XMFLOAT3 look = XMFLOAT3(pPP->xLook, pPP->yLook, pPP->zLook);
-				XMFLOAT3 up = XMFLOAT3(pPP->xUp, pPP->yUp, pPP->zUp);
-				XMFLOAT3 right = XMFLOAT3(pPP->xRight, pPP->yRight, pPP->zRight);
-
-				auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
-				if (iter != m_pScene->getShaderManager()->getShaderMap().end())
-				{
 					//id랑 재질정보를 MappingUserToEvilbear함수를 통해 할 수 있음 
 					//cout <<"적 클라 ID-"<<(int)pPP->id<<",재질 -" <<(int)pPP->matID << "\n";
 
-					dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->MappingUserToEvilbear(id/*아이디*/, pPP->matID/*재질id*/);
-					(*iter).second->m_ppObjects[id]->SetPosition(pos);
-					(*iter).second->m_ppObjects[id]->SetLookVector(look);
-					(*iter).second->m_ppObjects[id]->SetRightVector(right);
-					(*iter).second->m_ppObjects[id]->SetUpVector(up);
-					(*iter).second->m_ppObjects[id]->SetScale(10.0f, 10.0f, 10.0f);
+				//dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->MappingUserToEvilbear(id/*아이디*/, pPP->matID/*재질id*/);
+				for (auto enemy : m_mapClients) 
+				{
+				
+					XMFLOAT3 pos = CMapObjectsShader::spawn[g_Round][enemy.second.id].pos;
+					(*iter).second->m_ppObjects[enemy.second.id]->SetPosition(pos);
+					(*iter).second->m_ppObjects[enemy.second.id]->SetLookVector(XMFLOAT3(0.0f, 0.0f, 1.0f));
+					(*iter).second->m_ppObjects[enemy.second.id]->SetRightVector(XMFLOAT3(1.0f, 0.0f, 0.0f));
+					(*iter).second->m_ppObjects[enemy.second.id]->SetUpVector(XMFLOAT3(0.0f, 1.0f, 0.0f));
+					(*iter).second->m_ppObjects[enemy.second.id]->SetScale(10.0f, 10.0f, 10.0f);
 					//모든 아이템 보유 초기화
-					(*iter).second->m_ppObjects[id]->setIsGoldTimer(false);
-					(*iter).second->m_ppObjects[id]->setIsGoldHammer(false);
-					(*iter).second->m_ppObjects[id]->SetIsHammer(false);
+					(*iter).second->m_ppObjects[enemy.second.id]->setIsGoldTimer(false);
+					(*iter).second->m_ppObjects[enemy.second.id]->setIsGoldHammer(false);
+					(*iter).second->m_ppObjects[enemy.second.id]->SetIsHammer(false);
+				
 				}
 			}
+			
 
 			//printf("Put Player ID: %d, xPos: %f, yPos: %f, zPod: %f\n", pPP->id, pPP->xPos, pPP->yPos, pPP->zPos);
 			break;
@@ -2023,8 +2029,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 		case SC_MOVE_PLAYER:
 		{
-			//SC_PACKET_MOVE_PLAYER* pMP = m_Network.GetMP();
-			pMP = reinterpret_cast<SC_PACKET_MOVE_PLAYER*>(packet);
+			SC_PACKET_MOVE_PLAYER *pMP = reinterpret_cast<SC_PACKET_MOVE_PLAYER*>(packet);
 
 			if(pMP->id==m_pPlayer->GetPlayerID())
 			{
@@ -2073,7 +2078,7 @@ void CGameFramework::ProcessPacket(char *packet)
 
 	case SC_ANIMATION_INFO:
 	{
-		pPA = reinterpret_cast<SC_PACKET_PLAYER_ANIMATION*>(packet);
+		SC_PACKET_PLAYER_ANIMATION *pPA = reinterpret_cast<SC_PACKET_PLAYER_ANIMATION*>(packet);
 		if (pPA->id == m_pPlayer->GetPlayerID())
 		{
 			m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
@@ -2112,7 +2117,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	}
 	case SC_STOP_RUN_ANIM:
 	{
-		pSTA = reinterpret_cast<SC_PACKET_STOP_RUN_ANIM*>(packet);
+		SC_PACKET_STOP_RUN_ANIM *pSTA = reinterpret_cast<SC_PACKET_STOP_RUN_ANIM*>(packet);
 		if (pSTA->id == m_pPlayer->GetPlayerID())
 		{
 			m_pPlayer->SetVelocityFromServer(0.0f);
@@ -2123,8 +2128,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	}
 	case SC_REMOVE_PLAYER:
 	{
-		//SC_PACKET_REMOVE_PLAYER* pRP = m_Network.GetRP();
-		pRP = reinterpret_cast<SC_PACKET_REMOVE_PLAYER*>(packet);
+		SC_PACKET_REMOVE_PLAYER *pRP = reinterpret_cast<SC_PACKET_REMOVE_PLAYER*>(packet);
 		hostId = pRP->hostId;
 
 
@@ -2164,7 +2168,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	}
 	case SC_ROUND_END:
 	{
-		pRE = reinterpret_cast<SC_PACKET_ROUND_END*>(packet);
+		SC_PACKET_ROUND_END *pRE = reinterpret_cast<SC_PACKET_ROUND_END*>(packet);
 		if (pRE->isWinner)
 			printf("Win!\n");
 		else
@@ -2173,7 +2177,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	}
 	case SC_COMPARE_TIME:
 	{
-		pCT = reinterpret_cast<SC_PACKET_COMPARE_TIME*>(packet);
+		SC_PACKET_COMPARE_TIME *pCT = reinterpret_cast<SC_PACKET_COMPARE_TIME*>(packet);
 
 		auto iter = m_pScene->getShaderManager()->getShaderMap().find("TimerUI");
 
@@ -2189,7 +2193,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	}
 	case SC_FREEZE:
 	{
-		pFR = reinterpret_cast<SC_PACKET_FREEZE*>(packet);
+		SC_PACKET_FREEZE *pFR = reinterpret_cast<SC_PACKET_FREEZE*>(packet);
 
 		if (pFR->id == m_pPlayer->GetPlayerID())
 		{
@@ -2225,7 +2229,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	}
 	case SC_RELEASE_FREEZE:
 	{
-		pRF = reinterpret_cast<SC_PACKET_RELEASE_FREEZE*>(packet);
+		SC_PACKET_RELEASE_FREEZE *pRF = reinterpret_cast<SC_PACKET_RELEASE_FREEZE*>(packet);
 		
 		if(pRF->id == m_pPlayer->GetPlayerID())
 		{
@@ -2346,7 +2350,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	}
 	case SC_USE_ITEM:
 	{
-		pUI = reinterpret_cast<SC_PACKET_USE_ITEM*>(packet);
+		SC_PACKET_USE_ITEM *pUI = reinterpret_cast<SC_PACKET_USE_ITEM*>(packet);
 
 		switch (pUI->usedItem)
 		{
@@ -2462,7 +2466,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	}
 	case SC_BOMB_EXPLOSION:
 	{
-		pBE = reinterpret_cast<SC_PACKET_BOMB_EXPLOSION*>(packet);
+		SC_PACKET_BOMB_EXPLOSION *pBE = reinterpret_cast<SC_PACKET_BOMB_EXPLOSION*>(packet);
 
 		if (pBE->bomberId != m_pPlayer->GetPlayerID())
 		{
@@ -2489,7 +2493,7 @@ void CGameFramework::ProcessPacket(char *packet)
 	}
 	case SC_ROLE_CHANGE:
 	{
-		pRC = reinterpret_cast<SC_PACKET_ROLE_CHANGE*>(packet);
+		SC_PACKET_ROLE_CHANGE *pRC = reinterpret_cast<SC_PACKET_ROLE_CHANGE*>(packet);
 
 		//상대방이 자신에게 폭탄을 주었을 경우
 		if(pRC->bomberId == m_pPlayer->GetPlayerID())

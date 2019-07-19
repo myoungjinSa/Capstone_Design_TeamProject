@@ -616,7 +616,9 @@ void CScene::AnimateObjects(ID3D12GraphicsCommandList *pd3dCommandList,float fTi
 
 	if (m_pLights)
 	{
-		if (g_Round == CGameFramework::STAGE::ROUND_3) {
+		if (g_Round == CGameFramework::STAGE::ROUND_3) 
+		{
+			//Α΅ Α¶Έν
 			m_pLights[0].m_bEnable = true;
 			m_pLights[0].m_xmf3Position = XMFLOAT3(250.0f,10.0f,150.0f);
 		}

@@ -351,7 +351,8 @@ void CMapToolShader::OutputMapBinaryFile()
 	int objCount = m_Objects.size();
 	out.write(reinterpret_cast<const char*>(&objCount), sizeof(int));
 
-	for (int i = 0 ; i < objCount ; i++)
+	
+	for (int i = 0 ; i < objCount; i++)
 	{
 		size_t stringLength = m_Objects[i].first.length();
 
@@ -409,6 +410,9 @@ void CMapToolShader::OutputMapBinaryFile()
 		out.write(reinterpret_cast<const char*>(&rightY), sizeof(float));
 		out.write(reinterpret_cast<const char*>(&rightZ), sizeof(float));
 	}
+
+
+
 	out.close();
 }
 

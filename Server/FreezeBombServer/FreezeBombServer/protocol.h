@@ -9,6 +9,7 @@ constexpr int MAX_ROUND = 3;
 
 struct clientsInfo
 {
+	char    id;
 	bool	isReady;
 	char	name[32];
 };
@@ -50,6 +51,7 @@ constexpr int SC_CHANGE_HOST_ID = 22;
 constexpr int SC_GET_ITEM = 23;
 constexpr int SC_ROUND_SCORE = 24;
 constexpr int SC_CHOICE_CHARACTER = 25;
+constexpr int SC_CHOSEN_CHARACTER = 26;
 
 constexpr int CS_UP_KEY = 0;
 constexpr int CS_DOWN_KEY = 1;
@@ -79,7 +81,7 @@ constexpr int CS_GET_ITEM = 24;
 constexpr int CS_CHOICE_CHARACTER = 25;
 
 
-constexpr int MAX_ROUND_TIME = 30;
+constexpr int MAX_ROUND_TIME = 100;
 
 //[클라->서버]
 
@@ -338,22 +340,9 @@ struct SC_PACKET_PUT_PLAYER
 	//4바이트 정렬을 할 필요가 있다.
 	char size;
 	char type;
-	char id;
-	char score;		// 플레이어 점수
-	float xPos;		// 오브젝트들 위치
-	float yPos;
-	float zPos;
-	float xLook;
-	float yLook;
-	float zLook;
-	float xUp;
-	float yUp;
-	float zUp;
-	float xRight;
-	float yRight;
-	float zRight;
-	char matID;			//유저가 원하는 캐릭터는 재질정보가 필요하다.
+	char posIdx[MAX_USER];
 };
+
 // 플레이어 이동 시
 struct SC_PACKET_MOVE_PLAYER
 {
@@ -518,12 +507,18 @@ struct SC_PACKET_ROUND_SCORE
 	char score[MAX_USER];
 };
 
-// 애들 재질정보 패킷
 struct SC_PACKET_CHOICE_CHARACTER
 {
 	char size;
 	char type;
 	char id;
 	char matID;
+};
+
+struct SC_PACKET_CHOSEN_CHARACTER
+{
+	char size;
+	char type;
+	char matID[MAX_USER];
 };
 //////////////////////////////////////////////////////

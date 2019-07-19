@@ -1,6 +1,5 @@
 #include "Server.h"
 
-
 Server::Server()
 {
 	round = 0;
@@ -17,6 +16,11 @@ Server::Server()
 		goldHammerCnt[i] = 0;
 		goldTimerCnt[i] = 0;
 		normalHammerCnt[i] = 0;
+	}
+
+	for (int i = 0; i < MAX_USER; ++i)
+	{
+		randomPosIdx[i] = i;
 	}
 
 	workerThreads.reserve(MAX_WORKER_THREAD);
@@ -358,9 +362,9 @@ void Server::AcceptThreadFunc()
 				continue;
 			SendAccessPlayer(new_id, i);
 		}
-		gLock.lock();
+		clientCnt_l.lock();
 		++clientCount;
-		gLock.unlock();
+		clientCnt_l.unlock();
 		printf("%d 클라이언트 접속 완료, 현재 클라이언트 수: %d\n", new_id, clientCount);
 		RecvFunc(new_id);
 	}
@@ -574,21 +578,22 @@ void Server::WorkerThreadFunc()
 		}
 		else if(EV_COOLTIME == over_ex->event_t)		//cooltime 계산
 		{
-			coolTime_l.lock();
+			timer_l.lock();
 			changeCoolTime--;
-			coolTime_l.unlock();
-
 			//printf("쿨타임:%d\n", changeCoolTime);
-			coolTime_l.lock();
-			if(changeCoolTime<=0)
-			{
+			timer_l.unlock();
+
 			
+			timer_l.lock();
+			
+			if(changeCoolTime <= 0)
+			{
 				changeCoolTime = 0;
-				coolTime_l.unlock();
+				timer_l.unlock();
 			}
 			else
 			{
-				coolTime_l.unlock();
+				timer_l.unlock();
 				add_timer(-1, EV_COOLTIME, chrono::high_resolution_clock::now() + 1s);
 			}
 
@@ -596,32 +601,36 @@ void Server::WorkerThreadFunc()
 		else if (EV_NEXTROUNDSTART == over_ex->event_t)
 		{
 			++round;
+			ShuffleStartPosIndex();
 
 			// 새 라운드 시작 시 초기화
 			StartTimer();
 
+			timer_l.lock();
+			changeCoolTime = 0;		//라운드가 바뀔때 기존에 카운트하던 changeCoolTime을 
+									//바꿔줘야 한다.
+			timer_l.unlock();
 			roundTime_l.lock();
 			unsigned short time = roundCurrTime;
 			roundTime_l.unlock();
 			for (int i = 0; i < MAX_USER; ++i)
 			{
-				if (true == clients[i].in_use)
+				if (false == clients[i].in_use)
+					continue;
+				/*for (int j = 0; j < MAX_USER; ++j)
 				{
-
-					for (int j = 0; j < MAX_USER; ++j)
+					if (true == clients[j].in_use)
 					{
-						if (true == clients[j].in_use)
-						{
 
-							clients[j].pos.x = (100.0f*j + 50);
-							clients[j].pos.z = 100.0f;
+						clients[j].pos.x = (100.0f*j + 50);
+						clients[j].pos.z = 100.0f;
 
-							SendMovePlayer(i, j);
+						SendMovePlayer(i, j);
 
-						}
 					}
-					SendRoundStart(i, time);
-				}
+				}*/
+				SendPutPlayer(i);
+				SendRoundStart(i, time);
 			}
 			add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
 		}
@@ -646,6 +655,11 @@ void Server::PickBomber()
 	cout << "술래 ID:" << bomberID << "\n";
 }
 
+void Server::ShuffleStartPosIndex()
+{
+	
+	std::random_shuffle(&randomPosIdx[0], &randomPosIdx[MAX_USER-1]);
+}
 
 void Server::StartTimer()
 {
@@ -672,6 +686,158 @@ void Server::ProcessPacket(char client, char *packet)
 	// 0번은 사이즈, 1번이 패킷타입
 	switch (packet[1])
 	{
+	case CS_NICKNAME_INFO:
+	{
+		CS_PACKET_NICKNAME* p = reinterpret_cast<CS_PACKET_NICKNAME*>(packet);
+
+		strcpy_s(clients[client].nickname, sizeof(p->name), p->name);
+		
+		// 기존 유저들의 matID 전송
+		if(clientCount > 0)
+			SendChosenCharacter(client);
+
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (false == clients[i].in_use)
+				continue;
+			SendClientLobbyIn(i, client, clients[client].nickname, false);
+		}
+		// 처음 접속한 나에게 기존 유저들 출력
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (false == clients[i].in_use)
+				continue;
+			if (i == client)
+				continue;
+			SendClientLobbyIn(client, i, clients[i].nickname, clients[i].isReady);
+		}
+		cout << clients[client].nickname << endl;
+		cout << (int)p->id << endl;
+		break;
+	}
+	case CS_CHATTING:
+	{
+		CS_PACKET_CHATTING* p = reinterpret_cast<CS_PACKET_CHATTING*>(packet);
+
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (true == clients[i].in_use)
+			{
+				cout << sizeof(p->chatting) << endl;
+				SendChattinPacket(i, client, p->chatting);
+			}
+		}
+		cout << p->chatting << endl;
+
+
+		break;
+	}
+	case CS_CHOICE_CHARACTER:
+	{
+		CS_PACKET_CHOICE_CHARACTER *p = reinterpret_cast<CS_PACKET_CHOICE_CHARACTER *>(packet);
+		clients[client].matID = p->matID;
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (false == clients[i].in_use)
+				continue;
+			SendChoiceCharacter(i, client, p->matID);
+		}
+		break;
+	}
+	case CS_READY:
+	{
+		printf("전체 클라 수: %d\n", clientCount);
+		// 클라가 엔터누르고 F5누를때마다 CS_READY 패킷이 날아온다면 ++readyCount는 clientCount보다 증가하게 되고 
+		// 아래 CS_REQUEST_START안에 if(clientCount<= readyCount) 안으로 들어가지 않는 현상 발생
+		readyCnt_l.lock();
+		++readyCount;
+		readyCnt_l.unlock();
+
+		printf("Ready한 클라 수: %d\n", readyCount);
+
+		clients[client].isReady = true;
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (clients[i].in_use == true)
+				SendReadyStatePacket(i, client);
+		}
+		break;
+	}
+	case CS_UNREADY:
+	{
+		readyCnt_l.lock();
+		--readyCount;
+		readyCnt_l.unlock();
+
+
+		printf("Ready한 클라 수: %d\n", readyCount);
+
+		clients[client].isReady = false;
+
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (clients[i].in_use == true)
+				SendUnReadyStatePacket(i, client);
+		}
+		break;
+	}
+	case CS_REQUEST_START:
+	{
+		if (clientCount <= readyCount)
+		{
+			PickBomber();
+			ShuffleStartPosIndex();
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (clients[i].in_use == true)
+				{
+					clients[i].gameState = GS_INGAME;
+				}
+			}
+
+			// 라운드 시작시간 set
+			StartTimer();
+
+			roundTime_l.lock();
+			unsigned short time = roundCurrTime;
+			roundTime_l.unlock();
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (false == clients[i].in_use)
+					continue;
+
+				/*for (int j = 0; j < MAX_USER; ++j)
+				{
+					if (true == clients[j].in_use)
+					{
+
+						clients[j].pos.x = (100.0f*j + 50);
+						clients[j].pos.z = 100.0f;
+
+						SendPutPlayer(i, j);
+
+					}
+				}*/
+				SendPutPlayer(i);
+				SendRoundStart(i, time);
+			}
+			add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
+
+
+			printf("Round Start\n");
+		}
+		else
+		{
+			//이 부분 READYCOUNT 보다
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (true == clients[i].in_use)
+					SendPleaseReady(i);
+			}
+			printf("Please Ready\n");
+		}
+		break;
+	}
 	case CS_UP_KEY:
 	case CS_DOWN_KEY:
 	case CS_LEFT_KEY:
@@ -705,8 +871,20 @@ void Server::ProcessPacket(char client, char *packet)
 		}
 		break;
 	}
+	case CS_RELEASE_KEY:
+	{
+		if (clients[client].fVelocity > 0)
+		{
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (true == clients[i].in_use)
+					SendStopRunAnim(i, client);
+			}
+		}
+		break;
+	}
 	case CS_OBJECT_COLLISION:
-	{	
+	{
 		CS_PACKET_OBJECT_COLLISION *p = reinterpret_cast<CS_PACKET_OBJECT_COLLISION *>(packet);
 
 
@@ -714,11 +892,11 @@ void Server::ProcessPacket(char client, char *packet)
 		float dist = sqrt(pow(clients[client].pos.x - objects[round][p->objId].pos.x, 2) +
 			pow(clients[client].pos.y - objects[round][p->objId].pos.y, 2) +
 			pow(clients[client].pos.z - objects[round][p->objId].pos.z, 2));
-		
+
 		recent_objects = objects[round][p->objId]; //최근에 부딪힌 오브젝트를 저장한다.
 		recent_pos = objects[round][p->objId].pos;
 
-		
+
 
 		clients[client].collision = CL_SURROUNDING;
 
@@ -728,13 +906,13 @@ void Server::ProcessPacket(char client, char *packet)
 	{
 		CS_PACKET_NOT_COLLISION *p = reinterpret_cast<CS_PACKET_NOT_COLLISION *>(packet);
 
-		
+
 		//최근 검사한 recent_object와만 거리 검사를 실시
 		float dist = sqrt(pow(clients[client].pos.x - recent_objects.pos.x, 2) +
 			pow(clients[client].pos.y - recent_objects.pos.y, 2) +
 			pow(clients[client].pos.z - recent_objects.pos.z, 2));
 
-		
+
 
 
 		clients[client].collision = CL_NONE;
@@ -747,7 +925,7 @@ void Server::ProcessPacket(char client, char *packet)
 		CS_PACKET_PLAYER_COLLISION* p = reinterpret_cast<CS_PACKET_PLAYER_COLLISION*>(packet);
 
 		float dist = sqrt(pow(clients[client].pos.x - clients[p->playerID].pos.x, 2) +
-		pow(clients[client].pos.y - clients[p->playerID].pos.y, 2) +
+			pow(clients[client].pos.y - clients[p->playerID].pos.y, 2) +
 			pow(clients[client].pos.z - clients[p->playerID].pos.z, 2));
 
 		recent_player = p->playerID;
@@ -763,38 +941,48 @@ void Server::ProcessPacket(char client, char *packet)
 
 		if (client != bomberID)
 			break;
-		
-		if (changeCoolTime > 0 || changeCoolTime < 0 )		//쿨타임이 아직 남아있으면 RoleChange를 하지 않는다.
+
+		timer_l.lock();
+		if (changeCoolTime < 0 || changeCoolTime > 0)
+		{//쿨타임이 아직 남아있으면 RoleChange를 하지 않는다.
+			//changeCoolTime = COOLTIME;
+			timer_l.unlock();
 			break;
+		}
+		else
+		{
+			timer_l.unlock();
+		}
+
+		//printf("CS_BOMBER_TOUCH");
 
 		float dist = sqrt(pow(clients[client].pos.x - clients[p->touchId].pos.x, 2) +
-		pow(clients[client].pos.y - clients[p->touchId].pos.y, 2) +
+			pow(clients[client].pos.y - clients[p->touchId].pos.y, 2) +
 			pow(clients[client].pos.z - clients[p->touchId].pos.z, 2));
 
 		bomberID = p->touchId;
 
-		coolTime_l.lock();
+		timer_l.lock();
 		changeCoolTime = COOLTIME;
-		if (changeCoolTime == COOLTIME) 
+		if (changeCoolTime == COOLTIME)
 		{
-			coolTime_l.unlock();
+			timer_l.unlock();
 			add_timer(-1, EV_COOLTIME, chrono::high_resolution_clock::now() + 1s);
 		}
 		else
 		{
-			coolTime_l.unlock();
+			timer_l.unlock();
 		}
 
-		for(int i=0;i<MAX_USER;++i)
+		for (int i = 0; i < MAX_USER; ++i)
 		{
 			if (true == clients[i].in_use)
-				SendChangeBomber(i, bomberID,client);
+				SendChangeBomber(i, bomberID, client);
 		}
-		
+
 
 		break;
 	}
-
 	case CS_ANIMATION_INFO:		//클라가 애니메이션이 변경되었을때 패킷을 서버에게 보내고.
 	{							//서버는 그 패킷을 받아서 다른 클라이언트에게 해당 애니메이션 정보를 보낸다.
 		CS_PACKET_ANIMATION* p = reinterpret_cast<CS_PACKET_ANIMATION*>(packet);
@@ -812,147 +1000,6 @@ void Server::ProcessPacket(char client, char *packet)
 
 		break;
 	}
-	case CS_RELEASE_KEY:
-		if (clients[client].fVelocity > 0)
-		{
-			for (int i = 0; i < MAX_USER; ++i)
-			{
-				if (true == clients[i].in_use)
-					SendStopRunAnim(i, client);
-			}
-		}
-		break;
-	case CS_READY:
-		printf("전체 클라 수: %d\n", clientCount);
-		// 클라가 엔터누르고 F5누를때마다 CS_READY 패킷이 날아온다면 ++readyCount는 clientCount보다 증가하게 되고 
-		// 아래 CS_REQUEST_START안에 if(clientCount<= readyCount) 안으로 들어가지 않는 현상 발생
-		gLock.lock();
-		++readyCount;
-		gLock.unlock();
-
-		printf("Ready한 클라 수: %d\n", readyCount);
-
-		clients[client].isReady = true;
-		clients[client].matID = packet[2];	// matID
-		for(int i=0;i<MAX_USER;++i)
-		{
-			if (clients[i].in_use == true)
-				SendReadyStatePacket(i, client);
-		}
-		//printf("Recv matID : %d\n", clients[client].matID);
-		break;
-	case CS_UNREADY:
-	{
-		gLock.lock();
-		--readyCount;
-		gLock.unlock();
-
-
-		printf("Ready한 클라 수: %d\n", readyCount);
-
-		clients[client].isReady = false;
-
-		for(int i=0;i<MAX_USER;++i)
-		{
-			if (clients[i].in_use == true)
-				SendUnReadyStatePacket(i, client);
-		}
-		break;
-	}
-	case CS_NICKNAME_INFO:
-	{
-		CS_PACKET_NICKNAME* p = reinterpret_cast<CS_PACKET_NICKNAME*>(packet);
-		
-	
-		strcpy_s(clients[client].nickname, sizeof(p->name), p->name);
-		for (int i = 0; i < MAX_USER; ++i)
-			if (true == clients[i].in_use)
-				SendClientLobbyIn(i, client,clients[client].nickname,false);
-
-		// 처음 접속한 나에게 기존 유저들 출력
-		for (int i = 0; i < MAX_USER; ++i)
-		{
-			if (false == clients[i].in_use)
-				continue;
-			if (i == client)
-				continue;
-			SendClientLobbyIn(client, i,clients[i].nickname,clients[i].isReady);
-		}
-		cout << clients[client].nickname << endl;
-		cout <<(int)p->id << endl;
-		break;
-	}
-	case CS_CHATTING:
-	{
-		CS_PACKET_CHATTING* p = reinterpret_cast<CS_PACKET_CHATTING*>(packet);
-
-		for(int i =0; i<MAX_USER ;++i)
-		{
-			if(true == clients[i].in_use)
-			{
-				cout << sizeof(p->chatting) << endl;
-				SendChattinPacket(i, client, p->chatting);
-			}
-		}
-		cout << p->chatting << endl;
-
-
-		break;
-	}
-	case CS_REQUEST_START:
-		if (clientCount <= readyCount)
-		{
-			PickBomber();
-			
-			for(int i=0;i<MAX_USER;++i)
-			{
-				if (clients[i].in_use == true)
-				{
-					clients[i].gameState = GS_INGAME;
-				}
-			}
-			// 라운드 시작시간 set
-			StartTimer();
-		
-			roundTime_l.lock();
-			unsigned short time = roundCurrTime;
-			roundTime_l.unlock();
-			for(int i=0; i< MAX_USER ;++i)
-			{
-				if(true == clients[i].in_use)
-				{
-				
-					for (int j = 0; j < MAX_USER; ++j)
-					{
-						if (true == clients[j].in_use)
-						{
-							
-							clients[j].pos.x = (100.0f*j + 50);
-							clients[j].pos.z = 100.0f;
-							
-							SendPutPlayer(i, j);
-							
-						}
-					}
-					SendRoundStart(i,time);
-				}
-			}
-			add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
-
-			
-			printf("Round Start\n");
-		}
-		else
-		{
-			//이 부분 READYCOUNT 보다
-			for (int i = 0; i < MAX_USER; ++i)
-			{
-				if (true == clients[i].in_use)
-					SendPleaseReady(i);
-			}
-			printf("Please Ready\n");
-		}
-		break;
 	case CS_GET_ITEM:
 	{
 		CS_PACKET_GET_ITEM *p = reinterpret_cast<CS_PACKET_GET_ITEM *>(packet);
@@ -1074,9 +1121,9 @@ void Server::ProcessPacket(char client, char *packet)
 			if (ITEM::GOLD_HAMMER != clients[client].specialItem)
 				break;
 			
-			gLock.lock();
+			freezeCnt_l.lock();
 			freezeCnt = 0;
-			gLock.unlock();
+			freezeCnt_l.unlock();
 
 			for(int i=0 ; i<MAX_USER;++i)
 			{
@@ -1134,16 +1181,11 @@ void Server::ProcessPacket(char client, char *packet)
 		if (client == bomberID)		//술래라면 얼음을 할 수 없다.
 			break;
 
-		gLock.lock();
-		int fCount = freezeCnt;
-		gLock.unlock();
-		if (fCount >= MAX_FREEZE_COUNT)	//최대 얼음할 수 있는 도망자 수를 넘으면 얼음을 하게 할 수 없다.
+		freezeCnt_l.lock();
+		if (freezeCnt >= MAX_FREEZE_COUNT)	//최대 얼음할 수 있는 도망자 수를 넘으면 얼음을 하게 할 수 없다.
 			break;
-		
-		
-		gLock.lock();
 		++freezeCnt;
-		gLock.unlock();
+		freezeCnt_l.unlock();
 
 		for(int i=0;i<MAX_USER;++i)
 		{
@@ -1159,15 +1201,11 @@ void Server::ProcessPacket(char client, char *packet)
 		if (client == bomberID)		//술래라면 얼음을 할 수 없다.
 			break;
 
-		gLock.lock();
-		int fCount = freezeCnt;
-		gLock.unlock();
-		if (fCount <= 0)
+		freezeCnt_l.lock();
+		if (freezeCnt <= 0)
 			break;
-
-		gLock.lock();
 		--freezeCnt;
-		gLock.unlock();
+		freezeCnt_l.unlock();
 
 		for(int i=0;i<MAX_USER;++i)
 		{
@@ -1190,18 +1228,6 @@ void Server::ProcessPacket(char client, char *packet)
 			SendBombExplosion(i, bomberID);
 		}
 
-		break;
-	}
-	case CS_CHOICE_CHARACTER:
-	{
-		CS_PACKET_CHOICE_CHARACTER *p = reinterpret_cast<CS_PACKET_CHOICE_CHARACTER *>(packet);
-
-		for (int i = 0; i < MAX_USER; ++i)
-		{
-			if (false == clients[i].in_use)
-				continue;
-			SendChoiceCharacter(i, client, p->matID);
-		}
 		break;
 	}
 	default:
@@ -1278,6 +1304,23 @@ void Server::SendClientLobbyIn(char toClient,char fromClient,char* name,const bo
 
 	SendFunc(toClient, &packet);
 }
+
+void Server::SendChosenCharacter(char toClient)
+{
+	SC_PACKET_CHOSEN_CHARACTER packet;
+	packet.size = sizeof(SC_PACKET_CHOSEN_CHARACTER);
+	packet.type = SC_CHOSEN_CHARACTER;
+	for (int i = 0; i < MAX_USER; ++i)
+	{
+		if (false == clients[i].in_use)
+			packet.matID[i] = -1;
+		else
+			packet.matID[i] = clients[i].matID;
+	}
+
+	SendFunc(toClient, &packet);
+}
+
 void Server::SendClientLobbyOut(char toClient,char fromClient)
 {
 	SC_PACKET_LOBBY_OUT packet;
@@ -1301,25 +1344,15 @@ void Server::SendChattinPacket(char toClient,char fromClient,char* message)
 	SendFunc(toClient, &packet);
 
 }
-void Server::SendPutPlayer(char toClient, char fromClient)
+void Server::SendPutPlayer(char toClient)
 {
 	SC_PACKET_PUT_PLAYER packet;
-	packet.id = fromClient;
-	packet.size = sizeof(packet);
+	packet.size = sizeof(SC_PACKET_PUT_PLAYER);
 	packet.type = SC_PUT_PLAYER;
-	packet.xPos = clients[fromClient].pos.x;
-	packet.yPos = clients[fromClient].pos.y;
-	packet.zPos = clients[fromClient].pos.z;
-	packet.xLook = clients[fromClient].look.x;
-	packet.yLook = clients[fromClient].look.y;
-	packet.zLook = clients[fromClient].look.z;
-	packet.xUp = clients[fromClient].up.x;
-	packet.yUp = clients[fromClient].up.y;
-	packet.zUp = clients[fromClient].up.z;
-	packet.xRight = clients[fromClient].right.x;
-	packet.yRight = clients[fromClient].right.y;
-	packet.zRight = clients[fromClient].right.z;
-	packet.matID = clients[fromClient].matID;
+	for (int i = 0; i < MAX_USER; ++i)
+	{
+		packet.posIdx[i] = randomPosIdx[i];
+	}
 
 	SendFunc(toClient, &packet);
 }
@@ -1572,9 +1605,9 @@ void Server::ClientDisconnect(char client)
 	clients[client].in_use = false;
 	if (clients[client].isReady)
 	{
-		gLock.lock();
+		readyCnt_l.lock();
 		readyCount--;
-		gLock.unlock();
+		readyCnt_l.unlock();
 		clients[client].isReady = false;
 	}
 	if (hostId == client)
@@ -1626,15 +1659,18 @@ void Server::ClientDisconnect(char client)
 	}
 	}
 
-	gLock.lock();
+	clientCnt_l.lock();
 	clientCount--;
-	gLock.unlock();
 
 	// 모든 플레이어가 접속 종료했을 때
 	if (0 >= clientCount)
 	{
+		clientCnt_l.unlock();
 		InitGame();
 	}
+	else
+		clientCnt_l.unlock();
+
 
 	
 	closesocket(clients[client].socket);
