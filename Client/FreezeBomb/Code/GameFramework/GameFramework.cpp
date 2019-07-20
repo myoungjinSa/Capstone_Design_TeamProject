@@ -1407,7 +1407,7 @@ void CGameFramework::SetNamecard()
 				wchar_t wname[16];
 				int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), NULL, NULL);
 				MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), wname, nLen);
-				m_pd2dDeviceContext->DrawTextW(wname, nLen, CDirect2D::GetInstance()->GetFontInfo("피오피동글").m_pFont, &nameCard, CDirect2D::GetInstance()->GetFontColor("검은색"));
+				CDirect2D::GetInstance()->Render("피오피동글", "검은색", wname, nameCard);
 			}
 #else
 
@@ -1419,8 +1419,7 @@ void CGameFramework::SetNamecard()
 			
 				nameCard = D2D1::RectF(screenSpace.x - 60.0f, screenSpace.y - 60.0f, screenSpace.x + 60.0f, screenSpace.y + 60.0f);
 
-				m_pd2dDeviceContext->DrawTextW((*iter).second->m_ppObjects[i]->GetPlayerName(),
-					(UINT32)wcslen((*iter).second->m_ppObjects[i]->GetPlayerName()), CDirect2D::GetInstance()->GetFontInfo("피오피동글").m_pFont, &nameCard, m_ppFontColor[i]);
+				CDirect2D::GetInstance()->Render("피오피동글", "빨간색", (*iter).second->m_ppObjects[i]->GetPlayerName(), nameCard);
 			}
 #endif
 		}
@@ -1469,12 +1468,13 @@ void CGameFramework::ShowScoreboard()
 			scorePos.bottom = info.m_Pos.top + height * 5.f / 16.f;
 
 			// ID
-			m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), CDirect2D::GetInstance()->GetFontInfo("피오피동글").m_pFont, &idPos, CDirect2D::GetInstance()->GetFontColor("검은색"));
+			CDirect2D::GetInstance()->Render("피오피동글", "검은색", m_pPlayer->GetPlayerName(), idPos);
+
 			// Score
-			m_pd2dDeviceContext->DrawTextW((to_wstring(m_pPlayer->getScore())).c_str(), (UINT32)(to_wstring(m_pPlayer->getScore())).length(), CDirect2D::GetInstance()->GetFontInfo("피오피동글").m_pFont, &scorePos, CDirect2D::GetInstance()->GetFontColor("검은색"));
+			CDirect2D::GetInstance()->Render("피오피동글", "검은색", to_wstring(m_pPlayer->getScore()), scorePos);
 
 			// ID
-			m_pd2dDeviceContext->DrawTextW(m_pPlayer->GetPlayerName(), (UINT32)wcslen(m_pPlayer->GetPlayerName()), CDirect2D::GetInstance()->GetFontInfo("피오피동글").m_pFont, &idPos2, CDirect2D::GetInstance()->GetFontColor("검은색"));
+			CDirect2D::GetInstance()->Render("피오피동글", "검은색", m_pPlayer->GetPlayerName(), idPos2);
 
 #ifdef _WITH_SERVER_
 			D2D1_RECT_F rcText = D2D1::RectF(0.f, 0.f, 0.f, 0.f);
@@ -1509,67 +1509,67 @@ void CGameFramework::ShowReadyText()
 
 	UINT originX = 1200;
 	UINT originY = 800;
-	D2D1_RECT_F readyRect{ 0.0f, };
+	D2D1_RECT_F pos{ 0.0f, };
 
 #ifndef _WITH_SERVER_
 	bool isReady = CCharacterSelectUIShader::GetIsReady();
 	if (isReady == true)
 	{
-		readyRect = D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
-		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), CDirect2D::GetInstance()->GetFontInfo("피오피동글").m_pFont, &readyRect, CDirect2D::GetInstance()->GetFontColor("빨간색"));
+		pos = D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
+		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos);
 
-		readyRect = D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
-		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), CDirect2D::GetInstance()->GetFontInfo("피오피동글").m_pFont, &readyRect, CDirect2D::GetInstance()->GetFontColor("빨간색"));
+		pos = D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
+		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos);
 
-		readyRect = D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
-		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), CDirect2D::GetInstance()->GetFontInfo("피오피동글").m_pFont, &readyRect, CDirect2D::GetInstance()->GetFontColor("빨간색"));
+		pos = D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
+		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos);
 
-		readyRect = D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
-		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), CDirect2D::GetInstance()->GetFontInfo("피오피동글").m_pFont, &readyRect, CDirect2D::GetInstance()->GetFontColor("빨간색"));
+		pos = D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
+		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos);
 
-		readyRect = D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
-		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), CDirect2D::GetInstance()->GetFontInfo("피오피동글").m_pFont, &readyRect, CDirect2D::GetInstance()->GetFontColor("빨간색"));
+		pos = D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
+		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos);
 
-		readyRect = D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
-		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), CDirect2D::GetInstance()->GetFontInfo("피오피동글").m_pFont, &readyRect, CDirect2D::GetInstance()->GetFontColor("빨간색"));
+		pos = D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
+		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos);
 	}
 
 #else
 	int index = 0;
 	if (m_mapClients[index].isReady)
 	{
-		readyRect = D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
-		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), CDirect2D::GetInstance()->GetFontInfo("피오피동글").m_pFont, &readyRect, CDirect2D::GetInstance()->GetFontColor("빨간색"));
+		pos = D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
+		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos);
 	}
 	++index;
 	if (m_mapClients[index].isReady)
 	{
-		readyRect = D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
-		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), CDirect2D::GetInstance()->GetFontInfo("피오피동글").m_pFont, &readyRect, CDirect2D::GetInstance()->GetFontColor("빨간색"));
+		pos = D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
+		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos);
 	}
 	++index;
 	if (m_mapClients[index].isReady)
 	{
-		readyRect = D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
-		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), CDirect2D::GetInstance()->GetFontInfo("피오피동글").m_pFont, &readyRect, CDirect2D::GetInstance()->GetFontColor("빨간색"));
+		pos = D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
+		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos);
 	}
 	++index;
 	if (m_mapClients[index].isReady)
 	{
-		readyRect = D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
-		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), CDirect2D::GetInstance()->GetFontInfo("피오피동글").m_pFont, &readyRect, CDirect2D::GetInstance()->GetFontColor("빨간색"));
+		pos = D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
+		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos);
 	}
 	++index;
 	if (m_mapClients[index].isReady)
 	{
-		readyRect = D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
-		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), CDirect2D::GetInstance()->GetFontInfo("피오피동글").m_pFont, &readyRect, CDirect2D::GetInstance()->GetFontColor("빨간색"));
+		pos = D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
+		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos);
 	}
 	++index;
 	if (m_mapClients[index].isReady)
 	{
-		readyRect = D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
-		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), CDirect2D::GetInstance()->GetFontInfo("피오피동글").m_pFont, &readyRect, CDirect2D::GetInstance()->GetFontColor("빨간색"));
+		pos = D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
+		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos);
 	}
 #endif
 }
@@ -1606,7 +1606,7 @@ void CGameFramework::ShowPlayers()
 
 void CGameFramework::DrawStageInfo()
 {
-	D2D1_RECT_F stageText = { 0.0f, 0.0f, 300.0f, 70.0f};
+	D2D1_RECT_F pos = { 0.0f, 0.0f, 300.0f, 70.0f};
 	const wstring wstr = to_wstring((int)g_Round+1) + L" Round";
 
 	switch (g_Round)
@@ -1615,7 +1615,7 @@ void CGameFramework::DrawStageInfo()
 	case 1:
 	case 2:
 	case 3:
-		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length() , CDirect2D::GetInstance()->GetFontInfo("피오피동글").m_pFont, &stageText, CDirect2D::GetInstance()->GetFontColor("주황색"));
+		CDirect2D::GetInstance()->Render("피오피동글", "주황색", wstr, pos);
 		break;
 
 	default:
@@ -1693,12 +1693,6 @@ void CGameFramework::ProcessDirect2D()
 	//WITH_DIRECT2D_IMAGE_EFFECT
 
 	////////////////////////////////////////////////////////////////////////
-
-	//m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
-	//D2D1_RECT_F rcUpperText = D2D1::RectF(0, 0, 200.0f, 1400.0f);
-
-	//IDWriteTextFormat (interface) : 텍스트 형식에 사용되는 폰트를 서술함. 
-	//m_pd2dDeviceContext->DrawTextW(m_pszFrameRate, (UINT32)wcslen(m_pszFrameRate), m_pdwFont[0], &rcUpperText, m_ppFontColor[0]);
 	m_pd2dDeviceContext->EndDraw();
 
 	//Releases D3D11 resources that were wrapped for D3D 11on12
@@ -1733,8 +1727,6 @@ void CGameFramework::ResetAnimationForRoundStart()
 				(*iter).second->m_ppObjects[enemyID.first]->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
 				(*iter).second->m_ppObjects[enemyID.first]->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
 				(*iter).second->m_ppObjects[enemyID.first]->m_pAnimationController->SetTrackPosition(0, 0.0f);
-
-
 			}
 
 		}

@@ -246,6 +246,11 @@ void CDirect2D::Render(string key, D2D1_RECT_F pos, int fx, int fy)
 	}
 }
 
+void CDirect2D::Render(string font, string color, wstring text, D2D1_RECT_F pos)
+{
+	CGameFramework::GetDeviceContext()->DrawTextW(text.c_str(), text.length(), GetFontInfo(font).m_pFont, &pos, GetFontColor(color));
+}
+
 ImageInfo& CDirect2D::GetImageInfo(string key)
 {
 	auto iter = m_ImageInfoMap.find(key);

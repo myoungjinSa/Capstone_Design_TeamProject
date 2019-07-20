@@ -2,6 +2,7 @@
 #include <algorithm>
 #include "../Network/Network.h"
 #include "Chatting.h"
+#include "../Direct2D/Direct2D.h"
 
 #pragma comment(lib,"imm32.lib")
 #include <imm.h>
@@ -20,24 +21,25 @@ void ChattingSystem::CreateChattingFont()
 {
 	if(m_fontSize < 30)
 	{
-		m_maxChatSentenceCount = 19;
+		m_maxChatSentenceCount = 10;
 	}
 	else if( m_fontSize < 40)
 	{
-		m_maxChatSentenceCount = 15;
+		m_maxChatSentenceCount = 8;
 	}
 	else if(m_fontSize < 50)
 	{
-		m_maxChatSentenceCount = 12;
+		m_maxChatSentenceCount = 6;
 	}
 	else
 	{
-		m_maxChatSentenceCount = 9;
+		m_maxChatSentenceCount = 4;
 	}
 	m_chat = new TCHAR*[m_maxChatSentenceCount];
 	for (int i = 0; i < m_maxChatSentenceCount; ++i)
 		m_chat[i] = new TCHAR[256];
 }
+
 void ChattingSystem::Initialize(IDWriteTextFormat* pFont, IDWriteTextLayout* pTextLayout, ID2D1SolidColorBrush* pFontColor, IWICImagingFactory* pFactory, ID2D1DeviceContext2* pContext)
 {
 	m_pChattingFont = pFont;
@@ -91,35 +93,27 @@ string ChattingSystem::TCHARToString(const TCHAR* ptsz)
 
 void ChattingSystem::ShowLobbyChatting(ID2D1DeviceContext2* pd2dDeviceContext)
 {
-
-	D2D1_RECT_F chatText{ 0,0,0,0 };
+	D2D1_RECT_F pos{ 0,0,0,0 };
 
 	UINT originX = 1280;
 	UINT originY = 720;
 
-	//chatText.left = (690.0f * FRAME_BUFFER_WIDTH) / originX;
-	//chatText.top = (590.0f * FRAME_BUFFER_HEIGHT) / originY;
-	//chatText.right = (1280.0f * FRAME_BUFFER_WIDTH) / originX;
-	//chatText.bottom = (590.0f * FRAME_BUFFER_HEIGHT) / originY;
-	chatText.left = (24.0f * FRAME_BUFFER_WIDTH) / originX;
-	chatText.top = (665.0f * FRAME_BUFFER_HEIGHT) / originY;
-	chatText.right = (760.0f * FRAME_BUFFER_WIDTH) / originX;
-	chatText.bottom = (687.0f * FRAME_BUFFER_HEIGHT) / originY;
+	pos.left = (24.0f * FRAME_BUFFER_WIDTH) / originX;
+	pos.top = (665.0f * FRAME_BUFFER_HEIGHT) / originY;
+	pos.right = (760.0f * FRAME_BUFFER_WIDTH) / originX;
+	pos.bottom = (687.0f * FRAME_BUFFER_HEIGHT) / originY;
 
-	//int boxStart = (545 * FRAME_BUFFER_HEIGHT) / originY;
 	int boxStart = (630 * FRAME_BUFFER_HEIGHT) / originY;
 
 	int diff = (m_fontSize * FRAME_BUFFER_HEIGHT) / originY;
 
 	if (IsChattingActive())
-	{		
-		chatText = D2D1::RectF(chatText.left, chatText.top, chatText.right, chatText.bottom);
-		pd2dDeviceContext->DrawTextW(m_wsChat.c_str(), m_wsChat.length(), m_pChattingFont, &chatText, m_pChattingFontColor);
-	}
+		CDirect2D::GetInstance()->Render("메이플", "검은색", m_wsChat, pos);
+
 	for (int i = 1; i < m_dequeText.size()+1; ++i) 
 	{
-		chatText = D2D1::RectF(chatText.left, boxStart - (i * diff), chatText.right, boxStart- (i * diff));
-		pd2dDeviceContext->DrawTextW(m_dequeText[i-1].first, m_dequeText[i-1].second, m_pChattingFont, &chatText, m_pChattingFontColor);
+		pos = D2D1::RectF(pos.left, boxStart - (i * diff), pos.right, boxStart- (i * diff));
+		CDirect2D::GetInstance()->Render("메이플", "검은색", m_dequeText[i - 1].first, pos);
 	}
 }
 
@@ -130,21 +124,18 @@ void ChattingSystem::ShowIngameChatting(ID2D1DeviceContext2* pd2dDeviceContext, 
 		UINT originX = 1280;
 		UINT originY = 720;
 
-		
-		
 		D2D_POINT_2F p{ 0.0f,0.0f };
 		p.x = (-360.0f * FRAME_BUFFER_WIDTH) / originX;
 		p.y = (590.0f * FRAME_BUFFER_HEIGHT) / originY;
 		
 		pd2dDeviceContext->DrawImage(m_pd2dfxBitmapSource, p);
-		D2D1_RECT_F chatText{ 0, 0, 0, 0 };
-		chatText.left = (20.0f * FRAME_BUFFER_WIDTH) / originX;
-		chatText.top = (680.0f * FRAME_BUFFER_HEIGHT) / originY;
-		chatText.right = (720.0f * FRAME_BUFFER_WIDTH) / originX;
-		chatText.bottom = (680.0f * FRAME_BUFFER_HEIGHT) / originY;
+		D2D1_RECT_F pos{ 0, 0, 0, 0 };
+		pos.left = (20.0f * FRAME_BUFFER_WIDTH) / originX;
+		pos.top = (680.0f * FRAME_BUFFER_HEIGHT) / originY;
+		pos.right = (720.0f * FRAME_BUFFER_WIDTH) / originX;
+		pos.bottom = (680.0f * FRAME_BUFFER_HEIGHT) / originY;
 
-		chatText = D2D1::RectF(chatText.left, chatText.top, chatText.right, chatText.bottom);
-		pd2dDeviceContext->DrawTextW(m_wsChat.c_str(), m_wsChat.length(), m_pChattingFont, &chatText, m_pChattingFontColor);
+		CDirect2D::GetInstance()->Render("메이플", "검은색", m_wsChat, pos);
 
 		m_showTime = 0.0f;
 	}
@@ -154,24 +145,24 @@ void ChattingSystem::ShowIngameChatting(ID2D1DeviceContext2* pd2dDeviceContext, 
 	}
 	if (m_showTime <= 5.0f) 
 	{
-		D2D1_RECT_F chatText{ 0,0,0,0 };
+		D2D1_RECT_F pos{ 0,0,0,0 };
 		UINT originX = 1280;
 		UINT originY = 720;
 
-		chatText.left = (20.0f * FRAME_BUFFER_WIDTH) / originX;
-		chatText.top = (655.0f * FRAME_BUFFER_HEIGHT) / originY;
-		chatText.right = (720.0f * FRAME_BUFFER_WIDTH) / originX;
-		chatText.bottom = (655.0f * FRAME_BUFFER_HEIGHT) / originY;
+		pos.left = (20.0f * FRAME_BUFFER_WIDTH) / originX;
+		pos.top = (655.0f * FRAME_BUFFER_HEIGHT) / originY;
+		pos.right = (720.0f * FRAME_BUFFER_WIDTH) / originX;
+		pos.bottom = (655.0f * FRAME_BUFFER_HEIGHT) / originY;
 
 		int diff = (m_fontSize * FRAME_BUFFER_HEIGHT) / originY;
 
 		for (int i = 1; i < m_dequeText.size() + 1; ++i)
 		{
-			chatText = D2D1::RectF(chatText.left, chatText.top - (i + diff), chatText.right, chatText.bottom - (i + diff));
-			pd2dDeviceContext->DrawTextW(m_dequeText[i - 1].first, m_dequeText[i - 1].second, m_pChattingFont, &chatText, m_pChattingFontColor);
+			pos = D2D1::RectF(pos.left, pos.top - (i + diff), pos.right, pos.bottom - (i + diff));
+			CDirect2D::GetInstance()->Render("메이플", "검은색", m_dequeText[i - 1].first, pos);
 		}
-}
 	}
+}
 
 void ChattingSystem::ProcessSpecialCharacter(WPARAM wParam)
 {
@@ -468,17 +459,17 @@ void ChattingSystem::Destroy()
 }
 #endif
 
-void ChattingSystem::PushChattingText(const string& user,const char* chat)
+void ChattingSystem::PushChattingText(const string& user, const char* chat)
 {
-	string s = user + ": ";
+	string s = user + " : ";
 	s.append(chat);
 
 	ZeroMemory(m_chat[m_nCurrentText], sizeof(256));
 	int chattingLen = MultiByteToWideChar(CP_ACP, 0, s.c_str(), s.length(), NULL, NULL);
 	MultiByteToWideChar(CP_ACP, 0, s.c_str(), s.length(), m_chat[m_nCurrentText], chattingLen);
+	m_chat[m_nCurrentText][chattingLen] = '\0';
 
-
-	if(m_dequeText.size() >= m_maxChatSentenceCount-1)
+	if(m_dequeText.size() >= m_maxChatSentenceCount - 1)
 	{
 		//가장 위에 위치한 텍스트를 pop한다.
 		m_dequeText.pop_back();

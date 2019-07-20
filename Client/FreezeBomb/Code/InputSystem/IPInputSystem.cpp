@@ -3,6 +3,8 @@
 #include "../Shader/BillboardShader/UIShader/LoginShader/IPShader.h"
 #include "../Network/Network.h"
 #include <mutex>
+#include "../Direct2D/Direct2D.h"
+
 #pragma comment(lib,"imm32.lib")
 #include <imm.h>
 
@@ -102,22 +104,19 @@ TCHAR* CIPInputSystem::StringToTCHAR(string& s)
 
 void CIPInputSystem::ShowIPInput()
 {
-	D2D1_RECT_F ipText{ 0,0,0,0 };
-
 	wstring wstr = StringToTCHAR(m_wsIP);
 
 	UINT originX = 1280;
 	UINT originY = 780;
 
-	RECT rect{0,};
+	D2D1_RECT_F pos{0,};
 
-	rect.left = (480 * FRAME_BUFFER_WIDTH) / originX;
-	rect.right = (750 * FRAME_BUFFER_WIDTH) / originX;
-	rect.top = (650 * FRAME_BUFFER_HEIGHT) / originY;
-	rect.bottom = (650 * FRAME_BUFFER_HEIGHT) / originY;
+	pos.left = (480 * FRAME_BUFFER_WIDTH) / originX;
+	pos.right = (750 * FRAME_BUFFER_WIDTH) / originX;
+	pos.top = (650 * FRAME_BUFFER_HEIGHT) / originY;
+	pos.bottom = (650 * FRAME_BUFFER_HEIGHT) / originY;
 
-	ipText = D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom);
-	m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_pFont, &ipText, m_pFontColor);
+	CDirect2D::GetInstance()->Render("메이플", "검은색", wstr, pos);
 }
 
 string CIPInputSystem::TCHARToString(const TCHAR* ptsz)

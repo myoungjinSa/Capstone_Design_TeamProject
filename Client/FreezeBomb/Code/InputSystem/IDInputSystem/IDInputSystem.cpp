@@ -1,5 +1,6 @@
 #include "../../Stdafx/stdafx.h"
 #include "IDInputSystem.h"
+#include "../../Direct2D/Direct2D.h"
 
 #ifdef _WITH_SERVER_
 #ifdef _WITH_DIRECT2D_
@@ -222,9 +223,7 @@ void CIDInput::ProcessIDInput(HWND hWnd,WPARAM wParam,LPARAM lParam)
 
 void CIDInput::ShowIDInput(ID2D1DeviceContext2* pd2dDeviceContext)
 {
-	D2D1_RECT_F idText{ 0,0,0,0 };
 	wstring wstr = m_wsID.c_str();
-
 
 	//420 은 1200프레임에서의 left값 
 	UINT originX = 1280;
@@ -234,14 +233,13 @@ void CIDInput::ShowIDInput(ID2D1DeviceContext2* pd2dDeviceContext)
 	UINT currFrameX = FRAME_BUFFER_WIDTH;
 	UINT currFrameY = FRAME_BUFFER_HEIGHT;
 
-	RECT nameRect{ 0, };
-	nameRect.left = (480 *  FRAME_BUFFER_WIDTH) / originX;
-	nameRect.top = (650 *  FRAME_BUFFER_HEIGHT) / originY;
-	nameRect.right = (750 *  FRAME_BUFFER_WIDTH) / originX;
-	nameRect.bottom = (650 *  FRAME_BUFFER_HEIGHT) / originY;
+	D2D1_RECT_F pos{ 0, };
+	pos.left = (480 *  FRAME_BUFFER_WIDTH) / originX;
+	pos.top = (650 *  FRAME_BUFFER_HEIGHT) / originY;
+	pos.right = (750 *  FRAME_BUFFER_WIDTH) / originX;
+	pos.bottom = (650 *  FRAME_BUFFER_HEIGHT) / originY;
 
-	idText = D2D1::RectF(nameRect.left, nameRect.top , nameRect.right, nameRect.bottom);
-	pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_pFont, &idText, m_pFontColor);
+	CDirect2D::GetInstance()->Render("메이플", "검은색", wstr, pos);
 }
 
 void CIDInput::Destroy()

@@ -46,6 +46,7 @@ public:
 	void Render();
 	void Render(string key);
 	void Render(string key, D2D1_RECT_F pos, int fx, int fy);
+	void Render(string key, string color, wstring text, D2D1_RECT_F pos);
 
 	ImageInfo& GetImageInfo(string key);
 	FontInfo&	 GetFontInfo(string key);

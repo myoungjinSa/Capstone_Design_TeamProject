@@ -31,12 +31,10 @@ protected:
 	
 	//INGAME채팅에서의 최대 길이
 	enum class SENTENCE_LENGTH_INGAME		{ENG=40,KOR=20};
-	int m_maxChatSentenceCount = 20;
-	//vector<pair<TCHAR*, UINT32>> m_vecText;
-	//deque<pair<TCHAR*, UINT32>> m_dequeText;
+	int m_maxChatSentenceCount = 12;
 	deque<pair<const TCHAR*, const UINT32>> m_dequeText;
 	float m_showTime{ 0.0f };
-	//array<pair<TCHAR*,UINT32>,m_maxChatSentenceCount> m_arrText;
+
 public:
 	ChattingSystem();
 	virtual ~ChattingSystem();
