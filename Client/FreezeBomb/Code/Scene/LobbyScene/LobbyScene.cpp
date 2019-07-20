@@ -188,7 +188,6 @@ void CLobbyScene::UIRender()
 
 	pos = D2D1::RectF((571 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (691 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY);
 	CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, 5, 0);
-
 #else
 	int index = 0;
 	if (m_ClientsCharacter[index] != -1)

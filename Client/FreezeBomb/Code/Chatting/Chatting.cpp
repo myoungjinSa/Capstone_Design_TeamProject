@@ -46,7 +46,6 @@ void ChattingSystem::Initialize(IDWriteTextFormat* pFont, IDWriteTextLayout* pTe
 
 	HRESULT hResult;
 
-
 	IWICBitmapDecoder *pwicBitmapDecoder;
 	hResult = pFactory->CreateDecoderFromFilename(L"../Resource/Png/chatting.png", NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &pwicBitmapDecoder);
 	hResult = pContext->CreateEffect(CLSID_D2D1BitmapSource, &m_pd2dfxBitmapSource);

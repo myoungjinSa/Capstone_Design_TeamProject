@@ -46,6 +46,7 @@ public:
 	
 	static  ID2D1DeviceContext2*	GetDeviceContext() { return m_pd2dDeviceContext; }
 	static  IWICImagingFactory* GetWICImagingFactory() { return m_pwicImagingFactory; };
+	static IDWriteFactory5* GetWriteFactory() { return m_pdWriteFactory; }
 
 	void Initialize_BitmapImage();
 	void Initialize_GameFont();
@@ -168,30 +169,18 @@ private:
 #ifdef _WITH_DIRECT2D_
 	ID3D11On12Device				*m_pd3d11On12Device{ nullptr };//
 	ID3D11DeviceContext			*m_pd3d11DeviceContext{ nullptr };//
-	ID2D1Factory3						*m_pd2dFactory{ nullptr };//
 
+	ID2D1Factory3						*m_pd2dFactory{ nullptr };//
 	ID2D1Device2*					m_pd2dDevice{ nullptr };//
-	static ID2D1DeviceContext2*		m_pd2dDeviceContext;
+
+	// Direct2D로 이미지를 그리기 위한 팩토리
+	static IWICImagingFactory*			m_pwicImagingFactory;
+	// Direct2D로 텍스트를 그리기 위한 팩토리
+	static IDWriteFactory5*					m_pdWriteFactory;
+	static ID2D1DeviceContext2*			m_pd2dDeviceContext;
 
 	ID3D11Resource				*m_ppd3d11WrappedBackBuffers[m_nSwapChainBuffers];
 	ID2D1Bitmap1					*m_ppd2dRenderTargets[m_nSwapChainBuffers];
-	
-	enum FONT_TYPE { PIOP_FONT, MAPLE_FONT };
-	IDWriteFactory5*					m_pdWriteFactory{ nullptr };
-	IDWriteFontCollection1*		m_pFontCollection{ nullptr };
-
-	const int								m_FontNum = 2;
-	// 폰트 객체
-	IDWriteTextFormat**			m_ppFont{ nullptr };
-	IDWriteTextLayout**				m_ppTextLayout{ nullptr };
-
-	// 폰트 색상 개수
-	enum COLOR_TYPE { PINK, BROWN, WHITE, BLACK, SKYBLUE, PANDA, RED, ORANGE };
-	const int								m_FontColorNum = 8;
-
-	// 폰트 색상
-	ID2D1SolidColorBrush**		m_ppFontColor{ nullptr };	
-	static IWICImagingFactory* m_pwicImagingFactory;
 
 	//한글인지 영어 인지
 	bool m_bHangeul{ false };	

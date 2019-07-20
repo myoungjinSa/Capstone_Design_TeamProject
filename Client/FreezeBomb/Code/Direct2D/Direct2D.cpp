@@ -35,6 +35,124 @@ void CDirect2D::CreateBitmapImage(ImageInfo info, string key)
 		pFormatConverter->Release();
 }
 
+void CDirect2D::CreateGameFont()
+{
+	// 폰트 경로
+	wstring fontPath[] = { L"../Resource/Font/a피오피동글.ttf", L"../Resource/Font/메이플스토리.ttf" };
+
+	// 폰트를 직접 설치할때 사용
+	//AddFontResourceEx(fontPath[0].c_str(), FR_PRIVATE, 0);
+	//AddFontResourceEx(fontPath[1].c_str(), FR_PRIVATE, 0);
+
+	// 폰트를 설치하지 않고, 메모리에 올려서 사용할 경우
+	// 빌더 생성
+	IDWriteFontSetBuilder1* pFontSetBuilder;
+	HRESULT hResult = CGameFramework::GetWriteFactory()->CreateFontSetBuilder(&pFontSetBuilder);
+
+	IDWriteFontFile* pFontFile[FONT::FontNum];
+	IDWriteFontSet* pFontSet[FONT::FontNum];
+
+	wstring FontName[FONT::FontNum];
+	unsigned int max_length = 64;
+
+	for (int i = 0; i < FONT::FontNum; ++i)
+	{
+		// 해당하는 경로에서 폰트 파일을 로드한다.
+		hResult = CGameFramework::GetWriteFactory()->CreateFontFileReference(fontPath[i].c_str(), nullptr, &pFontFile[i]);
+		// 빌더에 폰트 추가
+		hResult = pFontSetBuilder->AddFontFile(pFontFile[i]);
+		hResult = pFontSetBuilder->CreateFontSet(&pFontSet[i]);
+		// 폰트 Collection에 폰트 추가 => 폰트 Collection에서 내가 사용할 폰트가 저장되어 있음
+		hResult = CGameFramework::GetWriteFactory()->CreateFontCollectionFromFontSet(pFontSet[i], &m_pFontCollection);
+
+		// 폰트 이름을 얻어오는 방법
+		IDWriteFontFamily* pFontFamily;
+		IDWriteLocalizedStrings* pLocalizedFontName;
+
+		hResult = m_pFontCollection->GetFontFamily(i, &pFontFamily);
+		hResult = pFontFamily->GetFamilyNames(&pLocalizedFontName);
+		// 저장되어있는 폰트의 이름을 얻어옴
+		hResult = pLocalizedFontName->GetString(0, const_cast<wchar_t*>(FontName[i].c_str()), max_length);
+
+		pFontFamily->Release();
+		pLocalizedFontName->Release();
+	}
+
+	pFontSetBuilder->Release();
+
+	for (int i = 0; i < FONT::FontNum; ++i)
+	{
+		pFontFile[i]->Release();
+		pFontSet[i]->Release();
+	}
+
+	float dx = ((float)FRAME_BUFFER_WIDTH / (float)1280);
+	float dy = ((float)FRAME_BUFFER_HEIGHT / (float)720);
+
+	float dTotal = dx * dy;
+	float fontSize = (25.f * dTotal);
+
+	// 폰트 객체
+	IDWriteTextFormat* pFont[FONT::FontNum];
+	// 폰트 형식
+	IDWriteTextLayout*	pTextLayout[FONT::FontNum];
+	wstring wstr = L"TextLayout Initialize";
+
+	for (int i = 0; i < FONT::FontNum; ++i)
+	{
+		// 폰트 객체 생성	
+		hResult = CGameFramework::GetWriteFactory()->CreateTextFormat(FontName[i].c_str(), m_pFontCollection, DWRITE_FONT_WEIGHT_DEMI_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fontSize, L"en-US", &pFont[i]);
+
+		if (i == 0)
+		{
+			// 폰트를 중앙에 정렬시키기
+			hResult = pFont[i]->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+			hResult = pFont[i]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+			hResult = CGameFramework::GetWriteFactory()->CreateTextLayout(wstr.c_str(), wstr.length(), pFont[i], 1024.0f, 1024.0f, &pTextLayout[i]);
+
+			m_FontInfoMap.emplace("피오피동글", FontInfo(pFont[i], pTextLayout[i], fontSize));
+		}
+		else
+		{
+			hResult = pFont[i]->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+			hResult = pFont[i]->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
+			hResult = CGameFramework::GetWriteFactory()->CreateTextLayout(wstr.c_str(), wstr.length(), pFont[i], 4096.0f, 4096.0f, &pTextLayout[i]);
+
+			m_FontInfoMap.emplace("메이플", FontInfo(pFont[i], pTextLayout[i], fontSize));
+		}
+	}
+}
+
+void CDirect2D::CreateGameFontColor()
+{
+	ID2D1SolidColorBrush* pColor[FONT::FontColorNum];
+
+	int index = 0;
+	HRESULT hResult = CGameFramework::GetDeviceContext()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::DeepPink, 1.0f), &pColor[index]);
+	m_FontColorMap.emplace("분홍색", pColor[index++]);
+
+	hResult = CGameFramework::GetDeviceContext()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Brown, 1.0f), &pColor[index]);
+	m_FontColorMap.emplace("갈색", pColor[index++]);
+
+	hResult = CGameFramework::GetDeviceContext()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White, 1.0f), &pColor[index]);
+	m_FontColorMap.emplace("흰색", pColor[index++]);
+
+	hResult = CGameFramework::GetDeviceContext()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black, 1.0f), &pColor[index]);
+	m_FontColorMap.emplace("검은색", pColor[index++]);
+
+	hResult = CGameFramework::GetDeviceContext()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::SkyBlue, 1.0f), &pColor[index]);
+	m_FontColorMap.emplace("하늘색", pColor[index++]);
+
+	hResult = CGameFramework::GetDeviceContext()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LavenderBlush, 1.0f), &pColor[index]);
+	m_FontColorMap.emplace("연분홍색", pColor[index++]);
+
+	hResult = CGameFramework::GetDeviceContext()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Red, 1.0f), &pColor[index]);
+	m_FontColorMap.emplace("빨간색", pColor[index++]);
+
+	hResult = CGameFramework::GetDeviceContext()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Orange, 1.0f), &pColor[index]);
+	m_FontColorMap.emplace("주황색", pColor[index++]);
+}
+
 void CDirect2D::Release()
 {
 	//갖고 있는 비트맵이미지를 모두 지움
@@ -44,6 +162,25 @@ void CDirect2D::Release()
 		iter = m_ImageInfoMap.erase(iter);
 	}
 	m_ImageInfoMap.clear();
+
+	// 폰트 컬러를 모두 지움
+	for (auto iter = m_FontColorMap.begin(); iter != m_FontColorMap.end(); )
+	{
+		(*iter).second->Release();
+		iter = m_FontColorMap.erase(iter);
+	}
+	m_FontColorMap.clear();
+
+	for (auto iter = m_FontInfoMap.begin(); iter != m_FontInfoMap.end(); )
+	{
+		(*iter).second.m_pFont->Release();
+		(*iter).second.m_pTextLayout->Release();
+		iter = m_FontInfoMap.erase(iter);
+	}
+	m_FontInfoMap.clear();
+
+	if (m_pFontCollection)
+		m_pFontCollection->Release();
 }
 
 void CDirect2D::Render()
@@ -116,3 +253,16 @@ ImageInfo& CDirect2D::GetImageInfo(string key)
 		return (*iter).second;
 }
 
+FontInfo&	 CDirect2D::GetFontInfo(string key)
+{
+	auto iter = m_FontInfoMap.find(key);
+	if (iter != m_FontInfoMap.end())
+		return (*iter).second;
+}
+
+ID2D1SolidColorBrush* CDirect2D::GetFontColor(string key)
+{
+	auto iter = m_FontColorMap.find(key);
+	if (iter != m_FontColorMap.end())
+		return (*iter).second;
+}

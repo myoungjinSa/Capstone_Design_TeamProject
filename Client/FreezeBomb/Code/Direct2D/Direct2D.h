@@ -23,17 +23,43 @@ struct ImageInfo
 	int m_FrameYNum = 0;
 };
 
+struct FontInfo
+{
+	FontInfo(IDWriteTextFormat* pFont, IDWriteTextLayout* layout, float size)
+		: m_pFont(pFont), m_pTextLayout(layout), m_FontSize(size) {}
+	// 폰트 객체
+	IDWriteTextFormat*			m_pFont{ nullptr };
+	// 폰트 형식
+	IDWriteTextLayout*			m_pTextLayout{ nullptr };
+
+	float m_FontSize;
+};
+
 class CDirect2D : public Singleton<CDirect2D>
 {
 public:
 	void CreateBitmapImage(ImageInfo info, string key);
+	void CreateGameFont();
+	void CreateGameFontColor();
+
 	void Release();
 	void Render();
 	void Render(string key);
 	void Render(string key, D2D1_RECT_F pos, int fx, int fy);
 
 	ImageInfo& GetImageInfo(string key);
+	FontInfo&	 GetFontInfo(string key);
+	ID2D1SolidColorBrush* GetFontColor(string key);
 
 private:
 	unordered_map<string, ImageInfo> m_ImageInfoMap;
+
+	// 폰트를 저장함
+	unordered_map<string, FontInfo> m_FontInfoMap;
+	// 폰트 색상을 저장함
+	unordered_map<string, ID2D1SolidColorBrush*> m_FontColorMap;
+
+	IDWriteFontCollection1*		m_pFontCollection{ nullptr };
+
+	enum FONT { FontNum = 2, FontColorNum = 8 };
 };
