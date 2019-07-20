@@ -23,7 +23,10 @@ public:
 	enum gamestate {CHARACTER_SELECT};
 
 	void UIRender();
-
+	void UIChoiceCharacterRender();
+	void UIClientsNameTextRender();
+	void UIClientsReadyTextRender();
+	
 	static void AddClientsCharacter(char id, char matID) { m_ClientsCharacter[id] = matID; }
 protected:
 	ID3D12RootSignature*		m_pd3dGraphicsRootSignature = NULL;

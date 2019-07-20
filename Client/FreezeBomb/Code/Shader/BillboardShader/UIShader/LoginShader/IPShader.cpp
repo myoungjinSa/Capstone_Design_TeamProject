@@ -135,8 +135,6 @@ void CIPShader::BuildObjects(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList 
 
 	CBillboardMesh* pLoginMesh = new CBillboardMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
-
-
 	m_nObjects = nTextures;
 	m_ppUIMaterial = new CMaterial*[m_nObjects];
 
@@ -154,36 +152,25 @@ void CIPShader::BuildObjects(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList 
 	
 }
 
-
 void CIPShader::AnimateObjects(float fTimeElapsed)
 {
-	
-
 }
 
 void CIPShader::DecideTextureByCursor(const RECT& rect,const LONG& mouseX,const LONG& mouseY,UINT& p)
 {
-	//cout << mouseX << "," << mouseY<<endl;
-
-	
 	RECT ipBox{ 0,0 };
 
 	//현재 창의 크기
 	
-
 	//측정을 한 기준이 되는 클라이언트 크기
 	UINT originX = 1280;
 	UINT originY = 720;
-
 
 	ipBox.left = (363 * FRAME_BUFFER_WIDTH )/originX;
 	ipBox.top = (588 * FRAME_BUFFER_HEIGHT) / originY;
 	ipBox.right = (881 * FRAME_BUFFER_WIDTH) / originX;
 	ipBox.bottom = (619 * FRAME_BUFFER_HEIGHT )/ originY;
 
-	cout << ipBox.left;
-
-	
 	if (ipBox.left <= mouseX && mouseX <= ipBox.right && ipBox.top <= mouseY && mouseY <= ipBox.bottom)
 	{
 			g_CurrentTexture = IP_SELECT;

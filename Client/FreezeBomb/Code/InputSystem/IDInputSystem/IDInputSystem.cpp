@@ -6,12 +6,10 @@
 #ifdef _WITH_DIRECT2D_
 CIDInput::CIDInput()
 {
-
 }
 
 CIDInput::~CIDInput()
 {
-
 }
 
 void CIDInput::Initialize(IDWriteTextFormat* pFont, IDWriteTextLayout* pTextLayout, ID2D1SolidColorBrush* pFontColor)
@@ -82,8 +80,6 @@ void CIDInput::SetIMEMode(HWND hWnd,bool bHanMode)
 	//Input Context를 릴리즈 하고, Context에 할당된 메모리를 unlock 한다.
 	//ImmGetContext()를 사용했다면, 반드시 ImmReleaseContext()를 사용해주어야 한다.
 	ImmReleaseContext(hWnd, hIMC);
-
-	
 }
 
 bool CIDInput::ComposeHangeul(HWND hWnd,WPARAM wParam,LPARAM lParam)
@@ -92,7 +88,6 @@ bool CIDInput::ComposeHangeul(HWND hWnd,WPARAM wParam,LPARAM lParam)
 
 	if (hImc == nullptr)
 		return false;
-
 	
 	int nLength = 0;
 	TCHAR wszComp[4] = { 0, };
@@ -161,7 +156,6 @@ bool CIDInput::ComposeHangeul(HWND hWnd,WPARAM wParam,LPARAM lParam)
 	//IME핸들 해제
 	ImmReleaseContext(hWnd,hImc);
 	return true;
-	
 }
 
 TCHAR* CIDInput::GetPlayerName()
@@ -171,7 +165,6 @@ TCHAR* CIDInput::GetPlayerName()
 }
 void CIDInput::ProcessIDInput(HWND hWnd,WPARAM wParam,LPARAM lParam)
 {
-	
 	if (wParam == VK_RETURN)
 	{
 		m_wsID.clear();
@@ -182,13 +175,11 @@ void CIDInput::ProcessIDInput(HWND hWnd,WPARAM wParam,LPARAM lParam)
 	if (GetIMEMode() == IME_CMODE_ALPHANUMERIC)
 	{
 		if (wParam != VK_RETURN && wParam != VK_BACK)
-		{
-		
+		{	
 			if (m_wsID.size() <= (size_t)LENGTH::ENG)
 			{
 				m_wsID += (TCHAR)wParam;
 			}
-
 		}
 	}
 	else if(GetIMEMode() == IME_CMODE_NATIVE)

@@ -161,69 +161,123 @@ void CLobbyScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wPar
 
 void CLobbyScene::UIRender()
 {
+	UIChoiceCharacterRender();
+	UIClientsNameTextRender();
+	UIClientsReadyTextRender();
+}
+
+void CLobbyScene::UIChoiceCharacterRender()
+{
 	CDirect2D::GetInstance()->Render("Characters");
 
 	UINT originX = 1280;
 	UINT originY = 720;
-	D2D1_RECT_F pos;
+
+	D2D1_RECT_F pos[6] =
+	{
+		D2D1::RectF((89 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (209 * FRAME_BUFFER_WIDTH) / originX, (187 * FRAME_BUFFER_HEIGHT) / originY),
+		D2D1::RectF((330 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (450 * FRAME_BUFFER_WIDTH) / originX, (187 * FRAME_BUFFER_HEIGHT) / originY),
+		D2D1::RectF((571 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (691 * FRAME_BUFFER_WIDTH) / originX, (187 * FRAME_BUFFER_HEIGHT) / originY),
+		D2D1::RectF((89 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (209 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY),
+		D2D1::RectF((330 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (450 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY),
+		D2D1::RectF((571 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (691 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY),
+	};
 
 #ifndef _WITH_SERVER_
 	if (CCharacterSelectUIShader::GetChoiceCharacter() >= 0)
 	{
 		pos = D2D1::RectF((89 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (209 * FRAME_BUFFER_WIDTH) / originX, (187 * FRAME_BUFFER_HEIGHT) / originY);
-		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, CCharacterSelectUIShader::GetChoiceCharacter(), 0);
+		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos[0], CCharacterSelectUIShader::GetChoiceCharacter(), 0);
 	}
 
-	pos = D2D1::RectF((330 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (450 * FRAME_BUFFER_WIDTH) / originX, (187 * FRAME_BUFFER_HEIGHT) / originY);
-	CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, 1, 0);
-
-	pos = D2D1::RectF((571 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (691 * FRAME_BUFFER_WIDTH) / originX, (187 * FRAME_BUFFER_HEIGHT) / originY);
-	CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, 2, 0);
-
-	pos = D2D1::RectF((89 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (209 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY);
-	CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, 3, 0);
-
-	pos = D2D1::RectF((330 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (450 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY);
-	CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, 4, 0);
-
-	pos = D2D1::RectF((571 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (691 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY);
-	CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, 5, 0);
 #else
-	int index = 0;
-	if (m_ClientsCharacter[index] != -1)
+	for (int i = 0; i < CGameFramework::GetClientsInfo().size(); ++i)
 	{
-		pos = D2D1::RectF((89 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (209 * FRAME_BUFFER_WIDTH) / originX, (187 * FRAME_BUFFER_HEIGHT) / originY);
-		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, (int)m_ClientsCharacter[index], 0);
+		if (m_ClientsCharacter[i] == -1)		continue;
+
+		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos[i], (int)m_ClientsCharacter[i], 0);
 	}
-	++index;
-	if (m_ClientsCharacter[index] != -1)
+#endif
+}
+
+void CLobbyScene::UIClientsNameTextRender()
+{
+	UINT originX = 1200;
+	UINT originY = 800;
+
+	D2D1_RECT_F pos[6] = 
 	{
-		pos = D2D1::RectF((330 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (450 * FRAME_BUFFER_WIDTH) / originX, (187 * FRAME_BUFFER_HEIGHT) / originY);
-		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, (int)m_ClientsCharacter[index], 0);
+		D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (50 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (60 * FRAME_BUFFER_HEIGHT) / originY),
+		D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (50 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (60 * FRAME_BUFFER_HEIGHT) / originY),
+		D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (50 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (60 * FRAME_BUFFER_HEIGHT) / originY),
+		D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (235 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (245 * FRAME_BUFFER_HEIGHT) / originY),
+		D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (235 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (245 * FRAME_BUFFER_HEIGHT) / originY),
+		D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (235 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (245 * FRAME_BUFFER_HEIGHT) / originY),
+	};
+
+#ifndef _WITH_SERVER_
+
+#else
+	map<int, clientsInfo> m = CGameFramework::GetClientsInfo();
+	if (m.size() > 0)
+	{
+		for (int i = 0; i < 6; ++i)
+		{
+			wchar_t name[32] = { 0, };
+			int nLen = MultiByteToWideChar(CP_ACP, 0, m[i].name, strlen(m[i].name), NULL, NULL);
+			MultiByteToWideChar(CP_ACP, 0, m[i].name, strlen(m[i].name), name, nLen);
+			CDirect2D::GetInstance()->Render("피오피동글", "검은색", name, pos[i]);
+		}
 	}
-	++index;
-	if (m_ClientsCharacter[index] != -1)
+#endif
+}
+
+void CLobbyScene::UIClientsReadyTextRender()
+{
+	wstring wstr = L"READY";
+
+	UINT originX = 1200;
+	UINT originY = 800;
+
+	D2D1_RECT_F pos[6] =
 	{
-		pos = D2D1::RectF((571 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (691 * FRAME_BUFFER_WIDTH) / originX, (187 * FRAME_BUFFER_HEIGHT) / originY);
-		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, (int)m_ClientsCharacter[index], 0);
+		D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY),
+		D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY),
+		D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY),
+		D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY),
+		D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY),
+		D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY)
+	};
+
+#ifndef _WITH_SERVER_
+	bool isReady = CCharacterSelectUIShader::GetIsReady();
+	if (isReady == true)
+	{
+		pos = D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
+		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos);
+
+		pos = D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
+		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos);
+
+		pos = D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
+		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos);
+
+		pos = D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
+		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos);
+
+		pos = D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
+		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos);
+
+		pos = D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
+		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos);
 	}
-	++index;
-	if (m_ClientsCharacter[index] != -1)
+
+#else
+	map<int, clientsInfo> m = CGameFramework::GetClientsInfo();
+	for (int i = 0; i < m.size(); ++i)
 	{
-		pos = D2D1::RectF((89 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (209 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY);
-		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, (int)m_ClientsCharacter[index], 0);
-	}
-	++index;
-	if (m_ClientsCharacter[index] != -1)
-	{
-		pos = D2D1::RectF((330 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (450 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY);
-		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, (int)m_ClientsCharacter[index], 0);
-	}
-	++index;
-	if (m_ClientsCharacter[index] != -1)
-	{
-		pos = D2D1::RectF((571 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (691 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY);
-		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, (int)m_ClientsCharacter[index], 0);
+		if (m[i].isReady == false)	continue;
+		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos[i]);
 	}
 #endif
 }

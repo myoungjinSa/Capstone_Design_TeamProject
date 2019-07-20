@@ -127,9 +127,6 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_pShaderManager = new CShaderManager;
 	m_pShaderManager->Initialize(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nPlayerCount);
 
-	//사운드 생성
-	//CreateSoundSystem();
-	
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
@@ -566,11 +563,7 @@ void CScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 		break;
 
 	case WM_RBUTTONDOWN:
-		//cout << "마우스 오른쪽 클릭 - x : " << mouseX << ", y : " << mouseY << endl;
-		break;
 	case WM_LBUTTONUP:
-		//cout << "마우스 왼쪽 때짐" << endl;
-		break;
 	case WM_RBUTTONUP:
 		break;
 	default:
@@ -674,7 +667,6 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 	if (m_TaggerCoolTime > 0.f)
 	{
 		m_TaggerCoolTime -= elapsedTime;
-		//cout << m_TaggerCoolTime << endl;
 	}
 	else
 		m_TaggerCoolTime = 0.f;
@@ -707,15 +699,12 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 					isCollided = true;
 					
 					Network::GetInstance()->SendSurroundingCollision(dynamic_cast<CSurrounding*>(*iter2)->GetIndex());
-					//cout << "index: " << dynamic_cast<CSurrounding*>((*iter2))->GetIndex()<<"\n";
 #else
 					XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize((*iter2)->GetPosition() ,m_pPlayer->GetPosition());
 					xmf3CollisionDir=Vector3::ScalarProduct(xmf3CollisionDir, m_pPlayer->GetMaxVelocity()*0.3f);
 					m_pPlayer->SetVelocity(-xmf3CollisionDir.x,-xmf3CollisionDir.y,-xmf3CollisionDir.z);
 #endif
 					m_pPlayer->SetObjectCollided((*iter2));
-					
-					//cout << i << "번째 정적인 오브젝트와 충돌" << endl;
 				}
 				++i;
 			}

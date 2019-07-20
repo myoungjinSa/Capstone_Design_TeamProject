@@ -169,7 +169,6 @@ void CMapObjectsShader::LoadSpawnInfo(const string& filename,const int& round)
 		return;
 	}
 
-
 	int playerCount = 0;
 	in.read(reinterpret_cast<char*>(&playerCount), sizeof(int));
 
@@ -178,10 +177,5 @@ void CMapObjectsShader::LoadSpawnInfo(const string& filename,const int& round)
 		in.read(reinterpret_cast<char*>(&spawn[round][i].pos.x), sizeof(float));
 		in.read(reinterpret_cast<char*>(&spawn[round][i].pos.y), sizeof(float));
 		in.read(reinterpret_cast<char*>(&spawn[round][i].pos.z), sizeof(float));
-
-		cout << spawn[round][i].pos.x << "," << spawn[round][i].pos.y << "," << spawn[round][i].pos.z << endl;
 	}
-
-
-	
 }

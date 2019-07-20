@@ -37,6 +37,7 @@
 ID2D1DeviceContext2*	CGameFramework::m_pd2dDeviceContext = nullptr;
 IWICImagingFactory* CGameFramework::m_pwicImagingFactory = nullptr;
 IDWriteFactory5* CGameFramework::m_pdWriteFactory = nullptr;
+map<int, clientsInfo> CGameFramework::m_mapClients;
 
 // 전체모드할경우 주석풀으셈
 //#define FullScreenMode
@@ -743,9 +744,6 @@ void CGameFramework::CreateOffScreenRenderTargetViews()
 
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	int mouseX = LOWORD(lParam);
-	int mouseY = HIWORD(lParam);
-	cout << mouseX << ", " << mouseY << endl;
 	switch (g_State)
 	{
 	case CHARACTER_SELECT:
@@ -1649,10 +1647,8 @@ void CGameFramework::ProcessDirect2D()
 	{
 		m_pLobbyScene->UIRender();
 #ifdef _WITH_SERVER_
-		ShowPlayers();
+		//ShowPlayers();
 #endif
-		ShowReadyText();
-
 		ChattingSystem::GetInstance()->ShowLobbyChatting(m_pd2dDeviceContext);
 		break;
 	}
@@ -1779,6 +1775,9 @@ void CGameFramework::ProcessPacket(char *packet)
 		case SC_CHOSEN_CHARACTER:
 		{
 			SC_PACKET_CHOSEN_CHARACTER *pCC = reinterpret_cast<SC_PACKET_CHOSEN_CHARACTER *>(packet);
+
+			for(int i = 0; i < MAX_USER; ++i)
+				CLobbyScene::AddClientsCharacter(i, pCC->matID[i]);
 			
 			// 아직 선택하지 않은 유저들은 matID값이 -1로 세팅되어있음
 			// char형 배열로 넘어오니 int로 변환해서 사용하면 될 듯

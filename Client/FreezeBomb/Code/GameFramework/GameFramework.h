@@ -47,6 +47,7 @@ public:
 	static  ID2D1DeviceContext2*	GetDeviceContext() { return m_pd2dDeviceContext; }
 	static  IWICImagingFactory* GetWICImagingFactory() { return m_pwicImagingFactory; };
 	static IDWriteFactory5* GetWriteFactory() { return m_pdWriteFactory; }
+	static const map<int, clientsInfo>& GetClientsInfo() { return m_mapClients; }
 
 	void Initialize_BitmapImage();
 	void Initialize_GameFont();
@@ -97,10 +98,9 @@ public:
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 	bool IsInGame(); 
-
 public:
-
 	static enum STAGE {ROUND_1,ROUND_2,ROUND_3};
+
 private:
 	HINSTANCE						m_hInstance;
 	HWND							m_hWnd;
@@ -164,7 +164,7 @@ private:
 	D3D12_CPU_DESCRIPTOR_HANDLE				m_pd3dCarttonScreenRenderTargetBufferCPUHandles[m_nCartoonScreenRenderTargetBuffers];
 
 	CSobelCartoonShader*		m_pCartoonShader{ nullptr };
-	map<int, clientsInfo>		m_mapClients;
+	static map<int, clientsInfo>	m_mapClients;
 
 #ifdef _WITH_DIRECT2D_
 	ID3D11On12Device				*m_pd3d11On12Device{ nullptr };//
