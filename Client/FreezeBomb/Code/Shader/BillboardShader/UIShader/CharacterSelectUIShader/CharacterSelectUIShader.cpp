@@ -304,13 +304,13 @@ void CCharacterSelectUIShader::ClickInteraction(int click)
 		m_IsReady = !m_IsReady;
 #ifdef _WITH_SERVER_
 		if (m_IsReady == false)
-		{
 			Network::GetInstance()->SendNotReady();
-		}
 		else
 		{
-			g_PlayerCharacter = m_ChoiceCharacter;
+			g_PlayerCharacter = m_ChoiceCharacter - PINK;
+			Network::GetInstance()->SendReady();
 		}
+
 #else
 		if (m_IsReady == true)
 			g_PlayerCharacter = m_ChoiceCharacter;

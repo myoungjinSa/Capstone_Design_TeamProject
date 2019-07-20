@@ -1526,23 +1526,69 @@ void CGameFramework::ShowReadyText()
 	UINT originY = 800;
 	D2D1_RECT_F readyRect{ 0.0f, };
 
-	readyRect = D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
-	m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
+#ifndef _WITH_SERVER_
+	bool isReady = CCharacterSelectUIShader::GetIsReady();
+	if (isReady == true)
+	{
+		readyRect = D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
+		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
 
-	readyRect = D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
-	m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
+		readyRect = D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
+		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
 
-	readyRect = D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
-	m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
+		readyRect = D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
+		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
 
-	readyRect = D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
-	m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
+		readyRect = D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
+		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
 
-	readyRect = D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
-	m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
+		readyRect = D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
+		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
 
-	readyRect = D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
-	m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
+		readyRect = D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
+		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
+
+	}
+
+#else
+	int index = 0;
+	if (m_mapClients[index].isReady)
+	{
+		readyRect = D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
+		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
+	}
+	++index;
+	if (m_mapClients[index].isReady)
+	{
+		readyRect = D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
+		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
+	}
+	++index;
+	if (m_mapClients[index].isReady)
+	{
+		readyRect = D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (180 * FRAME_BUFFER_HEIGHT) / originY);
+		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
+	}
+	++index;
+	if (m_mapClients[index].isReady)
+	{
+		readyRect = D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
+		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
+	}
+	++index;
+	if (m_mapClients[index].isReady)
+	{
+		readyRect = D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
+		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
+	}
+	++index;
+	if (m_mapClients[index].isReady)
+	{
+		readyRect = D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (365 * FRAME_BUFFER_HEIGHT) / originY);
+		m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyRect, m_ppFontColor[COLOR_TYPE::RED]);
+
+	}
+#endif
 }
 
 void CGameFramework::ShowPlayers()
@@ -1577,11 +1623,11 @@ void CGameFramework::ShowPlayers()
 			MultiByteToWideChar(CP_ACP, 0, m_mapClients[id.first].name, strlen(m_mapClients[id.first].name), player, nLen);
 			m_pd2dDeviceContext->DrawTextW(player, nLen, m_ppFont[FONT_TYPE::PIOP_FONT], &rcText, m_ppFontColor[i+1]);
 			
-			if (m_mapClients[id.first].isReady)
-			{
-				readyText = D2D1::RectF(0.0f, 0.0f, readyRect.right, ((i*diff) + readyRect.bottom));
-				m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyText, m_ppFontColor[COLOR_TYPE::RED]);
-			}
+			//if (m_mapClients[id.first].isReady)
+			//{
+			//	readyText = D2D1::RectF(0.0f, 0.0f, readyRect.right, ((i*diff) + readyRect.bottom));
+			//	m_pd2dDeviceContext->DrawTextW(wstr.c_str(), wstr.length(), m_ppFont[FONT_TYPE::PIOP_FONT], &readyText, m_ppFontColor[COLOR_TYPE::RED]);
+			//}
 			i++;
 		}
 	}
@@ -1631,15 +1677,10 @@ void CGameFramework::ProcessDirect2D()
 	case CHARACTER_SELECT:
 	{
 		m_pLobbyScene->UIRender();
-
-		bool isReady = CCharacterSelectUIShader::GetIsReady();
-
 #ifdef _WITH_SERVER_
 		ShowPlayers();
-#else
-		if (isReady)
-			ShowReadyText();
 #endif
+		ShowReadyText();
 
 		ChattingSystem::GetInstance()->ShowLobbyChatting(m_pd2dDeviceContext);
 		break;
