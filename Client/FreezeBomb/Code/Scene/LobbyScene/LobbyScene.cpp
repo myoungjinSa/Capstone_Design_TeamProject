@@ -174,51 +174,56 @@ void CLobbyScene::UIRender()
 		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, CCharacterSelectUIShader::GetChoiceCharacter(), 0);
 	}
 
-	//pos = D2D1::RectF((330 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (450 * FRAME_BUFFER_WIDTH) / originX, (187 * FRAME_BUFFER_HEIGHT) / originY);
-	//CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, 1, 0);
+	pos = D2D1::RectF((330 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (450 * FRAME_BUFFER_WIDTH) / originX, (187 * FRAME_BUFFER_HEIGHT) / originY);
+	CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, 1, 0);
 
-	//pos = D2D1::RectF((571 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (691 * FRAME_BUFFER_WIDTH) / originX, (187 * FRAME_BUFFER_HEIGHT) / originY);
-	//CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, 2, 0);
+	pos = D2D1::RectF((571 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (691 * FRAME_BUFFER_WIDTH) / originX, (187 * FRAME_BUFFER_HEIGHT) / originY);
+	CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, 2, 0);
 
-	//pos = D2D1::RectF((89 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (209 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY);
-	//CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, 3, 0);
+	pos = D2D1::RectF((89 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (209 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY);
+	CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, 3, 0);
 
-	//pos = D2D1::RectF((330 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (450 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY);
-	//CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, 4, 0);
+	pos = D2D1::RectF((330 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (450 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY);
+	CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, 4, 0);
 
-	//pos = D2D1::RectF((571 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (691 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY);
-	//CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, 5, 0);
+	pos = D2D1::RectF((571 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (691 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY);
+	CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, 5, 0);
 #else
 	int index = 0;
 	if (m_ClientsCharacter[index] != -1)
 	{
 		pos = D2D1::RectF((89 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (209 * FRAME_BUFFER_WIDTH) / originX, (187 * FRAME_BUFFER_HEIGHT) / originY);
-		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, (int)m_ClientsCharacter[index++], 0);
+		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, (int)m_ClientsCharacter[index], 0);
 	}
+	++index;
 	if (m_ClientsCharacter[index] != -1)
 	{
 		pos = D2D1::RectF((330 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (450 * FRAME_BUFFER_WIDTH) / originX, (187 * FRAME_BUFFER_HEIGHT) / originY);
-		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, (int)m_ClientsCharacter[index++], 0);
+		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, (int)m_ClientsCharacter[index], 0);
 	}
+	++index;
 	if (m_ClientsCharacter[index] != -1)
 	{
 		pos = D2D1::RectF((571 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (691 * FRAME_BUFFER_WIDTH) / originX, (187 * FRAME_BUFFER_HEIGHT) / originY);
-		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, (int)m_ClientsCharacter[index++], 0);
+		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, (int)m_ClientsCharacter[index], 0);
 	}
+	++index;
 	if (m_ClientsCharacter[index] != -1)
 	{
 		pos = D2D1::RectF((89 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (209 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY);
-		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, (int)m_ClientsCharacter[index++], 0);
+		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, (int)m_ClientsCharacter[index], 0);
 	}
+	++index;
 	if (m_ClientsCharacter[index] != -1)
 	{
 		pos = D2D1::RectF((330 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (450 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY);
-		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, (int)m_ClientsCharacter[index++], 0);
+		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, (int)m_ClientsCharacter[index], 0);
 	}
+	++index;
 	if (m_ClientsCharacter[index] != -1)
 	{
 		pos = D2D1::RectF((571 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46) * FRAME_BUFFER_HEIGHT) / originY, (691 * FRAME_BUFFER_WIDTH) / originX, ((187 + 46 + 120) * FRAME_BUFFER_HEIGHT) / originY);
-		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, (int)m_ClientsCharacter[index++], 0);
+		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos, (int)m_ClientsCharacter[index], 0);
 	}
 #endif
 }

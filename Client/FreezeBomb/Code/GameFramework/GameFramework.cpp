@@ -1788,6 +1788,9 @@ void CGameFramework::ProcessPacket(char *packet)
 
 			if (pLO->id < MAX_USER)
 			{
+				// 나갔으면 캐릭터 초기화
+				CLobbyScene::AddClientsCharacter(pLO->id, -1);
+
 				m_mapClients[(int)pLO->id].isReady = false;
 				string user = m_mapClients[(int)pLO->id].name;
 				string s = "님이 나갔습니다.";
