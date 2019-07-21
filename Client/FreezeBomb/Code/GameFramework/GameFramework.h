@@ -48,13 +48,13 @@ public:
 	static  IWICImagingFactory* GetWICImagingFactory() { return m_pwicImagingFactory; };
 	static IDWriteFactory5* GetWriteFactory() { return m_pdWriteFactory; }
 	static const map<int, clientsInfo>& GetClientsInfo() { return m_mapClients; }
+	static char GetHostID() { return m_HostID; }
 
 	void Initialize_BitmapImage();
 	void Initialize_GameFont();
 
 	void SetNamecard();
 	void ShowScoreboard();
-	void ShowReadyText();
 	void DrawStageInfo();
 	void ProcessDirect2D();
 #endif
@@ -79,7 +79,6 @@ public:
 	void FrameAdvance();
 	void ProcessInGame(D3D12_CPU_DESCRIPTOR_HANDLE&);
 	void ProcessLobby();
-	void ShowPlayers();
 	void WaitForGpuComplete();
 	void MoveToNextFrame();
 	
@@ -188,7 +187,7 @@ private:
 
 #ifdef _WITH_SERVER_
 	//Network m_Network;
-	int hostId;
+	static char m_HostID;
 	int clientCount = 0;
 
 	CLoginScene*	m_pLoginScene{ nullptr };

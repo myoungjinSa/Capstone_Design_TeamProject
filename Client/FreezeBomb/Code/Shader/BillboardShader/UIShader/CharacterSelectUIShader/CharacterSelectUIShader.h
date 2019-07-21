@@ -34,6 +34,8 @@ public:
 	//enum LOBBY_CHARACTERSEL { PINK, BROWN, WHITE, BLACK, BLUE, PANDA, BASE, READY, QUIT };
 	
 	void CallbackMouse(UINT nMessgeID, float mouseX, float mouseY);
+	void CallbackKeyboard(WPARAM wParam);
+
 	void MoveInteraction(int key);
 	void ClickInteraction(int click);
 
@@ -46,6 +48,7 @@ public:
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void ReleaseShaderVariables();
 
+	static void SetMyID(char id) { m_MyID = id; }
 private:
 	ID3D12DescriptorHeap*						m_pd3dCbvSrvDescriptorHeap = nullptr;			//cbv,srv의 서술자 힙
 
@@ -74,4 +77,6 @@ private:
 
 	ID3D12Resource*		m_pd3dUIData{ nullptr };
 	CB_UI*						m_pMappedUIData{ nullptr };
+
+	static char m_MyID;
 };
