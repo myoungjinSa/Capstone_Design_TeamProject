@@ -452,8 +452,8 @@ void CGameFramework::Initialize_BitmapImage()
 	D2D1_RECT_F scoreboardPos = D2D1::RectF(r.left, r.top, r.right, r.bottom);
 	D2D1_RECT_F timeoverPos = { scoreboardPos.left, 80, scoreboardPos.right, 230 };
 	
-	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[0], charactersPos, 5271, 620, 7, 1, 0, 0), "Characters");
-	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[1], choicePos, 600, 102, 6, 1, 0, 0), "ChoiceCharacter");
+	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[0], charactersPos, 4900, 575, 7, 1, 0, 0), "Characters");
+	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[1], choicePos, 1800, 300, 6, 1, 0, 0), "ChoiceCharacter");
 	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[2], scoreboardPos, 1638, 1009, 1, 1, 0, 0), "ScoreBoard");
 	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[3], timeoverPos, 2138, 569, 1, 1, 0, 0), "TimeOver");
 }
