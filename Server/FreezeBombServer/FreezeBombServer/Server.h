@@ -44,7 +44,8 @@ enum EVENT_TYPE
 	EV_SEND,
 	EV_COUNT,
 	EV_COOLTIME,
-	EV_NEXTROUNDSTART
+	EV_GO_NEXTROUND,
+	EV_GO_LOBBY
 };
 enum COLLISION_TYPE		//어느 객체와 충돌했는지 
 {
@@ -130,7 +131,7 @@ public:
 		normalItem = ITEM::EMPTY;
 		specialItem = ITEM::EMPTY;
 		role = ROLE::RUNNER;
-		matID = 0;
+		matID = -1;
 		isReady = false;
 		ZeroMemory(nickname, sizeof(wchar_t) * 12);
 		ZeroMemory(&over_ex.messageBuffer, sizeof(over_ex.messageBuffer));
@@ -138,6 +139,16 @@ public:
 		over_ex.dataBuffer.len = MAX_BUFFER;
 		over_ex.dataBuffer.buf = over_ex.messageBuffer;
 		over_ex.event_t = EV_RECV;
+	}
+	void InitPlayer() {
+		// in_use는 여기서 초기화 x
+		matID = -1;
+		isFreeze = false;
+		isMoveRotate = false;
+		isReady = false;
+		score = 0;
+		normalItem = ITEM::EMPTY;
+		specialItem = ITEM::EMPTY;
 	}
 };
 
@@ -189,6 +200,7 @@ private:
 	vector<MAPOBJECT> goldTimers[MAX_ROUND];
 	vector<MAPOBJECT> goldHammers[MAX_ROUND];
 	vector<MAPOBJECT> NormalHammers[MAX_ROUND];
+	XMFLOAT3 spawn[MAX_ROUND][MAX_USER];
 	MAPOBJECT recent_objects;		//최근에 부딪힌 오브젝트;
 	XMFLOAT3 recent_pos;
 	XMFLOAT3 player_pos;
@@ -232,9 +244,10 @@ public:
 	void SendChangeBomber(char toClient, char bomberId,char runnerId);
 	void SendChangeHostID(char toClient, char hostID);
 	void SendGetItem(char toClient, char fromClient, string& itemIndex);
-	void SendRoundScore(char client);
+	//void SendRoundScore(char client);
 	void SendChoiceCharacter(char toClient, char fromClient, char matID);
 	void SendChosenCharacter(char toClient);
+	void SendGoLobby(char toClient);
 public:
 	void SetAnimationState(char client,char animationNum);
 	void SetVelocityZero(char client);
@@ -261,6 +274,7 @@ public:
 
 public:
 	void LoadMapObjectInfo();
+	void LoadSpawnInfo();
 public:
 	void err_quit(const char*);
 	void err_display(const char*);
