@@ -7,6 +7,11 @@ using namespace std;
 constexpr int MAX_USER = 6;
 constexpr int MAX_ROUND = 3;
 
+constexpr int MAX_ROUND_TIME = 100;
+constexpr int MAX_ITEM_NAME_LENGTH = 16;
+constexpr int MAX_CHATTING_LENGTH = 100;
+constexpr int COOLTIME = 3;
+
 struct clientsInfo
 {
 	char    id;
@@ -21,10 +26,6 @@ enum PLAYER_NUM { P1, P2, P3, P4, P5, P6 };						// 몇번 플레이어 인지
 enum PLAYER_STATE { NONESTATE, ICE, BREAK };							// 플레이어 상태
 enum STATE_TYPE { Init, Run, Over };
 enum MATERIAL { PINK, BROWN, WHITE, BLACK, BLUE, PANDA, ICEMAT };
-
-constexpr int MAX_ITEM_NAME_LENGTH = 16;
-constexpr int MAX_CHATTING_LENGTH = 100;
-constexpr int COOLTIME = 3;
 
 constexpr int SC_ACCESS_COMPLETE = 1;
 constexpr int SC_PUT_PLAYER = 2;
@@ -49,9 +50,10 @@ constexpr int SC_RELEASE_FREEZE = 20;
 constexpr int SC_BOMB_EXPLOSION = 21;
 constexpr int SC_CHANGE_HOST_ID = 22;
 constexpr int SC_GET_ITEM = 23;
-constexpr int SC_ROUND_SCORE = 24;
+//constexpr int SC_ROUND_SCORE = 24;
 constexpr int SC_CHOICE_CHARACTER = 25;
 constexpr int SC_CHOSEN_CHARACTER = 26;
+constexpr int SC_GO_LOBBY = 27;
 
 constexpr int CS_UP_KEY = 0;
 constexpr int CS_DOWN_KEY = 1;
@@ -81,7 +83,6 @@ constexpr int CS_GET_ITEM = 24;
 constexpr int CS_CHOICE_CHARACTER = 25;
 
 
-constexpr int MAX_ROUND_TIME = 100;
 
 //[클라->서버]
 
@@ -455,6 +456,20 @@ struct SC_PACKET_ROUND_END
 	char size;
 	char type;
 	bool isWinner;
+	char score[MAX_USER];
+};
+//
+//struct SC_PACKET_ROUND_SCORE
+//{
+//	char size;
+//	char type;
+//	char score[MAX_USER];
+//};
+
+struct SC_PACKET_GO_LOBBY
+{
+	char size;
+	char type;
 };
 
 struct SC_PACKET_COLLIDED
@@ -498,13 +513,6 @@ struct SC_PACKET_ROLE_CHANGE
 	char type;
 	char bomberId;
 	char runnerId;
-};
-
-struct SC_PACKET_ROUND_SCORE
-{
-	char size;
-	char type;
-	char score[MAX_USER];
 };
 
 struct SC_PACKET_CHOICE_CHARACTER

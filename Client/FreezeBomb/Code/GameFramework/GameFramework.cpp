@@ -1756,8 +1756,23 @@ void CGameFramework::ProcessPacket(char* packet)
 		case SC_PUT_PLAYER:
 		{
 			SC_PACKET_PUT_PLAYER *pPP = reinterpret_cast<SC_PACKET_PUT_PLAYER*>(packet);
+			// 앞으로 Put Player는 라운드 시작 시 캐릭터들의 시작 위치를 받는 패킷으로 사용
+			// posIdx로 받는 인덱스 값을 이용해 시작 위치와 방향 값을 배열에서 가져와 적용 필요
+			// 클라이언트 id값은 Lobby In 할 때 받는 id를 저장하면 될 듯. - 혜린
 
-			XMFLOAT3 pos = CMapObjectsShader::spawn[g_Round][m_pPlayer->GetPlayerID()].pos;
+			// 아래 주석 코드는 PUT_PLAYER 부분이 아닌 InGame이 시작됐다는 패킷이 들어오면
+			// 해줘야함- 명진.
+			
+
+			//	MappingUserToEvilbear(pPP->id, clientCount/*현재 접속한 유저 수를 받아야함 */);
+			//cout <<"플레이어 ID-"<<(int)pPP->id<<",재질 -" <<(int)pPP->matID << "\n";
+			//m_pPlayer->SetMaterialID(pPP->matID);	//플레이어 재질정	보 SET
+			
+			//XMFLOAT3 pos = CMapObjectsShader::spawn[g_Round][m_pPlayer->GetPlayerID()].pos;
+			// 이런 식으로 시작위치 인덱스 사용하면 됨 posIdx[playerId]에는 각 플레이어의 시작위치인덱스가 담겨있음
+			// ex) id가 3인 플레이어의 시작위치 => spawn[g_Round][pPP->posIdx[3]].pos;
+			XMFLOAT3 pos = CMapObjectsShader::spawn[g_Round][pPP->posIdx[m_pPlayer->GetPlayerID()]].pos;
+
 			m_pPlayer->SetPosition(pos);
 			m_pPlayer->SetLookVector(XMFLOAT3(0.0f, 0.0f, 1.0f));
 			m_pPlayer->SetUpVector(XMFLOAT3(0.0f,1.0f,0.0f));
@@ -1939,6 +1954,40 @@ void CGameFramework::ProcessPacket(char* packet)
 			printf("Win!\n");
 		else
 			printf("Lose..\n");
+
+		if (m_pPlayer && m_pPlayer->GetIsBomb() == false)
+		{
+			m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::VICTORY);
+			m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::VICTORY);
+			m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
+
+		}
+		if (m_pScene)
+		{
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+
+				for (auto enemyID : vec)
+				{
+					if ((*iter).second->m_ppObjects[enemyID.first]->GetIsBomb() == false)
+					{
+						(*iter).second->m_ppObjects[enemyID.first]->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::VICTORY);
+						(*iter).second->m_ppObjects[enemyID.first]->m_pAnimationController->SetAnimationState(CAnimationController::VICTORY);
+						(*iter).second->m_ppObjects[enemyID.first]->m_pAnimationController->SetTrackPosition(0, 0.0f);
+
+					}
+				}
+			}
+		}
+
+		cout << "SCORE: ";
+		for (int i = 0; i < MAX_USER; ++i)
+			cout << (int)pRE->score[i] << ", ";
+		cout << "\n";
+
 		break;
 	}
 	case SC_COMPARE_TIME:
@@ -2309,10 +2358,14 @@ void CGameFramework::ProcessPacket(char* packet)
 		
 		break;
 	}
-	case SC_ROUND_SCORE:
+	/*case SC_ROUND_SCORE:
 	{
 		SC_PACKET_ROUND_SCORE *pRS = reinterpret_cast<SC_PACKET_ROUND_SCORE *>(packet);
+<<<<<<< HEAD
+		
+=======
 
+>>>>>>> 636b01967dfdebc71befd568ffd026c8970eee4c
 		if (m_pPlayer && m_pPlayer->GetIsBomb() == false) 
 		{
 			m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::VICTORY);
@@ -2340,13 +2393,19 @@ void CGameFramework::ProcessPacket(char* packet)
 				}
 			}
 		}
-		
-
 			
 		cout << "SCORE: ";
 		for (int i = 0; i < MAX_USER; ++i)
 			cout << (int)pRS->score[i] << ", ";
 		cout << "\n";
+
+		break;
+	}*/
+	case SC_GO_LOBBY:
+	{
+		SC_PACKET_GO_LOBBY *pGL = reinterpret_cast<SC_PACKET_GO_LOBBY *>(packet);
+
+		cout << "Go Lobby\n";
 
 		break;
 	}

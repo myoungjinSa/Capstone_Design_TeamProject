@@ -44,6 +44,7 @@ bool Server::InitServer()
 	setlocale(LC_ALL, "korean");
 
 	LoadMapObjectInfo();
+	LoadSpawnInfo();
 
 	clientCount = 0;
 	hostId = -1;
@@ -93,6 +94,32 @@ bool Server::InitServer()
 		return false;
 	}
 	return true;
+}
+
+void Server::LoadSpawnInfo()
+{
+	for (int i = 0; i < MAX_ROUND; ++i)
+	{
+		string filename;
+		filename = "../Resource/SpawnPosition/Round" + to_string(i) + "Spawn.bin";
+		ifstream in(filename, ios::binary);
+
+		if (!in)
+		{
+			cout << filename << " - 바이너리 파일 없음" << endl;
+			return;
+		}
+
+		int playerCount = 0;
+		in.read(reinterpret_cast<char*>(&playerCount), sizeof(int));
+
+		for (int j = 0; j < playerCount; ++j)
+		{
+			in.read(reinterpret_cast<char*>(&spawn[i][j].x), sizeof(float));
+			in.read(reinterpret_cast<char*>(&spawn[i][j].y), sizeof(float));
+			in.read(reinterpret_cast<char*>(&spawn[i][j].z), sizeof(float));
+		}
+	}
 }
 
 void Server::LoadMapObjectInfo()
@@ -259,10 +286,12 @@ void Server::InitGame()
 	round = 0;
 	ResetTimer();
 	readyCount = 0;
-	clientCount = 0;
-	hostId = 0;
 	bomberID = 0;
 	freezeCnt = 0;
+	for (int i = 0; i < MAX_USER; ++i)
+	{
+		clients[i].InitPlayer();
+	}
 	timer_l.lock();
 	while (false == timer_queue.empty())
 		timer_queue.pop();
@@ -539,13 +568,17 @@ void Server::WorkerThreadFunc()
 			if (roundCurrTime <= 0)
 			{
 				roundTime_l.unlock();
-				if (round >= MAX_ROUND)
+				if (round >= MAX_ROUND-1)
 				{
+					// 10초 스코어보드 출력 후 로비로 이동
 					for (int i = 0; i < MAX_USER; ++i)
 					{
 						if (true == clients[i].in_use)
 							SendRoundEnd(i);
 					}
+
+					InitGame();
+					add_timer(-1, EV_GO_LOBBY, high_resolution_clock::now() + 10s);
 				}
 				else
 				{
@@ -562,11 +595,11 @@ void Server::WorkerThreadFunc()
 					{
 						if (false == clients[i].in_use)
 							continue;
-						SendRoundScore(i);
+						SendRoundEnd(i);
 					}
 					
 					InitRound();
-					add_timer(-1, EV_NEXTROUNDSTART, high_resolution_clock::now() + 10s);
+					add_timer(-1, EV_GO_NEXTROUND, high_resolution_clock::now() + 10s);
 					
 				}
 			}
@@ -598,7 +631,7 @@ void Server::WorkerThreadFunc()
 			}
 
 		}
-		else if (EV_NEXTROUNDSTART == over_ex->event_t)
+		else if (EV_GO_NEXTROUND == over_ex->event_t)
 		{
 			++round;
 			ShuffleStartPosIndex();
@@ -610,29 +643,39 @@ void Server::WorkerThreadFunc()
 			changeCoolTime = 0;		//라운드가 바뀔때 기존에 카운트하던 changeCoolTime을 
 									//바꿔줘야 한다.
 			timer_l.unlock();
+
 			roundTime_l.lock();
 			unsigned short time = roundCurrTime;
 			roundTime_l.unlock();
+
 			for (int i = 0; i < MAX_USER; ++i)
 			{
 				if (false == clients[i].in_use)
 					continue;
-				/*for (int j = 0; j < MAX_USER; ++j)
-				{
-					if (true == clients[j].in_use)
-					{
 
-						clients[j].pos.x = (100.0f*j + 50);
-						clients[j].pos.z = 100.0f;
+				clients[i].pos.x = spawn[round][randomPosIdx[i]].x;
+				clients[i].pos.z = spawn[round][randomPosIdx[i]].z;
+			}
 
-						SendMovePlayer(i, j);
-
-					}
-				}*/
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (false == clients[i].in_use)
+					continue;
+				
 				SendPutPlayer(i);
 				SendRoundStart(i, time);
 			}
 			add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
+		}
+		else if (EV_GO_LOBBY == over_ex->event_t)
+		{
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (false == clients[i].in_use)
+					continue;
+				clients[i].gameState = GS_LOBBY;
+				SendGoLobby(i);
+			}
 		}
 		else
 		{
@@ -787,6 +830,7 @@ void Server::ProcessPacket(char client, char *packet)
 		{
 			PickBomber();
 			ShuffleStartPosIndex();
+
 			for (int i = 0; i < MAX_USER; ++i)
 			{
 				if (clients[i].in_use == true)
@@ -801,23 +845,22 @@ void Server::ProcessPacket(char client, char *packet)
 			roundTime_l.lock();
 			unsigned short time = roundCurrTime;
 			roundTime_l.unlock();
+
+			// 랜덤으로 결정된 시작위치인덱스에 해당하는 위치 적용
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (false == clients[i].in_use)
+					continue;
+				clients[i].pos.x = spawn[round][randomPosIdx[i]].x;
+				clients[i].pos.z = spawn[round][randomPosIdx[i]].z;
+			}
+
+			// 각 클라에게 시작위치 인덱스 전송
 			for (int i = 0; i < MAX_USER; ++i)
 			{
 				if (false == clients[i].in_use)
 					continue;
 
-				/*for (int j = 0; j < MAX_USER; ++j)
-				{
-					if (true == clients[j].in_use)
-					{
-
-						clients[j].pos.x = (100.0f*j + 50);
-						clients[j].pos.z = 100.0f;
-
-						SendPutPlayer(i, j);
-
-					}
-				}*/
 				SendPutPlayer(i);
 				SendRoundStart(i, time);
 			}
@@ -852,7 +895,6 @@ void Server::ProcessPacket(char client, char *packet)
 		float time = gameTimer.GetTimeElapsed();
 
 		UpdateClientPos(client, time);
-
 
 		//printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
 		for (int i = 0; i < MAX_USER; ++i)
@@ -1436,11 +1478,35 @@ void Server::SendRoundEnd(char client)
 	packet.isWinner = true;
 	if (client == bomberID)
 		packet.isWinner = false;
-	packet.size = sizeof(packet);
+	for (int i = 0; i < MAX_USER; ++i)
+	{
+		if (false == clients[i].in_use)
+			packet.score[i] = -1;
+		else
+			packet.score[i] = clients[i].score;
+	}
+	packet.size = sizeof(SC_PACKET_ROUND_END);
 	packet.type = SC_ROUND_END;
 
 	SendFunc(client, &packet);
 }
+
+//void Server::SendRoundScore(char client)
+//{
+//	SC_PACKET_ROUND_SCORE packet;
+//	// 매 클라마다 배열 set 해주는건 비효율적인듯 나중에 수정
+//	for (int i = 0; i < MAX_USER; ++i)
+//	{
+//		if (false == clients[i].in_use)
+//			packet.score[i] = -1;
+//		else
+//			packet.score[i] = clients[i].score;
+//	}
+//	packet.size = sizeof(SC_PACKET_ROUND_SCORE);
+//	packet.type = SC_ROUND_SCORE;
+//
+//	SendFunc(client, &packet);
+//}
 
 void Server::SendCompareTime(char client,unsigned short& time)
 {
@@ -1537,23 +1603,6 @@ void Server::SendUseItem(char toClient, char fromClient, char usedItem, char tar
 	SendFunc(toClient, &packet);
 }
 
-void Server::SendRoundScore(char client)
-{
-	SC_PACKET_ROUND_SCORE packet;
-	// 매 클라마다 배열 set 해주는건 비효율적인듯 나중에 수정
-	for (int i = 0; i < MAX_USER; ++i)
-	{
-		if (false == clients[i].in_use)
-			packet.score[i] = -1;
-		else
-			packet.score[i] = clients[i].score;
-	}
-	packet.size = sizeof(SC_PACKET_ROUND_SCORE);
-	packet.type = SC_ROUND_SCORE;
-
-	SendFunc(client, &packet);
-}
-
 void Server::SendFreeze(char toClient,char fromClient)
 {
 	SC_PACKET_FREEZE packet;
@@ -1596,6 +1645,16 @@ void Server::SendChoiceCharacter(char toClient, char fromClient, char matID)
 	packet.type = SC_CHOICE_CHARACTER;
 	packet.matID = matID;
 	packet.id = fromClient;
+
+	SendFunc(toClient, &packet);
+}
+
+void Server::SendGoLobby(char toClient)
+{
+	SC_PACKET_GO_LOBBY packet;
+
+	packet.size = sizeof(packet);
+	packet.type = SC_GO_LOBBY;
 
 	SendFunc(toClient, &packet);
 }
@@ -1666,6 +1725,8 @@ void Server::ClientDisconnect(char client)
 	if (0 >= clientCount)
 	{
 		clientCnt_l.unlock();
+		clientCount = 0;
+		hostId = 0;
 		InitGame();
 	}
 	else
