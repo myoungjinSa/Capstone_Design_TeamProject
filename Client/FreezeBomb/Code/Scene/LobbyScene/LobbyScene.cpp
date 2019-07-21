@@ -134,7 +134,7 @@ XMFLOAT3 CLobbyScene::ScreenPosition(int x, int y)
 	return screenPosition;
 }
 
-void CLobbyScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wParam,LPARAM lParam, int gameState)
+void CLobbyScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wParam,LPARAM lParam)
 {
 	int mouseX = LOWORD(lParam);
 	int mouseY = HIWORD(lParam);
@@ -145,17 +145,27 @@ void CLobbyScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wPar
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:
 		{
-			if (gameState == CHARACTER_SELECT)
+			auto iter = m_shaderMap.find("Select");
+			if (iter != m_shaderMap.end())
 			{
-				auto iter = m_shaderMap.find("Select");
-				if (iter != m_shaderMap.end())
-				{
-					XMFLOAT3 position = ScreenPosition(mouseX, mouseY);
-					reinterpret_cast<CCharacterSelectUIShader*>(m_ppShaders[CHARACTER_SELECT])->CallbackMouse(nMessageID, position.x, position.y);
-				}
+				XMFLOAT3 position = ScreenPosition(mouseX, mouseY);
+				reinterpret_cast<CCharacterSelectUIShader*>(m_ppShaders[CHARACTER_SELECT])->CallbackMouse(nMessageID, position.x, position.y);
 			}
 			break;
 		}
+	}
+}
+
+void CLobbyScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+{
+	switch (nMessageID)
+	{
+		case WM_KEYUP:
+			reinterpret_cast<CCharacterSelectUIShader*>(m_ppShaders[CHARACTER_SELECT])->CallbackKeyboard(wParam);
+			break;
+
+		default:
+			break;
 	}
 }
 
@@ -277,6 +287,7 @@ void CLobbyScene::UIClientsReadyTextRender()
 	for (int i = 0; i < m.size(); ++i)
 	{
 		if (m[i].isReady == false)	continue;
+		if (i == CGameFramework::GetHostID())	continue;
 		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos[i]);
 	}
 #endif

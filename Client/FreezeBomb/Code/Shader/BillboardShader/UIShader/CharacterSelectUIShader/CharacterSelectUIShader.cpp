@@ -10,7 +10,6 @@
 
 bool CCharacterSelectUIShader::m_IsReady = false;
 char CCharacterSelectUIShader::m_ChoiceCharacter = NONE;
-char CCharacterSelectUIShader::m_HostID = -1;
 char CCharacterSelectUIShader::m_MyID = -1;
 
 extern byte g_PlayerCharacter;
@@ -239,18 +238,57 @@ void CCharacterSelectUIShader::CallbackMouse(UINT nMessgeID, float mouseX, float
 		m_MouseState = MOUSE_STATE::NONE;
 
 		for (auto iter = m_UIMap.begin(); iter != m_UIMap.end(); ++iter)
-		{
-			CUI* p = reinterpret_cast<CUI*>((*iter).second);
-			p->SetUV(XMFLOAT2(0.f, 0.5f));
-			CDirect2D::GetInstance()->GetImageInfo("Characters").m_FrameXNum = 0;
-		}
+			reinterpret_cast<CUI*>((*iter).second)->SetUV(XMFLOAT2(0.f, 0.5f));			
 
 		XMFLOAT2 uv = XMFLOAT2(0.f, 0.f);
-		if (m_MyID == m_HostID)
+		if (m_MyID == CGameFramework::GetHostID())
 			uv = XMFLOAT2(0.5f, 0.75f);
 		else
 			uv = XMFLOAT2(0.f, 0.25f);
 		reinterpret_cast<CUI*>(m_UIMap[UITYPE::READY])->SetUV(uv);
+
+		CDirect2D::GetInstance()->GetImageInfo("Characters").m_FrameXNum = 0;
+	}
+}
+
+void CCharacterSelectUIShader::CallbackKeyboard(WPARAM wParam)
+{
+	switch (wParam)
+	{
+	case VK_F5:
+		{
+			if (m_ChoiceCharacter == NONE)
+			{
+				cout << "캐릭터가 선택되지 않았습니다." << endl;
+				CSoundSystem::PlayingSound(CSoundSystem::CLICK);
+				break;
+			}
+
+			if (m_MyID == CGameFramework::GetHostID())
+			{
+				CSoundSystem::PlayingSound(CSoundSystem::CLICK);
+				Network::GetInstance()->SendReady();
+				Network::GetInstance()->SendReqStart();
+				cout << "시작하라는 패킷 전송" << endl;
+				break;
+			}
+
+			m_IsReady = !m_IsReady;
+			if (m_IsReady == false)
+			{
+				CSoundSystem::PlayingSound(CSoundSystem::CLICK);
+				Network::GetInstance()->SendNotReady();
+				break;
+			}
+
+			CSoundSystem::PlayingSound(CSoundSystem::CLICK);
+			g_PlayerCharacter = m_ChoiceCharacter - PINK;
+			Network::GetInstance()->SendReady();
+			break;
+		}
+
+	default:
+		break;
 	}
 }
 
@@ -272,7 +310,7 @@ void CCharacterSelectUIShader::MoveInteraction(int key)
 			if (iter != m_UIMap.end())
 			{
 				XMFLOAT2 uv = XMFLOAT2(0.f, 0.f);
-				if (m_MyID == m_HostID)
+				if (m_MyID == CGameFramework::GetHostID())
 					uv = XMFLOAT2(0.75f, 1.f);
 				else
 					uv = XMFLOAT2(0.25f, 0.5f);
@@ -317,27 +355,32 @@ void CCharacterSelectUIShader::ClickInteraction(int click)
 		break;
 
 	case UITYPE::READY:
-		if (m_ChoiceCharacter == NONE)
 		{
-			cout << "캐릭터가 선택되지 않았습니다." << endl;
-			break;
-		}
+			if (m_ChoiceCharacter == NONE)
+			{
+				cout << "캐릭터가 선택되지 않았습니다." << endl;
+				break;
+			}
 
-		m_IsReady = !m_IsReady;
-#ifdef _WITH_SERVER_
-		if (m_IsReady == false)
-			Network::GetInstance()->SendNotReady();
-		else
-		{
+			if (m_MyID == CGameFramework::GetHostID())
+			{
+				Network::GetInstance()->SendReady();
+				Network::GetInstance()->SendReqStart();
+				cout << "시작하라는 패킷 전송" << endl;
+				break;
+			}
+
+			m_IsReady = !m_IsReady;
+			if (m_IsReady == false)
+			{
+				Network::GetInstance()->SendNotReady();
+				break;
+			}
+
 			g_PlayerCharacter = m_ChoiceCharacter - PINK;
 			Network::GetInstance()->SendReady();
+			break;
 		}
-
-#else
-		if (m_IsReady == true)
-			g_PlayerCharacter = m_ChoiceCharacter;
-#endif
-		break;
 
 	case UITYPE::QUIT:
 		::PostQuitMessage(0);

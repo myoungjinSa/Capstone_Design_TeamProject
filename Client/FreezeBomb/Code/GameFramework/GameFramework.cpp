@@ -38,6 +38,7 @@ ID2D1DeviceContext2*	CGameFramework::m_pd2dDeviceContext = nullptr;
 IWICImagingFactory* CGameFramework::m_pwicImagingFactory = nullptr;
 IDWriteFactory5* CGameFramework::m_pdWriteFactory = nullptr;
 map<int, clientsInfo> CGameFramework::m_mapClients;
+char CGameFramework::m_HostID = -1;
 
 // 전체모드할경우 주석풀으셈
 //#define FullScreenMode
@@ -661,7 +662,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	case CHARACTER_SELECT:
 	{
 		if (m_pLobbyScene)
-			m_pLobbyScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam, g_State);
+			m_pLobbyScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 		break;
 	}
 
@@ -719,42 +720,46 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 {
 	switch (g_State)
 	{
-	case INGAME:
-	{
-		if (m_pScene)
+		case INGAME:
 		{
-			if(ChattingSystem::GetInstance()->IsChattingActive()==false)
-				m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
+			if (m_pScene)
+			{
+				if(ChattingSystem::GetInstance()->IsChattingActive()==false)
+					m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 		
-			if (wParam == '0')
-			{
-				g_Round = STAGE::ROUND_1;
-				CSoundSystem::StopSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND);
-				m_pScene->ChangeRound();
-			}
+				if (wParam == '0')
+				{
+					g_Round = STAGE::ROUND_1;
+					CSoundSystem::StopSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND);
+					m_pScene->ChangeRound();
+				}
 
-			else if (wParam == '1')
-			{
-				g_Round = STAGE::ROUND_2;
-				CSoundSystem::StopSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND);
-				m_pScene->ChangeRound();
-			}
+				else if (wParam == '1')
+				{
+					g_Round = STAGE::ROUND_2;
+					CSoundSystem::StopSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND);
+					m_pScene->ChangeRound();
+				}
 
-			else if (wParam == '2')
-			{
-				g_Round = STAGE::ROUND_3;
-				CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND, 0.5f);
-				m_pScene->ChangeRound();
-			}
-		}	
-		break;
-	}
-	case CHARACTER_SELECT:
-	{
-		break;
-	}
-	default:
-		break;
+				else if (wParam == '2')
+				{
+					g_Round = STAGE::ROUND_3;
+					CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND, 0.5f);
+					m_pScene->ChangeRound();
+				}
+			}	
+			break;
+		}
+
+		case CHARACTER_SELECT:
+		{
+			if (m_pLobbyScene)
+				m_pLobbyScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
+			break;
+		}
+
+		default:
+			break;
 	}
 	
 	switch (nMessageID)
@@ -762,41 +767,12 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 	case WM_KEYUP:
 		switch (wParam)
 		{
-		case VK_ESCAPE:
-			//::PostQuitMessage(0);
-			break;
 		case VK_F1:
 		case VK_F2:
 		case VK_F3:
 			m_pCamera = m_pPlayer->ChangeCamera((DWORD)(wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
 			break;
-		case VK_F5:
-		{			
-			if (g_State == CHARACTER_SELECT)
-			{
-#ifdef _WITH_SERVER_				
-				bool isStart = CCharacterSelectUIShader::GetIsReady();
-				
-				if (isStart)
-				{
-					if (hostId == m_pPlayer->GetPlayerID() && !Network::GetInstance()->GetRS())
-					{
-						Network::GetInstance()->SendReqStart();
-						printf("Request Start 패킷 보냄\n");
-					}
-				}
-#else
-				//여기 부분은 서버 연동 없이 클라로만 동작시킬때
-				if (m_pLobbyScene)
-				{
-					CSoundSystem::StopSound(CSoundSystem::LOBBY_BGM);
-					CSoundSystem::StopSound(CSoundSystem::CHARACTER_SELECT);
-				}
-				g_State = INGAME;
-#endif
-			}
-			break;
-		}
+
 #ifdef _WITH_SERVER_
 		case VK_UP:
 		case VK_DOWN:
@@ -1545,13 +1521,12 @@ void CGameFramework::ProcessPacket(char* packet)
 			//플레이어 아이디 Set
 			m_pPlayer->SetPlayerID(pAC->myId);
 			Network::GetInstance()->SetMyID(pAC->myId);
-			hostId = pAC->hostId;
+			m_HostID = pAC->hostId;
 
 			CCharacterSelectUIShader::SetMyID(pAC->myId);
-			CCharacterSelectUIShader::SetHostID(pAC->hostId);
 
 			cout << "0. 접속 완료!! ▶ ";
-			cout << "MyID : " << (int)m_pPlayer->GetPlayerID() << ", HostID : " << hostId << endl;
+			cout << "MyID : " << (int)m_pPlayer->GetPlayerID() << ", HostID : " << m_HostID << endl;
 			break;
 		}
 
@@ -1640,8 +1615,8 @@ void CGameFramework::ProcessPacket(char* packet)
 		
 			if (pCH->hostID < MAX_USER)
 			{
-				hostId = pCH->hostID;
-				printf("호스트 ID: %d ", hostId);
+				m_HostID = pCH->hostID;
+				printf("호스트 ID: %d ", (int)m_HostID);
 			}
 
 			break;
@@ -1921,8 +1896,7 @@ void CGameFramework::ProcessPacket(char* packet)
 	case SC_REMOVE_PLAYER:
 	{
 		SC_PACKET_REMOVE_PLAYER *pRP = reinterpret_cast<SC_PACKET_REMOVE_PLAYER*>(packet);
-		hostId = pRP->hostId;
-
+		m_HostID = pRP->hostId;
 
 		if (pRP->id != m_pPlayer->GetPlayerID())
 		{

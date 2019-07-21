@@ -129,6 +129,7 @@ void ChattingSystem::ShowIngameChatting(ID2D1DeviceContext2* pd2dDeviceContext, 
 		p.y = (590.0f * FRAME_BUFFER_HEIGHT) / originY;
 		
 		pd2dDeviceContext->DrawImage(m_pd2dfxBitmapSource, p);
+
 		D2D1_RECT_F pos{ 0, 0, 0, 0 };
 		pos.left = (20.0f * FRAME_BUFFER_WIDTH) / originX;
 		pos.top = (680.0f * FRAME_BUFFER_HEIGHT) / originY;
