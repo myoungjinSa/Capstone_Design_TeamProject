@@ -286,8 +286,13 @@ void CLobbyScene::UIClientsReadyTextRender()
 	map<int, clientsInfo> m = CGameFramework::GetClientsInfo();
 	for (int i = 0; i < m.size(); ++i)
 	{
+		if (i == CGameFramework::GetHostID())
+		{
+			CDirect2D::GetInstance()->Render("피오피동글", "검은색", L"▶방장◀", pos[i]);
+			continue;
+		}
+
 		if (m[i].isReady == false)	continue;
-		if (i == CGameFramework::GetHostID())	continue;
 		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos[i]);
 	}
 #endif
