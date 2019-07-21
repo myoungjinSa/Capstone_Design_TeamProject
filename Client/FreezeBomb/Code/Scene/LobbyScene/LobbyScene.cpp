@@ -161,9 +161,41 @@ void CLobbyScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wPar
 
 void CLobbyScene::UIRender()
 {
-	UIChoiceCharacterRender();
 	UIClientsNameTextRender();
+	UIChoiceCharacterRender();
 	UIClientsReadyTextRender();
+}
+
+void CLobbyScene::UIClientsNameTextRender()
+{
+	UINT originX = 1200;
+	UINT originY = 800;
+
+	D2D1_RECT_F pos[6] =
+	{
+		D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (50 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (60 * FRAME_BUFFER_HEIGHT) / originY),
+		D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (50 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (60 * FRAME_BUFFER_HEIGHT) / originY),
+		D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (50 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (60 * FRAME_BUFFER_HEIGHT) / originY),
+		D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (235 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (245 * FRAME_BUFFER_HEIGHT) / originY),
+		D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (235 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (245 * FRAME_BUFFER_HEIGHT) / originY),
+		D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (235 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (245 * FRAME_BUFFER_HEIGHT) / originY),
+	};
+
+#ifndef _WITH_SERVER_
+
+#else
+	map<int, clientsInfo> m = CGameFramework::GetClientsInfo();
+	if (m.size() > 0)
+	{
+		for (int i = 0; i < m.size(); ++i)
+		{
+			wchar_t name[32] = { 0, };
+			int nLen = MultiByteToWideChar(CP_ACP, 0, m[i].name, strlen(m[i].name), NULL, NULL);
+			MultiByteToWideChar(CP_ACP, 0, m[i].name, strlen(m[i].name), name, nLen);
+			CDirect2D::GetInstance()->Render("피오피동글", "검은색", name, pos[i]);
+		}
+	}
+#endif
 }
 
 void CLobbyScene::UIChoiceCharacterRender()
@@ -196,38 +228,6 @@ void CLobbyScene::UIChoiceCharacterRender()
 		if (m_ClientsCharacter[i] == -1)		continue;
 
 		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos[i], (int)m_ClientsCharacter[i], 0);
-	}
-#endif
-}
-
-void CLobbyScene::UIClientsNameTextRender()
-{
-	UINT originX = 1200;
-	UINT originY = 800;
-
-	D2D1_RECT_F pos[6] = 
-	{
-		D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (50 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (60 * FRAME_BUFFER_HEIGHT) / originY),
-		D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (50 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (60 * FRAME_BUFFER_HEIGHT) / originY),
-		D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (50 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (60 * FRAME_BUFFER_HEIGHT) / originY),
-		D2D1::RectF((80 * FRAME_BUFFER_WIDTH) / originX, (235 * FRAME_BUFFER_HEIGHT) / originY, (200 * FRAME_BUFFER_WIDTH) / originX, (245 * FRAME_BUFFER_HEIGHT) / originY),
-		D2D1::RectF((305 * FRAME_BUFFER_WIDTH) / originX, (235 * FRAME_BUFFER_HEIGHT) / originY, (425 * FRAME_BUFFER_WIDTH) / originX, (245 * FRAME_BUFFER_HEIGHT) / originY),
-		D2D1::RectF((532 * FRAME_BUFFER_WIDTH) / originX, (235 * FRAME_BUFFER_HEIGHT) / originY, (652 * FRAME_BUFFER_WIDTH) / originX, (245 * FRAME_BUFFER_HEIGHT) / originY),
-	};
-
-#ifndef _WITH_SERVER_
-
-#else
-	map<int, clientsInfo> m = CGameFramework::GetClientsInfo();
-	if (m.size() > 0)
-	{
-		for (int i = 0; i < 6; ++i)
-		{
-			wchar_t name[32] = { 0, };
-			int nLen = MultiByteToWideChar(CP_ACP, 0, m[i].name, strlen(m[i].name), NULL, NULL);
-			MultiByteToWideChar(CP_ACP, 0, m[i].name, strlen(m[i].name), name, nLen);
-			CDirect2D::GetInstance()->Render("피오피동글", "검은색", name, pos[i]);
-		}
 	}
 #endif
 }

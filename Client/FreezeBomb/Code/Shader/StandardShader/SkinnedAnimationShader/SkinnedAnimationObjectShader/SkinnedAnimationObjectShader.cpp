@@ -8,7 +8,7 @@
 #include "../../../../FrameTransform/FrameTransform.h"
 #include "../../../../Network/Network.h"
 #include "../../../../SoundSystem/SoundSystem.h"
-
+#include "../../../../Scene/LobbyScene/LobbyScene.h"
 
 CSkinnedAnimationObjectShader::CSkinnedAnimationObjectShader()	:m_userID{ 0 }	
 {
@@ -178,7 +178,7 @@ void CSkinnedAnimationObjectShader::Render(ID3D12GraphicsCommandList* pd3dComman
 #endif
 }
 
-void CSkinnedAnimationObjectShader::MappingUserToEvilbear(char id,char matID)
+void CSkinnedAnimationObjectShader::MappingUserToEvilbear(char id, char matID)
 {
 	if (id < MAX_USER && matID <max_Material)
 	{
@@ -194,8 +194,6 @@ void CSkinnedAnimationObjectShader::MappingUserToEvilbear(char id,char matID)
 		if (isExist == false) 
 		{
 			m_vMaterial.emplace_back(id, matID);
-		}
-	
-		
+		}	
 	}
 }

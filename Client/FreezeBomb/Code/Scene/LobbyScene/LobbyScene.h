@@ -23,18 +23,19 @@ public:
 	enum gamestate {CHARACTER_SELECT};
 
 	void UIRender();
-	void UIChoiceCharacterRender();
 	void UIClientsNameTextRender();
+	void UIChoiceCharacterRender();
 	void UIClientsReadyTextRender();
-	
-	static void AddClientsCharacter(char id, char matID) { m_ClientsCharacter[id] = matID; }
-protected:
-	ID3D12RootSignature*		m_pd3dGraphicsRootSignature = NULL;
-	map<string, CShader*>	m_shaderMap;
-	static array<char, 6> m_ClientsCharacter;
 
-public:
+	static void AddClientsCharacter(char id, char matID) { m_ClientsCharacter[id] = matID; }
+
+private:
+	ID3D12RootSignature*		m_pd3dGraphicsRootSignature = NULL;
+	
 	CShader**			m_ppShaders{ nullptr };
 	int							m_nShaders = 0;
+
+	map<string, CShader*>	m_shaderMap;
+	static array<char, 6> m_ClientsCharacter;
 };
 

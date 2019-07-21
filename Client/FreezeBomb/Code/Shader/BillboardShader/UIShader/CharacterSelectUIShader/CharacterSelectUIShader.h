@@ -46,6 +46,10 @@ public:
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void ReleaseShaderVariables();
 
+	static void SetMyID(char id) { m_MyID = id; }
+	static void SetHostID(char id) { m_HostID = id; }
+	static char GetHostID()	 { return m_HostID; }
+
 private:
 	ID3D12DescriptorHeap*						m_pd3dCbvSrvDescriptorHeap = nullptr;			//cbv,srv의 서술자 힙
 
@@ -74,4 +78,8 @@ private:
 
 	ID3D12Resource*		m_pd3dUIData{ nullptr };
 	CB_UI*						m_pMappedUIData{ nullptr };
+
+	// 방장 ID
+	static char m_HostID;
+	static char m_MyID;
 };

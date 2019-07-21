@@ -188,7 +188,7 @@ private:
 
 #ifdef _WITH_SERVER_
 	//Network m_Network;
-	int hostId;
+	char hostId;
 	int clientCount = 0;
 
 	CLoginScene*	m_pLoginScene{ nullptr };

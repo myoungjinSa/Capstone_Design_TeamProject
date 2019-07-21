@@ -5,12 +5,13 @@
 #include "../../../../Mesh/BillboardMesh/BillboardMesh.h"
 #include "../../../../GameObject/Billboard/UI/UI.h"
 #include "../../../../SoundSystem/SoundSystem.h"
-#include "../../../../Scene/LobbyScene/LobbyScene.h"
 #include "../../../../GameFramework/GameFramework.h"
 #include "../../../../Direct2D/Direct2D.h"
 
 bool CCharacterSelectUIShader::m_IsReady = false;
 char CCharacterSelectUIShader::m_ChoiceCharacter = NONE;
+char CCharacterSelectUIShader::m_HostID = -1;
+char CCharacterSelectUIShader::m_MyID = -1;
 
 extern byte g_PlayerCharacter;
 
@@ -137,13 +138,13 @@ void CCharacterSelectUIShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12Graph
 	m_ppTextures = new CTexture*[nTextures];
 	
 	m_ppTextures[BASE] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	m_ppTextures[BASE]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/New/LobbyBase.dds", 0);
+	m_ppTextures[BASE]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/LobbyBase.dds", 0);
 
 	m_ppTextures[READY] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	m_ppTextures[READY]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/New/Ready.dds", 0);
+	m_ppTextures[READY]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Ready.dds", 0);
 
 	m_ppTextures[QUIT] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	m_ppTextures[QUIT]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/New/Quit.dds", 0);
+	m_ppTextures[QUIT]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Lobby/Quit.dds", 0);
 
 	CBillboardMesh* pSelectMesh = new CBillboardMesh(pd3dDevice, pd3dCommandList, 20.f, 20.f, 0.0f, 0.0f, 0.0f, 0.0f);
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_nObjects);
@@ -175,7 +176,7 @@ void CCharacterSelectUIShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12Graph
 		CUI* pUI = new CUI(1);
 		pUI->SetUIMinPos(XMFLOAT2(minmaxPos[i].x, minmaxPos[i].y));
 		pUI->SetUIMaxPos(XMFLOAT2(minmaxPos[i].z, minmaxPos[i].w));
-
+		pUI->SetUV(XMFLOAT2(0.f, 0.25f));
 		if (i < UITYPE::PINK)
 		{
 			pUI->SetMesh(pSelectMesh);
@@ -243,6 +244,13 @@ void CCharacterSelectUIShader::CallbackMouse(UINT nMessgeID, float mouseX, float
 			p->SetUV(XMFLOAT2(0.f, 0.5f));
 			CDirect2D::GetInstance()->GetImageInfo("Characters").m_FrameXNum = 0;
 		}
+
+		XMFLOAT2 uv = XMFLOAT2(0.f, 0.f);
+		if (m_MyID == m_HostID)
+			uv = XMFLOAT2(0.5f, 0.75f);
+		else
+			uv = XMFLOAT2(0.f, 0.25f);
+		reinterpret_cast<CUI*>(m_UIMap[UITYPE::READY])->SetUV(uv);
 	}
 }
 
@@ -259,6 +267,20 @@ void CCharacterSelectUIShader::MoveInteraction(int key)
 	case UITYPE::BLUE:			frame = 5;	break;
 	case UITYPE::PANDA:		frame = 6;	break;
 	case UITYPE::READY:
+		{		
+			auto iter = m_UIMap.find(key);
+			if (iter != m_UIMap.end())
+			{
+				XMFLOAT2 uv = XMFLOAT2(0.f, 0.f);
+				if (m_MyID == m_HostID)
+					uv = XMFLOAT2(0.75f, 1.f);
+				else
+					uv = XMFLOAT2(0.25f, 0.5f);
+				reinterpret_cast<CUI*>((*iter).second)->SetUV(uv);
+			}
+			break;
+		}
+
 	case UITYPE::QUIT:
 		{
 			auto iter = m_UIMap.find(key);
