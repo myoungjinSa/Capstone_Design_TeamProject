@@ -20,8 +20,12 @@ public:
 	virtual void AnimateObjects(float fTimeElapsed, CCamera *pCamera, CPlayer* pPlayer = NULL);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState);
 
+	void setRender(bool value) { m_Render = value; }
+
 private:
 	enum UIType { ItemBoxUI, NormalItemUI, SpecialItemUI,SubSpecialItemUI };
+
+	bool m_Render = false;
 
 	CPlayer* m_pPlayer{ nullptr };
 };

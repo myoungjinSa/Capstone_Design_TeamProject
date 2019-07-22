@@ -534,23 +534,3 @@ void CMenuUIShader::ChangeState()
 		break;
 	}
 }
-
-void CMenuUIShader::MenuUIClear()
-{
-	m_MenuInfo.m_MenuBoard_MinMaxPos = XMFLOAT4(-0.3f, -0.5f, 0.3f, 0.5f);
-	m_MenuInfo.m_MenuICON_MinMaxPos = XMFLOAT4(0.75f, 0.75f, 0.95f, 0.95f);
-	m_MenuInfo.m_MenuBoard_MenuICON_UV = XMFLOAT4(0.f, 0.5f, 0.f, 0.5f);
-
-	m_MenuInfo.m_MenuOption_MinMaxPos = XMFLOAT4(-0.09f, -0.05f, 0.09f, 0.15f);
-	m_MenuInfo.m_MenuGameOver_MinMaxPos = XMFLOAT4(-0.15f, -0.35f, 0.15f, -0.15f);
-	m_MenuInfo.m_MenuOption_MenuGameOver_UV = XMFLOAT4(0.f, 0.5f, 0.f, 0.5f);
-
-	m_MenuInfo.m_MenuSound_MinMaxPos = XMFLOAT4(-0.2f, -0.05f, 0.2f, 0.15f);
-	m_MenuInfo.m_MenuCartoon_MinMaxPos = XMFLOAT4(-0.25f, -0.35f, 0.25f, -0.15f);
-	m_MenuInfo.m_MenuSound_MenuCartoon_UV = XMFLOAT4(0.f, 0.5f, 0.5f, 1.f);
-
-	m_MenuState = MenuBoard;
-	m_IsRender = false;
-	g_IsSoundOn = true;
-	g_OnCartoonShading = false;
-}

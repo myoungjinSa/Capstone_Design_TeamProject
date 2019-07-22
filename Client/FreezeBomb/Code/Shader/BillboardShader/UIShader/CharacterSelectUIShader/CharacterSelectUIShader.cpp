@@ -482,11 +482,3 @@ void CCharacterSelectUIShader::ReleaseShaderVariables()
 		m_pd3dUIData->Release();
 	}
 }
-
-void CCharacterSelectUIShader::LobbyUIClear()
-{
-	m_IsReady = false;
-	m_ChoiceCharacter = NONE;
-
-	MOUSE_STATE m_MouseState = MOUSE_STATE::NONE;
-}

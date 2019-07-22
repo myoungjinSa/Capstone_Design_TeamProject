@@ -17,6 +17,7 @@ CItemShader::~CItemShader()
 void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,
 	const map<string, CLoadedModelInfo*>& ModelMap, const unordered_map<unsigned char, RoundInfo>& RoundMapObjectInfo, const map<string, Bounds*>& BoundMap, void* pContext)
 {
+	//int nNormalHammer = 0, nGoldHammer = 0, nGoldTimer = 0;
 	unsigned char round = 0;
 
 	for (auto iter = RoundMapObjectInfo.begin(); iter != RoundMapObjectInfo.end(); ++iter)
@@ -42,7 +43,6 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 				pItem->SetUpVector((*iter3).second->m_Up);
 				pItem->SetRightVector((*iter3).second->m_Right);
 				pItem->Initialize_Shadow((*iter2).second, pItem);
-
 #ifdef _WITH_SERVER_
 				auto iter4 = BoundMap.find(name);
 				if (iter4 != BoundMap.end())
@@ -77,7 +77,10 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 					itemList.emplace("GoldHammer " + to_string(nGoldHammer++), pItem);
 					break;
 				}
+
+
 #endif
+
 			}
 		}
 
@@ -106,6 +109,7 @@ void CItemShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 				}
 #endif
 				pItem->setItemType(CItem::GoldTimer);
+				//m_ItemMap.emplace("GoldTimer" + to_string(nGoldTimer++), pItem);
 				itemList.emplace("GoldTimer " + to_string(nGoldTimer++), pItem);
 
 			}
@@ -118,6 +122,7 @@ void CItemShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera, CPlayer* 
 {
 	m_fElapsedTime += fTimeElapsed;
 }
+
 
 void CItemShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
@@ -161,7 +166,7 @@ void CItemShader::ReleaseObjects()
 
 	for (auto iter = m_RemovedItemList.begin(); iter != m_RemovedItemList.end(); )
 	{
-		(*iter)->Release();
+		(*iter).second->Release();
 		iter = m_RemovedItemList.erase(iter);
 	}
 	m_RemovedItemList.clear();
@@ -186,25 +191,31 @@ void CItemShader::ItemDelete(string key)
 		auto iter2 = (*iter).second.find(key);
 		if (iter2 != (*iter).second.end())
 		{
-			m_RemovedItemList.emplace_back((*iter2).second);
+			//cout << (*iter2).first << " 획득" << endl;
+			
+			//// 각 라운드에 해당하는 제거된 아이템 리스트에 넣어줌
+			RoundItemList list;
+			list.emplace((*iter2).first, (*iter2).second);
+
+			//m_RemovedItemList.emplace((*iter2).first, (*iter2).second);
+			//m_RemovedItemList.emplace(g_Round, list);
+			m_RemovedItemList.emplace((*iter2).first, (*iter2).second);
 			iter2 = (*iter).second.erase(iter2);
 		}
 	}
 }
 
-void CItemShader::ItemClear()
+void CItemShader::ChangeRound()
 {
-	for (auto iter = m_ItemList.begin(); iter != m_ItemList.end(); )
-	{
-		for (auto iter2 = (*iter).second.begin(); iter2 != (*iter).second.end(); )
-		{
-			m_RemovedItemList.emplace_back((*iter2).second);
-			iter2 = (*iter).second.erase(iter2);
-		}
-		(*iter).second.clear();
-		iter = m_ItemList.erase(iter);
-	}
-	m_ItemList.clear();
+	//for (auto iter = m_RemovedItemList.begin(); iter != m_RemovedItemList.end(); ++iter)
+	//{
+	//	unsigned char key = (*iter).first;
+	//	for (auto iter2 = m_RemovedItemList.lower_bound(key); iter2 != m_RemovedItemList.upper_bound(key); )
+	//	{
+	//		// 라운드에 해당하는 아이템들을 복구시킴
+	//		m_ItemList.emplace(key, (*iter2).second);
+	//	}
+	//}
 }
 
 const map<string, CItem*>& CItemShader::getItemList()	const

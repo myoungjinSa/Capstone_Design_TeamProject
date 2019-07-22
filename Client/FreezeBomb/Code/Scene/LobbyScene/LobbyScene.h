@@ -29,7 +29,6 @@ public:
 	void UIClientsReadyTextRender();
 
 	static void AddClientsCharacter(char id, char matID) { m_ClientsCharacter[id] = matID; }
-	void LobbySceneClear();
 
 private:
 	ID3D12RootSignature*		m_pd3dGraphicsRootSignature = NULL;

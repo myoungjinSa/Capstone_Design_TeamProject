@@ -18,7 +18,7 @@ public:
 	virtual void ReleaseObjects();
 	virtual void ReleaseUploadBuffers();
 	void ItemDelete(string key);
-	void ItemClear();
+	void ChangeRound();
 
 	const map<string, CItem*>& getItemList()	const;
 
@@ -26,5 +26,6 @@ private:
 	using RoundItemList = map<string, CItem*>;
 	unordered_map<unsigned char, RoundItemList> m_ItemList;
 
-	list<CItem*> m_RemovedItemList;
+	//unordered_multimap<unsigned char, RoundItemList> m_RemovedItemList;
+	unordered_map<string, CItem*> m_RemovedItemList;
 };

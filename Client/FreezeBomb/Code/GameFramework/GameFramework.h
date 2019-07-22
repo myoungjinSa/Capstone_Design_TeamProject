@@ -3,7 +3,7 @@
 #include "../GameTimer/GameTimer.h"
 #include "../Network/Network.h"
 
-enum GAMESTATE { LOBBY, INGAME, PAUSE, OPTION, CONNECT, LOGIN, LOADING };
+enum GAMESTATE { CHARACTER_SELECT, INGAME, PAUSE, OPTION, CONNECT, LOGIN, LOADING };
 
 // 전체모드할경우 CharacterSelectUIShader에서도 
 // FULLSCREENMODE 여부를 확인해야해서 CPP말고 헤더로 옮김 - 명진
@@ -54,7 +54,8 @@ public:
 	void Initialize_GameFont();
 
 	void SetNamecard();
-
+	void ShowScoreboard();
+	void DrawStageInfo();
 	void ProcessDirect2D();
 #endif
 	void CreateDepthStencilView();

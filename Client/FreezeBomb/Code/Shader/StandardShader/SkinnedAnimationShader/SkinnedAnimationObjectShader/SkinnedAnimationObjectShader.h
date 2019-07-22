@@ -16,9 +16,7 @@ public:
 	virtual void AnimateObjects(float fTimeElapsed, CCamera *pCamera,CPlayer* pPlayer = nullptr);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState);
 
-	void MappingUserToEvilbear(char id, char matID);
-	void MaterialClear();
-
+	void MappingUserToEvilbear(char id,char matID);
 public:
 
 	enum MUSIC_ENUM

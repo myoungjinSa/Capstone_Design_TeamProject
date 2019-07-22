@@ -34,7 +34,6 @@ public:
 	void ProcessMouseMessage(UINT message, XMFLOAT2& mousePos);
 	void ProcessKeyBoardMessage();
 	void ChangeState();
-	void MenuUIClear();
 
 private:
 	enum MENU_TYPE { None = - 1, MenuBoard, Menu_ICON, Menu_Option, Menu_GameOver, Menu_Sound, Menu_Cartoon };

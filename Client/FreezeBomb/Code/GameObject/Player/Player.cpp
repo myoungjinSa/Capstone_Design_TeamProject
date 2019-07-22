@@ -240,6 +240,8 @@ void CPlayer::Update(float fTimeElapsed)
 
 	m_pCamera->RegenerateViewMatrix();
 
+	
+
 	//std::cout <<"서버에서 받은 속도: "<< m_fVelocityFromServer << "\n";
 	if (Network::GetInstance()->m_connect) 
 	{
@@ -249,8 +251,10 @@ void CPlayer::Update(float fTimeElapsed)
 	m_Time += fTimeElapsed;
 	if (m_Time > 1.f)
 	{
+		m_Score += 100;
 		m_Time = 0.f;
 	}
+
 }
 
 CCamera *CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
@@ -361,6 +365,7 @@ void CPlayer::Add_Inventory(const string& key, int ItemType)
 	{
 			if(m_Special_Inventory.size() == 0)
 			{
+			
 				CItem* pItem = new CItem;
 				pItem->setItemType(ItemType);
 #ifndef _WITH_SERVER_
@@ -371,6 +376,7 @@ void CPlayer::Add_Inventory(const string& key, int ItemType)
 #endif
 				m_Special_Inventory.emplace(key, pItem);
 			}
+
 	}
 }
 
@@ -414,24 +420,6 @@ void CPlayer::Sub_Inventory(int ItemType)
 		}
 	}
 }
-
-void CPlayer::InventoryClear()
-{
-	for (auto iter = m_Normal_Inventory.begin(); iter != m_Normal_Inventory.end(); )
-	{
-		m_RemovedItemList.emplace_back((*iter).second);
-		iter = m_Normal_Inventory.erase(iter);
-	}
-	m_Normal_Inventory.clear();
-
-	for (auto iter = m_Special_Inventory.begin(); iter != m_Special_Inventory.end(); )
-	{
-		m_RemovedItemList.emplace_back((*iter).second);
-		iter = m_Special_Inventory.erase(iter);
-	}
-	m_Special_Inventory.clear();
-}
-
 ////이미 인벤의 존재하는 종류의 아이템인지 검사하고 없다면 true 반환
 bool CPlayer::CheckInventoryToGet(const int& itemType)
 {

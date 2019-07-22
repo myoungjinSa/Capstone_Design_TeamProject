@@ -415,12 +415,6 @@ public:
 
 	bool GetIsLightEffect() const { return m_bLightening; }
 	void SetIsLightEffect(bool value) { m_bLightening = value; }
-
-	short GetScore()		const { return m_Score; }
-	void SetScore(short score) { m_Score = score; }
-
-	void EvilBearInfoClear();
-
 #ifdef _WITH_SERVER_
 	void SetVelocityFromServer(float fVel) { m_fVelocityFromServer = fVel; }
 #endif
@@ -449,8 +443,6 @@ protected:
 	bool								m_bGoldTimer = false;	//타이머 아이템 소지 여부
 	bool								m_bLightening = false;		//특수 아이템 사용시 번개 효과를 렌더링하기 위한 bool변수
 
-	short								m_Score = 0;
-
 #ifdef _WITH_SERVER_
 	bool								m_bCollided{ false };
 
@@ -477,6 +469,7 @@ public:
 	BoundingOrientedBox GetBoundingBox() const { return m_xmOOBB; }
 	void SetOOBB(XMFLOAT3& xmCenter, XMFLOAT3& xmExtents, XMFLOAT4& xmOrientation)
 	{ m_xmOOBBTransformed = m_xmOOBB = BoundingOrientedBox(xmCenter, xmExtents, xmOrientation); }
+
 
 	CGameObject* GetObjectCollided() { return m_pObjectCollided; }
 	void SetObjectCollided(CGameObject* value) { m_pObjectCollided = value; }

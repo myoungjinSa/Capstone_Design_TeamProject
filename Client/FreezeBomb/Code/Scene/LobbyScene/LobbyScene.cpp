@@ -297,11 +297,3 @@ void CLobbyScene::UIClientsReadyTextRender()
 	}
 #endif
 }
-
-void CLobbyScene::LobbySceneClear()
-{
-	for (auto& characters : m_ClientsCharacter)
-		characters = -1;
-
-	CCharacterSelectUIShader::LobbyUIClear();
-}

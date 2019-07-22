@@ -566,6 +566,44 @@ VS_UI_OUTPUT VSMenuCartoonUI(uint nVertexID : SV_VertexID)
 	return (output);
 }
 
+VS_UI_OUTPUT VS_OutCome(uint nVertexID: SV_VertexID)
+{
+	VS_UI_OUTPUT output;
+
+	if (nVertexID == 0)
+	{
+		output.position = float4(-1.f, 1.f, 0.0f, 1.0f);
+		output.uv = float2(0.0f, 0.0f);
+	}
+	if (nVertexID == 1)
+	{
+		output.position = float4(-1.f, -1.f, 0.0f, 1.0f);
+		output.uv = float2(0.0f, 1.0f);
+	}
+	if (nVertexID == 2)
+	{
+		output.position = float4(1.f, -1.f, 0.0f, 1.0f);
+		output.uv = float2(1.0f, 1.0f);
+	}
+	if (nVertexID == 3)
+	{
+		output.position = float4(1.f, -1.f, 0.0f, 1.0f);
+		output.uv = float2(1.0f, 1.0f);
+	}
+	if (nVertexID == 4)
+	{
+		output.position = float4(1.f, 1.f, 0.0f, 1.0f);
+		output.uv = float2(1.0f, 0.0f);
+	}
+	if (nVertexID == 5)
+	{
+		output.position = float4(-1.f, 1.f, 0.0f, 1.0f);
+		output.uv = float2(0.0f, 0.0f);
+	}
+	return (output);
+
+}
+
 float4 PSUI(VS_UI_OUTPUT input) : SV_TARGET
 {
 	float4 Color = UITexture.Sample(gssWrap, input.uv);

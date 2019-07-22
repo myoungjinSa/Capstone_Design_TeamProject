@@ -1774,28 +1774,4 @@ bool CGameObject::IsVisible(CCamera* pCamera)
 		m_pChild->IsVisible(pCamera);
 }
 
-void CGameObject::EvilBearInfoClear()
-{
-	XMFLOAT3 pos = XMFLOAT3(0.f, 0.f, 0.f);
-	XMFLOAT3 look = XMFLOAT3(1.f, 0.f, 0.f);
-	XMFLOAT3 right = XMFLOAT3(0.f, 1.f, 0.f);
-	XMFLOAT3 up = XMFLOAT3(0.f, 0.f, 0.f);
-	XMFLOAT3 scale = XMFLOAT3(1.f, 1.f, 1.f);
 
-	SetPosition(pos);
-	SetLookVector(look);
-	SetRightVector(right);
-	SetUpVector(up);
-	SetScale(scale.x, scale.y, scale.z);
-
-	//모든 아이템 보유 초기화
-	m_bHammer = false;
-	m_bGoldHammer = false;
-	m_bGoldTimer = false;
-	m_bIce = false;
-	m_bCollided = false;
-	m_bLightening = false;
-	m_Score = 0;
-
-	m_matID = -1;
-}
