@@ -1658,9 +1658,9 @@ void CGameFramework::ProcessPacket(char* packet)
 		// 해줘야함- 명진.
 
 
-		//	MappingUserToEvilbear(pPP->id, clientCount/*현재 접속한 유저 수를 받아야함 */);
+		//   MappingUserToEvilbear(pPP->id, clientCount/*현재 접속한 유저 수를 받아야함 */);
 		//cout <<"플레이어 ID-"<<(int)pPP->id<<",재질 -" <<(int)pPP->matID << "\n";
-		//m_pPlayer->SetMaterialID(pPP->matID);	//플레이어 재질정	보 SET
+		//m_pPlayer->SetMaterialID(pPP->matID);   //플레이어 재질정   보 SET
 
 		//XMFLOAT3 pos = CMapObjectsShader::spawn[g_Round][m_pPlayer->GetPlayerID()].pos;
 		// 이런 식으로 시작위치 인덱스 사용하면 됨 posIdx[playerId]에는 각 플레이어의 시작위치인덱스가 담겨있음
@@ -1681,15 +1681,11 @@ void CGameFramework::ProcessPacket(char* packet)
 		auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 		if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 		{
-			//id랑 재질정보를 MappingUserToEvilbear함수를 통해 할 수 있음 
-			//cout <<"적 클라 ID-"<<(int)pPP->id<<",재질 -" <<(int)pPP->matID << "\n";
-
-		//dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->MappingUserToEvilbear(id/*아이디*/, pPP->matID/*재질id*/);
 			for (auto enemy : m_mapClients)
 			{
-				if (enemy.second.id == m_pPlayer->GetPlayerID())	continue;
+				if (enemy.second.id == m_pPlayer->GetPlayerID())   continue;
 
-				XMFLOAT3 pos = CMapObjectsShader::spawn[g_Round][enemy.second.id].pos;
+				XMFLOAT3 pos = CMapObjectsShader::spawn[g_Round][pPP->posIdx[enemy.second.id]].pos;
 				(*iter).second->m_ppObjects[enemy.second.id]->SetPosition(pos);
 				(*iter).second->m_ppObjects[enemy.second.id]->SetLookVector(XMFLOAT3(0.0f, 0.0f, 1.0f));
 				(*iter).second->m_ppObjects[enemy.second.id]->SetRightVector(XMFLOAT3(1.0f, 0.0f, 0.0f));
@@ -1748,7 +1744,6 @@ void CGameFramework::ProcessPacket(char* packet)
 				(*iter).second->m_ppObjects[id]->SetVelocityFromServer(pMP->fVelocity);
 			}
 		}
-		//printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", pMP->id, pMP->xPos, pMP->yPos, pMP->zPos);
 		break;
 	}
 

@@ -363,7 +363,6 @@ void CCharacterSelectUIShader::ClickInteraction(int click)
 
 			if (m_MyID == CGameFramework::GetHostID())
 			{
-				Network::GetInstance()->SendReady();
 				Network::GetInstance()->SendReqStart();
 				cout << "시작하라는 패킷 전송" << endl;
 				break;
