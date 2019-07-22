@@ -662,8 +662,10 @@ void Server::WorkerThreadFunc()
 				if (false == clients[i].in_use)
 					continue;
 				
-				SendPutPlayer(i);
+				//라운드 Start를 먼저 알리고 PutPlayer를 해야함. 
+
 				SendRoundStart(i, time);
+				SendPutPlayer(i);
 			}
 			add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
 		}
