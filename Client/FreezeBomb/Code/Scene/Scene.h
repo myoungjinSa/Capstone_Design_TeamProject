@@ -9,8 +9,9 @@
 
 struct InGameInfo
 {
-	InGameInfo(char id, char score, char rank) : m_ID(id), m_Score(score), m_Rank(rank) {}
+	InGameInfo(char id, string name, char score, char rank) : m_ID(id), m_Name(name), m_Score(score), m_Rank(rank) {}
 	char m_ID;
+	string m_Name;
 	char m_Score;
 	char m_Rank;
 };
@@ -123,7 +124,7 @@ public:
 	void UIClientsRankTextRender();
 
 	void SortInGameRank();
-	void AddInGameScore(char id, char score) { m_InGameInfo.emplace_back(InGameInfo(id, score, -1)); }
+	void AddInGameScore(char id, string name, char score);
 	
 protected:
 	ID3D12RootSignature*						m_pd3dGraphicsRootSignature = nullptr;
