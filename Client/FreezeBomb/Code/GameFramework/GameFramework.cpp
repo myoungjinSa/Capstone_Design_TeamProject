@@ -1795,7 +1795,7 @@ void CGameFramework::ProcessPacket(char* packet)
 				{	
 					if (enemy.second.id == m_pPlayer->GetPlayerID())	continue;
 
-					XMFLOAT3 pos = CMapObjectsShader::spawn[g_Round][enemy.second.id].pos;
+					XMFLOAT3 pos = CMapObjectsShader::spawn[g_Round][pPP->posIdx[enemy.second.id]].pos;
 					(*iter).second->m_ppObjects[enemy.second.id]->SetPosition(pos);
 					(*iter).second->m_ppObjects[enemy.second.id]->SetLookVector(XMFLOAT3(0.0f, 0.0f, 1.0f));
 					(*iter).second->m_ppObjects[enemy.second.id]->SetRightVector(XMFLOAT3(1.0f, 0.0f, 0.0f));

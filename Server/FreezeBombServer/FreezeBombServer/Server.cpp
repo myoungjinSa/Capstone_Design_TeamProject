@@ -826,8 +826,9 @@ void Server::ProcessPacket(char client, char *packet)
 	}
 	case CS_REQUEST_START:
 	{
-		if (clientCount <= readyCount)
+		if (clientCount - 1 == readyCount)
 		{
+			cout << clientCount << ", " << readyCount << "\n";
 			PickBomber();
 			ShuffleStartPosIndex();
 
