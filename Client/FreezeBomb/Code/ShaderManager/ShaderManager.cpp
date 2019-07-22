@@ -78,7 +78,7 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 
 	CItemShader* pItemShader = new CItemShader;
 	pItemShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getModelMap(), m_pResourceManager->getRoundMapObjectInfo(),
-		m_pResourceManager->getBoundMap(), pTerrainShader->getTerrain());
+		m_pResourceManager->getBoundMap(), nullptr);
 	m_ppShaders[index++] = pItemShader;
 	m_ShaderMap.emplace("Item", pItemShader);
 
@@ -141,10 +141,6 @@ void CShaderManager::Initialize(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 	pMenuUIShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pResourceManager->getTextureMap(), nullptr);
 	m_ppShaders[index++] = pMenuUIShader;
 	m_ShaderMap.emplace("MenuUI", pMenuUIShader);
-
-#ifndef _MAPTOOL_MODE_
-	m_pResourceManager->ReleaseModel();
-#endif
 }
 
 void CShaderManager::ReleaseObjects()
@@ -162,10 +158,7 @@ void CShaderManager::ReleaseObjects()
 
 	if (m_pResourceManager)
 	{
-#ifdef _MAPTOOL_MODE_
 		m_pResourceManager->ReleaseModel();
-#endif
-
 		m_pResourceManager->Release();
 		delete m_pResourceManager;
 	}

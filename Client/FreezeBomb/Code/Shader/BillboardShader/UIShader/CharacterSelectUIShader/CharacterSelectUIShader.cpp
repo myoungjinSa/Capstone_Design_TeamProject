@@ -267,7 +267,6 @@ void CCharacterSelectUIShader::CallbackKeyboard(WPARAM wParam)
 			if (m_MyID == CGameFramework::GetHostID())
 			{
 				CSoundSystem::PlayingSound(CSoundSystem::CLICK);
-				Network::GetInstance()->SendReady();
 				Network::GetInstance()->SendReqStart();
 				cout << "시작하라는 패킷 전송" << endl;
 				break;
@@ -483,4 +482,12 @@ void CCharacterSelectUIShader::ReleaseShaderVariables()
 		m_pd3dUIData->Unmap(0, nullptr);
 		m_pd3dUIData->Release();
 	}
+}
+
+void CCharacterSelectUIShader::LobbyUIClear()
+{
+	m_IsReady = false;
+	m_ChoiceCharacter = NONE;
+
+	MOUSE_STATE m_MouseState = MOUSE_STATE::NONE;
 }
