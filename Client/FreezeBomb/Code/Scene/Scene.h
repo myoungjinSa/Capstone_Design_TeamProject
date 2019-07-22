@@ -7,6 +7,13 @@
 #define SPOT_LIGHT						2
 #define DIRECTIONAL_LIGHT			3
 
+struct InGameInfo
+{
+	InGameInfo(char id, char score, char rank) : m_ID(id), m_Score(score), m_Rank(rank) {}
+	char m_ID;
+	char m_Score;
+	char m_Rank;
+};
 
 struct FOGFACTORS
 {
@@ -106,6 +113,18 @@ public:
 	void MappingItemStringToItemType(const string& strItem,int& itemType);
 	bool CheckPlayerInventory(const int& itemType);
 
+	void InGameSceneClear(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+
+	void UIRender();
+	void UIRoundInfoTextRender();
+	void UIScoreBoardRender();
+	void UIClientsNameTextRender();
+	void UIClientsScoreTextRender();
+	void UIClientsRankTextRender();
+
+	void SortInGameRank();
+	void AddInGameScore(char id, char score) { m_InGameInfo.emplace_back(InGameInfo(id, score, -1)); }
+	
 protected:
 	ID3D12RootSignature*						m_pd3dGraphicsRootSignature = nullptr;
 
@@ -180,7 +199,8 @@ public:
 		EvilBear = 19, Player = 19, BombParticle = 1, CubeParticle = 1, Snow = 1, TimerUI = 11, ItemUI = 4, MenuUI = 6,
 		Thunder = 2, FirePit = 1
 	};
-
+	
+	vector<InGameInfo> m_InGameInfo;
 #ifndef _WITH_SERVER_
 	// 술래 변경할 수 있는 시간
 	static float m_TaggerCoolTime;

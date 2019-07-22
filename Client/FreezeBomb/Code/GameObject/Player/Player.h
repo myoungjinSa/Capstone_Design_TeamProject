@@ -88,6 +88,7 @@ public:
 	void Add_Inventory(const string& key,int ItemType);
 	void Sub_Inventory(int ItemType);
 	void ChangeRound();
+	void InventoryClear();
 
 	const map<string, CItem*> get_Special_Inventory()	const { return m_Special_Inventory; }
 	size_t get_Normal_InventorySize() const { return m_Normal_Inventory.size(); }
@@ -108,8 +109,7 @@ public:
 	std::map<MUSIC_ENUM, std::string> m_mapMusicList;
 
 	void SetMoveRotate(bool mv) { m_isMoveRotate = mv; }
-	void setScore(short score) { m_Score = score; }
-	short getScore()		const { return m_Score; }
+
 	bool IsCameraVibe() const { return m_bCameraVibe; }
 	void SetCameraVibe(bool vibe) {  m_bCameraVibe = vibe; }
 	bool IsSpike() const { return m_bSpike; }
@@ -154,7 +154,6 @@ protected:
 
 	CShaderManager* m_pShaderManager{ nullptr };
 
-	short				m_Score = 0;
 	float				m_Time = 0.f;
 
 	bool			m_bLocalRotation{ false };

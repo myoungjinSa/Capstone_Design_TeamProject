@@ -252,9 +252,6 @@
     <ClCompile Include="..\Code\GameObject\CubeParticle\ExplosionParticle.cpp">
       <Filter>Code\GameObject\CubeParticle\ExplosionParticle</Filter>
     </ClCompile>
-    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\OutcomeUIShader\OutcomeUIShader.cpp">
-      <Filter>Code\Shader\BillboardShader\UIShader\OutcomeUIShader</Filter>
-    </ClCompile>
     <ClCompile Include="..\Code\GameObject\Billboard\Fire\FireBillboard.cpp">
       <Filter>Code\GameObject\Billboard\Fire</Filter>
     </ClCompile>
@@ -514,9 +511,6 @@
     </ClInclude>
     <ClInclude Include="..\Code\GameObject\CubeParticle\ExplosionParticle.h">
       <Filter>Code\GameObject\CubeParticle\ExplosionParticle</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\OutcomeUIShader\OutcomeUIShader.h">
-      <Filter>Code\Shader\BillboardShader\UIShader\OutcomeUIShader</Filter>
     </ClInclude>
     <ClInclude Include="..\Code\GameObject\Billboard\Fire\FireBillboard.h">
       <Filter>Code\GameObject\Billboard\Fire</Filter>
@@ -780,9 +774,6 @@
     </Filter>
     <Filter Include="Code\GameObject\CubeParticle\IceParticle">
       <UniqueIdentifier>{4f63271b-caeb-4aa4-9ba4-cb989fe984b4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Shader\BillboardShader\UIShader\OutcomeUIShader">
-      <UniqueIdentifier>{ed3e803f-f0a7-4d78-9952-3b0ba728d558}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\GameObject\Billboard\Fire">
       <UniqueIdentifier>{c536f683-6999-4b03-bbe8-d6b1b62461a9}</UniqueIdentifier>

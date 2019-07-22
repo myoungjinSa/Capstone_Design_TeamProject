@@ -18,6 +18,7 @@
 #include "../Network/Network.h"
 #include "../GameObject/Item/Item.h"
 #include "../GameFramework/GameFramework.h"
+#include "../Direct2D/Direct2D.h"
 
 ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
@@ -39,6 +40,7 @@ float CScene::m_TaggerCoolTime = 0.f;
 
 CScene::CScene()
 {
+	m_InGameInfo.reserve(MAX_USER);
 }
 
 CScene::~CScene()
@@ -546,7 +548,7 @@ void CScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 {
 	int mouseX = LOWORD(lParam);
 	int mouseY = HIWORD(lParam);
-	
+
 	switch (nMessageID)
 	{
 	case WM_MOUSEMOVE:
@@ -1083,4 +1085,184 @@ bool CScene::CheckPlayerInventory(const int& itemType)
 	}
 
 	return ret;
+}
+
+void CScene::InGameSceneClear(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	CSoundSystem::StopSound(CSoundSystem::INGAME_BGM);
+	//CSoundSystem::StopSound(CSoundSystem::ICE_BREAK);
+	//CSoundSystem::StopSound(CSoundSystem::GET_ITEM);
+	//CSoundSystem::StopSound(CSoundSystem::ICE_BREAK);
+	//CSoundSystem::StopSound(CSoundSystem::TIMER_WARNING);
+
+	m_playerCount = 0;
+	m_NormalHammerCnt = 0;
+	m_GoldHammerCnt = 0;
+	m_GoldTimerCnt = 0;
+	m_bVibeTime = 0.f;
+
+	m_pPlayer->InventoryClear();
+	m_pPlayer->EvilBearInfoClear();
+
+	auto iter = m_pShaderManager->getShaderMap().find("OtherPlayer");
+	if (iter == m_pShaderManager->getShaderMap().end())
+		return;
+
+	for (auto enemy : CGameFramework::GetClientsInfo())
+	{
+		if (enemy.second.id == m_pPlayer->GetPlayerID())	continue;
+		(*iter).second->m_ppObjects[enemy.second.id]->EvilBearInfoClear();
+	}
+	
+	iter = m_pShaderManager->getShaderMap().find("Item");
+	if (iter == m_pShaderManager->getShaderMap().end())
+		return;
+	reinterpret_cast<CItemShader*>((*iter).second)->ItemClear();
+	reinterpret_cast<CItemShader*>((*iter).second)->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature,
+		m_pShaderManager->getResourceManager()->getModelMap(), m_pShaderManager->getResourceManager()->getRoundMapObjectInfo(), m_pShaderManager->getResourceManager()->getBoundMap(), nullptr);
+
+	iter = m_pShaderManager->getShaderMap().find("MenuUI");
+	if (iter == m_pShaderManager->getShaderMap().end())
+		return;
+	reinterpret_cast<CMenuUIShader*>((*iter).second)->MenuUIClear();
+}
+
+void CScene::UIRender()
+{
+	UIRoundInfoTextRender();
+
+	float timer = CTimerUIShader::getTimer();
+	if (timer <= 0.f || GetAsyncKeyState(VK_TAB) & 0x8000)
+	{
+		UIScoreBoardRender();
+		UIClientsRankTextRender();
+		// 캐릭터도 렌더링 예정
+
+		UIClientsNameTextRender();
+		UIClientsScoreTextRender();
+	}
+}
+
+void CScene::UIRoundInfoTextRender()
+{
+	D2D1_RECT_F pos = { 0.0f, 0.0f, 300.0f, 70.0f };
+	wstring wstr = to_wstring((int)g_Round + 1) + L" Round";
+	CDirect2D::GetInstance()->Render("피오피동글", "주황색", wstr, pos);
+}
+
+void CScene::UIScoreBoardRender()
+{
+	CDirect2D::GetInstance()->Render("ScoreBoard");
+}
+
+void CScene::UIClientsRankTextRender()
+{
+	ImageInfo info = CDirect2D::GetInstance()->GetImageInfo("ScoreBoard");
+	float width = info.m_Pos.right - info.m_Pos.left;
+	float height = info.m_Pos.bottom - info.m_Pos.top;
+
+	D2D1_RECT_F pos[6] =
+	{
+		D2D1::RectF((info.m_Pos.left + width * 5.f / 42.f), (info.m_Pos.top + height * 3.f / 16.f), (info.m_Pos.left + width * 9.f / 42.f), (info.m_Pos.top + height * 5.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 5.f / 42.f), (info.m_Pos.top + height * 5.f / 16.f), (info.m_Pos.left + width * 9.f / 42.f), (info.m_Pos.top + height * 7.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 5.f / 42.f), (info.m_Pos.top + height * 7.f / 16.f), (info.m_Pos.left + width * 9.f / 42.f), (info.m_Pos.top + height * 9.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 5.f / 42.f), (info.m_Pos.top + height * 9.f / 16.f), (info.m_Pos.left + width * 9.f / 42.f), (info.m_Pos.top + height * 11.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 5.f / 42.f), (info.m_Pos.top + height * 11.f / 16.f), (info.m_Pos.left + width * 9.f / 42.f), (info.m_Pos.top + height * 13.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 5.f / 42.f), (info.m_Pos.top + height * 13.f / 16.f), (info.m_Pos.left + width * 9.f / 42.f), (info.m_Pos.top + height * 15.f / 16.f))
+	};
+
+	for (int i = 0; i < m_InGameInfo.size(); ++i)
+	{
+		// 순위는 1부터이므로 - 1을 함
+		char j = m_InGameInfo[i].m_Rank - 1;
+		CDirect2D::GetInstance()->Render("피오피동글", "흰색", to_wstring(m_InGameInfo[i].m_Rank), pos[j]);
+	}
+}
+
+void CScene::UIClientsNameTextRender()
+{
+	ImageInfo info = CDirect2D::GetInstance()->GetImageInfo("ScoreBoard");
+	float width = info.m_Pos.right - info.m_Pos.left;
+	float height = info.m_Pos.bottom - info.m_Pos.top;
+
+	D2D1_RECT_F pos[6] =
+	{
+		D2D1::RectF((info.m_Pos.left + width * 21.f / 42.f), (info.m_Pos.top + height * 3.f / 16.f), (info.m_Pos.left + width * 31.f / 42.f), (info.m_Pos.top + height * 5.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 21.f / 42.f), (info.m_Pos.top + height * 5.f / 16.f), (info.m_Pos.left + width * 31.f / 42.f), (info.m_Pos.top + height * 7.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 21.f / 42.f), (info.m_Pos.top + height * 7.f / 16.f), (info.m_Pos.left + width * 31.f / 42.f), (info.m_Pos.top + height * 9.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 21.f / 42.f), (info.m_Pos.top + height * 9.f / 16.f), (info.m_Pos.left + width * 31.f / 42.f), (info.m_Pos.top + height * 11.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 21.f / 42.f), (info.m_Pos.top + height * 11.f / 16.f), (info.m_Pos.left + width * 31.f / 42.f), (info.m_Pos.top + height * 13.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 21.f / 42.f), (info.m_Pos.top + height * 13.f / 16.f), (info.m_Pos.left + width * 31.f / 42.f), (info.m_Pos.top + height * 15.f / 16.f))
+	};
+
+	map<int, clientsInfo> m = CGameFramework::GetClientsInfo();
+	// 아직 점수가 없을 때
+	if (m_InGameInfo.size() == 0)
+	{
+		for (int i = 0; i < m.size(); ++i)
+		{
+			wchar_t name[32] = { 0, };
+			int nLen = MultiByteToWideChar(CP_ACP, 0, m[i].name, strlen(m[i].name), NULL, NULL);
+			MultiByteToWideChar(CP_ACP, 0, m[i].name, strlen(m[i].name), name, nLen);
+			CDirect2D::GetInstance()->Render("피오피동글", "흰색", name, pos[i]);
+		}
+		return;
+	}
+
+	for (int i = 0; i < m_InGameInfo.size(); ++i)
+	{
+		wchar_t name[32] = { 0, };
+		int nLen = MultiByteToWideChar(CP_ACP, 0, m[i].name, strlen(m[i].name), NULL, NULL);
+		MultiByteToWideChar(CP_ACP, 0, m[i].name, strlen(m[i].name), name, nLen);
+
+		// 순위는 1부터이므로 - 1을 함
+		char j = m_InGameInfo[i].m_Rank - 1;
+		CDirect2D::GetInstance()->Render("피오피동글", "흰색", name, pos[j]);
+	}
+}
+
+void CScene::UIClientsScoreTextRender()
+{
+	ImageInfo info = CDirect2D::GetInstance()->GetImageInfo("ScoreBoard");
+	float width = info.m_Pos.right - info.m_Pos.left;
+	float height = info.m_Pos.bottom - info.m_Pos.top;
+
+	D2D1_RECT_F pos[6] =
+	{
+		D2D1::RectF((info.m_Pos.left + width * 30.f / 42.f), (info.m_Pos.top + height * 3.f / 16.f), (info.m_Pos.left + width * 40.f / 42.f), (info.m_Pos.top + height * 5.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 30.f / 42.f), (info.m_Pos.top + height * 5.f / 16.f), (info.m_Pos.left + width * 40.f / 42.f), (info.m_Pos.top + height * 7.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 30.f / 42.f), (info.m_Pos.top + height * 7.f / 16.f), (info.m_Pos.left + width * 40.f / 42.f), (info.m_Pos.top + height * 9.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 30.f / 42.f), (info.m_Pos.top + height * 9.f / 16.f), (info.m_Pos.left + width * 40.f / 42.f), (info.m_Pos.top + height * 11.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 30.f / 42.f), (info.m_Pos.top + height * 11.f / 16.f), (info.m_Pos.left + width * 40.f / 42.f), (info.m_Pos.top + height * 13.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 30.f / 42.f), (info.m_Pos.top + height * 13.f / 16.f), (info.m_Pos.left + width * 40.f / 42.f), (info.m_Pos.top + height * 15.f / 16.f))
+	};
+
+	for (int i = 0; i < m_InGameInfo.size(); ++i)
+	{
+		// 순위는 1부터이므로 - 1을 함
+		char j = m_InGameInfo[i].m_Rank - 1;
+		CDirect2D::GetInstance()->Render("피오피동글", "흰색", to_wstring(m_InGameInfo[i].m_Score), pos[j]);
+	}
+}
+
+void CScene::SortInGameRank()
+{
+	// 오름차순 정렬
+	sort(m_InGameInfo.begin(), m_InGameInfo.end(), [](const InGameInfo& a, const InGameInfo& b) { return a.m_Score < b.m_Score; });
+	
+	int prevScore = -1;
+	int prevRank = -1;
+	// 정렬된 인덱스로 순위를 넣음
+	for (int i = 0; i < m_InGameInfo.size(); ++i)
+	{
+		if (m_InGameInfo[i].m_Score == prevScore)
+		{
+			m_InGameInfo[i].m_Rank = prevRank;
+			continue;
+		}
+
+		prevScore = m_InGameInfo[i].m_Score;
+		prevRank = i + 1;
+		m_InGameInfo[i].m_Rank = i + 1;
+	}
 }

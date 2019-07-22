@@ -197,3 +197,11 @@ void CSkinnedAnimationObjectShader::MappingUserToEvilbear(char id, char matID)
 		}	
 	}
 }
+
+void CSkinnedAnimationObjectShader::MaterialClear()
+{
+	for (auto iter = m_vMaterial.begin(); iter != m_vMaterial.end(); )
+		iter = m_vMaterial.erase(iter);		
+	
+	m_vMaterial.clear();
+}
