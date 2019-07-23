@@ -2092,8 +2092,6 @@ void CGameFramework::ProcessPacket(char* packet)
 
 				if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 				{
-
-
 					vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
 
 					for (auto enemyID : vec)

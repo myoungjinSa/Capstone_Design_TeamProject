@@ -1253,6 +1253,7 @@ void CScene::SortInGameRank()
 		// 점수 내림차순 정렬
 		if (a.m_Score != b.m_Score)
 			return a.m_Score > b.m_Score;
+		// 점수가 똑같을 때는 이름순으로 정렬
 		else
 			return a.m_Name < b.m_Name;
 	});
