@@ -194,16 +194,13 @@ void CLobbyScene::UIClientsNameTextRender()
 #ifndef _WITH_SERVER_
 
 #else
-	map<int, clientsInfo> m = CGameFramework::GetClientsInfo();
-	if (m.size() > 0)
+	for (auto client : CGameFramework::GetClientsInfo())
 	{
-		for (int i = 0; i < m.size(); ++i)
-		{
-			wchar_t name[32] = { 0, };
-			int nLen = MultiByteToWideChar(CP_ACP, 0, m[i].name, strlen(m[i].name), NULL, NULL);
-			MultiByteToWideChar(CP_ACP, 0, m[i].name, strlen(m[i].name), name, nLen);
-			CDirect2D::GetInstance()->Render("피오피동글", "검은색", name, pos[i]);
-		}
+		wchar_t name[32] = { 0, };
+		int nLen = MultiByteToWideChar(CP_ACP, 0, client.second.name, strlen(client.second.name), NULL, NULL);
+		MultiByteToWideChar(CP_ACP, 0, client.second.name, strlen(client.second.name), name, nLen);
+		name[nLen] = '\0';
+		CDirect2D::GetInstance()->Render("피오피동글", "검은색", name, pos[client.second.id]);
 	}
 #endif
 }
@@ -233,12 +230,13 @@ void CLobbyScene::UIChoiceCharacterRender()
 	}
 
 #else
-	for (int i = 0; i < CGameFramework::GetClientsInfo().size(); ++i)
+	for (auto client : CGameFramework::GetClientsInfo())
 	{
-		if (m_ClientsCharacter[i] == -1)		continue;
-
-		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos[i], (int)m_ClientsCharacter[i], 0);
+		char character = m_ClientsCharacter[client.second.id];
+		if (character == -1)		continue;
+		CDirect2D::GetInstance()->Render("ChoiceCharacter", pos[client.second.id], (int)m_ClientsCharacter[client.second.id], 0);
 	}
+
 #endif
 }
 
@@ -283,17 +281,18 @@ void CLobbyScene::UIClientsReadyTextRender()
 	}
 
 #else
-	map<int, clientsInfo> m = CGameFramework::GetClientsInfo();
-	for (int i = 0; i < m.size(); ++i)
+	for (auto client : CGameFramework::GetClientsInfo())
 	{
-		if (i == CGameFramework::GetHostID())
+		char id = client.second.id;
+		if (id == CGameFramework::GetHostID())
 		{
-			CDirect2D::GetInstance()->Render("피오피동글", "검은색", L"▶방장◀", pos[i]);
+			CDirect2D::GetInstance()->Render("피오피동글", "검은색", L"▶방장◀", pos[id]);
 			continue;
 		}
 
-		if (m[i].isReady == false)	continue;
-		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos[i]);
+		if (client.second.isReady == false)	continue;
+
+		CDirect2D::GetInstance()->Render("피오피동글", "빨간색", wstr, pos[id]);
 	}
 #endif
 }

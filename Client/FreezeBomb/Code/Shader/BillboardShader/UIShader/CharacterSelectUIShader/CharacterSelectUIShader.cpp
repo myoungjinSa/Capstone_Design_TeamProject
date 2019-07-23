@@ -7,6 +7,7 @@
 #include "../../../../SoundSystem/SoundSystem.h"
 #include "../../../../GameFramework/GameFramework.h"
 #include "../../../../Direct2D/Direct2D.h"
+#include "../../../../Scene/LobbyScene/LobbyScene.h"
 
 bool CCharacterSelectUIShader::m_IsReady = false;
 char CCharacterSelectUIShader::m_ChoiceCharacter = NONE;
@@ -194,6 +195,10 @@ void CCharacterSelectUIShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12Graph
 
 void CCharacterSelectUIShader::CallbackMouse(UINT nMessgeID, float mouseX, float mouseY)
 {
+	auto iter2 = CGameFramework::GetClientsInfo().find(m_MyID);
+	if (iter2 == CGameFramework::GetClientsInfo().end())
+		return;
+
 	for (auto iter = m_UIMap.begin(); iter != m_UIMap.end(); ++iter)
 	{
 		if ((*iter).first == UITYPE::BASE)	continue;
@@ -203,9 +208,7 @@ void CCharacterSelectUIShader::CallbackMouse(UINT nMessgeID, float mouseX, float
 
 		if (UICollisionCheck(XMFLOAT2(mouseX, mouseY), min, max) == false)	continue;
 		
-		CUI* p = reinterpret_cast<CUI*>((*iter).second);
-
-		if (m_IsReady == false)
+		if ((*iter2).second.isReady == false)
 		{
 			MoveInteraction((*iter).first);
 		}
@@ -228,11 +231,10 @@ void CCharacterSelectUIShader::CallbackMouse(UINT nMessgeID, float mouseX, float
 
 		// 계속 마우스가 메뉴에 올려있을 때,
 		else if (m_MouseState == MOUSE_STATE::MOUSE_ON)
-			return;
-		
+			return;	
 	}
 
-	if (m_IsReady == false)
+	if ((*iter2).second.isReady == false)
 	{
 		// 로비 중에서 아무것도 충돌된 것이 없을 때,
 		m_MouseState = MOUSE_STATE::NONE;
@@ -289,6 +291,47 @@ void CCharacterSelectUIShader::CallbackKeyboard(WPARAM wParam)
 	default:
 		break;
 	}
+
+	switch (wParam)
+	{
+		case VK_F5:
+		{
+			// 내 아이디가 있는지 먼저 확인
+			auto iter = CGameFramework::GetClientsInfo().find(m_MyID);
+			if (iter == CGameFramework::GetClientsInfo().end())
+				return;
+
+			if (m_ChoiceCharacter == NONE)
+			{
+				cout << "캐릭터가 선택되지 않았습니다." << endl;
+				CSoundSystem::PlayingSound(CSoundSystem::CLICK);
+				break;
+			}
+
+			if (m_MyID == CGameFramework::GetHostID())
+			{
+				CSoundSystem::PlayingSound(CSoundSystem::CLICK);
+				Network::GetInstance()->SendReqStart();
+				cout << "시작하라는 패킷 전송" << endl;
+				break;
+			}
+
+			if ((*iter).second.isReady == true)
+			{
+				CSoundSystem::PlayingSound(CSoundSystem::CLICK);
+				Network::GetInstance()->SendNotReady();
+				break;
+			}
+
+			CSoundSystem::PlayingSound(CSoundSystem::CLICK);
+			g_PlayerCharacter = m_ChoiceCharacter - PINK;
+			Network::GetInstance()->SendReady();
+			break;
+		}
+
+		default:
+			break;
+	}
 }
 
 void CCharacterSelectUIShader::MoveInteraction(int key)
@@ -337,23 +380,30 @@ void CCharacterSelectUIShader::ClickInteraction(int click)
 {
 	switch (click)
 	{
-	case UITYPE::PINK:
-	case UITYPE::BROWN:
-	case UITYPE::WHITE:
-	case UITYPE::BLACK:
-	case UITYPE::BLUE:
-	case UITYPE::PANDA:
-		if (m_IsReady == false)
+		case UITYPE::PINK:
+		case UITYPE::BROWN:
+		case UITYPE::WHITE:
+		case UITYPE::BLACK:
+		case UITYPE::BLUE:
+		case UITYPE::PANDA:
 		{
-			m_ChoiceCharacter = static_cast<unsigned char>(click) - PINK;
-#ifdef _WITH_SERVER_
-			// 내가 무슨캐릭터를 선택했는지 보냄
-			Network::GetInstance()->SendChoiceCharacter(m_ChoiceCharacter);
-#endif
-		}
-		break;
+			// 내 아이디가 있는지 먼저 확인
+			auto iter = CGameFramework::GetClientsInfo().find(m_MyID);
+			if (iter == CGameFramework::GetClientsInfo().end())
+				return;
 
-	case UITYPE::READY:
+			if ((*iter).second.isReady == false)
+			{
+				m_ChoiceCharacter = static_cast<unsigned char>(click) - PINK;
+#ifdef _WITH_SERVER_
+				// 내가 무슨캐릭터를 선택했는지 보냄
+				Network::GetInstance()->SendChoiceCharacter(m_ChoiceCharacter);
+#endif
+				break;
+			}
+		}
+
+		case UITYPE::READY:
 		{
 			if (m_ChoiceCharacter == NONE)
 			{
@@ -368,24 +418,30 @@ void CCharacterSelectUIShader::ClickInteraction(int click)
 				break;
 			}
 
-			m_IsReady = !m_IsReady;
-			if (m_IsReady == false)
+			// 내 아이디가 있는지 먼저 확인
+			auto iter = CGameFramework::GetClientsInfo().find(m_MyID);
+			if (iter == CGameFramework::GetClientsInfo().end())
+				return;
+
+			if ((*iter).second.isReady == true)
 			{
+				CSoundSystem::PlayingSound(CSoundSystem::CLICK);
 				Network::GetInstance()->SendNotReady();
 				break;
 			}
 
+			CSoundSystem::PlayingSound(CSoundSystem::CLICK);
 			g_PlayerCharacter = m_ChoiceCharacter - PINK;
 			Network::GetInstance()->SendReady();
 			break;
 		}
 
-	case UITYPE::QUIT:
-		::PostQuitMessage(0);
-		break;
+		case UITYPE::QUIT:
+			::PostQuitMessage(0);
+			break;
 
-	default:
-		break;
+		default:
+			break;
 	}
 }
 
@@ -489,4 +545,19 @@ void CCharacterSelectUIShader::LobbyUIClear()
 	m_ChoiceCharacter = NONE;
 
 	MOUSE_STATE m_MouseState = MOUSE_STATE::NONE;
+}
+
+void CCharacterSelectUIShader::ChangeHost()
+{
+	auto iter = m_UIMap.find(UITYPE::READY);
+	if (iter == m_UIMap.end())
+		return;
+
+	XMFLOAT2 uv = XMFLOAT2(0.f, 0.f);
+	if (m_MyID == CGameFramework::GetHostID())
+		uv = XMFLOAT2(0.5f, 0.75f);
+	else
+		uv = XMFLOAT2(0.f, 0.25f);
+
+	reinterpret_cast<CUI*>((*iter).second)->SetUV(uv);
 }
