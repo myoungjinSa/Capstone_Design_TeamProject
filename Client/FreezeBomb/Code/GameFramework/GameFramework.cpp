@@ -1596,6 +1596,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		m_pPlayer->setIsGoldHammer(false);
 		m_pPlayer->setIsGoldTimer(false);
 		m_pPlayer->SetIsHammer(false);
+		m_pPlayer->SetIsICE(false);
 		m_pPlayer->Sub_Inventory(CItem::ItemType::GoldHammer);
 		m_pPlayer->Sub_Inventory(CItem::ItemType::NormalHammer);
 		m_pPlayer->Sub_Inventory(CItem::ItemType::GoldTimer);
@@ -1624,6 +1625,7 @@ void CGameFramework::ProcessPacket(char* packet)
 				{
 					if (enemy.second.id == bomber_id)
 					{
+						(*iter).second->m_ppObjects[bomber_id]->SetIsICE(false);
 						(*iter).second->m_ppObjects[bomber_id]->SetIsBomb(true);
 						(*iter).second->m_ppObjects[bomber_id]->setIsGoldTimer(false);
 						(*iter).second->m_ppObjects[bomber_id]->setIsGoldHammer(false);
@@ -1631,6 +1633,7 @@ void CGameFramework::ProcessPacket(char* packet)
 					}
 					else
 					{
+						(*iter).second->m_ppObjects[enemy.second.id]->SetIsICE(false);
 						(*iter).second->m_ppObjects[enemy.second.id]->SetIsBomb(false);
 						(*iter).second->m_ppObjects[enemy.second.id]->setIsGoldHammer(false);
 						(*iter).second->m_ppObjects[enemy.second.id]->setIsGoldTimer(false);
