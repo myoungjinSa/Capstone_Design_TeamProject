@@ -679,12 +679,12 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 #ifdef _WITH_SERVER_
 		if (m_bIce == false)
 		{
-			m_bIce = true;
+			//m_bIce = true;
 			Network::GetInstance()->SendFreezeState();
 		}
 		else
 		{
-			m_bIce = false;
+			//m_bIce = false;
 			Network::GetInstance()->SendReleaseFreezeState();
 		}
 #else

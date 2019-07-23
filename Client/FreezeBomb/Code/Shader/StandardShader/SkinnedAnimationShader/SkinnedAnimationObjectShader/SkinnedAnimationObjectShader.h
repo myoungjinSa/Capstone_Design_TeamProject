@@ -30,7 +30,8 @@ public:
 		ELECTRIC
 	};
 
-	vector<pair<char, char>> m_vMaterial;
+	map<char, char> m_mapMaterial;
+	//vector<pair<char, char>> m_vMaterial;
 private:
 	const int max_Material = 6;
 	//map<int, CGameObject*> m_EvilbearMap;

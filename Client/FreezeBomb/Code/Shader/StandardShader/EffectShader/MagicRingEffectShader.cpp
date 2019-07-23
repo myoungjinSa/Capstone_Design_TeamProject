@@ -150,9 +150,9 @@ void CMagicRingShader::CheckMagicRingActive(CPlayer* pPlayer)
 #ifdef _WITH_SERVER_
 
 
-	for(int i =0;i<m_ptrSkinnedAnimationObjects->m_vMaterial.size();++i)
+	for(auto enemyID : m_ptrSkinnedAnimationObjects->m_mapMaterial)
 	{
-		char id = m_ptrSkinnedAnimationObjects->m_vMaterial[i].first;
+		char id = enemyID.first;
 
 		if (m_ptrSkinnedAnimationObjects->m_ppObjects[id]->m_pAnimationController->GetAnimationState() == CAnimationController::RAISEHAND)
 		{
@@ -204,9 +204,9 @@ void CMagicRingShader::AnimateObjects(float fTimeElapsed,CCamera* pCamera,CPlaye
 		
 	}
 #ifdef _WITH_SERVER_
-	for (int i = 0; i < m_ptrSkinnedAnimationObjects->m_vMaterial.size(); ++i)
+	for (auto enemyID : m_ptrSkinnedAnimationObjects->m_mapMaterial)
 	{
-		char id = m_ptrSkinnedAnimationObjects->m_vMaterial[i].first;
+		char id = enemyID.first;
 
 		if (m_MagicRingObjects[id]->GetIsActive()) 
 		{

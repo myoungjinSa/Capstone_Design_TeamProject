@@ -662,8 +662,10 @@ void Server::WorkerThreadFunc()
 				if (false == clients[i].in_use)
 					continue;
 				
-				SendPutPlayer(i);
+				//라운드 Start를 먼저 알리고 PutPlayer를 해야함. 
+
 				SendRoundStart(i, time);
+				SendPutPlayer(i);
 			}
 			add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
 		}
@@ -826,6 +828,7 @@ void Server::ProcessPacket(char client, char *packet)
 	}
 	case CS_REQUEST_START:
 	{
+		// 이 부분 락을 해야할거 같음 - 명진
 		if (clientCount - 1 == readyCount)
 		{
 			cout << clientCount << ", " << readyCount << "\n";
@@ -1145,6 +1148,9 @@ void Server::ProcessPacket(char client, char *packet)
 			if (dist <= 50)
 			{
 				clients[p->target].isFreeze = false;
+				freezeCnt_l.lock();
+				--freezeCnt;
+				freezeCnt_l.unlock();
 				for (int i = 0; i < MAX_USER; ++i)
 				{
 					if (true == clients[i].in_use)
@@ -1171,8 +1177,9 @@ void Server::ProcessPacket(char client, char *packet)
 			for(int i=0 ; i<MAX_USER;++i)
 			{
 				if (clients[i].isFreeze == true)
+				{
 					clients[i].isFreeze = false;
-
+				}
 				if(clients[i].in_use == true)
 				{
 					
@@ -1224,11 +1231,25 @@ void Server::ProcessPacket(char client, char *packet)
 		if (client == bomberID)		//술래라면 얼음을 할 수 없다.
 			break;
 
+		
+		clientCnt_l.lock();
+		int clientCnt = clientCount-2;
+		clientCnt_l.unlock();
+
 		freezeCnt_l.lock();
-		if (freezeCnt >= MAX_FREEZE_COUNT)	//최대 얼음할 수 있는 도망자 수를 넘으면 얼음을 하게 할 수 없다.
+		if (freezeCnt >= clientCnt)	//최대 얼음할 수 있는 도망자 수를 넘으면 얼음을 하게 할 수 없다.
+		{
+			freezeCnt_l.unlock();
 			break;
-		++freezeCnt;
-		freezeCnt_l.unlock();
+			
+		}
+		else
+		{
+			++freezeCnt;
+			freezeCnt_l.unlock();
+		}
+		
+
 
 		for(int i=0;i<MAX_USER;++i)
 		{
@@ -1246,10 +1267,16 @@ void Server::ProcessPacket(char client, char *packet)
 
 		freezeCnt_l.lock();
 		if (freezeCnt <= 0)
+		{
+			freezeCnt_l.unlock();
 			break;
-		--freezeCnt;
-		freezeCnt_l.unlock();
-
+		}
+		else
+		{
+			--freezeCnt;
+			freezeCnt_l.unlock();
+		}
+		
 		for(int i=0;i<MAX_USER;++i)
 		{
 			if (clients[i].in_use == true)

@@ -720,10 +720,11 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 			
 			char id{ -1 };
 #ifdef _WITH_SERVER_
-			vector<pair<char, char>> vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
-			for (int i = 0; i < vec.size(); ++i)
+			//vector<pair<char, char>> vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+			map<char, char> mapClients = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_mapMaterial;
+			for (auto enemyID : mapClients)
 			{
-				id = vec[i].first;
+				id = enemyID.first;
 				
 				if ((*iter).second->m_ppObjects[id]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
@@ -766,9 +767,9 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				CGameObject* pHammer = m_pPlayer->FindFrame("Hammer");
 				if (pHammer != nullptr)
 				{
-					for (int i = 0; i < vec.size(); ++i)
+					for (auto enemyID : mapClients)
 					{
-						char id = vec[i].first;
+						char id = enemyID.first;
 						if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[id]->GetBoundingBox()))
 						{
 							Network::GetInstance()->SendUseItem(ITEM::NORMALHAMMER, id);
@@ -779,9 +780,9 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 								if (bBreak == false)
 									bBreak = true;
 
-								m_pPlayer->Sub_Inventory(CItem::NormalHammer);
+								//m_pPlayer->Sub_Inventory(CItem::NormalHammer);
 							}
-							m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[id]->GetPosition());
+							m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[id]->GetPosition(),id);
 
 							CSoundSystem::PlayingSound(CSoundSystem::ICE_BREAK);
 
@@ -926,9 +927,9 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				
 				if ((*iter2).second->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
-					cout <<"플레이어:"<< m_pPlayer->GetBoundingBox().Extents.x << "," << m_pPlayer->GetBoundingBox().Extents.y << "," << m_pPlayer->GetBoundingBox().Extents.z << "\n";
+					/*cout <<"플레이어:"<< m_pPlayer->GetBoundingBox().Extents.x << "," << m_pPlayer->GetBoundingBox().Extents.y << "," << m_pPlayer->GetBoundingBox().Extents.z << "\n";
 					cout << "아이템:" << (*iter2).second->GetBoundingBox().Extents.x << "," << (*iter2).second->GetBoundingBox().Extents.y << "," << (*iter2).second->GetBoundingBox().Extents.z << "\n";
-
+*/
 					//(*iter2).second->SetObjectCollided(m_pPlayer);
 					//m_pPlayer->SetObjectCollided((*iter2).second);
 					//cout <<"플레이어:"<< m_pPlayer->GetBoundingBox().Extents.x << "," << m_pPlayer->GetBoundingBox().Extents.y << "," << m_pPlayer->GetBoundingBox().Extents.z << "\n";
