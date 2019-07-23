@@ -2151,7 +2151,6 @@ void CGameFramework::ProcessPacket(char* packet)
 
 				auto iceParticle = m_pScene->getShaderManager()->getShaderMap().find("CubeParticle");
 				auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
-
 				if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 				{
 
@@ -2375,45 +2374,6 @@ void CGameFramework::ProcessPacket(char* packet)
 		}
 		break;
 	}
-	/*case SC_ROUND_SCORE:
-	{
-		SC_PACKET_ROUND_SCORE *pRS = reinterpret_cast<SC_PACKET_ROUND_SCORE *>(packet);
-
-		if (m_pPlayer && m_pPlayer->GetIsBomb() == false)
-		{
-			m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::VICTORY);
-			m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::VICTORY);
-			m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
-
-		}
-		if (m_pScene)
-		{
-			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
-
-			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
-			{
-				vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
-
-				for (auto enemyID : vec)
-				{
-					if ((*iter).second->m_ppObjects[enemyID.first]->GetIsBomb()==false)
-					{
-						(*iter).second->m_ppObjects[enemyID.first]->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::VICTORY);
-						(*iter).second->m_ppObjects[enemyID.first]->m_pAnimationController->SetAnimationState(CAnimationController::VICTORY);
-						(*iter).second->m_ppObjects[enemyID.first]->m_pAnimationController->SetTrackPosition(0, 0.0f);
-
-					}
-				}
-			}
-		}
-
-		cout << "SCORE: ";
-		for (int i = 0; i < MAX_USER; ++i)
-			cout << (int)pRS->score[i] << ", ";
-		cout << "\n";
-
-		break;
-	}*/
 		case SC_GO_LOBBY:
 		{
 			SC_PACKET_GO_LOBBY *pGL = reinterpret_cast<SC_PACKET_GO_LOBBY *>(packet);
