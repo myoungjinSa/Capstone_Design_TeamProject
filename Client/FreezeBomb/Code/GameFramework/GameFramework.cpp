@@ -1460,6 +1460,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		ChattingSystem::GetInstance()->PushChattingText(user, s.c_str());
 
 		cout << "3. 로비에 접속" << endl;
+		cout << "m_mapClients 사이즈" << m_mapClients.size() << endl;
 		break;
 	}
 
@@ -1491,6 +1492,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		if (pLO->id < MAX_USER)
 		{
+			char id = m_mapClients[pLO->id].id;
 			// 나갔으면 캐릭터 초기화
 			CLobbyScene::AddClientsCharacter(pLO->id, -1);
 
@@ -1498,9 +1500,21 @@ void CGameFramework::ProcessPacket(char* packet)
 			string user = m_mapClients[(int)pLO->id].name;
 			string s = "님이 나갔습니다.";
 
+
+
 			ChattingSystem::GetInstance()->PushChattingText(user, s.c_str());
 			strcpy(m_mapClients[(int)pLO->id].name, " ");
 
+			auto mapIter= find_if(m_mapClients.begin(), m_mapClients.end(), [&id](const pair<char,clientsInfo>& p) 
+			{
+				return p.first == id;
+			});
+			if (mapIter != m_mapClients.end())
+			{
+				m_mapClients.erase(mapIter);
+			}
+
+			cout << "m_mapClients 사이즈" << m_mapClients.size() << endl;
 		}
 		break;
 	}
@@ -1837,6 +1851,15 @@ void CGameFramework::ProcessPacket(char* packet)
 				//vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
 
 
+	
+
+				(*iter).second->m_ppObjects[id]->SetPosition(0.0f, 0.0f, 0.0f);
+				(*iter).second->m_ppObjects[id]->SetScale(0.0f, 0.0f, 0.0f);
+
+
+				string s = "님이 나갔습니다.";
+				string user = m_mapClients[id].name;
+
 				auto mapIter= find_if(m_mapClients.begin(), m_mapClients.end(), [&id](const pair<char,clientsInfo>& p) 
 				{
 					return p.first == id;
@@ -1845,13 +1868,6 @@ void CGameFramework::ProcessPacket(char* packet)
 				{
 					m_mapClients.erase(mapIter);
 				}
-
-				(*iter).second->m_ppObjects[id]->SetPosition(0.0f, 0.0f, 0.0f);
-				(*iter).second->m_ppObjects[id]->SetScale(0.0f, 0.0f, 0.0f);
-
-
-				string s = "님이 나갔습니다.";
-				string user = m_mapClients[id].name;
 				//채팅 창에서 보여지는 시간 reset
 				ChattingSystem::GetInstance()->ResetShowTime(0.0f);
 				ChattingSystem::GetInstance()->PushChattingText(user, s.c_str());
@@ -1869,35 +1885,37 @@ void CGameFramework::ProcessPacket(char* packet)
 			printf("Win!\n");
 		else
 			printf("Lose..\n");
-
+		
+		
 		if (m_pPlayer && m_pPlayer->GetIsBomb() == false)
 		{
 			m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::VICTORY);
 			m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::VICTORY);
+			Network::GetInstance()->SendAnimationState(CAnimationController::VICTORY);
 			m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
 		}
 
-		if (m_pScene)
-		{
-			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+		//if (m_pScene)
+		//{
+		//	auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 
-			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
-			{
-				//vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+		//	if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+		//	{
+		//		//vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
 
-				for (auto enemyID : m_mapClients)
-				{
-					if ((*iter).second->m_ppObjects[enemyID.second.id]->GetIsBomb() == false)
-					{
+		//		for (auto enemyID : m_mapClients)
+		//		{
+		//			if (enemyID.second.id == pRE->isWinner)
+		//			{
 
-						(*iter).second->m_ppObjects[enemyID.second.id]->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::VICTORY);
-						(*iter).second->m_ppObjects[enemyID.second.id]->m_pAnimationController->SetAnimationState(CAnimationController::VICTORY);
-						(*iter).second->m_ppObjects[enemyID.second.id]->m_pAnimationController->SetTrackPosition(0, 0.0f);
+		//				(*iter).second->m_ppObjects[enemyID.second.id]->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::VICTORY);
+		//				(*iter).second->m_ppObjects[enemyID.second.id]->m_pAnimationController->SetAnimationState(CAnimationController::VICTORY);
+		//				(*iter).second->m_ppObjects[enemyID.second.id]->m_pAnimationController->SetTrackPosition(0, 0.0f);
 
-					}
-				}
-			}
-		}
+		//			}
+		//		}
+		//	}
+		//}
 
 		// 점수 기록
 		for (int i = 0; i < MAX_USER; ++i)
@@ -2153,8 +2171,6 @@ void CGameFramework::ProcessPacket(char* packet)
 
 					(*iter).second->m_ppObjects[id]->setIsGoldHammer(false);
 
-
-					//vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
 
 					for (auto enemyID : m_mapClients)
 					{
