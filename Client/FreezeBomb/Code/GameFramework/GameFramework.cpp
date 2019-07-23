@@ -1901,7 +1901,11 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		// 점수 기록
 		for (int i = 0; i < MAX_USER; ++i)
-			m_pScene->AddInGameScore(i, pRE->score[i]);
+		{
+			if (pRE->score[i] == -1)		continue;
+			m_pScene->AddInGameScore(i, m_mapClients[i].name, pRE->score[i]);
+		}
+
 		// 점수로 순위 정렬
 		m_pScene->SortInGameRank();
 		break;

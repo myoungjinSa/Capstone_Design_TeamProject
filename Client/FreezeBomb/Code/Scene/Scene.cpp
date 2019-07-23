@@ -1090,16 +1090,21 @@ bool CScene::CheckPlayerInventory(const int& itemType)
 void CScene::InGameSceneClear(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	CSoundSystem::StopSound(CSoundSystem::INGAME_BGM);
-	//CSoundSystem::StopSound(CSoundSystem::ICE_BREAK);
-	//CSoundSystem::StopSound(CSoundSystem::GET_ITEM);
-	//CSoundSystem::StopSound(CSoundSystem::ICE_BREAK);
-	//CSoundSystem::StopSound(CSoundSystem::TIMER_WARNING);
+	CSoundSystem::StopSound(CSoundSystem::ICE_BREAK);
+	CSoundSystem::StopSound(CSoundSystem::GET_ITEM);
+	CSoundSystem::StopSound(CSoundSystem::ICE_BREAK);
+	CSoundSystem::StopSound(CSoundSystem::TIMER_WARNING);
+	CSoundSystem::StopSound(CSoundSystem::FIRE_SOUND);
 
 	m_playerCount = 0;
 	m_NormalHammerCnt = 0;
 	m_GoldHammerCnt = 0;
 	m_GoldTimerCnt = 0;
 	m_bVibeTime = 0.f;
+
+	for (auto iter = m_InGameInfo.begin(); iter != m_InGameInfo.end(); )
+		iter = m_InGameInfo.erase(iter);
+	m_InGameInfo.clear();
 
 	m_pPlayer->InventoryClear();
 	m_pPlayer->EvilBearInfoClear();
@@ -1173,9 +1178,7 @@ void CScene::UIClientsRankTextRender()
 
 	for (int i = 0; i < m_InGameInfo.size(); ++i)
 	{
-		// 순위는 1부터이므로 - 1을 함
-		char j = m_InGameInfo[i].m_Rank - 1;
-		CDirect2D::GetInstance()->Render("피오피동글", "흰색", to_wstring(m_InGameInfo[i].m_Rank), pos[j]);
+		CDirect2D::GetInstance()->Render("피오피동글", "흰색", to_wstring(m_InGameInfo[i].m_Rank), pos[i]);
 	}
 }
 
@@ -1211,13 +1214,13 @@ void CScene::UIClientsNameTextRender()
 
 	for (int i = 0; i < m_InGameInfo.size(); ++i)
 	{
-		wchar_t name[32] = { 0, };
-		int nLen = MultiByteToWideChar(CP_ACP, 0, m[i].name, strlen(m[i].name), NULL, NULL);
-		MultiByteToWideChar(CP_ACP, 0, m[i].name, strlen(m[i].name), name, nLen);
+		char id = m_InGameInfo[i].m_ID;
 
-		// 순위는 1부터이므로 - 1을 함
-		char j = m_InGameInfo[i].m_Rank - 1;
-		CDirect2D::GetInstance()->Render("피오피동글", "흰색", name, pos[j]);
+		wchar_t name[32] = { 0, };
+		int nLen = MultiByteToWideChar(CP_ACP, 0, m_InGameInfo[i].m_Name.c_str(), m_InGameInfo[i].m_Name.length(), NULL, NULL);
+		MultiByteToWideChar(CP_ACP, 0, m_InGameInfo[i].m_Name.c_str(), m_InGameInfo[i].m_Name.length(), name, nLen);
+		name[nLen] = '\0';
+		CDirect2D::GetInstance()->Render("피오피동글", "흰색", name, pos[i]);
 	}
 }
 
@@ -1239,19 +1242,24 @@ void CScene::UIClientsScoreTextRender()
 
 	for (int i = 0; i < m_InGameInfo.size(); ++i)
 	{
-		// 순위는 1부터이므로 - 1을 함
-		char j = m_InGameInfo[i].m_Rank - 1;
-		CDirect2D::GetInstance()->Render("피오피동글", "흰색", to_wstring(m_InGameInfo[i].m_Score), pos[j]);
+		CDirect2D::GetInstance()->Render("피오피동글", "흰색", to_wstring(m_InGameInfo[i].m_Score), pos[i]);
 	}
 }
 
 void CScene::SortInGameRank()
 {
-	// 오름차순 정렬
-	sort(m_InGameInfo.begin(), m_InGameInfo.end(), [](const InGameInfo& a, const InGameInfo& b) { return a.m_Score < b.m_Score; });
+	sort(m_InGameInfo.begin(), m_InGameInfo.end(), [](const InGameInfo& a, const InGameInfo& b) 
+	{ 
+		// 점수 내림차순 정렬
+		if (a.m_Score != b.m_Score)
+			return a.m_Score > b.m_Score;
+		else
+			return a.m_Name < b.m_Name;
+	});
 	
 	int prevScore = -1;
 	int prevRank = -1;
+
 	// 정렬된 인덱스로 순위를 넣음
 	for (int i = 0; i < m_InGameInfo.size(); ++i)
 	{
@@ -1264,5 +1272,27 @@ void CScene::SortInGameRank()
 		prevScore = m_InGameInfo[i].m_Score;
 		prevRank = i + 1;
 		m_InGameInfo[i].m_Rank = i + 1;
+	}
+}
+
+void CScene::AddInGameScore(char id, string name, char score) 
+{ 
+	if (m_InGameInfo.size() != CGameFramework::GetClientsInfo().size())
+	{
+		m_InGameInfo.emplace_back(InGameInfo(id, name, score, -1));
+		return;
+	}
+	else
+	{
+		for(int i = 0; i < m_InGameInfo.size(); ++i)
+		{
+			// 정렬 후 바꼈을 인덱스랑 원래의 ID랑 비교해서 자신의 자리를 찾는다.
+			if (m_InGameInfo[i].m_ID == id)
+			{
+				m_InGameInfo[i].m_Score = score;
+				break;
+			}
+			++i;		
+		}
 	}
 }
