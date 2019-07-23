@@ -104,29 +104,33 @@ void CCubeParticleShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsC
 		CMaterial* pMaterial = new CMaterial(1);
 		pMaterial->SetTexture((*iter).second, 0);
 		
-		int ParticleCount = 1000;
+		int ParticleCount = 100;
 
-		for (int i = 0; i < ParticleCount; i++)
+		
+		for (int j = 0; j < 6; ++j)
 		{
-			CCubeParticle* pCubeParticle = new CCubeParticle(1);
-			if (i == 0)
+			for (int i = 0; i < ParticleCount; i++)
 			{
-				// 첫번째 객체만 메쉬를 갖고있으면됨, 그림자포함
-				pCubeParticle->SetMesh(pCubeMesh);
-				pCubeParticle->SetMaterial(0, pMaterial);
-				pCubeParticle->Initialize_Shadow(pCubeParticle);
-			}
-			pCubeParticle->SetRotationSpeed(720.f);
-			pCubeParticle->SetMovingSpeed(Random(10,100));
-		//	pCubeParticle->SetVelocity(XMFLOAT3(-5.0f, 25.0f, 5.0f));
-			pCubeParticle->SetAccel(XMFLOAT3(0.0f,-0.098f,0.0f));
-			pCubeParticle->SetMass(2.0f);
-			pCubeParticle->SetDuration(3.0f);
-			pCubeParticle->SetBlowingUp(false);
-			pCubeParticle->SetPosition(0, 0, 0);
-			pCubeParticle->PrepareExplosion();
+				CCubeParticle* pCubeParticle = new CCubeParticle(1);
+				if (i == 0)
+				{
+					// 첫번째 객체만 메쉬를 갖고있으면됨, 그림자포함
+					pCubeParticle->SetMesh(pCubeMesh);
+					pCubeParticle->SetMaterial(0, pMaterial);
+					pCubeParticle->Initialize_Shadow(pCubeParticle);
+				}
+				pCubeParticle->SetRotationSpeed(720.f);
+				pCubeParticle->SetMovingSpeed(Random(10, 100));
+				//	pCubeParticle->SetVelocity(XMFLOAT3(-5.0f, 25.0f, 5.0f));
+				pCubeParticle->SetAccel(XMFLOAT3(0.0f, -0.098f, 0.0f));
+				pCubeParticle->SetMass(2.0f);
+				pCubeParticle->SetDuration(3.0f);
+				pCubeParticle->SetBlowingUp(false);
+				pCubeParticle->SetPosition(0, 0, 0);
+				pCubeParticle->PrepareExplosion();
 
-			m_CubeParticleList.emplace_back(pCubeParticle);
+				m_CubeParticleList[j].emplace_back(pCubeParticle);
+			}
 		}
 
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -135,20 +139,29 @@ void CCubeParticleShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsC
 
 void CCubeParticleShader::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer* pPlayer)
 {
-	for (auto iter = m_CubeParticleList.begin(); iter != m_CubeParticleList.end(); ++iter)
+	for (int j = 0; j < 6; ++j)
 	{
-		(*iter)->Animate(elapsedTime);
+		
+		for (auto iter = m_CubeParticleList[j].begin(); iter != m_CubeParticleList[j].end(); ++iter)
+		{
+			if((*iter)->GetBlowingUp())
+				(*iter)->Animate(elapsedTime);
+		}
 	}
 }
 
 void CCubeParticleShader::ReleaseObjects()
 {
-	for (auto iter = m_CubeParticleList.begin(); iter != m_CubeParticleList.end();)
+	for (int j = 0; j < 6; ++j)
 	{
-		(*iter)->Release();
-		iter = m_CubeParticleList.erase(iter);
+		for (auto iter = m_CubeParticleList[j].begin(); iter != m_CubeParticleList[j].end();)
+		{
+			//(*iter)->Release();
+			iter = m_CubeParticleList[j].erase(iter);
+		}
+		m_CubeParticleList[j].clear();
 	}
-	m_CubeParticleList.clear();
+	
 }
 
 void CCubeParticleShader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState)
@@ -162,18 +175,28 @@ void CCubeParticleShader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommand
 
 void CCubeParticleShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
-	UpdateShaderVariables(pd3dCommandList);
-
+	
+	
 	auto iter = m_CubeParticleList.begin();
-	OnPrepareRender(pd3dCommandList, GameObject);
-	(*iter)->Render(pd3dCommandList, pCamera, GameObject, m_CubeParticleList.size());
-	OnPrepareRender(pd3dCommandList, GameObject_Shadow);
-	(*iter)->Render(pd3dCommandList, pCamera, GameObject_Shadow, m_CubeParticleList.size());
+	for (int j = 0; j < 6; ++j)
+	{
+		for (auto iter = m_CubeParticleList[j].begin(); iter != m_CubeParticleList[j].end(); ++iter) {
+			
+			if ((*iter)->GetBlowingUp()) 
+			{
+				UpdateShaderVariables(pd3dCommandList, j);
+				OnPrepareRender(pd3dCommandList, GameObject);
+				(*iter)->Render(pd3dCommandList, pCamera, GameObject, m_CubeParticleList[j].size());
+				OnPrepareRender(pd3dCommandList, GameObject_Shadow);
+				(*iter)->Render(pd3dCommandList, pCamera, GameObject_Shadow, m_CubeParticleList[j].size());
+			}
+		}
+	}
 }
 
-void CCubeParticleShader::SetParticleBlowUp(XMFLOAT3& position)
+void CCubeParticleShader::SetParticleBlowUp(XMFLOAT3& position,int index)
 {
-	for (auto iter = m_CubeParticleList.begin(); iter != m_CubeParticleList.end(); ++iter)
+	for (auto iter = m_CubeParticleList[index].begin(); iter != m_CubeParticleList[index].end(); ++iter)
 	{
 		if ((*iter)->GetBlowingUp() == false)
 		{
@@ -185,30 +208,36 @@ void CCubeParticleShader::SetParticleBlowUp(XMFLOAT3& position)
 
 void CCubeParticleShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	m_pd3dInstancingData = ::CreateBufferResource(pd3dDevice, pd3dCommandList, nullptr, m_CubeParticleList.size() * sizeof(InstancingData), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-	m_pd3dInstancingData->Map(0, nullptr, (void**)&m_pMappedInstancingData);
+	for (int i = 0; i < 6; ++i)
+	{
+		m_pd3dInstancingData[i] = ::CreateBufferResource(pd3dDevice, pd3dCommandList, nullptr, m_CubeParticleList[i].size() * sizeof(InstancingData), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+		m_pd3dInstancingData[i]->Map(0, nullptr, (void**)&m_pMappedInstancingData[i]);
+	}
 }
 
-void CCubeParticleShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+void CCubeParticleShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList,int index)
 {
-	if (m_pd3dInstancingData)
+	if (m_pd3dInstancingData[index])
 	{
-		D3D12_GPU_VIRTUAL_ADDRESS GPUVirtualAddress = m_pd3dInstancingData->GetGPUVirtualAddress();
+		D3D12_GPU_VIRTUAL_ADDRESS GPUVirtualAddress = m_pd3dInstancingData[index]->GetGPUVirtualAddress();
 		pd3dCommandList->SetGraphicsRootShaderResourceView(7, GPUVirtualAddress);
 
 		int i = 0;
-		for (auto iter = m_CubeParticleList.begin(); iter != m_CubeParticleList.end(); ++iter)
+		for (auto iter = m_CubeParticleList[index].begin(); iter != m_CubeParticleList[index].end(); ++iter)
 		{
-			XMStoreFloat4x4(&m_pMappedInstancingData[i++].m_World, XMMatrixTranspose(XMLoadFloat4x4(&(*iter)->m_xmf4x4World)));
+			XMStoreFloat4x4(&m_pMappedInstancingData[index][i++].m_World, XMMatrixTranspose(XMLoadFloat4x4(&(*iter)->m_xmf4x4World)));
 		}
 	}
 }
 
 void CCubeParticleShader::ReleaseShaderVariables()
 {
-	if (m_pd3dInstancingData)
+	for (int i = 0; i < 6; ++i)
 	{
-		m_pd3dInstancingData->Unmap(0, nullptr);
-		m_pd3dInstancingData->Release();
+		if (m_pd3dInstancingData[i])
+		{
+			m_pd3dInstancingData[i]->Unmap(0, nullptr);
+			m_pd3dInstancingData[i]->Release();
+		}
 	}
 }

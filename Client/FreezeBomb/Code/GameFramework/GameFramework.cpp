@@ -1283,6 +1283,8 @@ void CGameFramework::SetNamecard()
 			for (auto user : m_mapClients)
 			{
 				char id = user.second.id;
+				if (id == m_pPlayer->GetPlayerID())
+					continue;
 				XMFLOAT2& screenSpace = m_pScene->ProcessNameCard(id);
 				D2D1_RECT_F nameCard{ 0.0f,0.0f,0.0f,0.0f };
 				nameCard = D2D1::RectF(screenSpace.x - 200.0f, screenSpace.y, screenSpace.x + 200.0f, screenSpace.y);
@@ -1443,7 +1445,8 @@ void CGameFramework::ProcessPacket(char* packet)
 			CLobbyScene::AddClientsCharacter(i, pCC->matID[i]);
 			cout << "2. Character of OtherPlayer - id: " <<i<<":" <<(int)pCC->matID[i] <<endl;
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
-			if (iter != m_pScene->getShaderManager()->getShaderMap().end()) {
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end()) 
+			{
 				if(pCC->matID[i] != -1 && m_pPlayer->GetPlayerID() != i)
 				dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->MappingUserToEvilbear(i,pCC->matID[i]);
 			}
@@ -2151,15 +2154,16 @@ void CGameFramework::ProcessPacket(char* packet)
 				if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 				{
 
-
 					//vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
 
 					for (auto enemyID : m_mapClients)
 					{
 						if ((*iter).second->m_ppObjects[enemyID.second.id]->GetIsICE())
 						{
-							dynamic_cast<CCubeParticleShader*>((*iceParticle).second)->SetParticleBlowUp((*iter).second->m_ppObjects[enemyID.second.id]->GetPosition());
+							dynamic_cast<CCubeParticleShader*>((*iceParticle).second)->SetParticleBlowUp((*iter).second->m_ppObjects[enemyID.second.id]->GetPosition(),enemyID.second.id);
 							(*iter).second->m_ppObjects[enemyID.second.id]->SetIsICE(false);
+							(*iter).second->m_ppObjects[enemyID.second.id]->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+							
 						}
 					}
 				}
@@ -2172,8 +2176,9 @@ void CGameFramework::ProcessPacket(char* packet)
 				auto iceParticle = m_pScene->getShaderManager()->getShaderMap().find("CubeParticle");
 				if (m_pPlayer->GetIsICE() && iceParticle != m_pScene->getShaderManager()->getShaderMap().end())
 				{
-					dynamic_cast<CCubeParticleShader*>((*iceParticle).second)->SetParticleBlowUp(m_pPlayer->GetPosition());
+					dynamic_cast<CCubeParticleShader*>((*iceParticle).second)->SetParticleBlowUp(m_pPlayer->GetPosition(),m_pPlayer->GetPlayerID());
 					m_pPlayer->SetIsICE(false);
+					m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
 				}
 
 				auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
@@ -2183,13 +2188,13 @@ void CGameFramework::ProcessPacket(char* packet)
 
 					(*iter).second->m_ppObjects[id]->setIsGoldHammer(false);
 
-
 					for (auto enemyID : m_mapClients)
 					{
 						if ((*iter).second->m_ppObjects[enemyID.second.id]->GetIsICE())
 						{
-							dynamic_cast<CCubeParticleShader*>((*iceParticle).second)->SetParticleBlowUp((*iter).second->m_ppObjects[enemyID.second.id]->GetPosition());
+							dynamic_cast<CCubeParticleShader*>((*iceParticle).second)->SetParticleBlowUp((*iter).second->m_ppObjects[enemyID.second.id]->GetPosition(),enemyID.second.id);
 							(*iter).second->m_ppObjects[enemyID.second.id]->SetIsICE(false);
+							(*iter).second->m_ppObjects[enemyID.second.id]->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
 						}
 					}
 				}
@@ -2201,6 +2206,83 @@ void CGameFramework::ProcessPacket(char* packet)
 		case ITEM::NORMALHAMMER:
 		{
 			cout << m_mapClients[pUI->id].id << "가 " << m_mapClients[pUI->target].id << "에게 Normal Hammer 아이템 사용\n";
+			//플레이어가 상대방을 때렸을때
+			if (pUI->id < MAX_USER && pUI->target < MAX_USER)
+			{
+				if (pUI->id == m_pPlayer->GetPlayerID() && pUI->target != m_pPlayer->GetPlayerID())
+				{
+					//인벤토리에서 삭제
+					m_pPlayer->Sub_Inventory(CItem::NormalHammer);
+					m_pPlayer->SetIsHammer(false);
+
+					auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+					auto iceParticle = m_pScene->getShaderManager()->getShaderMap().find("CubeParticle");
+					if (iter != m_pScene->getShaderManager()->getShaderMap().end()
+						&& iceParticle != m_pScene->getShaderManager()->getShaderMap().end())
+					{
+
+
+						if ((*iter).second->m_ppObjects[pUI->target]->GetIsICE())
+						{
+							dynamic_cast<CCubeParticleShader*>((*iceParticle).second)->SetParticleBlowUp((*iter).second->m_ppObjects[pUI->target]->GetPosition(), pUI->target);
+							(*iter).second->m_ppObjects[pUI->target]->SetIsICE(false);
+							(*iter).second->m_ppObjects[pUI->target]->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+
+						}
+
+						m_pPlayer->SetCameraVibe(true);
+
+					}
+
+				}
+				else if (pUI->id != m_pPlayer->GetPlayerID() && pUI->target == m_pPlayer->GetPlayerID())
+				{
+					m_pPlayer->SetIsICE(false);
+
+					auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+					auto iceParticle = m_pScene->getShaderManager()->getShaderMap().find("CubeParticle");
+					if (iter != m_pScene->getShaderManager()->getShaderMap().end()
+						&& iceParticle != m_pScene->getShaderManager()->getShaderMap().end())
+					{
+						dynamic_cast<CCubeParticleShader*>((*iceParticle).second)->SetParticleBlowUp(m_pPlayer->GetPosition(), m_pPlayer->GetPlayerID());
+						m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+
+						(*iter).second->m_ppObjects[pUI->id]->SetIsHammer(false);
+
+						m_pPlayer->SetCameraVibe(true);
+
+						
+						CSoundSystem::PlayingSound(CSoundSystem::ICE_BREAK);
+					}
+
+
+					
+				}
+				else
+				{
+					auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+					auto iceParticle = m_pScene->getShaderManager()->getShaderMap().find("CubeParticle");
+					if (iter != m_pScene->getShaderManager()->getShaderMap().end()
+						&& iceParticle != m_pScene->getShaderManager()->getShaderMap().end())
+					{
+						
+						if ((*iter).second->m_ppObjects[pUI->target]->GetIsICE())
+						{
+							dynamic_cast<CCubeParticleShader*>((*iceParticle).second)->SetParticleBlowUp((*iter).second->m_ppObjects[pUI->target]->GetPosition(), pUI->target);
+							(*iter).second->m_ppObjects[pUI->target]->SetIsICE(false);
+							(*iter).second->m_ppObjects[pUI->target]->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+
+							(*iter).second->m_ppObjects[pUI->id]->SetIsHammer(false);
+						}
+						
+						CSoundSystem::PlayingSound(CSoundSystem::ICE_BREAK);
+					
+					}
+				}
+
+			}
+
+
 			break;
 		}
 		case ITEM::EMPTY:

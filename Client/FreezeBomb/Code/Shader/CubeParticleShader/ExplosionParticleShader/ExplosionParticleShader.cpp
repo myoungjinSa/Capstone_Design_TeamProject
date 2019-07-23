@@ -118,7 +118,7 @@ void CExplosionParticleShader::ReleaseObjects()
 {
 	for (auto iter = m_ExplosionParticleList.begin(); iter != m_ExplosionParticleList.end();)
 	{
-		(*iter)->Release();
+		//(*iter)->Release();
 		iter = m_ExplosionParticleList.erase(iter);
 	}
 	m_ExplosionParticleList.clear();
@@ -149,21 +149,33 @@ void CExplosionParticleShader::SetParticleBlowUp(XMFLOAT3& position)
 
 void CExplosionParticleShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	m_pd3dInstancingData = ::CreateBufferResource(pd3dDevice, pd3dCommandList, nullptr, m_ExplosionParticleList.size() * sizeof(InstancingData), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-	m_pd3dInstancingData->Map(0, nullptr, (void**)&m_pMappedInstancingData);
+	
+	m_pd3dInstancingData[0] = ::CreateBufferResource(pd3dDevice, pd3dCommandList, nullptr, m_ExplosionParticleList.size() * sizeof(InstancingData), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pd3dInstancingData[0]->Map(0, nullptr, (void**)&m_pMappedInstancingData[0]);
+	
 }
 
 void CExplosionParticleShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	if (m_pd3dInstancingData)
+	if (m_pd3dInstancingData[0])
 	{
-		D3D12_GPU_VIRTUAL_ADDRESS GPUVirtualAddress = m_pd3dInstancingData->GetGPUVirtualAddress();
+		D3D12_GPU_VIRTUAL_ADDRESS GPUVirtualAddress = m_pd3dInstancingData[0]->GetGPUVirtualAddress();
 		pd3dCommandList->SetGraphicsRootShaderResourceView(7, GPUVirtualAddress);
 
 		int i = 0;
 		for (auto iter = m_ExplosionParticleList.begin(); iter != m_ExplosionParticleList.end(); ++iter)
 		{
-			XMStoreFloat4x4(&m_pMappedInstancingData[i++].m_World, XMMatrixTranspose(XMLoadFloat4x4(&(*iter)->m_xmf4x4World)));
+			XMStoreFloat4x4(&m_pMappedInstancingData[0][i++].m_World, XMMatrixTranspose(XMLoadFloat4x4(&(*iter)->m_xmf4x4World)));
 		}
 	}
+}
+void CExplosionParticleShader::ReleaseShaderVariables()
+{
+	
+	if (m_pd3dInstancingData[0])
+	{
+		m_pd3dInstancingData[0]->Unmap(0, nullptr);
+		m_pd3dInstancingData[0]->Release();
+	}
+	
 }

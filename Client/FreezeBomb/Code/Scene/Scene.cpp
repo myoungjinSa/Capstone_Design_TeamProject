@@ -780,9 +780,9 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 								if (bBreak == false)
 									bBreak = true;
 
-								m_pPlayer->Sub_Inventory(CItem::NormalHammer);
+								//m_pPlayer->Sub_Inventory(CItem::NormalHammer);
 							}
-							m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[id]->GetPosition());
+							m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[id]->GetPosition(),id);
 
 							CSoundSystem::PlayingSound(CSoundSystem::ICE_BREAK);
 
@@ -927,9 +927,9 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				
 				if ((*iter2).second->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
-					cout <<"플레이어:"<< m_pPlayer->GetBoundingBox().Extents.x << "," << m_pPlayer->GetBoundingBox().Extents.y << "," << m_pPlayer->GetBoundingBox().Extents.z << "\n";
+					/*cout <<"플레이어:"<< m_pPlayer->GetBoundingBox().Extents.x << "," << m_pPlayer->GetBoundingBox().Extents.y << "," << m_pPlayer->GetBoundingBox().Extents.z << "\n";
 					cout << "아이템:" << (*iter2).second->GetBoundingBox().Extents.x << "," << (*iter2).second->GetBoundingBox().Extents.y << "," << (*iter2).second->GetBoundingBox().Extents.z << "\n";
-
+*/
 					//(*iter2).second->SetObjectCollided(m_pPlayer);
 					//m_pPlayer->SetObjectCollided((*iter2).second);
 					//cout <<"플레이어:"<< m_pPlayer->GetBoundingBox().Extents.x << "," << m_pPlayer->GetBoundingBox().Extents.y << "," << m_pPlayer->GetBoundingBox().Extents.z << "\n";

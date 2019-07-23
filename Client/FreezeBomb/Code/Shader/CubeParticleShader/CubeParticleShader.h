@@ -20,15 +20,15 @@ public:
 	virtual void OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int nPipelineState);
 
-	void SetParticleBlowUp(XMFLOAT3& position);
+	void SetParticleBlowUp(XMFLOAT3& position,int index);
 
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList,int index);
 	virtual void ReleaseShaderVariables();
 
 	
 private:
-	list<CCubeParticle*>		m_CubeParticleList;
+	array<list<CCubeParticle*>,6>		m_CubeParticleList;
 protected:
 	ID3D12PipelineState**		m_ppd3dPipelineStates{ nullptr };
 	int										m_nPipelineStates = 0;
@@ -40,6 +40,6 @@ protected:
 		XMFLOAT4X4 m_World;
 	};
 
-	ID3D12Resource*				m_pd3dInstancingData{ nullptr };
-	InstancingData*				m_pMappedInstancingData{ nullptr };
+	ID3D12Resource*				m_pd3dInstancingData[6]{ nullptr };
+	InstancingData*				m_pMappedInstancingData[6]{ nullptr };
 };
