@@ -1443,7 +1443,8 @@ void CGameFramework::ProcessPacket(char* packet)
 		for (int i = 0; i < MAX_USER; ++i)
 		{
 			CLobbyScene::AddClientsCharacter(i, pCC->matID[i]);
-			cout << "2. Character of OtherPlayer - id: " <<i<<":" <<(int)pCC->matID[i] <<endl;
+			cout << "2. Character of OtherPlayer - id: " << i << " : " << (int)pCC->matID[i] << endl;
+			
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end()) 
 			{
@@ -1478,11 +1479,9 @@ void CGameFramework::ProcessPacket(char* packet)
 	{
 		SC_PACKET_CHOICE_CHARACTER* pChoiceCharacter = reinterpret_cast<SC_PACKET_CHOICE_CHARACTER*>(packet);
 
-		
 		char playerID = pChoiceCharacter->id;
 		char matID = pChoiceCharacter->matID;
 
-		cout << "SC_CHOICE_CHARACTER" <<"ID: "<< (int)playerID << ",재질: " << (int)matID << endl;
 		CLobbyScene::AddClientsCharacter(playerID, matID);
 
 		if (playerID == m_pPlayer->GetPlayerID()) 
@@ -1493,8 +1492,8 @@ void CGameFramework::ProcessPacket(char* packet)
 		else if (playerID < MAX_USER)
 		{
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
-			if (iter != m_pScene->getShaderManager()->getShaderMap().end()) {
-
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end()) 
+			{
 				dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->MappingUserToEvilbear(playerID, matID);
 			}
 		}
@@ -1514,8 +1513,6 @@ void CGameFramework::ProcessPacket(char* packet)
 			m_mapClients[(int)pLO->id].isReady = false;
 			string user = m_mapClients[(int)pLO->id].name;
 			string s = "님이 나갔습니다.";
-
-
 
 			ChattingSystem::GetInstance()->PushChattingText(user, s.c_str());
 			strcpy(m_mapClients[(int)pLO->id].name, " ");
@@ -1541,7 +1538,12 @@ void CGameFramework::ProcessPacket(char* packet)
 		if (pCH->hostID < MAX_USER)
 		{
 			m_HostID = pCH->hostID;
-			printf("호스트 ID: %d ", (int)m_HostID);
+
+			reinterpret_cast<CCharacterSelectUIShader*>(m_pLobbyScene->GetCharacterSelectShader())->ChangeHost();
+
+			// 모든 클라의 레디를 해제함
+			for (auto& client : m_mapClients)
+				client.second.isReady = false;
 		}
 
 		break;

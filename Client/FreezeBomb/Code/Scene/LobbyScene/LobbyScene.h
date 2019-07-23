@@ -31,6 +31,8 @@ public:
 	static void AddClientsCharacter(char id, char matID) { m_ClientsCharacter[id] = matID; }
 	void LobbySceneClear();
 
+	CShader* GetCharacterSelectShader() { return m_shaderMap["Select"]; }
+
 private:
 	ID3D12RootSignature*		m_pd3dGraphicsRootSignature = NULL;
 	
