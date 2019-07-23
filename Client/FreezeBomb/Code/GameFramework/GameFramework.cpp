@@ -1500,6 +1500,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 			ChattingSystem::GetInstance()->PushChattingText(user, s.c_str());
 			strcpy(m_mapClients[(int)pLO->id].name, " ");
+
 		}
 		break;
 	}
@@ -1579,41 +1580,37 @@ void CGameFramework::ProcessPacket(char* packet)
 
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
-				char bomber_id = pRS->bomberID;
-
-				vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
-
-				for (auto id : vec)
-				{
-					char bomber_id = m_mapClients[pRS->bomberID].id;
 				
-					//vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
-					
-					
+				
+				char bomber_id = m_mapClients[pRS->bomberID].id;
 
-					for (auto enemy : m_mapClients)
+				//vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+
+
+
+				for (auto enemy : m_mapClients)
+				{
+					if (enemy.second.id == bomber_id)
 					{
-						if (enemy.second.id == bomber_id) 
-						{
-							(*iter).second->m_ppObjects[bomber_id]->SetIsBomb(true);
-							(*iter).second->m_ppObjects[bomber_id]->setIsGoldTimer(false);
-							(*iter).second->m_ppObjects[bomber_id]->setIsGoldHammer(false);
-							(*iter).second->m_ppObjects[bomber_id]->SetIsHammer(false);
-						}
-						else
-						{
-							(*iter).second->m_ppObjects[enemy.second.id]->SetIsBomb(false);
-							(*iter).second->m_ppObjects[enemy.second.id]->setIsGoldHammer(false);
-							(*iter).second->m_ppObjects[enemy.second.id]->setIsGoldTimer(false);
-							(*iter).second->m_ppObjects[enemy.second.id]->SetIsHammer(false);
+						(*iter).second->m_ppObjects[bomber_id]->SetIsBomb(true);
+						(*iter).second->m_ppObjects[bomber_id]->setIsGoldTimer(false);
+						(*iter).second->m_ppObjects[bomber_id]->setIsGoldHammer(false);
+						(*iter).second->m_ppObjects[bomber_id]->SetIsHammer(false);
+					}
+					else
+					{
+						(*iter).second->m_ppObjects[enemy.second.id]->SetIsBomb(false);
+						(*iter).second->m_ppObjects[enemy.second.id]->setIsGoldHammer(false);
+						(*iter).second->m_ppObjects[enemy.second.id]->setIsGoldTimer(false);
+						(*iter).second->m_ppObjects[enemy.second.id]->SetIsHammer(false);
 
 
 					}
 				}
 			}
-
-			// 다른 클라가 술래일 경우 isBomber를 set해줘야 폭탄을 그리지 않을까?
 		}
+				// 다른 클라가 술래일 경우 isBomber를 set해줘야 폭탄을 그리지 않을까?
+			
 		auto itemIter = m_pScene->getShaderManager()->getShaderMap().find("Item");
 		if (itemIter != m_pScene->getShaderManager()->getShaderMap().end())
 		{
@@ -1650,12 +1647,11 @@ void CGameFramework::ProcessPacket(char* packet)
 		{
 			dynamic_cast<CTimerUIShader*>((*timerIter).second)->CompareServerTimeAndSet(pRS->startTime);
 
-
-			ChattingSystem::GetInstance()->SetActive(false);
-			printf("Round Start! Bomber is %d\n", m_mapClients[pRS->bomberID].id);
-			break;
-
 		}
+		ChattingSystem::GetInstance()->SetActive(false);
+		printf("Round Start! Bomber is %d\n", m_mapClients[pRS->bomberID].id);
+		break;
+	}
 
 	case SC_PUT_PLAYER:
 	{
@@ -2227,6 +2223,10 @@ void CGameFramework::ProcessPacket(char* packet)
 			{
 				m_pPlayer->SetIsBomb(true);
 				(*iter).second->m_ppObjects[runnerID]->SetIsBomb(false);
+			/*	if ((*iter).second->m_ppObjects[runnerID]->GetIsHammer()==false)
+					(*iter).second->m_ppObjects[runnerID]->SetIsHammer(true);
+				if ((*iter).second->m_ppObjects[runnerID]->getIsGoldHammer()==false)
+					(*iter).second->m_ppObjects[runnerID]->setIsGoldHammer(true);*/
 			}
 		}
 		else if (pRC->runnerId == m_pPlayer->GetPlayerID())		//자신이 상대방에게  폭탄을 넘겨줬을 경우
@@ -2237,10 +2237,10 @@ void CGameFramework::ProcessPacket(char* packet)
 			{
 				m_pPlayer->SetIsBomb(false);
 				(*iter).second->m_ppObjects[bomberID]->SetIsBomb(true);
-				if ((*iter).second->m_ppObjects[bomberID]->GetIsHammer())
+				/*if ((*iter).second->m_ppObjects[bomberID]->GetIsHammer())
 					(*iter).second->m_ppObjects[bomberID]->SetIsHammer(false);
 				if ((*iter).second->m_ppObjects[bomberID]->getIsGoldHammer())
-					(*iter).second->m_ppObjects[bomberID]->setIsGoldHammer(false);
+					(*iter).second->m_ppObjects[bomberID]->setIsGoldHammer(false);*/
 
 			}
 		}
@@ -2254,10 +2254,10 @@ void CGameFramework::ProcessPacket(char* packet)
 				(*iter).second->m_ppObjects[runnerId]->SetIsBomb(false);
 
 				(*iter).second->m_ppObjects[bomberId]->SetIsBomb(true);
-				if ((*iter).second->m_ppObjects[bomberId]->GetIsHammer())
+				/*if ((*iter).second->m_ppObjects[bomberId]->GetIsHammer())
 					(*iter).second->m_ppObjects[bomberId]->SetIsHammer(false);
 				if ((*iter).second->m_ppObjects[bomberId]->getIsGoldHammer())
-					(*iter).second->m_ppObjects[bomberId]->setIsGoldHammer(false);
+					(*iter).second->m_ppObjects[bomberId]->setIsGoldHammer(false);*/
 			}
 		}
 		break;
