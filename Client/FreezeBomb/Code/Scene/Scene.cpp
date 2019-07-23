@@ -720,10 +720,11 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 			
 			char id{ -1 };
 #ifdef _WITH_SERVER_
-			vector<pair<char, char>> vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
-			for (int i = 0; i < vec.size(); ++i)
+			//vector<pair<char, char>> vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+			map<char, char> mapClients = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_mapMaterial;
+			for (auto enemyID : mapClients)
 			{
-				id = vec[i].first;
+				id = enemyID.first;
 				
 				if ((*iter).second->m_ppObjects[id]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
@@ -766,9 +767,9 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				CGameObject* pHammer = m_pPlayer->FindFrame("Hammer");
 				if (pHammer != nullptr)
 				{
-					for (int i = 0; i < vec.size(); ++i)
+					for (auto enemyID : mapClients)
 					{
-						char id = vec[i].first;
+						char id = enemyID.first;
 						if (pHammer->GetBoundingBox().Intersects((*iter).second->m_ppObjects[id]->GetBoundingBox()))
 						{
 							Network::GetInstance()->SendUseItem(ITEM::NORMALHAMMER, id);
