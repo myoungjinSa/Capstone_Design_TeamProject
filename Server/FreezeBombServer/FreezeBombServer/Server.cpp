@@ -634,6 +634,7 @@ void Server::WorkerThreadFunc()
 		else if (EV_GO_NEXTROUND == over_ex->event_t)
 		{
 			++round;
+			cout << "라운드: " << round << endl;
 			ShuffleStartPosIndex();
 
 			// 새 라운드 시작 시 초기화

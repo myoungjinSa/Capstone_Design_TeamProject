@@ -1601,9 +1601,10 @@ void CGameFramework::ProcessPacket(char* packet)
 		if (pRS->bomberID == m_pPlayer->GetPlayerID())
 		{
 			m_pPlayer->SetIsBomb(true);
+
 		}
 
-		else if (pRS->bomberID < MAX_USER)
+		if (pRS->bomberID < MAX_USER)
 		{
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 
@@ -2153,8 +2154,6 @@ void CGameFramework::ProcessPacket(char* packet)
 
 				if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 				{
-
-					//vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
 
 					for (auto enemyID : m_mapClients)
 					{
