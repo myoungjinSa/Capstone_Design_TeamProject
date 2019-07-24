@@ -569,6 +569,15 @@ void Server::WorkerThreadFunc()
 			if (roundCurrTime <= 0)
 			{
 				roundTime_l.unlock();
+				// 술래 제외한 플레이어 점수 1점씩 증가
+				for (int i = 0; i < MAX_USER; ++i)
+				{
+					if (false == clients[i].in_use)
+						continue;
+					if (i == bomberID)
+						continue;
+					++clients[i].score;
+				}
 				if (round >= MAX_ROUND-1)
 				{
 					// 10초 스코어보드 출력 후 로비로 이동
@@ -583,15 +592,6 @@ void Server::WorkerThreadFunc()
 				}
 				else
 				{
-					// 술래 제외한 플레이어 점수 1점씩 증가
-					for (int i = 0; i < MAX_USER; ++i)
-					{
-						if (false == clients[i].in_use)
-							continue;
-						if (i == bomberID)
-							continue;
-						++clients[i].score;
-					}
 					for (int i = 0; i < MAX_USER; ++i)
 					{
 						if (false == clients[i].in_use)
@@ -867,8 +867,8 @@ void Server::ProcessPacket(char client, char *packet)
 				if (false == clients[i].in_use)
 					continue;
 
-				SendPutPlayer(i);
 				SendRoundStart(i, time);
+				SendPutPlayer(i);
 			}
 			add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
 
