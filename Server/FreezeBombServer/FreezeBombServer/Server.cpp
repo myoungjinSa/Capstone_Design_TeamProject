@@ -1696,31 +1696,47 @@ void Server::SendGoLobby(char toClient)
 void Server::ClientDisconnect(char client)
 {
 	clients[client].in_use = false;
-	if (clients[client].isReady)
-	{
-		readyCnt_l.lock();
-		readyCount--;
-		readyCnt_l.unlock();
-		clients[client].isReady = false;
-	}
+	
 	if (hostId == client)
 	{
 		for (int i = 0; i < MAX_USER; ++i)
 		{
-			if (true == clients[i].in_use)
+			if (false == clients[i].in_use)
+				continue;
+
+			// 호스트 퇴장 시 모든 플레이어의 ready상태 해제
+			clients[i].isReady = false;
+			for (int j = 0; j < MAX_USER; ++j)
 			{
-				hostId = i;
-				SendChangeHostID(i, hostId);
-				printf("현재 방장은 %d입니다.\n", hostId);
-				break;
+				if (false == clients[j].in_use)
+					continue;
+				SendUnReadyStatePacket(j, i);
 			}
+
+			// 다음 호스트가 정해진 후 부터는 아래 코드 실행X
+			if (hostId != client)
+				continue;
+			hostId = i;
+			SendChangeHostID(i, hostId);
+			printf("현재 방장은 %d입니다.\n", hostId);
 		}
+
+		readyCnt_l.lock();
+		readyCount = 0;
+		readyCnt_l.unlock();
 	}
 	
 	switch(clients[client].gameState)
 	{
 	case GS_LOBBY:
 	{
+		if (true == clients[client].isReady)
+		{
+			readyCnt_l.lock();
+			readyCount--;
+			readyCnt_l.unlock();
+			clients[client].InitPlayer();
+		}
 		for (int i = 0; i < MAX_USER; ++i)
 		{
 			if (false == clients[i].in_use)
@@ -1766,7 +1782,7 @@ void Server::ClientDisconnect(char client)
 	else
 		clientCnt_l.unlock();
 
-
+	clients[client].InitPlayer();
 	
 	closesocket(clients[client].socket);
 
