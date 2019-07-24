@@ -1149,15 +1149,18 @@ void Server::ProcessPacket(char client, char *packet)
 
 			if (dist <= 50)
 			{
-				clients[p->target].isFreeze = false;
-				freezeCnt_l.lock();
-				--freezeCnt;
-				freezeCnt_l.unlock();
-				for (int i = 0; i < MAX_USER; ++i)
+				if (clients[p->target].isFreeze)
 				{
-					if (true == clients[i].in_use)
+					clients[p->target].isFreeze = false;
+					freezeCnt_l.lock();
+					--freezeCnt;
+					freezeCnt_l.unlock();
+					for (int i = 0; i < MAX_USER; ++i)
 					{
-						SendUseItem(i, client, ITEM::NORMALHAMMER, p->target);
+						if (true == clients[i].in_use)
+						{
+							SendUseItem(i, client, ITEM::NORMALHAMMER, p->target);
+						}
 					}
 				}
 			}
@@ -1251,6 +1254,7 @@ void Server::ProcessPacket(char client, char *packet)
 			freezeCnt_l.unlock();
 		}
 		
+		clients[client].isFreeze = true;
 
 
 		for(int i=0;i<MAX_USER;++i)
@@ -1278,7 +1282,7 @@ void Server::ProcessPacket(char client, char *packet)
 			--freezeCnt;
 			freezeCnt_l.unlock();
 		}
-		
+		clients[client].isFreeze = false;
 		for(int i=0;i<MAX_USER;++i)
 		{
 			if (clients[i].in_use == true)

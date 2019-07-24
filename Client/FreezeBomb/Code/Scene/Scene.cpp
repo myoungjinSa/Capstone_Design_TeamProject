@@ -762,6 +762,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 			}
 			static bool bBreak = false;
 
+
 			if (m_pPlayer->AnimationCollision(CAnimationController::ATTACK))
 			{
 				CGameObject* pHammer = m_pPlayer->FindFrame("Hammer");
@@ -783,9 +784,9 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 								//m_pPlayer->Sub_Inventory(CItem::NormalHammer);
 							}
 							m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[id]->GetPosition(),id);
-
+#ifndef _WITH_SERVER_
 							CSoundSystem::PlayingSound(CSoundSystem::ICE_BREAK);
-
+#endif
 							//cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
 							break;
 						}

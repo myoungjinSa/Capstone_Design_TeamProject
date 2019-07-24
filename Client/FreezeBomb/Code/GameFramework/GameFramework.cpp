@@ -2234,7 +2234,7 @@ void CGameFramework::ProcessPacket(char* packet)
 						}
 
 						m_pPlayer->SetCameraVibe(true);
-
+						CSoundSystem::PlayingSound(CSoundSystem::ICE_BREAK);
 					}
 
 				}
@@ -2303,7 +2303,30 @@ void CGameFramework::ProcessPacket(char* packet)
 	{
 		SC_PACKET_BOMB_EXPLOSION *pBE = reinterpret_cast<SC_PACKET_BOMB_EXPLOSION*>(packet);
 
-		if (pBE->bomberId != m_pPlayer->GetPlayerID())
+		/*if (pBE->bomberId == m_pPlayer->GetPlayerID())
+		{
+			auto bombIter = m_pScene->getShaderManager()->getShaderMap().find("Bomb");
+			auto explosionIter = m_pScene->getShaderManager()->getShaderMap().find("ExplosionParticle");
+
+			if (bombIter != m_pScene->getShaderManager()->getShaderMap().end()
+				&& explosionIter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
+				m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::DIE);
+				m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::DIE);
+
+				Network::GetInstance()->SendAnimationState(CAnimationController::DIE);
+				Network::GetInstance()->SendBombExplosion();
+
+				CBomb* pBomb = ((CBombParticleShader*)(*bombIter).second)->getBomb();
+
+				pBomb->SetPosition(m_pPlayer->GetPosition());
+				pBomb->setIsBlowing(true);
+
+				dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetParticleBlowUp(pBomb->GetPosition());
+			}
+		}
+		else */if (pBE->bomberId != m_pPlayer->GetPlayerID())
 		{
 			char id = m_mapClients[pBE->bomberId].id;
 			auto bombIter = m_pScene->getShaderManager()->getShaderMap().find("Bomb");
