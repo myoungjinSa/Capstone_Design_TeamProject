@@ -62,5 +62,5 @@ private:
 
 	IDWriteFontCollection1*		m_pFontCollection{ nullptr };
 
-	enum FONT { FontNum = 2, FontColorNum = 8 };
+	enum FONT { FontNum = 2, FontColorNum = 10 };
 };
