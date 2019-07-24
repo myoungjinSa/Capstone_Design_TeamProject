@@ -54,7 +54,7 @@ public:
 	void Initialize_GameFont();
 
 	void SetNamecard();
-
+	
 	void ProcessDirect2D();
 #endif
 	void CreateDepthStencilView();
@@ -66,7 +66,7 @@ public:
 	void ResetAnimationForRoundStart();
 	//void InitializeIPSystem();
 	void ProcessLogin();
-
+	void ShowCurrentBomber();
 #endif
 	void ChangeSwapChainState();
 
@@ -188,7 +188,7 @@ private:
 	//Network m_Network;
 	static char m_HostID;
 	int clientCount = 0;
-
+	int m_currentBomberID{ 0 };
 	CLoginScene*	m_pLoginScene{ nullptr };
 	CIPScene*			m_pIPScene{ nullptr };
 #endif

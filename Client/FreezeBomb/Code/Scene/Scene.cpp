@@ -1134,10 +1134,10 @@ void CScene::InGameSceneClear(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 	reinterpret_cast<CMenuUIShader*>((*iter).second)->MenuUIClear();
 }
 
-void CScene::UIRender()
+void CScene::UIRender(const wstring& name)
 {
 	UIRoundInfoTextRender();
-
+	UICurrentBomberID(name);
 	float timer = CTimerUIShader::getTimer();
 	if (timer <= 0.f || GetAsyncKeyState(VK_TAB) & 0x8000)
 	{
@@ -1149,12 +1149,27 @@ void CScene::UIRender()
 		UIClientsScoreTextRender();
 	}
 }
+void CScene::UICurrentBomberID(const wstring& name)
+{
+	UINT originX = 1200;
+	UINT originY = 800;
+
+	D2D1_RECT_F pos = D2D1::RectF((0 * FRAME_BUFFER_WIDTH) / originX, (0 * FRAME_BUFFER_HEIGHT) / originY, (300 * FRAME_BUFFER_WIDTH) / originX, (160 * FRAME_BUFFER_HEIGHT) / originY);
+
+
+	wstring wstr = L"술래: "+name;
+
+	CDirect2D::GetInstance()->Render("피오피동글", "네이비", wstr, pos);
+}
 
 void CScene::UIRoundInfoTextRender()
 {
-	D2D1_RECT_F pos = { 0.0f, 0.0f, 300.0f, 70.0f };
+	UINT originX = 1200;
+	UINT originY = 800;
+	D2D1_RECT_F pos = D2D1::RectF((0 * FRAME_BUFFER_WIDTH) / originX, (0 * FRAME_BUFFER_HEIGHT) / originY, (300 * FRAME_BUFFER_WIDTH) / originX, (70 * FRAME_BUFFER_HEIGHT) / originY);
+
 	wstring wstr = to_wstring((int)g_Round + 1) + L" Round";
-	CDirect2D::GetInstance()->Render("피오피동글", "주황색", wstr, pos);
+	CDirect2D::GetInstance()->Render("피오피동글", "네이비", wstr, pos);
 }
 
 void CScene::UIScoreBoardRender()

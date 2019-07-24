@@ -116,12 +116,13 @@ public:
 
 	void InGameSceneClear(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 
-	void UIRender();
+	void UIRender(const wstring& id);
 	void UIRoundInfoTextRender();
 	void UIScoreBoardRender();
 	void UIClientsNameTextRender();
 	void UIClientsScoreTextRender();
 	void UIClientsRankTextRender();
+	void UICurrentBomberID(const wstring& id);
 
 	void SortInGameRank();
 	void AddInGameScore(char id, string name, char score);
