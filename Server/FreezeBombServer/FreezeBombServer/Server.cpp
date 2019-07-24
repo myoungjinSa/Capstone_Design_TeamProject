@@ -293,6 +293,7 @@ void Server::InitGame()
 		clients[i].InitPlayer();
 	}
 	timer_l.lock();
+	changeCoolTime = 0;
 	while (false == timer_queue.empty())
 		timer_queue.pop();
 	timer_l.unlock();
@@ -613,7 +614,7 @@ void Server::WorkerThreadFunc()
 		{
 			timer_l.lock();
 			changeCoolTime--;
-			//printf("ÄðÅ¸ÀÓ:%d\n", changeCoolTime);
+			printf("ÄðÅ¸ÀÓ:%d\n", changeCoolTime);
 			timer_l.unlock();
 
 			
