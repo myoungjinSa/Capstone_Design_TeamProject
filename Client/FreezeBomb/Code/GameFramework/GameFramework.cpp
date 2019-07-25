@@ -435,6 +435,7 @@ void CGameFramework::Initialize_BitmapImage()
 		L"../Resource/Png/ChoiceCharacter.png",
 		L"../Resource/Png/ScoreBoard.png",
 		L"../Resource/Png/TimeOver.png", 
+		L"../Resource/Png/Host.png",
 	};
 
 	UINT originX = 1280;
@@ -452,11 +453,12 @@ void CGameFramework::Initialize_BitmapImage()
 	D2D1_RECT_F choicePos = D2D1::RectF((90 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (210 * FRAME_BUFFER_WIDTH) / originX, (186 * FRAME_BUFFER_HEIGHT) / originY);
 	D2D1_RECT_F scoreboardPos = D2D1::RectF(r.left, r.top, r.right, r.bottom);
 	D2D1_RECT_F timeoverPos = { scoreboardPos.left, 80, scoreboardPos.right, 230 };
-	
+	D2D1_RECT_F hostPos = { scoreboardPos.left, 80, scoreboardPos.right, 230 };
 	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[0], charactersPos, 4900, 575, 7, 1, 0, 0), "Characters");
 	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[1], choicePos, 1800, 300, 6, 1, 0, 0), "ChoiceCharacter");
 	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[2], scoreboardPos, 1638, 1009, 1, 1, 0, 0), "ScoreBoard");
 	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[3], timeoverPos, 2138, 569, 1, 1, 0, 0), "TimeOver");
+	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[4], hostPos, 308, 300, 1, 1, 0, 0), "Host");
 }
 
 void CGameFramework::Initialize_GameFont()
@@ -1294,7 +1296,7 @@ void CGameFramework::SetNamecard()
 				int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), NULL, NULL);
 				MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), name, nLen);
 				name[nLen] = '\0';
-				CDirect2D::GetInstance()->Render("피오피동글", "검은색", name, nameCard);
+				CDirect2D::GetInstance()->Render("피오피동글", "갈색", name, nameCard);
 			}
 #else
 
@@ -1341,7 +1343,14 @@ void CGameFramework::ProcessDirect2D()
 	}
 	case INGAME:
 	{
-		m_pScene->UIRender();
+		m_mapClients[m_currentBomberID].name;
+		wchar_t name[16];
+		int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[m_currentBomberID].name, strlen(m_mapClients[m_currentBomberID].name), NULL, NULL);
+		MultiByteToWideChar(CP_ACP, 0, m_mapClients[m_currentBomberID].name, strlen(m_mapClients[m_currentBomberID].name), name, nLen);
+		name[nLen] = '\0';
+
+		m_pScene->UIRender(name);
+
 		SetNamecard();
 		//채팅
 		ChattingSystem::GetInstance()->ShowIngameChatting(m_pd2dDeviceContext,m_GameTimer.GetTimeElapsed());
@@ -1381,6 +1390,13 @@ void CGameFramework::ProcessDirect2D()
 #endif
 
 #ifdef _WITH_SERVER_
+
+void CGameFramework::ShowCurrentBomber()
+{
+
+	
+
+}
 void CGameFramework::ResetAnimationForRoundStart()
 {
 	if (m_pPlayer) 
@@ -1555,6 +1571,8 @@ void CGameFramework::ProcessPacket(char* packet)
 		SC_PACKET_READY_STATE *pReady = reinterpret_cast<SC_PACKET_READY_STATE*>(packet);
 
 		m_mapClients[pReady->id].isReady = true;
+
+		cout << "SC_READY_STATE 호출" << endl;
 		break;
 	}
 
@@ -1581,13 +1599,18 @@ void CGameFramework::ProcessPacket(char* packet)
 	case SC_PLEASE_READY:
 	{
 		Network::GetInstance()->SetNullRS();
-		printf("모든 플레이어가 Ready하지 않았습니다.\n");
+
+		string str = "모든 플레이어가 Ready하지 않았습니다.레디해주세요.";
+		ChattingSystem::GetInstance()->PushText(str);
+		//printf("모든 플레이어가 Ready하지 않았습니다.\n");
 		break;
 	}
 
 	case SC_ROUND_START:
 	{
 		SC_PACKET_ROUND_START *pRS = reinterpret_cast<SC_PACKET_ROUND_START *>(packet);
+
+		m_pScene->SetBomberID(pRS->bomberID);
 
 		//애니메이션 리셋
 		ResetAnimationForRoundStart();
@@ -1602,10 +1625,11 @@ void CGameFramework::ProcessPacket(char* packet)
 		m_pPlayer->Sub_Inventory(CItem::ItemType::NormalHammer);
 		m_pPlayer->Sub_Inventory(CItem::ItemType::GoldTimer);
 
+		m_currentBomberID = pRS->bomberID;
 		if (pRS->bomberID == m_pPlayer->GetPlayerID())
 		{
 			m_pPlayer->SetIsBomb(true);
-
+			
 		}
 
 		if (pRS->bomberID < MAX_USER)
@@ -1614,13 +1638,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
-				
-				
 				char bomber_id = m_mapClients[pRS->bomberID].id;
-
-				//vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
-
-
 
 				for (auto enemy : m_mapClients)
 				{
@@ -1645,27 +1663,33 @@ void CGameFramework::ProcessPacket(char* packet)
 				}
 			}
 		}
-				// 다른 클라가 술래일 경우 isBomber를 set해줘야 폭탄을 그리지 않을까?
-			
+	
 		auto itemIter = m_pScene->getShaderManager()->getShaderMap().find("Item");
 		if (itemIter != m_pScene->getShaderManager()->getShaderMap().end())
 		{
 			m_pScene->SetGoldHammerCnt(pRS->goldHammerCnt);
 			m_pScene->SetNormalHammerCnt(pRS->hammerCnt);
 			m_pScene->SetGoldTimerCnt(pRS->goldTimerCnt);
-			if (pRS->round > MAX_ROUND)
+		
+			g_Round = pRS->round;
+			switch (g_Round)
 			{
-				cout << "라운드 범위 초과\n";
+			case ROUND_1:
+				CSoundSystem::StopSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND);
+				ChattingSystem::GetInstance()->ClearChattingBox();
+				break;
+			case ROUND_2:
+				CSoundSystem::StopSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND);
+				break;
+			case ROUND_3:
+				CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND, 0.5f);
+				break;
+			default:
+				cout << "미정의 라운드\n";
+				break;
 			}
-			else
-			{
-				g_Round = pRS->round;
-				if (g_Round == ROUND_3)
-					CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND, 0.5f);
-				else
-					CSoundSystem::StopSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND);
-				cout << "라운드:" << (int)g_Round << "\n";
-			}
+				
+			
 		}
 
 		clientCount = pRS->clientCount;
@@ -1861,23 +1885,19 @@ void CGameFramework::ProcessPacket(char* packet)
 	{
 		SC_PACKET_REMOVE_PLAYER *pRP = reinterpret_cast<SC_PACKET_REMOVE_PLAYER*>(packet);
 		m_HostID = pRP->hostId;
+		m_pScene->RemovePlayer(pRP->id);
 
 		if (pRP->id != m_pPlayer->GetPlayerID())
 		{
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
-
 
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
 				char id = m_mapClients[pRP->id].id;
 				//vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
 
-
-	
-
 				(*iter).second->m_ppObjects[id]->SetPosition(0.0f, 0.0f, 0.0f);
 				(*iter).second->m_ppObjects[id]->SetScale(0.0f, 0.0f, 0.0f);
-
 
 				string s = "님이 나갔습니다.";
 				string user = m_mapClients[id].name;
@@ -2235,7 +2255,7 @@ void CGameFramework::ProcessPacket(char* packet)
 						}
 
 						m_pPlayer->SetCameraVibe(true);
-
+						CSoundSystem::PlayingSound(CSoundSystem::ICE_BREAK);
 					}
 
 				}
@@ -2331,6 +2351,9 @@ void CGameFramework::ProcessPacket(char* packet)
 	{
 		SC_PACKET_ROLE_CHANGE *pRC = reinterpret_cast<SC_PACKET_ROLE_CHANGE*>(packet);
 
+		m_currentBomberID = pRC->bomberId;
+		m_pScene->SetBomberID(m_currentBomberID);
+
 		//상대방이 자신에게 폭탄을 주었을 경우
 		if (pRC->bomberId == m_pPlayer->GetPlayerID())
 		{
@@ -2341,10 +2364,7 @@ void CGameFramework::ProcessPacket(char* packet)
 			{
 				m_pPlayer->SetIsBomb(true);
 				(*iter).second->m_ppObjects[runnerID]->SetIsBomb(false);
-			/*	if ((*iter).second->m_ppObjects[runnerID]->GetIsHammer()==false)
-					(*iter).second->m_ppObjects[runnerID]->SetIsHammer(true);
-				if ((*iter).second->m_ppObjects[runnerID]->getIsGoldHammer()==false)
-					(*iter).second->m_ppObjects[runnerID]->setIsGoldHammer(true);*/
+			
 			}
 		}
 		else if (pRC->runnerId == m_pPlayer->GetPlayerID())		//자신이 상대방에게  폭탄을 넘겨줬을 경우
@@ -2355,10 +2375,7 @@ void CGameFramework::ProcessPacket(char* packet)
 			{
 				m_pPlayer->SetIsBomb(false);
 				(*iter).second->m_ppObjects[bomberID]->SetIsBomb(true);
-				/*if ((*iter).second->m_ppObjects[bomberID]->GetIsHammer())
-					(*iter).second->m_ppObjects[bomberID]->SetIsHammer(false);
-				if ((*iter).second->m_ppObjects[bomberID]->getIsGoldHammer())
-					(*iter).second->m_ppObjects[bomberID]->setIsGoldHammer(false);*/
+				
 
 			}
 		}
@@ -2372,10 +2389,7 @@ void CGameFramework::ProcessPacket(char* packet)
 				(*iter).second->m_ppObjects[runnerId]->SetIsBomb(false);
 
 				(*iter).second->m_ppObjects[bomberId]->SetIsBomb(true);
-				/*if ((*iter).second->m_ppObjects[bomberId]->GetIsHammer())
-					(*iter).second->m_ppObjects[bomberId]->SetIsHammer(false);
-				if ((*iter).second->m_ppObjects[bomberId]->getIsGoldHammer())
-					(*iter).second->m_ppObjects[bomberId]->setIsGoldHammer(false);*/
+			
 			}
 		}
 		break;

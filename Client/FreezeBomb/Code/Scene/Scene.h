@@ -9,7 +9,8 @@
 
 struct InGameInfo
 {
-	InGameInfo(char id, string name, char score, char rank) : m_ID(id), m_Name(name), m_Score(score), m_Rank(rank) {}
+	InGameInfo(char id, string name, char score, char rank) 
+		: m_ID(id), m_Name(name), m_Score(score), m_Rank(rank) {}
 	char m_ID;
 	string m_Name;
 	char m_Score;
@@ -116,16 +117,19 @@ public:
 
 	void InGameSceneClear(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 
-	void UIRender();
+	void UIRender(const wstring& id);
 	void UIRoundInfoTextRender();
 	void UIScoreBoardRender();
+	void UIClientsRankTextRender();
+	void UIClientsRoleTextRender();
 	void UIClientsNameTextRender();
 	void UIClientsScoreTextRender();
-	void UIClientsRankTextRender();
-
+	void UICurrentBomberID(const wstring& id);
 	void SortInGameRank();
 	void AddInGameScore(char id, string name, char score);
-	
+	void SetBomberID(char id) { m_BomberID = id; }
+	void RemovePlayer(char id);
+
 protected:
 	ID3D12RootSignature*						m_pd3dGraphicsRootSignature = nullptr;
 
@@ -202,6 +206,7 @@ public:
 	};
 	
 	vector<InGameInfo> m_InGameInfo;
+	char m_BomberID = -1;
 #ifndef _WITH_SERVER_
 	// 술래 변경할 수 있는 시간
 	static float m_TaggerCoolTime;
