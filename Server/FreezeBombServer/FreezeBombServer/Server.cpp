@@ -898,9 +898,8 @@ void Server::ProcessPacket(char client, char *packet)
 	{
 		SetDirection(client, packet[1]);
 
-		float time = gameTimer.GetTimeElapsed();
-
-		UpdateClientPos(client, time);
+		
+		UpdateClientPos(client);
 
 		//printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
 		for (int i = 0; i < MAX_USER; ++i)
@@ -1857,7 +1856,7 @@ void Server::SetPitchYawRollZero(char client)
 		clients[client].roll = 0.0f;
 	
 }
-void Server::UpdateClientPos(char client, float fTimeElapsed)
+void Server::UpdateClientPos(char client)
 {
 	if (clients[client].direction == DIR_FORWARD)
 	{
@@ -1875,7 +1874,7 @@ void Server::UpdateClientPos(char client, float fTimeElapsed)
 		|| clients[client].direction == DIR_BACKRIGHT
 		|| clients[client].direction == DIR_BACKLEFT)
 	{
-		RotateClientAxisY(client, fTimeElapsed);
+		RotateClientAxisY(client);
 	}
 
 	//clients[client].velocity = Vector3::Add(clients[client].velocity, gravity);//gravity가 초기화가 안되서 쓰레기값?
@@ -1889,10 +1888,7 @@ void Server::UpdateClientPos(char client, float fTimeElapsed)
 		clients[client].velocity.z *= (MAX_VELOCITY_XZ / fLength);
 	}
 
-	float fLengthY = sqrtf(clients[client].velocity.y * clients[client].velocity.y);
 
-
-	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(clients[client].velocity, fTimeElapsed, false);
 	
 	switch (clients[client].collision)
 	{
@@ -1922,24 +1918,31 @@ void Server::UpdateClientPos(char client, float fTimeElapsed)
 		break;
 	}
 
-
 	clients[client].pos = Vector3::Add(clients[client].pos, clients[client].velocity);
 
-	//현재 높이값은 0으로 정해져있어서 필요없는 함수 
-	//ProcessClientHeight(client);
 
-	ProcessFriction(client, fLength);
+
+	//ProcessFriction 함수 호출 필요없어 보임 - 여기서밖에 쓰이지 않아서 함수로 만들 필요가 없어보임 (함수 호출이 비효율적이지 않을까)
+	fLength = Vector3::Length(clients[client].velocity);
+	float fDeclaration = FRICTION;
+
+	if (fDeclaration > fLength)
+	{
+		fDeclaration = fLength;
+		clients[client].velocity = Vector3::Add(clients[client].velocity, Vector3::ScalarProduct(clients[client].velocity, -fDeclaration, true));
+	}
+	//ProcessFriction(client, fLength);
+
 
 
 	//속도를 클라에게 보내주어 클라에서 기본적인 rUn,Backward,애니메이션을 결정하게 하기 위해.
 	clients[client].fVelocity = fLength;
-	
-;
-	//cout << clients[client].fVelocity << endl;
+
+
 
 }
 
-void Server::RotateClientAxisY(char client, float fTimeElapsed)
+void Server::RotateClientAxisY(char client)
 {
 	XMFLOAT3& xmf3Look = clients[client].look;
 	XMFLOAT3& xmf3Right = clients[client].right;
@@ -1957,7 +1960,7 @@ void Server::RotateClientAxisY(char client, float fTimeElapsed)
 
 		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
 
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(fAngle*fTimeElapsed*0.3f));
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(fAngle * ROTATE_RATE));
 		xmf3Look = Vector3::TransformNormal(xmf3Look, xmmtxRotate);
 		xmf3Right = Vector3::TransformNormal(xmf3Right, xmmtxRotate);
 
@@ -1966,7 +1969,7 @@ void Server::RotateClientAxisY(char client, float fTimeElapsed)
 		float czDelta = xmf3Look.z - clients[client].lastLookVector.z;
 
 
-		RotateModel(client, 0.0f, fAngle*fTimeElapsed * 0.3f, 0.0f);
+		RotateModel(client, 0.0f, fAngle * ROTATE_RATE , 0.0f);
 		
 	}
 	if (clients[client].direction & DIR_LEFT)
@@ -1975,13 +1978,13 @@ void Server::RotateClientAxisY(char client, float fTimeElapsed)
 
 		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
 
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(-(fAngle*fTimeElapsed*0.3f)));
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(-(fAngle * ROTATE_RATE)));
 		xmf3Look = Vector3::TransformNormal(xmf3Look, xmmtxRotate);
 		xmf3Right = Vector3::TransformNormal(xmf3Right, xmmtxRotate);
 
 		float czDelta = xmf3Look.z - clients[client].lastLookVector.z;
 
-		RotateModel(client, 0.0f, -fAngle * fTimeElapsed * 0.3f, 0.0f);
+		RotateModel(client, 0.0f, -fAngle * ROTATE_RATE, 0.0f);
 		
 	}
 	if (clients[client].direction & DIR_FORWARDRIGHT )
@@ -2038,33 +2041,33 @@ void Server::RotateModel(char client, float x, float y, float z)
 	}
 }
 
-void Server::ProcessClientHeight(char client)
-{
-	int z = (int)(clients[client].pos.z / heightMap->GetScale().z);
-	bool bReverseQuad = ((z % 2) != 0);
-
-	float fHeight = heightMap->GetHeight(clients[client].pos.x, clients[client].pos.z, bReverseQuad);
-	if (clients[client].pos.y < fHeight)
-	{
-		clients[client].velocity.y = 0.0f;
-		
-		clients[client].pos.y = fHeight;
-		
-	}
-}
-
-void Server::ProcessFriction(char client, float& fLength)
-{
-	
-	fLength = Vector3::Length(clients[client].velocity);
-	float fDeclaration = (FRICTION * gameTimer.GetTimeElapsed());
-
-	if (fDeclaration > fLength)
-	{
-		fDeclaration = fLength;
-		clients[client].velocity = Vector3::Add(clients[client].velocity, Vector3::ScalarProduct(clients[client].velocity, -fDeclaration, true));
-	}
-}
+//void Server::ProcessClientHeight(char client)
+//{
+//	int z = (int)(clients[client].pos.z / heightMap->GetScale().z);
+//	bool bReverseQuad = ((z % 2) != 0);
+//
+//	float fHeight = heightMap->GetHeight(clients[client].pos.x, clients[client].pos.z, bReverseQuad);
+//	if (clients[client].pos.y < fHeight)
+//	{
+//		clients[client].velocity.y = 0.0f;
+//		
+//		clients[client].pos.y = fHeight;
+//		
+//	}
+//}
+//
+//void Server::ProcessFriction(char client, float& fLength)
+//{
+//	
+//	fLength = Vector3::Length(clients[client].velocity);
+//	float fDeclaration = FRICTION;
+//
+//	if (fDeclaration > fLength)
+//	{
+//		fDeclaration = fLength;
+//		clients[client].velocity = Vector3::Add(clients[client].velocity, Vector3::ScalarProduct(clients[client].velocity, -fDeclaration, true));
+//	}
+//}
 
 void Server::err_quit(const char* msg)
 {
