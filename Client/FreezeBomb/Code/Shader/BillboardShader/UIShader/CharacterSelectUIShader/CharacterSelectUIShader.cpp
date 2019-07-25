@@ -8,6 +8,7 @@
 #include "../../../../GameFramework/GameFramework.h"
 #include "../../../../Direct2D/Direct2D.h"
 #include "../../../../Scene/LobbyScene/LobbyScene.h"
+#include "../../../../Chatting/Chatting.h"
 
 bool CCharacterSelectUIShader::m_IsReady = false;
 char CCharacterSelectUIShader::m_ChoiceCharacter = NONE;
@@ -261,7 +262,9 @@ void CCharacterSelectUIShader::CallbackKeyboard(WPARAM wParam)
 		{
 			if (m_ChoiceCharacter == NONE)
 			{
-				cout << "캐릭터가 선택되지 않았습니다." << endl;
+				//cout << "캐릭터가 선택되지 않았습니다." << endl;
+				string s = "캐릭터가 선택되지 않았습니다.";
+				ChattingSystem::GetInstance()->PushText(s);
 				CSoundSystem::PlayingSound(CSoundSystem::CLICK);
 				break;
 			}
@@ -303,7 +306,9 @@ void CCharacterSelectUIShader::CallbackKeyboard(WPARAM wParam)
 
 			if (m_ChoiceCharacter == NONE)
 			{
-				cout << "캐릭터가 선택되지 않았습니다." << endl;
+				//cout << "캐릭터가 선택되지 않았습니다." << endl;
+				string s = "캐릭터가 선택되지 않았습니다.";
+				ChattingSystem::GetInstance()->PushText(s);
 				CSoundSystem::PlayingSound(CSoundSystem::CLICK);
 				break;
 			}
@@ -407,7 +412,9 @@ void CCharacterSelectUIShader::ClickInteraction(int click)
 		{
 			if (m_ChoiceCharacter == NONE)
 			{
-				cout << "캐릭터가 선택되지 않았습니다." << endl;
+				string s = "캐릭터가 선택되지 않았습니다.";
+				ChattingSystem::GetInstance()->PushText(s);
+				//cout << "캐릭터가 선택되지 않았습니다." << endl;
 				break;
 			}
 

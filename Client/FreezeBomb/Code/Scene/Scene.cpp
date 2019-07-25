@@ -729,7 +729,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				if ((*iter).second->m_ppObjects[id]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
 					// 술래 체인지
-					if (m_pPlayer->GetIsBomb() == true /*&& m_TaggerCoolTime <= 0.f*/)
+					if (m_pPlayer->GetIsBomb() == true && (*iter).second->m_ppObjects[id]->GetIsICE() == false/*&& m_TaggerCoolTime <= 0.f*/)
 					{
 						//(*iter).second->m_ppObjects[id]->SetIsBomb(true);
 						//m_pPlayer->SetIsBomb(false);
@@ -737,14 +737,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 
 						//m_TaggerCoolTime = (float)COOLTIME;
 					}
-					//else if ((*iter).second->m_ppObjects[id]->GetIsBomb() == true /*&& m_TaggerCoolTime <= 0.f*/)
-				//{
-						//m_pPlayer->SetIsBomb(true);
-					//	(*iter).second->m_ppObjects[id]->SetIsBomb(false);
-
-						//m_TaggerCoolTime = (float)COOLTIME;
-					//}
-
+				
 					isCollided = true;
 				
 					Network::GetInstance()->SendPlayerCollision(id);

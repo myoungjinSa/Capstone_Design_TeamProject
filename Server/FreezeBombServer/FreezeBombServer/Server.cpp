@@ -1717,7 +1717,12 @@ void Server::ClientDisconnect(char client)
 			if (hostId != client)
 				continue;
 			hostId = i;
-			SendChangeHostID(i, hostId);
+			for(int i=0;i<MAX_USER;++i)
+			{
+				if (clients[i].in_use == false)
+					continue;
+				SendChangeHostID(i, hostId);
+			}
 			printf("현재 방장은 %d입니다.\n", hostId);
 		}
 

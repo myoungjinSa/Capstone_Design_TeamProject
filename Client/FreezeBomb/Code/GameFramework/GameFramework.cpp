@@ -1568,6 +1568,8 @@ void CGameFramework::ProcessPacket(char* packet)
 		SC_PACKET_READY_STATE *pReady = reinterpret_cast<SC_PACKET_READY_STATE*>(packet);
 
 		m_mapClients[pReady->id].isReady = true;
+
+		cout << "SC_READY_STATE 호출" << endl;
 		break;
 	}
 
@@ -1594,7 +1596,10 @@ void CGameFramework::ProcessPacket(char* packet)
 	case SC_PLEASE_READY:
 	{
 		Network::GetInstance()->SetNullRS();
-		printf("모든 플레이어가 Ready하지 않았습니다.\n");
+
+		string str = "모든 플레이어가 Ready하지 않았습니다.레디해주세요.";
+		ChattingSystem::GetInstance()->PushText(str);
+		//printf("모든 플레이어가 Ready하지 않았습니다.\n");
 		break;
 	}
 
@@ -1667,19 +1672,26 @@ void CGameFramework::ProcessPacket(char* packet)
 			m_pScene->SetGoldHammerCnt(pRS->goldHammerCnt);
 			m_pScene->SetNormalHammerCnt(pRS->hammerCnt);
 			m_pScene->SetGoldTimerCnt(pRS->goldTimerCnt);
-			if (pRS->round > MAX_ROUND)
+		
+			g_Round = pRS->round;
+			switch (g_Round)
 			{
-				cout << "라운드 범위 초과\n";
+			case ROUND_1:
+				CSoundSystem::StopSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND);
+				ChattingSystem::GetInstance()->ClearChattingBox();
+				break;
+			case ROUND_2:
+				CSoundSystem::StopSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND);
+				break;
+			case ROUND_3:
+				CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND, 0.5f);
+				break;
+			default:
+				cout << "미정의 라운드\n";
+				break;
 			}
-			else
-			{
-				g_Round = pRS->round;
-				if (g_Round == ROUND_3)
-					CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND, 0.5f);
-				else
-					CSoundSystem::StopSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND);
-				cout << "라운드:" << (int)g_Round << "\n";
-			}
+				
+			
 		}
 
 		clientCount = pRS->clientCount;

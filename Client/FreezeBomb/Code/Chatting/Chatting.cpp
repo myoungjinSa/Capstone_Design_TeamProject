@@ -460,6 +460,26 @@ void ChattingSystem::Destroy()
 }
 #endif
 
+void ChattingSystem::PushText(const string& str)
+{
+	ZeroMemory(m_chat[m_nCurrentText], sizeof(256));
+	int chattingLen = MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.length(), NULL, NULL);
+	MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.length(), m_chat[m_nCurrentText], chattingLen);
+	m_chat[m_nCurrentText][chattingLen] = '\0';
+
+	if(m_dequeText.size() >= m_maxChatSentenceCount - 1)
+	{
+		//가장 위에 위치한 텍스트를 pop한다.
+		m_dequeText.pop_back();
+		m_dequeText.emplace_front(make_pair(m_chat[m_nCurrentText],(UINT32)chattingLen));
+		m_nCurrentText = (++m_nCurrentText) % m_maxChatSentenceCount;
+	}
+	else
+	{
+		m_dequeText.emplace_front(make_pair(m_chat[m_nCurrentText], (UINT32)chattingLen));
+		m_nCurrentText = (++m_nCurrentText) % m_maxChatSentenceCount;
+	}
+}
 void ChattingSystem::PushChattingText(const string& user, const char* chat)
 {
 	string s = user + " : ";
@@ -518,7 +538,10 @@ void ChattingSystem::SetIMEMode(HWND hWnd, bool bHanMode)
 	ImmReleaseContext(hWnd, hIMC);
 }
 
-
+void ChattingSystem::ClearChattingBox()
+{
+	m_dequeText.clear();
+}
 bool ChattingSystem::ComposeHangeul(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
 	HIMC hImc = ImmGetContext(hWnd);
