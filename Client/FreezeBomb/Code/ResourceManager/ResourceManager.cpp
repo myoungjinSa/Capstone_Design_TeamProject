@@ -89,6 +89,8 @@ void CResourceManager::PrepareLoad()
 {
 	m_TextureInfoMap.emplace("SkyBox1", TextureInfo(RESOURCE_TEXTURE_CUBE, L"../Resource/Textures/SkyBox/SkyBox_1.dds", 9));
 	m_TextureInfoMap.emplace("SkyBox2", TextureInfo(RESOURCE_TEXTURE_CUBE, L"../Resource/Textures/SkyBox/SkyBox_0.dds", 9));
+	m_TextureInfoMap.emplace("SkyBox3", TextureInfo(RESOURCE_TEXTURE_CUBE, L"../Resource/Textures/SkyBox/SkyBox_2.dds", 9));
+
 
 	m_TextureInfoMap.emplace("BaseTerrain", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Terrain/BaseTerrain.dds", 10));
 	m_TextureInfoMap.emplace("SpecularTerrain", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Terrain/SpecularTerrain.dds", 11));

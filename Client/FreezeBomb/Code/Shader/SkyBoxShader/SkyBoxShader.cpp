@@ -114,7 +114,7 @@ void CSkyBoxShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	CSkyBoxMesh *pSkyBoxMesh = new CSkyBoxMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 2.0f);
 	m_pSkyBox->SetMesh(pSkyBoxMesh);
 
-	CMaterial *pSkyBoxMaterial = new CMaterial(2);
+	CMaterial *pSkyBoxMaterial = new CMaterial(3);
 	auto iter = Context.find("SkyBox1");
 	if(iter != Context.end())
 		pSkyBoxMaterial->SetTexture((*iter).second,0);
@@ -122,6 +122,10 @@ void CSkyBoxShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	iter = Context.find("SkyBox2");
 	if (iter != Context.end())
 		pSkyBoxMaterial->SetTexture((*iter).second, 1);
+
+	iter = Context.find("SkyBox3");
+	if (iter != Context.end())
+		pSkyBoxMaterial->SetTexture((*iter).second, 2);
 
 	m_pSkyBox->SetMaterial(0, pSkyBoxMaterial);
 

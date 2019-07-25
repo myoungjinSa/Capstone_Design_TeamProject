@@ -31,7 +31,7 @@ void CSkyBox::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, nPipelineState);
 
 					//라운드 별로 다른 SkyBox 텍스쳐를 사용
-					if(g_Round<2)
+					if(g_Round<3)
 						m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList,g_Round);
 				}
 				m_pMesh->Render(pd3dCommandList, i);

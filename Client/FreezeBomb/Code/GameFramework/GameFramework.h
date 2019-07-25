@@ -48,8 +48,9 @@ public:
 	static  IWICImagingFactory* GetWICImagingFactory() { return m_pwicImagingFactory; };
 	static IDWriteFactory5* GetWriteFactory() { return m_pdWriteFactory; }
 	static const map<int, clientsInfo>& GetClientsInfo() { return m_mapClients; }
+#ifdef _WITH_SERVER_
 	static char GetHostID() { return m_HostID; }
-
+#endif
 	void Initialize_BitmapImage();
 	void Initialize_GameFont();
 

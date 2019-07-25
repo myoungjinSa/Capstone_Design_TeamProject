@@ -875,7 +875,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 
 									m_pPlayer->Sub_Inventory(CItem::NormalHammer);
 								}
-								m_pShaderManager->ProcessCollision(Vector3::Add((*iter).second->m_ppObjects[i]->GetPosition(),XMFLOAT3(0.0f,2.0f,0.0f)));
+								m_pShaderManager->ProcessCollision(Vector3::Add((*iter).second->m_ppObjects[i]->GetPosition(),XMFLOAT3(0.0f,2.0f,0.0f)),0);
 								CSoundSystem::PlayingSound(CSoundSystem::ICE_BREAK);
 								(*iter).second->m_ppObjects[i]->SetIsICE(false);
 								//cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;

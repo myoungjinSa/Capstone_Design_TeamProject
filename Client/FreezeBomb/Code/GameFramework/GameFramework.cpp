@@ -38,8 +38,9 @@ ID2D1DeviceContext2*	CGameFramework::m_pd2dDeviceContext = nullptr;
 IWICImagingFactory* CGameFramework::m_pwicImagingFactory = nullptr;
 IDWriteFactory5* CGameFramework::m_pdWriteFactory = nullptr;
 map<int, clientsInfo> CGameFramework::m_mapClients;
+#ifdef _WITH_SERVER_
 char CGameFramework::m_HostID = -1;
-
+#endif
 // 전체모드할경우 주석풀으셈
 //#define FullScreenMode
 

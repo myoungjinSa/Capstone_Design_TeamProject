@@ -116,7 +116,7 @@ float4 PSFogSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 
 	float4 cFog = Fog(cColor, input.positionW);
 	
-	return (lerp(cFog,cColor,0.3f));
+	return (lerp(cFog,cColor,0.7f));
 	//return (cColor);
 	
 }
