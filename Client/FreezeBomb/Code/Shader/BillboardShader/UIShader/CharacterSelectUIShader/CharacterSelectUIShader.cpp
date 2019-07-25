@@ -258,45 +258,6 @@ void CCharacterSelectUIShader::CallbackKeyboard(WPARAM wParam)
 {
 	switch (wParam)
 	{
-	case VK_F5:
-		{
-			if (m_ChoiceCharacter == NONE)
-			{
-				//cout << "캐릭터가 선택되지 않았습니다." << endl;
-				string s = "캐릭터가 선택되지 않았습니다.";
-				ChattingSystem::GetInstance()->PushText(s);
-				CSoundSystem::PlayingSound(CSoundSystem::CLICK);
-				break;
-			}
-
-			if (m_MyID == CGameFramework::GetHostID())
-			{
-				CSoundSystem::PlayingSound(CSoundSystem::CLICK);
-				Network::GetInstance()->SendReqStart();
-				cout << "시작하라는 패킷 전송" << endl;
-				break;
-			}
-
-			m_IsReady = !m_IsReady;
-			if (m_IsReady == false)
-			{
-				CSoundSystem::PlayingSound(CSoundSystem::CLICK);
-				Network::GetInstance()->SendNotReady();
-				break;
-			}
-
-			CSoundSystem::PlayingSound(CSoundSystem::CLICK);
-			g_PlayerCharacter = m_ChoiceCharacter - PINK;
-			Network::GetInstance()->SendReady();
-			break;
-		}
-
-	default:
-		break;
-	}
-
-	switch (wParam)
-	{
 		case VK_F5:
 		{
 			// 내 아이디가 있는지 먼저 확인
@@ -306,7 +267,6 @@ void CCharacterSelectUIShader::CallbackKeyboard(WPARAM wParam)
 
 			if (m_ChoiceCharacter == NONE)
 			{
-				//cout << "캐릭터가 선택되지 않았습니다." << endl;
 				string s = "캐릭터가 선택되지 않았습니다.";
 				ChattingSystem::GetInstance()->PushText(s);
 				CSoundSystem::PlayingSound(CSoundSystem::CLICK);
@@ -315,18 +275,32 @@ void CCharacterSelectUIShader::CallbackKeyboard(WPARAM wParam)
 
 			if (m_MyID == CGameFramework::GetHostID())
 			{
+				//auto iter = m_UIMap.find(UITYPE::READY);
+				//if (iter != m_UIMap.end())
+				//	reinterpret_cast<CUI*>((*iter).second)->SetUV(XMFLOAT2(0.75f, 1.f));
+
 				CSoundSystem::PlayingSound(CSoundSystem::CLICK);
 				Network::GetInstance()->SendReqStart();
 				cout << "시작하라는 패킷 전송" << endl;
 				break;
 			}
 
+			// 방장이 아니고, 레디할 때,
 			if ((*iter).second.isReady == true)
 			{
+				auto iter2 = m_UIMap.find(UITYPE::READY);
+				if (iter2 != m_UIMap.end())
+					reinterpret_cast<CUI*>((*iter2).second)->SetUV(XMFLOAT2(0.f, 0.25f));
+
 				CSoundSystem::PlayingSound(CSoundSystem::CLICK);
 				Network::GetInstance()->SendNotReady();
 				break;
 			}
+
+			// 방장이 아니고, 레디를 풀 때,
+			auto iter2 = m_UIMap.find(UITYPE::READY);
+			if (iter2 != m_UIMap.end())
+				reinterpret_cast<CUI*>((*iter2).second)->SetUV(XMFLOAT2(0.25f, 0.5f));
 
 			CSoundSystem::PlayingSound(CSoundSystem::CLICK);
 			g_PlayerCharacter = m_ChoiceCharacter - PINK;
@@ -414,7 +388,6 @@ void CCharacterSelectUIShader::ClickInteraction(int click)
 			{
 				string s = "캐릭터가 선택되지 않았습니다.";
 				ChattingSystem::GetInstance()->PushText(s);
-				//cout << "캐릭터가 선택되지 않았습니다." << endl;
 				break;
 			}
 
@@ -432,10 +405,18 @@ void CCharacterSelectUIShader::ClickInteraction(int click)
 
 			if ((*iter).second.isReady == true)
 			{
+				auto iter2 = m_UIMap.find(UITYPE::READY);
+				if (iter2 != m_UIMap.end())
+					reinterpret_cast<CUI*>((*iter2).second)->SetUV(XMFLOAT2(0.f, 0.25f));
+
 				CSoundSystem::PlayingSound(CSoundSystem::CLICK);
 				Network::GetInstance()->SendNotReady();
 				break;
 			}
+
+			auto iter2 = m_UIMap.find(UITYPE::READY);
+			if (iter2 != m_UIMap.end())
+				reinterpret_cast<CUI*>((*iter2).second)->SetUV(XMFLOAT2(0.25f, 0.5f));
 
 			CSoundSystem::PlayingSound(CSoundSystem::CLICK);
 			g_PlayerCharacter = m_ChoiceCharacter - PINK;
