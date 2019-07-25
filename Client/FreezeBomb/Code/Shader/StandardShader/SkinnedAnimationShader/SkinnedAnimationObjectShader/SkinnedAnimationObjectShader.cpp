@@ -25,7 +25,7 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 	const map<string, CLoadedModelInfo*>& ModelMap, const map<string, Bounds*>& Context, const int& nPlayerCount, void* pContext)
 {
 	CTerrain* pTerrain = (CTerrain *)pContext;
-	m_nObjects = nPlayerCount-1;
+	m_nObjects = nPlayerCount;
 
 	m_ppObjects = new CGameObject*[m_nObjects];
 	
@@ -69,11 +69,11 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		m_ppObjects[4]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
 		//dynamic_cast<CEvilBear*>(m_ppObjects[4])->SetPlayerName(L"ºí·ç");
 
-		/*m_ppObjects[5] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::BLUE);
+		m_ppObjects[5] = new CEvilBear(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, CGameObject::MATERIALTYPE::BLUE);
 		m_ppObjects[5]->SetChild((*Model).second->m_pModelRootObject, true);
 		m_ppObjects[5]->m_pAnimationController = new CAnimationController(1, (*Model).second->m_pAnimationSets);
 		m_ppObjects[5]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[5]->m_pAnimationController->IDLE);
-		m_ppObjects[5]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);*/
+		m_ppObjects[5]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
 
 		for (int i = 0; i < m_nObjects; ++i)
 		{

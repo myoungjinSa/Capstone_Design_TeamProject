@@ -808,7 +808,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			}	
 		}
 	}
-
+//#ifndef _WITH_SERVER_
 	//// ∆¯≈∫¿Ã ¿÷¿ª ∂ß,
 	if (m_bBomb == true)
 	{
@@ -848,7 +848,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			}
 		}
 	}
-
+//#endif
 }
 
 bool CPlayer::AnimationCollision(byte AnimationType)

@@ -41,7 +41,10 @@ public:
 	void Initialize(IDWriteTextFormat*, IDWriteTextLayout*, ID2D1SolidColorBrush*, IWICImagingFactory*, ID2D1DeviceContext2*);
 	void ProcessChatting(HWND hWnd,WPARAM wParam,LPARAM lParam,bool isIngame);
 	void PushChattingText(const string& user,const char* chat);
+	void PushText(const string& str);
 	void ProcessSpecialCharacter(WPARAM wParam);
+	void ClearChattingBox();
+
 	//string -> TCHAR
 	TCHAR* StringToTCHAR(string& s);
 	string TCHARToString(const TCHAR* ptsz);
