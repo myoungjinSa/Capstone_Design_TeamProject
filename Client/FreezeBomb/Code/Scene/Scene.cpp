@@ -729,7 +729,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				if ((*iter).second->m_ppObjects[id]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
 					// 술래 체인지
-					if (m_pPlayer->GetIsBomb() == true /*&& m_TaggerCoolTime <= 0.f*/)
+					if (m_pPlayer->GetIsBomb() == true && (*iter).second->m_ppObjects[id]->GetIsICE() == false/*&& m_TaggerCoolTime <= 0.f*/)
 					{
 						//(*iter).second->m_ppObjects[id]->SetIsBomb(true);
 						//m_pPlayer->SetIsBomb(false);
@@ -737,14 +737,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 
 						//m_TaggerCoolTime = (float)COOLTIME;
 					}
-					//else if ((*iter).second->m_ppObjects[id]->GetIsBomb() == true /*&& m_TaggerCoolTime <= 0.f*/)
-				//{
-						//m_pPlayer->SetIsBomb(true);
-					//	(*iter).second->m_ppObjects[id]->SetIsBomb(false);
-
-						//m_TaggerCoolTime = (float)COOLTIME;
-					//}
-
+				
 					isCollided = true;
 				
 					Network::GetInstance()->SendPlayerCollision(id);
@@ -761,6 +754,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				Network::GetInstance()->SendNotCollision();
 			}
 			static bool bBreak = false;
+
 
 			if (m_pPlayer->AnimationCollision(CAnimationController::ATTACK))
 			{
@@ -783,9 +777,9 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 								//m_pPlayer->Sub_Inventory(CItem::NormalHammer);
 							}
 							m_pShaderManager->ProcessCollision((*iter).second->m_ppObjects[id]->GetPosition(),id);
-
+#ifndef _WITH_SERVER_
 							CSoundSystem::PlayingSound(CSoundSystem::ICE_BREAK);
-
+#endif
 							//cout << i << "번째 애니메이션 오브젝트와 플레이어 망치 충돌" << endl;
 							break;
 						}
@@ -1107,6 +1101,8 @@ void CScene::InGameSceneClear(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 		iter = m_InGameInfo.erase(iter);
 	m_InGameInfo.clear();
 
+	m_BomberID = -1;
+
 	m_pPlayer->InventoryClear();
 	m_pPlayer->EvilBearInfoClear();
 
@@ -1133,27 +1129,40 @@ void CScene::InGameSceneClear(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 	reinterpret_cast<CMenuUIShader*>((*iter).second)->MenuUIClear();
 }
 
-void CScene::UIRender()
+void CScene::UIRender(const wstring& name)
 {
 	UIRoundInfoTextRender();
-
+	UICurrentBomberID(name);
 	float timer = CTimerUIShader::getTimer();
 	if (timer <= 0.f || GetAsyncKeyState(VK_TAB) & 0x8000)
 	{
 		UIScoreBoardRender();
 		UIClientsRankTextRender();
-		// 캐릭터도 렌더링 예정
-
+		UIClientsRoleTextRender();
 		UIClientsNameTextRender();
 		UIClientsScoreTextRender();
 	}
 }
+void CScene::UICurrentBomberID(const wstring& name)
+{
+	UINT originX = 1200;
+	UINT originY = 800;
+
+	D2D1_RECT_F pos = D2D1::RectF((0 * FRAME_BUFFER_WIDTH) / originX, (0 * FRAME_BUFFER_HEIGHT) / originY, (300 * FRAME_BUFFER_WIDTH) / originX, (160 * FRAME_BUFFER_HEIGHT) / originY);
+
+	wstring wstr = L"술래: "+name;
+
+	CDirect2D::GetInstance()->Render("피오피동글", "네이비", wstr, pos);
+}
 
 void CScene::UIRoundInfoTextRender()
 {
-	D2D1_RECT_F pos = { 0.0f, 0.0f, 300.0f, 70.0f };
+	UINT originX = 1200;
+	UINT originY = 800;
+	D2D1_RECT_F pos = D2D1::RectF((0 * FRAME_BUFFER_WIDTH) / originX, (0 * FRAME_BUFFER_HEIGHT) / originY, (300 * FRAME_BUFFER_WIDTH) / originX, (70 * FRAME_BUFFER_HEIGHT) / originY);
+
 	wstring wstr = to_wstring((int)g_Round + 1) + L" Round";
-	CDirect2D::GetInstance()->Render("피오피동글", "주황색", wstr, pos);
+	CDirect2D::GetInstance()->Render("피오피동글", "네이비", wstr, pos);
 }
 
 void CScene::UIScoreBoardRender()
@@ -1180,6 +1189,47 @@ void CScene::UIClientsRankTextRender()
 	for (int i = 0; i < m_InGameInfo.size(); ++i)
 	{
 		CDirect2D::GetInstance()->Render("피오피동글", "흰색", to_wstring(m_InGameInfo[i].m_Rank), pos[i]);
+	}
+}
+
+void CScene::UIClientsRoleTextRender()
+{
+	ImageInfo info = CDirect2D::GetInstance()->GetImageInfo("ScoreBoard");
+	float width = info.m_Pos.right - info.m_Pos.left;
+	float height = info.m_Pos.bottom - info.m_Pos.top;
+
+	D2D1_RECT_F pos[6] =
+	{
+		D2D1::RectF((info.m_Pos.left + width * 10.f / 42.f), (info.m_Pos.top + height * 3.f / 16.f), (info.m_Pos.left + width * 20.f / 42.f), (info.m_Pos.top + height * 5.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 10.f / 42.f), (info.m_Pos.top + height * 5.f / 16.f), (info.m_Pos.left + width * 20.f / 42.f), (info.m_Pos.top + height * 7.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 10.f / 42.f), (info.m_Pos.top + height * 7.f / 16.f), (info.m_Pos.left + width * 20.f / 42.f), (info.m_Pos.top + height * 9.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 10.f / 42.f), (info.m_Pos.top + height * 9.f / 16.f), (info.m_Pos.left + width * 20.f / 42.f), (info.m_Pos.top + height * 11.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 10.f / 42.f), (info.m_Pos.top + height * 11.f / 16.f), (info.m_Pos.left + width * 20.f / 42.f), (info.m_Pos.top + height * 13.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 10.f / 42.f), (info.m_Pos.top + height * 13.f / 16.f), (info.m_Pos.left + width * 20.f / 42.f), (info.m_Pos.top + height * 15.f / 16.f))
+	};
+
+	// 아직 점수가 없을 때
+	if (m_InGameInfo.size() == 0)
+	{
+		int i = 0;
+		for(auto client : CGameFramework::GetClientsInfo())
+		{
+			char id = client.second.id;
+			if(m_BomberID == id)
+				CDirect2D::GetInstance()->Render("피오피동글", "흰색", L"술래", pos[id]);
+			else
+				CDirect2D::GetInstance()->Render("피오피동글", "흰색", L"도망자", pos[id]);
+			++i;
+		}
+		return;
+	}
+
+	for (int i = 0; i < m_InGameInfo.size(); ++i)
+	{
+		if (m_BomberID == m_InGameInfo[i].m_ID)
+			CDirect2D::GetInstance()->Render("피오피동글", "흰색", L"술래", pos[i]);
+		else
+			CDirect2D::GetInstance()->Render("피오피동글", "흰색", L"도망자", pos[i]);
 	}
 }
 
@@ -1245,7 +1295,7 @@ void CScene::UIClientsScoreTextRender()
 	{
 		CDirect2D::GetInstance()->Render("피오피동글", "흰색", to_wstring(m_InGameInfo[i].m_Score), pos[i]);
 	}
-}
+}   
 
 void CScene::SortInGameRank()
 {
@@ -1294,7 +1344,17 @@ void CScene::AddInGameScore(char id, string name, char score)
 				m_InGameInfo[i].m_Score = score;
 				break;
 			}
-			++i;		
 		}
+	}
+}
+
+void CScene::RemovePlayer(char id)
+{
+	for (auto iter = m_InGameInfo.begin(); iter != m_InGameInfo.end(); )
+	{
+		if (id == (*iter).m_ID)
+			iter = m_InGameInfo.erase(iter);
+		else
+			++iter;
 	}
 }

@@ -149,8 +149,15 @@ void CDirect2D::CreateGameFontColor()
 	hResult = CGameFramework::GetDeviceContext()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Red, 1.0f), &pColor[index]);
 	m_FontColorMap.emplace("빨간색", pColor[index++]);
 
-	hResult = CGameFramework::GetDeviceContext()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Orange, 1.0f), &pColor[index]);
-	m_FontColorMap.emplace("주황색", pColor[index++]);
+	hResult = CGameFramework::GetDeviceContext()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Lime, 1.0f), &pColor[index]);
+	m_FontColorMap.emplace("라임색", pColor[index++]);
+
+	hResult = CGameFramework::GetDeviceContext()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Gold, 1.0f), &pColor[index]);
+	m_FontColorMap.emplace("황금색", pColor[index++]);
+
+	hResult = CGameFramework::GetDeviceContext()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Navy, 1.0f), &pColor[index]);
+	m_FontColorMap.emplace("네이비", pColor[index++]);
+
 }
 
 void CDirect2D::Release()

@@ -115,6 +115,7 @@ public:
 	bool IsSpike() const { return m_bSpike; }
 	void SetSpike(bool spike) { m_bSpike = spike; }
 
+	CBomb* GetBombPtr() { return m_BombParticle; }
 	bool CheckInventoryToGet(const int& itemType);		//이미 인벤의 존재하는 종류의 아이템인지 검사하고 없다면 true 반환
 	void ChangeRole();
 	map<string, CItem*>& GetSpecialInventory() { return m_Special_Inventory; }
