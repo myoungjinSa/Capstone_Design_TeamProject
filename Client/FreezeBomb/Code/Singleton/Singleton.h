@@ -4,21 +4,21 @@ template<class T>
 class Singleton
 {
 private:
-	static T* instance;
+	static T* _instance;
 
 public:
 	static T* GetInstance()
 	{
-		if (instance == nullptr)
-			instance = new T();
-		return instance;
+		if (_instance == nullptr)
+			_instance = new T();
+		return _instance;
 	}
 
 	static void DeleteInstance()
 	{
-		if (instance) 
-			delete instance;		
+		if (_instance) 
+			delete _instance;		
 	}
 };
 
-template<class T> T* Singleton<T>::instance = nullptr;
+template<class T> T* Singleton<T>::_instance = nullptr;

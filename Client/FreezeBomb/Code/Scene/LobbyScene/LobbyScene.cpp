@@ -286,7 +286,7 @@ void CLobbyScene::UIClientsReadyTextRender()
 		char id = client.second.id;
 		if (id == CGameFramework::GetHostID())
 		{
-			CDirect2D::GetInstance()->Render("피오피동글", "황금색", L"▶방장◀", pos[id]);
+			CDirect2D::GetInstance()->Render("피오피동글", "검은색", L"▶방장◀", pos[id]);
 			continue;
 		}
 

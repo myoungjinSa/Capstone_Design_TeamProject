@@ -32,7 +32,6 @@ constexpr float FRICTION = 250;
 constexpr float MAX_VELOCITY_XZ = 40;
 constexpr float MAX_VELOCITY_Y = 400;
 constexpr float VELOCITY = 0.7f;
-constexpr float ROTATE_RATE = 0.02f;
 
 constexpr int MAX_FREEZE_COUNT = MAX_USER - 2;
 constexpr int MAX_WORKER_THREAD = 2;
@@ -256,10 +255,10 @@ public:
 	void SetClient_Initialize(char client);
 	void SetDirection(char client, int key);
 	void RotateModel(char client, float x, float y, float z);
-	void RotateClientAxisY(char client);
-	void UpdateClientPos(char client);
-	//void ProcessClientHeight(char client);
-	//void ProcessFriction(char client, float& fLength);
+	void RotateClientAxisY(char client, float fTimeElapsed);
+	void UpdateClientPos(char client, float fTimeElapsed);
+	void ProcessClientHeight(char client);
+	void ProcessFriction(char client, float& fLength);
 	void ShuffleStartPosIndex();
 public:
 	void InitGame();

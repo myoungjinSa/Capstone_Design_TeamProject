@@ -202,9 +202,7 @@ void CShaderManager::PreRender(ID3D12GraphicsCommandList* pd3dCommandList,float 
 
 void CShaderManager::ProcessCollision(XMFLOAT3& position,int index)
 {
-#ifndef _WITH_SERVER_
 	auto iter = m_ShaderMap.find("CubeParticle");
 	if(iter!= m_ShaderMap.end())
 		dynamic_cast<CCubeParticleShader*>((*iter).second)->SetParticleBlowUp(position,index);
-#endif
 }
