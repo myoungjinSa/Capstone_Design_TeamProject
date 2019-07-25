@@ -1107,6 +1107,8 @@ void CScene::InGameSceneClear(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 		iter = m_InGameInfo.erase(iter);
 	m_InGameInfo.clear();
 
+	m_BomberID = -1;
+
 	m_pPlayer->InventoryClear();
 	m_pPlayer->EvilBearInfoClear();
 
@@ -1142,8 +1144,7 @@ void CScene::UIRender()
 	{
 		UIScoreBoardRender();
 		UIClientsRankTextRender();
-		// 캐릭터도 렌더링 예정
-
+		UIClientsRoleTextRender();
 		UIClientsNameTextRender();
 		UIClientsScoreTextRender();
 	}
@@ -1180,6 +1181,47 @@ void CScene::UIClientsRankTextRender()
 	for (int i = 0; i < m_InGameInfo.size(); ++i)
 	{
 		CDirect2D::GetInstance()->Render("피오피동글", "흰색", to_wstring(m_InGameInfo[i].m_Rank), pos[i]);
+	}
+}
+
+void CScene::UIClientsRoleTextRender()
+{
+	ImageInfo info = CDirect2D::GetInstance()->GetImageInfo("ScoreBoard");
+	float width = info.m_Pos.right - info.m_Pos.left;
+	float height = info.m_Pos.bottom - info.m_Pos.top;
+
+	D2D1_RECT_F pos[6] =
+	{
+		D2D1::RectF((info.m_Pos.left + width * 10.f / 42.f), (info.m_Pos.top + height * 3.f / 16.f), (info.m_Pos.left + width * 20.f / 42.f), (info.m_Pos.top + height * 5.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 10.f / 42.f), (info.m_Pos.top + height * 5.f / 16.f), (info.m_Pos.left + width * 20.f / 42.f), (info.m_Pos.top + height * 7.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 10.f / 42.f), (info.m_Pos.top + height * 7.f / 16.f), (info.m_Pos.left + width * 20.f / 42.f), (info.m_Pos.top + height * 9.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 10.f / 42.f), (info.m_Pos.top + height * 9.f / 16.f), (info.m_Pos.left + width * 20.f / 42.f), (info.m_Pos.top + height * 11.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 10.f / 42.f), (info.m_Pos.top + height * 11.f / 16.f), (info.m_Pos.left + width * 20.f / 42.f), (info.m_Pos.top + height * 13.f / 16.f)),
+		D2D1::RectF((info.m_Pos.left + width * 10.f / 42.f), (info.m_Pos.top + height * 13.f / 16.f), (info.m_Pos.left + width * 20.f / 42.f), (info.m_Pos.top + height * 15.f / 16.f))
+	};
+
+	// 아직 점수가 없을 때
+	if (m_InGameInfo.size() == 0)
+	{
+		int i = 0;
+		for(auto client : CGameFramework::GetClientsInfo())
+		{
+			char id = client.second.id;
+			if(m_BomberID == id)
+				CDirect2D::GetInstance()->Render("피오피동글", "흰색", L"술래", pos[id]);
+			else
+				CDirect2D::GetInstance()->Render("피오피동글", "흰색", L"도망자", pos[id]);
+			++i;
+		}
+		return;
+	}
+
+	for (int i = 0; i < m_InGameInfo.size(); ++i)
+	{
+		if (m_BomberID == m_InGameInfo[i].m_ID)
+			CDirect2D::GetInstance()->Render("피오피동글", "흰색", L"술래", pos[i]);
+		else
+			CDirect2D::GetInstance()->Render("피오피동글", "흰색", L"도망자", pos[i]);
 	}
 }
 
@@ -1245,7 +1287,7 @@ void CScene::UIClientsScoreTextRender()
 	{
 		CDirect2D::GetInstance()->Render("피오피동글", "흰색", to_wstring(m_InGameInfo[i].m_Score), pos[i]);
 	}
-}
+}   
 
 void CScene::SortInGameRank()
 {
@@ -1294,7 +1336,17 @@ void CScene::AddInGameScore(char id, string name, char score)
 				m_InGameInfo[i].m_Score = score;
 				break;
 			}
-			++i;		
 		}
+	}
+}
+
+void CScene::RemovePlayer(char id)
+{
+	for (auto iter = m_InGameInfo.begin(); iter != m_InGameInfo.end(); )
+	{
+		if (id == (*iter).m_ID)
+			iter = m_InGameInfo.erase(iter);
+		else
+			++iter;
 	}
 }
