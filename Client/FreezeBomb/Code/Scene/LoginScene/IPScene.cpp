@@ -3,7 +3,6 @@
 #include "../../Shader/BillboardShader/UIShader/LoginShader/IPShader.h"
 #include "../../InputSystem/IPInputSystem.h"
 
-
 #ifdef _WITH_SERVER_
 #ifdef _WITH_DIRECT2D_
 extern volatile int g_CurrentTexture;
@@ -76,21 +75,22 @@ void CIPScene::ReleaseObjects()
 {
 	if (m_pInput)
 		m_pInput->Destroy();
-	if (m_pd3dGraphicsRootSignature)
-		m_pd3dGraphicsRootSignature->Release();
 
 	for (int i = 0; i < m_nShaders; i++)
 	{
 		m_ppShaders[i]->ReleaseShaderVariables();
 		m_ppShaders[i]->ReleaseObjects();
+		delete m_ppShaders[i];
 	}
 	delete[] m_ppShaders;
+
+	if (m_pd3dGraphicsRootSignature)
+		m_pd3dGraphicsRootSignature->Release();
 }
 
 void CIPScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, IDWriteTextFormat* pFont, IDWriteTextLayout* pTextLayout, ID2D1SolidColorBrush* pFontColor, ID2D1DeviceContext2* pContext)
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
-
 
 	int index = 0;
 
@@ -137,19 +137,6 @@ void CIPScene::ProcessInput(HWND hWnd)
 
 
 }
-
-//void CIPScene::AnimateObjects(ID3D12GraphicsCommandList* pd3dCommandList, float elapsedTime)
-//{
-//	
-//	//dynamic_cast<CLoginShader*>(m_ppShaders[0])->DecideTextureByCursorPosition()
-//	for (int i = 0; i < m_nShaders; ++i)
-//	{
-//		if (m_ppShaders[i])
-//		{
-//			m_ppShaders[i]->AnimateObjects(elapsedTime, nullptr, nullptr);
-//		}
-//	}
-//}
 
 void CIPScene::DrawFont()
 {

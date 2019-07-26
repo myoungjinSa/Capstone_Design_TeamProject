@@ -1,5 +1,9 @@
 #include "../Stdafx/Stdafx.h"
 #include "GameFramework.h"
+
+// 메모리 릭이 있는지 알려준다.
+#include <crtdbg.h>
+
 #include "../Direct2D/Direct2D.h"
 
 #include "../Network/Network.h"
@@ -97,6 +101,18 @@ CGameFramework::CGameFramework()
 
 
 	_tcscpy_s(m_pszFrameRate, _T("FreezeBomb ("));
+
+	// 메모리 릭이 있는지 체크를 해준다.
+// 릭이 있으면, 번호를 출력해준다.
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
+	// 출력된 번호를 넣어주면 그 지점으로 바로 이동시켜준다.
+	// [ 예시 ]
+	// Detected memory leaks!
+	//	Dumping objects ->
+	// {233} normal block at 0x000001469D91A680, 24 bytes long.
+	// 233 이라는 지점에서 릭이 생김	
+	//_CrtSetBreakAlloc( 352 );
 }
 
 CGameFramework::~CGameFramework()
