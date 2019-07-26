@@ -119,7 +119,6 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 		SkyBox + Terrain + MapObjects + Item + EvilBear + BombParticle + CubeParticle + Snow + TimerUI + ItemUI + Player
 	+ MenuUI + Thunder + FirePit);
 
-
 	// Model을 로드할 때, 셰이더 없이 로드할 경우 이것을 사용함!
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
@@ -142,7 +141,10 @@ void CScene::ReleaseObjects()
 		m_pd3dCbvSrvDescriptorHeap->Release();
 
 	if (m_pShaderManager)
+	{
 		m_pShaderManager->ReleaseObjects();
+		delete m_pShaderManager;
+	}
 
 	ReleaseShaderVariables();
 

@@ -33,8 +33,6 @@ protected:
 	ID3D12PipelineState**		m_ppd3dPipelineStates{ nullptr };
 	int										m_nPipelineStates = 0;
 
-	
-
 	struct InstancingData
 	{
 		XMFLOAT4X4 m_World;

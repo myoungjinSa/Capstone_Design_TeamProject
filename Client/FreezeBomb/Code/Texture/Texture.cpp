@@ -29,11 +29,10 @@ CTexture::~CTexture()
 	}
 
 	if (m_pRootArgumentInfos)
-	{
 		delete[] m_pRootArgumentInfos;
-	}
 
-	if (m_pd3dSamplerGpuDescriptorHandles) delete[] m_pd3dSamplerGpuDescriptorHandles;
+	if (m_pd3dSamplerGpuDescriptorHandles) 
+		delete[] m_pd3dSamplerGpuDescriptorHandles;
 }
 
 
@@ -78,9 +77,15 @@ void CTexture::ReleaseUploadBuffers()
 {
 	if (m_ppd3dTextureUploadBuffers)
 	{
-		for (int i = 0; i < m_nTextures; ++i) 
-			if (m_ppd3dTextureUploadBuffers[i]) 
+		for (int i = 0; i < m_nTextures; ++i)
+		{
+			if (m_ppd3dTextureUploadBuffers[i])
+			{
 				m_ppd3dTextureUploadBuffers[i]->Release();
+				m_ppd3dTextureUploadBuffers[i] = nullptr;
+			}
+		}
+
 		delete[] m_ppd3dTextureUploadBuffers;
 		m_ppd3dTextureUploadBuffers = nullptr;
 	}

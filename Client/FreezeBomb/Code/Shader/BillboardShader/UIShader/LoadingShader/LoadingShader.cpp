@@ -8,12 +8,10 @@
 
 CLoadingShader::CLoadingShader()
 {
-
 }
 
 CLoadingShader::~CLoadingShader()
 {
-
 }
 
 void CLoadingShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
@@ -40,12 +38,11 @@ void CLoadingShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 		m_d3dPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
 		HRESULT hResult = pd3dDevice->CreateGraphicsPipelineState(&m_d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void **)&m_ppd3dPipelineStates[i]);
+
+		if (m_pd3dVertexShaderBlob) m_pd3dVertexShaderBlob->Release();
+		if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
+		if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 	}
-
-	if (m_pd3dVertexShaderBlob) m_pd3dVertexShaderBlob->Release();
-	if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
-
-	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
 
 void CLoadingShader::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)
@@ -116,12 +113,7 @@ void CLoadingShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12GraphicsCommand
 
 	pTitleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Loading/New_Title.dds", 0);
 
-
 	vTexture.emplace_back(pTitleTexture);
-
-
-
-
 
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 1);
 	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTitleTexture, 0, true);
@@ -134,8 +126,6 @@ void CLoadingShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12GraphicsCommand
 	m_ppUIMaterial[0] = new CMaterial(1);
 	m_ppUIMaterial[0]->SetTexture(vTexture[0], 0);
 
-	
-
 	for (int i = 0; i < m_nObjects; ++i)
 	{
 		CUI* pUI = new CUI(1);
@@ -143,11 +133,10 @@ void CLoadingShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12GraphicsCommand
 		pUI->SetMaterial(0, m_ppUIMaterial[i]);
 		m_UIMap.emplace(i, pUI);
 	}
-
 }
+
 void CLoadingShader::AnimateObjects(float fTimeElapsed)
 {
-
 }
 
 void CLoadingShader::Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipelineState)
@@ -156,7 +145,8 @@ void CLoadingShader::Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipe
 		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
 	CUIShader::OnPrepareRender(pd3dCommandList, 0);
-	for (int i = 0; i < m_nObjects; ++i) {
+	for (int i = 0; i < m_nObjects; ++i) 
+	{
 		auto iter = m_UIMap.find(i);
 		if (iter != m_UIMap.end())
 			(*iter).second->Render(pd3dCommandList, nPipelineState);
@@ -171,4 +161,10 @@ void CLoadingShader::ReleaseObjects()
 	CUIShader::ReleaseObjects();
 
 	vTexture.clear();
+}
+
+void CLoadingShader::ReleaseUploadBuffers()
+{
+	for (auto iter = m_UIMap.begin(); iter != m_UIMap.end(); ++iter)
+		(*iter).second->ReleaseUploadBuffers();
 }

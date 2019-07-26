@@ -9,13 +9,11 @@
 
 CThunderBillboardShader::CThunderBillboardShader()
 {
-
 }
 
 
 CThunderBillboardShader::~CThunderBillboardShader()
 {
-
 }
 
 D3D12_SHADER_BYTECODE CThunderBillboardShader::CreateVertexShader()

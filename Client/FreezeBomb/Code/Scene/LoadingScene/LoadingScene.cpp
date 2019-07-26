@@ -71,6 +71,7 @@ ID3D12RootSignature *CLoadingScene::CreateGraphicsRootSignature(ID3D12Device *pd
 
 	return(pd3dGraphicsRootSignature);
 }
+
 void CLoadingScene::ReleaseObjects()
 {
 	if (m_pd3dGraphicsRootSignature)
@@ -80,8 +81,17 @@ void CLoadingScene::ReleaseObjects()
 	{
 		m_ppShaders[i]->ReleaseShaderVariables();
 		m_ppShaders[i]->ReleaseObjects();
+		delete m_ppShaders[i];
 	}
 	delete[] m_ppShaders;
+}
+
+void CLoadingScene::ReleaseUploadBuffers()
+{
+	for (int i = 0; i < m_nShaders; i++)
+	{
+		m_ppShaders[i]->ReleaseUploadBuffers();
+	}
 }
 
 void CLoadingScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
@@ -101,7 +111,6 @@ void CLoadingScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	pProgressBarUIShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 	pProgressBarUIShader->BuildObjects(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nullptr);	
 	m_ppShaders[index++] = pProgressBarUIShader;
-
 }
 
 void CLoadingScene::AnimateObjects(ID3D12GraphicsCommandList* pd3dCommandList, float elapsedTime)
@@ -121,9 +130,7 @@ void CLoadingScene::Render(ID3D12GraphicsCommandList *pd3dCommandList)
 		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 
 	for(int i = 0; i < m_nShaders; ++i)
-	{
-		
+	{	
 		m_ppShaders[i]->Render(pd3dCommandList, 0);
 	}
-
 }
