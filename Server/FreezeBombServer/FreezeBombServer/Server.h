@@ -35,7 +35,9 @@ constexpr float VELOCITY = 0.7f;
 constexpr float ROTATE_RATE = 0.04f;
 
 constexpr int MAX_FREEZE_COUNT = MAX_USER - 2;
-constexpr int MAX_WORKER_THREAD = 2;
+// 서버노트북 스레드수 8개
+// worker 5, accept 1, timer 1, moving 1
+constexpr int MAX_WORKER_THREAD = 5;
 
 constexpr int GOLD_HAMMER_COUNT = 2;
 

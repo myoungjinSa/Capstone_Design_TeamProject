@@ -270,7 +270,6 @@ void Server::RunServer()
 	
 	gameTimer.Tick(60.0f);
 	
-	//스레드의 수가 2개인 이유는? - 명진
 	for (int i = 0; i < MAX_WORKER_THREAD; ++i)
 		workerThreads.emplace_back(thread{ WorkerThread, (LPVOID)this });
 	thread accpetThread{ AcceptThread, (LPVOID)this };
