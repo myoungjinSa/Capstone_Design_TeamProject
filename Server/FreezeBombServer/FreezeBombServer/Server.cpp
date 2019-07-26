@@ -304,6 +304,15 @@ void Server::InitRound()
 	ResetTimer();
 	bomberID = 0;
 	freezeCnt = 0;
+	for(int i=0;i<MAX_USER;++i)
+	{
+		if (clients[i].in_use==false)
+			continue;
+		clients[i].isFreeze = false;
+		clients[i].normalItem = ITEM::EMPTY;
+		clients[i].specialItem = ITEM::EMPTY;
+	}
+
 	timer_l.lock();
 	while (false == timer_queue.empty())
 		timer_queue.pop();
@@ -1907,10 +1916,28 @@ void Server::UpdateClientPos(char client)
 	}
 	case CL_PLAYER:
 	{
-		XMFLOAT3 xmf3CollisionDir = Vector3::Subtract(player_pos,clients[client].pos);
+		XMFLOAT3 xmf3CollisionDir = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		switch (clients[client].direction)
+		{
+		case DIR_BACKWARD:
+		case DIR_BACKLEFT:
+		case DIR_BACKRIGHT:
+		{
+			xmf3CollisionDir= Vector3::Add(Vector3::Subtract(player_pos, clients[client].pos), Vector3::ScalarProduct(clients[client].look, -1.0f));
+			break;
+		}
+		case DIR_FORWARD:
+		case DIR_FORWARDLEFT:
+		case DIR_FORWARDRIGHT:
+		{
+			xmf3CollisionDir = Vector3::Add(Vector3::Subtract(player_pos,clients[client].pos),clients[client].look);
+			break;
+		}
+
+		}
 		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir,VELOCITY );
 		clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
-		
+		//cout << "충돌 속도" << clients[client].velocity.x << "," << clients[client].velocity.y << "," << clients[client].velocity.z << endl;
 		break;
 	}
 	default :
