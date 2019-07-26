@@ -119,7 +119,7 @@ void CIPShader::BuildObjects(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList 
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, nTextures);
 
 
-	CTexture** pLoginTextures = new CTexture*[nTextures];
+	pLoginTextures = new CTexture*[nTextures];
 	
 	pLoginTextures[NO_SELECT] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pLoginTextures[NO_SELECT]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Login/IP_NO.dds", 0);
@@ -195,8 +195,6 @@ void CIPShader::Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipelineS
 	auto iter = m_UIMap.find(currentTexture);
 	if (iter != m_UIMap.end())
 		(*iter).second->Render(pd3dCommandList, nPipelineState,currentTexture);
-	
-
 }
 
 void CIPShader::ReleaseObjects()
@@ -205,6 +203,8 @@ void CIPShader::ReleaseObjects()
 		m_pd3dCbvSrvDescriptorHeap->Release();
 
 	CUIShader::ReleaseObjects();
+
+	delete[] pLoginTextures;
 
 	vTexture.clear();
 }

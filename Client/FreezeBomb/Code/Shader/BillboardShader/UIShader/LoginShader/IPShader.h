@@ -38,14 +38,11 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvDescriptorStartHandle() { return(m_d3dSrvCPUDescriptorStartHandle); }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorStartHandle() { return(m_d3dSrvGPUDescriptorStartHandle); }
 
-
 	void DecideTextureByCursor(const RECT& rect,const LONG& mouseX, const LONG& mouseY,UINT& sel);
 	//사용자가 어떤 유아이를 클릭했는지 
 	enum LoginState {NO_SELECT,IP_SELECT};
+
 protected:
-	
-	
-	
 	ID3D12DescriptorHeap					*m_pd3dCbvSrvDescriptorHeap = NULL;			//cbv,srv의 서술자 힙
 
 	D3D12_CPU_DESCRIPTOR_HANDLE				m_d3dCbvCPUDescriptorStartHandle;
@@ -54,6 +51,6 @@ protected:
 	D3D12_GPU_DESCRIPTOR_HANDLE				m_d3dSrvGPUDescriptorStartHandle;
 	std::vector<CTexture*> vTexture;
 
-
+	CTexture** pLoginTextures{ nullptr };
 };
 #endif
