@@ -38,19 +38,19 @@ struct FontInfo
 class CDirect2D : public Singleton<CDirect2D>
 {
 public:
-	void CreateBitmapImage(ImageInfo info, string key);
+	void CreateBitmapImage(ImageInfo info, const string& key);
 	void CreateGameFont();
 	void CreateGameFontColor();
 
 	void Release();
 	void Render();
-	void Render(string key);
-	void Render(string key, D2D1_RECT_F pos, int fx, int fy);
-	void Render(string key, string color, wstring text, D2D1_RECT_F pos);
+	void Render(const string& key);
+	void Render(const string& key, D2D1_RECT_F pos, int fx, int fy);
+	void Render(const string& key,const string& color,const wstring& text,D2D1_RECT_F pos);
 
-	ImageInfo& GetImageInfo(string key);
-	FontInfo&	 GetFontInfo(string key);
-	ID2D1SolidColorBrush* GetFontColor(string key);
+	ImageInfo& GetImageInfo(const string& key);
+	FontInfo&	 GetFontInfo(const string& key);
+	ID2D1SolidColorBrush* GetFontColor(const string& key);
 
 private:
 	unordered_map<string, ImageInfo> m_ImageInfoMap;

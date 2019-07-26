@@ -430,6 +430,11 @@ CGameObject::~CGameObject()
 		delete m_pSkinningBoneTransforms;
 	if (m_pFrameTransform)
 		delete m_pFrameTransform;
+	if (m_pLampParticle)
+	{
+		delete m_pLampParticle;
+		m_pLampParticle = nullptr;
+	}
 }
 
 void CGameObject::AddRef()

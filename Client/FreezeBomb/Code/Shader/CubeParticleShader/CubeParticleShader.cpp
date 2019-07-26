@@ -178,20 +178,19 @@ void CCubeParticleShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCa
 {
 	
 	
-	auto iter = m_CubeParticleList.begin();
+	
 	for (int j = 0; j < 6; ++j)
 	{
-		for (auto iter = m_CubeParticleList[j].begin(); iter != m_CubeParticleList[j].end(); ++iter) {
-			
-			if ((*iter)->GetBlowingUp()) 
-			{
-				UpdateShaderVariables(pd3dCommandList, j);
-				OnPrepareRender(pd3dCommandList, GameObject);
-				(*iter)->Render(pd3dCommandList, pCamera, GameObject, m_CubeParticleList[j].size());
-				OnPrepareRender(pd3dCommandList, GameObject_Shadow);
-				(*iter)->Render(pd3dCommandList, pCamera, GameObject_Shadow, m_CubeParticleList[j].size());
-			}
+		auto iter = m_CubeParticleList[j].begin();
+		if ((*iter)->GetBlowingUp()) 
+		{
+			UpdateShaderVariables(pd3dCommandList, j);
+			OnPrepareRender(pd3dCommandList, GameObject);
+			(*iter)->Render(pd3dCommandList, pCamera, GameObject, m_CubeParticleList[j].size());
+			OnPrepareRender(pd3dCommandList, GameObject_Shadow);
+			(*iter)->Render(pd3dCommandList, pCamera, GameObject_Shadow, m_CubeParticleList[j].size());
 		}
+		
 	}
 }
 

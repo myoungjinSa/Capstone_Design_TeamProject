@@ -112,7 +112,7 @@ CGameFramework::CGameFramework()
 	//	Dumping objects ->
 	// {233} normal block at 0x000001469D91A680, 24 bytes long.
 	// 233 이라는 지점에서 릭이 생김	
-	//_CrtSetBreakAlloc( 352 );
+	//_CrtSetBreakAlloc( 54415 );
 }
 
 CGameFramework::~CGameFramework()
