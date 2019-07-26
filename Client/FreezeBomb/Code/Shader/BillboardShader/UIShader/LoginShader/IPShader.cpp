@@ -14,9 +14,7 @@ CIPShader::CIPShader()
 
 CIPShader::~CIPShader()
 {
-
 }
-
 
 void CIPShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
@@ -42,12 +40,11 @@ void CIPShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList
 		m_d3dPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
 		HRESULT hResult = pd3dDevice->CreateGraphicsPipelineState(&m_d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void **)&m_ppd3dPipelineStates[i]);
+	
+		if (m_pd3dVertexShaderBlob) m_pd3dVertexShaderBlob->Release();
+		if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
+		if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 	}
-
-	if (m_pd3dVertexShaderBlob) m_pd3dVertexShaderBlob->Release();
-	if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
-
-	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
 
 void CIPShader::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)
@@ -118,7 +115,6 @@ void CIPShader::BuildObjects(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList 
 	constexpr int nTextures = 2;
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, nTextures);
 
-
 	pLoginTextures = new CTexture*[nTextures];
 	
 	pLoginTextures[NO_SELECT] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
@@ -149,7 +145,6 @@ void CIPShader::BuildObjects(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList 
 		pUI->SetMaterial(0, m_ppUIMaterial[0]);
 		m_UIMap.emplace(i, pUI);
 	}
-	
 }
 
 void CIPShader::AnimateObjects(float fTimeElapsed)
@@ -208,4 +203,11 @@ void CIPShader::ReleaseObjects()
 
 	vTexture.clear();
 }
+
+void CIPShader::ReleaseUploadBuffers()
+{
+	for (auto iter = m_UIMap.begin(); iter != m_UIMap.end(); ++iter)
+		(*iter).second->ReleaseUploadBuffers();
+}
+
 #endif

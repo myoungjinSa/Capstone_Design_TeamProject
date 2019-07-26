@@ -212,8 +212,9 @@ public:
 class CLoadedModelInfo
 {
 public:
-	CLoadedModelInfo() { }
-	~CLoadedModelInfo() { }
+	CLoadedModelInfo();
+	~CLoadedModelInfo();
+
 
 	int 						m_nSkinnedMeshes = 0;
 	int							m_nFrameMeshes = 0;

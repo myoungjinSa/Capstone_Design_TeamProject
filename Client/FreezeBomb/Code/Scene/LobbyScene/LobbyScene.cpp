@@ -84,8 +84,17 @@ void CLobbyScene::ReleaseObjects()
 	{
 		m_ppShaders[i]->ReleaseShaderVariables();
 		m_ppShaders[i]->ReleaseObjects();
+		delete m_ppShaders[i];
 	}
 	delete[] m_ppShaders;
+}
+
+void CLobbyScene::ReleaseUploadBuffers()
+{
+	for (int i = 0; i < m_nShaders; i++)
+	{
+		m_ppShaders[i]->ReleaseUploadBuffers();
+	}
 }
 
 void CLobbyScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)

@@ -24,8 +24,6 @@ private:
 
 	UINT							m_nTextureType = RESOURCE_TEXTURE2D;
 
-	
-	
 	ID3D12Resource**	m_ppd3dTextureUploadBuffers;
 
 	int															m_nSamplers = 0;

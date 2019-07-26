@@ -412,7 +412,6 @@ CGameObject::~CGameObject()
 	if (m_pMesh)
 		m_pMesh->Release();
 
-
 	if (m_nMaterials > 0)
 	{
 		for (int i = 0; i < m_nMaterials; i++)
@@ -1459,9 +1458,9 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 			{
 				for (int i = 0; i < nChilds; i++)
 				{
-					CGameObject *pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
-						pGameObject, pInFile, pShader, pnSkinnedMeshes, pnFrameMeshes);
-					if (pChild) pGameObject->SetChild(pChild);
+					CGameObject *pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInFile, pShader, pnSkinnedMeshes, pnFrameMeshes);
+					if (pChild) 
+						pGameObject->SetChild(pChild);
 #ifdef _WITH_DEBUG_FRAME_HIERARCHY
 					TCHAR pstrDebug[256] = { 0 };
 					_stprintf_s(pstrDebug, 256, "(Frame: %p) (Parent: %p)\n"), pChild, pGameObject);
@@ -1798,4 +1797,12 @@ void CGameObject::EvilBearInfoClear()
 	m_Score = 0;
 
 	m_matID = -1;
+}
+
+CLoadedModelInfo::CLoadedModelInfo()
+{
+}
+
+CLoadedModelInfo::~CLoadedModelInfo()
+{
 }

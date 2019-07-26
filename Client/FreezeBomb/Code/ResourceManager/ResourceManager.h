@@ -57,6 +57,7 @@ public:
 	void LoadBound(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void ReleaseModel();
 	void Release();
+	void ReleaseUploadBuffers();
 
 	const map<string, CTexture*>& getTextureMap()	const { return m_TextureMap; }
 	const map<string, CLoadedModelInfo*>& getModelMap()	const { return m_ModelMap; }

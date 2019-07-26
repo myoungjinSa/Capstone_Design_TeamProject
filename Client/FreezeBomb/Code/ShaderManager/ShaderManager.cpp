@@ -168,6 +168,9 @@ void CShaderManager::ReleaseUploadBuffers()
 {
 	for (int i = 0; i < m_nShaders; i++)
 		m_ppShaders[i]->ReleaseUploadBuffers();
+
+	if (m_pResourceManager)
+		m_pResourceManager->ReleaseUploadBuffers();
 }
 
 void CShaderManager::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer* pPlayer)
