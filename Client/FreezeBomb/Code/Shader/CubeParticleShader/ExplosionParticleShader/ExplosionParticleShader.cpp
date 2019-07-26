@@ -90,7 +90,7 @@ void CExplosionParticleShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12Graph
 			pCubeParticle->Initialize_Shadow(pCubeParticle);
 		}
 		pCubeParticle->SetRotationSpeed(720.0f);
-		pCubeParticle->SetMovingSpeed(Random(1000,10000));
+		pCubeParticle->SetMovingSpeed(Random(100,500));
 		//	pCubeParticle->SetVelocity(XMFLOAT3(-5.0f, 25.0f, 5.0f));
 		pCubeParticle->SetAccel(XMFLOAT3(0.0f,-0.98f,0.0f));
 		pCubeParticle->SetMass(20.0f);
@@ -104,14 +104,29 @@ void CExplosionParticleShader::BuildObjects(ID3D12Device *pd3dDevice,ID3D12Graph
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
-
+void CExplosionParticleShader::ResetParticles()
+{
+	
+	for(auto& particle:m_ExplosionParticleList)
+	{
+		(*particle).SetElapsedTimeZero();
+		(*particle).SetMovingSpeed(Random(100, 500));
+		//(*particle).SetDuration(0.5f);
+		//(*particle).SetBlowingUp(false);
+		//(*particle).PrepareExplosion();
+	}
+	cout << "ResetParticlesÈ£Ãâ" << endl;
+}
 
 void CExplosionParticleShader::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer* pPlayer)
 {
+
 	for (auto iter = m_ExplosionParticleList.begin(); iter != m_ExplosionParticleList.end(); ++iter)
 	{
 		(*iter)->Animate(elapsedTime);
 	}
+	
+
 }
 
 void CExplosionParticleShader::ReleaseObjects()

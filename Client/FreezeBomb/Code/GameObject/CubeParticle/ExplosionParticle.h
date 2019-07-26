@@ -16,7 +16,7 @@ public:
 	void	SetRotationSpeed(float RotationSpeed) { m_RotationSpeed = RotationSpeed; }
 	void	SetMovingSpeed(float MovingSpeed) { m_MovingSpeed = MovingSpeed; }
 	void	SetDuration(float Duration) { m_Duration = Duration; }
-
+	void	SetElapsedTimeZero();
 	void    SetAccel(XMFLOAT3 acc) { m_acceleration = acc; }
 	void	SetMass(const double& mass);
 	const double&  GetMass() const;
