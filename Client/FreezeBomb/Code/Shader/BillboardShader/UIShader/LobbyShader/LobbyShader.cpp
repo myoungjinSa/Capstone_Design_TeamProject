@@ -9,12 +9,10 @@
 
 CLobbyShader::CLobbyShader()
 {
-
 }
 
 CLobbyShader::~CLobbyShader()
 {
-
 }
 
 void CLobbyShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,ID3D12RootSignature *pd3dGraphicsRootSignature)
@@ -42,12 +40,11 @@ void CLobbyShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 		m_d3dPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
 		HRESULT hResult = pd3dDevice->CreateGraphicsPipelineState(&m_d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void **)&m_ppd3dPipelineStates[i]);
+
+		if (m_pd3dVertexShaderBlob) m_pd3dVertexShaderBlob->Release();
+		if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
+		if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 	}
-
-	if (m_pd3dVertexShaderBlob) m_pd3dVertexShaderBlob->Release();
-	if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
-
-	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
 
 void CLobbyShader::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)

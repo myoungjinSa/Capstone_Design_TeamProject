@@ -74,7 +74,11 @@ ID3D12RootSignature *CLoginScene::CreateGraphicsRootSignature(ID3D12Device* pd3d
 void CLoginScene::ReleaseObjects()
 {
 	if (m_pInput)
+	{
 		m_pInput->Destroy();
+		delete m_pInput;
+	}
+
 	if (m_pd3dGraphicsRootSignature)
 		m_pd3dGraphicsRootSignature->Release();
 
@@ -82,9 +86,19 @@ void CLoginScene::ReleaseObjects()
 	{
 		m_ppShaders[i]->ReleaseShaderVariables();
 		m_ppShaders[i]->ReleaseObjects();
+		delete m_ppShaders[i];
 	}
 	delete[] m_ppShaders;
 }
+
+void CLoginScene::ReleaseUploadBuffers()
+{
+	for (int i = 0; i < m_nShaders; i++)
+	{
+		m_ppShaders[i]->ReleaseUploadBuffers();
+	}
+}
+
 void CLoginScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, IDWriteTextFormat* pFont, IDWriteTextLayout* pTextLayout, ID2D1SolidColorBrush* pFontColor)
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);

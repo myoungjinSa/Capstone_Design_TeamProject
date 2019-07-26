@@ -39,12 +39,11 @@ void CIDShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList
 		m_d3dPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
 		HRESULT hResult = pd3dDevice->CreateGraphicsPipelineState(&m_d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void **)&m_ppd3dPipelineStates[i]);
+
+		if (m_pd3dVertexShaderBlob) m_pd3dVertexShaderBlob->Release();
+		if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
+		if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 	}
-
-	if (m_pd3dVertexShaderBlob) m_pd3dVertexShaderBlob->Release();
-	if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
-
-	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
 
 void CIDShader::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)
@@ -115,8 +114,7 @@ void CIDShader::BuildObjects(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList 
 	constexpr int nTextures = 3;
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, nTextures);
 
-
-	CTexture** pLoginTextures = new CTexture*[nTextures];
+	pLoginTextures = new CTexture*[nTextures];
 	
 	pLoginTextures[NO_SELECT] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pLoginTextures[NO_SELECT]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Resource/Textures/Login/ID_1.dds", 0);
@@ -137,13 +135,10 @@ void CIDShader::BuildObjects(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList 
 
 	CBillboardMesh* pLoginMesh = new CBillboardMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
-
-
 	m_nObjects = nTextures;
 	m_ppUIMaterial = new CMaterial*[m_nObjects];
 
 	m_ppUIMaterial[0] = new CMaterial(m_nObjects);
-	
 	
 	for (int i = 0; i < m_nObjects; ++i)
 	{
@@ -157,8 +152,6 @@ void CIDShader::BuildObjects(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList 
 }
 void CIDShader::AnimateObjects(float fTimeElapsed)
 {
-	
-
 }
 
 int CIDShader::DecideTextureByCursor(const RECT& rect,const LONG& mouseX,const LONG& mouseY)
@@ -184,15 +177,12 @@ int CIDShader::DecideTextureByCursor(const RECT& rect,const LONG& mouseX,const L
 	bt_connection.bottom = (619 * FRAME_BUFFER_HEIGHT) / originY;										//790
 	
 	if (name.left <= mouseX && mouseX <= name.right && name.top <= mouseY && mouseY <= name.bottom)
-	{
-		
+	{		
 		m_currentTexture = ID_SELECT;
-
 	}
 	else if (bt_connection.left <= mouseX && mouseX <= bt_connection.right && bt_connection.top <= mouseY && mouseY <= bt_connection.bottom)
 	{
 		m_currentTexture = REQUEST_LOGIN;
-
 	}
 	else
 	{
@@ -218,11 +208,8 @@ void CIDShader::Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipelineS
 	{
 		auto iter = m_UIMap.find(m_currentTexture);
 		if (iter != m_UIMap.end())
-		(*iter).second->Render(pd3dCommandList, nPipelineState,m_currentTexture);
-	
+		(*iter).second->Render(pd3dCommandList, nPipelineState,m_currentTexture);	
 	}
-	
-
 }
 
 void CIDShader::ReleaseObjects()
@@ -232,6 +219,14 @@ void CIDShader::ReleaseObjects()
 
 	CUIShader::ReleaseObjects();
 
+	delete[] pLoginTextures;
+
 	vTexture.clear();
+}
+
+void CIDShader::ReleaseUploadBuffers()
+{
+	for (auto iter = m_UIMap.begin(); iter != m_UIMap.end(); ++iter)
+		(*iter).second->ReleaseUploadBuffers();
 }
 #endif

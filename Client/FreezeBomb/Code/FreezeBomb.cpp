@@ -152,8 +152,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 #endif
 #endif
-
-
 		break;
 		//한글 조합 시작
 	case WM_IME_STARTCOMPOSITION:
@@ -217,6 +215,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_SOCKET:
 		if (WSAGETSELECTERROR(lParam))
 		{
+			//Network::GetInstance()->DeleteInstance();
 			closesocket((SOCKET)wParam);
 			PostQuitMessage(0);
 		}
@@ -229,6 +228,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case FD_CLOSE:
 			closesocket((SOCKET)wParam);
+			//Network::GetInstance()->DeleteInstance();
 			PostQuitMessage(0);
 			break;
 		}

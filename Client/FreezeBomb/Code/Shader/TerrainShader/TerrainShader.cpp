@@ -38,12 +38,11 @@ void CTerrainShader::CreateShader(ID3D12Device *pd3dDevice,ID3D12GraphicsCommand
 		m_d3dPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
 		HRESULT hResult = pd3dDevice->CreateGraphicsPipelineState(&m_d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void**)&m_ppd3dPipelineStates[i]);	
+
+		if (m_pd3dVertexShaderBlob) m_pd3dVertexShaderBlob->Release();
+		if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
+		if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 	}
-
-	if (m_pd3dVertexShaderBlob) m_pd3dVertexShaderBlob->Release();
-	if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
-
-	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
 
 D3D12_SHADER_BYTECODE CTerrainShader::CreateVertexShader()
@@ -95,13 +94,12 @@ D3D12_DEPTH_STENCIL_DESC CTerrainShader::CreateDepthStencilState()
 D3D12_INPUT_LAYOUT_DESC CTerrainShader::CreateInputLayout()
 {
 	UINT nInputElementDescs = 4;
-	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[1] = { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[2] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[3] = { "TEXCOORD", 1, DXGI_FORMAT_R32G32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-
 
 	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
 	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
@@ -130,8 +128,6 @@ void CTerrainShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 	iter = Context.find("SpecularTerrain");
 	if (iter != Context.end())
 		pTerrainMaterial->SetTexture((*iter).second, 1);
-
-
 
 	m_pTerrain->SetMaterial(0, pTerrainMaterial);
 

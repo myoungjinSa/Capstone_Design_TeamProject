@@ -39,12 +39,11 @@ void CFoliageShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 		m_d3dPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
 		HRESULT hResult = pd3dDevice->CreateGraphicsPipelineState(&m_d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void **)&m_ppd3dPipelineStates[i]);
+
+		if (m_pd3dVertexShaderBlob) m_pd3dVertexShaderBlob->Release();
+		if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
+		if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 	}
-
-	if (m_pd3dVertexShaderBlob) m_pd3dVertexShaderBlob->Release();
-	if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
-
-	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
 
 D3D12_SHADER_BYTECODE CFoliageShader::CreatePixelShader(int nPipelineState)

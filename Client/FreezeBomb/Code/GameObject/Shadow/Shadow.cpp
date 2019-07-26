@@ -47,7 +47,7 @@ CShadow::~CShadow()
 	if (m_pMesh)
 	{
 		m_pTruth->m_pMesh = nullptr;
-		delete m_pMesh;
+		m_pMesh->Release();
 		m_pMesh = nullptr;
 	}
 }

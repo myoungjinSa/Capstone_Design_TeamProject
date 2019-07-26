@@ -44,11 +44,11 @@ void CCubeParticleShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsC
 		m_d3dPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
 		HRESULT hResult = pd3dDevice->CreateGraphicsPipelineState(&m_d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void **)&m_ppd3dPipelineStates[i]);
-	}
 
-	if (m_pd3dVertexShaderBlob) m_pd3dVertexShaderBlob->Release();
-	if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
-	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
+		if (m_pd3dVertexShaderBlob) m_pd3dVertexShaderBlob->Release();
+		if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
+		if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
+	}
 }
 
 D3D12_INPUT_LAYOUT_DESC CCubeParticleShader::CreateInputLayout()
@@ -77,7 +77,6 @@ D3D12_SHADER_BYTECODE CCubeParticleShader::CreateVertexShader(int nPipelineState
 		return(CShader::CompileShaderFromFile(L"../Code/Shader/HLSL/Shaders.hlsl", "VSCubeParticleShadow", "vs_5_1", &m_pd3dVertexShaderBlob));
 		break;
 	}
-
 }
 
 D3D12_SHADER_BYTECODE CCubeParticleShader::CreatePixelShader(int nPipelineState)
@@ -99,26 +98,25 @@ void CCubeParticleShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsC
 	auto iter = Context.find("IceTexture");
 	if (iter != Context.end())
 	{
-		//CCubeMeshTextured* pCubeMesh = new CCubeMeshTextured(pd3dDevice, pd3dCommandList, 0.5f, 0.5f, 0.5f);
 		CCubeMeshTextured* pCubeMesh = new CCubeMeshTextured(pd3dDevice, pd3dCommandList, 0.1f, 0.1f, 0.1f);
 		CMaterial* pMaterial = new CMaterial(1);
 		pMaterial->SetTexture((*iter).second, 0);
 		
 		int ParticleCount = 100;
 
-		
 		for (int j = 0; j < 6; ++j)
 		{
 			for (int i = 0; i < ParticleCount; i++)
 			{
 				CCubeParticle* pCubeParticle = new CCubeParticle(1);
+
 				if (i == 0)
 				{
-					// 첫번째 객체만 메쉬를 갖고있으면됨, 그림자포함
 					pCubeParticle->SetMesh(pCubeMesh);
 					pCubeParticle->SetMaterial(0, pMaterial);
 					pCubeParticle->Initialize_Shadow(pCubeParticle);
 				}
+
 				pCubeParticle->SetRotationSpeed(720.f);
 				pCubeParticle->SetMovingSpeed(Random(10, 100));
 				//	pCubeParticle->SetVelocity(XMFLOAT3(-5.0f, 25.0f, 5.0f));
@@ -142,7 +140,6 @@ void CCubeParticleShader::AnimateObjects(float elapsedTime, CCamera* pCamera, CP
 {
 	for (int j = 0; j < 6; ++j)
 	{
-		
 		for (auto iter = m_CubeParticleList[j].begin(); iter != m_CubeParticleList[j].end(); ++iter)
 		{
 			if((*iter)->GetBlowingUp())
@@ -157,12 +154,11 @@ void CCubeParticleShader::ReleaseObjects()
 	{
 		for (auto iter = m_CubeParticleList[j].begin(); iter != m_CubeParticleList[j].end();)
 		{
-			//(*iter)->Release();
+			(*iter)->Release();
 			iter = m_CubeParticleList[j].erase(iter);
 		}
 		m_CubeParticleList[j].clear();
 	}
-	
 }
 
 void CCubeParticleShader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState)
@@ -176,13 +172,11 @@ void CCubeParticleShader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommand
 
 void CCubeParticleShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
-	
-	
-	
+
 	for (int j = 0; j < 6; ++j)
 	{
 		auto iter = m_CubeParticleList[j].begin();
-		if ((*iter)->GetBlowingUp()) 
+		if ((*iter)->GetBlowingUp())
 		{
 			UpdateShaderVariables(pd3dCommandList, j);
 			OnPrepareRender(pd3dCommandList, GameObject);
