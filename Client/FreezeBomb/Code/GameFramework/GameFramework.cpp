@@ -1709,6 +1709,12 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		}
 		ChattingSystem::GetInstance()->SetActive(false);
+
+		auto explosionIter = m_pScene->getShaderManager()->getShaderMap().find("ExplosionParticle");
+		if (explosionIter != m_pScene->getShaderManager()->getShaderMap().end())
+		{
+			dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->ResetParticles();
+		}
 		printf("Round Start! Bomber is %d\n", m_mapClients[pRS->bomberID].id);
 		break;
 	}
@@ -2324,6 +2330,7 @@ void CGameFramework::ProcessPacket(char* packet)
 	{
 		SC_PACKET_BOMB_EXPLOSION *pBE = reinterpret_cast<SC_PACKET_BOMB_EXPLOSION*>(packet);
 
+		
 		if (pBE->bomberId != m_pPlayer->GetPlayerID())
 		{
 			char id = m_mapClients[pBE->bomberId].id;
@@ -2339,6 +2346,8 @@ void CGameFramework::ProcessPacket(char* packet)
 				pBomb->SetPosition((*enemyIter).second->m_ppObjects[id]->GetPosition());
 				pBomb->setIsBlowing(true);
 
+			//	dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetBlowingUp(true);
+				
 				dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetParticleBlowUp(pBomb->GetPosition());
 			}
 

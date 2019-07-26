@@ -20,11 +20,14 @@ public:
 	virtual void ReleaseObjects();
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera* pCamera, int nPipelineState);
 	void SetParticleBlowUp(XMFLOAT3& position);
+	void ResetParticles();
+	//void SetBlowingUp(bool blow) { m_isBlowing = blow; }
 
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseShaderVariables();
 private:
 	list<CExplosionParticle*> m_ExplosionParticleList;
-
+	//bool m_isBlowing{ false };
+//	float m_elapsedTime{ 0.0f };
 };

@@ -840,6 +840,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 							m_BombParticle->SetPosition(m_xmf3Position.x, m_xmf3Position.y, m_xmf3Position.z);
 							m_BombParticle->setIsBlowing(true);
 
+							//dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetBlowingUp(true);
 							dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetParticleBlowUp(m_xmf3Position);
 							m_bBomb = false;
 						}

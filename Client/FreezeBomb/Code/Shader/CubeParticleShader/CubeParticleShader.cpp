@@ -137,6 +137,7 @@ void CCubeParticleShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsC
 	}
 }
 
+
 void CCubeParticleShader::AnimateObjects(float elapsedTime, CCamera* pCamera, CPlayer* pPlayer)
 {
 	for (int j = 0; j < 6; ++j)

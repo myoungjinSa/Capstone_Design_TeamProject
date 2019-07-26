@@ -75,6 +75,7 @@ void CCubeParticle::Animate(float elapsedTime, CCamera* pCamera)
 
 		
 		m_MovingSpeed*= pow(0.1f, m_elapsedTime);
+		
 	}
 	else
 	{
@@ -88,6 +89,7 @@ void CCubeParticle::Animate(float elapsedTime, CCamera* pCamera)
 		m_BlowingUp = false;
 	}
 }
+
 
 void CCubeParticle::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState, int nInstance)
 {

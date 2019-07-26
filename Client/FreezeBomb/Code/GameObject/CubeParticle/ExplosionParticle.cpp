@@ -33,13 +33,17 @@ const double& CExplosionParticle::GetMass() const
 		return((double)1.0 / m_InverseMass);
 }
 
-
+void CExplosionParticle::SetElapsedTimeZero()
+{
+	m_elapsedTime = 0.0f;
+}
 void CExplosionParticle::Animate(float elapsedTime,CCamera* pCamera)
 {
-	m_elapsedTime += elapsedTime;
-
-	if(m_elapsedTime <= m_Duration && m_BlowingUp == true)
+	
+	if(m_BlowingUp == true)
 	{
+		m_elapsedTime += elapsedTime;
+
 		XMFLOAT4X4 world = Matrix4x4::Identity();
 		XMFLOAT3 pos = GetPosition();
 
@@ -55,12 +59,15 @@ void CExplosionParticle::Animate(float elapsedTime,CCamera* pCamera)
 
 		
 		m_MovingSpeed*= pow(0.1f, m_elapsedTime);
+		if(m_elapsedTime>m_Duration)
+		{
+			m_BlowingUp = false;
+
+		}
 	}
-	else
-	{
-		m_elapsedTime = 0.f;
-		m_BlowingUp = false;
-	}
+	
+
+	
 }
 
 void CExplosionParticle::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState, int nInstance)
