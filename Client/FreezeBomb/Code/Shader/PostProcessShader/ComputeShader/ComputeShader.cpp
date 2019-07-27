@@ -186,7 +186,6 @@ void CComputeShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12RootSignature 
 	m_nPipelineStates = 2;
 	m_ppd3dPipelineStates = new ID3D12PipelineState*[m_nPipelineStates];
 
-	
 	D3D12_COMPUTE_PIPELINE_STATE_DESC d3dComputePipelineStateDesc;
 	::ZeroMemory(&d3dComputePipelineStateDesc, sizeof(D3D12_COMPUTE_PIPELINE_STATE_DESC));
 	d3dComputePipelineStateDesc.pRootSignature = m_pd3dComputeRootSignature;
@@ -194,9 +193,8 @@ void CComputeShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12RootSignature 
 	d3dComputePipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
 	HRESULT hResult = pd3dDevice->CreateComputePipelineState(&d3dComputePipelineStateDesc, __uuidof(ID3D12PipelineState), (void**)&m_ppd3dPipelineStates[0]);
-	if (hResult == E_FAIL) {
+	if (hResult == E_FAIL) 
 		return;
-	}
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC d3dPipelineStateDesc;
 	::ZeroMemory(&d3dPipelineStateDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
@@ -215,13 +213,10 @@ void CComputeShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12RootSignature 
 	d3dPipelineStateDesc.SampleDesc.Count = 1;
 	d3dPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 	hResult = pd3dDevice->CreateGraphicsPipelineState(&d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void **)&m_ppd3dPipelineStates[1]);
-	if (hResult == E_FAIL) {
+	if (hResult == E_FAIL) 
 		return;
-	}
 
 	if (m_pd3dVertexShaderBlob) m_pd3dVertexShaderBlob->Release();
 	if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
 	if (m_pd3dComputeBlob) m_pd3dComputeBlob->Release();
-
-
 }

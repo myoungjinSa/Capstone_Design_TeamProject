@@ -27,6 +27,7 @@ public:
 	virtual void AnimateObjects(float fTimeElapsed);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipelineStates,bool isInput);
 	virtual void ReleaseObjects();
+	virtual void ReleaseUploadBuffers();
 
 		//cpu,gpu 디스크립터 핸들을 반환해주는 함수가 각각 필요 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandleForHeapStart() { return(m_pd3dCbvSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart()); }
@@ -45,7 +46,6 @@ public:
 	//사용자가 어떤 유아이를 클릭했는지 
 	
 protected:
-	
 	int			m_currentTexture{ NO_SELECT };
 	
 	ID3D12DescriptorHeap					*m_pd3dCbvSrvDescriptorHeap = NULL;			//cbv,srv의 서술자 힙
@@ -56,6 +56,6 @@ protected:
 	D3D12_GPU_DESCRIPTOR_HANDLE				m_d3dSrvGPUDescriptorStartHandle;
 	std::vector<CTexture*> vTexture;
 
-
+	CTexture** pLoginTextures{ nullptr };
 };
 #endif

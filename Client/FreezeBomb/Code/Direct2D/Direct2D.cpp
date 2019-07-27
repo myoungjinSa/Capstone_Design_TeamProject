@@ -2,7 +2,7 @@
 #include "Direct2D.h"
 #include "../GameFramework/GameFramework.h"
 
-void CDirect2D::CreateBitmapImage(ImageInfo info, string key)
+void CDirect2D::CreateBitmapImage(ImageInfo info,const string& key)
 {
 	// [ Bitmap 이미지 초기화 방법 ] 
 	// 1. Com객체 초기화
@@ -196,7 +196,7 @@ void CDirect2D::Render()
 		CGameFramework::GetDeviceContext()->DrawBitmap((*iter).second.m_Bitmap, (*iter).second.m_Pos);
 }
 
-void CDirect2D::Render(string key)
+void CDirect2D::Render(const string& key)
 {
 	auto iter = m_ImageInfoMap.find(key);
 	if (iter != m_ImageInfoMap.end())
@@ -226,7 +226,7 @@ void CDirect2D::Render(string key)
 	}
 }
 
-void CDirect2D::Render(string key, D2D1_RECT_F pos, int fx, int fy)
+void CDirect2D::Render(const string& key, D2D1_RECT_F pos, int fx, int fy)
 {
 	auto iter = m_ImageInfoMap.find(key);
 	if (iter != m_ImageInfoMap.end())
@@ -253,26 +253,26 @@ void CDirect2D::Render(string key, D2D1_RECT_F pos, int fx, int fy)
 	}
 }
 
-void CDirect2D::Render(string font, string color, wstring text, D2D1_RECT_F pos)
+void CDirect2D::Render(const string& font, const string& color, const wstring& text, D2D1_RECT_F pos)
 {
 	CGameFramework::GetDeviceContext()->DrawTextW(text.c_str(), text.length(), GetFontInfo(font).m_pFont, &pos, GetFontColor(color));
 }
 
-ImageInfo& CDirect2D::GetImageInfo(string key)
+ImageInfo& CDirect2D::GetImageInfo(const string& key)
 {
 	auto iter = m_ImageInfoMap.find(key);
 	if (iter != m_ImageInfoMap.end())
 		return (*iter).second;
 }
 
-FontInfo&	 CDirect2D::GetFontInfo(string key)
+FontInfo&	 CDirect2D::GetFontInfo(const string& key)
 {
 	auto iter = m_FontInfoMap.find(key);
 	if (iter != m_FontInfoMap.end())
 		return (*iter).second;
 }
 
-ID2D1SolidColorBrush* CDirect2D::GetFontColor(string key)
+ID2D1SolidColorBrush* CDirect2D::GetFontColor(const string& key)
 {
 	auto iter = m_FontColorMap.find(key);
 	if (iter != m_FontColorMap.end())

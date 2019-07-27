@@ -10,6 +10,7 @@ CIDInput::CIDInput()
 
 CIDInput::~CIDInput()
 {
+	m_wsID.clear();
 }
 
 void CIDInput::Initialize(IDWriteTextFormat* pFont, IDWriteTextLayout* pTextLayout, ID2D1SolidColorBrush* pFontColor)
@@ -19,7 +20,7 @@ void CIDInput::Initialize(IDWriteTextFormat* pFont, IDWriteTextLayout* pTextLayo
 	m_pFontColor = pFontColor;
 }
 
-TCHAR* CIDInput::StringToTCHAR(string& s)
+TCHAR* CIDInput::StringToTCHAR(const string& s)
 {
 	tstring tstr;
 	const char* all = s.c_str();
@@ -36,7 +37,7 @@ TCHAR* CIDInput::StringToTCHAR(string& s)
 	
 }
 
-string CIDInput::TCHARToString(const TCHAR* ptsz)
+const string& CIDInput::TCHARToString(const TCHAR* ptsz)
 {
 	size_t len = (int)wcslen((wchar_t*)ptsz);
 	const size_t charlen = 2 * len + 1;
@@ -214,7 +215,7 @@ void CIDInput::ProcessIDInput(HWND hWnd,WPARAM wParam,LPARAM lParam)
 
 void CIDInput::ShowIDInput(ID2D1DeviceContext2* pd2dDeviceContext)
 {
-	wstring wstr = m_wsID.c_str();
+	const wstring& wstr = m_wsID.c_str();
 
 	//420 은 1200프레임에서의 left값 
 	UINT originX = 1280;

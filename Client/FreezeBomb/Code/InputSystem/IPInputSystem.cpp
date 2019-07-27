@@ -19,7 +19,7 @@ CIPInputSystem::CIPInputSystem()
 
 CIPInputSystem::~CIPInputSystem()
 {
-
+	m_wsIP.clear();
 }
 
 void CIPInputSystem::Initialize(IDWriteTextFormat* pFont, IDWriteTextLayout* pTextLayout, ID2D1SolidColorBrush* pFontColor, ID2D1DeviceContext2* pContext)
@@ -86,7 +86,7 @@ size_t CIPInputSystem::ProcessIPInput(UINT sel)
 	return m_wsIP.size();
 }
 
-TCHAR* CIPInputSystem::StringToTCHAR(string& s)
+TCHAR* CIPInputSystem::StringToTCHAR(const string& s)
 {
 	tstring tstr;
 	const char* all = s.c_str();
@@ -104,7 +104,7 @@ TCHAR* CIPInputSystem::StringToTCHAR(string& s)
 
 void CIPInputSystem::ShowIPInput()
 {
-	wstring wstr = StringToTCHAR(m_wsIP);
+	const wstring& wstr = StringToTCHAR(m_wsIP);
 
 	UINT originX = 1280;
 	UINT originY = 780;

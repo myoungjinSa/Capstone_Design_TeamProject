@@ -18,6 +18,7 @@ public:
 	void AnimateObjects(ID3D12GraphicsCommandList *pd3dCommandList, float fTimeElapsed);
 	void Render(ID3D12GraphicsCommandList *pd3dCommandList);
 	void ReleaseObjects();
+	void ReleaseUploadBuffers();
 
 	void SetGraphicsRootSignature(ID3D12GraphicsCommandList *pd3dCommandList){
 		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);

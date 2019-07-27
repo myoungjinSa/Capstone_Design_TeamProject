@@ -91,7 +91,6 @@ void CResourceManager::PrepareLoad()
 	m_TextureInfoMap.emplace("SkyBox2", TextureInfo(RESOURCE_TEXTURE_CUBE, L"../Resource/Textures/SkyBox/SkyBox_0.dds", 9));
 	m_TextureInfoMap.emplace("SkyBox3", TextureInfo(RESOURCE_TEXTURE_CUBE, L"../Resource/Textures/SkyBox/SkyBox_2.dds", 9));
 
-
 	m_TextureInfoMap.emplace("BaseTerrain", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Terrain/BaseTerrain.dds", 10));
 	m_TextureInfoMap.emplace("SpecularTerrain", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Terrain/SpecularTerrain.dds", 11));
 
@@ -110,7 +109,6 @@ void CResourceManager::PrepareLoad()
 	m_TextureInfoMap.emplace(to_string(i++), TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Number/Blue_7.dds", 22));
 	m_TextureInfoMap.emplace(to_string(i++), TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Number/Blue_8.dds", 22));
 	m_TextureInfoMap.emplace(to_string(i++), TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Number/Blue_9.dds", 22));
-
 	m_TextureInfoMap.emplace("Colon", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Number/Blue_Colon.dds", 22));
 
 	m_TextureInfoMap.emplace("ItemBox", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Item/Item_Box.dds", 22));
@@ -124,11 +122,6 @@ void CResourceManager::PrepareLoad()
 	m_TextureInfoMap.emplace("GameOver", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Menu/GameOver.dds", 22));
 	m_TextureInfoMap.emplace("Sound", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Menu/Sound.dds", 22));
 	m_TextureInfoMap.emplace("Cartoon", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Menu/Cartoon.dds", 22));
-
-	m_TextureInfoMap.emplace("Win", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Text/Win.dds", 22));
-	m_TextureInfoMap.emplace("Lose", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Text/Lose.dds", 22));
-
-	//m_TextureInfoMap.emplace("UseTimer_Effect", TextureInfo(RESOURCE_TEXTURE2D, L"../Resource/Textures/Effect/airflow_01.dds", 25));
 
 	for (auto iter = m_TextureInfoMap.begin(); iter != m_TextureInfoMap.end(); ++iter)
 	{
@@ -464,7 +457,9 @@ void CResourceManager::LoadCharactersInfo(ID3D12Device* pd3dDevice, ID3D12Graphi
 void CResourceManager::Release()
 {
 	for (auto iter = m_TextureMap.begin(); iter != m_TextureMap.end(); )
+	{
 		iter = m_TextureMap.erase(iter);
+	}
 	m_TextureMap.clear();
 
 	for (auto iter = m_BoundMap.begin(); iter != m_BoundMap.end(); )
@@ -499,4 +494,10 @@ void CResourceManager::ReleaseModel()
 		}
 	}
 	m_ModelMap.clear();
+}
+
+void CResourceManager::ReleaseUploadBuffers()
+{
+	for (auto iter = m_TextureMap.begin(); iter != m_TextureMap.end(); ++iter)
+		(*iter).second->ReleaseUploadBuffers();
 }

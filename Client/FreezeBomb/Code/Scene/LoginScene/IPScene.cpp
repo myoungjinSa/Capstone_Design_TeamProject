@@ -74,7 +74,10 @@ ID3D12RootSignature *CIPScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDev
 void CIPScene::ReleaseObjects()
 {
 	if (m_pInput)
+	{
 		m_pInput->Destroy();
+		delete m_pInput;
+	}
 
 	for (int i = 0; i < m_nShaders; i++)
 	{
@@ -86,6 +89,14 @@ void CIPScene::ReleaseObjects()
 
 	if (m_pd3dGraphicsRootSignature)
 		m_pd3dGraphicsRootSignature->Release();
+}
+
+void CIPScene::ReleaseUploadBuffers()
+{
+	for (int i = 0; i < m_nShaders; i++)
+	{
+		m_ppShaders[i]->ReleaseUploadBuffers();
+	}
 }
 
 void CIPScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, IDWriteTextFormat* pFont, IDWriteTextLayout* pTextLayout, ID2D1SolidColorBrush* pFontColor, ID2D1DeviceContext2* pContext)
@@ -134,8 +145,6 @@ void CIPScene::ProcessInput(HWND hWnd)
 	
 	if (IP_Length > 0)
 		g_CurrentTexture = CIPShader::NO_SELECT;
-
-
 }
 
 void CIPScene::DrawFont()
@@ -151,13 +160,10 @@ void CIPScene::Render(ID3D12GraphicsCommandList *pd3dCommandList)
 	if (m_pd3dGraphicsRootSignature) 
 		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 
-
 	for(int i = 0; i < m_nShaders; ++i)
 	{
 		m_ppShaders[i]->Render(pd3dCommandList, 0);
 	}
-
-
 }
 #endif
 #endif

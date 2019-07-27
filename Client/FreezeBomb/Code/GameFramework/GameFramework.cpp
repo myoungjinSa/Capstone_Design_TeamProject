@@ -99,11 +99,10 @@ CGameFramework::CGameFramework()
 	m_pScene = NULL;
 	m_pPlayer = NULL;
 
-
 	_tcscpy_s(m_pszFrameRate, _T("FreezeBomb ("));
 
 	// 메모리 릭이 있는지 체크를 해준다.
-// 릭이 있으면, 번호를 출력해준다.
+	// 릭이 있으면, 번호를 출력해준다.
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	// 출력된 번호를 넣어주면 그 지점으로 바로 이동시켜준다.
@@ -112,7 +111,9 @@ CGameFramework::CGameFramework()
 	//	Dumping objects ->
 	// {233} normal block at 0x000001469D91A680, 24 bytes long.
 	// 233 이라는 지점에서 릭이 생김	
-	//_CrtSetBreakAlloc( 352 );
+
+	//_CrtSetBreakAlloc(1727);
+
 }
 
 CGameFramework::~CGameFramework()
@@ -981,9 +982,7 @@ bool CGameFramework::BuildObjects()
 #ifdef _WITH_SERVER_
 	m_pLoginScene = new CLoginScene;
 	if (m_pLoginScene)
-	{
 		m_pLoginScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList, CDirect2D::GetInstance()->GetFontInfo("메이플").m_pFont, CDirect2D::GetInstance()->GetFontInfo("메이플").m_pTextLayout, CDirect2D::GetInstance()->GetFontColor("검은색"));
-	}
 #endif
 
 	// 사운드 로딩
@@ -1056,6 +1055,13 @@ bool CGameFramework::BuildObjects()
 #else
 	g_State = LOBBY;
 #endif
+
+	if (m_pIPScene)
+		m_pIPScene->ReleaseUploadBuffers();
+	if (m_pLoginScene)
+		m_pLoginScene->ReleaseUploadBuffers();
+	if (m_pLobbyScene)
+		m_pLobbyScene->ReleaseUploadBuffers();
 	if (m_pScene)
 		m_pScene->ReleaseUploadBuffers();
 	if (m_pPlayer)
@@ -2675,6 +2681,9 @@ void CGameFramework::Worker_Thread()
 	WaitForGpuComplete();
 
 	m_GameTimer.Reset();
+
+	if (m_pLoadingScene)
+		m_pLoadingScene->ReleaseUploadBuffers();
 
 	while (true)
 	{
