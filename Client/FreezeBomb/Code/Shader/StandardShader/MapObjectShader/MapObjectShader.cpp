@@ -52,6 +52,14 @@ void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 				pSurrounding->SetLookVector((*iter3).second->m_Look);
 				pSurrounding->SetUpVector((*iter3).second->m_Up);
 				pSurrounding->SetRightVector((*iter3).second->m_Right);
+				
+				if (name == "LowPolyFence_01")
+				{
+					XMFLOAT3 rotate = XMFLOAT3(0, 1, 0);
+					float angle = 180.f;
+					pSurrounding->Rotate(&rotate, angle);
+				}
+
 
 				dynamic_cast<CSurrounding*>(pSurrounding)->SetIndex(index++);
 				pSurrounding->Initialize_Shadow((*iter2).second, pSurrounding);
