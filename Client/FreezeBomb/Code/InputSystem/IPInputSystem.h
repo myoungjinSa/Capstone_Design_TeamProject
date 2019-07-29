@@ -31,7 +31,7 @@ public:
 
 	size_t ProcessIPInput(UINT sel);
 
-	TCHAR* StringToTCHAR(string& s);
+	TCHAR* StringToTCHAR(const string& s);
 	string TCHARToString(const TCHAR* ptsz);
 	TCHAR* GetChatText() { return m_chat; };
 	DWORD GetIMEMode() const { return m_conv; }

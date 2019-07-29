@@ -28,8 +28,8 @@ public:
 
 	size_t IsIDLength() { return m_wsID.size(); }
 	void ProcessIDInput(HWND hWnd,WPARAM wParam,LPARAM lParam);
-	TCHAR* StringToTCHAR(string& s);
-	string TCHARToString(const TCHAR* ptsz);
+	TCHAR* StringToTCHAR(const string& s);
+	const string& TCHARToString(const TCHAR* ptsz);
 	
 	TCHAR* GetPlayerName();
 

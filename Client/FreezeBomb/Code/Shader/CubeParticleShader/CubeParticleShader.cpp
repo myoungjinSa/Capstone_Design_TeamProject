@@ -172,6 +172,7 @@ void CCubeParticleShader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommand
 
 void CCubeParticleShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
+
 	for (int j = 0; j < 6; ++j)
 	{
 		auto iter = m_CubeParticleList[j].begin();
@@ -183,6 +184,7 @@ void CCubeParticleShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCa
 			OnPrepareRender(pd3dCommandList, GameObject_Shadow);
 			(*iter)->Render(pd3dCommandList, pCamera, GameObject_Shadow, m_CubeParticleList[j].size());
 		}
+		
 	}
 }
 
