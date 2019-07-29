@@ -384,7 +384,7 @@ void Server::AcceptThreadFunc()
 
 		clients[new_id].in_use = true;
 		clients[new_id].velocity = XMFLOAT3(0.0f, 0.0f, 1.0f);
-		clients[new_id].gameState = GS_LOBBY;
+		clients[new_id].gameState = GS_ID_INPUT;
 
 		SendAccessComplete(new_id);
 		// 기존 유저들에게 이후 접속한 유저들 출력
@@ -644,6 +644,10 @@ void Server::WorkerThreadFunc()
 		else if (EV_GO_NEXTROUND == over_ex->event_t)
 		{
 			++round;
+			if(round >= MAX_ROUND)
+			{
+				cout << "라운드 범위 초과" << endl;
+			}
 			cout << "라운드: " << round << endl;
 			ShuffleStartPosIndex();
 
@@ -748,6 +752,7 @@ void Server::ProcessPacket(char client, char *packet)
 
 		strcpy_s(clients[client].nickname, sizeof(p->name), p->name);
 		
+		clients[client].gameState = GS_LOBBY;
 		// 기존 유저들의 matID 전송
 		if(clientCount > 0)
 			SendChosenCharacter(client);
@@ -756,7 +761,8 @@ void Server::ProcessPacket(char client, char *packet)
 		{
 			if (false == clients[i].in_use)
 				continue;
-			SendClientLobbyIn(i, client, clients[client].nickname, false);
+			if (clients[i].gameState == GS_LOBBY)
+				SendClientLobbyIn(i, client, clients[client].nickname, false);
 		}
 		// 처음 접속한 나에게 기존 유저들 출력
 		for (int i = 0; i < MAX_USER; ++i)
@@ -765,7 +771,8 @@ void Server::ProcessPacket(char client, char *packet)
 				continue;
 			if (i == client)
 				continue;
-			SendClientLobbyIn(client, i, clients[i].nickname, clients[i].isReady);
+			if (clients[i].gameState == GS_LOBBY)
+				SendClientLobbyIn(client, i, clients[i].nickname, clients[i].isReady);
 		}
 		cout << clients[client].nickname << endl;
 		cout << (int)p->id << endl;
@@ -779,8 +786,9 @@ void Server::ProcessPacket(char client, char *packet)
 		{
 			if (true == clients[i].in_use)
 			{
-				cout << sizeof(p->chatting) << endl;
-				SendChattinPacket(i, client, p->chatting);
+				//cout << sizeof(p->chatting) << endl;
+				if(clients[i].gameState != GS_ID_INPUT )
+					SendChattinPacket(i, client, p->chatting);
 			}
 		}
 		cout << p->chatting << endl;
@@ -1738,9 +1746,18 @@ void Server::ClientDisconnect(char client)
 		readyCount = 0;
 		readyCnt_l.unlock();
 	}
+
 	
+	clientCnt_l.lock();
+	clientCount--;
+	clientCnt_l.unlock();
 	switch(clients[client].gameState)
 	{
+	case GS_ID_INPUT:
+	{
+		
+		break;
+	}
 	case GS_LOBBY:
 	{
 		if (true == clients[client].isReady)
@@ -1781,10 +1798,8 @@ void Server::ClientDisconnect(char client)
 	}
 	}
 
-	clientCnt_l.lock();
-	clientCount--;
-
 	// 모든 플레이어가 접속 종료했을 때
+	clientCnt_l.lock();
 	if (0 >= clientCount)
 	{
 		clientCnt_l.unlock();

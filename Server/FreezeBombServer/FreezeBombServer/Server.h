@@ -32,7 +32,7 @@ constexpr float FRICTION = 250;
 constexpr float MAX_VELOCITY_XZ = 40;
 constexpr float MAX_VELOCITY_Y = 400;
 constexpr float VELOCITY = 0.7f;
-constexpr float ROTATE_RATE = 0.04f;
+constexpr float ROTATE_RATE = 0.02f;
 
 constexpr int MAX_FREEZE_COUNT = MAX_USER - 2;
 constexpr int MAX_WORKER_THREAD = 2;
@@ -57,6 +57,7 @@ enum COLLISION_TYPE		//어느 객체와 충돌했는지
 
 enum GAME_STATE			//로비 상태인지 인게임 중인지 
 {
+	GS_ID_INPUT,
 	GS_LOBBY,
 	GS_INGAME
 };
