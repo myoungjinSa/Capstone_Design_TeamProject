@@ -1,14 +1,14 @@
 #pragma once
 
 //#define SERVER_IP "172.30.1.1"
-#define SERVER_IP "192.168.200.178"
+#define SERVER_IP "192.168.60.127"
 
 using namespace std;
 
 constexpr int MAX_USER = 6;
 constexpr int MAX_ROUND = 3;
 
-constexpr int MAX_ROUND_TIME = 300;
+constexpr int MAX_ROUND_TIME = 30;
 constexpr int MAX_ITEM_NAME_LENGTH = 16;
 constexpr int MAX_CHATTING_LENGTH = 100;
 constexpr int COOLTIME = 3;
