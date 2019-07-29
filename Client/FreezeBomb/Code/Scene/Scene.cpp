@@ -731,7 +731,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				if ((*iter).second->m_ppObjects[id]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
 					// 술래 체인지
-					if (m_pPlayer->GetIsBomb() == true && (*iter).second->m_ppObjects[id]->GetIsICE() == false/*&& m_TaggerCoolTime <= 0.f*/)
+					if (m_pPlayer->GetIsBomb() == true && (*iter).second->m_ppObjects[id]->GetIsICE() == false)
 					{
 						//(*iter).second->m_ppObjects[id]->SetIsBomb(true);
 						//m_pPlayer->SetIsBomb(false);
@@ -743,13 +743,10 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 					isCollided = true;
 				
 					Network::GetInstance()->SendPlayerCollision(id);
-
-
 				}
 				
 				float dist = Vector3::Length(Vector3::SubtractNormalize((*iter).second->m_ppObjects[id]->GetPosition(), m_pPlayer->GetPosition()));
 				(*iter).second->m_ppObjects[id]->SetDistanceToTarget(dist);
-
 			}
 			if(isCollided == false)
 			{
@@ -757,8 +754,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 			}
 			static bool bBreak = false;
 
-
-			if (m_pPlayer->AnimationCollision(CAnimationController::ATTACK))
+			if (m_pPlayer->AnimationCollision(CAnimationController::ATTACK) && m_pPlayer->GetIsBomb() == false)			
 			{
 				CGameObject* pHammer = m_pPlayer->FindFrame("Hammer");
 				if (pHammer != nullptr)

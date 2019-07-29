@@ -1323,7 +1323,11 @@ void Server::ProcessPacket(char client, char *packet)
 		break;
 	}
 	default:
+		wcout << "패킷 타입 : " << (int)packet[1] << endl;
 		wcout << L"정의되지 않은 패킷 도착 오류!!\n";
+
+		break;
+
 		//while (true);
 	}
 	

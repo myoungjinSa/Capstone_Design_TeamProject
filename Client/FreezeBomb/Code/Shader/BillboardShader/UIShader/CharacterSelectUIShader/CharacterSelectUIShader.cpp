@@ -256,15 +256,15 @@ void CCharacterSelectUIShader::CallbackMouse(UINT nMessgeID, float mouseX, float
 
 void CCharacterSelectUIShader::CallbackKeyboard(WPARAM wParam)
 {
+	// 내 아이디가 있는지 먼저 확인
+	auto iter = CGameFramework::GetClientsInfo().find(m_MyID);
+	if (iter == CGameFramework::GetClientsInfo().end())
+		return;
+
 	switch (wParam)
 	{
 		case VK_F5:
 		{
-			// 내 아이디가 있는지 먼저 확인
-			auto iter = CGameFramework::GetClientsInfo().find(m_MyID);
-			if (iter == CGameFramework::GetClientsInfo().end())
-				return;
-
 			if (m_ChoiceCharacter == NONE)
 			{
 				string s = "캐릭터가 선택되지 않았습니다.";
