@@ -49,7 +49,7 @@ char CGameFramework::m_HostID = -1;
 //#define FullScreenMode
 
 //게임 상태 
-int g_State = GAMESTATE::INGAME;
+int g_State = GAMESTATE::ID_INPUT;
 
 bool g_OnCartoonShading = false;
 bool g_IsSoundOn = true;
@@ -746,7 +746,8 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			{
 				if(ChattingSystem::GetInstance()->IsChattingActive()==false)
 					m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
-		
+#ifndef _WITH_SERVER_
+
 				if (wParam == '0')
 				{
 					g_Round = STAGE::ROUND_1;
@@ -767,6 +768,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND, 0.5f);
 					m_pScene->ChangeRound();
 				}
+#endif
 			}	
 			break;
 		}

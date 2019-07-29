@@ -1324,7 +1324,7 @@ void Server::ProcessPacket(char client, char *packet)
 	}
 	default:
 		wcout << L"정의되지 않은 패킷 도착 오류!!\n";
-		while (true);
+		//while (true);
 	}
 	
 }	

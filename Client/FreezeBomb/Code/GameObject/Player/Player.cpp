@@ -680,6 +680,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		if (m_bIce == false)
 		{
 			//m_bIce = true;
+			cout << "SendFreezeState()\n";
 			Network::GetInstance()->SendFreezeState();
 		}
 		else
@@ -754,7 +755,11 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 	}
 	
 	// 특수 아이템 사용 버튼(ALT)
-	if (GetAsyncKeyState(VK_MENU) & 0x0001)
+	if (GetAsyncKeyState(VK_MENU) & 0x0001
+		&& pController->GetAnimationState() != CAnimationController::ATTACK
+		&& pController->GetAnimationState() != CAnimationController::ICE
+		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
+		)
 	{
 		
 		if (m_Special_Inventory.size() > 0 )
