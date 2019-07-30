@@ -14,6 +14,8 @@ Network::Network()
 	myId = -1;
 	in_packet_size = 0;
 	saved_packet_size = 0;
+
+	Initialize();
 }
 
 Network::~Network()
@@ -21,53 +23,63 @@ Network::~Network()
 	m_pGameClient = nullptr;
 }
 
-bool Network::connectToServer(HWND hWnd)
+void Network::Initialize()
 {
-		// 윈속 초기화
-	bool ret = false;
-	if (m_connect)
+	m_ConnectState = CONNECT_STATE::NONE;
+
+	WSADATA wsa;
+	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 	{
-		WSADATA wsa;
-		if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
-			PostQuitMessage(0);
-
-		// socket()
-		sock = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, 0);
-		if (sock == INVALID_SOCKET)
-		{
-			err_quit("socket()");
-			return false;
-		}
-
-		// connect()
-		SOCKADDR_IN serveraddr;
-		ZeroMemory(&serveraddr, sizeof(serveraddr));
-		serveraddr.sin_family = AF_INET;
-		//serveraddr.sin_addr.s_addr = inet_addr(SERVER_IP);
-		serveraddr.sin_addr.s_addr = inet_addr(m_ServerIP);
-		serveraddr.sin_port = htons(SERVER_PORT);
-
-		int retval = WSAConnect(sock, (SOCKADDR *)&serveraddr, sizeof(serveraddr), NULL, NULL, NULL, NULL);
-		if (retval == SOCKET_ERROR)
-		{
-			if (GetLastError() != WSAEWOULDBLOCK)
-			{
-				//g_LoginFinished = true;
-				err_quit("connect()");
-			}
-			return false;
-		}
-
-		WSAAsyncSelect(sock, hWnd, WM_SOCKET, FD_CLOSE | FD_READ);
-
-		send_wsabuf.buf = send_buffer;
-		send_wsabuf.len = BUF_SIZE;
-		recv_wsabuf.buf = recv_buffer;
-		recv_wsabuf.len = BUF_SIZE;
-		ret = true;
-		//g_LoginFinished = true;
+		WSACleanup();
+		PostQuitMessage(0);
 	}
-	return ret;
+
+	// socket()
+	sock = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, 0);
+	if (sock == INVALID_SOCKET)
+	{
+		closesocket(sock);
+		WSACleanup();
+		err_quit("socket()");
+		return;
+	}
+}
+
+void Network::ConnectToServer(HWND hWnd)
+{
+	// connect()
+	SOCKADDR_IN serveraddr;
+	ZeroMemory(&serveraddr, sizeof(serveraddr));
+	serveraddr.sin_family = AF_INET;
+	serveraddr.sin_addr.s_addr = inet_addr(m_ServerIP);
+	serveraddr.sin_port = htons(SERVER_PORT);
+
+	int retval = WSAConnect(sock, (SOCKADDR *)&serveraddr, sizeof(serveraddr), NULL, NULL, NULL, NULL);
+	if (retval == SOCKET_ERROR)
+	{
+		retval = GetLastError();
+		if (retval == WSAEWOULDBLOCK)
+		{
+			m_ConnectState = CONNECT_STATE::NONE;
+			return;
+		}
+
+		// IP가 잘못된 경우
+		else
+		{
+			m_ConnectState = CONNECT_STATE::FAIL;
+			return;
+		}
+	}
+
+	WSAAsyncSelect(sock, hWnd, WM_SOCKET, FD_CLOSE | FD_READ);
+
+	send_wsabuf.buf = send_buffer;
+	send_wsabuf.len = BUF_SIZE;
+	recv_wsabuf.buf = recv_buffer;
+	recv_wsabuf.len = BUF_SIZE;
+
+	m_ConnectState = CONNECT_STATE::OK;
 }
 
 SOCKET Network::getSock()
@@ -80,7 +92,7 @@ void Network::ReadPacket()
 	DWORD iobyte, ioflag = 0;
 
 	int retval = WSARecv(sock, &recv_wsabuf, 1, &iobyte, &ioflag, NULL, NULL);
-	if (retval) 
+	if (retval)
 		err_display("WSARecv()");
 
 	BYTE *ptr = reinterpret_cast<BYTE *>(recv_buffer);
@@ -95,7 +107,7 @@ void Network::ReadPacket()
 		if (iobyte + saved_packet_size >= in_packet_size)
 		{// 완성할 수 있을 때
 			memcpy(packet_buffer + saved_packet_size, ptr, required);
-			
+
 			if (m_pGameClient)
 			{
 				m_pGameClient->ProcessPacket(packet_buffer);
@@ -120,7 +132,7 @@ void Network::ReadPacket()
 void Network::SendPacket(DWORD dataBytes)
 {
 	DWORD iobyte = 0;
-	
+
 	send_wsabuf.len = dataBytes;
 	int retval = WSASend(sock, &send_wsabuf, 1, &dataBytes, 0, NULL, NULL);
 	if (retval)
@@ -135,7 +147,7 @@ void Network::SendPacket(DWORD dataBytes)
 void Network::SendPacket()
 {
 	DWORD iobyte = 0;
-	
+
 	int retval = WSASend(sock, &send_wsabuf, 1, &iobyte, 0, NULL, NULL);
 	if (retval)
 	{
@@ -250,7 +262,7 @@ void Network::SendReady()
 void Network::SendNotReady()
 {
 	pUnReady = reinterpret_cast<CS_PACKET_UNREADY*>(send_buffer);
-	
+
 	pUnReady->size = sizeof(pUnReady);
 	pUnReady->type = CS_UNREADY;
 	send_wsabuf.len = sizeof(pUnReady);
@@ -288,21 +300,21 @@ void Network::SendAnimationState(char animNum)
 	SendPacket();
 }
 
-void Network::SendChattingText(char id,const _TCHAR *text)
+void Network::SendChattingText(char id, const _TCHAR *text)
 {
 	pText = reinterpret_cast<CS_PACKET_CHATTING*>(send_buffer);
 	pText->size = sizeof(CS_PACKET_CHATTING);
 	pText->type = CS_CHATTING;
 	pText->id = id;
 	pText->padding = 0;
-	
+
 	int nLen = WideCharToMultiByte(CP_ACP, 0, text, -1, NULL, 0, NULL, NULL);
 
 	WideCharToMultiByte(CP_ACP, 0, text, -1, pText->chatting, nLen, NULL, NULL);
 
 	SendPacket(pText->size);
 }
-void Network::SendNickName(char id,_TCHAR* name)
+void Network::SendNickName(char id, _TCHAR* name)
 {
 	pNickName = reinterpret_cast<CS_PACKET_NICKNAME*>(send_buffer);
 	pNickName->size = sizeof(CS_PACKET_NICKNAME);
@@ -310,16 +322,16 @@ void Network::SendNickName(char id,_TCHAR* name)
 	pNickName->id = id;
 	pNickName->padding = 0;
 
-	int nLen = WideCharToMultiByte(CP_ACP, 0, name, -1, NULL, 0,NULL,NULL);
+	int nLen = WideCharToMultiByte(CP_ACP, 0, name, -1, NULL, 0, NULL, NULL);
 
-	WideCharToMultiByte( CP_ACP, 0, name, -1, pNickName->name, nLen, NULL, NULL );
+	WideCharToMultiByte(CP_ACP, 0, name, -1, pNickName->name, nLen, NULL, NULL);
 
 
 	SendPacket(pNickName->size);
 }
-void Network::SetGameFrameworkPtr(HWND hWnd,CGameFramework* client)
+void Network::SetGameFrameworkPtr(HWND hWnd, CGameFramework* client)
 {
-	if (client) 
+	if (client)
 	{
 		m_pGameClient = client;
 	}
@@ -378,7 +390,7 @@ void Network::SendGetItem(const string& itemIndex)
 	//cout << "\n";
 	ZeroMemory(pGetItem->itemIndex, MAX_ITEM_NAME_LENGTH);
 	strncpy(pGetItem->itemIndex, itemIndex.c_str(), itemIndex.length());
-	
+
 	SendPacket();
 }
 

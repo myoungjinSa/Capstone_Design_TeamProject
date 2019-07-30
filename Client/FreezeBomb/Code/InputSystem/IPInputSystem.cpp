@@ -2,7 +2,6 @@
 #include "IPInputSystem.h"
 #include "../Shader/BillboardShader/UIShader/LoginShader/IPShader.h"
 #include "../Network/Network.h"
-#include <mutex>
 #include "../Direct2D/Direct2D.h"
 
 #pragma comment(lib,"imm32.lib")
@@ -11,10 +10,8 @@
 #ifdef _WITH_SERVER_
 #ifdef _WITH_DIRECT2D_
 
-
 CIPInputSystem::CIPInputSystem()
 {
-
 }
 
 CIPInputSystem::~CIPInputSystem()
@@ -70,19 +67,11 @@ size_t CIPInputSystem::ProcessIPInput(UINT sel)
 		{
 			if(m_wsIP.size() > 0 )
 			{
-				//g_lock.lock();
-				Network::GetInstance()->m_connect = true;
 				Network::GetInstance()->SetServerIP( m_wsIP.c_str());
-				//g_lock.unlock();
+				Network::GetInstance()->SetConnectState(Network::CONNECT_STATE::TRY);
 			}
 		}
 	
-	
-	//	}
-
-	//if (GetAsyncKeyState(VK_A) & 0x8000)
-	//cout << "a" << endl;
-	//m_wsID += (TCHAR)'a';
 	return m_wsIP.size();
 }
 
@@ -131,7 +120,6 @@ string CIPInputSystem::TCHARToString(const TCHAR* ptsz)
 	delete[] psz;
 	return s;
 }
-
 
 void CIPInputSystem::Destroy()
 {

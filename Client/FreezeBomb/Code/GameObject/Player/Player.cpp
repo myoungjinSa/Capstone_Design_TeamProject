@@ -241,7 +241,7 @@ void CPlayer::Update(float fTimeElapsed)
 	m_pCamera->RegenerateViewMatrix();
 
 	//std::cout <<"서버에서 받은 속도: "<< m_fVelocityFromServer << "\n";
-	if (Network::GetInstance()->m_connect) 
+	if (Network::GetInstance()->GetConnectState() == Network::CONNECT_STATE::OK) 
 	{
 		DecideAnimationState(m_fVelocityFromServer, fTimeElapsed);
 	}

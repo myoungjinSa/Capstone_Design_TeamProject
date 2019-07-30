@@ -445,7 +445,6 @@ void CGameFramework::Initialize_BitmapImage()
 	CoInitialize(NULL);
 	HRESULT hResult = CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory), (void**)&m_pwicImagingFactory);
 
-	constexpr int imageNum = 3;
 	wstring imagePath[] = 
 	{
 		L"../Resource/Png/Characters.png",
@@ -453,6 +452,7 @@ void CGameFramework::Initialize_BitmapImage()
 		L"../Resource/Png/ScoreBoard.png",
 		L"../Resource/Png/TimeOver.png", 
 		L"../Resource/Png/Host.png",
+		L"../Resource/Png/IPNotice.png"
 	};
 
 	UINT originX = 1280;
@@ -471,11 +471,13 @@ void CGameFramework::Initialize_BitmapImage()
 	D2D1_RECT_F scoreboardPos = D2D1::RectF(r.left, r.top, r.right, r.bottom);
 	D2D1_RECT_F timeoverPos = { scoreboardPos.left, 80, scoreboardPos.right, 230 };
 	D2D1_RECT_F hostPos = { scoreboardPos.left, 80, scoreboardPos.right, 230 };
+
 	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[0], charactersPos, 4900, 575, 7, 1, 0, 0), "Characters");
 	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[1], choicePos, 1800, 300, 6, 1, 0, 0), "ChoiceCharacter");
 	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[2], scoreboardPos, 1638, 1009, 1, 1, 0, 0), "ScoreBoard");
 	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[3], timeoverPos, 2138, 569, 1, 1, 0, 0), "TimeOver");
 	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[4], hostPos, 308, 300, 1, 1, 0, 0), "Host");
+	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[5], hostPos, 1210, 250, 2, 1, 0, 0), "IPNotice");
 }
 
 void CGameFramework::Initialize_GameFont()
@@ -679,41 +681,48 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 {
 	switch (g_State)
 	{
-	case LOBBY:
-	{
-		if (m_pLobbyScene)
-			m_pLobbyScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+	case CONNECT:
+		{
+			if(m_pIPScene)
+				m_pIPScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 		break;
-	}
+		}
+		case LOBBY:
+		{
+			if (m_pLobbyScene)
+				m_pLobbyScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+			break;
+		}
 
-	case INGAME:
-	{
-		if (m_pScene)
-			m_pScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
-		break;
-	}
+		case INGAME:
+		{
+			if (m_pScene)
+				m_pScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+			break;
+		}
 
 #ifdef _WITH_SERVER_
-	case LOGIN:
-	{
-		if (m_pLoginScene)
+		case LOGIN:
 		{
-			int ret = m_pLoginScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
-
-			if(ret == CIDShader::state::REQUEST_LOGIN)		
-				Network::GetInstance()->SendNickName(m_pPlayer->GetPlayerID(), m_pLoginScene->GetIDInstance()->GetPlayerName());
-	
-			if (m_pLoginScene->IsLogin())
+			if (m_pLoginScene)
 			{
-				g_State = LOBBY;
-				m_pPlayer->SetPlayerName(m_pLoginScene->GetIDInstance()->GetPlayerName());
+				int ret = m_pLoginScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+
+				if(ret == CIDShader::state::REQUEST_LOGIN)		
+					Network::GetInstance()->SendNickName(m_pPlayer->GetPlayerID(), m_pLoginScene->GetIDInstance()->GetPlayerName());
+	
+				if (m_pLoginScene->IsLogin())
+				{
+					g_State = LOBBY;
+					m_pPlayer->SetPlayerName(m_pLoginScene->GetIDInstance()->GetPlayerName());
+				}
 			}
+			break;
 		}
-		break;
-	}
+
 #endif
-	default:
-		break;
+		default:
+			break;
 	}
 	
 
@@ -1253,13 +1262,13 @@ void CGameFramework::AnimateObjects()
 #ifdef _WITH_SERVER_
 	case CONNECT:
 	{
-		if (m_pIPScene)
-		{
-			m_pIPScene->ProcessInput(m_hWnd);
+		//if (m_pIPScene)
+		//{
+		//	m_pIPScene->ProcessInput(m_hWnd);
 
-			if (Network::GetInstance()->connectToServer(m_hWnd))
-				g_State = LOGIN;
-		}
+		//	if (Network::GetInstance()->connectToServer(m_hWnd))
+		//		g_State = LOGIN;
+		//}
 		break;
 	}
 #endif
@@ -1359,40 +1368,53 @@ void CGameFramework::ProcessDirect2D()
 
 	switch (g_State)
 	{
-	case LOBBY:
-	{
-		m_pLobbyScene->UIRender();
-		ChattingSystem::GetInstance()->ShowLobbyChatting(m_pd2dDeviceContext);
-		break;
-	}
-	case INGAME:
-	{
-		m_mapClients[m_currentBomberID].name;
-		wchar_t name[16];
-		int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[m_currentBomberID].name, strlen(m_mapClients[m_currentBomberID].name), NULL, NULL);
-		MultiByteToWideChar(CP_ACP, 0, m_mapClients[m_currentBomberID].name, strlen(m_mapClients[m_currentBomberID].name), name, nLen);
-		name[nLen] = '\0';
+		case LOBBY:
+		{
+			m_pLobbyScene->UIRender();
+			ChattingSystem::GetInstance()->ShowLobbyChatting(m_pd2dDeviceContext);
+			break;
+		}
 
-		m_pScene->UIRender(name);
+		case INGAME:
+		{
+			m_mapClients[m_currentBomberID].name;
+			wchar_t name[16];
+			int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[m_currentBomberID].name, strlen(m_mapClients[m_currentBomberID].name), NULL, NULL);
+			MultiByteToWideChar(CP_ACP, 0, m_mapClients[m_currentBomberID].name, strlen(m_mapClients[m_currentBomberID].name), name, nLen);
+			name[nLen] = '\0';
 
-		SetNamecard();
-		//채팅
-		ChattingSystem::GetInstance()->ShowIngameChatting(m_pd2dDeviceContext,m_GameTimer.GetTimeElapsed());
-		break;
-	}
+			m_pScene->UIRender(name);
+
+			SetNamecard();
+			//채팅
+			ChattingSystem::GetInstance()->ShowIngameChatting(m_pd2dDeviceContext,m_GameTimer.GetTimeElapsed());
+			break;
+		}
+
 #ifdef _WITH_SERVER_
-	case LOGIN:
-	{
-		if(m_pLoginScene)
-			m_pLoginScene->GetIDInstance()->ShowIDInput(m_pd2dDeviceContext);
-		break;
-	}	
-	case CONNECT:
-	{
-		if (m_pIPScene)
-			m_pIPScene->DrawFont();
-		break;
-	}
+		case LOGIN:
+		{
+			if(m_pLoginScene)
+				m_pLoginScene->GetIDInstance()->ShowIDInput(m_pd2dDeviceContext);
+			break;
+		}	
+
+		case CONNECT:
+		{
+			if (m_pIPScene)
+			{
+				m_pIPScene->UIRender(m_hWnd);
+
+				//m_pIPScene->ProcessInput(m_hWnd);
+				//m_pIPScene->DrawFont();
+
+				//if (Network::GetInstance()->connectToServer(m_hWnd))
+				//	g_State = LOGIN;
+				//else
+				//	m_pIPScene->UIRender();
+			}
+			break;
+		}
 #endif
 	default:
 		break;
@@ -1461,6 +1483,8 @@ void CGameFramework::ProcessPacket(char* packet)
 		m_pPlayer->SetPlayerID(pAC->myId);
 		Network::GetInstance()->SetMyID(pAC->myId);
 		m_HostID = pAC->hostId;
+
+		//reinterpret_cast<CCharacterSelectUIShader*>(m_pLobbyScene->GetCharacterSelectShader())->ChangeHost();
 
 		CCharacterSelectUIShader::SetMyID(pAC->myId);
 

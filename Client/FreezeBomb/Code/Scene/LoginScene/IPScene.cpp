@@ -2,11 +2,16 @@
 #include "IPScene.h"
 #include "../../Shader/BillboardShader/UIShader/LoginShader/IPShader.h"
 #include "../../InputSystem/IPInputSystem.h"
+#include "../../GameFramework/GameFramework.h"
+#include "../../Network/Network.h"
+#include "../../Direct2D/Direct2D.h"
+#include "../../SoundSystem/SoundSystem.h"
 
 #ifdef _WITH_SERVER_
 #ifdef _WITH_DIRECT2D_
+
+extern int g_State;
 extern volatile int g_CurrentTexture;
-extern volatile HWND g_hWnd;
 
 CIPScene::CIPScene()
 {
@@ -18,7 +23,6 @@ CIPScene::~CIPScene()
 
 ID3D12RootSignature *CIPScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)
 {
-	
 	ID3D12RootSignature *pd3dGraphicsRootSignature = NULL;
 
 	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[1];
@@ -29,7 +33,6 @@ ID3D12RootSignature *CIPScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDev
 	pd3dDescriptorRanges[0].RegisterSpace = 0;
 	pd3dDescriptorRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	
 	D3D12_ROOT_PARAMETER pd3dRootParameters[1];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
@@ -165,5 +168,81 @@ void CIPScene::Render(ID3D12GraphicsCommandList *pd3dCommandList)
 		m_ppShaders[i]->Render(pd3dCommandList, 0);
 	}
 }
+
+void CIPScene::UIRender(HWND hWnd)
+{
+	switch (Network::GetInstance()->GetConnectState())
+	{
+	case Network::CONNECT_STATE::NONE:
+		{
+			ProcessInput(hWnd);
+			DrawFont();
+			break;
+		}
+
+	case Network::CONNECT_STATE::TRY:
+		{
+			Network::GetInstance()->ConnectToServer(hWnd);
+			break;
+		}
+
+	case Network::CONNECT_STATE::FAIL:
+		{
+			UINoticeRender();
+			if (m_pInput)
+				m_pInput->Destroy();
+			break;
+		}
+
+	case Network::CONNECT_STATE::OK:
+		{
+			g_State = GAMESTATE::LOGIN;
+			break;
+		}
+		
+	default:
+		break;
+	}
+}
+
+void CIPScene::UINoticeRender()
+{
+	int x = 350;
+	int y = 300;
+	int sizeX = 605;
+	int sizeY = 250;
+
+	D2D1_RECT_F pos = D2D1::RectF(x, y, x + sizeX, y + sizeY);
+	CDirect2D::GetInstance()->Render("IPNotice", pos, 0, 0);
+}
+
+void CIPScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+{
+	int x = 350;
+	int y = 300;
+	int sizeX = 605;
+	int sizeY = 250;
+
+	int mouseX = LOWORD(lParam);
+	int mouseY = HIWORD(lParam);
+
+	switch (nMessageID)
+	{
+		case WM_LBUTTONDOWN:
+		case WM_LBUTTONUP:
+		{
+			if (Network::GetInstance()->GetConnectState() != Network::CONNECT_STATE::FAIL)
+				break;
+			
+			if (x <= mouseX <= x + sizeX && y <= mouseY <= y + sizeY)
+			{
+				CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::CLICK);
+				Network::GetInstance()->SetConnectState(Network::CONNECT_STATE::NONE);
+			}
+			break;
+		}
+	}
+}
+
 #endif
 #endif
