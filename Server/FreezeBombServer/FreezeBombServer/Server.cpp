@@ -1963,11 +1963,9 @@ void Server::UpdateClientPos(char client)
 		cout << "알수 없는 객체와 충돌\n";
 		break;
 	}
-
 	clients[client].pos = Vector3::Add(clients[client].pos, clients[client].velocity);
 
-
-
+	
 	//ProcessFriction 함수 호출 필요없어 보임 - 여기서밖에 쓰이지 않아서 함수로 만들 필요가 없어보임 (함수 호출이 비효율적이지 않을까)
 	fLength = Vector3::Length(clients[client].velocity);
 	float fDeclaration = FRICTION;
@@ -1978,6 +1976,8 @@ void Server::UpdateClientPos(char client)
 		clients[client].velocity = Vector3::Add(clients[client].velocity, Vector3::ScalarProduct(clients[client].velocity, -fDeclaration, true));
 	}
 	//ProcessFriction(client, fLength);
+
+
 
 
 
