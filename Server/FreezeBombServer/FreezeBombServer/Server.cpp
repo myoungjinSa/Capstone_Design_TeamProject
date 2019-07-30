@@ -1985,6 +1985,8 @@ void Server::UpdateClientPos(char client)
 
 
 
+
+
 	//속도를 클라에게 보내주어 클라에서 기본적인 rUn,Backward,애니메이션을 결정하게 하기 위해.
 	clients[client].fVelocity = fLength;
 
