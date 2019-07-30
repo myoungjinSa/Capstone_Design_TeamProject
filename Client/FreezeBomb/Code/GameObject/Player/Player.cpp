@@ -232,6 +232,28 @@ void CPlayer::Update(float fTimeElapsed)
 	
 	DecideAnimationState(fLength,fTimeElapsed);
 #else
+	if (m_dwDirection == DIR_FORWARD
+		||m_dwDirection == DIR_RIGHT
+		||m_dwDirection == DIR_LEFT)
+	{
+		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, m_fVelocityFromServer);
+
+	}
+	if (m_dwDirection == DIR_BACKWARD
+		||m_dwDirection == DIR_RIGHT
+		||m_dwDirection == DIR_LEFT)
+	{
+		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -m_fVelocityFromServer);
+	}
+
+
+	Move(m_xmf3Velocity, false);
+	
+	m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_dwDirection = 0;
+	//cout << m_xmf3Velocity.x << "," << m_xmf3Velocity.y << "," << m_xmf3Velocity.z << endl;
+
+	//cout << m_xmf3Position.x << "," << m_xmf3Position.y << "," << m_xmf3Position.z << endl;
 
 	DWORD nCurrentCameraMode = m_pCamera->GetMode();
 	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->Update(m_xmf3Position, fTimeElapsed,IsCameraVibe());
@@ -511,7 +533,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 	
 	if (fLength == 0.0f 
 		&& m_isMoveRotate == false
-		&&(pController->GetAnimationState() != CAnimationController::ATTACK
+		&&( pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::DIGGING
 			&& pController->GetAnimationState() != CAnimationController::JUMP
 			&& pController->GetAnimationState() != CAnimationController::RAISEHAND
@@ -522,11 +544,11 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			&& pController->GetAnimationState() != CAnimationController::VICTORY
 			))
 	{
-		if (pController->GetAnimationState() == CAnimationController::RUNFAST)
-		{
-			m_pAnimationController->SetTrackPosition(0, 0.0f);
+		//if (pController->GetAnimationState() == CAnimationController::RUNFAST)
+		//{
+		//	m_pAnimationController->SetTrackPosition(0, 0.0f);
 
-		}
+		//}
 
 
 		SetTrackAnimationSet(0, CAnimationController::IDLE);
@@ -536,8 +558,8 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		Network::GetInstance()->SendAnimationState(CAnimationController::IDLE);
 #endif
 	}
-	else 
-	{
+	//else 
+	//{
 		if (GetAsyncKeyState(VK_UP) & 0x8000
 			&& pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::JUMP
@@ -592,8 +614,8 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		}
 
 
-	}
-
+//	}
+	
 	if (m_isMoveRotate)
 	{
 		m_isMoveRotate = false;
@@ -1008,9 +1030,9 @@ void CTerrainPlayer::RotateAxisY(float fTimeElapsed)
 
 void CTerrainPlayer::Animate(float fTimeElapsed)
 {
-#ifndef _WITH_SERVER_
+//#ifndef _WITH_SERVER_
 	RotateAxisY(fTimeElapsed);
-#endif
+//#endif
 	CGameObject::Animate(fTimeElapsed);
 }
 

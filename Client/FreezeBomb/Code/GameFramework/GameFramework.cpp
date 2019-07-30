@@ -1807,7 +1807,20 @@ void CGameFramework::ProcessPacket(char* packet)
 			XMFLOAT3 up = XMFLOAT3(pMP->xUp, pMP->yUp, pMP->zUp);
 			XMFLOAT3 right = XMFLOAT3(pMP->xRight, pMP->yRight, pMP->zRight);
 
-			m_pPlayer->SetPosition(pos);
+			static float elapsedTime = 0.0f;
+
+			if (elapsedTime > 5.0f 
+				|| m_pPlayer->GetCollision() == true
+				|| m_pPlayer->GetMoveRotate() == true)
+			{
+				m_pPlayer->SetPosition(pos);
+				elapsedTime = 0.0f;
+			}
+			else
+			{
+				elapsedTime += m_GameTimer.GetTimeElapsed();
+			}
+			//m_pPlayer->SetPosition(pos);
 			m_pPlayer->SetLookVector(look);
 			m_pPlayer->SetUpVector(up);
 			m_pPlayer->SetRightVector(right);
@@ -1816,6 +1829,7 @@ void CGameFramework::ProcessPacket(char* packet)
 			m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
 			m_pPlayer->SetVelocityFromServer(pMP->fVelocity);
 			m_pPlayer->SetMoveRotate(pMP->isMoveRotate);
+			m_pPlayer->SetCollision(false);
 		}
 
 		else if (pMP->id < MAX_USER)

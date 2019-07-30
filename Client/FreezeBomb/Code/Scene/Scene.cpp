@@ -702,6 +702,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 #ifdef _WITH_SERVER_
 					isCollided = true;
 					
+					m_pPlayer->SetCollision(true);
 					Network::GetInstance()->SendSurroundingCollision(dynamic_cast<CSurrounding*>(*iter2)->GetIndex());
 #else
 					XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize((*iter2)->GetPosition() ,m_pPlayer->GetPosition());
@@ -735,6 +736,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 					{
 						//(*iter).second->m_ppObjects[id]->SetIsBomb(true);
 						//m_pPlayer->SetIsBomb(false);
+						m_pPlayer->SetCollision(true);
 						Network::GetInstance()->SendBomberTouch(id);
 
 						//m_TaggerCoolTime = (float)COOLTIME;
