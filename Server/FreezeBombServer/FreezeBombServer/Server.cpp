@@ -643,6 +643,7 @@ void Server::WorkerThreadFunc()
 		}
 		else if (EV_GO_NEXTROUND == over_ex->event_t)
 		{
+
 			++round;
 			if(round >= MAX_ROUND)
 			{
@@ -697,7 +698,7 @@ void Server::WorkerThreadFunc()
 		else
 		{
 			cout << "Unknown Event\n";
-			while (true);
+			//while (true);
 		}
 	}
 }
@@ -1062,6 +1063,7 @@ void Server::ProcessPacket(char client, char *packet)
 			}
 		}
 
+		cout << (int)p->animation << "\n";
 		break;
 	}
 	case CS_GET_ITEM:
@@ -1323,9 +1325,11 @@ void Server::ProcessPacket(char client, char *packet)
 		break;
 	}
 	default:
-		wcout << "패킷 타입 : " << (int)packet[1] << endl;
+		wcout << L"패킷 사이즈: " << (int)packet[0] << endl;
+		wcout << L"패킷 타입 : " << (int)packet[1] << endl;
 		wcout << L"정의되지 않은 패킷 도착 오류!!\n";
-
+		//미정의 패킷을 보낸 클라이언트의 접속만 끊는다.
+		ClientDisconnect(client);
 		break;
 
 		//while (true);
@@ -1963,9 +1967,7 @@ void Server::UpdateClientPos(char client)
 		cout << "알수 없는 객체와 충돌\n";
 		break;
 	}
-
 	clients[client].pos = Vector3::Add(clients[client].pos, clients[client].velocity);
-
 
 
 	//ProcessFriction 함수 호출 필요없어 보임 - 여기서밖에 쓰이지 않아서 함수로 만들 필요가 없어보임 (함수 호출이 비효율적이지 않을까)
@@ -1978,6 +1980,8 @@ void Server::UpdateClientPos(char client)
 		clients[client].velocity = Vector3::Add(clients[client].velocity, Vector3::ScalarProduct(clients[client].velocity, -fDeclaration, true));
 	}
 	//ProcessFriction(client, fLength);
+
+	
 
 
 
