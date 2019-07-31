@@ -8,7 +8,7 @@ using namespace std;
 constexpr int MAX_USER = 6;
 constexpr int MAX_ROUND = 3;
 
-constexpr int MAX_ROUND_TIME = 300;
+constexpr int MAX_ROUND_TIME = 30;
 constexpr int MAX_ITEM_NAME_LENGTH = 16;
 constexpr int MAX_CHATTING_LENGTH = 100;
 constexpr int COOLTIME = 3;
@@ -51,7 +51,7 @@ constexpr int SC_RELEASE_FREEZE = 20;
 constexpr int SC_BOMB_EXPLOSION = 21;
 constexpr int SC_CHANGE_HOST_ID = 22;
 constexpr int SC_GET_ITEM = 23;
-//constexpr int SC_ROUND_SCORE = 24;
+constexpr int SC_MOVE_POS = 24;
 constexpr int SC_CHOICE_CHARACTER = 25;
 constexpr int SC_CHOSEN_CHARACTER = 26;
 constexpr int SC_GO_LOBBY = 27;
@@ -113,6 +113,12 @@ struct CS_PACKET_UP_KEY
 };
 
 struct CS_PACKET_DOWN_KEY
+{
+	char size;
+	char type;
+};
+
+struct CS_PACKET_DOWNLEFT_KEY
 {
 	char size;
 	char type;
@@ -377,6 +383,33 @@ struct SC_PACKET_MOVE_PLAYER
 	float fVelocity;
 
 	bool  isMoveRotate;
+};
+
+struct SC_PACKET_MOVE_POS
+{
+	char size;
+	char type;
+	char id;
+
+	float xPos;
+	float yPos;
+	float zPos;
+
+	//캐릭터의 진행 방향
+	float xLook;
+	float yLook;
+	float zLook;
+	float xUp;
+	float yUp;
+	float zUp;
+	float xRight;
+	float yRight;
+	float zRight;
+
+	//모델 자체의 회전 
+	float pitch;
+	float yaw;
+	float roll;
 };
 
 struct SC_PACKET_PLAYER_ANIMATION

@@ -274,8 +274,10 @@ void Server::RunServer()
 		workerThreads.emplace_back(thread{ WorkerThread, (LPVOID)this });
 	thread accpetThread{ AcceptThread, (LPVOID)this };
 	thread timerThread{ TimerThread,(LPVOID)this };
+	thread movingThread{ MovingThread, (LPVOID)this };
 	accpetThread.join();
 	timerThread.join();
+	movingThread.join();
 	for (auto &th : workerThreads)
 		th.join();
 }
@@ -640,6 +642,21 @@ void Server::WorkerThreadFunc()
 			}
 
 		}
+		else if (EV_SENDMOVEPOS == over_ex->event_t)
+		{
+			if (false == clients[key].isMoving && false == clients[key].isRotating)
+				continue;
+
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (false == clients[i].in_use)
+					continue;
+
+				SendMovePos(i, key);
+			}
+			cout << "MOVE POS 패킷 전송\n";
+			add_timer(key, EV_SENDMOVEPOS, high_resolution_clock::now() + 1s);
+		}
 		else if (EV_GO_NEXTROUND == over_ex->event_t)
 		{
 			++round;
@@ -693,6 +710,32 @@ void Server::WorkerThreadFunc()
 		{
 			cout << "Unknown Event\n";
 			while (true);
+		}
+	}
+}
+
+void Server::MovingThread(LPVOID arg)
+{
+	Server* pServer = static_cast<Server*>(arg);
+	pServer->MovingThreadFunc();
+}
+
+void Server::MovingThreadFunc()
+{
+	while(true)
+	{
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (false == clients[i].in_use)
+				continue;
+			if (true == clients[i].isRotating)
+			{
+
+			}
+			if (true == clients[i].isMoving)
+			{
+
+			}
 		}
 	}
 }
@@ -905,8 +948,6 @@ void Server::ProcessPacket(char client, char *packet)
 	case CS_DOWNRIGHT_KEY:
 	{
 		SetDirection(client, packet[1]);
-
-		
 		UpdateClientPos(client);
 
 		//printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
@@ -919,6 +960,7 @@ void Server::ProcessPacket(char client, char *packet)
 				//pitch,yaw,roll은 다시 0으로 바꿔줘야함.
 				//그렇지 않을경우 뱅글뱅글 돌게됨.
 				SetPitchYawRollZero(i);
+				//cout << "client " << (int)client << " : " << clients[client].pitch << ", " << clients[client].yaw << ", " << clients[client].roll << "\n";
 
 				//Idle 동작으로 변하게 하려면 
 				//SetVelocityZero(i);
@@ -1502,6 +1544,31 @@ void Server::SendMovePlayer(char to,char client)
 	SendFunc(to, &packet);
 }
 
+void Server::SendMovePos(char toClient, char fromClient)
+{
+	SC_PACKET_MOVE_POS packet;
+	packet.id = fromClient;
+	packet.xPos = clients[fromClient].pos.x;
+	packet.yPos = clients[fromClient].pos.y;
+	packet.zPos = clients[fromClient].pos.z;
+	packet.xLook = clients[fromClient].look.x;
+	packet.yLook = clients[fromClient].look.y;
+	packet.zLook = clients[fromClient].look.z;
+	packet.xRight = clients[fromClient].right.x;
+	packet.yRight = clients[fromClient].right.y;
+	packet.zRight = clients[fromClient].right.z;
+	packet.xUp = clients[fromClient].up.x;
+	packet.yUp = clients[fromClient].up.y;
+	packet.zUp = clients[fromClient].up.z;
+	packet.pitch = clients[fromClient].pitch;
+	packet.yaw = clients[fromClient].yaw;
+	packet.roll = clients[fromClient].roll;
+	packet.size = sizeof(SC_PACKET_MOVE_POS);
+	packet.type = SC_MOVE_POS;
+
+	SendFunc(toClient, &packet);
+}
+
 void Server::SendRemovePlayer(char toClient, char fromClient)
 {
 	SC_PACKET_REMOVE_PLAYER packet;
@@ -1889,14 +1956,12 @@ void Server::UpdateClientPos(char client)
 	//	cout << clients[client].velocity.x<<","<<clients[client].velocity.y<<","<<clients[client].velocity.z << "\n";
 	float fLength = sqrtf(clients[client].velocity.x * clients[client].velocity.x + clients[client].velocity.z * clients[client].velocity.z);
 	
-	
+	// 속도 보정
 	if (fLength > MAX_VELOCITY_XZ)
 	{
 		clients[client].velocity.x *= (MAX_VELOCITY_XZ / fLength);
 		clients[client].velocity.z *= (MAX_VELOCITY_XZ / fLength);
 	}
-
-
 	
 	switch (clients[client].collision)
 	{
@@ -1908,7 +1973,7 @@ void Server::UpdateClientPos(char client)
 	{
 	
 		XMFLOAT3 xmf3CollisionDir = Vector3::Subtract(recent_pos, clients[client].pos);
-		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, VELOCITY*0.3f );
+		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, VELOCITY );
 		clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
 		
 		break;
@@ -1959,13 +2024,8 @@ void Server::UpdateClientPos(char client)
 	}
 	//ProcessFriction(client, fLength);
 
-
-
 	//속도를 클라에게 보내주어 클라에서 기본적인 rUn,Backward,애니메이션을 결정하게 하기 위해.
 	clients[client].fVelocity = fLength;
-
-
-
 }
 
 void Server::RotateClientAxisY(char client)
@@ -2043,6 +2103,8 @@ void Server::RotateClientAxisY(char client)
 	clients[client].right = xmf3Right;
 	clients[client].up = xmf3Up;
 	clients[client].isMoveRotate = isMoveRotate;
+	//cout << "LOOK client " << (int)client << " : " << clients[client].look.x << ", " << 
+	//	clients[client].look.y << ", "<<clients[client].look.z << "\n";
 }
 
 void Server::RotateModel(char client, float x, float y, float z)

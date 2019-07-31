@@ -47,6 +47,7 @@ enum EVENT_TYPE
 	EV_SEND,
 	EV_COUNT,
 	EV_COOLTIME,
+	EV_SENDMOVEPOS,
 	EV_GO_NEXTROUND,
 	EV_GO_LOBBY
 };
@@ -111,6 +112,8 @@ public:
 	XMFLOAT3 lastLookVector;
 	XMFLOAT3 lastUpVector;
 
+	bool isMoving;
+	bool isRotating;
 	
 	COLLISION_TYPE collision;
 	char score;
@@ -130,6 +133,8 @@ public:
 public:
 	SOCKETINFO() {
 		in_use = false;
+		isMoving = false;
+		isRotating = false;
 		score = 0;
 		normalItem = ITEM::EMPTY;
 		specialItem = ITEM::EMPTY;
@@ -149,6 +154,8 @@ public:
 		isFreeze = false;
 		isMoveRotate = false;
 		isReady = false;
+		isMoving = false;
+		isRotating = false;
 		score = 0;
 		normalItem = ITEM::EMPTY;
 		specialItem = ITEM::EMPTY;
@@ -218,6 +225,8 @@ public:
 	void WorkerThreadFunc();
 	static void TimerThread(LPVOID arg);
 	void TimerThreadFunc();
+	static void MovingThread(LPVOID arg);
+	void MovingThreadFunc();
 public:
 	void ProcessPacket(char client, char *packet);
 	void SendFunc(char client, void *packet);
@@ -251,6 +260,7 @@ public:
 	void SendChoiceCharacter(char toClient, char fromClient, char matID);
 	void SendChosenCharacter(char toClient);
 	void SendGoLobby(char toClient);
+	void SendMovePos(char toClient, char fromClient);
 public:
 	void SetAnimationState(char client,char animationNum);
 	void SetVelocityZero(char client);
