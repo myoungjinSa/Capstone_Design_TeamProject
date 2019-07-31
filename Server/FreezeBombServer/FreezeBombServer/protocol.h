@@ -112,7 +112,25 @@ struct CS_PACKET_UP_KEY
 	char type;
 };
 
+struct CS_PACKET_UPRIGHT_KEY
+{
+	char size;
+	char type;
+};
+
+struct CS_PACKET_UPLEFT_KEY
+{
+	char size;
+	char type;
+};
+
 struct CS_PACKET_DOWN_KEY
+{
+	char size;
+	char type;
+};
+
+struct CS_PACKET_DOWNRIGHT_KEY
 {
 	char size;
 	char type;
