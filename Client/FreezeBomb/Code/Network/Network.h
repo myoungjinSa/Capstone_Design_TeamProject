@@ -66,15 +66,19 @@ public:
 	void SetServerIP(const char* ip) { m_ServerIP = ip; }
 	const char* GetServerIP() { return m_ServerIP; }
 
+	enum CONNECT_STATE { NONE, TRY, FAIL, OK };
+	CONNECT_STATE GetConnectState()	const { return m_ConnectState; }
+	void SetConnectState(CONNECT_STATE state) { m_ConnectState = state; }
 public:
-	bool m_connect{ false };
+	CONNECT_STATE m_ConnectState;
 
 public:
 	Network();
 	~Network();
 public:
 	SOCKET getSock();
-	bool connectToServer(HWND hWnd );
+	void Initialize();
+	void ConnectToServer(HWND hWnd );
 
 	//Network클래스도 CGameFramework에 접근가능하게 하기위해 내부 포인터를 갖고있게 함.
 	void SetGameFrameworkPtr(HWND hWnd, CGameFramework* client);

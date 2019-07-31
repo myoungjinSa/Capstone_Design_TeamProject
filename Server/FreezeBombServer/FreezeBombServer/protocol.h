@@ -1,7 +1,7 @@
 #pragma once
 
 //#define SERVER_IP "172.30.1.1"
-#define SERVER_IP "192.168.200.178"
+#define SERVER_IP "192.168.60.127"
 
 using namespace std;
 
