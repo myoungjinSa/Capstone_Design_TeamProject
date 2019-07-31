@@ -1253,29 +1253,16 @@ void CGameFramework::AnimateObjects()
 	m_elapsedTime = m_GameTimer.GetTimeElapsed();
 	switch(g_State)
 	{
-	case INGAME:
-	{
-		if (m_pScene)
-			m_pScene->AnimateObjects(m_pd3dCommandList, m_elapsedTime);
-		break;
-	}
-#ifdef _WITH_SERVER_
-	case CONNECT:
-	{
-		//if (m_pIPScene)
-		//{
-		//	m_pIPScene->ProcessInput(m_hWnd);
+		case INGAME:
+		{
+			if (m_pScene)
+				m_pScene->AnimateObjects(m_pd3dCommandList, m_elapsedTime);
+			break;
+		}
 
-		//	if (Network::GetInstance()->connectToServer(m_hWnd))
-		//		g_State = LOGIN;
-		//}
-		break;
+		default:
+			break;
 	}
-#endif
-	}
-
-	//m_pPlayer->Animate(fTimeElapsed);
-	//m_pPlayer->UpdateTransform(NULL);
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -1402,17 +1389,7 @@ void CGameFramework::ProcessDirect2D()
 		case CONNECT:
 		{
 			if (m_pIPScene)
-			{
 				m_pIPScene->UIRender(m_hWnd);
-
-				//m_pIPScene->ProcessInput(m_hWnd);
-				//m_pIPScene->DrawFont();
-
-				//if (Network::GetInstance()->connectToServer(m_hWnd))
-				//	g_State = LOGIN;
-				//else
-				//	m_pIPScene->UIRender();
-			}
 			break;
 		}
 #endif
