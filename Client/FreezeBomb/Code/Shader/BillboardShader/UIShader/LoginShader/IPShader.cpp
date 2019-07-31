@@ -151,7 +151,7 @@ void CIPShader::AnimateObjects(float fTimeElapsed)
 {
 }
 
-void CIPShader::DecideTextureByCursor(const RECT& rect,const LONG& mouseX,const LONG& mouseY,UINT& p)
+void CIPShader::DecideTextureByCursor(const RECT& rect,const LONG& mouseX,const LONG& mouseY, UINT& p)
 {
 	RECT ipBox{ 0,0 };
 
@@ -168,15 +168,14 @@ void CIPShader::DecideTextureByCursor(const RECT& rect,const LONG& mouseX,const 
 
 	if (ipBox.left <= mouseX && mouseX <= ipBox.right && ipBox.top <= mouseY && mouseY <= ipBox.bottom)
 	{
-			g_CurrentTexture = IP_SELECT;
-			p = IP_SELECT;
+		g_CurrentTexture = IP_SELECT;
+		p = IP_SELECT;
 	}
 	else
 	{
-			g_CurrentTexture = NO_SELECT;
-			p = NO_SELECT;
+		g_CurrentTexture = NO_SELECT;
+		p = NO_SELECT;
 	}
-
 }
 void CIPShader::Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipelineState)
 {

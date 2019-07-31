@@ -135,16 +135,15 @@ void CIPScene::ProcessInput(HWND hWnd)
 	RECT rect;
 	GetClientRect(hWnd, &rect);
 
-
 	UINT sel=0;
 	if(GetKeyState(VK_LBUTTON) & 0x8000)
 	{
-		dynamic_cast<CIPShader*>(m_ppShaders[0])->DecideTextureByCursor(rect,ptCursorPos.x, ptCursorPos.y,sel);
+		dynamic_cast<CIPShader*>(m_ppShaders[0])->DecideTextureByCursor(rect,ptCursorPos.x, ptCursorPos.y, sel);
 	}
 	size_t IP_Length = 0;
 	
 	if (m_pInput)
-		IP_Length = m_pInput->ProcessIPInput(sel);
+		IP_Length = m_pInput->ProcessIPInput();
 	
 	if (IP_Length > 0)
 		g_CurrentTexture = CIPShader::NO_SELECT;

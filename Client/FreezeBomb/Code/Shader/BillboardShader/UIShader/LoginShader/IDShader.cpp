@@ -188,8 +188,8 @@ int CIDShader::DecideTextureByCursor(const RECT& rect,const LONG& mouseX,const L
 	{
 		m_currentTexture = NO_SELECT;
 	}
-	return m_currentTexture;
 
+	return m_currentTexture;
 }
 void CIDShader::Render(ID3D12GraphicsCommandList *pd3dCommandList,int nPipelineState,bool isInput)
 {
