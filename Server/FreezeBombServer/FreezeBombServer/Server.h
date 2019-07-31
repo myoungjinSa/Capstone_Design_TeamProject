@@ -32,10 +32,12 @@ constexpr float FRICTION = 250;
 constexpr float MAX_VELOCITY_XZ = 40;
 constexpr float MAX_VELOCITY_Y = 400;
 constexpr float VELOCITY = 0.7f;
-constexpr float ROTATE_RATE = 0.04f;
+constexpr float ROTATE_RATE = 0.02f;
 
 constexpr int MAX_FREEZE_COUNT = MAX_USER - 2;
-constexpr int MAX_WORKER_THREAD = 2;
+// 서버노트북 스레드수 8개
+// worker 5, accept 1, timer 1, moving 1
+constexpr int MAX_WORKER_THREAD = 5;
 
 constexpr int GOLD_HAMMER_COUNT = 2;
 
@@ -45,6 +47,7 @@ enum EVENT_TYPE
 	EV_SEND,
 	EV_COUNT,
 	EV_COOLTIME,
+	EV_SENDMOVEPOS,
 	EV_GO_NEXTROUND,
 	EV_GO_LOBBY
 };
@@ -57,6 +60,7 @@ enum COLLISION_TYPE		//어느 객체와 충돌했는지
 
 enum GAME_STATE			//로비 상태인지 인게임 중인지 
 {
+	GS_ID_INPUT,
 	GS_LOBBY,
 	GS_INGAME
 };
@@ -109,6 +113,8 @@ public:
 	XMFLOAT3 lastLookVector;
 	XMFLOAT3 lastUpVector;
 
+	bool isMoving;
+	bool isRotating;
 	
 	COLLISION_TYPE collision;
 	char score;
@@ -128,6 +134,8 @@ public:
 public:
 	SOCKETINFO() {
 		in_use = false;
+		isMoving = false;
+		isRotating = false;
 		score = 0;
 		normalItem = ITEM::EMPTY;
 		specialItem = ITEM::EMPTY;
@@ -147,6 +155,8 @@ public:
 		isFreeze = false;
 		isMoveRotate = false;
 		isReady = false;
+		isMoving = false;
+		isRotating = false;
 		score = 0;
 		normalItem = ITEM::EMPTY;
 		specialItem = ITEM::EMPTY;
@@ -216,6 +226,8 @@ public:
 	void WorkerThreadFunc();
 	static void TimerThread(LPVOID arg);
 	void TimerThreadFunc();
+	static void MovingThread(LPVOID arg);
+	void MovingThreadFunc();
 public:
 	void ProcessPacket(char client, char *packet);
 	void SendFunc(char client, void *packet);
@@ -238,6 +250,7 @@ public:
 	void SendRoundEnd(char client);
 	void SendCompareTime(char client,unsigned short& time);
 	void SendStopRunAnim(char toClient, char fromClient);
+	void SendStopRotate(char toClient, char fromClient);
 	void SendUseItem(char toClient, char fromClient, char useItem, char targetClient);
 	void SendFreeze(char toClient, char fromClient);
 	void SendReleaseFreeze(char toClient, char fromClient);
@@ -249,6 +262,15 @@ public:
 	void SendChoiceCharacter(char toClient, char fromClient, char matID);
 	void SendChosenCharacter(char toClient);
 	void SendGoLobby(char toClient);
+	void SendMovePos(char toClient, char fromClient);
+	void SendPressRightKey(char toClient, char fromClient);
+	void SendPressLeftKey(char toClient, char fromClient);
+	void SendPressUpKey(char toClient, char fromClient);
+	void SendPressUpRightKey(char toClient, char fromClient);
+	void SendPressUpLeftKey(char toClient, char fromClient);
+	void SendPressDownKey(char toClient, char fromClient);
+	void SendPressDownRightKey(char toClient, char fromClient);
+	void SendPressDownLeftKey(char toClient, char fromClient);
 public:
 	void SetAnimationState(char client,char animationNum);
 	void SetVelocityZero(char client);

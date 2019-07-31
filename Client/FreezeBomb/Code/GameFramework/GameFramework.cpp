@@ -49,7 +49,7 @@ char CGameFramework::m_HostID = -1;
 //#define FullScreenMode
 
 //게임 상태 
-int g_State = GAMESTATE::INGAME;
+int g_State = GAMESTATE::ID_INPUT;
 
 bool g_OnCartoonShading = false;
 bool g_IsSoundOn = true;
@@ -103,7 +103,7 @@ CGameFramework::CGameFramework()
 
 	// 메모리 릭이 있는지 체크를 해준다.
 	// 릭이 있으면, 번호를 출력해준다.
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	// 출력된 번호를 넣어주면 그 지점으로 바로 이동시켜준다.
 	// [ 예시 ]
@@ -445,7 +445,6 @@ void CGameFramework::Initialize_BitmapImage()
 	CoInitialize(NULL);
 	HRESULT hResult = CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory), (void**)&m_pwicImagingFactory);
 
-	constexpr int imageNum = 3;
 	wstring imagePath[] = 
 	{
 		L"../Resource/Png/Characters.png",
@@ -453,6 +452,7 @@ void CGameFramework::Initialize_BitmapImage()
 		L"../Resource/Png/ScoreBoard.png",
 		L"../Resource/Png/TimeOver.png", 
 		L"../Resource/Png/Host.png",
+		L"../Resource/Png/IPNotice.png"
 	};
 
 	UINT originX = 1280;
@@ -471,11 +471,13 @@ void CGameFramework::Initialize_BitmapImage()
 	D2D1_RECT_F scoreboardPos = D2D1::RectF(r.left, r.top, r.right, r.bottom);
 	D2D1_RECT_F timeoverPos = { scoreboardPos.left, 80, scoreboardPos.right, 230 };
 	D2D1_RECT_F hostPos = { scoreboardPos.left, 80, scoreboardPos.right, 230 };
+
 	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[0], charactersPos, 4900, 575, 7, 1, 0, 0), "Characters");
 	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[1], choicePos, 1800, 300, 6, 1, 0, 0), "ChoiceCharacter");
 	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[2], scoreboardPos, 1638, 1009, 1, 1, 0, 0), "ScoreBoard");
 	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[3], timeoverPos, 2138, 569, 1, 1, 0, 0), "TimeOver");
 	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[4], hostPos, 308, 300, 1, 1, 0, 0), "Host");
+	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[5], hostPos, 1210, 250, 2, 1, 0, 0), "IPNotice");
 }
 
 void CGameFramework::Initialize_GameFont()
@@ -679,41 +681,48 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 {
 	switch (g_State)
 	{
-	case LOBBY:
-	{
-		if (m_pLobbyScene)
-			m_pLobbyScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+	case CONNECT:
+		{
+			if(m_pIPScene)
+				m_pIPScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 		break;
-	}
+		}
+		case LOBBY:
+		{
+			if (m_pLobbyScene)
+				m_pLobbyScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+			break;
+		}
 
-	case INGAME:
-	{
-		if (m_pScene)
-			m_pScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
-		break;
-	}
+		case INGAME:
+		{
+			if (m_pScene)
+				m_pScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+			break;
+		}
 
 #ifdef _WITH_SERVER_
-	case LOGIN:
-	{
-		if (m_pLoginScene)
+		case LOGIN:
 		{
-			int ret = m_pLoginScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
-
-			if(ret == CIDShader::state::REQUEST_LOGIN)		
-				Network::GetInstance()->SendNickName(m_pPlayer->GetPlayerID(), m_pLoginScene->GetIDInstance()->GetPlayerName());
-	
-			if (m_pLoginScene->IsLogin())
+			if (m_pLoginScene)
 			{
-				g_State = LOBBY;
-				m_pPlayer->SetPlayerName(m_pLoginScene->GetIDInstance()->GetPlayerName());
+				int ret = m_pLoginScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+
+				if(ret == CIDShader::state::REQUEST_LOGIN)		
+					Network::GetInstance()->SendNickName(m_pPlayer->GetPlayerID(), m_pLoginScene->GetIDInstance()->GetPlayerName());
+	
+				if (m_pLoginScene->IsLogin())
+				{
+					g_State = LOBBY;
+					m_pPlayer->SetPlayerName(m_pLoginScene->GetIDInstance()->GetPlayerName());
+				}
 			}
+			break;
 		}
-		break;
-	}
+
 #endif
-	default:
-		break;
+		default:
+			break;
 	}
 	
 
@@ -746,7 +755,8 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			{
 				if(ChattingSystem::GetInstance()->IsChattingActive()==false)
 					m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
-		
+#ifndef _WITH_SERVER_
+
 				if (wParam == '0')
 				{
 					g_Round = STAGE::ROUND_1;
@@ -767,6 +777,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND, 0.5f);
 					m_pScene->ChangeRound();
 				}
+#endif
 			}	
 			break;
 		}
@@ -797,7 +808,13 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_UP:
 		case VK_DOWN:
 		{
-			Network::GetInstance()->SendReleaseKey();
+			Network::GetInstance()->SendReleaseMoveKey();
+			break;
+		}
+		case VK_RIGHT:
+		case VK_LEFT:
+		{
+			Network::GetInstance()->SendReleaseRotateKey();
 			break;
 		}
 #endif
@@ -1145,15 +1162,28 @@ void CGameFramework::ProcessInput()
 				{
 					//#ifdef 을 선언하지 않으면 무조건 서버가 켜있지 않을경우 무한 대기에 빠짐
 #ifdef _WITH_SERVER_
-					Network::GetInstance()->SendUpKey();
-					if(GetAsyncKeyState(VK_RIGHT) & 0x8000)
+					if (false == m_pPlayer->GetIsMoving())
 					{
-						Network::GetInstance()->SendUpRightKey();
+						Network::GetInstance()->SendUpKey();
+						m_pPlayer->SetIsMoving(true);
+					}
+					if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
+					{
+						if (false == m_pPlayer->GetIsRotating())
+						{
+							Network::GetInstance()->SendUpRightKey();
+							m_pPlayer->SetIsRotating(true);
+						}
 					}
 					if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 					{
-						Network::GetInstance()->SendUpLeftKey();
+						if (false == m_pPlayer->GetIsRotating())
+						{
+							Network::GetInstance()->SendUpLeftKey();
+							m_pPlayer->SetIsRotating(true);
+						}
 					}
+					
 #endif
 					dwDirection |= DIR_FORWARD;
 					m_pPlayer->SetDirection(dwDirection);
@@ -1170,15 +1200,20 @@ void CGameFramework::ProcessInput()
 					)
 				{
 #ifdef _WITH_SERVER_
+					
+				
 					Network::GetInstance()->SendDownKey();
 					if(GetAsyncKeyState(VK_RIGHT) & 0x8000)
 					{
 						Network::GetInstance()->SendDownRightKey();
+					
 					}
 					if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 					{
 						Network::GetInstance()->SendDownLeftKey();
+						
 					}
+					
 #endif
 					dwDirection |= DIR_BACKWARD;
 					m_pPlayer->SetDirection(dwDirection);
@@ -1242,29 +1277,16 @@ void CGameFramework::AnimateObjects()
 	m_elapsedTime = m_GameTimer.GetTimeElapsed();
 	switch(g_State)
 	{
-	case INGAME:
-	{
-		if (m_pScene)
-			m_pScene->AnimateObjects(m_pd3dCommandList, m_elapsedTime);
-		break;
-	}
-#ifdef _WITH_SERVER_
-	case CONNECT:
-	{
-		if (m_pIPScene)
+		case INGAME:
 		{
-			m_pIPScene->ProcessInput(m_hWnd);
-
-			if (Network::GetInstance()->connectToServer(m_hWnd))
-				g_State = LOGIN;
+			if (m_pScene)
+				m_pScene->AnimateObjects(m_pd3dCommandList, m_elapsedTime);
+			break;
 		}
-		break;
-	}
-#endif
-	}
 
-	//m_pPlayer->Animate(fTimeElapsed);
-	//m_pPlayer->UpdateTransform(NULL);
+		default:
+			break;
+	}
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -1357,40 +1379,43 @@ void CGameFramework::ProcessDirect2D()
 
 	switch (g_State)
 	{
-	case LOBBY:
-	{
-		m_pLobbyScene->UIRender();
-		ChattingSystem::GetInstance()->ShowLobbyChatting(m_pd2dDeviceContext);
-		break;
-	}
-	case INGAME:
-	{
-		m_mapClients[m_currentBomberID].name;
-		wchar_t name[16];
-		int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[m_currentBomberID].name, strlen(m_mapClients[m_currentBomberID].name), NULL, NULL);
-		MultiByteToWideChar(CP_ACP, 0, m_mapClients[m_currentBomberID].name, strlen(m_mapClients[m_currentBomberID].name), name, nLen);
-		name[nLen] = '\0';
+		case LOBBY:
+		{
+			m_pLobbyScene->UIRender();
+			ChattingSystem::GetInstance()->ShowLobbyChatting(m_pd2dDeviceContext);
+			break;
+		}
 
-		m_pScene->UIRender(name);
+		case INGAME:
+		{
+			m_mapClients[m_currentBomberID].name;
+			wchar_t name[16];
+			int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[m_currentBomberID].name, strlen(m_mapClients[m_currentBomberID].name), NULL, NULL);
+			MultiByteToWideChar(CP_ACP, 0, m_mapClients[m_currentBomberID].name, strlen(m_mapClients[m_currentBomberID].name), name, nLen);
+			name[nLen] = '\0';
 
-		SetNamecard();
-		//채팅
-		ChattingSystem::GetInstance()->ShowIngameChatting(m_pd2dDeviceContext,m_GameTimer.GetTimeElapsed());
-		break;
-	}
+			m_pScene->UIRender(name);
+
+			SetNamecard();
+			//채팅
+			ChattingSystem::GetInstance()->ShowIngameChatting(m_pd2dDeviceContext,m_GameTimer.GetTimeElapsed());
+			break;
+		}
+
 #ifdef _WITH_SERVER_
-	case LOGIN:
-	{
-		if(m_pLoginScene)
-			m_pLoginScene->GetIDInstance()->ShowIDInput(m_pd2dDeviceContext);
-		break;
-	}	
-	case CONNECT:
-	{
-		if (m_pIPScene)
-			m_pIPScene->DrawFont();
-		break;
-	}
+		case LOGIN:
+		{
+			if(m_pLoginScene)
+				m_pLoginScene->GetIDInstance()->ShowIDInput(m_pd2dDeviceContext);
+			break;
+		}	
+
+		case CONNECT:
+		{
+			if (m_pIPScene)
+				m_pIPScene->UIRender(m_hWnd);
+			break;
+		}
 #endif
 	default:
 		break;
@@ -1459,6 +1484,8 @@ void CGameFramework::ProcessPacket(char* packet)
 		m_pPlayer->SetPlayerID(pAC->myId);
 		Network::GetInstance()->SetMyID(pAC->myId);
 		m_HostID = pAC->hostId;
+
+		//reinterpret_cast<CCharacterSelectUIShader*>(m_pLobbyScene->GetCharacterSelectShader())->ChangeHost();
 
 		CCharacterSelectUIShader::SetMyID(pAC->myId);
 
@@ -1793,7 +1820,146 @@ void CGameFramework::ProcessPacket(char* packet)
 		}
 		break;
 	}
+	case SC_PRESS_RIGHT_KEY:
+	{
+		SC_PACKET_PRESS_RIGHT_KEY *pPRK = reinterpret_cast<SC_PACKET_PRESS_RIGHT_KEY*>(packet);
+		// 여기는 무조건 other player의 키 정보만 넘어올 것.
+		if (pPRK->id < MAX_USER)
+		{	// 이렇게 작성하는 게 맞는지 확인 필요.
+			char id = m_mapClients[pPRK->id].id;
 
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetIsRotating(true);
+			}
+		}
+		break;
+	}
+	case SC_PRESS_LEFT_KEY:
+	{
+		SC_PACKET_PRESS_LEFT_KEY *pPLK = reinterpret_cast<SC_PACKET_PRESS_LEFT_KEY*>(packet);
+		// 여기는 무조건 other player의 키 정보만 넘어올 것.
+		if (pPLK->id < MAX_USER)
+		{	// 이렇게 작성하는 게 맞는지 확인 필요.
+			char id = m_mapClients[pPLK->id].id;
+
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetIsRotating(true);
+			}
+		}
+		break;
+	}
+	case SC_PRESS_UP_KEY:
+	{
+		SC_PACKET_PRESS_UP_KEY *pPUK = reinterpret_cast<SC_PACKET_PRESS_UP_KEY*>(packet);
+		// 여기는 무조건 other player의 키 정보만 넘어올 것.
+		if (pPUK->id < MAX_USER)
+		{	// 이렇게 작성하는 게 맞는지 확인 필요.
+			char id = m_mapClients[pPUK->id].id;
+
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetIsMoving(true);
+			}
+		}
+		break;
+	}
+	case SC_PRESS_UPRIGHT_KEY:
+	{
+		SC_PACKET_PRESS_UPRIGHT_KEY *pPURK = reinterpret_cast<SC_PACKET_PRESS_UPRIGHT_KEY*>(packet);
+		// 여기는 무조건 other player의 키 정보만 넘어올 것.
+		if (pPURK->id < MAX_USER)
+		{	// 이렇게 작성하는 게 맞는지 확인 필요.
+			char id = m_mapClients[pPURK->id].id;
+
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetIsMoving(true);
+				(*iter).second->m_ppObjects[id]->SetIsRotating(true);
+			}
+		}
+		break;
+	}
+	case SC_PRESS_UPLEFT_KEY:
+	{
+		SC_PACKET_PRESS_UPLEFT_KEY *pPULK = reinterpret_cast<SC_PACKET_PRESS_UPLEFT_KEY*>(packet);
+		// 여기는 무조건 other player의 키 정보만 넘어올 것.
+		if (pPULK->id < MAX_USER)
+		{	// 이렇게 작성하는 게 맞는지 확인 필요.
+			char id = m_mapClients[pPULK->id].id;
+
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetIsMoving(true);
+				(*iter).second->m_ppObjects[id]->SetIsRotating(true);
+			}
+		}
+		break;
+	}
+	case SC_PRESS_DOWN_KEY:
+	{
+		SC_PACKET_PRESS_DOWN_KEY *pPDK = reinterpret_cast<SC_PACKET_PRESS_DOWN_KEY*>(packet);
+		// 여기는 무조건 other player의 키 정보만 넘어올 것.
+		if (pPDK->id < MAX_USER)
+		{	// 이렇게 작성하는 게 맞는지 확인 필요.
+			char id = m_mapClients[pPDK->id].id;
+
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetIsMoving(true);
+			}
+		}
+		break;
+	}
+	case SC_PRESS_DOWNRIGHT_KEY:
+	{
+		SC_PACKET_PRESS_DOWNRIGHT_KEY *pPDRK = reinterpret_cast<SC_PACKET_PRESS_DOWNRIGHT_KEY*>(packet);
+		// 여기는 무조건 other player의 키 정보만 넘어올 것.
+		if (pPDRK->id < MAX_USER)
+		{	// 이렇게 작성하는 게 맞는지 확인 필요.
+			char id = m_mapClients[pPDRK->id].id;
+
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetIsMoving(true);
+				(*iter).second->m_ppObjects[id]->SetIsRotating(true);
+			}
+		}
+		break;
+	}
+	case SC_PRESS_DOWNLEFT_KEY:
+	{
+		SC_PACKET_PRESS_DOWNLEFT_KEY *pPDLK = reinterpret_cast<SC_PACKET_PRESS_DOWNLEFT_KEY*>(packet);
+		// 여기는 무조건 other player의 키 정보만 넘어올 것.
+		if (pPDLK->id < MAX_USER)
+		{	// 이렇게 작성하는 게 맞는지 확인 필요.
+			char id = m_mapClients[pPDLK->id].id;
+
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetIsMoving(true);
+				(*iter).second->m_ppObjects[id]->SetIsRotating(true);
+			}
+		}
+		break;
+	}
 	case SC_MOVE_PLAYER:
 	{
 		SC_PACKET_MOVE_PLAYER *pMP = reinterpret_cast<SC_PACKET_MOVE_PLAYER*>(packet);
@@ -1805,7 +1971,20 @@ void CGameFramework::ProcessPacket(char* packet)
 			XMFLOAT3 up = XMFLOAT3(pMP->xUp, pMP->yUp, pMP->zUp);
 			XMFLOAT3 right = XMFLOAT3(pMP->xRight, pMP->yRight, pMP->zRight);
 
-			m_pPlayer->SetPosition(pos);
+			static float elapsedTime = 0.0f;
+
+			if (elapsedTime > 5.0f 
+				|| m_pPlayer->GetCollision() == true
+				|| m_pPlayer->GetMoveRotate() == true)
+			{
+				m_pPlayer->SetPosition(pos);
+				elapsedTime = 0.0f;
+			}
+			else
+			{
+				elapsedTime += m_GameTimer.GetTimeElapsed();
+			}
+		//	m_pPlayer->SetPosition(pos);
 			m_pPlayer->SetLookVector(look);
 			m_pPlayer->SetUpVector(up);
 			m_pPlayer->SetRightVector(right);
@@ -1814,6 +1993,7 @@ void CGameFramework::ProcessPacket(char* packet)
 			m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
 			m_pPlayer->SetVelocityFromServer(pMP->fVelocity);
 			m_pPlayer->SetMoveRotate(pMP->isMoveRotate);
+			m_pPlayer->SetCollision(false);
 		}
 
 		else if (pMP->id < MAX_USER)
@@ -1858,10 +2038,26 @@ void CGameFramework::ProcessPacket(char* packet)
 	case SC_ANIMATION_INFO:
 	{
 		SC_PACKET_PLAYER_ANIMATION *pPA = reinterpret_cast<SC_PACKET_PLAYER_ANIMATION*>(packet);
+		//cout <<"애니메이션 주최:" <<(int)pPA->id << "\n";
 		if (pPA->id == m_pPlayer->GetPlayerID())
 		{
-			m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
-			m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
+			
+			if (pPA->animation == CAnimationController::VICTORY)
+			{
+				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE)
+				{
+					m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
+					m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
+				}
+			}
+			else
+			{
+				m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
+				m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
+			
+			}
+
+			//cout <<"애니메이션 : "<<(int)pPA->animation << "\n";
 			//m_pPlayer->SetMoveRotate(false);
 		}
 		else if (pPA->id < MAX_USER)
@@ -1873,18 +2069,14 @@ void CGameFramework::ProcessPacket(char* packet)
 
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
-				(*iter).second->m_ppObjects[id]->SetTrackAnimationSet(0, animNum);
-				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)animNum);
+			
 				if ((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::RAISEHAND
 					|| (CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::DIE
 					|| (CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::USEGOLDHAMMER)
 				{
 					(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackPosition(0, 0.0f);
 				}
-				if ((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::VICTORY)
-				{
-					cout << "victory하는 적 id" << (int)id << endl;
-				}
+				
 				if ((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::USEGOLDHAMMER)
 				{
 					(*iter).second->m_ppObjects[id]->SetIsLightEffect(true);
@@ -1892,6 +2084,20 @@ void CGameFramework::ProcessPacket(char* packet)
 				else
 				{
 					(*iter).second->m_ppObjects[id]->SetIsLightEffect(false);
+				}
+
+				if ((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::VICTORY)
+				{
+					if ((*iter).second->m_ppObjects[id]->m_pAnimationController->GetAnimationState() != CAnimationController::DIE)
+					{
+						(*iter).second->m_ppObjects[id]->SetTrackAnimationSet(0, animNum);
+						(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)animNum);
+					}
+				}
+				else
+				{
+					(*iter).second->m_ppObjects[id]->SetTrackAnimationSet(0, animNum);
+					(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)animNum);
 				}
 			}
 		}
@@ -1904,9 +2110,39 @@ void CGameFramework::ProcessPacket(char* packet)
 		if (pSTA->id == m_pPlayer->GetPlayerID())
 		{
 			m_pPlayer->SetVelocityFromServer(0.0f);
+			m_pPlayer->SetIsMoving(false);
 		}
+		else if (pSTA->id < MAX_USER)
+		{	// 이렇게 작성하는 게 맞는지 확인 필요.
+			char id = m_mapClients[pSTA->id].id;
 
-		//printf("SetVelocityFromServer\n");
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetIsMoving(false);
+			}
+		}
+		break;
+	}
+	case SC_STOP_ROTATE:
+	{
+		SC_PACKET_STOP_ROTATE *pSR = reinterpret_cast<SC_PACKET_STOP_ROTATE*>(packet);
+		if (pSR->id == m_pPlayer->GetPlayerID())
+		{
+			m_pPlayer->SetIsRotating(false);
+		}
+		else if (pSR->id < MAX_USER)
+		{	// 이렇게 작성하는 게 맞는지 확인 필요.
+			char id = m_mapClients[pSR->id].id;
+
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetIsRotating(false);
+			}
+		}
 		break;
 	}
 	case SC_REMOVE_PLAYER:
@@ -1965,28 +2201,6 @@ void CGameFramework::ProcessPacket(char* packet)
 			m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
 		}
 
-		//if (m_pScene)
-		//{
-		//	auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
-
-		//	if (iter != m_pScene->getShaderManager()->getShaderMap().end())
-		//	{
-		//		//vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
-
-		//		for (auto enemyID : m_mapClients)
-		//		{
-		//			if (enemyID.second.id == pRE->isWinner)
-		//			{
-
-		//				(*iter).second->m_ppObjects[enemyID.second.id]->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::VICTORY);
-		//				(*iter).second->m_ppObjects[enemyID.second.id]->m_pAnimationController->SetAnimationState(CAnimationController::VICTORY);
-		//				(*iter).second->m_ppObjects[enemyID.second.id]->m_pAnimationController->SetTrackPosition(0, 0.0f);
-
-		//			}
-		//		}
-		//	}
-		//}
-
 		// 점수 기록
 		for (int i = 0; i < MAX_USER; ++i)
 		{
@@ -2019,8 +2233,6 @@ void CGameFramework::ProcessPacket(char* packet)
 			m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
 
 			m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::ICE);
-
-
 		}
 		else if (pFR->id < MAX_USER)
 		{
@@ -2372,10 +2584,7 @@ void CGameFramework::ProcessPacket(char* packet)
 				
 				dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetParticleBlowUp(pBomb->GetPosition());
 			}
-
 		}
-
-
 		break;
 	}
 	case SC_ROLE_CHANGE:
@@ -2410,7 +2619,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 			}
 		}
-		else if (pRC->bomberId != m_pPlayer->GetPlayerID() && pRC->runnerId != m_pPlayer->GetPlayerID())//상대방끼리 폭탄을 주고받을 경우
+		else if (pRC->bomberId != m_pPlayer->GetPlayerID() && pRC->runnerId != m_pPlayer->GetPlayerID()) //상대방끼리 폭탄을 주고받을 경우
 		{
 			char bomberId = m_mapClients[pRC->bomberId].id;
 			char runnerId = m_mapClients[pRC->runnerId].id;
@@ -2423,6 +2632,8 @@ void CGameFramework::ProcessPacket(char* packet)
 			
 			}
 		}
+		CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::CATCH);
+
 		break;
 	}
 		case SC_GO_LOBBY:

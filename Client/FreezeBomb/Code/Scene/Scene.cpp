@@ -702,6 +702,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 #ifdef _WITH_SERVER_
 					isCollided = true;
 					
+					m_pPlayer->SetCollision(true);
 					Network::GetInstance()->SendSurroundingCollision(dynamic_cast<CSurrounding*>(*iter2)->GetIndex());
 #else
 					XMFLOAT3 xmf3CollisionDir = Vector3::SubtractNormalize((*iter2)->GetPosition() ,m_pPlayer->GetPosition());
@@ -731,25 +732,18 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				if ((*iter).second->m_ppObjects[id]->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
 					// 술래 체인지
-					if (m_pPlayer->GetIsBomb() == true && (*iter).second->m_ppObjects[id]->GetIsICE() == false/*&& m_TaggerCoolTime <= 0.f*/)
+					if (m_pPlayer->GetIsBomb() == true && (*iter).second->m_ppObjects[id]->GetIsICE() == false)
 					{
-						//(*iter).second->m_ppObjects[id]->SetIsBomb(true);
-						//m_pPlayer->SetIsBomb(false);
+						m_pPlayer->SetCollision(true);
 						Network::GetInstance()->SendBomberTouch(id);
-
-						//m_TaggerCoolTime = (float)COOLTIME;
-					}
-				
-					isCollided = true;
-				
+						//CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::CATCH);
+					}				
+					isCollided = true;			
 					Network::GetInstance()->SendPlayerCollision(id);
-
-
 				}
 				
 				float dist = Vector3::Length(Vector3::SubtractNormalize((*iter).second->m_ppObjects[id]->GetPosition(), m_pPlayer->GetPosition()));
 				(*iter).second->m_ppObjects[id]->SetDistanceToTarget(dist);
-
 			}
 			if(isCollided == false)
 			{
@@ -757,8 +751,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 			}
 			static bool bBreak = false;
 
-
-			if (m_pPlayer->AnimationCollision(CAnimationController::ATTACK))
+			if (m_pPlayer->AnimationCollision(CAnimationController::ATTACK) && m_pPlayer->GetIsBomb() == false)			
 			{
 				CGameObject* pHammer = m_pPlayer->FindFrame("Hammer");
 				if (pHammer != nullptr)
@@ -1092,6 +1085,7 @@ void CScene::InGameSceneClear(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 	CSoundSystem::StopSound(CSoundSystem::ICE_BREAK);
 	CSoundSystem::StopSound(CSoundSystem::TIMER_WARNING);
 	CSoundSystem::StopSound(CSoundSystem::FIRE_SOUND);
+	CSoundSystem::StopSound(CSoundSystem::SOUND_TYPE::CATCH);
 
 	m_playerCount = 0;
 	m_NormalHammerCnt = 0;

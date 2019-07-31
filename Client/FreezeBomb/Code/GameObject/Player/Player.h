@@ -109,7 +109,7 @@ public:
 	std::map<MUSIC_ENUM, std::string> m_mapMusicList;
 
 	void SetMoveRotate(bool mv) { m_isMoveRotate = mv; }
-
+	bool GetMoveRotate() { return m_isMoveRotate; }
 	bool IsCameraVibe() const { return m_bCameraVibe; }
 	void SetCameraVibe(bool vibe) {  m_bCameraVibe = vibe; }
 	bool IsSpike() const { return m_bSpike; }
@@ -120,9 +120,17 @@ public:
 	void ChangeRole();
 	map<string, CItem*>& GetSpecialInventory() { return m_Special_Inventory; }
 	map<string, CItem*>& GetNormalInventory() { return m_Normal_Inventory; }
+	
+	void SetCollision(bool collision) { m_bCollision = collision; }
+	bool GetCollision() { return m_bCollision; }
+	
+	void SetIsMoving(bool im) { m_bIsMoving = im; }
+	bool GetIsMoving() { return m_bIsMoving; }
+	void SetIsRotating(bool ir) { m_bIsRotating = ir; }
+	bool GetIsRotating() { return m_bIsRotating; }
 protected:
 
-
+	
 	XMFLOAT3					m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3					m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	XMFLOAT3					m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
@@ -134,6 +142,7 @@ protected:
 	float           			m_fYaw = 0.0f;
 	float           			m_fRoll = 0.0f;
 
+	bool						m_bCollision{ false };
 	bool						m_isMoveRotate{ false };
 
 	XMFLOAT3					m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -164,6 +173,9 @@ protected:
 
 	//주인공 아이디
 	char			m_pPlayerID;
+
+	bool			m_bIsMoving{ false };
+	bool			m_bIsRotating{ false };
 };
 
 class CSoundSystem;
