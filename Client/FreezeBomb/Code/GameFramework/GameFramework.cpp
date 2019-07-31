@@ -1906,12 +1906,26 @@ void CGameFramework::ProcessPacket(char* packet)
 	case SC_ANIMATION_INFO:
 	{
 		SC_PACKET_PLAYER_ANIMATION *pPA = reinterpret_cast<SC_PACKET_PLAYER_ANIMATION*>(packet);
+		//cout <<"애니메이션 주최:" <<(int)pPA->id << "\n";
 		if (pPA->id == m_pPlayer->GetPlayerID())
 		{
 			
-			m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
-			m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
+			if (pPA->animation == CAnimationController::VICTORY)
+			{
+				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE)
+				{
+					m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
+					m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
+				}
+			}
+			else
+			{
+				m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
+				m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
 			
+			}
+
+			//cout <<"애니메이션 : "<<(int)pPA->animation << "\n";
 			//m_pPlayer->SetMoveRotate(false);
 		}
 		else if (pPA->id < MAX_USER)
@@ -1923,18 +1937,14 @@ void CGameFramework::ProcessPacket(char* packet)
 
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
-				(*iter).second->m_ppObjects[id]->SetTrackAnimationSet(0, animNum);
-				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)animNum);
+			
 				if ((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::RAISEHAND
 					|| (CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::DIE
 					|| (CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::USEGOLDHAMMER)
 				{
 					(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackPosition(0, 0.0f);
 				}
-				if ((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::VICTORY)
-				{
-					cout << "victory하는 적 id" << (int)id << endl;
-				}
+				
 				if ((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::USEGOLDHAMMER)
 				{
 					(*iter).second->m_ppObjects[id]->SetIsLightEffect(true);
@@ -1942,6 +1952,20 @@ void CGameFramework::ProcessPacket(char* packet)
 				else
 				{
 					(*iter).second->m_ppObjects[id]->SetIsLightEffect(false);
+				}
+
+				if ((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::VICTORY)
+				{
+					if ((*iter).second->m_ppObjects[id]->m_pAnimationController->GetAnimationState() != CAnimationController::DIE)
+					{
+						(*iter).second->m_ppObjects[id]->SetTrackAnimationSet(0, animNum);
+						(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)animNum);
+					}
+				}
+				else
+				{
+					(*iter).second->m_ppObjects[id]->SetTrackAnimationSet(0, animNum);
+					(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)animNum);
 				}
 			}
 		}
