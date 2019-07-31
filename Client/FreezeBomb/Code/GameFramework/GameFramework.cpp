@@ -1778,7 +1778,6 @@ void CGameFramework::ProcessPacket(char* packet)
 		m_pPlayer->SetLookVector(XMFLOAT3(0.0f, 0.0f, 1.0f));
 		m_pPlayer->SetUpVector(XMFLOAT3(0.0f, 1.0f, 0.0f));
 		m_pPlayer->SetRightVector(XMFLOAT3(1.0f, 0.0f, 0.0f));
-		m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
 
 		//모든 아이템 보유 초기화
 		m_pPlayer->setIsGoldHammer(false);
@@ -1797,7 +1796,7 @@ void CGameFramework::ProcessPacket(char* packet)
 				(*iter).second->m_ppObjects[enemy.second.id]->SetLookVector(XMFLOAT3(0.0f, 0.0f, 1.0f));
 				(*iter).second->m_ppObjects[enemy.second.id]->SetRightVector(XMFLOAT3(1.0f, 0.0f, 0.0f));
 				(*iter).second->m_ppObjects[enemy.second.id]->SetUpVector(XMFLOAT3(0.0f, 1.0f, 0.0f));
-				(*iter).second->m_ppObjects[enemy.second.id]->SetScale(10.0f, 10.0f, 10.0f);
+				(*iter).second->m_ppObjects[enemy.second.id]->SetScale(10, 10, 10);
 				//모든 아이템 보유 초기화
 				(*iter).second->m_ppObjects[enemy.second.id]->setIsGoldTimer(false);
 				(*iter).second->m_ppObjects[enemy.second.id]->setIsGoldHammer(false);
@@ -1835,9 +1834,7 @@ void CGameFramework::ProcessPacket(char* packet)
 			m_pPlayer->SetLookVector(look);
 			m_pPlayer->SetUpVector(up);
 			m_pPlayer->SetRightVector(right);
-
 			m_pPlayer->Rotate(pMP->pitch, pMP->yaw, pMP->roll);
-			m_pPlayer->SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
 			m_pPlayer->SetVelocityFromServer(pMP->fVelocity);
 			m_pPlayer->SetMoveRotate(pMP->isMoveRotate);
 			m_pPlayer->SetCollision(false);
@@ -1855,7 +1852,6 @@ void CGameFramework::ProcessPacket(char* packet)
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
-
 				//char id = pMP->id;
 			
 				XMFLOAT3 pos = XMFLOAT3(pMP->xPos,pMP->yPos, pMP->zPos);
@@ -1875,6 +1871,7 @@ void CGameFramework::ProcessPacket(char* packet)
 					(*iter).second->m_ppObjects[enemyID]->SetUpVector(up);
 					(*iter).second->m_ppObjects[enemyID]->SetScale(10, 10, 10);
 					(*iter).second->m_ppObjects[enemyID]->SetVelocityFromServer(pMP->fVelocity);
+
 				}
 
 			}
@@ -1978,7 +1975,6 @@ void CGameFramework::ProcessPacket(char* packet)
 				//vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
 
 				(*iter).second->m_ppObjects[id]->SetPosition(0.0f, 0.0f, 0.0f);
-				(*iter).second->m_ppObjects[id]->SetScale(0.0f, 0.0f, 0.0f);
 
 				string s = "님이 나갔습니다.";
 				string user = m_mapClients[id].name;

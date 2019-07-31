@@ -252,9 +252,12 @@ void CPlayer::Update(float fTimeElapsed)
 	//cout << m_xmf3Position.x << "," << m_xmf3Position.y << "," << m_xmf3Position.z << endl;
 
 	DWORD nCurrentCameraMode = m_pCamera->GetMode();
-	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->Update(m_xmf3Position, fTimeElapsed,IsCameraVibe());
-	if (m_pCameraUpdatedContext) OnCameraUpdateCallback(fTimeElapsed);
-	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(m_xmf3Position);
+	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) 
+		m_pCamera->Update(m_xmf3Position, fTimeElapsed, IsCameraVibe());
+	if (m_pCameraUpdatedContext) 
+		OnCameraUpdateCallback(fTimeElapsed);
+	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) 
+		m_pCamera->SetLookAt(m_xmf3Position);
 
 	m_pCamera->RegenerateViewMatrix();
 
