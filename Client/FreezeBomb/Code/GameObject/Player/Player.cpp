@@ -761,7 +761,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
 		)
 	{
-	
+		
 		SetTrackAnimationSet(0, CAnimationController::ATTACK);
 		SetTrackAnimationPosition(0, 0.0f);
 
@@ -769,6 +769,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		
 #ifdef _WITH_SERVER_
 		idleCount = 0;
+		bRun = true;
 		Network::GetInstance()->SendAnimationState(CAnimationController::ATTACK);
 #endif
 		//if (m_Normal_Inventory.size() != 0)
@@ -838,6 +839,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 				
 #ifdef _WITH_SERVER_
 				idleCount = 0;
+				bRun = true;
 				Network::GetInstance()->SendAnimationState(CAnimationController::USEGOLDHAMMER);
 #endif
 
@@ -855,6 +857,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 					pController->SetAnimationState(CAnimationController::RAISEHAND);
 #ifdef _WITH_SERVER_
 					Network::GetInstance()->SendAnimationState(CAnimationController::RAISEHAND);
+					bRun = true;
 					Network::GetInstance()->SendUseItem(ITEM::GOLD_TIMER, GetPlayerID());
 					idleCount = 0;
 #else
@@ -890,7 +893,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 							pController->SetAnimationState(CAnimationController::DIE);
 #ifdef _WITH_SERVER_
 							Network::GetInstance()->SendAnimationState(CAnimationController::DIE);
-							
+							bRun = true;
 							Network::GetInstance()->SendBombExplosion();
 							idleCount = 0;
 #endif		
