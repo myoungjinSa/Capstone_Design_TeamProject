@@ -1992,28 +1992,6 @@ void CGameFramework::ProcessPacket(char* packet)
 			m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
 		}
 
-		//if (m_pScene)
-		//{
-		//	auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
-
-		//	if (iter != m_pScene->getShaderManager()->getShaderMap().end())
-		//	{
-		//		//vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
-
-		//		for (auto enemyID : m_mapClients)
-		//		{
-		//			if (enemyID.second.id == pRE->isWinner)
-		//			{
-
-		//				(*iter).second->m_ppObjects[enemyID.second.id]->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::VICTORY);
-		//				(*iter).second->m_ppObjects[enemyID.second.id]->m_pAnimationController->SetAnimationState(CAnimationController::VICTORY);
-		//				(*iter).second->m_ppObjects[enemyID.second.id]->m_pAnimationController->SetTrackPosition(0, 0.0f);
-
-		//			}
-		//		}
-		//	}
-		//}
-
 		// Á¡¼ö ±â·Ï
 		for (int i = 0; i < MAX_USER; ++i)
 		{
@@ -2046,8 +2024,6 @@ void CGameFramework::ProcessPacket(char* packet)
 			m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
 
 			m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::ICE);
-
-
 		}
 		else if (pFR->id < MAX_USER)
 		{
@@ -2399,10 +2375,7 @@ void CGameFramework::ProcessPacket(char* packet)
 				
 				dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetParticleBlowUp(pBomb->GetPosition());
 			}
-
 		}
-
-
 		break;
 	}
 	case SC_ROLE_CHANGE:
@@ -2437,7 +2410,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 			}
 		}
-		else if (pRC->bomberId != m_pPlayer->GetPlayerID() && pRC->runnerId != m_pPlayer->GetPlayerID())//»ó´ë¹æ³¢¸® ÆøÅºÀ» ÁÖ°í¹ÞÀ» °æ¿ì
+		else if (pRC->bomberId != m_pPlayer->GetPlayerID() && pRC->runnerId != m_pPlayer->GetPlayerID()) //»ó´ë¹æ³¢¸® ÆøÅºÀ» ÁÖ°í¹ÞÀ» °æ¿ì
 		{
 			char bomberId = m_mapClients[pRC->bomberId].id;
 			char runnerId = m_mapClients[pRC->runnerId].id;
@@ -2450,6 +2423,8 @@ void CGameFramework::ProcessPacket(char* packet)
 			
 			}
 		}
+		CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::CATCH);
+
 		break;
 	}
 		case SC_GO_LOBBY:

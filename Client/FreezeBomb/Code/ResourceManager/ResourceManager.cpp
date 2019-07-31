@@ -53,16 +53,14 @@ void CResourceManager::PrepareSound()
 	v.emplace_back(info(CSoundSystem::SOUND_TYPE::ICE_BREAK, "../Resource/Sound/Used/Effect/ICEBreak.wav", FMOD_LOOP_OFF));
 	v.emplace_back(info(CSoundSystem::SOUND_TYPE::GET_ITEM, "../Resource/Sound/Used/Effect/GetItem.wav", FMOD_LOOP_OFF));
 	v.emplace_back(info(CSoundSystem::SOUND_TYPE::CLICK, "../Resource/Sound/Used/Effect/Click.wav", FMOD_LOOP_OFF));
-
 	v.emplace_back(info(CSoundSystem::SOUND_TYPE::RUN1, "../Resource/Sound/Used/Effect/Run1.wav", FMOD_LOOP_OFF));
-	//v.emplace_back(info(CSoundSystem::SOUND_TYPE::RUN2, "../Resource/Sound/Used/Effect/Run2.wav", FMOD_LOOP_OFF));
 	v.emplace_back(info(CSoundSystem::SOUND_TYPE::RUN2, "../Resource/Sound/Used/Effect/Run1.wav", FMOD_LOOP_OFF));
 	v.emplace_back(info(CSoundSystem::SOUND_TYPE::BOMBEXPLOSION_EFFECT, "../Resource/Sound/Used/Effect/BombExplosion_Effect.wav", FMOD_LOOP_OFF));
 	v.emplace_back(info(CSoundSystem::SOUND_TYPE::GOLDTIMER_EFFECT, "../Resource/Sound/Used/Effect/GoldTimer_Effect.wav", FMOD_LOOP_OFF));
 	v.emplace_back(info(CSoundSystem::SOUND_TYPE::HAMMERSWING_EFFECT, "../Resource/Sound/Used/Effect/HammerSwing_Effect.wav", FMOD_LOOP_OFF));
 	v.emplace_back(info(CSoundSystem::SOUND_TYPE::GOLDHAMMER_EFFECT, "../Resource/Sound/Used/Effect/GoldHammer_Effect.wav", FMOD_LOOP_OFF));
 	v.emplace_back(info(CSoundSystem::SOUND_TYPE::FIRE_SOUND, "../Resource/Sound/Used/Effect/Fire.mp3", FMOD_LOOP_NORMAL));
-
+	v.emplace_back(info(CSoundSystem::SOUND_TYPE::CATCH, "../Resource/Sound/Used/Effect/Catch2.wav", FMOD_LOOP_OFF));
 
 	for (int i = 0; i < v.size(); ++i)
 	{

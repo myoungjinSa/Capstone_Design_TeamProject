@@ -9,29 +9,23 @@
 
 CLoginScene::CLoginScene()
 {
-
 }
 CLoginScene::~CLoginScene()
 {
-
 }
 
 ID3D12RootSignature *CLoginScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)
 {
-	
 	ID3D12RootSignature *pd3dGraphicsRootSignature = NULL;
 
 	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[1];
-
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[0].NumDescriptors = 1;
 	pd3dDescriptorRanges[0].BaseShaderRegister = 21; // t21: LoginSceneTexture
 	pd3dDescriptorRanges[0].RegisterSpace = 0;
 	pd3dDescriptorRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
 	
 	D3D12_ROOT_PARAMETER pd3dRootParameters[1];
-
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	pd3dRootParameters[0].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[0].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[0]);
@@ -131,6 +125,7 @@ XMFLOAT3 CLoginScene::ScreenPosition(int x, int y)
 
 	return screenPosition;
 }
+
 int CLoginScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wParam,LPARAM lParam)
 {
 	int mouseX = LOWORD(lParam);
@@ -139,8 +134,6 @@ int CLoginScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wPara
 	int ret = CIDShader::state::NO_SELECT;
 	switch(nMessageID)
 	{
-//	case WM_MOUSEMOVE:
-	//case WM_LBUTTONDOWN:
 		case WM_LBUTTONUP:
 		{
 			POINT ptCursorPos;
@@ -165,8 +158,6 @@ int CLoginScene::OnProcessingMouseMessage(HWND hWnd,UINT nMessageID,WPARAM wPara
 
 void CLoginScene::AnimateObjects(ID3D12GraphicsCommandList* pd3dCommandList, float elapsedTime)
 {
-	
-	//dynamic_cast<CLoginShader*>(m_ppShaders[0])->DecideTextureByCursorPosition()
 	for (int i = 0; i < m_nShaders; ++i)
 	{
 		if (m_ppShaders[i])
@@ -181,20 +172,17 @@ void CLoginScene::Render(ID3D12GraphicsCommandList *pd3dCommandList)
 	if (m_pd3dGraphicsRootSignature) 
 		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 
-
 	for(int i = 0; i < m_nShaders; ++i)
 	{
 		if(m_pInput->IsIDLength()>0)
 		{
-			m_ppShaders[i]->Render(pd3dCommandList, 0,true);
+			m_ppShaders[i]->Render(pd3dCommandList, 0, true);
 		}
 		else
 		{
-			m_ppShaders[i]->Render(pd3dCommandList, 0,false);
+			m_ppShaders[i]->Render(pd3dCommandList, 0, false);
 		}
 	}
-
-
 }
 #endif
 #endif

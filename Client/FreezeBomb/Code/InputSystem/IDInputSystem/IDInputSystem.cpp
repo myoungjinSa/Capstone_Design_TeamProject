@@ -34,7 +34,6 @@ TCHAR* CIDInput::StringToTCHAR(const string& s)
 	mbstowcs(t, all, len);
 
 	return (TCHAR*)t;
-	
 }
 
 const string& CIDInput::TCHARToString(const TCHAR* ptsz)
@@ -104,8 +103,7 @@ bool CIDInput::ComposeHangeul(HWND hWnd,WPARAM wParam,LPARAM lParam)
 			for(int i = 0;i<nLength ;++i)
 			{
 				if(wszComp[i]!=0)
-				{
-				
+				{				
 					//조합된 문자 보여지게 하기
 					wstring s(wszComp);
 					if (m_wsID.size() > 0 && m_composeCount > 0) 
@@ -126,17 +124,14 @@ bool CIDInput::ComposeHangeul(HWND hWnd,WPARAM wParam,LPARAM lParam)
 	{
 		nLength = ImmGetCompositionStringW(hImc, GCS_COMPSTR, nullptr, 0);
 
-		
 		if(nLength > 0)
 		{
 			ImmGetCompositionStringW(hImc, GCS_COMPSTR, wszComp, nLength);
 
-
 			for(int i=0;i<nLength;++i)
 			{
 				if(wszComp[i] != 0)
-				{
-				
+				{		
 					wstring s(wszComp);
 					if (m_composeCount > 0 && m_wsID.size() > 0)
 					{
@@ -146,9 +141,7 @@ bool CIDInput::ComposeHangeul(HWND hWnd,WPARAM wParam,LPARAM lParam)
 					m_wsID += s;
 
 					m_composeCount++;
-					//조합 중인 문자가 보여지는 코드 삽입
-					
-					
+					//조합 중인 문자가 보여지는 코드 삽입				
 				}				
 			}
 		}
@@ -186,8 +179,7 @@ void CIDInput::ProcessIDInput(HWND hWnd,WPARAM wParam,LPARAM lParam)
 	else if(GetIMEMode() == IME_CMODE_NATIVE)
 	{
 		if (wParam != VK_RETURN)
-		{
-		
+		{	
 			if (m_wsID.size() <= (size_t)LENGTH::KOR)
 			{
 				//m_wsChat += (TCHAR)wParam;
@@ -197,8 +189,7 @@ void CIDInput::ProcessIDInput(HWND hWnd,WPARAM wParam,LPARAM lParam)
 		}
 	}
 	if( GetKeyState(VK_BACK) & 0x8000)
-	{
-	
+	{	
 		if (m_wsID.size() > 0)
 		{
 			m_wsID.pop_back();
