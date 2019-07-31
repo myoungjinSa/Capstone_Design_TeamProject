@@ -1156,7 +1156,9 @@ void CGameFramework::ProcessInput()
 				{
 					//#ifdef 을 선언하지 않으면 무조건 서버가 켜있지 않을경우 무한 대기에 빠짐
 #ifdef _WITH_SERVER_
+					
 					Network::GetInstance()->SendUpKey();
+			
 					if(GetAsyncKeyState(VK_RIGHT) & 0x8000)
 					{
 						Network::GetInstance()->SendUpRightKey();
@@ -1165,6 +1167,7 @@ void CGameFramework::ProcessInput()
 					{
 						Network::GetInstance()->SendUpLeftKey();
 					}
+					
 #endif
 					dwDirection |= DIR_FORWARD;
 					m_pPlayer->SetDirection(dwDirection);
@@ -1181,15 +1184,20 @@ void CGameFramework::ProcessInput()
 					)
 				{
 #ifdef _WITH_SERVER_
+					
+				
 					Network::GetInstance()->SendDownKey();
 					if(GetAsyncKeyState(VK_RIGHT) & 0x8000)
 					{
 						Network::GetInstance()->SendDownRightKey();
+					
 					}
 					if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 					{
 						Network::GetInstance()->SendDownLeftKey();
+						
 					}
+					
 #endif
 					dwDirection |= DIR_BACKWARD;
 					m_pPlayer->SetDirection(dwDirection);
@@ -1821,7 +1829,7 @@ void CGameFramework::ProcessPacket(char* packet)
 			{
 				elapsedTime += m_GameTimer.GetTimeElapsed();
 			}
-			//m_pPlayer->SetPosition(pos);
+		//	m_pPlayer->SetPosition(pos);
 			m_pPlayer->SetLookVector(look);
 			m_pPlayer->SetUpVector(up);
 			m_pPlayer->SetRightVector(right);
@@ -1877,8 +1885,10 @@ void CGameFramework::ProcessPacket(char* packet)
 		SC_PACKET_PLAYER_ANIMATION *pPA = reinterpret_cast<SC_PACKET_PLAYER_ANIMATION*>(packet);
 		if (pPA->id == m_pPlayer->GetPlayerID())
 		{
+			
 			m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
 			m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
+			
 			//m_pPlayer->SetMoveRotate(false);
 		}
 		else if (pPA->id < MAX_USER)
