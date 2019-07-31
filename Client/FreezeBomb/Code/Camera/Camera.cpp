@@ -314,7 +314,7 @@ CThirdPersonCamera::CThirdPersonCamera(CCamera *pCamera) : CCamera(pCamera)
 	}
 }
 
-void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed,bool bVibe)
+void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed, bool bVibe)
 {
 	if (m_pPlayer)
 	{
@@ -327,11 +327,8 @@ void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed,bool bV
 		xmf4x4Rotate._12 = xmf3Right.y; xmf4x4Rotate._22 = xmf3Up.y; xmf4x4Rotate._32 = xmf3Look.y;
 		xmf4x4Rotate._13 = xmf3Right.z; xmf4x4Rotate._23 = xmf3Up.z; xmf4x4Rotate._33 = xmf3Look.z;
 		
-		//Debug 모드는 잘 실행됨.
-		//Release 컴파일러 옵션 od(최적화 실행 안함)시에만 적용됨
 		if(bVibe)
 		{
-
 			XMFLOAT4X4 xmf4x4ViberateMatrix = Matrix4x4::Identity();
 			XMFLOAT4X4 xmf4x4R = Matrix4x4::Identity();
 
@@ -339,13 +336,10 @@ void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed,bool bV
 
 			xmf4x4Rotate = Matrix4x4::Multiply(xmf4x4Rotate,xmf4x4ViberateMatrix);
 		}
-
-		
+	
 		XMFLOAT3 xmf3Offset = Vector3::TransformCoord(m_xmf3Offset, xmf4x4Rotate);
 		XMFLOAT3 xmf3Position = Vector3::Add(m_pPlayer->GetPosition(), xmf3Offset);
 		XMFLOAT3 xmf3Direction = Vector3::Subtract(xmf3Position, m_xmf3Position);
-
-		
 
 		float fLength = Vector3::Length(xmf3Direction);
 		xmf3Direction = Vector3::Normalize(xmf3Direction);
@@ -360,7 +354,6 @@ void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed,bool bV
 			m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Direction, fDistance);
 			SetLookAt(xmf3LookAt);
 		}
-
 	}
 }
 
@@ -368,10 +361,8 @@ void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed,bool bV
 void CThirdPersonCamera::SetLookAt(XMFLOAT3& xmf3LookAt)
 {
 	XMFLOAT4X4 mtxLookAt = Matrix4x4::LookAtLH(m_xmf3Position, xmf3LookAt, m_pPlayer->GetUpVector());
-	
 
 	m_xmf3Right = XMFLOAT3(mtxLookAt._11, mtxLookAt._21, mtxLookAt._31);
 	m_xmf3Up = XMFLOAT3(mtxLookAt._12, mtxLookAt._22, mtxLookAt._32);
 	m_xmf3Look = XMFLOAT3(mtxLookAt._13, mtxLookAt._23, mtxLookAt._33);
-
 }
