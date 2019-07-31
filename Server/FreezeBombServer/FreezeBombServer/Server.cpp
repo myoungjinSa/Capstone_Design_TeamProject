@@ -655,7 +655,7 @@ void Server::WorkerThreadFunc()
 				SendMovePos(i, key);
 			}
 			cout << "MOVE POS 패킷 전송\n";
-			add_timer(key, EV_SENDMOVEPOS, high_resolution_clock::now() + 1s);
+			add_timer(key, EV_SENDMOVEPOS, high_resolution_clock::now() + 5s);
 		}
 		else if (EV_GO_NEXTROUND == over_ex->event_t)
 		{
@@ -735,12 +735,13 @@ void Server::MovingThreadFunc()
 				continue;
 			if (true == clients[i].isRotating)
 			{
-
+				RotateClientAxisY(i);
 			}
 			if (true == clients[i].isMoving)
 			{
-
+				UpdateClientPos(i);
 			}
+			SetPitchYawRollZero(i);
 		}
 	}
 }
@@ -940,52 +941,165 @@ void Server::ProcessPacket(char client, char *packet)
 			//이 부분 READYCOUNT 보다
 			for (int i = 0; i < MAX_USER; ++i)
 			{
-				if (true == clients[i].in_use)
-					SendPleaseReady(i);
+				if (false == clients[i].in_use)
+					continue;
+
+				SendPleaseReady(i);
 			}
 			printf("Please Ready\n");
 		}
 		break;
 	}
 	case CS_UP_KEY:
-	case CS_DOWN_KEY:
-	case CS_LEFT_KEY:
-	case CS_RIGHT_KEY:
-	case CS_UPLEFT_KEY:
-	case CS_UPRIGHT_KEY:
-	case CS_DOWNLEFT_KEY:
-	case CS_DOWNRIGHT_KEY:
 	{
 		SetDirection(client, packet[1]);
-		UpdateClientPos(client);
-
-		//printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
+		clients[client].isMoving = true;
 		for (int i = 0; i < MAX_USER; ++i)
 		{
-			if (clients[i].in_use == true)
-			{
-				SendMovePlayer(i, client);
-				//한번 MovePacket을 보내고 난후 
-				//pitch,yaw,roll은 다시 0으로 바꿔줘야함.
-				//그렇지 않을경우 뱅글뱅글 돌게됨.
-				SetPitchYawRollZero(i);
-				//cout << "client " << (int)client << " : " << clients[client].pitch << ", " << clients[client].yaw << ", " << clients[client].roll << "\n";
+			if (false == clients[i].in_use)
+				continue;
 
-				//Idle 동작으로 변하게 하려면 
-				//SetVelocityZero(i);
-			}
+			SendPressUpKey(i, client);
 		}
 		break;
 	}
-	case CS_RELEASE_KEY:
+	case CS_DOWN_KEY:
 	{
+		SetDirection(client, packet[1]);
+		clients[client].isMoving = true;
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (false == clients[i].in_use)
+				continue;
+
+			SendPressDownKey(i, client);
+		}
+		break; 
+	}
+	case CS_LEFT_KEY:
+	{
+		SetDirection(client, packet[1]);
+		clients[client].isRotating = true;
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (false == clients[i].in_use)
+				continue;
+
+			SendPressLeftKey(i, client);
+		}
+		break;
+	}
+	case CS_RIGHT_KEY:
+	{
+		SetDirection(client, packet[1]);
+		clients[client].isRotating = true;
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (false == clients[i].in_use)
+				continue;
+
+			SendPressRightKey(i, client);
+		}
+		break;
+	}
+	case CS_UPLEFT_KEY:
+	{
+		SetDirection(client, packet[1]);
+		clients[client].isMoving = true;
+		clients[client].isRotating = true;
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (false == clients[i].in_use)
+				continue;
+
+			SendPressUpLeftKey(i, client);
+		}
+		break;
+	}
+	case CS_UPRIGHT_KEY:
+	{
+		SetDirection(client, packet[1]);
+		clients[client].isMoving = true;
+		clients[client].isRotating = true;
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (false == clients[i].in_use)
+				continue;
+
+			SendPressUpRightKey(i, client);
+		}
+		break;
+	}
+	case CS_DOWNLEFT_KEY:
+	{
+		SetDirection(client, packet[1]);
+		clients[client].isMoving = true;
+		clients[client].isRotating = true;
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (false == clients[i].in_use)
+				continue;
+
+			SendPressDownLeftKey(i, client);
+		}
+		break;
+	}
+	case CS_DOWNRIGHT_KEY:
+	{
+		SetDirection(client, packet[1]);
+		clients[client].isMoving = true;
+		clients[client].isRotating = true;
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (false == clients[i].in_use)
+				continue;
+
+			SendPressDownRightKey(i, client);
+		}
+
+		//printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
+		//for (int i = 0; i < MAX_USER; ++i)
+		//{
+		//	if (clients[i].in_use == true)
+		//	{
+		//		SendMovePlayer(i, client);
+		//		//한번 MovePacket을 보내고 난후 
+		//		//pitch,yaw,roll은 다시 0으로 바꿔줘야함.
+		//		//그렇지 않을경우 뱅글뱅글 돌게됨.
+		//		SetPitchYawRollZero(i);
+		//		//cout << "client " << (int)client << " : " << clients[client].pitch << ", " << clients[client].yaw << ", " << clients[client].roll << "\n";
+
+		//		//Idle 동작으로 변하게 하려면 
+		//		//SetVelocityZero(i);
+		//	}
+		//}
+		break;
+	}
+	case CS_RELEASE_MOVEKEY:
+	{
+		clients[client].isMoving = false;
 		if (clients[client].fVelocity > 0)
 		{
 			for (int i = 0; i < MAX_USER; ++i)
 			{
-				if (true == clients[i].in_use)
-					SendStopRunAnim(i, client);
+				if (false == clients[i].in_use)
+					continue;
+
+				SendStopRunAnim(i, client);
 			}
+		}
+		break;
+	}
+	case CS_RELEASE_ROTATEKEY:
+	{
+		clients[client].isRotating = false;
+
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (false == clients[i].in_use)
+				continue;
+
+			SendStopRotate(i, client);
 		}
 		break;
 	}
@@ -1524,7 +1638,85 @@ void Server::SendPleaseReady(char client)
 
 }
 
+void Server::SendPressRightKey(char toClient, char fromClient)
+{
+	SC_PACKET_PRESS_RIGHT_KEY packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PRESS_RIGHT_KEY;
+	packet.id = fromClient;
 
+	SendFunc(toClient, &packet);
+}
+
+void Server::SendPressLeftKey(char toClient, char fromClient)
+{
+	SC_PACKET_PRESS_LEFT_KEY packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PRESS_LEFT_KEY;
+	packet.id = fromClient;
+
+	SendFunc(toClient, &packet);
+}
+
+void Server::SendPressUpKey(char toClient, char fromClient)
+{
+	SC_PACKET_PRESS_UP_KEY packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PRESS_UP_KEY;
+	packet.id = fromClient;
+
+	SendFunc(toClient, &packet);
+}
+
+void Server::SendPressUpRightKey(char toClient, char fromClient)
+{
+	SC_PACKET_PRESS_UPRIGHT_KEY packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PRESS_UPRIGHT_KEY;
+	packet.id = fromClient;
+
+	SendFunc(toClient, &packet);
+}
+
+void Server::SendPressUpLeftKey(char toClient, char fromClient)
+{
+	SC_PACKET_PRESS_UPLEFT_KEY packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PRESS_UPLEFT_KEY;
+	packet.id = fromClient;
+
+	SendFunc(toClient, &packet);
+}
+
+void Server::SendPressDownKey(char toClient, char fromClient)
+{
+	SC_PACKET_PRESS_DOWN_KEY packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PRESS_DOWN_KEY;
+	packet.id = fromClient;
+
+	SendFunc(toClient, &packet);
+}
+
+void Server::SendPressDownRightKey(char toClient, char fromClient)
+{
+	SC_PACKET_PRESS_DOWNRIGHT_KEY packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PRESS_DOWNRIGHT_KEY;
+	packet.id = fromClient;
+
+	SendFunc(toClient, &packet);
+}
+
+void Server::SendPressDownLeftKey(char toClient, char fromClient)
+{
+	SC_PACKET_PRESS_DOWNLEFT_KEY packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PRESS_DOWNLEFT_KEY;
+	packet.id = fromClient;
+
+	SendFunc(toClient, &packet);
+}
 //무브 플레이어 패킷이 현재는 움직임을 요청한 클라이언트에게만
 //전송하는 구조여서 이부분 바뀌어야 할듯 - 명진
 
@@ -1660,6 +1852,16 @@ void Server::SendStopRunAnim(char toClient, char fromClient)
 	packet.id = fromClient;
 	packet.size = sizeof(packet);
 	packet.type = SC_STOP_RUN_ANIM;
+
+	SendFunc(toClient, &packet);
+}
+
+void Server::SendStopRotate(char toClient, char fromClient)
+{
+	SC_PACKET_STOP_ROTATE packet;
+	packet.id = fromClient;
+	packet.size = sizeof(packet);
+	packet.type = SC_STOP_ROTATE;
 
 	SendFunc(toClient, &packet);
 }
@@ -1965,7 +2167,7 @@ void Server::UpdateClientPos(char client)
 	{
 		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -VELOCITY);
 	}
-	if (clients[client].direction == DIR_LEFT 
+	/*if (clients[client].direction == DIR_LEFT 
 		|| clients[client].direction == DIR_RIGHT
 		|| clients[client].direction == DIR_FORWARDRIGHT
 		|| clients[client].direction == DIR_FORWARDLEFT
@@ -1973,7 +2175,7 @@ void Server::UpdateClientPos(char client)
 		|| clients[client].direction == DIR_BACKLEFT)
 	{
 		RotateClientAxisY(client);
-	}
+	}*/
 
 	//clients[client].velocity = Vector3::Add(clients[client].velocity, gravity);//gravity가 초기화가 안되서 쓰레기값?
 	//	cout << clients[client].velocity.x<<","<<clients[client].velocity.y<<","<<clients[client].velocity.z << "\n";
@@ -2010,7 +2212,10 @@ void Server::UpdateClientPos(char client)
 		case DIR_BACKLEFT:
 		case DIR_BACKRIGHT:
 		{
-			xmf3CollisionDir= Vector3::Add(Vector3::Subtract(player_pos, clients[client].pos), Vector3::ScalarProduct(clients[client].look, -1.0f));
+			xmf3CollisionDir= Vector3::Add(
+				Vector3::Subtract(player_pos, clients[client].pos),
+				Vector3::ScalarProduct(clients[client].look, -1.0f)
+			);
 			break;
 		}
 		case DIR_FORWARD:

@@ -457,6 +457,9 @@ protected:
 
 	float						m_fVelocityFromServer = 0.0f;
 
+	bool						m_bIsMoving{ false };
+	bool						m_bIsRotating{ false };
+
 #endif
 
 	//플레이어와의 거리
@@ -466,6 +469,11 @@ public:
 #ifdef _WITH_SERVER_
 	void SetCollided(bool isCollided) { m_bCollided = isCollided; }
 	bool IsCollided() { return m_bCollided; }
+
+	void SetIsMoving(bool im) { m_bIsMoving = im; }
+	bool GetIsMoving() { return m_bIsMoving; }
+	void SetIsRotating(bool ir) { m_bIsRotating = ir; }
+	bool GetIsRotating() { return m_bIsRotating; }
 #endif
 	void setID(const string id) { m_ID = id; }
 	const string getID()	const { return m_ID; }

@@ -250,6 +250,7 @@ public:
 	void SendRoundEnd(char client);
 	void SendCompareTime(char client,unsigned short& time);
 	void SendStopRunAnim(char toClient, char fromClient);
+	void SendStopRotate(char toClient, char fromClient);
 	void SendUseItem(char toClient, char fromClient, char useItem, char targetClient);
 	void SendFreeze(char toClient, char fromClient);
 	void SendReleaseFreeze(char toClient, char fromClient);
@@ -262,6 +263,14 @@ public:
 	void SendChosenCharacter(char toClient);
 	void SendGoLobby(char toClient);
 	void SendMovePos(char toClient, char fromClient);
+	void SendPressRightKey(char toClient, char fromClient);
+	void SendPressLeftKey(char toClient, char fromClient);
+	void SendPressUpKey(char toClient, char fromClient);
+	void SendPressUpRightKey(char toClient, char fromClient);
+	void SendPressUpLeftKey(char toClient, char fromClient);
+	void SendPressDownKey(char toClient, char fromClient);
+	void SendPressDownRightKey(char toClient, char fromClient);
+	void SendPressDownLeftKey(char toClient, char fromClient);
 public:
 	void SetAnimationState(char client,char animationNum);
 	void SetVelocityZero(char client);

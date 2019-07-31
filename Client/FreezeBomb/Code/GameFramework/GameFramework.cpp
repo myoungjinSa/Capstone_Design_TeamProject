@@ -808,7 +808,13 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_UP:
 		case VK_DOWN:
 		{
-			Network::GetInstance()->SendReleaseKey();
+			Network::GetInstance()->SendReleaseMoveKey();
+			break;
+		}
+		case VK_RIGHT:
+		case VK_LEFT:
+		{
+			Network::GetInstance()->SendReleaseRotateKey();
 			break;
 		}
 #endif
@@ -1156,16 +1162,26 @@ void CGameFramework::ProcessInput()
 				{
 					//#ifdef 을 선언하지 않으면 무조건 서버가 켜있지 않을경우 무한 대기에 빠짐
 #ifdef _WITH_SERVER_
-					
-					Network::GetInstance()->SendUpKey();
-			
-					if(GetAsyncKeyState(VK_RIGHT) & 0x8000)
+					if (false == m_pPlayer->GetIsMoving())
 					{
-						Network::GetInstance()->SendUpRightKey();
+						Network::GetInstance()->SendUpKey();
+						m_pPlayer->SetIsMoving(true);
+					}
+					if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
+					{
+						if (false == m_pPlayer->GetIsRotating())
+						{
+							Network::GetInstance()->SendUpRightKey();
+							m_pPlayer->SetIsRotating(true);
+						}
 					}
 					if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 					{
-						Network::GetInstance()->SendUpLeftKey();
+						if (false == m_pPlayer->GetIsRotating())
+						{
+							Network::GetInstance()->SendUpLeftKey();
+							m_pPlayer->SetIsRotating(true);
+						}
 					}
 					
 #endif
@@ -1804,7 +1820,146 @@ void CGameFramework::ProcessPacket(char* packet)
 		}
 		break;
 	}
+	case SC_PRESS_RIGHT_KEY:
+	{
+		SC_PACKET_PRESS_RIGHT_KEY *pPRK = reinterpret_cast<SC_PACKET_PRESS_RIGHT_KEY*>(packet);
+		// 여기는 무조건 other player의 키 정보만 넘어올 것.
+		if (pPRK->id < MAX_USER)
+		{	// 이렇게 작성하는 게 맞는지 확인 필요.
+			char id = m_mapClients[pPRK->id].id;
 
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetIsRotating(true);
+			}
+		}
+		break;
+	}
+	case SC_PRESS_LEFT_KEY:
+	{
+		SC_PACKET_PRESS_LEFT_KEY *pPLK = reinterpret_cast<SC_PACKET_PRESS_LEFT_KEY*>(packet);
+		// 여기는 무조건 other player의 키 정보만 넘어올 것.
+		if (pPLK->id < MAX_USER)
+		{	// 이렇게 작성하는 게 맞는지 확인 필요.
+			char id = m_mapClients[pPLK->id].id;
+
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetIsRotating(true);
+			}
+		}
+		break;
+	}
+	case SC_PRESS_UP_KEY:
+	{
+		SC_PACKET_PRESS_UP_KEY *pPUK = reinterpret_cast<SC_PACKET_PRESS_UP_KEY*>(packet);
+		// 여기는 무조건 other player의 키 정보만 넘어올 것.
+		if (pPUK->id < MAX_USER)
+		{	// 이렇게 작성하는 게 맞는지 확인 필요.
+			char id = m_mapClients[pPUK->id].id;
+
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetIsMoving(true);
+			}
+		}
+		break;
+	}
+	case SC_PRESS_UPRIGHT_KEY:
+	{
+		SC_PACKET_PRESS_UPRIGHT_KEY *pPURK = reinterpret_cast<SC_PACKET_PRESS_UPRIGHT_KEY*>(packet);
+		// 여기는 무조건 other player의 키 정보만 넘어올 것.
+		if (pPURK->id < MAX_USER)
+		{	// 이렇게 작성하는 게 맞는지 확인 필요.
+			char id = m_mapClients[pPURK->id].id;
+
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetIsMoving(true);
+				(*iter).second->m_ppObjects[id]->SetIsRotating(true);
+			}
+		}
+		break;
+	}
+	case SC_PRESS_UPLEFT_KEY:
+	{
+		SC_PACKET_PRESS_UPLEFT_KEY *pPULK = reinterpret_cast<SC_PACKET_PRESS_UPLEFT_KEY*>(packet);
+		// 여기는 무조건 other player의 키 정보만 넘어올 것.
+		if (pPULK->id < MAX_USER)
+		{	// 이렇게 작성하는 게 맞는지 확인 필요.
+			char id = m_mapClients[pPULK->id].id;
+
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetIsMoving(true);
+				(*iter).second->m_ppObjects[id]->SetIsRotating(true);
+			}
+		}
+		break;
+	}
+	case SC_PRESS_DOWN_KEY:
+	{
+		SC_PACKET_PRESS_DOWN_KEY *pPDK = reinterpret_cast<SC_PACKET_PRESS_DOWN_KEY*>(packet);
+		// 여기는 무조건 other player의 키 정보만 넘어올 것.
+		if (pPDK->id < MAX_USER)
+		{	// 이렇게 작성하는 게 맞는지 확인 필요.
+			char id = m_mapClients[pPDK->id].id;
+
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetIsMoving(true);
+			}
+		}
+		break;
+	}
+	case SC_PRESS_DOWNRIGHT_KEY:
+	{
+		SC_PACKET_PRESS_DOWNRIGHT_KEY *pPDRK = reinterpret_cast<SC_PACKET_PRESS_DOWNRIGHT_KEY*>(packet);
+		// 여기는 무조건 other player의 키 정보만 넘어올 것.
+		if (pPDRK->id < MAX_USER)
+		{	// 이렇게 작성하는 게 맞는지 확인 필요.
+			char id = m_mapClients[pPDRK->id].id;
+
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetIsMoving(true);
+				(*iter).second->m_ppObjects[id]->SetIsRotating(true);
+			}
+		}
+		break;
+	}
+	case SC_PRESS_DOWNLEFT_KEY:
+	{
+		SC_PACKET_PRESS_DOWNLEFT_KEY *pPDLK = reinterpret_cast<SC_PACKET_PRESS_DOWNLEFT_KEY*>(packet);
+		// 여기는 무조건 other player의 키 정보만 넘어올 것.
+		if (pPDLK->id < MAX_USER)
+		{	// 이렇게 작성하는 게 맞는지 확인 필요.
+			char id = m_mapClients[pPDLK->id].id;
+
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetIsMoving(true);
+				(*iter).second->m_ppObjects[id]->SetIsRotating(true);
+			}
+		}
+		break;
+	}
 	case SC_MOVE_PLAYER:
 	{
 		SC_PACKET_MOVE_PLAYER *pMP = reinterpret_cast<SC_PACKET_MOVE_PLAYER*>(packet);
@@ -1931,9 +2086,39 @@ void CGameFramework::ProcessPacket(char* packet)
 		if (pSTA->id == m_pPlayer->GetPlayerID())
 		{
 			m_pPlayer->SetVelocityFromServer(0.0f);
+			m_pPlayer->SetIsMoving(false);
 		}
+		else if (pSTA->id < MAX_USER)
+		{	// 이렇게 작성하는 게 맞는지 확인 필요.
+			char id = m_mapClients[pSTA->id].id;
 
-		//printf("SetVelocityFromServer\n");
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetIsMoving(false);
+			}
+		}
+		break;
+	}
+	case SC_STOP_ROTATE:
+	{
+		SC_PACKET_STOP_ROTATE *pSR = reinterpret_cast<SC_PACKET_STOP_ROTATE*>(packet);
+		if (pSR->id == m_pPlayer->GetPlayerID())
+		{
+			m_pPlayer->SetIsRotating(false);
+		}
+		else if (pSR->id < MAX_USER)
+		{	// 이렇게 작성하는 게 맞는지 확인 필요.
+			char id = m_mapClients[pSR->id].id;
+
+			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
+
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
+			{
+				(*iter).second->m_ppObjects[id]->SetIsRotating(false);
+			}
+		}
 		break;
 	}
 	case SC_REMOVE_PLAYER:

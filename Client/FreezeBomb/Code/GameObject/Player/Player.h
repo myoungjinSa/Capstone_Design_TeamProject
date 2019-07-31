@@ -123,6 +123,11 @@ public:
 	
 	void SetCollision(bool collision) { m_bCollision = collision; }
 	bool GetCollision() { return m_bCollision; }
+	
+	void SetIsMoving(bool im) { m_bIsMoving = im; }
+	bool GetIsMoving() { return m_bIsMoving; }
+	void SetIsRotating(bool ir) { m_bIsRotating = ir; }
+	bool GetIsRotating() { return m_bIsRotating; }
 protected:
 
 	
@@ -168,6 +173,9 @@ protected:
 
 	//주인공 아이디
 	char			m_pPlayerID;
+
+	bool			m_bIsMoving{ false };
+	bool			m_bIsRotating{ false };
 };
 
 class CSoundSystem;

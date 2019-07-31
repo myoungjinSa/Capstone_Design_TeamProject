@@ -33,7 +33,11 @@ private:
 
 private:
 	CS_PACKET_UP_KEY *pUp = NULL;
+	CS_PACKET_UPRIGHT_KEY *pUpRight = NULL;
+	CS_PACKET_UPLEFT_KEY *pUpLeft = NULL;
 	CS_PACKET_DOWN_KEY *pDown = NULL;
+	CS_PACKET_DOWNRIGHT_KEY *pDownRight = NULL;
+	CS_PACKET_DOWNLEFT_KEY *pDownLeft = NULL;
 	CS_PACKET_RIGHT_KEY *pRight = NULL;
 	CS_PACKET_LEFT_KEY *pLeft = NULL;
 	CS_PACKET_READY *pReady = NULL;
@@ -103,7 +107,8 @@ public:
 	void SendReady();
 	void SendNotReady();
 	void SendReqStart();
-	void SendReleaseKey();
+	void SendReleaseMoveKey();
+	void SendReleaseRotateKey();
 	void SendAnimationState(char animNum);
 	void SendNickName(char id,_TCHAR* name);
 	void SendChattingText(char id,const _TCHAR* text);

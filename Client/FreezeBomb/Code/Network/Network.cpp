@@ -170,19 +170,19 @@ void Network::SendUpKey()
 
 void Network::SendUpRightKey()
 {
-	pUp = reinterpret_cast<CS_PACKET_UP_KEY *>(send_buffer);
-	pUp->size = sizeof(pUp);
-	send_wsabuf.len = sizeof(pUp);
-	pUp->type = CS_UPRIGHT_KEY;
+	pUpRight = reinterpret_cast<CS_PACKET_UPRIGHT_KEY *>(send_buffer);
+	pUpRight->size = sizeof(pUpRight);
+	send_wsabuf.len = sizeof(pUpRight);
+	pUpRight->type = CS_UPRIGHT_KEY;
 
 	SendPacket();
 }
 void Network::SendUpLeftKey()
 {
-	pUp = reinterpret_cast<CS_PACKET_UP_KEY *>(send_buffer);
-	pUp->size = sizeof(pUp);
-	send_wsabuf.len = sizeof(pUp);
-	pUp->type = CS_UPLEFT_KEY;
+	pUpLeft = reinterpret_cast<CS_PACKET_UPLEFT_KEY *>(send_buffer);
+	pUpLeft->size = sizeof(pUpLeft);
+	send_wsabuf.len = sizeof(pUpLeft);
+	pUpLeft->type = CS_UPLEFT_KEY;
 
 	SendPacket();
 }
@@ -199,20 +199,20 @@ void Network::SendDownKey()
 
 void Network::SendDownRightKey()
 {
-	pDown = reinterpret_cast<CS_PACKET_DOWN_KEY *>(send_buffer);
-	pDown->size = sizeof(pDown);
-	send_wsabuf.len = sizeof(pDown);
-	pDown->type = CS_DOWNRIGHT_KEY;
+	pDownRight = reinterpret_cast<CS_PACKET_DOWNRIGHT_KEY *>(send_buffer);
+	pDownRight->size = sizeof(pDownRight);
+	send_wsabuf.len = sizeof(pDownRight);
+	pDownRight->type = CS_DOWNRIGHT_KEY;
 
 	SendPacket();
 }
 
 void Network::SendDownLeftKey()
 {
-	pDown = reinterpret_cast<CS_PACKET_DOWN_KEY *>(send_buffer);
-	pDown->size = sizeof(pDown);
-	send_wsabuf.len = sizeof(pDown);
-	pDown->type = CS_DOWNLEFT_KEY;
+	pDownLeft = reinterpret_cast<CS_PACKET_DOWNLEFT_KEY *>(send_buffer);
+	pDownLeft->size = sizeof(pDownLeft);
+	send_wsabuf.len = sizeof(pDownLeft);
+	pDownLeft->type = CS_DOWNLEFT_KEY;
 
 	SendPacket();
 }
@@ -280,15 +280,26 @@ void Network::SendReqStart()
 	SendPacket();
 }
 
-void Network::SendReleaseKey()
+void Network::SendReleaseMoveKey()
 {
 	pReleaseKey = reinterpret_cast<CS_PACKET_RELEASE_KEY *>(send_buffer);
 	pReleaseKey->size = sizeof(pReleaseKey);
 	send_wsabuf.len = sizeof(pReleaseKey);
-	pReleaseKey->type = CS_RELEASE_KEY;
+	pReleaseKey->type = CS_RELEASE_MOVEKEY;
 
 	SendPacket();
 }
+
+void Network::SendReleaseRotateKey()
+{
+	pReleaseKey = reinterpret_cast<CS_PACKET_RELEASE_KEY *>(send_buffer);
+	pReleaseKey->size = sizeof(pReleaseKey);
+	send_wsabuf.len = sizeof(pReleaseKey);
+	pReleaseKey->type = CS_RELEASE_ROTATEKEY;
+
+	SendPacket();
+}
+
 void Network::SendAnimationState(char animNum)
 {
 	pAnimation = reinterpret_cast<CS_PACKET_ANIMATION*>(send_buffer);

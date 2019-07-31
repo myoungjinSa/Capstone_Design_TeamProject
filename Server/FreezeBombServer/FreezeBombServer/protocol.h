@@ -40,6 +40,7 @@ constexpr int SC_PLEASE_READY = 9;
 constexpr int SC_ACCESS_PLAYER = 10;
 constexpr int SC_COMPARE_TIME = 11;
 constexpr int SC_STOP_RUN_ANIM = 12;
+constexpr int SC_STOP_ROTATE = 28;
 constexpr int SC_ANIMATION_INFO = 13;
 constexpr int SC_CLIENT_LOBBY_IN = 14;
 constexpr int SC_CLIENT_LOBBY_OUT = 15;
@@ -55,6 +56,14 @@ constexpr int SC_MOVE_POS = 24;
 constexpr int SC_CHOICE_CHARACTER = 25;
 constexpr int SC_CHOSEN_CHARACTER = 26;
 constexpr int SC_GO_LOBBY = 27;
+constexpr int SC_PRESS_UP_KEY = 29;
+constexpr int SC_PRESS_UPRIGHT_KEY = 30;
+constexpr int SC_PRESS_UPLEFT_KEY = 31;
+constexpr int SC_PRESS_DOWN_KEY = 32;
+constexpr int SC_PRESS_DOWNRIGHT_KEY = 33;
+constexpr int SC_PRESS_DOWNLEFT_KEY = 34;
+constexpr int SC_PRESS_RIGHT_KEY = 35;
+constexpr int SC_PRESS_LEFT_KEY = 36;
 
 constexpr int CS_UP_KEY = 0;
 constexpr int CS_DOWN_KEY = 1;
@@ -67,7 +76,8 @@ constexpr int CS_DOWNRIGHT_KEY = 7;
 constexpr int CS_READY = 8;
 constexpr int CS_UNREADY = 9;
 constexpr int CS_REQUEST_START = 10;
-constexpr int CS_RELEASE_KEY = 11;
+constexpr int CS_RELEASE_MOVEKEY = 11;
+constexpr int CS_RELEASE_ROTATEKEY = 26;
 constexpr int CS_ANIMATION_INFO = 12;
 constexpr int CS_NICKNAME_INFO = 13;
 constexpr int CS_CHATTING = 14;
@@ -369,6 +379,64 @@ struct SC_PACKET_PUT_PLAYER
 	char posIdx[MAX_USER];
 };
 
+
+struct SC_PACKET_PRESS_RIGHT_KEY
+{
+	char size;
+	char type;
+	char id;
+};
+
+struct SC_PACKET_PRESS_LEFT_KEY
+{
+	char size;
+	char type;
+	char id;
+};
+
+struct SC_PACKET_PRESS_UP_KEY
+{
+	char size;
+	char type;
+	char id;
+};
+
+struct SC_PACKET_PRESS_UPRIGHT_KEY
+{
+	char size;
+	char type;
+	char id;
+};
+
+struct SC_PACKET_PRESS_UPLEFT_KEY
+{
+	char size;
+	char type;
+	char id;
+};
+
+struct SC_PACKET_PRESS_DOWN_KEY
+{
+	char size;
+	char type;
+	char id;
+};
+
+struct SC_PACKET_PRESS_DOWNRIGHT_KEY
+{
+	char size;
+	char type;
+	char id;
+};
+
+struct SC_PACKET_PRESS_DOWNLEFT_KEY
+{
+	char size;
+	char type;
+	char id;
+};
+
+
 // 플레이어 이동 시
 struct SC_PACKET_MOVE_PLAYER
 {
@@ -445,6 +513,14 @@ struct SC_PACKET_STOP_RUN_ANIM
 	char type;
 	char id;
 };
+
+struct SC_PACKET_STOP_ROTATE
+{
+	char size;
+	char type;
+	char id;
+};
+
 //현재 Ready중인 플레이어의 정보를 담은 패킷
 struct SC_PACKET_READY_STATE
 {
