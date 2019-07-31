@@ -583,11 +583,11 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			)
 		{
 #ifdef _WITH_SERVER_
-			if (pController->GetAnimationState() != CAnimationController::RUNFAST
-				&& bRun == false)
+			if (pController->GetAnimationState() != CAnimationController::RUNFAST)
 			{
 				//idleCount = 0;
 				//idleCount = 0;
+				SetTrackAnimationPosition(0, 0.0f);
 				SetTrackAnimationSet(0, CAnimationController::RUNFAST);
 				m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
 
@@ -614,8 +614,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		{
 
 #ifdef _WITH_SERVER_
-			if (pController->GetAnimationState() != CAnimationController::RUNBACKWARD
-				&& bRun == false)
+			if (pController->GetAnimationState() != CAnimationController::RUNBACKWARD)
 			{
 				
 				bRun = true;
@@ -632,9 +631,6 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		{
 			idleCount = 0;
 		}
-
-		
-
 
 	}
 	

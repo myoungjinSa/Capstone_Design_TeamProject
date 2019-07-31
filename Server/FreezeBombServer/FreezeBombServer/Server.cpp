@@ -1,5 +1,6 @@
 #include "Server.h"
 
+mutex g_lock;
 Server::Server()
 {
 	round = 0;
@@ -916,6 +917,7 @@ void Server::ProcessPacket(char client, char *packet)
 	case CS_DOWNLEFT_KEY:
 	case CS_DOWNRIGHT_KEY:
 	{
+		g_lock.lock();
 		SetDirection(client, packet[1]);
 
 		
@@ -936,6 +938,7 @@ void Server::ProcessPacket(char client, char *packet)
 				//SetVelocityZero(i);
 			}
 		}
+		g_lock.unlock();
 		break;
 	}
 	case CS_RELEASE_KEY:
@@ -1869,7 +1872,9 @@ void Server::SetDirection(char client, int key)
 		tmpDir |= DIR_BACKRIGHT;
 		break;
 	}
+	
 	clients[client].direction = tmpDir;
+	
 }
 
 void Server::SetVelocityZero(char client)
@@ -1975,8 +1980,9 @@ void Server::UpdateClientPos(char client)
 		cout << "알수 없는 객체와 충돌\n";
 		break;
 	}
+	
 	clients[client].pos = Vector3::Add(clients[client].pos, clients[client].velocity);
-
+	
 
 	//ProcessFriction 함수 호출 필요없어 보임 - 여기서밖에 쓰이지 않아서 함수로 만들 필요가 없어보임 (함수 호출이 비효율적이지 않을까)
 	fLength = Vector3::Length(clients[client].velocity);
@@ -2004,10 +2010,12 @@ void Server::UpdateClientPos(char client)
 
 void Server::RotateClientAxisY(char client)
 {
+	
 	XMFLOAT3& xmf3Look = clients[client].look;
 	XMFLOAT3& xmf3Right = clients[client].right;
 	XMFLOAT3& xmf3Up = clients[client].up;
 
+	
 	clients[client].lastLookVector = xmf3Look;
 	clients[client].lastRightVector = xmf3Right;
 	clients[client].lastUpVector = xmf3Up;
@@ -2072,11 +2080,12 @@ void Server::RotateClientAxisY(char client)
 	xmf3Right = Vector3::CrossProduct(xmf3Up, xmf3Look, true);
 	xmf3Up = Vector3::CrossProduct(xmf3Look, xmf3Right, true);
 
-	
 	clients[client].look = xmf3Look;
 	clients[client].right = xmf3Right;
 	clients[client].up = xmf3Up;
 	clients[client].isMoveRotate = isMoveRotate;
+
+	
 }
 
 void Server::RotateModel(char client, float x, float y, float z)

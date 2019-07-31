@@ -125,7 +125,7 @@ public:
 	float animationTime;	//애니메이션 시간
 	bool isReady;
 	GAME_STATE gameState;	
-
+	
 public:
 	SOCKETINFO() {
 		in_use = false;
