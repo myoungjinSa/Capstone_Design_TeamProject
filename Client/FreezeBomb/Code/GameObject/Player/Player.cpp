@@ -586,8 +586,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			)
 		{
 #ifdef _WITH_SERVER_
-			if (pController->GetAnimationState() != CAnimationController::RUNFAST
-				&& bRun == false)
+			if (pController->GetAnimationState() != CAnimationController::RUNFAST)
 			{
 				//idleCount = 0;
 				//idleCount = 0;
@@ -617,8 +616,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		{
 
 #ifdef _WITH_SERVER_
-			if (pController->GetAnimationState() != CAnimationController::RUNBACKWARD
-				&& bRun == false)
+			if (pController->GetAnimationState() != CAnimationController::RUNBACKWARD)
 			{
 				
 				bRun = true;
