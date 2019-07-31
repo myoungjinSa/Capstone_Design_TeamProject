@@ -29,7 +29,7 @@ public:
 
 	void Initialize(IDWriteTextFormat*, IDWriteTextLayout*, ID2D1SolidColorBrush*, ID2D1DeviceContext2*);
 
-	size_t ProcessIPInput(UINT sel);
+	size_t ProcessIPInput();
 
 	TCHAR* StringToTCHAR(const string& s);
 	string TCHARToString(const TCHAR* ptsz);

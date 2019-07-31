@@ -734,16 +734,11 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 					// 술래 체인지
 					if (m_pPlayer->GetIsBomb() == true && (*iter).second->m_ppObjects[id]->GetIsICE() == false)
 					{
-						//(*iter).second->m_ppObjects[id]->SetIsBomb(true);
-						//m_pPlayer->SetIsBomb(false);
 						m_pPlayer->SetCollision(true);
 						Network::GetInstance()->SendBomberTouch(id);
-
-						//m_TaggerCoolTime = (float)COOLTIME;
-					}
-				
-					isCollided = true;
-				
+						//CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::CATCH);
+					}				
+					isCollided = true;			
 					Network::GetInstance()->SendPlayerCollision(id);
 				}
 				
@@ -1090,6 +1085,7 @@ void CScene::InGameSceneClear(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 	CSoundSystem::StopSound(CSoundSystem::ICE_BREAK);
 	CSoundSystem::StopSound(CSoundSystem::TIMER_WARNING);
 	CSoundSystem::StopSound(CSoundSystem::FIRE_SOUND);
+	CSoundSystem::StopSound(CSoundSystem::SOUND_TYPE::CATCH);
 
 	m_playerCount = 0;
 	m_NormalHammerCnt = 0;

@@ -2038,12 +2038,26 @@ void CGameFramework::ProcessPacket(char* packet)
 	case SC_ANIMATION_INFO:
 	{
 		SC_PACKET_PLAYER_ANIMATION *pPA = reinterpret_cast<SC_PACKET_PLAYER_ANIMATION*>(packet);
+		//cout <<"애니메이션 주최:" <<(int)pPA->id << "\n";
 		if (pPA->id == m_pPlayer->GetPlayerID())
 		{
 			
-			m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
-			m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
+			if (pPA->animation == CAnimationController::VICTORY)
+			{
+				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE)
+				{
+					m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
+					m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
+				}
+			}
+			else
+			{
+				m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
+				m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
 			
+			}
+
+			//cout <<"애니메이션 : "<<(int)pPA->animation << "\n";
 			//m_pPlayer->SetMoveRotate(false);
 		}
 		else if (pPA->id < MAX_USER)
@@ -2055,18 +2069,14 @@ void CGameFramework::ProcessPacket(char* packet)
 
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
-				(*iter).second->m_ppObjects[id]->SetTrackAnimationSet(0, animNum);
-				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)animNum);
+			
 				if ((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::RAISEHAND
 					|| (CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::DIE
 					|| (CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::USEGOLDHAMMER)
 				{
 					(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackPosition(0, 0.0f);
 				}
-				if ((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::VICTORY)
-				{
-					cout << "victory하는 적 id" << (int)id << endl;
-				}
+				
 				if ((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::USEGOLDHAMMER)
 				{
 					(*iter).second->m_ppObjects[id]->SetIsLightEffect(true);
@@ -2074,6 +2084,20 @@ void CGameFramework::ProcessPacket(char* packet)
 				else
 				{
 					(*iter).second->m_ppObjects[id]->SetIsLightEffect(false);
+				}
+
+				if ((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::VICTORY)
+				{
+					if ((*iter).second->m_ppObjects[id]->m_pAnimationController->GetAnimationState() != CAnimationController::DIE)
+					{
+						(*iter).second->m_ppObjects[id]->SetTrackAnimationSet(0, animNum);
+						(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)animNum);
+					}
+				}
+				else
+				{
+					(*iter).second->m_ppObjects[id]->SetTrackAnimationSet(0, animNum);
+					(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)animNum);
 				}
 			}
 		}
@@ -2177,28 +2201,6 @@ void CGameFramework::ProcessPacket(char* packet)
 			m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
 		}
 
-		//if (m_pScene)
-		//{
-		//	auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
-
-		//	if (iter != m_pScene->getShaderManager()->getShaderMap().end())
-		//	{
-		//		//vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
-
-		//		for (auto enemyID : m_mapClients)
-		//		{
-		//			if (enemyID.second.id == pRE->isWinner)
-		//			{
-
-		//				(*iter).second->m_ppObjects[enemyID.second.id]->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::VICTORY);
-		//				(*iter).second->m_ppObjects[enemyID.second.id]->m_pAnimationController->SetAnimationState(CAnimationController::VICTORY);
-		//				(*iter).second->m_ppObjects[enemyID.second.id]->m_pAnimationController->SetTrackPosition(0, 0.0f);
-
-		//			}
-		//		}
-		//	}
-		//}
-
 		// 점수 기록
 		for (int i = 0; i < MAX_USER; ++i)
 		{
@@ -2231,8 +2233,6 @@ void CGameFramework::ProcessPacket(char* packet)
 			m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
 
 			m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::ICE);
-
-
 		}
 		else if (pFR->id < MAX_USER)
 		{
@@ -2584,10 +2584,7 @@ void CGameFramework::ProcessPacket(char* packet)
 				
 				dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetParticleBlowUp(pBomb->GetPosition());
 			}
-
 		}
-
-
 		break;
 	}
 	case SC_ROLE_CHANGE:
@@ -2622,7 +2619,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 			}
 		}
-		else if (pRC->bomberId != m_pPlayer->GetPlayerID() && pRC->runnerId != m_pPlayer->GetPlayerID())//상대방끼리 폭탄을 주고받을 경우
+		else if (pRC->bomberId != m_pPlayer->GetPlayerID() && pRC->runnerId != m_pPlayer->GetPlayerID()) //상대방끼리 폭탄을 주고받을 경우
 		{
 			char bomberId = m_mapClients[pRC->bomberId].id;
 			char runnerId = m_mapClients[pRC->runnerId].id;
@@ -2635,6 +2632,8 @@ void CGameFramework::ProcessPacket(char* packet)
 			
 			}
 		}
+		CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::CATCH);
+
 		break;
 	}
 		case SC_GO_LOBBY:

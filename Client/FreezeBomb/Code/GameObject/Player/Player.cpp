@@ -232,18 +232,12 @@ void CPlayer::Update(float fTimeElapsed)
 	
 	DecideAnimationState(fLength,fTimeElapsed);
 #else
-	if (m_dwDirection == DIR_FORWARD
-		|| m_dwDirection == DIR_RIGHT
-		|| m_dwDirection == DIR_LEFT
-		)
+	if (m_dwDirection == DIR_FORWARD )
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, m_fVelocityFromServer);
 
 	}
-	if (m_dwDirection == DIR_BACKWARD
-		|| m_dwDirection == DIR_RIGHT
-		|| m_dwDirection == DIR_LEFT
-		)
+	if (m_dwDirection == DIR_BACKWARD)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -m_fVelocityFromServer);
 	}
@@ -532,10 +526,12 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 {
 	CAnimationController* pController = m_pAnimationController;
 	static UINT idleCount = 0;
+	static bool bRun = false;
 
-	
+		//cout << fLength << "\n";
 	if (fLength == 0.0f 
 		&& m_isMoveRotate == false
+		&& bRun == true
 		&&( pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::DIGGING
 			&& pController->GetAnimationState() != CAnimationController::JUMP
@@ -547,25 +543,31 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			&& pController->GetAnimationState() != CAnimationController::VICTORY
 			))
 	{
-		if (pController->GetAnimationState() == CAnimationController::RUNFAST)
-		{
-			m_pAnimationController->SetTrackPosition(0, 0.0f);
-			
-		}
+	
 
 #ifdef _WITH_SERVER_
 		
-		if (idleCount < 1) {
-		
+		if (idleCount < 1) 
+		{
+			
+			bRun = false;
 			Network::GetInstance()->SendAnimationState(CAnimationController::IDLE);
+		//	m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
 			idleCount++;
-		
+			SetTrackAnimationSet(0, CAnimationController::IDLE);
+			m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
 		}
 		
-#endif
+		
+#else
+		if (pController->GetAnimationState() == CAnimationController::RUNFAST)
+		{
+			m_pAnimationController->SetTrackPosition(0, 0.0f);
+		}
+
 		SetTrackAnimationSet(0, CAnimationController::IDLE);
 		m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
-
+#endif
 		m_bLocalRotation = false;
 
 	}
@@ -581,12 +583,17 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			)
 		{
 #ifdef _WITH_SERVER_
-			if (pController->GetAnimationState() != CAnimationController::RUNFAST)
+			if (pController->GetAnimationState() != CAnimationController::RUNFAST
+				&& bRun == false)
 			{
-				idleCount = 0;
+				//idleCount = 0;
+				//idleCount = 0;
 				SetTrackAnimationSet(0, CAnimationController::RUNFAST);
 				m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
+
 				Network::GetInstance()->SendAnimationState(CAnimationController::RUNFAST);
+				bRun = true;
+				
 			}
 #else
 			SetTrackAnimationSet(0, CAnimationController::RUNFAST);
@@ -596,24 +603,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			//m_pAnimationController->SetTrackSpeed(0, 1.3f);
 			//m_pAnimationController->SetTrackPosition(0, 0.0f);
 		}
-		//#ifdef _WITH_SERVER_
-		//		// 제자리에서 회전 했을때도 달리는 애니메이션이 발생해서
-		//		// 아래와 같은 처리를 하였음 - 명진
-		//		if ((GetAsyncKeyState(VK_RIGHT) &0x8000
-		//			|| GetAsyncKeyState(VK_LEFT) &0x8000)
-		//			&& !(GetAsyncKeyState(VK_UP) & 0x8000)
-		//			&&( pController->GetAnimationState() == CAnimationController::RUNFAST
-		//			|| pController->GetAnimationState() == CAnimationController::RUNBACKWARD)
-		//			)
-		//		{
-		//			SetTrackAnimationSet(0, CAnimationController::IDLE);
-		//			m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
-		//			Network::GetInstance()->SendAnimationState(CAnimationController::IDLE);
-		//
-		//		}
-		//
-		//#endif
-		if (GetAsyncKeyState(VK_DOWN) & 0x8000
+		else if (GetAsyncKeyState(VK_DOWN) & 0x8000
 			&& pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::JUMP
 			&& pController->GetAnimationState() != CAnimationController::ICE
@@ -622,11 +612,13 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			&& pController->GetAnimationState() != CAnimationController::VICTORY
 			)
 		{
-			
+
 #ifdef _WITH_SERVER_
-			if (pController->GetAnimationState() != CAnimationController::RUNBACKWARD)
+			if (pController->GetAnimationState() != CAnimationController::RUNBACKWARD
+				&& bRun == false)
 			{
-				idleCount = 0;
+				
+				bRun = true;
 				Network::GetInstance()->SendAnimationState(CAnimationController::RUNBACKWARD);
 				m_pAnimationController->SetAnimationState(CAnimationController::RUNBACKWARD);
 				SetTrackAnimationSet(0, CAnimationController::RUNBACKWARD);
@@ -636,7 +628,16 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			SetTrackAnimationSet(0, CAnimationController::RUNBACKWARD);
 #endif
 		}
+		else
+		{
+			idleCount = 0;
+		}
+
+		
+
+
 	}
+	
 	if (m_isMoveRotate)
 	{
 		m_isMoveRotate = false;
@@ -719,7 +720,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 	if (GetAsyncKeyState(VK_A) & 0x0001 && ChattingSystem::GetInstance()->IsChattingActive() ==false && m_bBomb == false
 		&& g_State == GAMESTATE::INGAME)
 	{
-		idleCount = 0;
+		
 #ifdef _WITH_SERVER_
 		if (m_bIce == false)
 		{
@@ -757,14 +758,16 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
 		)
 	{
-		idleCount = 0;
+		
 		SetTrackAnimationSet(0, CAnimationController::ATTACK);
 		SetTrackAnimationPosition(0, 0.0f);
 
 		pController->SetAnimationState(CAnimationController::ATTACK);
 		
 #ifdef _WITH_SERVER_
-			Network::GetInstance()->SendAnimationState(CAnimationController::ATTACK);
+		idleCount = 0;
+		bRun = true;
+		Network::GetInstance()->SendAnimationState(CAnimationController::ATTACK);
 #endif
 		//if (m_Normal_Inventory.size() != 0)
 			//Sub_Inventory(CItem::NormalHammer);
@@ -787,6 +790,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 				Sub_Inventory(GOLD_HAMMER);
 			
 #else
+				idleCount = 0;
 				Network::GetInstance()->SendUseItem(ITEM::GOLD_HAMMER, GetPlayerID());
 				eraseTime = 0.0f;
 #endif
@@ -832,6 +836,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 				
 #ifdef _WITH_SERVER_
 				idleCount = 0;
+				bRun = true;
 				Network::GetInstance()->SendAnimationState(CAnimationController::USEGOLDHAMMER);
 #endif
 
@@ -849,6 +854,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 					pController->SetAnimationState(CAnimationController::RAISEHAND);
 #ifdef _WITH_SERVER_
 					Network::GetInstance()->SendAnimationState(CAnimationController::RAISEHAND);
+					bRun = true;
 					Network::GetInstance()->SendUseItem(ITEM::GOLD_TIMER, GetPlayerID());
 					idleCount = 0;
 #else
@@ -884,7 +890,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 							pController->SetAnimationState(CAnimationController::DIE);
 #ifdef _WITH_SERVER_
 							Network::GetInstance()->SendAnimationState(CAnimationController::DIE);
-							
+							bRun = true;
 							Network::GetInstance()->SendBombExplosion();
 							idleCount = 0;
 #endif		

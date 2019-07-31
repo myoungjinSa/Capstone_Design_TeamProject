@@ -27,7 +27,7 @@ void CIPInputSystem::Initialize(IDWriteTextFormat* pFont, IDWriteTextLayout* pTe
 	m_pd2dDeviceContext = pContext;
 }
 
-size_t CIPInputSystem::ProcessIPInput(UINT sel)
+size_t CIPInputSystem::ProcessIPInput()
 {
 		if (m_wsIP.size() < IP_LENGTH)
 		{
@@ -60,9 +60,9 @@ size_t CIPInputSystem::ProcessIPInput(UINT sel)
 			if (m_wsIP.size() > 0)
 			{
 				m_wsIP.pop_back();
-
 			}
 		}
+
 		if(GetAsyncKeyState(VK_RETURN) & 0x0001)
 		{
 			if(m_wsIP.size() > 0 )
