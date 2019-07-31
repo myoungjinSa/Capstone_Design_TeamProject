@@ -1458,6 +1458,7 @@ void CGameFramework::ResetAnimationForRoundStart()
 		m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
 		m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
 		m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
+
 	}
 	if (m_pScene)
 	{
@@ -1677,6 +1678,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		m_pPlayer->setIsGoldTimer(false);
 		m_pPlayer->SetIsHammer(false);
 		m_pPlayer->SetIsICE(false);
+		
 		m_pPlayer->Sub_Inventory(CItem::ItemType::GoldHammer);
 		m_pPlayer->Sub_Inventory(CItem::ItemType::NormalHammer);
 		m_pPlayer->Sub_Inventory(CItem::ItemType::GoldTimer);
@@ -2066,10 +2068,12 @@ void CGameFramework::ProcessPacket(char* packet)
 			if (m_pPlayer->GetIsICE() == false)
 				m_pPlayer->SetIsICE(true);
 
-			m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
+			if (m_pPlayer->GetIsICE() == true)
+			{
+				m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
 
-			m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::ICE);
-
+				m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::ICE);
+			}
 
 		}
 		else if (pFR->id < MAX_USER)

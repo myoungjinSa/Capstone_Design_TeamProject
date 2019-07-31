@@ -595,7 +595,7 @@ void Server::WorkerThreadFunc()
 						if (true == clients[i].in_use)
 							SendRoundEnd(i);
 					}
-
+					cout << "InitGame호출\n";
 					InitGame();
 					add_timer(-1, EV_GO_LOBBY, high_resolution_clock::now() + 10s);
 				}
@@ -608,6 +608,7 @@ void Server::WorkerThreadFunc()
 						SendRoundEnd(i);
 					}
 					
+					cout << "InitRound호출\n";
 					InitRound();
 					add_timer(-1, EV_GO_NEXTROUND, high_resolution_clock::now() + 10s);
 					
@@ -626,6 +627,7 @@ void Server::WorkerThreadFunc()
 			printf("쿨타임:%d\n", changeCoolTime);
 			timer_l.unlock();
 
+			
 			
 			timer_l.lock();
 			
@@ -942,8 +944,9 @@ void Server::ProcessPacket(char client, char *packet)
 		{
 			for (int i = 0; i < MAX_USER; ++i)
 			{
-				if (true == clients[i].in_use)
-					SendStopRunAnim(i, client);
+				if (false == clients[i].in_use)
+					continue;
+				SendStopRunAnim(i, client);
 			}
 		}
 		break;
@@ -1055,15 +1058,14 @@ void Server::ProcessPacket(char client, char *packet)
 		SetAnimationState(client, p->animation);
 		for (int i = 0; i < MAX_USER; ++i)
 		{
-			if (client == i)
+			if (clients[i].in_use == false)
 				continue;
-			if (clients[i].in_use == true)
-			{
-				SendPlayerAnimation(i, client);
-			}
+		
+			SendPlayerAnimation(i, client);
+			
 		}
 
-		cout << (int)p->animation << "\n";
+		//cout << (int)p->animation << "\n";
 		break;
 	}
 	case CS_GET_ITEM:
@@ -1272,13 +1274,16 @@ void Server::ProcessPacket(char client, char *packet)
 			freezeCnt_l.unlock();
 		}
 		
-		clients[client].isFreeze = true;
+		if(clients[client].isFreeze == false)
+			clients[client].isFreeze = true;
 
 
 		for(int i=0;i<MAX_USER;++i)
 		{
-			if (clients[i].in_use == true)
-				SendFreeze(i, client);
+			if (clients[i].in_use == false)
+				continue;
+
+			SendFreeze(i, client);
 		}
 		
 
@@ -1300,11 +1305,14 @@ void Server::ProcessPacket(char client, char *packet)
 			--freezeCnt;
 			freezeCnt_l.unlock();
 		}
-		clients[client].isFreeze = false;
+
+		if(clients[client].isFreeze == true)
+			clients[client].isFreeze = false;
 		for(int i=0;i<MAX_USER;++i)
 		{
-			if (clients[i].in_use == true)
-				SendReleaseFreeze(i, client);
+			if (clients[i].in_use == false)
+				continue;
+			SendReleaseFreeze(i, client);
 		}
 		break;
 	}
