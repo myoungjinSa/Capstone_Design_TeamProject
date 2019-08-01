@@ -234,14 +234,16 @@ void CPlayer::Update(float fTimeElapsed)
 #else
 
 	
-	if (m_dwDirection == DIR_FORWARD
-		&& (GetAsyncKeyState(VK_RIGHT)&0x8000 || GetAsyncKeyState(VK_LEFT)&0x8000))
+	//if (m_dwDirection == DIR_FORWARD
+	//	&& (GetAsyncKeyState(VK_RIGHT)&0x8000 || GetAsyncKeyState(VK_LEFT)&0x8000))
+	if (m_dwDirection == DIR_FORWARD)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, m_fVelocityFromServer);
 
 	}
-	if (m_dwDirection == DIR_BACKWARD 
-		&& (GetAsyncKeyState(VK_RIGHT)&0x8000 || GetAsyncKeyState(VK_LEFT)&0x8000))
+	//if (m_dwDirection == DIR_BACKWARD 
+	//	&& (GetAsyncKeyState(VK_RIGHT)&0x8000 || GetAsyncKeyState(VK_LEFT)&0x8000))
+	if (m_dwDirection == DIR_BACKWARD)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -m_fVelocityFromServer);
 	}
@@ -734,9 +736,6 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 	}
 #endif
 
-	
-
-
 	////얼음으로 변신
 	if (GetAsyncKeyState(VK_A) & 0x0001
 		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
@@ -1091,7 +1090,7 @@ void CTerrainPlayer::Animate(float fTimeElapsed)
 #ifndef _WITH_SERVER_
 	RotateAxisY(fTimeElapsed);
 #else
-	RotateAxisY(ROTATE_RATE);
+	//RotateAxisY(ROTATE_RATE);
 #endif
 
 	CGameObject::Animate(fTimeElapsed);
