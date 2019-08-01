@@ -232,12 +232,16 @@ void CPlayer::Update(float fTimeElapsed)
 	
 	DecideAnimationState(fLength,fTimeElapsed);
 #else
-	if (m_dwDirection == DIR_FORWARD )
+
+	
+	if (m_dwDirection == DIR_FORWARD
+		&& (GetAsyncKeyState(VK_RIGHT)&0x8000 || GetAsyncKeyState(VK_LEFT)&0x8000))
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, m_fVelocityFromServer);
 
 	}
-	if (m_dwDirection == DIR_BACKWARD)
+	if (m_dwDirection == DIR_BACKWARD 
+		&& (GetAsyncKeyState(VK_RIGHT)&0x8000 || GetAsyncKeyState(VK_LEFT)&0x8000))
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -m_fVelocityFromServer);
 	}
@@ -1028,7 +1032,7 @@ CTerrainPlayer::~CTerrainPlayer()
 {
 }
 
-void CTerrainPlayer::RotateAxisY(float fTimeElapsed)
+void CTerrainPlayer::RotateAxisY(const float& rate)
 {
 	XMFLOAT3& xmf3Look = m_xmf3Look;
 	XMFLOAT3& xmf3Right = m_xmf3Right;
@@ -1040,7 +1044,7 @@ void CTerrainPlayer::RotateAxisY(float fTimeElapsed)
 		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
 
 
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(fAngle*fTimeElapsed));
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(fAngle*rate));
 		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
 		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 
@@ -1053,7 +1057,7 @@ void CTerrainPlayer::RotateAxisY(float fTimeElapsed)
 
 		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
 
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(-(fAngle*fTimeElapsed)));
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(-(fAngle*rate)));
 		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
 		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 
@@ -1065,7 +1069,10 @@ void CTerrainPlayer::Animate(float fTimeElapsed)
 {
 #ifndef _WITH_SERVER_
 	RotateAxisY(fTimeElapsed);
+#else
+	RotateAxisY(ROTATE_RATE);
 #endif
+
 	CGameObject::Animate(fTimeElapsed);
 }
 
