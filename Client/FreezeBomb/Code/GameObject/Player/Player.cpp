@@ -234,11 +234,13 @@ void CPlayer::Update(float fTimeElapsed)
 #else
 
 	
+
 	if (m_dwDirection == DIR_FORWARD)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, m_fVelocityFromServer);
 
 	}
+
 	if (m_dwDirection == DIR_BACKWARD)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -m_fVelocityFromServer);
@@ -640,6 +642,23 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 
 	}
 	
+#ifdef _WITH_SERVER_
+		
+	if ((GetAsyncKeyState(VK_RIGHT) &0x8000
+		|| GetAsyncKeyState(VK_LEFT) &0x8000)
+		&& !(GetAsyncKeyState(VK_UP) & 0x8000)
+		&&( pController->GetAnimationState() == CAnimationController::RUNFAST
+		|| pController->GetAnimationState() == CAnimationController::RUNBACKWARD)
+		)
+	{
+		SetTrackAnimationSet(0, CAnimationController::IDLE);
+		m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+		Network::GetInstance()->SendAnimationState(CAnimationController::IDLE);
+		
+	}
+		
+#endif
+
 	if (m_isMoveRotate)
 	{
 		m_isMoveRotate = false;
@@ -715,7 +734,6 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 	}
 #endif
 
-	
 	float gameTime = CTimerUIShader::getTimer();
 
 	////얼음으로 변신
@@ -1043,7 +1061,9 @@ void CTerrainPlayer::RotateAxisY(const float& rate)
 		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
 
 
+
 		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(fAngle*rate));
+
 		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
 		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 
@@ -1056,7 +1076,9 @@ void CTerrainPlayer::RotateAxisY(const float& rate)
 
 		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
 
+
 		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(-(fAngle*rate)));
+
 		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
 		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 
@@ -1066,11 +1088,10 @@ void CTerrainPlayer::RotateAxisY(const float& rate)
 
 void CTerrainPlayer::Animate(float fTimeElapsed)
 {
-//#ifndef _WITH_SERVER_
-//	RotateAxisY(fTimeElapsed);
-//#else
-//	RotateAxisY(ROTATE_RATE);
-//#endif
+
+#ifndef _WITH_SERVER_
+	RotateAxisY(fTimeElapsed);
+#else
 
 	CGameObject::Animate(fTimeElapsed);
 }
