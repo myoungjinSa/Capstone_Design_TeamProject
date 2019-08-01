@@ -806,6 +806,8 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 	if (GetAsyncKeyState(VK_MENU) & 0x0001
 		&& pController->GetAnimationState() != CAnimationController::ATTACK
 		&& pController->GetAnimationState() != CAnimationController::ICE
+		&& pController->GetAnimationState() != CAnimationController::DIE
+		&& pController->GetAnimationState() != CAnimationController::VICTORY
 		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
 		)
 	{
