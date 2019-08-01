@@ -613,6 +613,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			&& pController->GetAnimationState() != CAnimationController::RAISEHAND
 			&& pController->GetAnimationState() != CAnimationController::DIE
 			&& pController->GetAnimationState() != CAnimationController::VICTORY
+			&& pController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
 			)
 		{
 
@@ -716,7 +717,9 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 
 
 	////얼음으로 변신
-	if (GetAsyncKeyState(VK_A) & 0x0001 && ChattingSystem::GetInstance()->IsChattingActive() ==false && m_bBomb == false
+	if (GetAsyncKeyState(VK_A) & 0x0001
+		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
+		&& m_bBomb == false
 		&& g_State == GAMESTATE::INGAME)
 	{
 		
