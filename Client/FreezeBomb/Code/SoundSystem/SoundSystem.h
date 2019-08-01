@@ -11,7 +11,7 @@ using namespace FMOD;
 #include <unordered_map>
 using namespace std;
 
-constexpr int MAX_CHANNEL = 6;
+constexpr int MAX_CHANNEL = 7;
 
 struct GameSound
 {

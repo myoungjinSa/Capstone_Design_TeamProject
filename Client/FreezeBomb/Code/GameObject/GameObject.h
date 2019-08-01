@@ -43,10 +43,11 @@ public:
 	CAnimationCallbackHandler() { }
 	~CAnimationCallbackHandler() { }
 
-   virtual void HandleCallback(void *pCallbackData,void* pAdditionalData = nullptr) { }
+   virtual void HandleCallback(void *pCallbackData, void* pAdditionalData, int soundChannel) { }
 
    void SetAdditianalData(int channel) { m_pContextData = channel; }
-  
+   int GetAdditianalData()	const { return m_pContextData; }
+
 protected:
 	//사운드나 부가적인 정보가 넘어올때 받아줄 포인터
 	int m_pContextData = -1;
@@ -58,7 +59,7 @@ public:
 	CSoundCallbackHandler() { }
 	~CSoundCallbackHandler() { }
 
-	virtual void HandleCallback(void *pCallbackData,void* pAdditionalData= nullptr);
+	virtual void HandleCallback(void *pCallbackData,void* pAdditionalData, int soundChannel);
 };
 
 class CAnimationController;
@@ -105,7 +106,7 @@ public:
 
 public:
 	// AnimationTrack의 포지션값 => 애니메이션에서 읽어가야하는 위치 => 서로 다른동작을 하게함
-	void SetPosition(CAnimationController& AnimationController,float& fTrackPosition, void* pContext);
+	void SetPosition(CAnimationController& AnimationController,float& fTrackPosition, void* pContext, int soundChannel);
 
 	XMFLOAT4X4 GetSRT(int nFrame);
 
@@ -206,7 +207,7 @@ public:
 	void SetAnimationState(ANIMATIONTYPE state) { m_state = state; }
 	UINT GetAnimationState() { return m_state; }
 
-	void AdvanceTime(float fElapsedTime,void* pContext = nullptr);
+	void AdvanceTime(float fElapsedTime,void* pContext, int soundChannel);
 };
 
 class CLoadedModelInfo
@@ -332,9 +333,6 @@ public:
 	XMFLOAT3 GetUp();
 	XMFLOAT3 GetRight();
 
-	float GetDistanceToTarget() { return m_fDistanceToTarget; }
-	void SetDistanceToTarget(float dist) { m_fDistanceToTarget = dist; }
-
 	void SetLookVector(XMFLOAT3& xmf3Look);
 	void SetUpVector(XMFLOAT3& xmf3Up);
 	void SetRightVector(XMFLOAT3& xmf3Right);
@@ -422,6 +420,13 @@ public:
 
 	void EvilBearInfoClear();
 
+
+	float GetDistanceToTarget() const { return m_fDistanceToTarget; }
+	void SetDistanceToTarget(float dist) { m_fDistanceToTarget = dist; }
+
+	int GetSoundChannel()	const { return m_SoundChannel; }
+	void SetSoundChannel(int channel) { m_SoundChannel = channel; }
+
 #ifdef _WITH_SERVER_
 	void SetVelocityFromServer(float fVel) { m_fVelocityFromServer = fVel; }
 #endif
@@ -461,6 +466,7 @@ protected:
 
 	//플레이어와의 거리
 	float		m_fDistanceToTarget = 0.0f;
+	int			m_SoundChannel = -1;
 public:
 
 #ifdef _WITH_SERVER_
