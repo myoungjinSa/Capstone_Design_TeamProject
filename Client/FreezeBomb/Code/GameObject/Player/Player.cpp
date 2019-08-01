@@ -1088,11 +1088,9 @@ void CTerrainPlayer::RotateAxisY(const float& rate)
 
 void CTerrainPlayer::Animate(float fTimeElapsed)
 {
-
 #ifndef _WITH_SERVER_
 	RotateAxisY(fTimeElapsed);
-#else
-
+#endif
 	CGameObject::Animate(fTimeElapsed);
 }
 
