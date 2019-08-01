@@ -232,11 +232,15 @@ void CPlayer::Update(float fTimeElapsed)
 	
 	DecideAnimationState(fLength,fTimeElapsed);
 #else
-	if (m_dwDirection == DIR_FORWARD )
+
+	
+
+	if (m_dwDirection == DIR_FORWARD)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, m_fVelocityFromServer);
 
 	}
+
 	if (m_dwDirection == DIR_BACKWARD)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -m_fVelocityFromServer);
@@ -643,6 +647,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 	if ((GetAsyncKeyState(VK_RIGHT) &0x8000
 		|| GetAsyncKeyState(VK_LEFT) &0x8000)
 		&& !(GetAsyncKeyState(VK_UP) & 0x8000)
+		&& !(GetAsyncKeyState(VK_DOWN) & 0x8000)
 		&&( pController->GetAnimationState() == CAnimationController::RUNFAST
 		|| pController->GetAnimationState() == CAnimationController::RUNBACKWARD)
 		)
@@ -730,14 +735,14 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 	}
 #endif
 
-	
-
+	float gameTime = CTimerUIShader::getTimer();
 
 	////얼음으로 변신
 	if (GetAsyncKeyState(VK_A) & 0x0001
 		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
 		&& m_bBomb == false
-		&& g_State == GAMESTATE::INGAME)
+		&& g_State == GAMESTATE::INGAME
+		&& gameTime < MAX_ROUND_TIME - 5)
 	{
 		
 #ifdef _WITH_SERVER_
@@ -1045,7 +1050,7 @@ CTerrainPlayer::~CTerrainPlayer()
 {
 }
 
-void CTerrainPlayer::RotateAxisY(float fTimeElapsed)
+void CTerrainPlayer::RotateAxisY(const float& rate)
 {
 	XMFLOAT3& xmf3Look = m_xmf3Look;
 	XMFLOAT3& xmf3Right = m_xmf3Right;
@@ -1057,7 +1062,9 @@ void CTerrainPlayer::RotateAxisY(float fTimeElapsed)
 		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
 
 
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(fAngle*0.02f));
+
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(fAngle*rate));
+
 		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
 		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 
@@ -1070,7 +1077,9 @@ void CTerrainPlayer::RotateAxisY(float fTimeElapsed)
 
 		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
 
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(-(fAngle*0.02f)));
+
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(-(fAngle*rate)));
+
 		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
 		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 
@@ -1080,9 +1089,11 @@ void CTerrainPlayer::RotateAxisY(float fTimeElapsed)
 
 void CTerrainPlayer::Animate(float fTimeElapsed)
 {
+
 #ifndef _WITH_SERVER_
 	RotateAxisY(fTimeElapsed);
 #endif
+
 	CGameObject::Animate(fTimeElapsed);
 }
 

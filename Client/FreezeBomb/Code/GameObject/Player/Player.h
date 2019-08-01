@@ -184,6 +184,6 @@ public:
 	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed);
 	virtual void OnCameraUpdateCallback(float fTimeElapsed);
-	void RotateAxisY(float fTimeElapsed);
+	void RotateAxisY(const float& fTimeElapsed);
 };
 
