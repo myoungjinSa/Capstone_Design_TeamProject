@@ -1092,10 +1092,6 @@ void CTerrainPlayer::Animate(float fTimeElapsed)
 #ifndef _WITH_SERVER_
 	RotateAxisY(fTimeElapsed);
 #endif
-<<<<<<< HEAD
-=======
-
->>>>>>> c257e8781d8b83e5dc79cd534efd52d7410ee86d
 	CGameObject::Animate(fTimeElapsed);
 }
 
