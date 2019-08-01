@@ -638,6 +638,23 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 
 	}
 	
+#ifdef _WITH_SERVER_
+		
+	if ((GetAsyncKeyState(VK_RIGHT) &0x8000
+		|| GetAsyncKeyState(VK_LEFT) &0x8000)
+		&& !(GetAsyncKeyState(VK_UP) & 0x8000)
+		&&( pController->GetAnimationState() == CAnimationController::RUNFAST
+		|| pController->GetAnimationState() == CAnimationController::RUNBACKWARD)
+		)
+	{
+		SetTrackAnimationSet(0, CAnimationController::IDLE);
+		m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+		Network::GetInstance()->SendAnimationState(CAnimationController::IDLE);
+		
+	}
+		
+#endif
+
 	if (m_isMoveRotate)
 	{
 		m_isMoveRotate = false;
@@ -1040,7 +1057,7 @@ void CTerrainPlayer::RotateAxisY(float fTimeElapsed)
 		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
 
 
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(fAngle*fTimeElapsed));
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(fAngle*0.02f));
 		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
 		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 
@@ -1053,7 +1070,7 @@ void CTerrainPlayer::RotateAxisY(float fTimeElapsed)
 
 		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
 
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(-(fAngle*fTimeElapsed)));
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(-(fAngle*0.02f)));
 		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
 		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 
