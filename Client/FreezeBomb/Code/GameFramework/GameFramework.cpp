@@ -1735,6 +1735,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		}
 
 		g_State = INGAME;
+
 		//시간을 받아야함.
 		auto timerIter = m_pScene->getShaderManager()->getShaderMap().find("TimerUI");
 
