@@ -12,6 +12,8 @@ constexpr int MAX_ROUND_TIME = 30;
 constexpr int MAX_ITEM_NAME_LENGTH = 16;
 constexpr int MAX_CHATTING_LENGTH = 100;
 constexpr int COOLTIME = 3;
+constexpr float VELOCITY = 0.7f;
+constexpr float ROTATE_RATE = 0.02f;
 
 struct clientsInfo
 {
