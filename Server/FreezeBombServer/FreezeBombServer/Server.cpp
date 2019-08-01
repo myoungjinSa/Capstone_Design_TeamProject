@@ -466,7 +466,7 @@ void Server::RecvFunc(char client)
 		if (WSAGetLastError() != WSA_IO_PENDING)
 		{
 			cout << "Error - IO pending Failure\n";
-			while (true);
+			//while (true);
 		}
 	}
 	else {
@@ -917,7 +917,7 @@ void Server::ProcessPacket(char client, char *packet)
 	case CS_DOWNLEFT_KEY:
 	case CS_DOWNRIGHT_KEY:
 	{
-		g_lock.lock();
+		
 		SetDirection(client, packet[1]);
 
 		
@@ -932,13 +932,14 @@ void Server::ProcessPacket(char client, char *packet)
 				//한번 MovePacket을 보내고 난후 
 				//pitch,yaw,roll은 다시 0으로 바꿔줘야함.
 				//그렇지 않을경우 뱅글뱅글 돌게됨.
-				SetPitchYawRollZero(i);
+				
 
 				//Idle 동작으로 변하게 하려면 
 				//SetVelocityZero(i);
 			}
 		}
-		g_lock.unlock();
+		SetPitchYawRollZero(client);
+		
 		break;
 	}
 	case CS_RELEASE_KEY:
@@ -1256,10 +1257,14 @@ void Server::ProcessPacket(char client, char *packet)
 		// 1. 현재 Freeze를 요청한 id클라가 도망자인지를 판단해야함.
 		// 2. 현재 모든 도망자가 Freeze상태인지를 확인해야함.
 		// 3. 모든 도망자가 Freeze가 아니고 해당 클라가 도망자가 맞다면 SC_FREEZE를 각 클라들에게 알려줌
+
+		
 		if (client == bomberID)		//술래라면 얼음을 할 수 없다.
 			break;
 
-		
+		freezeCnt_l.lock();
+		cout << "CS_Freeze - FreezeCnt: " << freezeCnt <<"  플레이어 -"<<(int)client << "\n";
+		freezeCnt_l.unlock();
 		clientCnt_l.lock();
 		int clientCnt = clientCount-2;
 		clientCnt_l.unlock();
@@ -1277,25 +1282,31 @@ void Server::ProcessPacket(char client, char *packet)
 			freezeCnt_l.unlock();
 		}
 		
-		if(clients[client].isFreeze == false)
+		if (clients[client].isFreeze == false)
+		{
 			clients[client].isFreeze = true;
 
 
-		for(int i=0;i<MAX_USER;++i)
-		{
-			if (clients[i].in_use == false)
-				continue;
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (clients[i].in_use == false)
+					continue;
 
-			SendFreeze(i, client);
+				SendFreeze(i, client);
+			}
 		}
-		
 
 		break;
 	}
 	case CS_RELEASE_FREEZE:
 	{
+		
 		if (client == bomberID)		//술래라면 얼음을 할 수 없다.
 			break;
+		freezeCnt_l.lock();
+		cout << "CS_Release - FreezeCnt: " << freezeCnt <<"  플레이어 -"<<(int)client <<"\n";
+	
+		freezeCnt_l.unlock();
 
 		freezeCnt_l.lock();
 		if (freezeCnt <= 0)
@@ -1309,13 +1320,15 @@ void Server::ProcessPacket(char client, char *packet)
 			freezeCnt_l.unlock();
 		}
 
-		if(clients[client].isFreeze == true)
-			clients[client].isFreeze = false;
-		for(int i=0;i<MAX_USER;++i)
+		if (clients[client].isFreeze == true) 
 		{
-			if (clients[i].in_use == false)
-				continue;
-			SendReleaseFreeze(i, client);
+			clients[client].isFreeze = false;
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (clients[i].in_use == false)
+					continue;
+				SendReleaseFreeze(i, client);
+			}
 		}
 		break;
 	}
@@ -1363,7 +1376,7 @@ void Server::SendFunc(char client, void *packet)
 		if (WSAGetLastError() != WSA_IO_PENDING)
 		{
 			cout << "Error - IO pending Failure\n";
-			while (true);
+			//while (true);
 		}
 	}
 	else {

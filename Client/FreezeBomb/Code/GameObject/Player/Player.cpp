@@ -647,6 +647,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 	if ((GetAsyncKeyState(VK_RIGHT) &0x8000
 		|| GetAsyncKeyState(VK_LEFT) &0x8000)
 		&& !(GetAsyncKeyState(VK_UP) & 0x8000)
+		&& !(GetAsyncKeyState(VK_DOWN) & 0x8000)
 		&&( pController->GetAnimationState() == CAnimationController::RUNFAST
 		|| pController->GetAnimationState() == CAnimationController::RUNBACKWARD)
 		)
@@ -1091,6 +1092,10 @@ void CTerrainPlayer::Animate(float fTimeElapsed)
 #ifndef _WITH_SERVER_
 	RotateAxisY(fTimeElapsed);
 #endif
+<<<<<<< HEAD
+=======
+
+>>>>>>> c257e8781d8b83e5dc79cd534efd52d7410ee86d
 	CGameObject::Animate(fTimeElapsed);
 }
 
