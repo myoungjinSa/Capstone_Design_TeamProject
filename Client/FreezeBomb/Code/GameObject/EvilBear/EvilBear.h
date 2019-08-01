@@ -24,11 +24,17 @@ public:
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 
-
+	void Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity);
+	void RotateAndMove(float fTimeElapsed);
 	CBomb*			GetBombPtr() { return m_BombParticle; }
+
+	void RotateAxisY(float fTimeElapsed,const char& keyType);
+protected:
+	XMFLOAT3			m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 private:
 	bool			m_bActive{ false };		//오브젝트 풀방식을 위해 화면에 렌더링 되려면 m_bActive가 true이어야 함.
 	CBomb*			m_BombParticle{ nullptr };
+
 
 
 	XMFLOAT3					m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);

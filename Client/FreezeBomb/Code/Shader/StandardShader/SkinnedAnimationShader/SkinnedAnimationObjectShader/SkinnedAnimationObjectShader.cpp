@@ -159,6 +159,29 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 void CSkinnedAnimationObjectShader::AnimateObjects(float fTimeElapsed, CCamera* pCamera,CPlayer* pPlayer)
 {
 	m_elapsedTime = fTimeElapsed;
+
+
+}
+
+void CSkinnedAnimationObjectShader::DecideWorldPositionByKey(const char& id,const char& keyType)
+{
+	auto iter = m_mapMaterial.find(id);
+
+	if (iter != m_mapMaterial.end())
+	{
+		m_ppObjects[iter->first]->SetKeyType(keyType);
+	}
+
+}
+
+void CSkinnedAnimationObjectShader::DecideWorldRotationByKey(const char& id,const char& keyType)
+{
+	auto iter = m_mapMaterial.find(id);
+
+	if (iter != m_mapMaterial.end())
+	{
+		m_ppObjects[iter->first]->SetKeyType(keyType);
+	}
 }
 
 void CSkinnedAnimationObjectShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)
@@ -171,6 +194,7 @@ void CSkinnedAnimationObjectShader::Render(ID3D12GraphicsCommandList* pd3dComman
 
 		
 		dynamic_cast<CEvilBear*>(m_ppObjects[id])->Animate(m_elapsedTime);
+		dynamic_cast<CEvilBear*>(m_ppObjects[id])->RotateAndMove(m_elapsedTime);
 		m_ppObjects[id]->UpdateTransform(NULL);
 		dynamic_cast<CEvilBear*>(m_ppObjects[id])->Render(pd3dCommandList, pCamera, matID ,nPipelineState);		
 	}
@@ -206,6 +230,7 @@ void CSkinnedAnimationObjectShader::MappingUserToEvilbear(char id, char matID)
 		}	
 	}
 }
+
 
 void CSkinnedAnimationObjectShader::MaterialClear()
 {

@@ -1833,6 +1833,9 @@ void CGameFramework::ProcessPacket(char* packet)
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
 				(*iter).second->m_ppObjects[id]->SetIsRotating(true);
+				(*iter).second->m_ppObjects[id]->SetKeyType(pPRK->type);
+				dynamic_cast<CEvilBear*>((*iter).second->m_ppObjects[id])->RotateAndMove(m_GameTimer.GetTimeElapsed());
+				
 			}
 		}
 		break;
@@ -1850,6 +1853,9 @@ void CGameFramework::ProcessPacket(char* packet)
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
 				(*iter).second->m_ppObjects[id]->SetIsRotating(true);
+				(*iter).second->m_ppObjects[id]->SetKeyType(pPLK->type);
+				dynamic_cast<CEvilBear*>((*iter).second->m_ppObjects[id])->RotateAndMove(m_GameTimer.GetTimeElapsed());
+				
 			}
 		}
 		break;
@@ -1867,6 +1873,9 @@ void CGameFramework::ProcessPacket(char* packet)
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
 				(*iter).second->m_ppObjects[id]->SetIsMoving(true);
+				(*iter).second->m_ppObjects[id]->SetKeyType(pPUK->type);
+				dynamic_cast<CEvilBear*>((*iter).second->m_ppObjects[id])->RotateAndMove(m_GameTimer.GetTimeElapsed());
+				
 			}
 		}
 		break;
@@ -1885,6 +1894,9 @@ void CGameFramework::ProcessPacket(char* packet)
 			{
 				(*iter).second->m_ppObjects[id]->SetIsMoving(true);
 				(*iter).second->m_ppObjects[id]->SetIsRotating(true);
+				(*iter).second->m_ppObjects[id]->SetKeyType(pPURK->type);
+				dynamic_cast<CEvilBear*>((*iter).second->m_ppObjects[id])->RotateAndMove(m_GameTimer.GetTimeElapsed());
+				
 			}
 		}
 		break;

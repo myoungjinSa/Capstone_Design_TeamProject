@@ -353,7 +353,7 @@ public:
 	void Rotate(XMFLOAT4 *pxmf4Quaternion);
 
 	CGameObject* GetParent() { return(m_pParent); }
-	void UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent=NULL,bool isLocalFrameRotate = false);
+	virtual void UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent=NULL,bool isLocalFrameRotate = false);
 	CGameObject* FindFrame(char *pstrFrameName);
 
 	CTexture* FindReplicatedTexture(_TCHAR *pstrTextureName);
@@ -459,7 +459,7 @@ protected:
 
 	bool						m_bIsMoving{ false };
 	bool						m_bIsRotating{ false };
-
+	char						m_keyType{ -1 };
 #endif
 
 	//플레이어와의 거리
@@ -474,6 +474,8 @@ public:
 	bool GetIsMoving() { return m_bIsMoving; }
 	void SetIsRotating(bool ir) { m_bIsRotating = ir; }
 	bool GetIsRotating() { return m_bIsRotating; }
+	void SetKeyType(char key) { m_keyType = key; }
+	const char& GetKeyType() const { return m_keyType; }
 #endif
 	void setID(const string id) { m_ID = id; }
 	const string getID()	const { return m_ID; }

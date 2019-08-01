@@ -212,7 +212,7 @@ void CPlayer::Update(float fTimeElapsed)
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
 	Move(xmf3Velocity, false);
 
-	if (m_pPlayerUpdatedContext) 
+	if (m_pPlayerUpdatedContext)       
 		OnPlayerUpdateCallback(fTimeElapsed);
 
 	DWORD nCurrentCameraMode = m_pCamera->GetMode();

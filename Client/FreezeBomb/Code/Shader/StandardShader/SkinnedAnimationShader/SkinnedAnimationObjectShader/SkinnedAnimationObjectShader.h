@@ -19,6 +19,9 @@ public:
 	void MappingUserToEvilbear(char id, char matID);
 	void MaterialClear();
 
+	void DecideWorldPositionByKey(const char& id,const char& keyType);
+	void DecideWorldRotationByKey(const char& id,const char& keyType);
+
 public:
 
 	enum MUSIC_ENUM

@@ -736,12 +736,13 @@ void Server::MovingThreadFunc()
 			if (true == clients[i].isRotating)
 			{
 				RotateClientAxisY(i);
+				SetPitchYawRollZero(i);
 			}
 			if (true == clients[i].isMoving)
 			{
 				UpdateClientPos(i);
 			}
-			SetPitchYawRollZero(i);
+			
 		}
 	}
 }
@@ -961,6 +962,7 @@ void Server::ProcessPacket(char client, char *packet)
 
 			SendPressUpKey(i, client);
 		}
+		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now() + 5s);
 		break;
 	}
 	case CS_DOWN_KEY:
@@ -974,6 +976,7 @@ void Server::ProcessPacket(char client, char *packet)
 
 			SendPressDownKey(i, client);
 		}
+		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now() + 5s);
 		break; 
 	}
 	case CS_LEFT_KEY:
@@ -987,6 +990,7 @@ void Server::ProcessPacket(char client, char *packet)
 
 			SendPressLeftKey(i, client);
 		}
+		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now() + 5s);
 		break;
 	}
 	case CS_RIGHT_KEY:
@@ -1000,6 +1004,7 @@ void Server::ProcessPacket(char client, char *packet)
 
 			SendPressRightKey(i, client);
 		}
+		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now() + 5s);
 		break;
 	}
 	case CS_UPLEFT_KEY:
@@ -1014,6 +1019,7 @@ void Server::ProcessPacket(char client, char *packet)
 
 			SendPressUpLeftKey(i, client);
 		}
+		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now() + 5s);
 		break;
 	}
 	case CS_UPRIGHT_KEY:
@@ -1028,6 +1034,7 @@ void Server::ProcessPacket(char client, char *packet)
 
 			SendPressUpRightKey(i, client);
 		}
+		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now() + 5s);
 		break;
 	}
 	case CS_DOWNLEFT_KEY:
@@ -1042,6 +1049,7 @@ void Server::ProcessPacket(char client, char *packet)
 
 			SendPressDownLeftKey(i, client);
 		}
+		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now() + 5s);
 		break;
 	}
 	case CS_DOWNRIGHT_KEY:
@@ -1073,6 +1081,7 @@ void Server::ProcessPacket(char client, char *packet)
 		//		//SetVelocityZero(i);
 		//	}
 		//}
+		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now() + 5s);
 		break;
 	}
 	case CS_RELEASE_MOVEKEY:
