@@ -235,13 +235,13 @@ void CPlayer::Update(float fTimeElapsed)
 
 	
 
-	if (m_dwDirection == DIR_FORWARD)
+	if (m_dwDirection == DIR_FORWARD && m_bIce == false)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, m_fVelocityFromServer);
 
 	}
 
-	if (m_dwDirection == DIR_BACKWARD)
+	if (m_dwDirection == DIR_BACKWARD && m_bIce == false)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -m_fVelocityFromServer);
 	}
@@ -580,6 +580,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 	}
 	else {
 		if (GetAsyncKeyState(VK_UP) & 0x8000
+			&& m_bIce == false
 			&& pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::JUMP
 			&& pController->GetAnimationState() != CAnimationController::ICE
@@ -611,6 +612,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			//m_pAnimationController->SetTrackPosition(0, 0.0f);
 		}
 		else if (GetAsyncKeyState(VK_DOWN) & 0x8000
+			&& m_bIce == false
 			&& pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::JUMP
 			&& pController->GetAnimationState() != CAnimationController::ICE
