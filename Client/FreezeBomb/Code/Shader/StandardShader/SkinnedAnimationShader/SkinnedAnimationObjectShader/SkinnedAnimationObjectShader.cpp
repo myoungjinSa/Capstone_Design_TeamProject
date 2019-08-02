@@ -75,20 +75,17 @@ void CSkinnedAnimationObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D1
 		m_ppObjects[5]->m_pAnimationController->SetTrackAnimationSet(0, m_ppObjects[5]->m_pAnimationController->IDLE);
 		m_ppObjects[5]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
 
+		CAnimationCallbackHandler* pRunAnimationCallback = new CSoundCallbackHandler;
+		CAnimationCallbackHandler* pBackRunAnimationCallback = new CSoundCallbackHandler;
+		CAnimationCallbackHandler* pRaiseHandAnimationCallback = new CSoundCallbackHandler;
+		CAnimationCallbackHandler* pDieAnimationCallback = new CSoundCallbackHandler;
+		CAnimationCallbackHandler* pAttackAnimationCallback = new CSoundCallbackHandler;
+		CAnimationCallbackHandler* pUseGoldHammerCallback = new CSoundCallbackHandler;
+
 		for (int i = 0; i < m_nObjects; ++i)
 		{
-			CAnimationCallbackHandler* pRunAnimationCallback = new CSoundCallbackHandler;
-			pRunAnimationCallback->SetAdditianalData(i);
-			CAnimationCallbackHandler* pBackRunAnimationCallback = new CSoundCallbackHandler;
-			pBackRunAnimationCallback->SetAdditianalData(i);
-			CAnimationCallbackHandler* pRaiseHandAnimationCallback = new CSoundCallbackHandler;
-			pRaiseHandAnimationCallback->SetAdditianalData(i);
-			CAnimationCallbackHandler* pDieAnimationCallback = new CSoundCallbackHandler;
-			pDieAnimationCallback->SetAdditianalData(i);
-			CAnimationCallbackHandler* pAttackAnimationCallback = new CSoundCallbackHandler;
-			pAttackAnimationCallback->SetAdditianalData(i);
-			CAnimationCallbackHandler* pUseGoldHammerCallback = new CSoundCallbackHandler;
-			pUseGoldHammerCallback->SetAdditianalData(i);
+			// 사운드 채널 설정
+			m_ppObjects[i]->SetSoundChannel(i);
 
 			// 애니메이션 Transform을 각자 갖고있게 하기위해
 			m_ppObjects[i]->m_pSkinningBoneTransforms = new CSkinningBoneTransforms(pd3dDevice, pd3dCommandList, (*Model).second);
@@ -191,7 +188,6 @@ void CSkinnedAnimationObjectShader::Render(ID3D12GraphicsCommandList* pd3dComman
 	{
 		char matID = enemyID.second;
 		char id = enemyID.first;
-
 		
 		dynamic_cast<CEvilBear*>(m_ppObjects[id])->Animate(m_elapsedTime);
 		dynamic_cast<CEvilBear*>(m_ppObjects[id])->RotateAndMove(m_elapsedTime);

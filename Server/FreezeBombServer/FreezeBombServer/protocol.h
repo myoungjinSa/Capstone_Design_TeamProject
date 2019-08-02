@@ -8,10 +8,12 @@ using namespace std;
 constexpr int MAX_USER = 6;
 constexpr int MAX_ROUND = 3;
 
-constexpr int MAX_ROUND_TIME = 30;
+constexpr int MAX_ROUND_TIME = 20;
 constexpr int MAX_ITEM_NAME_LENGTH = 16;
 constexpr int MAX_CHATTING_LENGTH = 100;
 constexpr int COOLTIME = 3;
+constexpr float VELOCITY = 0.7f;
+constexpr float ROTATE_RATE = 0.02f;
 
 struct clientsInfo
 {

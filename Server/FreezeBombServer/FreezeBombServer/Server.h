@@ -31,8 +31,7 @@ constexpr float PLAYER_INIT_Z_RIGHT = 0;
 constexpr float FRICTION = 250;
 constexpr float MAX_VELOCITY_XZ = 40;
 constexpr float MAX_VELOCITY_Y = 400;
-constexpr float VELOCITY = 0.7f;
-constexpr float ROTATE_RATE = 0.02f;
+
 
 constexpr int MAX_FREEZE_COUNT = MAX_USER - 2;
 // 서버노트북 스레드수 8개
@@ -130,7 +129,7 @@ public:
 	float animationTime;	//애니메이션 시간
 	bool isReady;
 	GAME_STATE gameState;	
-
+	
 public:
 	SOCKETINFO() {
 		in_use = false;

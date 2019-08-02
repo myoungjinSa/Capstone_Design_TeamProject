@@ -42,7 +42,7 @@ void* CAnimationSet::GetCallbackData()
 }
 
 
-void CAnimationSet::SetPosition(CAnimationController& AnimationController, float& fTrackPosition, void* pAdditionalData)
+void CAnimationSet::SetPosition(CAnimationController& AnimationController, float& fTrackPosition, void* pAdditionalData, int soundChannel)
 {
 	m_fPosition = fTrackPosition;
 
@@ -89,10 +89,10 @@ void CAnimationSet::SetPosition(CAnimationController& AnimationController, float
 		if (pCallbackData)
 		{
 			if (pAdditionalData)
-				m_pAnimationCallbackHandler->HandleCallback(pCallbackData, pAdditionalData);
+				m_pAnimationCallbackHandler->HandleCallback(pCallbackData, pAdditionalData, soundChannel);
 
 			else 
-				m_pAnimationCallbackHandler->HandleCallback(pCallbackData);
+				m_pAnimationCallbackHandler->HandleCallback(pCallbackData, nullptr, soundChannel);
 		}
 	}
 }
@@ -270,7 +270,7 @@ void CAnimationController::SetAnimationSets(CAnimationSets *pAnimationSets)
 	pAnimationSets->AddRef();
 }
 
-void CAnimationController::AdvanceTime(float fTimeElapsed, void* pAdditionalData)
+void CAnimationController::AdvanceTime(float fTimeElapsed, void* pAdditionalData, int soundChannel)
 {
 	m_fTime += fTimeElapsed;
 	if (m_pAnimationSets && m_pAnimationTracks)
@@ -285,7 +285,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, void* pAdditionalData
 
 			CAnimationSet *pAnimationSet = m_pAnimationTracks[j].m_pAnimationSet;
 			pAnimationSet->m_fPosition += (fTimeElapsed * m_pAnimationTracks[j].m_fSpeed);
-			m_pAnimationTracks[j].m_pAnimationSet->SetPosition(*this, m_pAnimationTracks[j].m_fPosition, pAdditionalData);
+			m_pAnimationTracks[j].m_pAnimationSet->SetPosition(*this, m_pAnimationTracks[j].m_fPosition, pAdditionalData, soundChannel);
 			//m_pAnimationTracks[j].m_pAnimationSet->m_fLength;
 			if (m_pAnimationTracks[j].m_bEnable)
 			{
@@ -302,13 +302,13 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, void* pAdditionalData
 }
 
 
-void CSoundCallbackHandler::HandleCallback(void* pCallbackData, void* pAdditionalData)
+void CSoundCallbackHandler::HandleCallback(void* pCallbackData, void* pAdditionalData, int soundChannel)
 {
 	if (g_IsSoundOn == true)
 	{
-		if (m_pContextData)
+		if (soundChannel != -1)
 		{
-			int channel = (int)m_pContextData;
+			int channel = soundChannel;
 
 			int sound = (int)pCallbackData;
 
@@ -320,7 +320,6 @@ void CSoundCallbackHandler::HandleCallback(void* pCallbackData, void* pAdditiona
 				volume = 1 - volume;
 				if (volume < 0.f)
 					volume = 0.f;
-				//사운드 배열은 0부터지만 넘어오는 데이터는 1부터 시작하기 때문에 인자에서 1빼서 넘겨준다.
 				//pSound->SoundPlay((int)pCallbackData - 1, 1 - fDistRate);
 				CSoundSystem::PlayingPlayerSound(sound, channel, volume);
 			}
@@ -585,7 +584,7 @@ void CGameObject::Animate(float fTimeElapsed)
 {
 	// 루트 오브젝트를 제외한 나머지는 모두 nullptr이다. 왜냐하면, 루트 오브젝트를 제어하기 위함이므로
 	if (m_pAnimationController)
-		m_pAnimationController->AdvanceTime(fTimeElapsed);
+		m_pAnimationController->AdvanceTime(fTimeElapsed, nullptr, m_SoundChannel);
 
 	m_xmOOBBTransformed.Transform(m_xmOOBB, XMLoadFloat4x4(&m_xmf4x4World));
 	XMStoreFloat4(&m_xmOOBBTransformed.Orientation, XMQuaternionNormalize(XMLoadFloat4(&m_xmOOBBTransformed.Orientation)));

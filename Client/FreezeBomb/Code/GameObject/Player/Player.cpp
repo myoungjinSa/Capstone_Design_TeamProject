@@ -232,12 +232,16 @@ void CPlayer::Update(float fTimeElapsed)
 	
 	DecideAnimationState(fLength,fTimeElapsed);
 #else
-	if (m_dwDirection == DIR_FORWARD )
+
+	
+
+	if (m_dwDirection == DIR_FORWARD && m_bIce == false)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, m_fVelocityFromServer);
 
 	}
-	if (m_dwDirection == DIR_BACKWARD)
+
+	if (m_dwDirection == DIR_BACKWARD && m_bIce == false)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -m_fVelocityFromServer);
 	}
@@ -252,9 +256,12 @@ void CPlayer::Update(float fTimeElapsed)
 	//cout << m_xmf3Position.x << "," << m_xmf3Position.y << "," << m_xmf3Position.z << endl;
 
 	DWORD nCurrentCameraMode = m_pCamera->GetMode();
-	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->Update(m_xmf3Position, fTimeElapsed,IsCameraVibe());
-	if (m_pCameraUpdatedContext) OnCameraUpdateCallback(fTimeElapsed);
-	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(m_xmf3Position);
+	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) 
+		m_pCamera->Update(m_xmf3Position, fTimeElapsed, IsCameraVibe());
+	if (m_pCameraUpdatedContext) 
+		OnCameraUpdateCallback(fTimeElapsed);
+	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) 
+		m_pCamera->SetLookAt(m_xmf3Position);
 
 	m_pCamera->RegenerateViewMatrix();
 
@@ -573,6 +580,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 	}
 	else {
 		if (GetAsyncKeyState(VK_UP) & 0x8000
+			&& m_bIce == false
 			&& pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::JUMP
 			&& pController->GetAnimationState() != CAnimationController::ICE
@@ -583,11 +591,11 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			)
 		{
 #ifdef _WITH_SERVER_
-			if (pController->GetAnimationState() != CAnimationController::RUNFAST
-				&& bRun == false)
+			if (pController->GetAnimationState() != CAnimationController::RUNFAST)
 			{
 				//idleCount = 0;
 				//idleCount = 0;
+				SetTrackAnimationPosition(0, 0.0f);
 				SetTrackAnimationSet(0, CAnimationController::RUNFAST);
 				m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
 
@@ -604,18 +612,19 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			//m_pAnimationController->SetTrackPosition(0, 0.0f);
 		}
 		else if (GetAsyncKeyState(VK_DOWN) & 0x8000
+			&& m_bIce == false
 			&& pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::JUMP
 			&& pController->GetAnimationState() != CAnimationController::ICE
 			&& pController->GetAnimationState() != CAnimationController::RAISEHAND
 			&& pController->GetAnimationState() != CAnimationController::DIE
 			&& pController->GetAnimationState() != CAnimationController::VICTORY
+			&& pController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
 			)
 		{
 
 #ifdef _WITH_SERVER_
-			if (pController->GetAnimationState() != CAnimationController::RUNBACKWARD
-				&& bRun == false)
+			if (pController->GetAnimationState() != CAnimationController::RUNBACKWARD)
 			{
 				
 				bRun = true;
@@ -633,11 +642,26 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			idleCount = 0;
 		}
 
-		
-
-
 	}
 	
+#ifdef _WITH_SERVER_
+		
+	if ((GetAsyncKeyState(VK_RIGHT) &0x8000
+		|| GetAsyncKeyState(VK_LEFT) &0x8000)
+		&& !(GetAsyncKeyState(VK_UP) & 0x8000)
+		&& !(GetAsyncKeyState(VK_DOWN) & 0x8000)
+		&&( pController->GetAnimationState() == CAnimationController::RUNFAST
+		|| pController->GetAnimationState() == CAnimationController::RUNBACKWARD)
+		)
+	{
+		SetTrackAnimationSet(0, CAnimationController::IDLE);
+		m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+		Network::GetInstance()->SendAnimationState(CAnimationController::IDLE);
+		
+	}
+		
+#endif
+
 	if (m_isMoveRotate)
 	{
 		m_isMoveRotate = false;
@@ -713,26 +737,27 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 	}
 #endif
 
-	
-
+	float gameTime = CTimerUIShader::getTimer();
 
 	////얼음으로 변신
-	if (GetAsyncKeyState(VK_A) & 0x0001 && ChattingSystem::GetInstance()->IsChattingActive() ==false && m_bBomb == false
-		&& g_State == GAMESTATE::INGAME)
+	if (GetAsyncKeyState(VK_A) & 0x0001
+		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
+		&& m_bBomb == false
+		&& g_State == GAMESTATE::INGAME
+		&& gameTime < MAX_ROUND_TIME - 5)
 	{
 		
 #ifdef _WITH_SERVER_
-		if (m_bIce == false)
-		{
-			//m_bIce = true;
-			cout << "SendFreezeState()\n";
-			Network::GetInstance()->SendFreezeState();
-		}
-		else
-		{
-			//m_bIce = false;
-			Network::GetInstance()->SendReleaseFreezeState();
-		}
+		
+		//m_bIce = true;
+		cout << "SendFreezeState()\n";
+		Network::GetInstance()->SendFreezeState();
+		
+		//else
+		//{
+		//	//m_bIce = false;
+		//	Network::GetInstance()->SendReleaseFreezeState();
+		//}
 #else
 		m_bIce = !m_bIce;
 		pController->SetTrackAnimationSet(0, CAnimationController::IDLE);
@@ -807,6 +832,8 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 	if (GetAsyncKeyState(VK_MENU) & 0x0001
 		&& pController->GetAnimationState() != CAnimationController::ATTACK
 		&& pController->GetAnimationState() != CAnimationController::ICE
+		&& pController->GetAnimationState() != CAnimationController::DIE
+		&& pController->GetAnimationState() != CAnimationController::VICTORY
 		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
 		)
 	{
@@ -983,28 +1010,24 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pAnimationController->SetCallbackKeys(m_pAnimationController->USEGOLDHAMMER, 1);
 	m_pAnimationController->SetCallbackKey(m_pAnimationController->USEGOLDHAMMER, 0, 0.3f, (void*)CSoundSystem::SOUND_TYPE::GOLDHAMMER_EFFECT);
 
+	m_SoundChannel = 6;
+
 	CAnimationCallbackHandler* pRunAnimationCallbackHandler = new CSoundCallbackHandler;
-	pRunAnimationCallbackHandler->SetAdditianalData(5);
 	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RUNFAST, pRunAnimationCallbackHandler);
 
 	CAnimationCallbackHandler* pBackRunAnimationCallbackHandler = new CSoundCallbackHandler;
-	pBackRunAnimationCallbackHandler->SetAdditianalData(5);
 	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RUNBACKWARD, pBackRunAnimationCallbackHandler);
 
 	CAnimationCallbackHandler* pRaiseHandAnimationCallbackHandler = new CSoundCallbackHandler;
-	pRaiseHandAnimationCallbackHandler->SetAdditianalData(5);
 	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->RAISEHAND, pRaiseHandAnimationCallbackHandler);
 	
 	CAnimationCallbackHandler* pDieAnimationCallbackHandler = new CSoundCallbackHandler;
-	pDieAnimationCallbackHandler->SetAdditianalData(5);
 	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->DIE, pDieAnimationCallbackHandler);
 
 	CAnimationCallbackHandler* pAttackAnimationCallbackHandler = new CSoundCallbackHandler;
-	pAttackAnimationCallbackHandler->SetAdditianalData(5);
 	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->ATTACK, pAttackAnimationCallbackHandler);
 
 	CAnimationCallbackHandler* pUseGoldHammerCallbackHandler = new CSoundCallbackHandler;
-	pUseGoldHammerCallbackHandler->SetAdditianalData(5);
 	m_pAnimationController->SetAnimationCallbackHandler(m_pAnimationController->USEGOLDHAMMER, pUseGoldHammerCallbackHandler);
 
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
@@ -1028,7 +1051,7 @@ CTerrainPlayer::~CTerrainPlayer()
 {
 }
 
-void CTerrainPlayer::RotateAxisY(float fTimeElapsed)
+void CTerrainPlayer::RotateAxisY(const float& rate)
 {
 	XMFLOAT3& xmf3Look = m_xmf3Look;
 	XMFLOAT3& xmf3Right = m_xmf3Right;
@@ -1040,7 +1063,9 @@ void CTerrainPlayer::RotateAxisY(float fTimeElapsed)
 		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
 
 
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(fAngle*fTimeElapsed));
+
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(fAngle*rate));
+
 		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
 		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 
@@ -1053,7 +1078,9 @@ void CTerrainPlayer::RotateAxisY(float fTimeElapsed)
 
 		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
 
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(-(fAngle*fTimeElapsed)));
+
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(-(fAngle*rate)));
+
 		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
 		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 

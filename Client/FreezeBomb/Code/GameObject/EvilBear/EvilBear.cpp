@@ -96,7 +96,7 @@ void CEvilBear::Animate(float fTimeElapsed)
 {
 	// 루트 오브젝트를 제외한 나머지는 모두 nullptr이다. 왜냐하면, 루트 오브젝트를 제어하기 위함이므로
 	if (m_pAnimationController)
-		m_pAnimationController->AdvanceTime(fTimeElapsed, (float*)&m_fDistanceToTarget);
+		m_pAnimationController->AdvanceTime(fTimeElapsed, (float*)&m_fDistanceToTarget, m_SoundChannel);
 
 	m_xmOOBBTransformed.Transform(m_xmOOBB, XMLoadFloat4x4(&m_xmf4x4World));
 	XMStoreFloat4(&m_xmOOBBTransformed.Orientation, XMQuaternionNormalize(XMLoadFloat4(&m_xmOOBBTransformed.Orientation)));

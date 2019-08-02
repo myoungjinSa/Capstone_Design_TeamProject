@@ -90,7 +90,7 @@ bool CSoundSystem::PlayingPlayerSound(int key, int channel, float volume)
 		FMOD_RESULT result;
 
 		// 처음 재생할 때,
-		if ((*iter).second.m_pChannel == nullptr)
+		if ((*iter).second.m_pChannel[channel] == nullptr)
 		{
 			result = m_pSystem->playSound((*iter).second.m_pSound, nullptr, false, &(*iter).second.m_pChannel[channel]);
 			(*iter).second.m_pChannel[channel]->setVolume(volume);

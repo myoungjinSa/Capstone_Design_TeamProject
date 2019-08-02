@@ -1,5 +1,6 @@
 #include "Server.h"
 
+mutex g_lock;
 Server::Server()
 {
 	round = 0;
@@ -466,7 +467,7 @@ void Server::RecvFunc(char client)
 		if (WSAGetLastError() != WSA_IO_PENDING)
 		{
 			cout << "Error - IO pending Failure\n";
-			while (true);
+			//while (true);
 		}
 	}
 	else {
@@ -543,13 +544,13 @@ void Server::WorkerThreadFunc()
 					ptr += required;
 					// 이미 계산됐기 때문에 다음 패킷을 처리할 수 있도록 0
 					packet_size = 0;
-					clients[key].prev_size = 0;
+					//clients[key].prev_size = 0;
 				}
 				else {
 					// 패킷 만들 수 없는 경우
 					memcpy(clients[key].packet_buffer + clients[key].prev_size, ptr, rest);
 					rest = 0;
-					clients[key].prev_size += rest;
+					//clients[key].prev_size += rest;
 				}
 			}
 
@@ -596,7 +597,7 @@ void Server::WorkerThreadFunc()
 						if (true == clients[i].in_use)
 							SendRoundEnd(i);
 					}
-
+					cout << "InitGame호출\n";
 					InitGame();
 					add_timer(-1, EV_GO_LOBBY, high_resolution_clock::now() + 10s);
 				}
@@ -609,6 +610,7 @@ void Server::WorkerThreadFunc()
 						SendRoundEnd(i);
 					}
 					
+					cout << "InitRound호출\n";
 					InitRound();
 					add_timer(-1, EV_GO_NEXTROUND, high_resolution_clock::now() + 10s);
 					
@@ -627,6 +629,7 @@ void Server::WorkerThreadFunc()
 			printf("쿨타임:%d\n", changeCoolTime);
 			timer_l.unlock();
 
+			
 			
 			timer_l.lock();
 			
@@ -1093,7 +1096,6 @@ void Server::ProcessPacket(char client, char *packet)
 			{
 				if (false == clients[i].in_use)
 					continue;
-
 				SendStopRunAnim(i, client);
 			}
 		}
@@ -1219,15 +1221,14 @@ void Server::ProcessPacket(char client, char *packet)
 		SetAnimationState(client, p->animation);
 		for (int i = 0; i < MAX_USER; ++i)
 		{
-			if (client == i)
+			if (clients[i].in_use == false)
 				continue;
-			if (clients[i].in_use == true)
-			{
-				SendPlayerAnimation(i, client);
-			}
+		
+			SendPlayerAnimation(i, client);
+			
 		}
 
-		cout << (int)p->animation << "\n";
+		//cout << (int)p->animation << "\n";
 		break;
 	}
 	case CS_GET_ITEM:
@@ -1415,63 +1416,96 @@ void Server::ProcessPacket(char client, char *packet)
 		// 1. 현재 Freeze를 요청한 id클라가 도망자인지를 판단해야함.
 		// 2. 현재 모든 도망자가 Freeze상태인지를 확인해야함.
 		// 3. 모든 도망자가 Freeze가 아니고 해당 클라가 도망자가 맞다면 SC_FREEZE를 각 클라들에게 알려줌
+		
 		if (client == bomberID)		//술래라면 얼음을 할 수 없다.
 			break;
 
-		
 		clientCnt_l.lock();
 		int clientCnt = clientCount-2;
 		clientCnt_l.unlock();
 
-		freezeCnt_l.lock();
-		if (freezeCnt >= clientCnt)	//최대 얼음할 수 있는 도망자 수를 넘으면 얼음을 하게 할 수 없다.
+		if (clients[client].isFreeze == false)
 		{
-			freezeCnt_l.unlock();
-			break;
-			
-		}
-		else
-		{
-			++freezeCnt;
-			freezeCnt_l.unlock();
-		}
-		
-		clients[client].isFreeze = true;
+			freezeCnt_l.lock();
+			cout << "CS_Freeze - FreezeCnt: " << freezeCnt << "  플레이어 -" << (int)client << "\n";
+			if (freezeCnt < clientCnt)	//최대 얼음할 수 있는 도망자 수를 넘으면 얼음을 하게 할 수 없다.
+			{
+				++freezeCnt;
+				freezeCnt_l.unlock();
+				clients[client].isFreeze = true;
+			}
+			else
+			{
+				freezeCnt_l.unlock();
+				break;
+			}
 
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (false == clients[i].in_use)
+					continue;
 
-		for(int i=0;i<MAX_USER;++i)
-		{
-			if (clients[i].in_use == true)
 				SendFreeze(i, client);
-		}
-		
-
-		break;
-	}
-	case CS_RELEASE_FREEZE:
-	{
-		if (client == bomberID)		//술래라면 얼음을 할 수 없다.
-			break;
-
-		freezeCnt_l.lock();
-		if (freezeCnt <= 0)
-		{
-			freezeCnt_l.unlock();
-			break;
+			}
 		}
 		else
 		{
-			--freezeCnt;
-			freezeCnt_l.unlock();
-		}
-		clients[client].isFreeze = false;
-		for(int i=0;i<MAX_USER;++i)
-		{
-			if (clients[i].in_use == true)
+			freezeCnt_l.lock();
+			cout << "CS_Release - FreezeCnt: " << freezeCnt << "  플레이어 -" << (int)client << "\n";
+			if (freezeCnt > 0)
+			{
+				--freezeCnt;
+				freezeCnt_l.unlock();
+				clients[client].isFreeze = false;
+			}
+			else
+			{
+				freezeCnt_l.unlock();
+				break;
+			}
+
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				if (false == clients[i].in_use)
+					continue;
 				SendReleaseFreeze(i, client);
+			}
 		}
+
 		break;
 	}
+	//case CS_RELEASE_FREEZE:
+	//{
+	//	
+	//	if (client == bomberID)		//술래라면 얼음을 할 수 없다.
+	//		break;
+	//	freezeCnt_l.lock();
+	//	freezeCnt_l.unlock();
+
+	//	freezeCnt_l.lock();
+	//	if (freezeCnt > 0)
+	//	{
+	//		--freezeCnt;
+	//		freezeCnt_l.unlock();
+	//	}
+	//	else
+	//	{
+	//		freezeCnt_l.unlock();
+	//		break;
+	//	}
+
+	//	if (clients[client].isFreeze == true) 
+	//	{
+	//		clients[client].isFreeze = false;
+	//		for (int i = 0; i < MAX_USER; ++i)
+	//		{
+	//			if (clients[i].in_use == false)
+	//				continue;
+	//			SendReleaseFreeze(i, client);
+	//		}
+	//	}
+	//	break;
+	//}
 	case CS_BOMB_EXPLOSION:
 	{
 		if (client != bomberID)		//술래가 아닌 다른 클라이언트가 보냈다면 무시한다.
@@ -1491,6 +1525,9 @@ void Server::ProcessPacket(char client, char *packet)
 	default:
 		wcout << L"패킷 사이즈: " << (int)packet[0] << endl;
 		wcout << L"패킷 타입 : " << (int)packet[1] << endl;
+		for (int i = 2; i < (int)packet[0]; ++i)
+			wcout << packet[i];
+		wcout << L"\n";
 		wcout << L"정의되지 않은 패킷 도착 오류!!\n";
 		//미정의 패킷을 보낸 클라이언트의 접속만 끊는다.
 		ClientDisconnect(client);
@@ -1516,7 +1553,7 @@ void Server::SendFunc(char client, void *packet)
 		if (WSAGetLastError() != WSA_IO_PENDING)
 		{
 			cout << "Error - IO pending Failure\n";
-			while (true);
+			//while (true);
 		}
 	}
 	else {
@@ -2040,7 +2077,6 @@ void Server::ClientDisconnect(char client)
 	{
 	case GS_ID_INPUT:
 	{
-		
 		break;
 	}
 	case GS_LOBBY:
@@ -2062,6 +2098,23 @@ void Server::ClientDisconnect(char client)
 	}
 	case GS_INGAME:
 	{
+		//clientCnt_l.lock();
+		//// 둘이 남아 플레이가 불가능 할 때 로비로 이동
+		//if (clientCount <= 2)
+		//{
+		//	clientCnt_l.unlock();
+		//	for (int i = 0; i < MAX_USER; ++i)
+		//	{
+		//		if (false == clients[i].in_use)
+		//			continue;
+		//		SendGoLobby(i);
+		//		SendRemovePlayer(i, client);
+		//	}
+		//	break;
+		//}
+		//else
+		//	clientCnt_l.unlock();
+
 		if (client == bomberID)
 		{
 			if(clientCount > 1 )
@@ -2138,7 +2191,9 @@ void Server::SetDirection(char client, int key)
 		tmpDir |= DIR_BACKRIGHT;
 		break;
 	}
+	
 	clients[client].direction = tmpDir;
+	
 }
 
 void Server::SetVelocityZero(char client)
@@ -2245,8 +2300,9 @@ void Server::UpdateClientPos(char client)
 		cout << "알수 없는 객체와 충돌\n";
 		break;
 	}
+	
 	clients[client].pos = Vector3::Add(clients[client].pos, clients[client].velocity);
-
+	
 
 	//ProcessFriction 함수 호출 필요없어 보임 - 여기서밖에 쓰이지 않아서 함수로 만들 필요가 없어보임 (함수 호출이 비효율적이지 않을까)
 	fLength = Vector3::Length(clients[client].velocity);
@@ -2265,10 +2321,12 @@ void Server::UpdateClientPos(char client)
 
 void Server::RotateClientAxisY(char client)
 {
+	
 	XMFLOAT3& xmf3Look = clients[client].look;
 	XMFLOAT3& xmf3Right = clients[client].right;
 	XMFLOAT3& xmf3Up = clients[client].up;
 
+	
 	clients[client].lastLookVector = xmf3Look;
 	clients[client].lastRightVector = xmf3Right;
 	clients[client].lastUpVector = xmf3Up;
@@ -2333,7 +2391,6 @@ void Server::RotateClientAxisY(char client)
 	xmf3Right = Vector3::CrossProduct(xmf3Up, xmf3Look, true);
 	xmf3Up = Vector3::CrossProduct(xmf3Look, xmf3Right, true);
 
-	
 	clients[client].look = xmf3Look;
 	clients[client].right = xmf3Right;
 	clients[client].up = xmf3Up;
