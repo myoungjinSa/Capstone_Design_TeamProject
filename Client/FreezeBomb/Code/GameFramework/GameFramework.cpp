@@ -2041,12 +2041,11 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		if (pFR->id == m_pPlayer->GetPlayerID())
 		{
+			
+
 			if (m_pPlayer->GetIsICE() == false)
-				m_pPlayer->SetIsICE(true);
-
-
-			if (m_pPlayer->GetIsICE() == true)
 			{
+				m_pPlayer->SetIsICE(true);
 				m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
 
 				m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::ICE);
@@ -2080,14 +2079,16 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		if (pRF->id == m_pPlayer->GetPlayerID())
 		{
+			
 			if (m_pPlayer->GetIsICE() == true)
+			{
 				m_pPlayer->SetIsICE(false);
 
+				m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
 
-			m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
-
-			m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
-			m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
+				m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+				m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
+			}
 		}
 		else if (pRF->id < MAX_USER)
 		{
