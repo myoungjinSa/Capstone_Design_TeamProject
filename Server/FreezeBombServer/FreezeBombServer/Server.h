@@ -34,7 +34,7 @@ constexpr float MAX_VELOCITY_Y = 400;
 
 
 constexpr int MAX_FREEZE_COUNT = MAX_USER - 2;
-constexpr int MAX_WORKER_THREAD = 2;
+constexpr int MAX_WORKER_THREAD = 6;
 
 constexpr int GOLD_HAMMER_COUNT = 2;
 

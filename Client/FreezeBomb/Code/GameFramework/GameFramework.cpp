@@ -2082,6 +2082,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		if (pRF->id == m_pPlayer->GetPlayerID())
 		{
+			
 			if (m_pPlayer->GetIsICE() == true)
 			{
 				m_pPlayer->SetIsICE(false);

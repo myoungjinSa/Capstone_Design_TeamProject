@@ -741,7 +741,20 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		&& gameTime < MAX_ROUND_TIME - 5)
 	{	
 #ifdef _WITH_SERVER_
+<<<<<<< HEAD
 		Network::GetInstance()->SendFreezeState();
+=======
+		
+		//m_bIce = true;
+		cout << "SendFreezeState()\n";
+		Network::GetInstance()->SendFreezeState();
+		
+		//else
+		//{
+		//	//m_bIce = false;
+		//	Network::GetInstance()->SendReleaseFreezeState();
+		//}
+>>>>>>> 980a2297c409550eb42dae924d84614a675405ef
 #else
 		m_bIce = !m_bIce;
 		pController->SetTrackAnimationSet(0, CAnimationController::IDLE);
