@@ -2085,6 +2085,7 @@ void CGameFramework::ProcessPacket(char* packet)
 			
 			if (m_pPlayer->GetIsICE() == true)
 			{
+				cout << "setIsIce = false\n";
 				m_pPlayer->SetIsICE(false);
 				cout << "SetIsIce-false\n";
 				m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
