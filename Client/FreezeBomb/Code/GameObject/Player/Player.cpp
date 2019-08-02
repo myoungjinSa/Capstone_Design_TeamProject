@@ -234,26 +234,20 @@ void CPlayer::Update(float fTimeElapsed)
 #else
 
 	
-
-	if (m_dwDirection == DIR_FORWARD)
+	if (m_dwDirection == DIR_FORWARD && m_bIce == false)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, m_fVelocityFromServer);
-
+		Move(m_xmf3Velocity, false);
 	}
 
-	if (m_dwDirection == DIR_BACKWARD)
+	if (m_dwDirection == DIR_BACKWARD && m_bIce == false)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -m_fVelocityFromServer);
+		Move(m_xmf3Velocity, false);
 	}
-
-
-	Move(m_xmf3Velocity, false);
 	
 	m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_dwDirection = 0;
-	//cout << m_xmf3Velocity.x << "," << m_xmf3Velocity.y << "," << m_xmf3Velocity.z << endl;
-
-	//cout << m_xmf3Position.x << "," << m_xmf3Position.y << "," << m_xmf3Position.z << endl;
 
 	DWORD nCurrentCameraMode = m_pCamera->GetMode();
 	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) 
@@ -580,6 +574,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 	}
 	else {
 		if (GetAsyncKeyState(VK_UP) & 0x8000
+			&& m_bIce == false
 			&& pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::JUMP
 			&& pController->GetAnimationState() != CAnimationController::ICE
@@ -611,6 +606,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			//m_pAnimationController->SetTrackPosition(0, 0.0f);
 		}
 		else if (GetAsyncKeyState(VK_DOWN) & 0x8000
+			&& m_bIce == false
 			&& pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::JUMP
 			&& pController->GetAnimationState() != CAnimationController::ICE
@@ -743,20 +739,9 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		&& m_bBomb == false
 		&& g_State == GAMESTATE::INGAME
 		&& gameTime < MAX_ROUND_TIME - 5)
-	{
-		
+	{	
 #ifdef _WITH_SERVER_
-		if (m_bIce == false)
-		{
-			//m_bIce = true;
-			cout << "SendFreezeState()\n";
-			Network::GetInstance()->SendFreezeState();
-		}
-		else
-		{
-			//m_bIce = false;
-			Network::GetInstance()->SendReleaseFreezeState();
-		}
+		Network::GetInstance()->SendFreezeState();
 #else
 		m_bIce = !m_bIce;
 		pController->SetTrackAnimationSet(0, CAnimationController::IDLE);

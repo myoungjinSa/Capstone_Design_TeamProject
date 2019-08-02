@@ -1550,6 +1550,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		}
 		break;
 	}
+
 	case SC_CLIENT_LOBBY_OUT:
 	{
 		printf("SC_CLIENT_LOBBY_OUT »£√‚");
@@ -1949,6 +1950,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		break;
 	}
+
 	case SC_STOP_RUN_ANIM:
 	{
 		SC_PACKET_STOP_RUN_ANIM *pSTA = reinterpret_cast<SC_PACKET_STOP_RUN_ANIM*>(packet);
@@ -1960,6 +1962,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		//printf("SetVelocityFromServer\n");
 		break;
 	}
+
 	case SC_REMOVE_PLAYER:
 	{
 		SC_PACKET_REMOVE_PLAYER *pRP = reinterpret_cast<SC_PACKET_REMOVE_PLAYER*>(packet);
@@ -1998,6 +2001,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		printf("Player Disconnected ID : %d\n", pRP->id);
 		break;
 	}
+
 	case SC_ROUND_END:
 	{
 		SC_PACKET_ROUND_END *pRE = reinterpret_cast<SC_PACKET_ROUND_END*>(packet);
@@ -2026,6 +2030,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		m_pScene->SortInGameRank();
 		break;
 	}
+
 	case SC_COMPARE_TIME:
 	{
 		SC_PACKET_COMPARE_TIME *pCT = reinterpret_cast<SC_PACKET_COMPARE_TIME*>(packet);
@@ -2035,6 +2040,7 @@ void CGameFramework::ProcessPacket(char* packet)
 			dynamic_cast<CTimerUIShader*>((*iter).second)->CompareServerTimeAndSet(pCT->serverTime);
 		break;
 	}
+
 	case SC_FREEZE:
 	{
 		SC_PACKET_FREEZE *pFR = reinterpret_cast<SC_PACKET_FREEZE*>(packet);
@@ -2042,17 +2048,14 @@ void CGameFramework::ProcessPacket(char* packet)
 		if (pFR->id == m_pPlayer->GetPlayerID())
 		{
 			if (m_pPlayer->GetIsICE() == false)
-				m_pPlayer->SetIsICE(true);
-
-
-			if (m_pPlayer->GetIsICE() == true)
 			{
+				cout << "SetIsIce-true\n";
+				m_pPlayer->SetIsICE(true);
 				m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
-
 				m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::ICE);
 			}
-
 		}
+
 		else if (pFR->id < MAX_USER)
 		{
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
@@ -2060,20 +2063,19 @@ void CGameFramework::ProcessPacket(char* packet)
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
 				char id = m_mapClients[pFR->id].id;
-				//vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
 
 				if ((*iter).second->m_ppObjects[id]->GetIsICE() == false)
+				{
 					(*iter).second->m_ppObjects[id]->SetIsICE(true);
 
-				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
-				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState(CAnimationController::ICE);
-
+					(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
+					(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState(CAnimationController::ICE);
+				}
 			}
-
 		}
-
 		break;
 	}
+
 	case SC_RELEASE_FREEZE:
 	{
 		SC_PACKET_RELEASE_FREEZE *pRF = reinterpret_cast<SC_PACKET_RELEASE_FREEZE*>(packet);
@@ -2081,13 +2083,13 @@ void CGameFramework::ProcessPacket(char* packet)
 		if (pRF->id == m_pPlayer->GetPlayerID())
 		{
 			if (m_pPlayer->GetIsICE() == true)
+			{
 				m_pPlayer->SetIsICE(false);
-
-
-			m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
-
-			m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
-			m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
+				cout << "SetIsIce-false\n";
+				m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
+				m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+				m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
+			}
 		}
 		else if (pRF->id < MAX_USER)
 		{
@@ -2101,10 +2103,10 @@ void CGameFramework::ProcessPacket(char* packet)
 				if ((*iter).second->m_ppObjects[id]->GetIsICE() == true)
 				{
 					(*iter).second->m_ppObjects[id]->SetIsICE(false);
+					(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
+					(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+					(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackPosition(0, 0.0f);
 				}
-				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
-				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
-				(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackPosition(0, 0.0f);
 			}
 		}
 		break;
