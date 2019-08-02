@@ -1106,10 +1106,13 @@ void CScene::InGameSceneClear(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 	if (iter == m_pShaderManager->getShaderMap().end())
 		return;
 
+	int i = 100;
 	for (auto enemy : CGameFramework::GetClientsInfo())
 	{
 		if (enemy.second.id == m_pPlayer->GetPlayerID())	continue;
 		(*iter).second->m_ppObjects[enemy.second.id]->EvilBearInfoClear();
+		(*iter).second->m_ppObjects[enemy.second.id]->SetPosition(i, 0, i);
+		i += 100;
 	}
 	
 	iter = m_pShaderManager->getShaderMap().find("Item");

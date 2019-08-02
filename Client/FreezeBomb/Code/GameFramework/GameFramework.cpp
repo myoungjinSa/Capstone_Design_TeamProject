@@ -1752,7 +1752,9 @@ void CGameFramework::ProcessPacket(char* packet)
 		{
 			dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->ResetParticles();
 		}
+
 		printf("Round Start! Bomber is %d\n", m_mapClients[pRS->bomberID].id);
+
 		break;
 	}
 
@@ -2386,7 +2388,6 @@ void CGameFramework::ProcessPacket(char* packet)
 	case SC_BOMB_EXPLOSION:
 	{
 		SC_PACKET_BOMB_EXPLOSION *pBE = reinterpret_cast<SC_PACKET_BOMB_EXPLOSION*>(packet);
-
 		
 		if (pBE->bomberId != m_pPlayer->GetPlayerID())
 		{
@@ -2455,6 +2456,7 @@ void CGameFramework::ProcessPacket(char* packet)
 			
 			}
 		}
+		cout << "¼ú·¡ ¹Ù²ñ" << endl;
 		CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::CATCH);
 
 		break;
@@ -2469,6 +2471,7 @@ void CGameFramework::ProcessPacket(char* packet)
 			m_pScene->InGameSceneClear(m_pd3dDevice, m_pd3dCommandList);
 
 			g_State = LOBBY;
+
 			cout << "Go Lobby" << endl;
 			break;
 		}

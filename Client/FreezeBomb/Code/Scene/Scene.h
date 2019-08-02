@@ -207,6 +207,7 @@ public:
 	
 	vector<InGameInfo> m_InGameInfo;
 	char m_BomberID = -1;
+
 #ifndef _WITH_SERVER_
 	// 술래 변경할 수 있는 시간
 	static float m_TaggerCoolTime;
