@@ -543,13 +543,13 @@ void Server::WorkerThreadFunc()
 					ptr += required;
 					// 이미 계산됐기 때문에 다음 패킷을 처리할 수 있도록 0
 					packet_size = 0;
-					clients[key].prev_size = 0;
+					//clients[key].prev_size = 0;
 				}
 				else {
 					// 패킷 만들 수 없는 경우
 					memcpy(clients[key].packet_buffer + clients[key].prev_size, ptr, rest);
 					rest = 0;
-					clients[key].prev_size += rest;
+					//clients[key].prev_size += rest;
 				}
 			}
 
