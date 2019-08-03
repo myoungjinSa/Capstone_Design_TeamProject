@@ -1169,18 +1169,30 @@ void CGameFramework::ProcessInput()
 					}
 					if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
 					{
-						if (false == m_pPlayer->GetIsRotating())
+						if (false == m_pPlayer->GetIsRotating() && true == m_pPlayer->GetIsMoving())
 						{
 							Network::GetInstance()->SendUpRightKey();
 							m_pPlayer->SetIsRotating(true);
 						}
+						else if (false == m_pPlayer->GetIsRotating() && false == m_pPlayer->GetIsMoving())
+						{
+							Network::GetInstance()->SendUpRightKey();
+							m_pPlayer->SetIsRotating(true);
+							m_pPlayer->SetIsMoving(true);
+						}
 					}
 					if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 					{
-						if (false == m_pPlayer->GetIsRotating())
+						if (false == m_pPlayer->GetIsRotating() && true == m_pPlayer->GetIsMoving())
 						{
 							Network::GetInstance()->SendUpLeftKey();
 							m_pPlayer->SetIsRotating(true);
+						}
+						else if (false == m_pPlayer->GetIsRotating() && false == m_pPlayer->GetIsMoving())
+						{
+							Network::GetInstance()->SendUpLeftKey();
+							m_pPlayer->SetIsRotating(true);
+							m_pPlayer->SetIsMoving(true);
 						}
 					}
 					
@@ -1201,17 +1213,38 @@ void CGameFramework::ProcessInput()
 				{
 #ifdef _WITH_SERVER_
 					
-				
-					Network::GetInstance()->SendDownKey();
+					if (false == m_pPlayer->GetIsMoving())
+					{
+						Network::GetInstance()->SendDownKey();
+						m_pPlayer->SetIsMoving(true);
+					}
 					if(GetAsyncKeyState(VK_RIGHT) & 0x8000)
 					{
-						Network::GetInstance()->SendDownRightKey();
-					
+						if (false == m_pPlayer->GetIsRotating() && true == m_pPlayer->GetIsMoving())
+						{
+							Network::GetInstance()->SendDownRightKey();
+							m_pPlayer->SetIsRotating(true);
+						}
+						else if (false == m_pPlayer->GetIsRotating() && false == m_pPlayer->GetIsMoving())
+						{
+							Network::GetInstance()->SendDownRightKey();
+							m_pPlayer->SetIsRotating(true);
+							m_pPlayer->SetIsMoving(true);
+						}
 					}
 					if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 					{
-						Network::GetInstance()->SendDownLeftKey();
-						
+						if (false == m_pPlayer->GetIsRotating() && true == m_pPlayer->GetIsMoving())
+						{
+							Network::GetInstance()->SendDownLeftKey();
+							m_pPlayer->SetIsRotating(true);
+						}
+						else if (false == m_pPlayer->GetIsRotating() && false == m_pPlayer->GetIsMoving())
+						{
+							Network::GetInstance()->SendDownLeftKey();
+							m_pPlayer->SetIsRotating(true);
+							m_pPlayer->SetIsMoving(true);
+						}
 					}
 					
 #endif
@@ -1222,18 +1255,23 @@ void CGameFramework::ProcessInput()
 			if (pKeysBuffer[VK_LEFT] & 0xF0)
 			{
 #ifdef _WITH_SERVER_
-				
-				Network::GetInstance()->SendLeftKey();
-#endif
+				if (false == m_pPlayer->GetIsRotating())
+				{
+					Network::GetInstance()->SendLeftKey();
+					m_pPlayer->SetIsRotating(true);
+				}
+#endif				
 				dwDirection |= DIR_LEFT;
 				m_pPlayer->SetDirection(dwDirection);
 			}
 			if (pKeysBuffer[VK_RIGHT] & 0xF0)
 			{
 #ifdef _WITH_SERVER_
-				
-				Network::GetInstance()->SendRightKey();
-				
+				if (false == m_pPlayer->GetIsRotating())
+				{
+					Network::GetInstance()->SendRightKey();
+					m_pPlayer->SetIsRotating(true);
+				}
 #endif
 				dwDirection |= DIR_RIGHT;
 				m_pPlayer->SetDirection(dwDirection);
@@ -1974,9 +2012,9 @@ void CGameFramework::ProcessPacket(char* packet)
 		}
 		break;
 	}
-	case SC_MOVE_PLAYER:
+	case SC_MOVE_POS:
 	{
-		SC_PACKET_MOVE_PLAYER *pMP = reinterpret_cast<SC_PACKET_MOVE_PLAYER*>(packet);
+		SC_PACKET_MOVE_POS *pMP = reinterpret_cast<SC_PACKET_MOVE_POS*>(packet);
 
 		if (pMP->id == m_pPlayer->GetPlayerID())
 		{
@@ -2004,7 +2042,7 @@ void CGameFramework::ProcessPacket(char* packet)
 			m_pPlayer->SetRightVector(right);
 			m_pPlayer->Rotate(pMP->pitch, pMP->yaw, pMP->roll);
 			m_pPlayer->SetVelocityFromServer(pMP->fVelocity);
-			m_pPlayer->SetMoveRotate(pMP->isMoveRotate);
+			//m_pPlayer->SetMoveRotate(pMP->isMoveRotate);
 			m_pPlayer->SetCollision(false);
 		}
 
@@ -2655,19 +2693,19 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		break;
 	}
-		case SC_GO_LOBBY:
-		{
-			SC_PACKET_GO_LOBBY *pGL = reinterpret_cast<SC_PACKET_GO_LOBBY *>(packet);
+	case SC_GO_LOBBY:
+	{
+		SC_PACKET_GO_LOBBY *pGL = reinterpret_cast<SC_PACKET_GO_LOBBY *>(packet);
 
-			for (auto& client : m_mapClients)
-				client.second.isReady = false;
-			m_pLobbyScene->LobbySceneClear();
-			m_pScene->InGameSceneClear(m_pd3dDevice, m_pd3dCommandList);
+		for (auto& client : m_mapClients)
+			client.second.isReady = false;
+		m_pLobbyScene->LobbySceneClear();
+		m_pScene->InGameSceneClear(m_pd3dDevice, m_pd3dCommandList);
 
-			g_State = LOBBY;
-			cout << "Go Lobby" << endl;
-			break;
-		}
+		g_State = LOBBY;
+		cout << "Go Lobby" << endl;
+		break;
+	}
 	}
 }
 

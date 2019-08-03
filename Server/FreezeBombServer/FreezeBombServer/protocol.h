@@ -498,6 +498,7 @@ struct SC_PACKET_MOVE_POS
 	float pitch;
 	float yaw;
 	float roll;
+	float fVelocity;
 };
 
 struct SC_PACKET_PLAYER_ANIMATION

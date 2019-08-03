@@ -730,8 +730,14 @@ void Server::MovingThread(LPVOID arg)
 
 void Server::MovingThreadFunc()
 {
+	auto postTime = high_resolution_clock::now();
+	auto nowTime = high_resolution_clock::now();
 	while(true)
 	{
+		nowTime = high_resolution_clock::now();
+		if (nowTime - postTime < 16ms)
+			continue;
+		postTime = nowTime;
 		for (int i = 0; i < MAX_USER; ++i)
 		{
 			if (false == clients[i].in_use)
@@ -739,13 +745,12 @@ void Server::MovingThreadFunc()
 			if (true == clients[i].isRotating)
 			{
 				RotateClientAxisY(i);
-				SetPitchYawRollZero(i);
 			}
 			if (true == clients[i].isMoving)
 			{
 				UpdateClientPos(i);
 			}
-			
+			SetPitchYawRollZero(i);
 		}
 	}
 }
@@ -965,7 +970,8 @@ void Server::ProcessPacket(char client, char *packet)
 
 			SendPressUpKey(i, client);
 		}
-		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now() + 5s);
+		cout << "Key Down\n";
+		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now());
 		break;
 	}
 	case CS_DOWN_KEY:
@@ -979,7 +985,8 @@ void Server::ProcessPacket(char client, char *packet)
 
 			SendPressDownKey(i, client);
 		}
-		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now() + 5s);
+		cout << "Key Down\n";
+		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now());
 		break; 
 	}
 	case CS_LEFT_KEY:
@@ -993,7 +1000,8 @@ void Server::ProcessPacket(char client, char *packet)
 
 			SendPressLeftKey(i, client);
 		}
-		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now() + 5s);
+		cout << "Key Down\n";
+		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now());
 		break;
 	}
 	case CS_RIGHT_KEY:
@@ -1007,7 +1015,8 @@ void Server::ProcessPacket(char client, char *packet)
 
 			SendPressRightKey(i, client);
 		}
-		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now() + 5s);
+		cout << "Key Down\n";
+		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now());
 		break;
 	}
 	case CS_UPLEFT_KEY:
@@ -1022,7 +1031,8 @@ void Server::ProcessPacket(char client, char *packet)
 
 			SendPressUpLeftKey(i, client);
 		}
-		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now() + 5s);
+		cout << "Key Down\n";
+		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now());
 		break;
 	}
 	case CS_UPRIGHT_KEY:
@@ -1037,7 +1047,8 @@ void Server::ProcessPacket(char client, char *packet)
 
 			SendPressUpRightKey(i, client);
 		}
-		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now() + 5s);
+		cout << "Key Down\n";
+		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now());
 		break;
 	}
 	case CS_DOWNLEFT_KEY:
@@ -1052,7 +1063,8 @@ void Server::ProcessPacket(char client, char *packet)
 
 			SendPressDownLeftKey(i, client);
 		}
-		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now() + 5s);
+		cout << "Key Down\n";
+		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now());
 		break;
 	}
 	case CS_DOWNRIGHT_KEY:
@@ -1084,7 +1096,8 @@ void Server::ProcessPacket(char client, char *packet)
 		//		//SetVelocityZero(i);
 		//	}
 		//}
-		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now() + 5s);
+		cout << "Key Down\n";
+		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now());
 		break;
 	}
 	case CS_RELEASE_MOVEKEY:
@@ -1099,6 +1112,7 @@ void Server::ProcessPacket(char client, char *packet)
 				SendStopRunAnim(i, client);
 			}
 		}
+		cout << "Key Up\n";
 		break;
 	}
 	case CS_RELEASE_ROTATEKEY:
@@ -1109,9 +1123,9 @@ void Server::ProcessPacket(char client, char *packet)
 		{
 			if (false == clients[i].in_use)
 				continue;
-
 			SendStopRotate(i, client);
 		}
+		cout << "Key Up\n";
 		break;
 	}
 	case CS_OBJECT_COLLISION:
@@ -1817,10 +1831,12 @@ void Server::SendMovePos(char toClient, char fromClient)
 	packet.pitch = clients[fromClient].pitch;
 	packet.yaw = clients[fromClient].yaw;
 	packet.roll = clients[fromClient].roll;
+	packet.fVelocity = clients[fromClient].fVelocity;
 	packet.size = sizeof(SC_PACKET_MOVE_POS);
 	packet.type = SC_MOVE_POS;
 
 	SendFunc(toClient, &packet);
+	cout << "Client " << fromClient << "Pos : " << clients[fromClient].pos.x << ", " << clients[fromClient].pos.y << ", " << clients[fromClient].pos.z << "\n";
 }
 
 void Server::SendRemovePlayer(char toClient, char fromClient)
