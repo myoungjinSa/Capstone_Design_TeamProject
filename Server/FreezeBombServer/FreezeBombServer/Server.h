@@ -112,8 +112,8 @@ public:
 	XMFLOAT3 lastLookVector;
 	XMFLOAT3 lastUpVector;
 
-	bool isMoving;
-	bool isRotating;
+	volatile bool isMoving;
+	volatile bool isRotating;
 	
 	COLLISION_TYPE collision;
 	char score;
@@ -121,7 +121,7 @@ public:
 	char specialItem;
 	char role;
 	char matID;
-	bool isFreeze;			//얼음 상태인지 여부
+	volatile bool isFreeze;			//얼음 상태인지 여부
 	bool isMoveRotate;		//애니메이션이 반복해서 동작하는 문제를 해결하기 위한 변수
 	char nickname[32];
 	//wchar_t nickname[12];

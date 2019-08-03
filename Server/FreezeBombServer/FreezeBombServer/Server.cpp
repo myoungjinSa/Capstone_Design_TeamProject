@@ -439,6 +439,16 @@ void Server::TimerThreadFunc()
 			}
 		
 			EVENT_ST ev = timer_queue.top();
+
+			if (ev.type == EV_SENDMOVEPOS)
+			{
+				if (false == clients[ev.obj_id].isMoving && false == clients[ev.obj_id].isRotating)
+				{
+					timer_queue.pop();
+					timer_l.unlock();
+					break;
+				}
+			}
 	
 			// 시간 됐나 확인
 			if (ev.start_time > chrono::high_resolution_clock::now())
@@ -446,9 +456,11 @@ void Server::TimerThreadFunc()
 				timer_l.unlock();
 				break;
 			}
+			
 		
 			timer_queue.pop();
 			timer_l.unlock();
+			
 			OVER_EX *over_ex = new OVER_EX;
 			over_ex->event_t = ev.type;
 			PostQueuedCompletionStatus(iocp, 1, ev.obj_id, &over_ex->over);
@@ -647,9 +659,6 @@ void Server::WorkerThreadFunc()
 		}
 		else if (EV_SENDMOVEPOS == over_ex->event_t)
 		{
-			if (false == clients[key].isMoving && false == clients[key].isRotating)
-				continue;
-
 			for (int i = 0; i < MAX_USER; ++i)
 			{
 				if (false == clients[i].in_use)
@@ -658,7 +667,7 @@ void Server::WorkerThreadFunc()
 				SendMovePos(i, key);
 			}
 			cout << "MOVE POS 패킷 전송\n";
-			add_timer(key, EV_SENDMOVEPOS, high_resolution_clock::now() + 5s);
+			add_timer(key, EV_SENDMOVEPOS, high_resolution_clock::now() + 2s);
 		}
 		else if (EV_GO_NEXTROUND == over_ex->event_t)
 		{
@@ -961,6 +970,8 @@ void Server::ProcessPacket(char client, char *packet)
 	}
 	case CS_UP_KEY:
 	{
+		if (true == clients[client].isMoving)
+			break;
 		SetDirection(client, packet[1]);
 		clients[client].isMoving = true;
 		for (int i = 0; i < MAX_USER; ++i)
@@ -971,11 +982,15 @@ void Server::ProcessPacket(char client, char *packet)
 			SendPressUpKey(i, client);
 		}
 		cout << "Key Down\n";
+		if (true == clients[client].isRotating)
+			break;
 		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now());
 		break;
 	}
 	case CS_DOWN_KEY:
 	{
+		if (true == clients[client].isMoving)
+			break;
 		SetDirection(client, packet[1]);
 		clients[client].isMoving = true;
 		for (int i = 0; i < MAX_USER; ++i)
@@ -986,11 +1001,15 @@ void Server::ProcessPacket(char client, char *packet)
 			SendPressDownKey(i, client);
 		}
 		cout << "Key Down\n";
+		if (true == clients[client].isRotating)
+			break;
 		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now());
 		break; 
 	}
 	case CS_LEFT_KEY:
 	{
+		if (true == clients[client].isRotating)
+			break;
 		SetDirection(client, packet[1]);
 		clients[client].isRotating = true;
 		for (int i = 0; i < MAX_USER; ++i)
@@ -1001,11 +1020,15 @@ void Server::ProcessPacket(char client, char *packet)
 			SendPressLeftKey(i, client);
 		}
 		cout << "Key Down\n";
+		if (true == clients[client].isMoving)
+			break;
 		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now());
 		break;
 	}
 	case CS_RIGHT_KEY:
 	{
+		if (true == clients[client].isRotating)
+			break;
 		SetDirection(client, packet[1]);
 		clients[client].isRotating = true;
 		for (int i = 0; i < MAX_USER; ++i)
@@ -1016,14 +1039,14 @@ void Server::ProcessPacket(char client, char *packet)
 			SendPressRightKey(i, client);
 		}
 		cout << "Key Down\n";
+		if (true == clients[client].isMoving)
+			break;
 		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now());
 		break;
 	}
 	case CS_UPLEFT_KEY:
 	{
 		SetDirection(client, packet[1]);
-		clients[client].isMoving = true;
-		clients[client].isRotating = true;
 		for (int i = 0; i < MAX_USER; ++i)
 		{
 			if (false == clients[i].in_use)
@@ -1032,14 +1055,20 @@ void Server::ProcessPacket(char client, char *packet)
 			SendPressUpLeftKey(i, client);
 		}
 		cout << "Key Down\n";
+		if (true == clients[client].isMoving || true == clients[client].isRotating)
+		{
+			clients[client].isMoving = true;
+			clients[client].isRotating = true;
+			break;
+		}
+		clients[client].isMoving = true;
+		clients[client].isRotating = true;
 		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now());
 		break;
 	}
 	case CS_UPRIGHT_KEY:
 	{
 		SetDirection(client, packet[1]);
-		clients[client].isMoving = true;
-		clients[client].isRotating = true;
 		for (int i = 0; i < MAX_USER; ++i)
 		{
 			if (false == clients[i].in_use)
@@ -1048,14 +1077,20 @@ void Server::ProcessPacket(char client, char *packet)
 			SendPressUpRightKey(i, client);
 		}
 		cout << "Key Down\n";
+		if (true == clients[client].isMoving || true == clients[client].isRotating)
+		{
+			clients[client].isMoving = true;
+			clients[client].isRotating = true;
+			break;
+		}
+		clients[client].isMoving = true;
+		clients[client].isRotating = true;
 		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now());
 		break;
 	}
 	case CS_DOWNLEFT_KEY:
 	{
 		SetDirection(client, packet[1]);
-		clients[client].isMoving = true;
-		clients[client].isRotating = true;
 		for (int i = 0; i < MAX_USER; ++i)
 		{
 			if (false == clients[i].in_use)
@@ -1064,14 +1099,20 @@ void Server::ProcessPacket(char client, char *packet)
 			SendPressDownLeftKey(i, client);
 		}
 		cout << "Key Down\n";
+		if (true == clients[client].isMoving || true == clients[client].isRotating)
+		{
+			clients[client].isMoving = true;
+			clients[client].isRotating = true;
+			break;
+		}
+		clients[client].isMoving = true;
+		clients[client].isRotating = true;
 		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now());
 		break;
 	}
 	case CS_DOWNRIGHT_KEY:
 	{
 		SetDirection(client, packet[1]);
-		clients[client].isMoving = true;
-		clients[client].isRotating = true;
 		for (int i = 0; i < MAX_USER; ++i)
 		{
 			if (false == clients[i].in_use)
@@ -1079,24 +1120,15 @@ void Server::ProcessPacket(char client, char *packet)
 
 			SendPressDownRightKey(i, client);
 		}
-
-		//printf("Move Player ID: %d\tx: %f, y: %f, z: %f\n", client, x, y, z);
-		//for (int i = 0; i < MAX_USER; ++i)
-		//{
-		//	if (clients[i].in_use == true)
-		//	{
-		//		SendMovePlayer(i, client);
-		//		//한번 MovePacket을 보내고 난후 
-		//		//pitch,yaw,roll은 다시 0으로 바꿔줘야함.
-		//		//그렇지 않을경우 뱅글뱅글 돌게됨.
-		//		SetPitchYawRollZero(i);
-		//		//cout << "client " << (int)client << " : " << clients[client].pitch << ", " << clients[client].yaw << ", " << clients[client].roll << "\n";
-
-		//		//Idle 동작으로 변하게 하려면 
-		//		//SetVelocityZero(i);
-		//	}
-		//}
 		cout << "Key Down\n";
+		if (true == clients[client].isMoving || true == clients[client].isRotating)
+		{
+			clients[client].isMoving = true;
+			clients[client].isRotating = true;
+			break;
+		}
+		clients[client].isMoving = true;
+		clients[client].isRotating = true;
 		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now());
 		break;
 	}
