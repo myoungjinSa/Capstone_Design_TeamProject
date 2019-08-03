@@ -89,7 +89,7 @@ public:
 	void Sub_Inventory(int ItemType);
 	void ChangeRound();
 	void InventoryClear();
-
+	void RotateAxisY(const float& fTimeElapsed);
 	const map<string, CItem*> get_Special_Inventory()	const { return m_Special_Inventory; }
 	size_t get_Normal_InventorySize() const { return m_Normal_Inventory.size(); }
 	size_t get_Special_InventorySize() const { return m_Special_Inventory.size(); }
@@ -192,6 +192,6 @@ public:
 	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed);
 	virtual void OnCameraUpdateCallback(float fTimeElapsed);
-	void RotateAxisY(const float& fTimeElapsed);
+
 };
 

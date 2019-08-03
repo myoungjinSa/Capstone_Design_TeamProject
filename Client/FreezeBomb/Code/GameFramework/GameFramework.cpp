@@ -1262,7 +1262,7 @@ void CGameFramework::ProcessInput()
 				}
 #endif				
 				dwDirection |= DIR_LEFT;
-				m_pPlayer->SetDirection(dwDirection);
+				m_pPlayer->SetDirection(DIR_LEFT);
 			}
 			if (pKeysBuffer[VK_RIGHT] & 0xF0)
 			{
@@ -1274,7 +1274,7 @@ void CGameFramework::ProcessInput()
 				}
 #endif
 				dwDirection |= DIR_RIGHT;
-				m_pPlayer->SetDirection(dwDirection);
+				m_pPlayer->SetDirection(DIR_RIGHT);
 			}
 //서버와 연동되어 있지 않을때만 마우스 회전을 허용한다.
 #ifndef _WITH_SERVER_

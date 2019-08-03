@@ -235,19 +235,32 @@ void CPlayer::Update(float fTimeElapsed)
 
 	
 
-	if (m_dwDirection == DIR_FORWARD && m_bIce == false)
+	if (m_dwDirection == DIR_FORWARD 
+		&& m_bIce == false
+		&& m_bIsMoving == true)
 	{
-		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, m_fVelocityFromServer);
-
+		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, VELOCITY/*m_fVelocityFromServer*/);
+		Move(m_xmf3Velocity, false);
 	}
 
-	if (m_dwDirection == DIR_BACKWARD && m_bIce == false)
+	if (m_dwDirection == DIR_BACKWARD 
+		&& m_bIce == false
+		&& m_bIsMoving == true)
 	{
-		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -m_fVelocityFromServer);
+		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -VELOCITY/*-m_fVelocityFromServer*/);
+		Move(m_xmf3Velocity, false);
 	}
 
 
-	Move(m_xmf3Velocity, false);
+	#ifdef _WITH_SERVER_
+	if (m_bIsRotating == true) 
+	{
+		cout << "Rotate" << endl;
+		RotateAxisY(ROTATE_RATE);
+	}
+#else
+	RotateAxisY(fTimeElapsed);
+#endif
 	
 	m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_dwDirection = 0;
@@ -938,6 +951,42 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			
 //#endif
 }
+void CPlayer::RotateAxisY(const float& rate)
+{
+	XMFLOAT3& xmf3Look = m_xmf3Look;
+	XMFLOAT3& xmf3Right = m_xmf3Right;
+	XMFLOAT3& xmf3Up = m_xmf3Up;
+	if (m_dwDirection & DIR_RIGHT)
+	{
+		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3Right);
+
+		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
+
+
+
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(fAngle*rate));
+
+		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
+		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
+
+
+		SetDirection(0x00);
+	}
+	else if (m_dwDirection & DIR_LEFT)
+	{
+		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3Right);
+
+		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
+
+
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(-(fAngle*rate)));
+
+		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
+		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
+
+		SetDirection(0x00);
+	}
+}
 
 bool CPlayer::AnimationCollision(byte AnimationType)
 {
@@ -1051,48 +1100,10 @@ CTerrainPlayer::~CTerrainPlayer()
 {
 }
 
-void CTerrainPlayer::RotateAxisY(const float& rate)
-{
-	XMFLOAT3& xmf3Look = m_xmf3Look;
-	XMFLOAT3& xmf3Right = m_xmf3Right;
-	XMFLOAT3& xmf3Up = m_xmf3Up;
-	if (m_dwDirection & DIR_RIGHT)
-	{
-		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3Right);
-
-		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
-
-
-
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(fAngle*rate));
-
-		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-
-
-		SetDirection(0x00);
-	}
-	else if (m_dwDirection & DIR_LEFT)
-	{
-		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3Right);
-
-		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
-
-
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(-(fAngle*rate)));
-
-		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-
-		SetDirection(0x00);
-	}
-}
 
 void CTerrainPlayer::Animate(float fTimeElapsed)
 {
-#ifndef _WITH_SERVER_
-	RotateAxisY(fTimeElapsed);
-#endif
+
 	CGameObject::Animate(fTimeElapsed);
 }
 
