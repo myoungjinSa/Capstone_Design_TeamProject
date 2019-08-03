@@ -1162,6 +1162,7 @@ void CGameFramework::ProcessInput()
 				{
 					//#ifdef 을 선언하지 않으면 무조건 서버가 켜있지 않을경우 무한 대기에 빠짐
 #ifdef _WITH_SERVER_
+					cout << m_pPlayer->GetIsMoving() << "\n";
 					if (false == m_pPlayer->GetIsMoving())
 					{
 						Network::GetInstance()->SendUpKey();
@@ -1213,6 +1214,7 @@ void CGameFramework::ProcessInput()
 				{
 #ifdef _WITH_SERVER_
 					
+					cout << m_pPlayer->GetIsMoving() << "\n";
 					if (false == m_pPlayer->GetIsMoving())
 					{
 						Network::GetInstance()->SendDownKey();

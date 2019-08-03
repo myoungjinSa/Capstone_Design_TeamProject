@@ -239,7 +239,7 @@ void CPlayer::Update(float fTimeElapsed)
 		&& m_bIce == false
 		&& m_bIsMoving == true)
 	{
-		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, VELOCITY/*m_fVelocityFromServer*/);
+		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, VELOCITY * m_fVelocityFromServer);
 		Move(m_xmf3Velocity, false);
 	}
 
@@ -247,7 +247,7 @@ void CPlayer::Update(float fTimeElapsed)
 		&& m_bIce == false
 		&& m_bIsMoving == true)
 	{
-		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -VELOCITY/*-m_fVelocityFromServer*/);
+		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -VELOCITY * -m_fVelocityFromServer);
 		Move(m_xmf3Velocity, false);
 	}
 
@@ -255,7 +255,7 @@ void CPlayer::Update(float fTimeElapsed)
 	#ifdef _WITH_SERVER_
 	if (m_bIsRotating == true) 
 	{
-		cout << "Rotate" << endl;
+		//cout << "Rotate" << endl;
 		RotateAxisY(ROTATE_RATE);
 	}
 #else

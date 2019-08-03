@@ -4,8 +4,6 @@ mutex g_lock;
 Server::Server()
 {
 	round = 0;
-	recent_pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	player_pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	roundCurrTime = 0;
 	clientCount = 0;
 	hostId = -1;
@@ -246,7 +244,6 @@ void Server::LoadMapObjectInfo()
 
 void Server::RunServer()
 {
-	gameTimer.Start();
 	iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
 	for (int i = 0; i < MAX_USER; ++i)
 	{
@@ -268,8 +265,6 @@ void Server::RunServer()
 		//printf("Create Client ID: %d, PrevSize: %d, xPos: %d, yPos: %d, zPos: %d, xDir: %d, yDir: %d, zDir: %d\n", i, clients[i].prev_size, clients[i].xPos, clients[i].yPos, clients[i].zPos, clients[i].xDir, clients[i].yDir, clients[i].zDir);
 	}
 	heightMap = new CHeightMapImage("../../../Client/FreezeBomb/Resource/Textures/Terrain/Terrain.raw", 256, 256, XMFLOAT3(2.0f, 1.0f, 2.0f));
-	
-	gameTimer.Tick(60.0f);
 	
 	for (int i = 0; i < MAX_WORKER_THREAD; ++i)
 		workerThreads.emplace_back(thread{ WorkerThread, (LPVOID)this });
@@ -970,8 +965,12 @@ void Server::ProcessPacket(char client, char *packet)
 	}
 	case CS_UP_KEY:
 	{
+		cout << "Key Down\n";
 		if (true == clients[client].isMoving)
+		{
+			cout << "aleady moving!!\n";
 			break;
+		}
 		SetDirection(client, packet[1]);
 		clients[client].isMoving = true;
 		for (int i = 0; i < MAX_USER; ++i)
@@ -981,7 +980,6 @@ void Server::ProcessPacket(char client, char *packet)
 
 			SendPressUpKey(i, client);
 		}
-		cout << "Key Down\n";
 		if (true == clients[client].isRotating)
 			break;
 		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now());
@@ -989,8 +987,12 @@ void Server::ProcessPacket(char client, char *packet)
 	}
 	case CS_DOWN_KEY:
 	{
+		cout << "Key Down\n";
 		if (true == clients[client].isMoving)
+		{
+			cout << "aleady moving!!\n";
 			break;
+		}
 		SetDirection(client, packet[1]);
 		clients[client].isMoving = true;
 		for (int i = 0; i < MAX_USER; ++i)
@@ -1000,7 +1002,6 @@ void Server::ProcessPacket(char client, char *packet)
 
 			SendPressDownKey(i, client);
 		}
-		cout << "Key Down\n";
 		if (true == clients[client].isRotating)
 			break;
 		add_timer(client, EV_SENDMOVEPOS, high_resolution_clock::now());
@@ -1135,22 +1136,35 @@ void Server::ProcessPacket(char client, char *packet)
 	case CS_RELEASE_MOVEKEY:
 	{
 		clients[client].isMoving = false;
-		if (clients[client].fVelocity > 0)
+		for (int i = 0; i < MAX_USER; ++i)
 		{
+			if (false == clients[i].in_use)
+				continue;
+
+			SendMovePos(i, client);
+		}
+		//if (clients[client].fVelocity > 0)
+		//{
 			for (int i = 0; i < MAX_USER; ++i)
 			{
 				if (false == clients[i].in_use)
 					continue;
 				SendStopRunAnim(i, client);
 			}
-		}
+		//}
 		cout << "Key Up\n";
 		break;
 	}
 	case CS_RELEASE_ROTATEKEY:
 	{
 		clients[client].isRotating = false;
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (false == clients[i].in_use)
+				continue;
 
+			SendMovePos(i, client);
+		}
 		for (int i = 0; i < MAX_USER; ++i)
 		{
 			if (false == clients[i].in_use)
@@ -1170,8 +1184,8 @@ void Server::ProcessPacket(char client, char *packet)
 			pow(clients[client].pos.y - objects[round][p->objId].pos.y, 2) +
 			pow(clients[client].pos.z - objects[round][p->objId].pos.z, 2));
 
-		recent_objects = objects[round][p->objId]; //최근에 부딪힌 오브젝트를 저장한다.
-		recent_pos = objects[round][p->objId].pos;
+		clients[client].recent_objects = objects[round][p->objId]; //최근에 부딪힌 오브젝트를 저장한다.
+		clients[client].recent_pos = objects[round][p->objId].pos;
 
 
 
@@ -1185,9 +1199,9 @@ void Server::ProcessPacket(char client, char *packet)
 
 
 		//최근 검사한 recent_object와만 거리 검사를 실시
-		float dist = sqrt(pow(clients[client].pos.x - recent_objects.pos.x, 2) +
-			pow(clients[client].pos.y - recent_objects.pos.y, 2) +
-			pow(clients[client].pos.z - recent_objects.pos.z, 2));
+		float dist = sqrt(pow(clients[client].pos.x - clients[client].recent_objects.pos.x, 2) +
+			pow(clients[client].pos.y - clients[client].recent_objects.pos.y, 2) +
+			pow(clients[client].pos.z - clients[client].recent_objects.pos.z, 2));
 
 
 
@@ -1205,8 +1219,8 @@ void Server::ProcessPacket(char client, char *packet)
 			pow(clients[client].pos.y - clients[p->playerID].pos.y, 2) +
 			pow(clients[client].pos.z - clients[p->playerID].pos.z, 2));
 
-		recent_player = p->playerID;
-		player_pos = clients[recent_player].pos;
+		clients[client].recent_player = p->playerID;
+		clients[client].player_pos = clients[clients[client].recent_player].pos;
 
 		clients[client].collision = CL_PLAYER;
 
@@ -2270,34 +2284,30 @@ void Server::SetPitchYawRollZero(char client)
 }
 void Server::UpdateClientPos(char client)
 {
-	if (clients[client].direction == DIR_FORWARD)
+	clients[client].client_pos_l.lock();
+	DWORD direction = clients[client].direction;
+	XMFLOAT3 velocity = clients[client].velocity;
+	XMFLOAT3 pos = clients[client].pos;
+	clients[client].client_pos_l.unlock();
+
+	if (direction == DIR_FORWARD)
 	{
-		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY);
+		velocity = Vector3::Add(velocity, clients[client].look, VELOCITY);
 
 	}
-	if (clients[client].direction == DIR_BACKWARD)
+	if (direction == DIR_BACKWARD)
 	{
-		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -VELOCITY);
+		velocity = Vector3::Add(velocity, clients[client].look, -VELOCITY);
 	}
-	/*if (clients[client].direction == DIR_LEFT 
-		|| clients[client].direction == DIR_RIGHT
-		|| clients[client].direction == DIR_FORWARDRIGHT
-		|| clients[client].direction == DIR_FORWARDLEFT
-		|| clients[client].direction == DIR_BACKRIGHT
-		|| clients[client].direction == DIR_BACKLEFT)
-	{
-		RotateClientAxisY(client);
-	}*/
-
-	//clients[client].velocity = Vector3::Add(clients[client].velocity, gravity);//gravity가 초기화가 안되서 쓰레기값?
-	//	cout << clients[client].velocity.x<<","<<clients[client].velocity.y<<","<<clients[client].velocity.z << "\n";
-	float fLength = sqrtf(clients[client].velocity.x * clients[client].velocity.x + clients[client].velocity.z * clients[client].velocity.z);
+	//velocity = Vector3::Add(velocity, gravity);//gravity가 초기화가 안되서 쓰레기값?
+	//	cout << velocity.x<<","<<velocity.y<<","<<velocity.z << "\n";
+	float fLength = sqrtf(velocity.x * velocity.x + velocity.z * velocity.z);
 	
 	// 속도 보정
 	if (fLength > MAX_VELOCITY_XZ)
 	{
-		clients[client].velocity.x *= (MAX_VELOCITY_XZ / fLength);
-		clients[client].velocity.z *= (MAX_VELOCITY_XZ / fLength);
+		velocity.x *= (MAX_VELOCITY_XZ / fLength);
+		velocity.z *= (MAX_VELOCITY_XZ / fLength);
 	}
 	
 	switch (clients[client].collision)
@@ -2309,23 +2319,23 @@ void Server::UpdateClientPos(char client)
 	case CL_SURROUNDING:
 	{
 	
-		XMFLOAT3 xmf3CollisionDir = Vector3::Subtract(recent_pos, clients[client].pos);
+		XMFLOAT3 xmf3CollisionDir = Vector3::Subtract(clients[client].recent_pos, pos);
 		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, VELOCITY );
-		clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
+		velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
 		
 		break;
 	}
 	case CL_PLAYER:
 	{
 		XMFLOAT3 xmf3CollisionDir = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		switch (clients[client].direction)
+		switch (direction)
 		{
 		case DIR_BACKWARD:
 		case DIR_BACKLEFT:
 		case DIR_BACKRIGHT:
 		{
 			xmf3CollisionDir= Vector3::Add(
-				Vector3::Subtract(player_pos, clients[client].pos),
+				Vector3::Subtract(clients[client].player_pos, pos),
 				Vector3::ScalarProduct(clients[client].look, -1.0f)
 			);
 			break;
@@ -2334,14 +2344,14 @@ void Server::UpdateClientPos(char client)
 		case DIR_FORWARDLEFT:
 		case DIR_FORWARDRIGHT:
 		{
-			xmf3CollisionDir = Vector3::Add(Vector3::Subtract(player_pos,clients[client].pos),clients[client].look);
+			xmf3CollisionDir = Vector3::Add(Vector3::Subtract(clients[client].player_pos,pos),clients[client].look);
 			break;
 		}
 
 		}
 		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir,VELOCITY );
-		clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
-		//cout << "충돌 속도" << clients[client].velocity.x << "," << clients[client].velocity.y << "," << clients[client].velocity.z << endl;
+		velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
+		//cout << "충돌 속도" << velocity.x << "," << velocity.y << "," << velocity.z << endl;
 		break;
 	}
 	default :
@@ -2349,35 +2359,38 @@ void Server::UpdateClientPos(char client)
 		break;
 	}
 	
-	clients[client].pos = Vector3::Add(clients[client].pos, clients[client].velocity);
-	
+	clients[client].client_pos_l.lock();
+	clients[client].pos = Vector3::Add(pos, velocity);
+	clients[client].direction = direction;
 
 	//ProcessFriction 함수 호출 필요없어 보임 - 여기서밖에 쓰이지 않아서 함수로 만들 필요가 없어보임 (함수 호출이 비효율적이지 않을까)
-	fLength = Vector3::Length(clients[client].velocity);
+	fLength = Vector3::Length(velocity);
 	float fDeclaration = FRICTION;
 
 	if (fDeclaration > fLength)
 	{
 		fDeclaration = fLength;
-		clients[client].velocity = Vector3::Add(clients[client].velocity, Vector3::ScalarProduct(clients[client].velocity, -fDeclaration, true));
+		velocity = Vector3::Add(velocity, Vector3::ScalarProduct(velocity, -fDeclaration, true));
 	}
 	//ProcessFriction(client, fLength);
 
 	//속도를 클라에게 보내주어 클라에서 기본적인 rUn,Backward,애니메이션을 결정하게 하기 위해.
+	clients[client].velocity = velocity;
 	clients[client].fVelocity = fLength;
+	clients[client].client_pos_l.unlock();
 }
 
 void Server::RotateClientAxisY(char client)
 {
-	
-	XMFLOAT3& xmf3Look = clients[client].look;
-	XMFLOAT3& xmf3Right = clients[client].right;
-	XMFLOAT3& xmf3Up = clients[client].up;
-
+	clients[client].client_rotate_l.lock();
+	XMFLOAT3 xmf3Look = clients[client].look;
+	XMFLOAT3 xmf3Right = clients[client].right;
+	XMFLOAT3 xmf3Up = clients[client].up;
 	
 	clients[client].lastLookVector = xmf3Look;
 	clients[client].lastRightVector = xmf3Right;
 	clients[client].lastUpVector = xmf3Up;
+	clients[client].client_rotate_l.unlock();
 
 	bool isMoveRotate{ false };
 
@@ -2396,8 +2409,10 @@ void Server::RotateClientAxisY(char client)
 		float czDelta = xmf3Look.z - clients[client].lastLookVector.z;
 
 
+		clients[client].client_rotate_l.lock();
 		RotateModel(client, 0.0f, fAngle * ROTATE_RATE , 0.0f);
-		
+		clients[client].client_rotate_l.unlock();
+
 	}
 	if (clients[client].direction & DIR_LEFT)
 	{
@@ -2411,8 +2426,10 @@ void Server::RotateClientAxisY(char client)
 
 		float czDelta = xmf3Look.z - clients[client].lastLookVector.z;
 
+		clients[client].client_rotate_l.lock();
 		RotateModel(client, 0.0f, -fAngle * ROTATE_RATE, 0.0f);
-		
+		clients[client].client_rotate_l.unlock();
+
 	}
 	if (clients[client].direction & DIR_FORWARDRIGHT )
 	{	
@@ -2439,9 +2456,12 @@ void Server::RotateClientAxisY(char client)
 	xmf3Right = Vector3::CrossProduct(xmf3Up, xmf3Look, true);
 	xmf3Up = Vector3::CrossProduct(xmf3Look, xmf3Right, true);
 
+	clients[client].client_rotate_l.lock();
 	clients[client].look = xmf3Look;
 	clients[client].right = xmf3Right;
 	clients[client].up = xmf3Up;
+	clients[client].client_rotate_l.unlock();
+	
 	clients[client].isMoveRotate = isMoveRotate;
 	//cout << "LOOK client " << (int)client << " : " << clients[client].look.x << ", " << 
 	//	clients[client].look.y << ", "<<clients[client].look.z << "\n";
