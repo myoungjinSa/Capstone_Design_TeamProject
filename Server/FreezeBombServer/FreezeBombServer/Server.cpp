@@ -1062,9 +1062,11 @@ void Server::ProcessPacket(char client, char *packet)
 			if (clients[i].in_use == false)
 				continue;
 		
-			SendPlayerAnimation(i, client);						
+			SendPlayerAnimation(i, client);
+			
 		}
 
+		//cout << (int)p->animation << "\n";
 		break;
 	}
 	case CS_GET_ITEM:

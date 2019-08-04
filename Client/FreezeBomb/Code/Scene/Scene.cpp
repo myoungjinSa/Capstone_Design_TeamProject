@@ -912,15 +912,25 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 		{
 			CItemShader* pItemShader = dynamic_cast<CItemShader*>((*iter).second);
 			for (auto iter2 = pItemShader->getItemList().begin(); iter2 != pItemShader->getItemList().end(); ++iter2)
-			{		
+			{
+				
 				if ((*iter2).second->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
 				{
+					/*cout <<"플레이어:"<< m_pPlayer->GetBoundingBox().Extents.x << "," << m_pPlayer->GetBoundingBox().Extents.y << "," << m_pPlayer->GetBoundingBox().Extents.z << "\n";
+					cout << "아이템:" << (*iter2).second->GetBoundingBox().Extents.x << "," << (*iter2).second->GetBoundingBox().Extents.y << "," << (*iter2).second->GetBoundingBox().Extents.z << "\n";
+*/
+					//(*iter2).second->SetObjectCollided(m_pPlayer);
+					//m_pPlayer->SetObjectCollided((*iter2).second);
+					//cout <<"플레이어:"<< m_pPlayer->GetBoundingBox().Extents.x << "," << m_pPlayer->GetBoundingBox().Extents.y << "," << m_pPlayer->GetBoundingBox().Extents.z << "\n";
+					//cout << "아이템:" << (*iter2).second->GetBoundingBox().Extents.x << "," << (*iter2).second->GetBoundingBox().Extents.y << "," << (*iter2).second->GetBoundingBox().Extents.z << "\n";
 					int itemType = CItem::ItemType::Empty;
 					MappingItemStringToItemType((*iter2).first,itemType);
 					if (CheckPlayerInventory(itemType)) 
 					{
 						CSoundSystem::PlayingSound(CSoundSystem::GET_ITEM);
-#ifdef _WITH_SERVER_					
+#ifdef _WITH_SERVER_
+					//if(CheckPlayerInventory((*iter2).second))
+					
 						Network::GetInstance()->SendGetItem((*iter2).first);
 
 						// 클라이언트 단에서 지우는 이유는

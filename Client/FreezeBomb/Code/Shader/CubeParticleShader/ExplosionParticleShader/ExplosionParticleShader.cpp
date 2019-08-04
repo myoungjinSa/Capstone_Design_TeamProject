@@ -138,7 +138,6 @@ void CExplosionParticleShader::ReleaseObjects()
 	}
 	m_ExplosionParticleList.clear();
 }
-
 void CExplosionParticleShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
 	UpdateShaderVariables(pd3dCommandList);

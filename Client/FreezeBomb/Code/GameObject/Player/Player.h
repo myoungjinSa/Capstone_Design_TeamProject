@@ -123,12 +123,9 @@ public:
 	
 	void SetCollision(bool collision) { m_bCollision = collision; }
 	bool GetCollision() { return m_bCollision; }
-
-	void SetAnimation(int animation);
-	void ProcessAnimation(float fLength, const float& elapsedTime);
-	void ProcessRoundEnd();
-
 protected:
+
+	
 	XMFLOAT3					m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3					m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	XMFLOAT3					m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
@@ -171,9 +168,6 @@ protected:
 
 	//주인공 아이디
 	char			m_pPlayerID;
-
-	static bool m_IsRun;
-	static unsigned int m_IdleCount;
 };
 
 class CSoundSystem;
