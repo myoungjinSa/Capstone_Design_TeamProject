@@ -124,10 +124,8 @@ public:
 	void SetCollision(bool collision) { m_bCollision = collision; }
 	bool GetCollision() { return m_bCollision; }
 
-	bool SynchronizeAnimation();
 	void SetAnimation(int animation);
 	void ProcessAnimation(float fLength, const float& elapsedTime);
-	void ProcessRoundStart();
 	void ProcessRoundEnd();
 
 protected:

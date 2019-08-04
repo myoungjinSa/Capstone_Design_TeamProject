@@ -62,8 +62,6 @@ extern volatile bool g_IsloadingStart;
 
 unsigned char g_Round = 0;
 
-bool g_IsRoundEnd = false;
-
 #ifdef _WITH_SERVER_
 //extern volatile bool g_LoginFinished;
 volatile HWND g_hWnd;
@@ -1421,28 +1419,39 @@ void CGameFramework::ProcessDirect2D()
 #endif
 
 #ifdef _WITH_SERVER_
+
+void CGameFramework::ShowCurrentBomber()
+{
+
+	
+
+}
 void CGameFramework::ResetAnimationForRoundStart()
 {
 	if (m_pPlayer) 
 	{
-		m_pPlayer->ProcessRoundStart();
-		//m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
-		//m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
-		//m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
-	}
+		m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
+		m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+		m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
 
+	}
 	if (m_pScene)
 	{
 		auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 
 		if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 		{
+
+			//vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+			
+
 			for (auto enemyID : m_mapClients)
 			{
-				(*iter).second->m_ppObjects[enemyID.first]->m_pAnimationController->SetTrackPosition(0, 0.0f);
 				(*iter).second->m_ppObjects[enemyID.first]->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
 				(*iter).second->m_ppObjects[enemyID.first]->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+				(*iter).second->m_ppObjects[enemyID.first]->m_pAnimationController->SetTrackPosition(0, 0.0f);
 			}
+
 		}
 	}
 }
@@ -1636,6 +1645,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		m_pScene->SetBomberID(pRS->bomberID);
 
+		//애니메이션 리셋
 		ResetAnimationForRoundStart();
 
 		//라운드가 시작할 때 마다 플레이어의 아이템 소지를 모두 초기화 시켜야한다.
@@ -1741,7 +1751,8 @@ void CGameFramework::ProcessPacket(char* packet)
 			dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->ResetParticles();
 		}
 
-		g_IsRoundEnd = false;
+		printf("Round Start! Bomber is %d\n", m_mapClients[pRS->bomberID].id);
+
 		break;
 	}
 
@@ -2011,9 +2022,6 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		// 점수로 순위 정렬
 		m_pScene->SortInGameRank();
-
-		// 라운드가 끝났음을 표시
-		g_IsRoundEnd = true;
 		break;
 	}
 
