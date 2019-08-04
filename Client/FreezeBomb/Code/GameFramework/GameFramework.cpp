@@ -1425,10 +1425,10 @@ void CGameFramework::ResetAnimationForRoundStart()
 {
 	if (m_pPlayer) 
 	{
-		m_pPlayer->ProcessRoundStart();
-		//m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
-		//m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
-		//m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
+		//m_pPlayer->ProcessRoundStart();
+		m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
+		m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+		m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
 	}
 
 	if (m_pScene)
@@ -1876,20 +1876,20 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		if (pPA->id == m_pPlayer->GetPlayerID())
 		{	
-			m_pPlayer->SetAnimation(pPA->animation);
-			//if (pPA->animation == CAnimationController::VICTORY)
-			//{
-			//	if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE)
-			//	{
-			//		m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
-			//		m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
-			//	}
-			//}
-			//else
-			//{
-			//	m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
-			//	m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);		
-			//}
+			//m_pPlayer->SetAnimation(pPA->animation);
+			if (pPA->animation == CAnimationController::VICTORY)
+			{
+				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE)
+				{
+					m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
+					m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
+				}
+			}
+			else
+			{
+				m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
+				m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);		
+			}
 		}
 		else if (pPA->id < MAX_USER)
 		{
@@ -1991,16 +1991,16 @@ void CGameFramework::ProcessPacket(char* packet)
 	{
 		SC_PACKET_ROUND_END *pRE = reinterpret_cast<SC_PACKET_ROUND_END*>(packet);		
 		
-		if (m_pPlayer != nullptr)
-			m_pPlayer->ProcessRoundEnd();
+		//if (m_pPlayer != nullptr)
+		//	m_pPlayer->ProcessRoundEnd();
 
-		//if (m_pPlayer && m_pPlayer->GetIsBomb() == false)
-		//{
-		//	m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::VICTORY);
-		//	m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::VICTORY);
-		//	Network::GetInstance()->SendAnimationState(CAnimationController::VICTORY);
-		//	m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
-		//}
+		if (m_pPlayer && m_pPlayer->GetIsBomb() == false)
+		{
+			m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::VICTORY);
+			m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::VICTORY);
+			Network::GetInstance()->SendAnimationState(CAnimationController::VICTORY);
+			m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
+		}
 
 		// 점수 기록
 		for (int i = 0; i < MAX_USER; ++i)

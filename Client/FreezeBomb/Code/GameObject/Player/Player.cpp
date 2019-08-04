@@ -265,8 +265,8 @@ void CPlayer::Update(float fTimeElapsed)
 	//std::cout <<"서버에서 받은 속도: "<< m_fVelocityFromServer << "\n";
 	if (Network::GetInstance()->GetConnectState() == Network::CONNECT_STATE::OK) 
 	{
-		//DecideAnimationState(m_fVelocityFromServer, fTimeElapsed);
-		ProcessAnimation(m_fVelocityFromServer, fTimeElapsed);
+		DecideAnimationState(m_fVelocityFromServer, fTimeElapsed);
+		//ProcessAnimation(m_fVelocityFromServer, fTimeElapsed);
 	}
 
 #endif
@@ -866,7 +866,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			}	
 		}
 	}
-#ifndef _WITH_SERVER_
+#ifdef _WITH_SERVER_
 	//// 폭탄이 있을 때,
 	if (m_bBomb == true)
 	{
@@ -886,12 +886,12 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 							&& explosionIter != m_pShaderManager->getShaderMap().end())
 						{
 							// 폭탄 터지는 애니메이션
-							m_BombParticle = reinterpret_cast<CBombParticleShader*>((*bomb).second)->getBomb();
+							m_BombParticle = reinterpret_cast<CBombParticleShader*>((*iter2).second)->getBomb();
 							m_BombParticle->SetPosition(m_xmf3Position.x, m_xmf3Position.y, m_xmf3Position.z);
 							m_BombParticle->setIsBlowing(true);
 
 							// 폭탄 파티클이 터지는 애니메이션
-							reinterpret_cast<CExplosionParticleShader*>((*particle).second)->SetParticleBlowUp(m_xmf3Position);
+							reinterpret_cast<CExplosionParticleShader*>((*explosionIter).second)->SetParticleBlowUp(m_xmf3Position);
 
 							// DIE 애니메이션으로 설정
 							pController->SetTrackPosition(0, 0.0f);
@@ -992,7 +992,8 @@ void CPlayer::ProcessAnimation(float fLength, const float& elapsedTime)
 		{
 			m_IsRun = false;
 			m_IdleCount++;
-			Network::GetInstance()->SendAnimationState(CAnimationController::IDLE);			
+			//Network::GetInstance()->SendAnimationState(CAnimationController::IDLE);			
+			cout << "IDLE" << endl;
 		}
 #else
 		if (m_pAnimationController->GetAnimationState() == CAnimationController::RUNFAST)
@@ -1295,9 +1296,11 @@ void CPlayer::ProcessAnimation(float fLength, const float& elapsedTime)
 
 void CPlayer::ProcessRoundStart()
 {
-	m_IsRun = false;
-	++m_IdleCount;
-	// 라운드가 시작하면, IDLE 애니메이션을 서버에게 보냄
+	m_IsRun = true;
+	m_IdleCount = 0;
+	//m_IsRun = false;
+	//++m_IdleCount;
+	//// 라운드가 시작하면, IDLE 애니메이션을 서버에게 보냄
 	Network::GetInstance()->SendAnimationState(CAnimationController::ANIMATIONTYPE::IDLE);
 }
 
@@ -1334,9 +1337,6 @@ void CPlayer::ProcessRoundEnd()
 	// 술래가 아닐 때,
 	else if (m_bBomb == false && m_pShaderManager != nullptr)
 		Network::GetInstance()->SendAnimationState(CAnimationController::ANIMATIONTYPE::VICTORY);
-
-	m_IsRun = true;
-	m_IdleCount = 0;
 }
 
 CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, int matID, void *pContext)
