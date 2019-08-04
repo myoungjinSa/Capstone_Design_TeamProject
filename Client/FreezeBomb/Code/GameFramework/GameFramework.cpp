@@ -1923,7 +1923,8 @@ void CGameFramework::ProcessPacket(char* packet)
 			
 				if ((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::RAISEHAND
 					|| (CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::DIE
-					|| (CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::USEGOLDHAMMER)
+					|| (CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::USEGOLDHAMMER
+					|| (CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::ATTACK)
 				{
 					(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackPosition(0, 0.0f);
 				}
