@@ -21,12 +21,14 @@ public:
 
 	void TimerUpdate();
 
+
+
 	static void setTimer(float timer);
 	static float getTimer() { return m_Timer; }
 
 	static void setReduceTimer(float value);
 
-	static void CompareServerTimeAndSet(float timer) { m_Timer = timer; }
+	static void ServerTimeAndSet(float timer) { m_Timer = timer; }
 
 private:
 	enum UIType { OneSec, TenSec, OneMin, Colon };
@@ -37,6 +39,8 @@ private:
 
 	// √ ¥‹¿ß
 	static float m_Timer;
+
+	
 
 	int		m_Sec = 0;
 	int		m_TenSec = 0;

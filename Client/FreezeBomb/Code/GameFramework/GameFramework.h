@@ -1,5 +1,5 @@
 #pragma once
-
+#include <chrono>
 #include "../GameTimer/GameTimer.h"
 #include "../Network/Network.h"
 
@@ -90,6 +90,9 @@ public:
 	bool IsHangeul() { return m_bHangeul; }
 	void SetHangeul(bool han) { m_bHangeul = han; }
 
+	//얼음으로 변해도 되는 시간인지 검사하는 함수
+	void CheckIceChangeOk();
+
 #ifdef _MAPTOOL_MODE_
 	void OnMapToolInputMesseage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 #endif	
@@ -99,7 +102,11 @@ public:
 	bool IsInGame(); 
 public:
 	static enum STAGE {ROUND_1,ROUND_2,ROUND_3};
-
+	std::chrono::steady_clock::time_point m_RoundStartTime;
+	std::chrono::steady_clock::time_point m_RoundCountTime;
+	
+	//ice로 변하는게 가능한지 여부의 bool변수
+	static bool m_IceChangeOk;
 private:
 	HINSTANCE						m_hInstance;
 	HWND							m_hWnd;
@@ -164,6 +171,8 @@ private:
 
 	CSobelCartoonShader*		m_pCartoonShader{ nullptr };
 	static map<int, clientsInfo>	m_mapClients;
+
+	
 
 #ifdef _WITH_DIRECT2D_
 	ID3D11On12Device				*m_pd3d11On12Device{ nullptr };//
