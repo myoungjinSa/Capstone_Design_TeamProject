@@ -1064,7 +1064,6 @@ void Server::ProcessPacket(char client, char *packet)
 		
 			SendPlayerAnimation(i, client);						
 		}
-
 		break;
 	}
 	case CS_GET_ITEM:

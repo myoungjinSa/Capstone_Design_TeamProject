@@ -19,6 +19,7 @@
 
 extern byte g_PlayerCharacter;
 extern int g_State;
+extern bool g_IsRoundEnd;
 
 bool CPlayer::m_IsRun = false;
 unsigned int CPlayer::m_IdleCount = 0;
@@ -551,7 +552,8 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		{
 			
 			m_IsRun = false;
-			Network::GetInstance()->SendAnimationState(CAnimationController::IDLE);
+			
+
 			m_IdleCount++;
 			SetTrackAnimationSet(0, CAnimationController::IDLE);
 			m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
@@ -943,8 +945,26 @@ void CPlayer::ChangeRole()
 	m_bBomb = !m_bBomb;
 }
 
+bool CPlayer::SynchronizeAnimation()
+{
+	// 라운드가 끝났을 때, 다른 애니메이션이 되는 것을 방지하기 위해
+	if (g_IsRoundEnd == true)
+	{
+		// 애니메이션 동기화
+		if (m_pAnimationController->GetAnimationState() == CAnimationController::ANIMATIONTYPE::DIE)
+			return false;
+	}
+
+	return true;
+}
+
 void CPlayer::SetAnimation(int animation)
 {
+	bool sync = SynchronizeAnimation();
+	
+	if (sync == false)
+		return;
+
 	m_pAnimationController->SetTrackPosition(0, 0.0f);
 	m_pAnimationController->SetTrackAnimationSet(0, (CAnimationController::ANIMATIONTYPE)animation);
 	m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)animation);
@@ -1273,6 +1293,14 @@ void CPlayer::ProcessAnimation(float fLength, const float& elapsedTime)
 #endif
 }
 
+void CPlayer::ProcessRoundStart()
+{
+	m_IsRun = false;
+	++m_IdleCount;
+	// 라운드가 시작하면, IDLE 애니메이션을 서버에게 보냄
+	Network::GetInstance()->SendAnimationState(CAnimationController::ANIMATIONTYPE::IDLE);
+}
+
 void CPlayer::ProcessRoundEnd()
 {
 	// 술래였을 때,
@@ -1294,37 +1322,21 @@ void CPlayer::ProcessRoundEnd()
 		// 폭탄 파티클이 터지는 애니메이션
 		reinterpret_cast<CExplosionParticleShader*>((*particle).second)->SetParticleBlowUp(m_xmf3Position);
 
-		// DIE 애니메이션으로 설정
-		//pController->SetTrackPosition(0, 0.0f);
-		//pController->SetTrackAnimationSet(0, CAnimationController::DIE);
-		//pController->SetAnimationState(CAnimationController::DIE);
-
 		// 서버에게 폭탄이터졌다고 전송
 		Network::GetInstance()->SendBombExplosion();
 		// 서버에게 DIE 애니메이션 전송
 		Network::GetInstance()->SendAnimationState(CAnimationController::ANIMATIONTYPE::DIE);
 		
-		m_IsRun = true;
-		m_IdleCount = 0;
-
 		// 폭탄을 없앤다.
 		m_bBomb = false;
 	}
 
 	// 술래가 아닐 때,
 	else if (m_bBomb == false && m_pShaderManager != nullptr)
-	{
-		//CAnimationController* pController = m_pAnimationController;
-		//if (pController == nullptr)
-		//	return;
-
-		// VICTORY 애니메이션으로 설정
-		//pController->SetTrackAnimationSet(0, CAnimationController::VICTORY);
-		//pController->SetAnimationState(CAnimationController::VICTORY);
-		//m_pAnimationController->SetTrackPosition(0, 0.0f);
-
 		Network::GetInstance()->SendAnimationState(CAnimationController::ANIMATIONTYPE::VICTORY);
-	}
+
+	m_IsRun = true;
+	m_IdleCount = 0;
 }
 
 CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, int matID, void *pContext)

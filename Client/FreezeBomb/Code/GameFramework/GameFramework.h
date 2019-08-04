@@ -61,13 +61,11 @@ public:
 	void CreateDepthStencilView();
 	
 #ifdef _WITH_SERVER_
-	//Network*getNetwork() { return &m_Network; }
 	CLoginScene* GetLoginScene()const { return m_pLoginScene; }
 	void ProcessPacket(char *ptr);
 	void ResetAnimationForRoundStart();
 	//void InitializeIPSystem();
 	void ProcessLogin();
-	void ShowCurrentBomber();
 #endif
 	void ChangeSwapChainState();
 
