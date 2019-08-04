@@ -1186,21 +1186,16 @@ void CGameFramework::ProcessInput()
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
 					)
 				{
-#ifdef _WITH_SERVER_
-					
-				
+#ifdef _WITH_SERVER_			
 					Network::GetInstance()->SendDownKey();
 					if(GetAsyncKeyState(VK_RIGHT) & 0x8000)
 					{
-						Network::GetInstance()->SendDownRightKey();
-					
+						Network::GetInstance()->SendDownRightKey();					
 					}
 					if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 					{
-						Network::GetInstance()->SendDownLeftKey();
-						
-					}
-					
+						Network::GetInstance()->SendDownLeftKey();					
+					}				
 #endif
 					dwDirection |= DIR_BACKWARD;
 					m_pPlayer->SetDirection(dwDirection);
@@ -1888,28 +1883,24 @@ void CGameFramework::ProcessPacket(char* packet)
 
 	case SC_ANIMATION_INFO:
 	{
-		SC_PACKET_PLAYER_ANIMATION *pPA = reinterpret_cast<SC_PACKET_PLAYER_ANIMATION*>(packet);
-		//cout <<"애니메이션 주최:" <<(int)pPA->id << "\n";
-		if (pPA->id == m_pPlayer->GetPlayerID())
-		{
-			
-			if (pPA->animation == CAnimationController::VICTORY)
-			{
-				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE)
-				{
-					m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
-					m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
-				}
-			}
-			else
-			{
-				m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
-				m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
-			
-			}
+		SC_PACKET_PLAYER_ANIMATION* pPA = reinterpret_cast<SC_PACKET_PLAYER_ANIMATION*>(packet);
 
-			//cout <<"애니메이션 : "<<(int)pPA->animation << "\n";
-			//m_pPlayer->SetMoveRotate(false);
+		if (pPA->id == m_pPlayer->GetPlayerID())
+		{	
+			m_pPlayer->SetAnimation(pPA->animation);
+			//if (pPA->animation == CAnimationController::VICTORY)
+			//{
+			//	if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE)
+			//	{
+			//		m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
+			//		m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
+			//	}
+			//}
+			//else
+			//{
+			//	m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
+			//	m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);		
+			//}
 		}
 		else if (pPA->id < MAX_USER)
 		{
@@ -2009,20 +2000,18 @@ void CGameFramework::ProcessPacket(char* packet)
 
 	case SC_ROUND_END:
 	{
-		SC_PACKET_ROUND_END *pRE = reinterpret_cast<SC_PACKET_ROUND_END*>(packet);
-		if (pRE->isWinner)
-			printf("Win!\n");
-		else
-			printf("Lose..\n");
+		SC_PACKET_ROUND_END *pRE = reinterpret_cast<SC_PACKET_ROUND_END*>(packet);		
 		
-		
-		if (m_pPlayer && m_pPlayer->GetIsBomb() == false)
-		{
-			m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::VICTORY);
-			m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::VICTORY);
-			Network::GetInstance()->SendAnimationState(CAnimationController::VICTORY);
-			m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
-		}
+		if (m_pPlayer != nullptr)
+			m_pPlayer->ProcessRoundEnd();
+
+		//if (m_pPlayer && m_pPlayer->GetIsBomb() == false)
+		//{
+		//	m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::VICTORY);
+		//	m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::VICTORY);
+		//	Network::GetInstance()->SendAnimationState(CAnimationController::VICTORY);
+		//	m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
+		//}
 
 		// 점수 기록
 		for (int i = 0; i < MAX_USER; ++i)
@@ -2118,10 +2107,10 @@ void CGameFramework::ProcessPacket(char* packet)
 		}
 		break;
 	}
+
 	case SC_GET_ITEM:
 	{
 		SC_PACKET_GET_ITEM *pGI = reinterpret_cast<SC_PACKET_GET_ITEM *>(packet);
-
 
 		if (pGI->id == m_pPlayer->GetPlayerID() && m_pScene != nullptr)
 		{
@@ -2198,6 +2187,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		break;
 	}
+
 	case SC_USE_ITEM:
 	{
 		SC_PACKET_USE_ITEM *pUI = reinterpret_cast<SC_PACKET_USE_ITEM*>(packet);
@@ -2388,6 +2378,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		break;
 	}
+
 	case SC_BOMB_EXPLOSION:
 	{
 		SC_PACKET_BOMB_EXPLOSION *pBE = reinterpret_cast<SC_PACKET_BOMB_EXPLOSION*>(packet);
@@ -2406,14 +2397,13 @@ void CGameFramework::ProcessPacket(char* packet)
 
 				pBomb->SetPosition((*enemyIter).second->m_ppObjects[id]->GetPosition());
 				pBomb->setIsBlowing(true);
-
-			//	dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetBlowingUp(true);
 				
 				dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetParticleBlowUp(pBomb->GetPosition());
 			}
 		}
 		break;
 	}
+
 	case SC_ROLE_CHANGE:
 	{
 		SC_PACKET_ROLE_CHANGE *pRC = reinterpret_cast<SC_PACKET_ROLE_CHANGE*>(packet);
@@ -2464,6 +2454,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		break;
 	}
+
 		case SC_GO_LOBBY:
 		{
 			SC_PACKET_GO_LOBBY *pGL = reinterpret_cast<SC_PACKET_GO_LOBBY *>(packet);

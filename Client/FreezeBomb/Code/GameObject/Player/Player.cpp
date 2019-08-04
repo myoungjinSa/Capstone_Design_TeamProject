@@ -20,6 +20,9 @@
 extern byte g_PlayerCharacter;
 extern int g_State;
 
+bool CPlayer::m_IsRun = false;
+unsigned int CPlayer::m_IdleCount = 0;
+
 CPlayer::CPlayer()
 {
 	m_pCamera = NULL;
@@ -261,8 +264,10 @@ void CPlayer::Update(float fTimeElapsed)
 	//std::cout <<"서버에서 받은 속도: "<< m_fVelocityFromServer << "\n";
 	if (Network::GetInstance()->GetConnectState() == Network::CONNECT_STATE::OK) 
 	{
-		DecideAnimationState(m_fVelocityFromServer, fTimeElapsed);
+		//DecideAnimationState(m_fVelocityFromServer, fTimeElapsed);
+		ProcessAnimation(m_fVelocityFromServer, fTimeElapsed);
 	}
+
 #endif
 	m_Time += fTimeElapsed;
 	if (m_Time > 1.f)
@@ -525,13 +530,10 @@ void CPlayer::ChangeRound()
 void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 {
 	CAnimationController* pController = m_pAnimationController;
-	static UINT idleCount = 0;
-	static bool bRun = false;
 
-		//cout << fLength << "\n";
 	if (fLength == 0.0f 
 		&& m_isMoveRotate == false
-		&& bRun == true
+		&& m_IsRun == true
 		&&( pController->GetAnimationState() != CAnimationController::ATTACK
 			&& pController->GetAnimationState() != CAnimationController::DIGGING
 			&& pController->GetAnimationState() != CAnimationController::JUMP
@@ -544,16 +546,13 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			))
 	{
 	
-
-#ifdef _WITH_SERVER_
-		
-		if (idleCount < 1) 
+#ifdef _WITH_SERVER_	
+		if (m_IdleCount < 1) 
 		{
 			
-			bRun = false;
+			m_IsRun = false;
 			Network::GetInstance()->SendAnimationState(CAnimationController::IDLE);
-		//	m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
-			idleCount++;
+			m_IdleCount++;
 			SetTrackAnimationSet(0, CAnimationController::IDLE);
 			m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
 		}
@@ -571,7 +570,9 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		m_bLocalRotation = false;
 
 	}
-	else {
+
+	else 
+	{
 		if (GetAsyncKeyState(VK_UP) & 0x8000
 			&& m_bIce == false
 			&& pController->GetAnimationState() != CAnimationController::ATTACK
@@ -586,24 +587,20 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 #ifdef _WITH_SERVER_
 			if (pController->GetAnimationState() != CAnimationController::RUNFAST)
 			{
-				//idleCount = 0;
-				//idleCount = 0;
 				SetTrackAnimationPosition(0, 0.0f);
 				SetTrackAnimationSet(0, CAnimationController::RUNFAST);
 				m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
 
 				Network::GetInstance()->SendAnimationState(CAnimationController::RUNFAST);
-				bRun = true;
+				m_IsRun = true;
 				
 			}
 #else
 			SetTrackAnimationSet(0, CAnimationController::RUNFAST);
 			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
 #endif
-
-			//m_pAnimationController->SetTrackSpeed(0, 1.3f);
-			//m_pAnimationController->SetTrackPosition(0, 0.0f);
 		}
+
 		else if (GetAsyncKeyState(VK_DOWN) & 0x8000
 			&& m_bIce == false
 			&& pController->GetAnimationState() != CAnimationController::ATTACK
@@ -615,12 +612,11 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			&& pController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
 			)
 		{
-
 #ifdef _WITH_SERVER_
 			if (pController->GetAnimationState() != CAnimationController::RUNBACKWARD)
 			{
 				
-				bRun = true;
+				m_IsRun = true;
 				Network::GetInstance()->SendAnimationState(CAnimationController::RUNBACKWARD);
 				m_pAnimationController->SetAnimationState(CAnimationController::RUNBACKWARD);
 				SetTrackAnimationSet(0, CAnimationController::RUNBACKWARD);
@@ -630,11 +626,11 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			SetTrackAnimationSet(0, CAnimationController::RUNBACKWARD);
 #endif
 		}
+
 		else
 		{
-			idleCount = 0;
+			m_IdleCount = 0;
 		}
-
 	}
 	
 #ifdef _WITH_SERVER_
@@ -770,12 +766,11 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		
 		SetTrackAnimationSet(0, CAnimationController::ATTACK);
 		SetTrackAnimationPosition(0, 0.0f);
-
 		pController->SetAnimationState(CAnimationController::ATTACK);
 		
 #ifdef _WITH_SERVER_
-		idleCount = 0;
-		bRun = true;
+		m_IdleCount = 0;
+		m_IsRun = true;
 		Network::GetInstance()->SendAnimationState(CAnimationController::ATTACK);
 #endif
 		//if (m_Normal_Inventory.size() != 0)
@@ -792,23 +787,19 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		eraseTime += fTimeElapsed;
 		if(eraseTime > 1.85f)		//1.75는 USEGOLDHAMMER 애니메이션에 길이 - 0.8f 해준 값
 		{
-			
-			
-			if (!m_bBomb ) {
+			if (!m_bBomb ) 
+			{
 #ifndef _WITH_SERVER_
-				Sub_Inventory(GOLD_HAMMER);
-			
+				Sub_Inventory(GOLD_HAMMER);	
 #else
-				idleCount = 0;
+				m_IdleCount = 0;
 				Network::GetInstance()->SendUseItem(ITEM::GOLD_HAMMER, GetPlayerID());
 				eraseTime = 0.0f;
 #endif
 			}
-				//}
 			m_bLocalRotation = false;
 			m_bLightening = false;
 			countCoolTime = false;
-
 		}
 	}
 	
@@ -821,7 +812,6 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
 		)
 	{
-		
 		if (m_Special_Inventory.size() > 0 )
 		{
 			bool isGoldHammer = false;
@@ -841,21 +831,18 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 				m_bLightening = true;
 				SetTrackAnimationSet(0, CAnimationController::USEGOLDHAMMER);
 				SetTrackAnimationPosition(0, 0.0f);
-				//m_pAnimationController->SetTrackSpeed(0, 2.0f);
 				pController->SetAnimationState(CAnimationController::USEGOLDHAMMER);
 				m_bLocalRotation = true;
 				
 #ifdef _WITH_SERVER_
-				idleCount = 0;
-				bRun = true;
+				m_IdleCount = 0;
+				m_IsRun = true;
 				Network::GetInstance()->SendAnimationState(CAnimationController::USEGOLDHAMMER);
 #endif
-
 				//쿨타임 체크 set
 				countCoolTime = true;
-				
-
 			}
+
 			else if(m_bBomb && m_bGoldTimer == true)
 			{
 				if (m_pShaderManager)
@@ -865,9 +852,9 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 					pController->SetAnimationState(CAnimationController::RAISEHAND);
 #ifdef _WITH_SERVER_
 					Network::GetInstance()->SendAnimationState(CAnimationController::RAISEHAND);
-					bRun = true;
+					m_IsRun = true;
 					Network::GetInstance()->SendUseItem(ITEM::GOLD_TIMER, GetPlayerID());
-					idleCount = 0;
+					m_IdleCount = 0;
 #else
 					// 30초 증가
 					CTimerUIShader::setTimer(30.f);
@@ -877,7 +864,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 			}	
 		}
 	}
-//#ifndef _WITH_SERVER_
+#ifndef _WITH_SERVER_
 	//// 폭탄이 있을 때,
 	if (m_bBomb == true)
 	{
@@ -896,31 +883,27 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 						if (iter2 != m_pShaderManager->getShaderMap().end()
 							&& explosionIter != m_pShaderManager->getShaderMap().end())
 						{
-							pController->SetTrackPosition(0, 0.0f);
-							pController->SetTrackAnimationSet(0, CAnimationController::DIE);
-							pController->SetAnimationState(CAnimationController::DIE);
-#ifdef _WITH_SERVER_
-							Network::GetInstance()->SendAnimationState(CAnimationController::DIE);
-							bRun = true;
-							Network::GetInstance()->SendBombExplosion();
-							idleCount = 0;
-#endif		
-							m_BombParticle = ((CBombParticleShader*)(*iter2).second)->getBomb();
+							// 폭탄 터지는 애니메이션
+							m_BombParticle = reinterpret_cast<CBombParticleShader*>((*bomb).second)->getBomb();
 							m_BombParticle->SetPosition(m_xmf3Position.x, m_xmf3Position.y, m_xmf3Position.z);
 							m_BombParticle->setIsBlowing(true);
 
-							//dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetBlowingUp(true);
-							dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetParticleBlowUp(m_xmf3Position);
+							// 폭탄 파티클이 터지는 애니메이션
+							reinterpret_cast<CExplosionParticleShader*>((*particle).second)->SetParticleBlowUp(m_xmf3Position);
+
+							// DIE 애니메이션으로 설정
+							pController->SetTrackPosition(0, 0.0f);
+							pController->SetTrackAnimationSet(0, CAnimationController::DIE);
+							pController->SetAnimationState(CAnimationController::DIE);
+
 							m_bBomb = false;
 						}
 					}
 				}
 			}
 		}
-	}
-
-			
-//#endif
+	}			
+#endif
 }
 
 bool CPlayer::AnimationCollision(byte AnimationType)
@@ -958,6 +941,390 @@ void CPlayer::ChangeRole()
 		Sub_Inventory(CItem::GoldTimer);
 
 	m_bBomb = !m_bBomb;
+}
+
+void CPlayer::SetAnimation(int animation)
+{
+	m_pAnimationController->SetTrackPosition(0, 0.0f);
+	m_pAnimationController->SetTrackAnimationSet(0, (CAnimationController::ANIMATIONTYPE)animation);
+	m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)animation);
+}
+
+void CPlayer::ProcessAnimation(float fLength, const float& elapsedTime)
+{
+	if (fLength == 0.0f
+		&& m_isMoveRotate == false
+		&& m_IsRun == true
+		&& (m_pAnimationController->GetAnimationState() != CAnimationController::ATTACK
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::DIGGING
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::JUMP
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::DIE
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::ICE
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::SLIDE
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
+			))
+	{
+
+#ifdef _WITH_SERVER_	
+		if (m_IdleCount < 1)
+		{
+			m_IsRun = false;
+			m_IdleCount++;
+			Network::GetInstance()->SendAnimationState(CAnimationController::IDLE);			
+		}
+#else
+		if (m_pAnimationController->GetAnimationState() == CAnimationController::RUNFAST)
+		{
+			m_pAnimationController->SetTrackPosition(0, 0.0f);
+		}
+		SetTrackAnimationSet(0, CAnimationController::IDLE);
+		m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+#endif
+		m_bLocalRotation = false;
+	}
+
+	else
+	{
+		if (GetAsyncKeyState(VK_UP) & 0x8000
+			&& m_bIce == false
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::ATTACK
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::JUMP
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::ICE
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::DIE
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
+			)
+		{
+#ifdef _WITH_SERVER_
+			if (m_pAnimationController->GetAnimationState() != CAnimationController::RUNFAST)
+			{
+				Network::GetInstance()->SendAnimationState(CAnimationController::RUNFAST);
+				m_IsRun = true;
+			}
+#else
+			m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::RUNFAST);
+			m_pAnimationController->SetAnimationState(CAnimationController::RUNFAST);
+#endif
+		}
+
+		else if (GetAsyncKeyState(VK_DOWN) & 0x8000
+			&& m_bIce == false
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::ATTACK
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::JUMP
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::ICE
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::DIE
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
+			&& m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
+			)
+		{
+#ifdef _WITH_SERVER_
+			if (m_pAnimationController->GetAnimationState() != CAnimationController::RUNBACKWARD)
+			{
+				m_IsRun = true;
+				Network::GetInstance()->SendAnimationState(CAnimationController::RUNBACKWARD);
+			}
+#else
+			m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::RUNBACKWARD);
+			m_pAnimationController->SetAnimationState(CAnimationController::RUNBACKWARD);
+#endif
+		}
+
+		else
+		{
+			m_IdleCount = 0;
+		}
+	}
+
+#ifdef _WITH_SERVER_
+	if ((GetAsyncKeyState(VK_RIGHT) & 0x8000
+		|| GetAsyncKeyState(VK_LEFT) & 0x8000)
+		&& !(GetAsyncKeyState(VK_UP) & 0x8000)
+		&& !(GetAsyncKeyState(VK_DOWN) & 0x8000)
+		&& (m_pAnimationController->GetAnimationState() == CAnimationController::RUNFAST
+			|| m_pAnimationController->GetAnimationState() == CAnimationController::RUNBACKWARD)
+		)
+	{
+		Network::GetInstance()->SendAnimationState(CAnimationController::IDLE);
+	}
+#endif
+	if (m_isMoveRotate)
+	{
+		m_isMoveRotate = false;
+	}
+
+#ifndef _WITH_SERVER_			//서버와의 연동시에는 적용 x
+	// 치트키
+	//추후에 아이템과 충돌여부 및 아이템 획득 여부로 변경해서 하면 될듯
+	// 술래일때랑, 도망자일때로 각각 다르게 작동
+	if (GetAsyncKeyState(VK_C) & 0x0001 && ChattingSystem::GetInstance()->IsChattingActive() == false)
+	{
+		if (m_pAnimationController->GetAnimationState() == CAnimationController::ICE)
+		{
+			m_pAnimationController->SetTrackAnimationPosition(0, 0);
+			m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
+			m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+			m_bIce = false;
+		}
+
+		ChangeRole();
+
+		// 술래일때,
+		if (m_bBomb == true)
+		{
+			// 만약 술래가 되기전 얼음이었다면,
+			Add_Inventory("치트_황금시계", CItem::GoldTimer);
+		}
+		// 도망자일때,
+		else
+		{
+			Add_Inventory("치트_망치", CItem::NormalHammer);
+			//Add_Inventory("치트_황금망치", CItem::GoldHammer);
+		}
+	}
+
+	// 시간증가 치트키
+	if (GetAsyncKeyState(VK_T) & 0x0001)
+	{
+		if (m_pShaderManager)
+			CTimerUIShader::setTimer(10.f);
+	}
+
+	if (GetAsyncKeyState(VK_R) & 0x0001)
+	{
+		if (m_pShaderManager)
+			CTimerUIShader::setReduceTimer(10.f);
+	}
+
+	if (GetAsyncKeyState(VK_X) & 0x0001
+		&& m_pAnimationController->GetAnimationState() != CAnimationController::ICE
+		&& ChattingSystem::GetInstance()->IsChattingActive() == false)
+	{
+		m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::SLIDE);
+		m_pAnimationController->SetAnimationState(CAnimationController::SLIDE);
+	}
+#endif
+
+	float gameTime = CTimerUIShader::getTimer();
+
+	////얼음으로 변신
+	if (GetAsyncKeyState(VK_A) & 0x0001
+		&& ChattingSystem::GetInstance()->IsChattingActive() == false
+		&& m_bBomb == false
+		&& g_State == GAMESTATE::INGAME
+		&& gameTime < MAX_ROUND_TIME - 5)
+	{
+#ifdef _WITH_SERVER_
+		cout << "SendFreezeState()" << endl;
+		Network::GetInstance()->SendFreezeState();
+#else
+		m_bIce = !m_bIce;
+		m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
+
+		if (m_bIce == true)
+			m_pAnimationController->SetAnimationState(CAnimationController::ICE);
+
+		else
+			m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
+#endif
+	}
+
+	// 망치로 때리기 애니메이션
+	if (GetAsyncKeyState(VK_CONTROL) & 0x0001
+		&& m_pAnimationController->GetAnimationState() != CAnimationController::ATTACK
+		&& m_pAnimationController->GetAnimationState() != CAnimationController::ICE
+		&& m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
+		&& m_pAnimationController->GetAnimationState() != CAnimationController::DIE
+		&& m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
+		&& m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
+		&& ChattingSystem::GetInstance()->IsChattingActive() == false
+		)
+	{
+#ifdef _WITH_SERVER_
+		m_IdleCount = 0;
+		m_IsRun = true;
+		Network::GetInstance()->SendAnimationState(CAnimationController::ATTACK);
+#endif
+	}
+
+	// 특수 아이템을 사용하는 동작에 경우 일정 시간동안은 황금 망치를 이용해 특수 아이템 모션을 렌더링하고 Sub_Inventory를 해줘야하기 때문에
+	// 쿨타임을 세어 줘야한다.
+	static float eraseTime = 0.0f;
+	static bool countCoolTime = false;
+	if (countCoolTime)
+	{
+		eraseTime += elapsedTime;
+		if (eraseTime > 1.85f)		//1.75는 USEGOLDHAMMER 애니메이션에 길이 - 0.8f 해준 값
+		{
+			if (!m_bBomb)
+			{
+#ifndef _WITH_SERVER_
+				Sub_Inventory(GOLD_HAMMER);
+#else
+				m_IdleCount = 0;
+				Network::GetInstance()->SendUseItem(ITEM::GOLD_HAMMER, GetPlayerID());
+				eraseTime = 0.0f;
+#endif
+			}
+			m_bLocalRotation = false;
+			m_bLightening = false;
+			countCoolTime = false;
+		}
+	}
+
+	// 특수 아이템 사용 버튼(ALT)
+	if (GetAsyncKeyState(VK_MENU) & 0x0001
+		&& m_pAnimationController->GetAnimationState() != CAnimationController::ATTACK
+		&& m_pAnimationController->GetAnimationState() != CAnimationController::ICE
+		&& m_pAnimationController->GetAnimationState() != CAnimationController::DIE
+		&& m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
+		&& ChattingSystem::GetInstance()->IsChattingActive() == false
+		)
+	{
+		if (m_Special_Inventory.size() > 0)
+		{
+			bool isGoldHammer = false;
+			bool isGoldTimer = false;
+
+			for (const pair<string, CItem*>& iter : m_Special_Inventory) 
+			{
+				if (iter.second->getItemType() == GOLD_HAMMER)
+					isGoldHammer = true;
+				
+				if (iter.second->getItemType() == GOLD_TIMER)
+					isGoldTimer = true;
+				
+			}
+			if (!m_bBomb && isGoldHammer == true)
+			{
+				m_bLightening = true;
+				m_bLocalRotation = true;
+
+#ifdef _WITH_SERVER_
+				m_IdleCount = 0;
+				m_IsRun = true;
+				Network::GetInstance()->SendAnimationState(CAnimationController::USEGOLDHAMMER);
+#endif
+				//쿨타임 체크 set
+				countCoolTime = true;
+			}
+
+			else if (m_bBomb && m_bGoldTimer == true)
+			{
+				if (m_pShaderManager)
+				{
+#ifdef _WITH_SERVER_
+					Network::GetInstance()->SendAnimationState(CAnimationController::RAISEHAND);
+					m_IsRun = true;
+					Network::GetInstance()->SendUseItem(ITEM::GOLD_TIMER, GetPlayerID());
+					m_IdleCount = 0;
+#else
+					// 30초 증가
+					CTimerUIShader::setTimer(30.f);
+					Sub_Inventory(GOLD_TIMER);
+#endif					
+				}
+			}
+		}
+	}
+
+#ifndef _WITH_SERVER_
+	//// 폭탄이 있을 때,
+	if (m_bBomb == true)
+	{
+		if (m_pShaderManager)
+		{
+			if (m_pAnimationController->GetAnimationState() != CAnimationController::DIE)
+			{
+				auto iter = m_pShaderManager->getShaderMap().find("TimerUI");
+				if (iter != m_pShaderManager->getShaderMap().end())
+				{
+					if (CTimerUIShader::getTimer() <= 0.f)
+					{
+						auto iter2 = m_pShaderManager->getShaderMap().find("Bomb");
+						auto explosionIter = m_pShaderManager->getShaderMap().find("ExplosionParticle");
+
+						if (iter2 != m_pShaderManager->getShaderMap().end()
+							&& explosionIter != m_pShaderManager->getShaderMap().end())
+						{
+							// 폭탄 터지는 애니메이션
+							m_BombParticle = reinterpret_cast<CBombParticleShader*>((*bomb).second)->getBomb();
+							m_BombParticle->SetPosition(m_xmf3Position.x, m_xmf3Position.y, m_xmf3Position.z);
+							m_BombParticle->setIsBlowing(true);
+
+							// 폭탄 파티클이 터지는 애니메이션
+							reinterpret_cast<CExplosionParticleShader*>((*particle).second)->SetParticleBlowUp(m_xmf3Position);
+
+							// DIE 애니메이션으로 설정
+							m_pAnimationController->SetTrackPosition(0, 0.0f);
+							m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::DIE);
+							m_pAnimationController->SetAnimationState(CAnimationController::DIE);
+
+							m_bBomb = false;
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
+}
+
+void CPlayer::ProcessRoundEnd()
+{
+	// 술래였을 때,
+	if (m_bBomb == true && m_pShaderManager != nullptr)
+	{
+		auto bomb = m_pShaderManager->getShaderMap().find("Bomb");
+		if (bomb == m_pShaderManager->getShaderMap().end())
+			return;
+
+		auto particle = m_pShaderManager->getShaderMap().find("ExplosionParticle");
+		if (particle == m_pShaderManager->getShaderMap().end())
+			return;
+
+		// 폭탄 터지는 애니메이션
+		m_BombParticle = reinterpret_cast<CBombParticleShader*>((*bomb).second)->getBomb();
+		m_BombParticle->SetPosition(m_xmf3Position.x, m_xmf3Position.y, m_xmf3Position.z);
+		m_BombParticle->setIsBlowing(true);
+
+		// 폭탄 파티클이 터지는 애니메이션
+		reinterpret_cast<CExplosionParticleShader*>((*particle).second)->SetParticleBlowUp(m_xmf3Position);
+
+		// DIE 애니메이션으로 설정
+		//pController->SetTrackPosition(0, 0.0f);
+		//pController->SetTrackAnimationSet(0, CAnimationController::DIE);
+		//pController->SetAnimationState(CAnimationController::DIE);
+
+		// 서버에게 폭탄이터졌다고 전송
+		Network::GetInstance()->SendBombExplosion();
+		// 서버에게 DIE 애니메이션 전송
+		Network::GetInstance()->SendAnimationState(CAnimationController::ANIMATIONTYPE::DIE);
+		
+		m_IsRun = true;
+		m_IdleCount = 0;
+
+		// 폭탄을 없앤다.
+		m_bBomb = false;
+	}
+
+	// 술래가 아닐 때,
+	else if (m_bBomb == false && m_pShaderManager != nullptr)
+	{
+		//CAnimationController* pController = m_pAnimationController;
+		//if (pController == nullptr)
+		//	return;
+
+		// VICTORY 애니메이션으로 설정
+		//pController->SetTrackAnimationSet(0, CAnimationController::VICTORY);
+		//pController->SetAnimationState(CAnimationController::VICTORY);
+		//m_pAnimationController->SetTrackPosition(0, 0.0f);
+
+		Network::GetInstance()->SendAnimationState(CAnimationController::ANIMATIONTYPE::VICTORY);
+	}
 }
 
 CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, int matID, void *pContext)
