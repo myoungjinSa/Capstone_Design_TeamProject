@@ -452,7 +452,8 @@ void CGameFramework::Initialize_BitmapImage()
 		L"../Resource/Png/ScoreBoard.png",
 		L"../Resource/Png/TimeOver.png", 
 		L"../Resource/Png/Host.png",
-		L"../Resource/Png/IPNotice.png"
+		L"../Resource/Png/IPNotice.png",
+		L"../Resource/Png/ChatInput.png"
 	};
 
 	UINT originX = 1280;
@@ -469,8 +470,9 @@ void CGameFramework::Initialize_BitmapImage()
 	D2D1_RECT_F charactersPos = D2D1::RectF((781 * FRAME_BUFFER_WIDTH) / originX, (17 * FRAME_BUFFER_HEIGHT) / originY, (1262 * FRAME_BUFFER_WIDTH) / originX, (412 * FRAME_BUFFER_HEIGHT) / originY);
 	D2D1_RECT_F choicePos = D2D1::RectF((90 * FRAME_BUFFER_WIDTH) / originX, (66 * FRAME_BUFFER_HEIGHT) / originY, (210 * FRAME_BUFFER_WIDTH) / originX, (186 * FRAME_BUFFER_HEIGHT) / originY);
 	D2D1_RECT_F scoreboardPos = D2D1::RectF(r.left, r.top, r.right, r.bottom);
-	D2D1_RECT_F timeoverPos = { scoreboardPos.left, 80, scoreboardPos.right, 230 };
-	D2D1_RECT_F hostPos = { scoreboardPos.left, 80, scoreboardPos.right, 230 };
+	D2D1_RECT_F timeoverPos = D2D1::RectF(scoreboardPos.left, 80, scoreboardPos.right, 230);
+	D2D1_RECT_F hostPos = D2D1::RectF(scoreboardPos.left, 80, scoreboardPos.right, 230);
+	D2D1_RECT_F chatinputPos = D2D1::RectF((15.0f * FRAME_BUFFER_WIDTH) / originX, (675.0f * FRAME_BUFFER_HEIGHT) / originY, (705.0f * FRAME_BUFFER_WIDTH) / originX, (715.0f * FRAME_BUFFER_HEIGHT) / originY);
 
 	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[0], charactersPos, 4900, 575, 7, 1, 0, 0), "Characters");
 	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[1], choicePos, 1800, 300, 6, 1, 0, 0), "ChoiceCharacter");
@@ -478,6 +480,7 @@ void CGameFramework::Initialize_BitmapImage()
 	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[3], timeoverPos, 2138, 569, 1, 1, 0, 0), "TimeOver");
 	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[4], hostPos, 308, 300, 1, 1, 0, 0), "Host");
 	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[5], hostPos, 1210, 250, 2, 1, 0, 0), "IPNotice");
+	CDirect2D::GetInstance()->CreateBitmapImage(ImageInfo(imagePath[6], chatinputPos, 574, 28, 1, 1, 0, 0), "ChatInput");
 }
 
 void CGameFramework::Initialize_GameFont()
@@ -485,10 +488,10 @@ void CGameFramework::Initialize_GameFont()
 	CDirect2D::GetInstance()->CreateGameFont();
 	CDirect2D::GetInstance()->CreateGameFontColor();
 
-	ChattingSystem::GetInstance()->Initialize(CDirect2D::GetInstance()->GetFontInfo("메이플").m_pFont, CDirect2D::GetInstance()->GetFontInfo("메이플").m_pTextLayout, CDirect2D::GetInstance()->GetFontColor("검은색"), m_pwicImagingFactory, m_pd2dDeviceContext);
-
-	ChattingSystem::GetInstance()->SetFontSize(CDirect2D::GetInstance()->GetFontInfo("메이플").m_FontSize);
-	ChattingSystem::GetInstance()->CreateChattingFont();
+	ChattingSystem::GetInstance()->Initialize();
+	//ChattingSystem::GetInstance()->Initialize(CDirect2D::GetInstance()->GetFontInfo("메이플").m_pFont, CDirect2D::GetInstance()->GetFontInfo("메이플").m_pTextLayout, CDirect2D::GetInstance()->GetFontColor("검은색"), m_pwicImagingFactory, m_pd2dDeviceContext);
+	//ChattingSystem::GetInstance()->SetFontSize(CDirect2D::GetInstance()->GetFontInfo("메이플").m_FontSize);
+	//ChattingSystem::GetInstance()->CreateChattingFont();
 }
 
 #endif
@@ -1366,7 +1369,7 @@ void CGameFramework::ProcessDirect2D()
 		case LOBBY:
 		{
 			m_pLobbyScene->UIRender();
-			ChattingSystem::GetInstance()->ShowLobbyChatting(m_pd2dDeviceContext);
+			ChattingSystem::GetInstance()->ShowLobbyChatting();
 			break;
 		}
 
@@ -1382,7 +1385,7 @@ void CGameFramework::ProcessDirect2D()
 
 			SetNamecard();
 			//채팅
-			ChattingSystem::GetInstance()->ShowIngameChatting(m_pd2dDeviceContext,m_GameTimer.GetTimeElapsed());
+			ChattingSystem::GetInstance()->ShowIngameChatting(m_GameTimer.GetTimeElapsed());
 			break;
 		}
 

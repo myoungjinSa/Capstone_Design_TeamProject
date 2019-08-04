@@ -195,8 +195,11 @@ void CSoundSystem::AllSoundVolume(float volume)
 {
 	for (auto iter = m_GameSoundList.begin(); iter != m_GameSoundList.end(); ++iter)
 	{
+		cout << (*iter).first << endl;
 		for (int i = 0; i < MAX_CHANNEL; ++i)
 		{
+			if ((*iter).second.m_pChannel[i] == nullptr)	continue;
+
 			(*iter).second.m_pChannel[i]->setVolume(volume);
 		}
 	}

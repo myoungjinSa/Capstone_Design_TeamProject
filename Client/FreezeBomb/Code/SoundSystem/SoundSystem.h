@@ -19,7 +19,7 @@ struct GameSound
 		: m_filePath(path), m_fileSize(size), m_mode(mode) 
 	{
 		m_pSound = nullptr;
-		for (int i = 0; i < 6; ++i)
+		for (int i = 0; i < MAX_CHANNEL; ++i)
 			m_pChannel[i] = nullptr;
 	}
 

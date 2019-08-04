@@ -113,7 +113,7 @@ void CTerrainShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 	const map<string, CTexture*>& Context, void* pContext)
 {
 	int nWidth = 256, nLength = 256;
-	XMFLOAT3 xmf3Scale(2.f, 1.0f, 1.2f);
+	XMFLOAT3 xmf3Scale(2.05f, 1.0f, 1.25f);
 	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
 
 	m_pTerrain = new CTerrain(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, _T("../Resource/Textures/Terrain/Terrain.raw"), nWidth, nLength, xmf3Scale, xmf4Color);

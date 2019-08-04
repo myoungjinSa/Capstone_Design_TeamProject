@@ -8,14 +8,6 @@ class ChattingSystem : public Singleton<ChattingSystem>
 protected:
 	typedef basic_string<TCHAR> tstring;
 
-#ifdef _WITH_DIRECT2D_
-	IDWriteTextFormat*				m_pChattingFont{ nullptr };
-	IDWriteTextLayout*				m_pChattingLayout{ nullptr };
-	ID2D1SolidColorBrush*			m_pChattingFontColor{ nullptr };
-
-	ID2D1Effect						*m_pd2dfxBitmapSource{ nullptr };
-	IWICFormatConverter				*m_pwicFormatConverter{ nullptr };
-#endif
 	DWORD							m_conv;
 	TCHAR**							m_chat;
 	int								m_nCurrentText{ 0 };
@@ -38,6 +30,7 @@ protected:
 public:
 	ChattingSystem();
 	virtual ~ChattingSystem();
+	void Initialize();
 	void Initialize(IDWriteTextFormat*, IDWriteTextLayout*, ID2D1SolidColorBrush*, IWICImagingFactory*, ID2D1DeviceContext2*);
 	void ProcessChatting(HWND hWnd,WPARAM wParam,LPARAM lParam,bool isIngame);
 	void PushChattingText(const string& user,const char* chat);
@@ -60,8 +53,8 @@ public:
 
 	void SetActive(bool active) { m_bActive = active; }
 	bool IsChattingActive() { return m_bActive; }
-	void ShowIngameChatting(ID2D1DeviceContext2* pd2dDeviceContext,float fTimeElapsed);
-	void ShowLobbyChatting(ID2D1DeviceContext2* pd2dDeviceContext);
+	void ShowIngameChatting(float fTimeElapsed);
+	void ShowLobbyChatting();
 	void CreateChattingFont();
 	void Destroy();
 };

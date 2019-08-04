@@ -17,6 +17,12 @@ ChattingSystem::~ChattingSystem()
 {
 }
 
+void ChattingSystem::Initialize()
+{
+	m_fontSize = CDirect2D::GetInstance()->GetFontInfo("메이플").m_FontSize;
+	CreateChattingFont();
+}
+
 void ChattingSystem::CreateChattingFont()
 {
 	if(m_fontSize < 30)
@@ -38,28 +44,6 @@ void ChattingSystem::CreateChattingFont()
 	m_chat = new TCHAR*[m_maxChatSentenceCount];
 	for (int i = 0; i < m_maxChatSentenceCount; ++i)
 		m_chat[i] = new TCHAR[256];
-}
-
-void ChattingSystem::Initialize(IDWriteTextFormat* pFont, IDWriteTextLayout* pTextLayout, ID2D1SolidColorBrush* pFontColor, IWICImagingFactory* pFactory, ID2D1DeviceContext2* pContext)
-{
-	m_pChattingFont = pFont;
-	m_pChattingLayout = pTextLayout;
-	m_pChattingFontColor = pFontColor;
-
-	HRESULT hResult;
-
-	IWICBitmapDecoder *pwicBitmapDecoder;
-	hResult = pFactory->CreateDecoderFromFilename(L"../Resource/Png/chatting.png", NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &pwicBitmapDecoder);
-	hResult = pContext->CreateEffect(CLSID_D2D1BitmapSource, &m_pd2dfxBitmapSource);
-
-	IWICBitmapFrameDecode *pwicFrameDecode;
-	pwicBitmapDecoder->GetFrame(0, &pwicFrameDecode);	//GetFrame() : Retrieves the specified frame of the image.
-	pFactory->CreateFormatConverter(&m_pwicFormatConverter);
-	m_pwicFormatConverter->Initialize(pwicFrameDecode, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 0.0f, WICBitmapPaletteTypeCustom);
-	m_pd2dfxBitmapSource->SetValue(D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE, m_pwicFormatConverter);
-
-	D2D1_VECTOR_2F vec{ 1.3f,0.5f };
-	m_pd2dfxBitmapSource->SetValue(D2D1_BITMAPSOURCE_PROP_SCALE, vec);
 }
 
 TCHAR* ChattingSystem::StringToTCHAR(string& s)
@@ -91,7 +75,7 @@ string ChattingSystem::TCHARToString(const TCHAR* ptsz)
 	return s;
 }
 
-void ChattingSystem::ShowLobbyChatting(ID2D1DeviceContext2* pd2dDeviceContext)
+void ChattingSystem::ShowLobbyChatting()
 {
 	D2D1_RECT_F pos{ 0,0,0,0 };
 
@@ -117,26 +101,21 @@ void ChattingSystem::ShowLobbyChatting(ID2D1DeviceContext2* pd2dDeviceContext)
 	}
 }
 
-void ChattingSystem::ShowIngameChatting(ID2D1DeviceContext2* pd2dDeviceContext, float fTimeElapsed)
+void ChattingSystem::ShowIngameChatting(float fTimeElapsed)
 {
-	if (IsChattingActive() && m_pd2dfxBitmapSource)
-	{
+	if (m_bActive == true)
+	{		
+		CDirect2D::GetInstance()->Render("ChatInput");
+
 		UINT originX = 1280;
 		UINT originY = 720;
-
-		D2D_POINT_2F p{ 0.0f,0.0f };
-		p.x = (-360.0f * FRAME_BUFFER_WIDTH) / originX;
-		p.y = (590.0f * FRAME_BUFFER_HEIGHT) / originY;
-		
-		pd2dDeviceContext->DrawImage(m_pd2dfxBitmapSource, p);
-
 		D2D1_RECT_F pos{ 0, 0, 0, 0 };
 		pos.left = (20.0f * FRAME_BUFFER_WIDTH) / originX;
 		pos.top = (680.0f * FRAME_BUFFER_HEIGHT) / originY;
 		pos.right = (720.0f * FRAME_BUFFER_WIDTH) / originX;
 		pos.bottom = (680.0f * FRAME_BUFFER_HEIGHT) / originY;
 
-		CDirect2D::GetInstance()->Render("메이플", "검은색", m_wsChat, pos);
+		CDirect2D::GetInstance()->Render("메이플", "흰색", m_wsChat, pos);
 
 		m_showTime = 0.0f;
 	}
@@ -445,18 +424,6 @@ void ChattingSystem::Destroy()
 	m_dequeText.clear();
 	m_wsChat.clear();
 	m_wsChat.shrink_to_fit();
-
-	//if (m_pChattingFont)
-	//	m_pChattingFont->Release();
-	//for (int i = 0; i < m_maxChatSentenceCount; ++i)
-	//{
-	//	if (m_pd2dbrChatText[i]) m_pd2dbrChatText[i]->Release();
-	//}
-	//delete[] m_pd2dbrChatText;
-	//m_pd2dbrChatText = nullptr;
-
-	if (m_pd2dfxBitmapSource) m_pd2dfxBitmapSource->Release();
-	if (m_pwicFormatConverter) m_pwicFormatConverter->Release();
 }
 #endif
 
