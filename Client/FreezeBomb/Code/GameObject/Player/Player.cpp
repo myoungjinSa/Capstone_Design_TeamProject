@@ -737,7 +737,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
 		&& m_bBomb == false
 		&& g_State == GAMESTATE::INGAME
-		&& gameTime < MAX_ROUND_TIME - 5)
+		&& CGameFramework::m_IceChangeOk == true)
 	{	
 #ifdef _WITH_SERVER_
 		cout << "SendFreezeState()\n";

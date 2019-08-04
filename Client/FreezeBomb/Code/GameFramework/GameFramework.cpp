@@ -4,6 +4,7 @@
 // 메모리 릭이 있는지 알려준다.
 #include <crtdbg.h>
 
+
 #include "../Direct2D/Direct2D.h"
 
 #include "../Network/Network.h"
@@ -38,10 +39,14 @@
 #include "../ResourceManager/ResourceManager.h"
 #include "../SoundSystem/SoundSystem.h"
 
+
+
 ID2D1DeviceContext2*	CGameFramework::m_pd2dDeviceContext = nullptr;
 IWICImagingFactory* CGameFramework::m_pwicImagingFactory = nullptr;
 IDWriteFactory5* CGameFramework::m_pdWriteFactory = nullptr;
+bool	CGameFramework::m_IceChangeOk = false;
 map<int, clientsInfo> CGameFramework::m_mapClients;
+
 #ifdef _WITH_SERVER_
 char CGameFramework::m_HostID = -1;
 #endif
@@ -59,6 +64,7 @@ byte g_PlayerCharacter = CGameObject::PINK;
 extern volatile size_t g_TotalSize;
 extern volatile size_t g_FileSize;
 extern volatile bool g_IsloadingStart;
+
 
 unsigned char g_Round = 0;
 
@@ -1209,21 +1215,25 @@ void CGameFramework::ProcessInput()
 			if (pKeysBuffer[VK_LEFT] & 0xF0)
 			{
 #ifdef _WITH_SERVER_
-				
-				Network::GetInstance()->SendLeftKey();
+				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE) 
+				{
+					Network::GetInstance()->SendLeftKey();
 #endif
-				dwDirection |= DIR_LEFT;
-				m_pPlayer->SetDirection(dwDirection);
+					dwDirection |= DIR_LEFT;
+					m_pPlayer->SetDirection(dwDirection);
+				}
 			}
 			if (pKeysBuffer[VK_RIGHT] & 0xF0)
 			{
 #ifdef _WITH_SERVER_
-				
-				Network::GetInstance()->SendRightKey();
-				
+				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE)
+				{
+					Network::GetInstance()->SendRightKey();
+
 #endif
-				dwDirection |= DIR_RIGHT;
-				m_pPlayer->SetDirection(dwDirection);
+					dwDirection |= DIR_RIGHT;
+					m_pPlayer->SetDirection(dwDirection);
+				}
 			}
 //서버와 연동되어 있지 않을때만 마우스 회전을 허용한다.
 #ifndef _WITH_SERVER_
@@ -1259,6 +1269,25 @@ void CGameFramework::ProcessInput()
 	}
 }
 
+void CGameFramework::CheckIceChangeOk()
+{
+
+	using namespace std::chrono;
+
+	if (m_IceChangeOk == true)
+		return;
+
+	m_RoundCountTime = steady_clock::now();
+
+	seconds currentSeconds = duration_cast<seconds> (m_RoundCountTime - m_RoundStartTime);
+
+	if(currentSeconds.count() > 5.0f)
+	{
+		cout << currentSeconds.count() << endl;
+		cout << "얼음 해도됨\n";
+		m_IceChangeOk = true;
+	}
+}
 void CGameFramework::AnimateObjects()
 {
 	m_elapsedTime = m_GameTimer.GetTimeElapsed();
@@ -1653,6 +1682,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		//애니메이션 리셋
 		ResetAnimationForRoundStart();
 
+		
 		//라운드가 시작할 때 마다 플레이어의 아이템 소지를 모두 초기화 시켜야한다.
 		m_pPlayer->SetIsBomb(false);
 		m_pPlayer->setIsGoldHammer(false);
@@ -1739,13 +1769,14 @@ void CGameFramework::ProcessPacket(char* packet)
 		}
 
 		g_State = INGAME;
-
+		m_RoundStartTime = std::chrono::steady_clock::now();
+		m_RoundCountTime = std::chrono::steady_clock::now();
 		//시간을 받아야함.
 		auto timerIter = m_pScene->getShaderManager()->getShaderMap().find("TimerUI");
 
 		if (timerIter != m_pScene->getShaderManager()->getShaderMap().end())
 		{
-			dynamic_cast<CTimerUIShader*>((*timerIter).second)->CompareServerTimeAndSet(pRS->startTime);
+			dynamic_cast<CTimerUIShader*>((*timerIter).second)->ServerTimeAndSet(pRS->startTime);
 
 		}
 		ChattingSystem::GetInstance()->SetActive(false);
@@ -2016,6 +2047,12 @@ void CGameFramework::ProcessPacket(char* packet)
 		else
 			printf("Lose..\n");
 		
+
+		m_IceChangeOk = false;
+		//m_RoundCountTime = {};
+		m_RoundStartTime = std::chrono::steady_clock::now() + 10s;
+
+
 		
 		if (m_pPlayer && m_pPlayer->GetIsBomb() == false)
 		{
@@ -2043,7 +2080,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		auto iter = m_pScene->getShaderManager()->getShaderMap().find("TimerUI");
 		if (iter != m_pScene->getShaderManager()->getShaderMap().end())
-			dynamic_cast<CTimerUIShader*>((*iter).second)->CompareServerTimeAndSet(pCT->serverTime);
+			dynamic_cast<CTimerUIShader*>((*iter).second)->ServerTimeAndSet(pCT->serverTime);
 		break;
 	}
 
@@ -2511,6 +2548,8 @@ void CGameFramework::ProcessLogin()
 
 void CGameFramework::ProcessInGame(D3D12_CPU_DESCRIPTOR_HANDLE& d3dDsvDepthStencilBufferCPUHandle)
 {
+
+	CheckIceChangeOk();
 	//카툰 렌더링 해야할 쉐이더들은 PreRender에서 그린다.
 	
 	if (m_pScene)
@@ -2608,6 +2647,7 @@ void CGameFramework::FrameAdvance()
 {
 	m_GameTimer.Tick(60.0f);
 
+	
 	if (m_pPlayer)
 		ProcessInput();
 
