@@ -1156,11 +1156,12 @@ void CGameFramework::ProcessInput()
 			DWORD dwDirection = 0;
 			if (pKeysBuffer[VK_UP] & 0xF0)
 			{
-				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE
-					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE
+				if (//m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE
+					m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
+					&& m_pPlayer->GetIsICE() ==false
 					)
 				{
 					//#ifdef 을 선언하지 않으면 무조건 서버가 켜있지 않을경우 무한 대기에 빠짐
@@ -1185,11 +1186,12 @@ void CGameFramework::ProcessInput()
 			}
 			if (pKeysBuffer[VK_DOWN] & 0xF0)
 			{
-				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE
-					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE
+				if (//m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE
+					 m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
+					&& m_pPlayer->GetIsICE() == false
 					)
 				{
 #ifdef _WITH_SERVER_

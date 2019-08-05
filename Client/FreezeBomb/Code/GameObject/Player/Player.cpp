@@ -233,13 +233,15 @@ void CPlayer::Update(float fTimeElapsed)
 	DecideAnimationState(fLength,fTimeElapsed);
 #else
 
-	if (m_dwDirection == DIR_FORWARD && m_bIce == false)
+	if (m_dwDirection == DIR_FORWARD && m_bIce == false
+		&& m_bCollision == false)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, m_fVelocityFromServer);
 		Move(m_xmf3Velocity, false);
 	}
 
-	if (m_dwDirection == DIR_BACKWARD && m_bIce == false)
+	if (m_dwDirection == DIR_BACKWARD && m_bIce == false
+		&& m_bCollision == false)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -m_fVelocityFromServer);
 		Move(m_xmf3Velocity, false);
