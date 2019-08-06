@@ -233,13 +233,15 @@ void CPlayer::Update(float fTimeElapsed)
 	DecideAnimationState(fLength,fTimeElapsed);
 #else
 
-	if (m_dwDirection == DIR_FORWARD && m_bIce == false)
+	if (m_dwDirection == DIR_FORWARD && m_bIce == false
+		&& m_bCollision == false)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, m_fVelocityFromServer);
 		Move(m_xmf3Velocity, false);
 	}
 
-	if (m_dwDirection == DIR_BACKWARD && m_bIce == false)
+	if (m_dwDirection == DIR_BACKWARD && m_bIce == false
+		&& m_bCollision == false)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -m_fVelocityFromServer);
 		Move(m_xmf3Velocity, false);
@@ -785,29 +787,30 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 
 	// 특수 아이템을 사용하는 동작에 경우 일정 시간동안은 황금 망치를 이용해 특수 아이템 모션을 렌더링하고 Sub_Inventory를 해줘야하기 때문에
 	// 쿨타임을 세어 줘야한다.
-	static float eraseTime = 0.0f;
-	static bool countCoolTime = false;
-	if (countCoolTime)
+	//static float eraseTime = 0.0f;
+
+	if (m_bUseGoldHammer)
 	{
-		eraseTime += fTimeElapsed;
-		if(eraseTime > 1.85f)		//1.75는 USEGOLDHAMMER 애니메이션에 길이 - 0.8f 해준 값
+		m_UseGoldHammerCountTime += fTimeElapsed;
+		if(m_UseGoldHammerCountTime > 1.85f)		//1.75는 USEGOLDHAMMER 애니메이션에 길이 - 0.8f 해준 값
 		{
 			
 			
-			if (!m_bBomb ) {
+			if (!m_bBomb ) 
+			{
 #ifndef _WITH_SERVER_
 				Sub_Inventory(GOLD_HAMMER);
 			
 #else
 				idleCount = 0;
 				Network::GetInstance()->SendUseItem(ITEM::GOLD_HAMMER, GetPlayerID());
-				eraseTime = 0.0f;
+				m_UseGoldHammerCountTime = 0.0f;
 #endif
 			}
 				//}
 			m_bLocalRotation = false;
 			m_bLightening = false;
-			countCoolTime = false;
+			m_bUseGoldHammer = false;
 
 		}
 	}
@@ -852,7 +855,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 #endif
 
 				//쿨타임 체크 set
-				countCoolTime = true;
+				m_bUseGoldHammer = true;
 				
 
 			}

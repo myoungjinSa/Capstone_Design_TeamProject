@@ -123,6 +123,10 @@ public:
 	
 	void SetCollision(bool collision) { m_bCollision = collision; }
 	bool GetCollision() { return m_bCollision; }
+
+	void SetUseGoldHammerTimeZero() { m_UseGoldHammerCountTime = 0.0f; }
+	void SetGoldHammerUse(bool bUse) { m_bUseGoldHammer = bUse; }
+
 protected:
 
 	
@@ -139,6 +143,8 @@ protected:
 
 	bool						m_bCollision{ false };
 	bool						m_isMoveRotate{ false };
+	bool						m_bUseGoldHammer{ false };
+	float						m_UseGoldHammerCountTime{ 0.0f };
 
 	XMFLOAT3					m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3     				m_xmf3Gravity = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -165,6 +171,7 @@ protected:
 	bool			m_bSpike{ false };
 	bool			m_bCameraVibe{ false };
 	CBomb	*		m_BombParticle{ nullptr };
+
 
 	//주인공 아이디
 	char			m_pPlayerID;

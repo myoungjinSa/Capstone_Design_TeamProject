@@ -1156,11 +1156,12 @@ void CGameFramework::ProcessInput()
 			DWORD dwDirection = 0;
 			if (pKeysBuffer[VK_UP] & 0xF0)
 			{
-				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE
-					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE
+				if (//m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE
+					 m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
+					&& m_pPlayer->GetIsICE() == false
 					)
 				{
 					//#ifdef 을 선언하지 않으면 무조건 서버가 켜있지 않을경우 무한 대기에 빠짐
@@ -1185,12 +1186,12 @@ void CGameFramework::ProcessInput()
 			}
 			if (pKeysBuffer[VK_DOWN] & 0xF0)
 			{
-				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE
-					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE
+				if (//m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE
+					m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
-					)
+					&& m_pPlayer->GetIsICE() == false)
 				{
 #ifdef _WITH_SERVER_
 					
@@ -1283,8 +1284,8 @@ void CGameFramework::CheckIceChangeOk()
 
 	if(currentSeconds.count() > 5.0f)
 	{
-		cout << currentSeconds.count() << endl;
-		cout << "얼음 해도됨\n";
+		//cout << currentSeconds.count() << endl;
+		//cout << "얼음 해도됨\n";
 		m_IceChangeOk = true;
 	}
 }
@@ -1467,6 +1468,9 @@ void CGameFramework::ResetAnimationForRoundStart()
 		m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
 		m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
 		m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
+
+		m_pPlayer->SetUseGoldHammerTimeZero();
+		m_pPlayer->SetGoldHammerUse(false);
 
 	}
 	if (m_pScene)
@@ -1690,6 +1694,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		m_pPlayer->SetIsHammer(false);
 		m_pPlayer->SetIsICE(false);
 		
+
 		m_pPlayer->Sub_Inventory(CItem::ItemType::GoldHammer);
 		m_pPlayer->Sub_Inventory(CItem::ItemType::NormalHammer);
 		m_pPlayer->Sub_Inventory(CItem::ItemType::GoldTimer);
@@ -1993,6 +1998,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		SC_PACKET_STOP_RUN_ANIM *pSTA = reinterpret_cast<SC_PACKET_STOP_RUN_ANIM*>(packet);
 		if (pSTA->id == m_pPlayer->GetPlayerID())
 		{
+
 			m_pPlayer->SetVelocityFromServer(0.0f);
 		}
 
@@ -2467,9 +2473,11 @@ void CGameFramework::ProcessPacket(char* packet)
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
+				m_pPlayer->SetUseGoldHammerTimeZero();
+				m_pPlayer->SetGoldHammerUse(false);
 				m_pPlayer->SetIsBomb(true);
 				(*iter).second->m_ppObjects[runnerID]->SetIsBomb(false);
-			
+				
 			}
 		}
 		else if (pRC->runnerId == m_pPlayer->GetPlayerID())		//자신이 상대방에게  폭탄을 넘겨줬을 경우
