@@ -53,7 +53,7 @@ void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 				pSurrounding->SetUpVector((*iter3).second->m_Up);
 				pSurrounding->SetRightVector((*iter3).second->m_Right);
 				
-				if (name == "LowPolyFence_01")
+				if (name == "LowPolyFence_01" )
 				{
 					XMFLOAT3 rotate = XMFLOAT3(0, 1, 0);
 					float angle = 180.f;
@@ -68,9 +68,17 @@ void CMapObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 				if (iter4 != BoundMap.end())
 				{
 					if (name == "SM_Deer")
+					{
 						pSurrounding->SetOOBB(Vector3::Add((*iter4).second->m_xmf3Center, XMFLOAT3(0.0f, 0.0f, -3.5f)), Vector3::Multiply((*iter4).second->m_xmf3Extent, XMFLOAT3(1.0f, 1.0f, 3.5f)), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
-					else
+					}
+					else if (name == "LowPolyFence_01")
+					{
+						pSurrounding->SetOOBB((*iter4).second->m_xmf3Center, Vector3::Multiply((*iter4).second->m_xmf3Extent, Vector3::Multiply((*iter2).second->m_pModelRootObject->m_xmf3Scale,XMFLOAT3(1.7f,1.0f,1.7f))), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+					}
+					else 
+					{
 						pSurrounding->SetOOBB((*iter4).second->m_xmf3Center, Vector3::Multiply((*iter4).second->m_xmf3Extent, (*iter2).second->m_pModelRootObject->m_xmf3Scale), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+					}
 				}
 				objectList.emplace_back(pSurrounding);
 			}

@@ -1031,6 +1031,7 @@ void Server::ProcessPacket(char client, char *packet)
 			pow(clients[client].pos.z - clients[p->touchId].pos.z, 2));
 
 		bomberID = p->touchId;
+		
 
 		timer_l.lock();
 		changeCoolTime = COOLTIME;
@@ -1949,10 +1950,11 @@ void Server::SetPitchYawRollZero(char client)
 }
 void Server::UpdateClientPos(char client)
 {
+	
 	if (clients[client].direction == DIR_FORWARD)
 	{
 		if(bomberID == client)
-			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY * 1.2);
+			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY * 1.2f);
 		else
 			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY);
 
@@ -1960,7 +1962,7 @@ void Server::UpdateClientPos(char client)
 	if (clients[client].direction == DIR_BACKWARD)
 	{
 		if (bomberID == client)
-			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -VELOCITY * 1.2);
+			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -VELOCITY * 1.2f);
 		else
 			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -VELOCITY);
 

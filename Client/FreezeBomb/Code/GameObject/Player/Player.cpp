@@ -236,14 +236,20 @@ void CPlayer::Update(float fTimeElapsed)
 	if (m_dwDirection == DIR_FORWARD && m_bIce == false
 		&& m_bCollision == false)
 	{
-		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, m_fVelocityFromServer);
+		if(m_bBomb)
+			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, VELOCITY*1.2f);
+		else
+			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, VELOCITY);
 		Move(m_xmf3Velocity, false);
 	}
 
 	if (m_dwDirection == DIR_BACKWARD && m_bIce == false
 		&& m_bCollision == false)
 	{
-		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -m_fVelocityFromServer);
+		if(m_bBomb)
+			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -VELOCITY*1.2f);
+		else
+			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -VELOCITY);
 		Move(m_xmf3Velocity, false);
 	}
 	
