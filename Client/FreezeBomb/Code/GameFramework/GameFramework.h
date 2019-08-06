@@ -7,7 +7,7 @@ enum GAMESTATE { ID_INPUT,LOBBY, INGAME, PAUSE, OPTION, CONNECT, LOGIN, LOADING 
 
 // 전체모드할경우 CharacterSelectUIShader에서도 
 // FULLSCREENMODE 여부를 확인해야해서 CPP말고 헤더로 옮김 - 명진
-//#define FullScreenMode
+#define FullScreenMode
 class CScene;
 class CPlayer;
 class CCamera;

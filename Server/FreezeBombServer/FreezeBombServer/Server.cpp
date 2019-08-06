@@ -543,13 +543,13 @@ void Server::WorkerThreadFunc()
 					ptr += required;
 					// 이미 계산됐기 때문에 다음 패킷을 처리할 수 있도록 0
 					packet_size = 0;
-					//clients[key].prev_size = 0;
+					clients[key].prev_size = 0;
 				}
 				else {
 					// 패킷 만들 수 없는 경우
 					memcpy(clients[key].packet_buffer + clients[key].prev_size, ptr, rest);
 					rest = 0;
-					//clients[key].prev_size += rest;
+					clients[key].prev_size += rest;
 				}
 			}
 
@@ -625,7 +625,7 @@ void Server::WorkerThreadFunc()
 		{
 			timer_l.lock();
 			changeCoolTime--;
-			printf("쿨타임:%d\n", changeCoolTime);
+			//printf("쿨타임:%d\n", changeCoolTime);
 			timer_l.unlock();
 
 			
@@ -700,6 +700,7 @@ void Server::WorkerThreadFunc()
 		}
 		else
 		{
+			delete over_ex;
 			cout << "Unknown Event\n";
 			//while (true);
 		}
@@ -1265,7 +1266,7 @@ void Server::ProcessPacket(char client, char *packet)
 		if (clients[client].isFreeze == false)
 		{
 			freezeCnt_l.lock();
-			cout << "CS_Freeze - FreezeCnt: " << freezeCnt << "  플레이어 -" << (int)client << "\n";
+			//cout << "CS_Freeze - FreezeCnt: " << freezeCnt << "  플레이어 -" << (int)client << "\n";
 			if (freezeCnt < clientCnt)	//최대 얼음할 수 있는 도망자 수를 넘으면 얼음을 하게 할 수 없다.
 			{
 				++freezeCnt;
@@ -1289,7 +1290,7 @@ void Server::ProcessPacket(char client, char *packet)
 		else
 		{
 			freezeCnt_l.lock();
-			cout << "CS_Release - FreezeCnt: " << freezeCnt << "  플레이어 -" << (int)client << "\n";
+			//cout << "CS_Release - FreezeCnt: " << freezeCnt << "  플레이어 -" << (int)client << "\n";
 			if (freezeCnt > 0)
 			{
 				--freezeCnt;
@@ -1363,12 +1364,13 @@ void Server::ProcessPacket(char client, char *packet)
 	default:
 		wcout << L"패킷 사이즈: " << (int)packet[0] << endl;
 		wcout << L"패킷 타입 : " << (int)packet[1] << endl;
+		cout << "Client prev size : " << clients[client].prev_size<<"\n";
 		for (int i = 2; i < (int)packet[0]; ++i)
 			wcout << packet[i];
 		wcout << L"\n";
 		wcout << L"정의되지 않은 패킷 도착 오류!!\n";
 		//미정의 패킷을 보낸 클라이언트의 접속만 끊는다.
-		ClientDisconnect(client);
+		//ClientDisconnect(client);
 		break;
 
 		//while (true);
@@ -1949,12 +1951,19 @@ void Server::UpdateClientPos(char client)
 {
 	if (clients[client].direction == DIR_FORWARD)
 	{
-		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY);
+		if(bomberID == client)
+			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY * 1.2);
+		else
+			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY);
 
 	}
 	if (clients[client].direction == DIR_BACKWARD)
 	{
-		clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -VELOCITY);
+		if (bomberID == client)
+			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -VELOCITY * 1.2);
+		else
+			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -VELOCITY);
+
 	}
 	if (clients[client].direction == DIR_LEFT 
 		|| clients[client].direction == DIR_RIGHT

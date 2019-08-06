@@ -51,7 +51,7 @@ map<int, clientsInfo> CGameFramework::m_mapClients;
 char CGameFramework::m_HostID = -1;
 #endif
 // 전체모드할경우 주석풀으셈
-#define FullScreenMode
+//#define FullScreenMode
 
 //게임 상태 
 int g_State = GAMESTATE::ID_INPUT;
@@ -1161,7 +1161,7 @@ void CGameFramework::ProcessInput()
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
-					&& m_pPlayer->GetIsICE() == false
+					&& m_pPlayer->GetIsICE() ==false
 					)
 				{
 					//#ifdef 을 선언하지 않으면 무조건 서버가 켜있지 않을경우 무한 대기에 빠짐
@@ -1187,7 +1187,7 @@ void CGameFramework::ProcessInput()
 			if (pKeysBuffer[VK_DOWN] & 0xF0)
 			{
 				if (//m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::ICE
-					m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE
+					 m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
 					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
