@@ -57,6 +57,7 @@ constexpr int SC_GET_ITEM = 23;
 constexpr int SC_CHOICE_CHARACTER = 25;
 constexpr int SC_CHOSEN_CHARACTER = 26;
 constexpr int SC_GO_LOBBY = 27;
+constexpr int SC_FREEZE_COOLTIME = 28;
 
 constexpr int CS_UP_KEY = 0;
 constexpr int CS_DOWN_KEY = 1;
@@ -531,5 +532,12 @@ struct SC_PACKET_CHOSEN_CHARACTER
 	char size;
 	char type;
 	char matID[MAX_USER];
+};
+
+struct SC_PACKET_FREEZE_COOLTIME
+{
+	char size;
+	char type;
+	char cooltime;
 };
 //////////////////////////////////////////////////////

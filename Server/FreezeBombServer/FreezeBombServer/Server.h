@@ -43,7 +43,8 @@ enum EVENT_TYPE
 	EV_RECV,
 	EV_SEND,
 	EV_COUNT,
-	EV_COOLTIME,
+	EV_BOMBERTOUCHCOOLTIME,
+	EV_FREEZECOOLTIME,
 	EV_GO_NEXTROUND,
 	EV_GO_LOBBY
 };
@@ -125,6 +126,10 @@ public:
 	bool isReady;
 	GAME_STATE gameState;	
 	
+	short freezeCooltime;
+
+	mutex freezeCooltime_l;
+
 public:
 	SOCKETINFO() {
 		in_use = false;
@@ -134,6 +139,7 @@ public:
 		role = ROLE::RUNNER;
 		matID = -1;
 		isReady = false;
+		freezeCooltime = 0;
 		ZeroMemory(nickname, sizeof(wchar_t) * 12);
 		ZeroMemory(&over_ex.messageBuffer, sizeof(over_ex.messageBuffer));
 		ZeroMemory(&packet_buffer, sizeof(packet_buffer));
@@ -173,11 +179,11 @@ private:
 	CHeightMapImage* heightMap;
 	XMFLOAT3 gravity;
 	unsigned short roundCurrTime;
-	short changeCoolTime;	//Bomber와 충돌했을때 어느정도 시간만큼은 지나야 됨 
 	int clientCount;
 	int readyCount;
 	int hostId;
 	int bomberID;
+	short bomberTouchCooltime;
 	int freezeCnt;			//얼음 상태인 도망자 수  
 	
 	int goldTimerCnt[MAX_ROUND];
@@ -249,6 +255,7 @@ public:
 	void SendChoiceCharacter(char toClient, char fromClient, char matID);
 	void SendChosenCharacter(char toClient);
 	void SendGoLobby(char toClient);
+	void SendFreezeCooltime(char toClient, char cooltime);
 public:
 	void SetAnimationState(char client,char animationNum);
 	void SetVelocityZero(char client);

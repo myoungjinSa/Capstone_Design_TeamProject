@@ -284,6 +284,10 @@ void Server::RunServer()
 
 void Server::InitGame()
 {
+	timer_l.lock();
+	while (false == timer_queue.empty())
+		timer_queue.pop();
+	timer_l.unlock();
 	round = 0;
 	ResetTimer();
 	readyCount = 0;
@@ -293,15 +297,15 @@ void Server::InitGame()
 	{
 		clients[i].InitPlayer();
 	}
-	timer_l.lock();
-	changeCoolTime = 0;
-	while (false == timer_queue.empty())
-		timer_queue.pop();
-	timer_l.unlock();
 }
 
 void Server::InitRound()
 {
+	timer_l.lock();
+	while (false == timer_queue.empty())
+		timer_queue.pop();
+	timer_l.unlock();
+
 	ResetTimer();
 	bomberID = 0;
 	freezeCnt = 0;
@@ -313,11 +317,6 @@ void Server::InitRound()
 		clients[i].normalItem = ITEM::EMPTY;
 		clients[i].specialItem = ITEM::EMPTY;
 	}
-
-	timer_l.lock();
-	while (false == timer_queue.empty())
-		timer_queue.pop();
-	timer_l.unlock();
 }
 
 void Server::add_timer(int obj_id, EVENT_TYPE et, chrono::high_resolution_clock::time_point start_time)
@@ -621,26 +620,40 @@ void Server::WorkerThreadFunc()
 				add_timer(-1, EV_COUNT, chrono::high_resolution_clock::now() + 1s);
 			}
 		}
-		else if(EV_COOLTIME == over_ex->event_t)		//cooltime 계산
+		else if(EV_BOMBERTOUCHCOOLTIME == over_ex->event_t)		//cooltime 계산
 		{
 			timer_l.lock();
-			changeCoolTime--;
+			bomberTouchCooltime--;
 			//printf("쿨타임:%d\n", changeCoolTime);
-			timer_l.unlock();
-
 			
-			
-			timer_l.lock();
-			
-			if(changeCoolTime <= 0)
+			if(bomberTouchCooltime <= 0)
 			{
-				changeCoolTime = 0;
+				bomberTouchCooltime = 0;
 				timer_l.unlock();
 			}
 			else
 			{
 				timer_l.unlock();
-				add_timer(-1, EV_COOLTIME, chrono::high_resolution_clock::now() + 1s);
+				add_timer(-1, EV_BOMBERTOUCHCOOLTIME, chrono::high_resolution_clock::now() + 1s);
+			}
+		}
+		else if (EV_FREEZECOOLTIME == over_ex->event_t)		//cooltime 계산
+		{
+			clients[key].freezeCooltime_l.lock();
+			clients[key].freezeCooltime--;
+			//printf("쿨타임:%d\n", changeCoolTime);
+
+			if (clients[key].freezeCooltime <= 0)
+			{
+				clients[key].freezeCooltime = 0;
+				SendFreezeCooltime(key, clients[key].freezeCooltime);
+				clients[key].freezeCooltime_l.unlock();
+			}
+			else
+			{
+				SendFreezeCooltime(key, clients[key].freezeCooltime);
+				clients[key].freezeCooltime_l.unlock();
+				add_timer(key, EV_FREEZECOOLTIME, chrono::high_resolution_clock::now() + 1s);
 			}
 
 		}
@@ -659,7 +672,7 @@ void Server::WorkerThreadFunc()
 			StartTimer();
 
 			timer_l.lock();
-			changeCoolTime = 0;		//라운드가 바뀔때 기존에 카운트하던 changeCoolTime을 
+			bomberTouchCooltime = 0;		//라운드가 바뀔때 기존에 카운트하던 changeCoolTime을 
 									//바꿔줘야 한다.
 			timer_l.unlock();
 
@@ -927,11 +940,6 @@ void Server::ProcessPacket(char client, char *packet)
 			if (clients[i].in_use == true)
 			{
 				SendMovePlayer(i, client);
-				//한번 MovePacket을 보내고 난후 
-				//pitch,yaw,roll은 다시 0으로 바꿔줘야함.
-				//그렇지 않을경우 뱅글뱅글 돌게됨.
-				
-
 				//Idle 동작으로 변하게 하려면 
 				//SetVelocityZero(i);
 			}
@@ -1013,7 +1021,7 @@ void Server::ProcessPacket(char client, char *packet)
 			break;
 
 		timer_l.lock();
-		if (changeCoolTime < 0 || changeCoolTime > 0)
+		if (bomberTouchCooltime < 0 || bomberTouchCooltime > 0)
 		{//쿨타임이 아직 남아있으면 RoleChange를 하지 않는다.
 			//changeCoolTime = COOLTIME;
 			timer_l.unlock();
@@ -1030,15 +1038,17 @@ void Server::ProcessPacket(char client, char *packet)
 			pow(clients[client].pos.y - clients[p->touchId].pos.y, 2) +
 			pow(clients[client].pos.z - clients[p->touchId].pos.z, 2));
 
+		if (dist > 10)
+			break;
+
 		bomberID = p->touchId;
 		
-
 		timer_l.lock();
-		changeCoolTime = COOLTIME;
-		if (changeCoolTime == COOLTIME)
+		bomberTouchCooltime = COOLTIME;
+		if (bomberTouchCooltime == COOLTIME)
 		{
 			timer_l.unlock();
-			add_timer(-1, EV_COOLTIME, chrono::high_resolution_clock::now() + 1s);
+			add_timer(client, EV_BOMBERTOUCHCOOLTIME, chrono::high_resolution_clock::now() + 1s);
 		}
 		else
 		{
@@ -1050,7 +1060,6 @@ void Server::ProcessPacket(char client, char *packet)
 			if (true == clients[i].in_use)
 				SendChangeBomber(i, bomberID, client);
 		}
-
 
 		break;
 	}
@@ -1259,6 +1268,14 @@ void Server::ProcessPacket(char client, char *packet)
 		
 		if (client == bomberID)		//술래라면 얼음을 할 수 없다.
 			break;
+		clients[client].freezeCooltime_l.lock();
+		if (clients[client].freezeCooltime > 0)
+		{
+			clients[client].freezeCooltime_l.unlock();
+			break;
+		}
+		else
+			clients[client].freezeCooltime_l.unlock();
 
 		clientCnt_l.lock();
 		int clientCnt = clientCount-2;
@@ -1297,6 +1314,10 @@ void Server::ProcessPacket(char client, char *packet)
 				--freezeCnt;
 				freezeCnt_l.unlock();
 				clients[client].isFreeze = false;
+				clients[client].freezeCooltime_l.lock();
+				clients[client].freezeCooltime = 3;
+				clients[client].freezeCooltime_l.unlock();
+				add_timer(client, EV_FREEZECOOLTIME, high_resolution_clock::now() + 1s);
 			}
 			else
 			{
@@ -1755,6 +1776,17 @@ void Server::SendGoLobby(char toClient)
 
 	packet.size = sizeof(packet);
 	packet.type = SC_GO_LOBBY;
+
+	SendFunc(toClient, &packet);
+}
+
+void Server::SendFreezeCooltime(char toClient, char cooltime)
+{
+	SC_PACKET_FREEZE_COOLTIME packet;
+	
+	packet.size = sizeof(SC_PACKET_FREEZE_COOLTIME);
+	packet.type = SC_FREEZE_COOLTIME;
+	packet.cooltime = cooltime;
 
 	SendFunc(toClient, &packet);
 }

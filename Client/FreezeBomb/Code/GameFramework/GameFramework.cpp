@@ -1517,7 +1517,7 @@ void CGameFramework::ProcessPacket(char* packet)
 	{
 		SC_PACKET_ACCESS_PLAYER* pAP = reinterpret_cast<SC_PACKET_ACCESS_PLAYER*>(packet);
 		cout << "1. OtherPlayer 접속!! ▶";
-		cout << "OtherPlayerID : " <<(int) pAP->id << endl;
+		cout << "OtherPlayerID : " << (int)pAP->id << endl;
 		break;
 	}
 
@@ -1529,15 +1529,15 @@ void CGameFramework::ProcessPacket(char* packet)
 		{
 			CLobbyScene::AddClientsCharacter(i, pCC->matID[i]);
 			cout << "2. Character of OtherPlayer - id: " << i << " : " << (int)pCC->matID[i] << endl;
-			
+
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
-			if (iter != m_pScene->getShaderManager()->getShaderMap().end()) 
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
-				if(pCC->matID[i] != -1 && m_pPlayer->GetPlayerID() != i)
-				dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->MappingUserToEvilbear(i,pCC->matID[i]);
+				if (pCC->matID[i] != -1 && m_pPlayer->GetPlayerID() != i)
+					dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->MappingUserToEvilbear(i, pCC->matID[i]);
 			}
 		}
-		
+
 		break;
 	}
 
@@ -1569,7 +1569,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		CLobbyScene::AddClientsCharacter(playerID, matID);
 
-		if (playerID == m_pPlayer->GetPlayerID()) 
+		if (playerID == m_pPlayer->GetPlayerID())
 		{
 			m_pPlayer->SetMaterialID(matID);
 		}
@@ -1577,7 +1577,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		else if (playerID < MAX_USER)
 		{
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
-			if (iter != m_pScene->getShaderManager()->getShaderMap().end()) 
+			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
 				dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->MappingUserToEvilbear(playerID, matID);
 			}
@@ -1603,7 +1603,7 @@ void CGameFramework::ProcessPacket(char* packet)
 			ChattingSystem::GetInstance()->PushChattingText(user, s.c_str());
 			strcpy(m_mapClients[(int)pLO->id].name, " ");
 
-			auto mapIter= find_if(m_mapClients.begin(), m_mapClients.end(), [&id](const pair<char,clientsInfo>& p) 
+			auto mapIter = find_if(m_mapClients.begin(), m_mapClients.end(), [&id](const pair<char, clientsInfo>& p)
 			{
 				return p.first == id;
 			});
@@ -1684,14 +1684,14 @@ void CGameFramework::ProcessPacket(char* packet)
 		//애니메이션 리셋
 		ResetAnimationForRoundStart();
 
-		
+
 		//라운드가 시작할 때 마다 플레이어의 아이템 소지를 모두 초기화 시켜야한다.
 		m_pPlayer->SetIsBomb(false);
 		m_pPlayer->setIsGoldHammer(false);
 		m_pPlayer->setIsGoldTimer(false);
 		m_pPlayer->SetIsHammer(false);
 		m_pPlayer->SetIsICE(false);
-		
+
 
 		m_pPlayer->Sub_Inventory(CItem::ItemType::GoldHammer);
 		m_pPlayer->Sub_Inventory(CItem::ItemType::NormalHammer);
@@ -1701,7 +1701,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		if (pRS->bomberID == m_pPlayer->GetPlayerID())
 		{
 			m_pPlayer->SetIsBomb(true);
-			
+
 		}
 
 		if (pRS->bomberID < MAX_USER)
@@ -1735,14 +1735,14 @@ void CGameFramework::ProcessPacket(char* packet)
 				}
 			}
 		}
-	
+
 		auto itemIter = m_pScene->getShaderManager()->getShaderMap().find("Item");
 		if (itemIter != m_pScene->getShaderManager()->getShaderMap().end())
 		{
 			m_pScene->SetGoldHammerCnt(pRS->goldHammerCnt);
 			m_pScene->SetNormalHammerCnt(pRS->hammerCnt);
 			m_pScene->SetGoldTimerCnt(pRS->goldTimerCnt);
-		
+
 			g_Round = pRS->round;
 			switch (g_Round)
 			{
@@ -1760,8 +1760,8 @@ void CGameFramework::ProcessPacket(char* packet)
 				cout << "미정의 라운드\n";
 				break;
 			}
-				
-			
+
+
 		}
 
 		clientCount = pRS->clientCount;
@@ -1860,7 +1860,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 			static float elapsedTime = 0.0f;
 
-			if (elapsedTime > 5.0f 
+			if (elapsedTime > 5.0f
 				|| m_pPlayer->GetCollision() == true
 				|| m_pPlayer->GetMoveRotate() == true)
 			{
@@ -1871,7 +1871,7 @@ void CGameFramework::ProcessPacket(char* packet)
 			{
 				elapsedTime += m_GameTimer.GetTimeElapsed();
 			}
-		//	m_pPlayer->SetPosition(pos);
+			//	m_pPlayer->SetPosition(pos);
 			m_pPlayer->SetLookVector(look);
 			m_pPlayer->SetUpVector(up);
 			m_pPlayer->SetRightVector(right);
@@ -1894,18 +1894,18 @@ void CGameFramework::ProcessPacket(char* packet)
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
 				//char id = pMP->id;
-			
-				XMFLOAT3 pos = XMFLOAT3(pMP->xPos,pMP->yPos, pMP->zPos);
+
+				XMFLOAT3 pos = XMFLOAT3(pMP->xPos, pMP->yPos, pMP->zPos);
 				XMFLOAT3 look = XMFLOAT3(pMP->xLook, pMP->yLook, pMP->zLook);
 				XMFLOAT3 up = XMFLOAT3(pMP->xUp, pMP->yUp, pMP->zUp);
 				XMFLOAT3 right = XMFLOAT3(pMP->xRight, pMP->yRight, pMP->zRight);
 
-				auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");			
+				auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 				if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 				{
 					//vector<pair<char,char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
 					char enemyID = m_mapClients[pMP->id].id;
-					
+
 					(*iter).second->m_ppObjects[enemyID]->SetPosition(pos);
 					(*iter).second->m_ppObjects[enemyID]->SetLookVector(look);
 					(*iter).second->m_ppObjects[enemyID]->SetRightVector(right);
@@ -1926,7 +1926,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		//cout <<"애니메이션 주최:" <<(int)pPA->id << "\n";
 		if (pPA->id == m_pPlayer->GetPlayerID())
 		{
-			
+
 			if (pPA->animation == CAnimationController::VICTORY)
 			{
 				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE)
@@ -1939,7 +1939,7 @@ void CGameFramework::ProcessPacket(char* packet)
 			{
 				m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
 				m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
-			
+
 			}
 
 			//cout <<"애니메이션 : "<<(int)pPA->animation << "\n";
@@ -1948,13 +1948,13 @@ void CGameFramework::ProcessPacket(char* packet)
 		else if (pPA->id < MAX_USER)
 		{
 			char id = m_mapClients[pPA->id].id;
-			
+
 			char animNum = pPA->animation;
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
-			
+
 				if ((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::RAISEHAND
 					|| (CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::DIE
 					|| (CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::USEGOLDHAMMER
@@ -1962,7 +1962,7 @@ void CGameFramework::ProcessPacket(char* packet)
 				{
 					(*iter).second->m_ppObjects[id]->m_pAnimationController->SetTrackPosition(0, 0.0f);
 				}
-				
+
 				if ((CAnimationController::ANIMATIONTYPE)animNum == CAnimationController::USEGOLDHAMMER)
 				{
 					(*iter).second->m_ppObjects[id]->SetIsLightEffect(true);
@@ -2024,7 +2024,7 @@ void CGameFramework::ProcessPacket(char* packet)
 				string s = "님이 나갔습니다.";
 				string user = m_mapClients[id].name;
 
-				auto mapIter= find_if(m_mapClients.begin(), m_mapClients.end(), [&id](const pair<char,clientsInfo>& p) 
+				auto mapIter = find_if(m_mapClients.begin(), m_mapClients.end(), [&id](const pair<char, clientsInfo>& p)
 				{
 					return p.first == id;
 				});
@@ -2050,14 +2050,14 @@ void CGameFramework::ProcessPacket(char* packet)
 			printf("Win!\n");
 		else
 			printf("Lose..\n");
-		
+
 
 		m_IceChangeOk = false;
 		//m_RoundCountTime = {};
 		m_RoundStartTime = std::chrono::steady_clock::now() + 10s;
 
 
-		
+
 		if (m_pPlayer && m_pPlayer->GetIsBomb() == false)
 		{
 			m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::VICTORY);
@@ -2129,7 +2129,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		if (pRF->id == m_pPlayer->GetPlayerID())
 		{
-			
+
 			if (m_pPlayer->GetIsICE() == true)
 			{
 				cout << "setIsIce = false\n";
@@ -2147,7 +2147,7 @@ void CGameFramework::ProcessPacket(char* packet)
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
 			{
 				char id = m_mapClients[pRF->id].id;
-			//	vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
+				//	vector<pair<char, char>>& vec = dynamic_cast<CSkinnedAnimationObjectShader*>((*iter).second)->m_vMaterial;
 
 				if ((*iter).second->m_ppObjects[id]->GetIsICE() == true)
 				{
@@ -2294,10 +2294,10 @@ void CGameFramework::ProcessPacket(char* packet)
 					{
 						if ((*iter).second->m_ppObjects[enemyID.second.id]->GetIsICE())
 						{
-							dynamic_cast<CCubeParticleShader*>((*iceParticle).second)->SetParticleBlowUp((*iter).second->m_ppObjects[enemyID.second.id]->GetPosition(),enemyID.second.id);
+							dynamic_cast<CCubeParticleShader*>((*iceParticle).second)->SetParticleBlowUp((*iter).second->m_ppObjects[enemyID.second.id]->GetPosition(), enemyID.second.id);
 							(*iter).second->m_ppObjects[enemyID.second.id]->SetIsICE(false);
 							(*iter).second->m_ppObjects[enemyID.second.id]->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
-							
+
 						}
 					}
 				}
@@ -2310,7 +2310,7 @@ void CGameFramework::ProcessPacket(char* packet)
 				auto iceParticle = m_pScene->getShaderManager()->getShaderMap().find("CubeParticle");
 				if (m_pPlayer->GetIsICE() && iceParticle != m_pScene->getShaderManager()->getShaderMap().end())
 				{
-					dynamic_cast<CCubeParticleShader*>((*iceParticle).second)->SetParticleBlowUp(m_pPlayer->GetPosition(),m_pPlayer->GetPlayerID());
+					dynamic_cast<CCubeParticleShader*>((*iceParticle).second)->SetParticleBlowUp(m_pPlayer->GetPosition(), m_pPlayer->GetPlayerID());
 					m_pPlayer->SetIsICE(false);
 					m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
 				}
@@ -2326,7 +2326,7 @@ void CGameFramework::ProcessPacket(char* packet)
 					{
 						if ((*iter).second->m_ppObjects[enemyID.second.id]->GetIsICE())
 						{
-							dynamic_cast<CCubeParticleShader*>((*iceParticle).second)->SetParticleBlowUp((*iter).second->m_ppObjects[enemyID.second.id]->GetPosition(),enemyID.second.id);
+							dynamic_cast<CCubeParticleShader*>((*iceParticle).second)->SetParticleBlowUp((*iter).second->m_ppObjects[enemyID.second.id]->GetPosition(), enemyID.second.id);
 							(*iter).second->m_ppObjects[enemyID.second.id]->SetIsICE(false);
 							(*iter).second->m_ppObjects[enemyID.second.id]->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
 						}
@@ -2385,12 +2385,12 @@ void CGameFramework::ProcessPacket(char* packet)
 
 						m_pPlayer->SetCameraVibe(true);
 
-						
+
 						CSoundSystem::PlayingSound(CSoundSystem::ICE_BREAK);
 					}
 
 
-					
+
 				}
 				else
 				{
@@ -2399,7 +2399,7 @@ void CGameFramework::ProcessPacket(char* packet)
 					if (iter != m_pScene->getShaderManager()->getShaderMap().end()
 						&& iceParticle != m_pScene->getShaderManager()->getShaderMap().end())
 					{
-						
+
 						if ((*iter).second->m_ppObjects[pUI->target]->GetIsICE())
 						{
 							dynamic_cast<CCubeParticleShader*>((*iceParticle).second)->SetParticleBlowUp((*iter).second->m_ppObjects[pUI->target]->GetPosition(), pUI->target);
@@ -2408,9 +2408,9 @@ void CGameFramework::ProcessPacket(char* packet)
 
 							(*iter).second->m_ppObjects[pUI->id]->SetIsHammer(false);
 						}
-						
+
 						CSoundSystem::PlayingSound(CSoundSystem::ICE_BREAK);
-					
+
 					}
 				}
 
@@ -2433,7 +2433,7 @@ void CGameFramework::ProcessPacket(char* packet)
 	case SC_BOMB_EXPLOSION:
 	{
 		SC_PACKET_BOMB_EXPLOSION *pBE = reinterpret_cast<SC_PACKET_BOMB_EXPLOSION*>(packet);
-		
+
 		if (pBE->bomberId != m_pPlayer->GetPlayerID())
 		{
 			char id = m_mapClients[pBE->bomberId].id;
@@ -2449,8 +2449,8 @@ void CGameFramework::ProcessPacket(char* packet)
 				pBomb->SetPosition((*enemyIter).second->m_ppObjects[id]->GetPosition());
 				pBomb->setIsBlowing(true);
 
-			//	dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetBlowingUp(true);
-				
+				//	dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetBlowingUp(true);
+
 				dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetParticleBlowUp(pBomb->GetPosition());
 			}
 		}
@@ -2475,7 +2475,7 @@ void CGameFramework::ProcessPacket(char* packet)
 				m_pPlayer->SetGoldHammerUse(false);
 				m_pPlayer->SetIsBomb(true);
 				(*iter).second->m_ppObjects[runnerID]->SetIsBomb(false);
-				
+
 			}
 		}
 		else if (pRC->runnerId == m_pPlayer->GetPlayerID())		//자신이 상대방에게  폭탄을 넘겨줬을 경우
@@ -2486,7 +2486,7 @@ void CGameFramework::ProcessPacket(char* packet)
 			{
 				m_pPlayer->SetIsBomb(false);
 				(*iter).second->m_ppObjects[bomberID]->SetIsBomb(true);
-				
+
 
 			}
 		}
@@ -2500,7 +2500,7 @@ void CGameFramework::ProcessPacket(char* packet)
 				(*iter).second->m_ppObjects[runnerId]->SetIsBomb(false);
 
 				(*iter).second->m_ppObjects[bomberId]->SetIsBomb(true);
-			
+
 			}
 		}
 		cout << "술래 바뀜" << endl;
@@ -2508,20 +2508,27 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		break;
 	}
-		case SC_GO_LOBBY:
-		{
-			SC_PACKET_GO_LOBBY *pGL = reinterpret_cast<SC_PACKET_GO_LOBBY *>(packet);
+	case SC_GO_LOBBY:
+	{
+		SC_PACKET_GO_LOBBY *pGL = reinterpret_cast<SC_PACKET_GO_LOBBY *>(packet);
 
-			for (auto& client : m_mapClients)
-				client.second.isReady = false;
-			m_pLobbyScene->LobbySceneClear();
-			m_pScene->InGameSceneClear(m_pd3dDevice, m_pd3dCommandList);
+		for (auto& client : m_mapClients)
+			client.second.isReady = false;
+		m_pLobbyScene->LobbySceneClear();
+		m_pScene->InGameSceneClear(m_pd3dDevice, m_pd3dCommandList);
 
-			g_State = LOBBY;
+		g_State = LOBBY;
 
-			cout << "Go Lobby" << endl;
-			break;
-		}
+		cout << "Go Lobby" << endl;
+		break;
+	}
+	case SC_FREEZE_COOLTIME:
+	{
+		SC_PACKET_FREEZE_COOLTIME *pFC = reinterpret_cast<SC_PACKET_FREEZE_COOLTIME *>(packet);
+
+		cout << (int)pFC->cooltime << "\n";
+		break;
+	}
 	}
 }
 
