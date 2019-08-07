@@ -113,50 +113,98 @@ void CPlayer::ProcessMove()
    {
    case KEY_TYPE::UP:
    {
-	   Network::GetInstance()->SendUpKey(); 
-	   m_dwDirection = DIR_FORWARD;
+	   if (m_pAnimationController->GetAnimationState() != CAnimationController::DIE
+		   && m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
+		   && m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
+		   && m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
+		   && m_bIce == false)
+	   {
+		   Network::GetInstance()->SendUpKey();
+		   m_dwDirection = DIR_FORWARD;
+	   }
 	   break;
    }
    case KEY_TYPE::DOWN:
    {
-	   Network::GetInstance()->SendDownKey();  
-	    m_dwDirection = DIR_BACKWARD;
+	   if (m_pAnimationController->GetAnimationState() != CAnimationController::DIE
+		   && m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
+		   && m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
+		   && m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
+		   && m_bIce == false)
+	   {
+		   Network::GetInstance()->SendDownKey();
+		   m_dwDirection = DIR_BACKWARD;
+	   }
 	   break;
    }
    case KEY_TYPE::RIGHT: 
    {
-	   Network::GetInstance()->SendRightKey();     
-	   m_dwDirection = DIR_RIGHT;
+	   if (m_pAnimationController->GetAnimationState() != CAnimationController::DIE)
+	   {
+		   Network::GetInstance()->SendRightKey();
+		   m_dwDirection = DIR_RIGHT;
+	   }
 	   break;
    }
    case KEY_TYPE::LEFT:
    {
-	   Network::GetInstance()->SendLeftKey();   
-	   m_dwDirection = DIR_LEFT;
+	   if (m_pAnimationController->GetAnimationState() != CAnimationController::DIE)
+	   {
+		   Network::GetInstance()->SendLeftKey();
+		   m_dwDirection = DIR_LEFT;
+	   }
 	   break;
    }
    case KEY_TYPE::UP_RIGHT: 
    {
-	   Network::GetInstance()->SendUpRightKey();     
-	   m_dwDirection = DIR_UP_RIGHT;
+	   if (m_pAnimationController->GetAnimationState() != CAnimationController::DIE
+		   && m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
+		   && m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
+		   && m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
+		   && m_bIce == false)
+	   {
+		   Network::GetInstance()->SendUpRightKey();
+		   m_dwDirection = DIR_UP_RIGHT;
+	   }
 	   break;
    }
    case KEY_TYPE::UP_LEFT:
    {
-	   Network::GetInstance()->SendUpLeftKey();      
-	   m_dwDirection = DIR_UP_LEFT;
+	   if (m_pAnimationController->GetAnimationState() != CAnimationController::DIE
+		   && m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
+		   && m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
+		   && m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
+		   && m_bIce == false)
+	   {
+		   Network::GetInstance()->SendUpLeftKey();
+		   m_dwDirection = DIR_UP_LEFT;
+	   }
 	   break;
    }
    case KEY_TYPE::DOWN_RIGHT: 
    {
-	   Network::GetInstance()->SendDownRightKey(); 
-	   m_dwDirection = DIR_DOWN_RIGHT;
+	   if (m_pAnimationController->GetAnimationState() != CAnimationController::DIE
+		   && m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
+		   && m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
+		   && m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
+		   && m_bIce == false)
+	   {
+		   Network::GetInstance()->SendDownRightKey();
+		   m_dwDirection = DIR_DOWN_RIGHT;
+	   }
 	   break;
    }
    case KEY_TYPE::DOWN_LEFT:  
    {
-	   Network::GetInstance()->SendDownLeftKey();  
-	   m_dwDirection = DIR_DOWN_LEFT;
+	   if (m_pAnimationController->GetAnimationState() != CAnimationController::DIE
+		   && m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
+		   && m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
+		   && m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
+		   && m_bIce == false)
+	   {
+		   Network::GetInstance()->SendDownLeftKey();
+		   m_dwDirection = DIR_DOWN_LEFT;
+	   }
 	   break;
    }
       break;
@@ -323,9 +371,9 @@ void CPlayer::Update(float fTimeElapsed)
 	if ((m_dwDirection == DIR_BACKWARD || m_dwDirection == DIR_DOWN_LEFT || m_dwDirection == DIR_DOWN_RIGHT)&& m_bIce == false
 		&& m_bCollision == false)
 	{
-		//if(m_bBomb)
-		//	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -VELOCITY*1.2f);
-		//else
+		if(m_bBomb)
+			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -VELOCITY*1.2f);
+		else
 			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -VELOCITY);
 		Move(m_xmf3Velocity, false);
 	}
