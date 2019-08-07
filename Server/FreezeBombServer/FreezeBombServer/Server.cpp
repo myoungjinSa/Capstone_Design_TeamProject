@@ -835,7 +835,8 @@ void Server::ProcessPacket(char client, char *packet)
 		// 클라가 엔터누르고 F5누를때마다 CS_READY 패킷이 날아온다면 ++readyCount는 clientCount보다 증가하게 되고 
 		// 아래 CS_REQUEST_START안에 if(clientCount<= readyCount) 안으로 들어가지 않는 현상 발생
 		readyCnt_l.lock();
-		++readyCount;
+		if(readyCount < clientCount -1)
+			++readyCount;
 		readyCnt_l.unlock();
 
 		printf("Ready한 클라 수: %d\n", readyCount);
@@ -851,7 +852,8 @@ void Server::ProcessPacket(char client, char *packet)
 	case CS_UNREADY:
 	{
 		readyCnt_l.lock();
-		--readyCount;
+		if(readyCount > 0)
+			--readyCount;
 		readyCnt_l.unlock();
 
 
@@ -2080,12 +2082,18 @@ void Server::UpdateClientPos(char client)
 
    if (clients[client].direction == DIR_FORWARD || clients[client].direction == DIR_FORWARDRIGHT || clients[client].direction == DIR_FORWARDLEFT)
    {
-      clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY);
+	   if(bomberID == client)
+			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY * 1.2f);
+		else
+	        clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY);
 
    }
    if (clients[client].direction == DIR_BACKWARD || clients[client].direction == DIR_BACKRIGHT || clients[client].direction == DIR_BACKLEFT)
    {
-      clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -VELOCITY);
+     if(bomberID == client)
+			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY * 1.2f);
+		else
+	        clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY);
    }
 
 

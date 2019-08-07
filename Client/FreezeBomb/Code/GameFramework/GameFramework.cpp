@@ -1154,87 +1154,7 @@ void CGameFramework::ProcessInput()
 		if (!bProcessedByScene)
 		{
 			m_pPlayer->ProcessMove();
-//			DWORD dwDirection = 0;
-//			if (pKeysBuffer[VK_UP] & 0xF0)
-//			{
-//				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE
-//					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
-//					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
-//					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
-//					&& m_pPlayer->GetIsICE() == false
-//					)
-//				{
-//					//#ifdef 을 선언하지 않으면 무조건 서버가 켜있지 않을경우 무한 대기에 빠짐
-//#ifdef _WITH_SERVER_
-//					
-//					Network::GetInstance()->SendUpKey();
-//			
-//					if(GetAsyncKeyState(VK_RIGHT) & 0x8000)
-//					{
-//						Network::GetInstance()->SendUpRightKey();
-//					}
-//					if (GetAsyncKeyState(VK_LEFT) & 0x8000)
-//					{
-//						Network::GetInstance()->SendUpLeftKey();
-//					}
-//					
-//#endif
-//					dwDirection |= DIR_FORWARD;
-//					m_pPlayer->SetDirection(dwDirection);
-//				}
-//
-//			}
-//			if (pKeysBuffer[VK_DOWN] & 0xF0)
-//			{
-//				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE
-//					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
-//					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
-//					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
-//					&& m_pPlayer->GetIsICE() == false)
-//				{
-//#ifdef _WITH_SERVER_
-//					
-//				
-//					Network::GetInstance()->SendDownKey();
-//					if(GetAsyncKeyState(VK_RIGHT) & 0x8000)
-//					{
-//						Network::GetInstance()->SendDownRightKey();
-//					
-//					}
-//					if (GetAsyncKeyState(VK_LEFT) & 0x8000)
-//					{
-//						Network::GetInstance()->SendDownLeftKey();
-//						
-//					}
-//					
-//#endif
-//					dwDirection |= DIR_BACKWARD;
-//					m_pPlayer->SetDirection(dwDirection);
-//				}
-//			}
-//			if (pKeysBuffer[VK_LEFT] & 0xF0)
-//			{
-//#ifdef _WITH_SERVER_
-//				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE) 
-//				{
-//					Network::GetInstance()->SendLeftKey();
-//#endif
-//					dwDirection |= DIR_LEFT;
-//					m_pPlayer->SetDirection(dwDirection);
-//				}
-//			}
-//			if (pKeysBuffer[VK_RIGHT] & 0xF0)
-//			{
-//#ifdef _WITH_SERVER_
-//				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE)
-//				{
-//					Network::GetInstance()->SendRightKey();
-//
-//#endif
-//					dwDirection |= DIR_RIGHT;
-//					m_pPlayer->SetDirection(dwDirection);
-//				}
-//			}
+
 //서버와 연동되어 있지 않을때만 마우스 회전을 허용한다.
 #ifndef _WITH_SERVER_
 			float cxDelta = 0.0f, cyDelta = 0.0f;
@@ -1716,7 +1636,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		m_pPlayer->SetIsHammer(false);
 		m_pPlayer->SetIsICE(false);
 
-
+		m_pPlayer->SetIsShowCoolTime(false);
 		m_pPlayer->Sub_Inventory(CItem::ItemType::GoldHammer);
 		m_pPlayer->Sub_Inventory(CItem::ItemType::NormalHammer);
 		m_pPlayer->Sub_Inventory(CItem::ItemType::GoldTimer);
