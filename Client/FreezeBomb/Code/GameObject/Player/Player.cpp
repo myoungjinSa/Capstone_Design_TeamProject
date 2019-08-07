@@ -361,9 +361,9 @@ void CPlayer::Update(float fTimeElapsed)
 	if ((m_dwDirection == DIR_FORWARD || m_dwDirection == DIR_UP_LEFT || m_dwDirection == DIR_UP_RIGHT ) && m_bIce == false
 		&& m_bCollision == false)
 	{
-		//if(m_bBomb)
-		//	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, VELOCITY*1.2f);
-		//else
+		if(m_bBomb)
+			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, VELOCITY*1.2f);
+		else
 			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, VELOCITY);
 		Move(m_xmf3Velocity, false);
 	}
