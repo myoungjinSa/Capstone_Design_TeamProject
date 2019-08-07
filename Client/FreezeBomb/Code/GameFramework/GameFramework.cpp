@@ -1153,87 +1153,88 @@ void CGameFramework::ProcessInput()
 	{
 		if (!bProcessedByScene)
 		{
-			DWORD dwDirection = 0;
-			if (pKeysBuffer[VK_UP] & 0xF0)
-			{
-				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE
-					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
-					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
-					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
-					&& m_pPlayer->GetIsICE() == false
-					)
-				{
-					//#ifdef 을 선언하지 않으면 무조건 서버가 켜있지 않을경우 무한 대기에 빠짐
-#ifdef _WITH_SERVER_
-					
-					Network::GetInstance()->SendUpKey();
-			
-					if(GetAsyncKeyState(VK_RIGHT) & 0x8000)
-					{
-						Network::GetInstance()->SendUpRightKey();
-					}
-					if (GetAsyncKeyState(VK_LEFT) & 0x8000)
-					{
-						Network::GetInstance()->SendUpLeftKey();
-					}
-					
-#endif
-					dwDirection |= DIR_FORWARD;
-					m_pPlayer->SetDirection(dwDirection);
-				}
-
-			}
-			if (pKeysBuffer[VK_DOWN] & 0xF0)
-			{
-				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE
-					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
-					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
-					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
-					&& m_pPlayer->GetIsICE() == false)
-				{
-#ifdef _WITH_SERVER_
-					
-				
-					Network::GetInstance()->SendDownKey();
-					if(GetAsyncKeyState(VK_RIGHT) & 0x8000)
-					{
-						Network::GetInstance()->SendDownRightKey();
-					
-					}
-					if (GetAsyncKeyState(VK_LEFT) & 0x8000)
-					{
-						Network::GetInstance()->SendDownLeftKey();
-						
-					}
-					
-#endif
-					dwDirection |= DIR_BACKWARD;
-					m_pPlayer->SetDirection(dwDirection);
-				}
-			}
-			if (pKeysBuffer[VK_LEFT] & 0xF0)
-			{
-#ifdef _WITH_SERVER_
-				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE) 
-				{
-					Network::GetInstance()->SendLeftKey();
-#endif
-					dwDirection |= DIR_LEFT;
-					m_pPlayer->SetDirection(dwDirection);
-				}
-			}
-			if (pKeysBuffer[VK_RIGHT] & 0xF0)
-			{
-#ifdef _WITH_SERVER_
-				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE)
-				{
-					Network::GetInstance()->SendRightKey();
-
-#endif
-					dwDirection |= DIR_RIGHT;
-					m_pPlayer->SetDirection(dwDirection);
-				}
-			}
+			m_pPlayer->ProcessMove();
+//			DWORD dwDirection = 0;
+//			if (pKeysBuffer[VK_UP] & 0xF0)
+//			{
+//				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE
+//					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
+//					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
+//					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
+//					&& m_pPlayer->GetIsICE() == false
+//					)
+//				{
+//					//#ifdef 을 선언하지 않으면 무조건 서버가 켜있지 않을경우 무한 대기에 빠짐
+//#ifdef _WITH_SERVER_
+//					
+//					Network::GetInstance()->SendUpKey();
+//			
+//					if(GetAsyncKeyState(VK_RIGHT) & 0x8000)
+//					{
+//						Network::GetInstance()->SendUpRightKey();
+//					}
+//					if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+//					{
+//						Network::GetInstance()->SendUpLeftKey();
+//					}
+//					
+//#endif
+//					dwDirection |= DIR_FORWARD;
+//					m_pPlayer->SetDirection(dwDirection);
+//				}
+//
+//			}
+//			if (pKeysBuffer[VK_DOWN] & 0xF0)
+//			{
+//				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE
+//					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
+//					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::RAISEHAND
+//					&& m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::VICTORY
+//					&& m_pPlayer->GetIsICE() == false)
+//				{
+//#ifdef _WITH_SERVER_
+//					
+//				
+//					Network::GetInstance()->SendDownKey();
+//					if(GetAsyncKeyState(VK_RIGHT) & 0x8000)
+//					{
+//						Network::GetInstance()->SendDownRightKey();
+//					
+//					}
+//					if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+//					{
+//						Network::GetInstance()->SendDownLeftKey();
+//						
+//					}
+//					
+//#endif
+//					dwDirection |= DIR_BACKWARD;
+//					m_pPlayer->SetDirection(dwDirection);
+//				}
+//			}
+//			if (pKeysBuffer[VK_LEFT] & 0xF0)
+//			{
+//#ifdef _WITH_SERVER_
+//				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE) 
+//				{
+//					Network::GetInstance()->SendLeftKey();
+//#endif
+//					dwDirection |= DIR_LEFT;
+//					m_pPlayer->SetDirection(dwDirection);
+//				}
+//			}
+//			if (pKeysBuffer[VK_RIGHT] & 0xF0)
+//			{
+//#ifdef _WITH_SERVER_
+//				if (m_pPlayer->m_pAnimationController->GetAnimationState() != CAnimationController::DIE)
+//				{
+//					Network::GetInstance()->SendRightKey();
+//
+//#endif
+//					dwDirection |= DIR_RIGHT;
+//					m_pPlayer->SetDirection(dwDirection);
+//				}
+//			}
 //서버와 연동되어 있지 않을때만 마우스 회전을 허용한다.
 #ifndef _WITH_SERVER_
 			float cxDelta = 0.0f, cyDelta = 0.0f;
@@ -1883,9 +1884,11 @@ void CGameFramework::ProcessPacket(char* packet)
 
 			static float elapsedTime = 0.0f;
 
+			cout << "서버 위치 : " << pos.x << ", " << pos.y << ", " << pos.z << endl;
+			cout << "클라 위치 : " << m_pPlayer->GetPosition().x << ", " << m_pPlayer->GetPosition().y << ", " << m_pPlayer->GetPosition().z << endl;
+
 			if (elapsedTime > 5.0f
-				|| m_pPlayer->GetCollision() == true
-				|| m_pPlayer->GetMoveRotate() == true)
+				|| m_pPlayer->GetCollision() == true)
 			{
 				m_pPlayer->SetPosition(pos);
 				elapsedTime = 0.0f;
@@ -1898,10 +1901,10 @@ void CGameFramework::ProcessPacket(char* packet)
 			m_pPlayer->SetLookVector(look);
 			m_pPlayer->SetUpVector(up);
 			m_pPlayer->SetRightVector(right);
-			m_pPlayer->Rotate(pMP->pitch, pMP->yaw, pMP->roll);
+			//m_pPlayer->Rotate(pMP->pitch, pMP->yaw, pMP->roll);
 			m_pPlayer->SetVelocityFromServer(pMP->fVelocity);
 			m_pPlayer->SetMoveRotate(pMP->isMoveRotate);
-			m_pPlayer->SetCollision(false);
+			//m_pPlayer->SetCollision(false);
 		}
 
 		else if (pMP->id < MAX_USER)

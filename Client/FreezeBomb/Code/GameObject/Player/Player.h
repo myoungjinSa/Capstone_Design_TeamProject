@@ -129,15 +129,27 @@ public:
 
 	const XMFLOAT2& ConvertIceCoolTimeTextToNDCSpace();
 
-
+	void ProcessMove();
 	void SetIsShowCoolTime(bool isShow) { m_bShowCoolTime = isShow; }
 	bool GetIsShowCoolTime() { return m_bShowCoolTime; }
 
 	void SetIceCoolTime(int coolTime) { m_IceCooltime = coolTime; }
 	const int GetIceCoolTime() const { return m_IceCooltime; }
-
+	void RotateAxisY(const float& fTimeElapsed);
 protected:
+	enum KEY_TYPE
+   {
+      NONE = 0x0000,
+      UP = 0x0001,
+      DOWN = 0x0010,
+      RIGHT = 0x0100,
+      LEFT = 0x1000,
 
+      UP_RIGHT = 0x0101,
+      UP_LEFT = 0x1001,
+      DOWN_RIGHT = 0x0110,
+      DOWN_LEFT = 0x1010
+   };
 	
 	XMFLOAT3					m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3					m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
@@ -201,6 +213,6 @@ public:
 	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed);
 	virtual void OnCameraUpdateCallback(float fTimeElapsed);
-	void RotateAxisY(const float& fTimeElapsed);
+	
 };
 

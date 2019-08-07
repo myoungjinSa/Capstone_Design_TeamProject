@@ -249,10 +249,28 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define DIR_FORWARD					0x01
-#define DIR_BACKWARD				0x02
-#define DIR_LEFT					0x04
-#define DIR_RIGHT					0x08
+ //UP = 0x0001,
+ //     DOWN = 0x0010,
+ //     RIGHT = 0x0100,
+ //     LEFT = 0x1000,
+
+ //     UP_RIGHT = 0x0101,
+ //     UP_LEFT = 0x1001,
+ //     DOWN_RIGHT = 0x0110,
+ //     DOWN_LEFT = 0x1010
+
+//#define DIR_FORWARD					0x01
+//#define DIR_BACKWARD				0x02
+//#define DIR_LEFT					0x04
+//#define DIR_RIGHT					0x08
+#define DIR_FORWARD					0x0001
+#define DIR_BACKWARD				0x0010
+#define DIR_LEFT					0x1000
+#define DIR_RIGHT					0x0100
+#define DIR_UP_RIGHT				0x0101
+#define DIR_UP_LEFT					0x1001
+#define DIR_DOWN_RIGHT				0x0110
+#define DIR_DOWN_LEFT				0x1010
 #define DIR_UP						0x10
 #define DIR_DOWN					0x20
 

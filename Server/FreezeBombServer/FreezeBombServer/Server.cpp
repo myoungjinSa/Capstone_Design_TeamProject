@@ -1949,121 +1949,218 @@ void Server::SetPitchYawRollZero(char client)
 		clients[client].roll = 0.0f;
 	
 }
+//void Server::UpdateClientPos(char client)
+//{
+//	
+//	if (clients[client].direction == DIR_FORWARD)
+//	{
+//		if(bomberID == client)
+//			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY * 1.2f);
+//		else
+//			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY);
+//
+//	}
+//	if (clients[client].direction == DIR_BACKWARD)
+//	{
+//		if (bomberID == client)
+//			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -VELOCITY * 1.2f);
+//		else
+//			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -VELOCITY);
+//
+//	}
+//	if (clients[client].direction == DIR_LEFT 
+//		|| clients[client].direction == DIR_RIGHT
+//		|| clients[client].direction == DIR_FORWARDRIGHT
+//		|| clients[client].direction == DIR_FORWARDLEFT
+//		|| clients[client].direction == DIR_BACKRIGHT
+//		|| clients[client].direction == DIR_BACKLEFT)
+//	{
+//		RotateClientAxisY(client);
+//	}
+//
+//	//clients[client].velocity = Vector3::Add(clients[client].velocity, gravity);//gravity가 초기화가 안되서 쓰레기값?
+//	//	cout << clients[client].velocity.x<<","<<clients[client].velocity.y<<","<<clients[client].velocity.z << "\n";
+//	float fLength = sqrtf(clients[client].velocity.x * clients[client].velocity.x + clients[client].velocity.z * clients[client].velocity.z);
+//	
+//	
+//	if (fLength > MAX_VELOCITY_XZ)
+//	{
+//		clients[client].velocity.x *= (MAX_VELOCITY_XZ / fLength);
+//		clients[client].velocity.z *= (MAX_VELOCITY_XZ / fLength);
+//	}
+//
+//
+//	
+//	switch (clients[client].collision)
+//	{
+//	case CL_NONE:
+//	{
+//		break;
+//	}
+//	case CL_SURROUNDING:
+//	{
+//	
+//		XMFLOAT3 xmf3CollisionDir = Vector3::Subtract(recent_pos, clients[client].pos);
+//		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, VELOCITY*0.3f );
+//		clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
+//		
+//		break;
+//	}
+//	case CL_PLAYER:
+//	{
+//		XMFLOAT3 xmf3CollisionDir = XMFLOAT3(0.0f, 0.0f, 0.0f);
+//		switch (clients[client].direction)
+//		{
+//		case DIR_BACKWARD:
+//		case DIR_BACKLEFT:
+//		case DIR_BACKRIGHT:
+//		{
+//			xmf3CollisionDir= Vector3::Add(Vector3::Subtract(player_pos, clients[client].pos), Vector3::ScalarProduct(clients[client].look, -1.0f));
+//			break;
+//		}
+//		case DIR_FORWARD:
+//		case DIR_FORWARDLEFT:
+//		case DIR_FORWARDRIGHT:
+//		{
+//			xmf3CollisionDir = Vector3::Add(Vector3::Subtract(player_pos,clients[client].pos),clients[client].look);
+//			break;
+//		}
+//
+//		}
+//		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir,VELOCITY );
+//		clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
+//		//cout << "충돌 속도" << clients[client].velocity.x << "," << clients[client].velocity.y << "," << clients[client].velocity.z << endl;
+//		break;
+//	}
+//	default :
+//		cout << "알수 없는 객체와 충돌\n";
+//		break;
+//	}
+//	
+//	clients[client].pos = Vector3::Add(clients[client].pos, clients[client].velocity);
+//	
+//
+//	//ProcessFriction 함수 호출 필요없어 보임 - 여기서밖에 쓰이지 않아서 함수로 만들 필요가 없어보임 (함수 호출이 비효율적이지 않을까)
+//	fLength = Vector3::Length(clients[client].velocity);
+//	float fDeclaration = FRICTION;
+//
+//	if (fDeclaration > fLength)
+//	{
+//		fDeclaration = fLength;
+//		clients[client].velocity = Vector3::Add(clients[client].velocity, Vector3::ScalarProduct(clients[client].velocity, -fDeclaration, true));
+//	}
+//	//ProcessFriction(client, fLength);
+//
+//	
+//
+//
+//
+//
+//
+//	//속도를 클라에게 보내주어 클라에서 기본적인 rUn,Backward,애니메이션을 결정하게 하기 위해.
+//	clients[client].fVelocity = fLength;
+//
+//
+//
+//}
 void Server::UpdateClientPos(char client)
 {
-	
-	if (clients[client].direction == DIR_FORWARD)
-	{
-		if(bomberID == client)
-			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY * 1.2f);
-		else
-			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY);
-
-	}
-	if (clients[client].direction == DIR_BACKWARD)
-	{
-		if (bomberID == client)
-			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -VELOCITY * 1.2f);
-		else
-			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -VELOCITY);
-
-	}
 	if (clients[client].direction == DIR_LEFT 
-		|| clients[client].direction == DIR_RIGHT
-		|| clients[client].direction == DIR_FORWARDRIGHT
-		|| clients[client].direction == DIR_FORWARDLEFT
-		|| clients[client].direction == DIR_BACKRIGHT
-		|| clients[client].direction == DIR_BACKLEFT)
-	{
-		RotateClientAxisY(client);
-	}
+      || clients[client].direction == DIR_RIGHT
+      || clients[client].direction == DIR_FORWARDRIGHT
+      || clients[client].direction == DIR_FORWARDLEFT
+      || clients[client].direction == DIR_BACKRIGHT
+      || clients[client].direction == DIR_BACKLEFT)
+   {
+      RotateClientAxisY(client);
+   }
 
-	//clients[client].velocity = Vector3::Add(clients[client].velocity, gravity);//gravity가 초기화가 안되서 쓰레기값?
-	//	cout << clients[client].velocity.x<<","<<clients[client].velocity.y<<","<<clients[client].velocity.z << "\n";
-	float fLength = sqrtf(clients[client].velocity.x * clients[client].velocity.x + clients[client].velocity.z * clients[client].velocity.z);
-	
-	
-	if (fLength > MAX_VELOCITY_XZ)
-	{
-		clients[client].velocity.x *= (MAX_VELOCITY_XZ / fLength);
-		clients[client].velocity.z *= (MAX_VELOCITY_XZ / fLength);
-	}
+   if (clients[client].direction == DIR_FORWARD || clients[client].direction == DIR_FORWARDRIGHT || clients[client].direction == DIR_FORWARDLEFT)
+   {
+      clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY);
 
-
-	
-	switch (clients[client].collision)
-	{
-	case CL_NONE:
-	{
-		break;
-	}
-	case CL_SURROUNDING:
-	{
-	
-		XMFLOAT3 xmf3CollisionDir = Vector3::Subtract(recent_pos, clients[client].pos);
-		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, VELOCITY*0.3f );
-		clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
-		
-		break;
-	}
-	case CL_PLAYER:
-	{
-		XMFLOAT3 xmf3CollisionDir = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		switch (clients[client].direction)
-		{
-		case DIR_BACKWARD:
-		case DIR_BACKLEFT:
-		case DIR_BACKRIGHT:
-		{
-			xmf3CollisionDir= Vector3::Add(Vector3::Subtract(player_pos, clients[client].pos), Vector3::ScalarProduct(clients[client].look, -1.0f));
-			break;
-		}
-		case DIR_FORWARD:
-		case DIR_FORWARDLEFT:
-		case DIR_FORWARDRIGHT:
-		{
-			xmf3CollisionDir = Vector3::Add(Vector3::Subtract(player_pos,clients[client].pos),clients[client].look);
-			break;
-		}
-
-		}
-		xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir,VELOCITY );
-		clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
-		//cout << "충돌 속도" << clients[client].velocity.x << "," << clients[client].velocity.y << "," << clients[client].velocity.z << endl;
-		break;
-	}
-	default :
-		cout << "알수 없는 객체와 충돌\n";
-		break;
-	}
-	
-	clients[client].pos = Vector3::Add(clients[client].pos, clients[client].velocity);
-	
-
-	//ProcessFriction 함수 호출 필요없어 보임 - 여기서밖에 쓰이지 않아서 함수로 만들 필요가 없어보임 (함수 호출이 비효율적이지 않을까)
-	fLength = Vector3::Length(clients[client].velocity);
-	float fDeclaration = FRICTION;
-
-	if (fDeclaration > fLength)
-	{
-		fDeclaration = fLength;
-		clients[client].velocity = Vector3::Add(clients[client].velocity, Vector3::ScalarProduct(clients[client].velocity, -fDeclaration, true));
-	}
-	//ProcessFriction(client, fLength);
-
-	
+   }
+   if (clients[client].direction == DIR_BACKWARD || clients[client].direction == DIR_BACKRIGHT || clients[client].direction == DIR_BACKLEFT)
+   {
+      clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -VELOCITY);
+   }
 
 
+   //clients[client].velocity = Vector3::Add(clients[client].velocity, gravity);//gravity가 초기화가 안되서 쓰레기값?
+   //   cout << clients[client].velocity.x<<","<<clients[client].velocity.y<<","<<clients[client].velocity.z << "\n";
+   float fLength = sqrtf(clients[client].velocity.x * clients[client].velocity.x + clients[client].velocity.z * clients[client].velocity.z);
+   
+   
+   if (fLength > MAX_VELOCITY_XZ)
+   {
+      clients[client].velocity.x *= (MAX_VELOCITY_XZ / fLength);
+      clients[client].velocity.z *= (MAX_VELOCITY_XZ / fLength);
+   }
 
+   switch (clients[client].collision)
+   {
+   case CL_NONE:
+   {
+      break;
+   }
+   case CL_SURROUNDING:
+   {
+   
+      XMFLOAT3 xmf3CollisionDir = Vector3::Subtract(recent_pos, clients[client].pos);
+      xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, VELOCITY*0.3f );
+      clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
+      
+      break;
+   }
+   case CL_PLAYER:
+   {
+      XMFLOAT3 xmf3CollisionDir = XMFLOAT3(0.0f, 0.0f, 0.0f);
+      switch (clients[client].direction)
+      {
+      case DIR_BACKWARD:
+      case DIR_BACKLEFT:
+      case DIR_BACKRIGHT:
+      {
+         xmf3CollisionDir= Vector3::Add(Vector3::Subtract(player_pos, clients[client].pos), Vector3::ScalarProduct(clients[client].look, -1.0f));
+         break;
+      }
+      case DIR_FORWARD:
+      case DIR_FORWARDLEFT:
+      case DIR_FORWARDRIGHT:
+      {
+         xmf3CollisionDir = Vector3::Add(Vector3::Subtract(player_pos,clients[client].pos),clients[client].look);
+         break;
+      }
 
+      }
+      xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir,VELOCITY );
+      clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
+      //cout << "충돌 속도" << clients[client].velocity.x << "," << clients[client].velocity.y << "," << clients[client].velocity.z << endl;
+      break;
+   }
+   default :
+      cout << "알수 없는 객체와 충돌\n";
+      break;
+   }
+   
+   
+	 clients[client].pos = Vector3::Add(clients[client].pos, clients[client].velocity);
 
-	//속도를 클라에게 보내주어 클라에서 기본적인 rUn,Backward,애니메이션을 결정하게 하기 위해.
-	clients[client].fVelocity = fLength;
+	   //ProcessFriction 함수 호출 필요없어 보임 - 여기서밖에 쓰이지 않아서 함수로 만들 필요가 없어보임 (함수 호출이 비효율적이지 않을까)
+	  fLength = Vector3::Length(clients[client].velocity);
+	  float fDeclaration = FRICTION;
 
+	  if (fDeclaration > fLength)
+	  {
+	   fDeclaration = fLength;
+	   clients[client].velocity = Vector3::Add(clients[client].velocity, Vector3::ScalarProduct(clients[client].velocity, -fDeclaration, true));
+	  }
+   
+   //ProcessFriction(client, fLength);
 
-
+   //속도를 클라에게 보내주어 클라에서 기본적인 rUn,Backward,애니메이션을 결정하게 하기 위해.
+   clients[client].fVelocity = fLength;
 }
-
 void Server::RotateClientAxisY(char client)
 {
 	
@@ -2078,7 +2175,7 @@ void Server::RotateClientAxisY(char client)
 
 	bool isMoveRotate{ false };
 
-	if (clients[client].direction & DIR_RIGHT)
+	if (clients[client].direction == DIR_RIGHT || clients[client].direction == DIR_FORWARDRIGHT || clients[client].direction == DIR_BACKRIGHT)
 	{
 		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3Right);
 
@@ -2096,7 +2193,7 @@ void Server::RotateClientAxisY(char client)
 		RotateModel(client, 0.0f, fAngle * ROTATE_RATE , 0.0f);
 		
 	}
-	if (clients[client].direction & DIR_LEFT)
+	if (clients[client].direction == DIR_LEFT || clients[client].direction == DIR_FORWARDLEFT || clients[client].direction == DIR_BACKLEFT)
 	{
 		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3Right);
 
@@ -2111,22 +2208,22 @@ void Server::RotateClientAxisY(char client)
 		RotateModel(client, 0.0f, -fAngle * ROTATE_RATE, 0.0f);
 		
 	}
-	if (clients[client].direction & DIR_FORWARDRIGHT )
+	if (clients[client].direction == DIR_FORWARDRIGHT )
 	{	
 		isMoveRotate = true;
 		//clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, 0.001f);
 	}
-	if (clients[client].direction & DIR_FORWARDLEFT)
+	if (clients[client].direction == DIR_FORWARDLEFT)
 	{
 		isMoveRotate = true;
 		//clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, 0.001f);
 	}
-	if (clients[client].direction & DIR_BACKRIGHT)
+	if (clients[client].direction == DIR_BACKRIGHT)
 	{
 		isMoveRotate = true;
 		//clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -0.001f);
 	}
-	if (clients[client].direction & DIR_BACKLEFT)
+	if (clients[client].direction == DIR_BACKLEFT)
 	{
 		isMoveRotate = true;
 		//clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -0.001f);

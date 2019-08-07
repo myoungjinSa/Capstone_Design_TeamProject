@@ -92,7 +92,79 @@ void CPlayer::ReleaseShaderVariables()
 	if (m_pCamera)
 		m_pCamera->ReleaseShaderVariables();
 }
+void CPlayer::ProcessMove()
+{
+   int key = KEY_TYPE::NONE;
 
+   if (GetAsyncKeyState(VK_UP) & 0x8000)
+      key = key | KEY_TYPE::UP;
+
+   else if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+      key = key | KEY_TYPE::DOWN;
+
+   if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
+      key = key | KEY_TYPE::RIGHT;
+
+   else if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+      key = key | KEY_TYPE::LEFT;
+
+   key = key & 0x1111;
+   switch (key)
+   {
+   case KEY_TYPE::UP:
+   {
+	   Network::GetInstance()->SendUpKey(); 
+	   m_dwDirection = DIR_FORWARD;
+	   break;
+   }
+   case KEY_TYPE::DOWN:
+   {
+	   Network::GetInstance()->SendDownKey();  
+	    m_dwDirection = DIR_BACKWARD;
+	   break;
+   }
+   case KEY_TYPE::RIGHT: 
+   {
+	   Network::GetInstance()->SendRightKey();     
+	   m_dwDirection = DIR_RIGHT;
+	   break;
+   }
+   case KEY_TYPE::LEFT:
+   {
+	   Network::GetInstance()->SendLeftKey();   
+	   m_dwDirection = DIR_LEFT;
+	   break;
+   }
+   case KEY_TYPE::UP_RIGHT: 
+   {
+	   Network::GetInstance()->SendUpRightKey();     
+	   m_dwDirection = DIR_UP_RIGHT;
+	   break;
+   }
+   case KEY_TYPE::UP_LEFT:
+   {
+	   Network::GetInstance()->SendUpLeftKey();      
+	   m_dwDirection = DIR_UP_LEFT;
+	   break;
+   }
+   case KEY_TYPE::DOWN_RIGHT: 
+   {
+	   Network::GetInstance()->SendDownRightKey(); 
+	   m_dwDirection = DIR_DOWN_RIGHT;
+	   break;
+   }
+   case KEY_TYPE::DOWN_LEFT:  
+   {
+	   Network::GetInstance()->SendDownLeftKey();  
+	   m_dwDirection = DIR_DOWN_LEFT;
+	   break;
+   }
+      break;
+      // 키 안눌렀을 때
+   default:
+      break;
+   }
+}
 void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 {
 	if (dwDirection)
@@ -235,26 +307,30 @@ void CPlayer::Update(float fTimeElapsed)
 	DecideAnimationState(fLength,fTimeElapsed);
 #else
 
-	if (m_dwDirection == DIR_FORWARD && m_bIce == false
-		&& m_bCollided == false)
+	RotateAxisY(ROTATE_RATE);
+
+	
+	if ((m_dwDirection == DIR_FORWARD || m_dwDirection == DIR_UP_LEFT || m_dwDirection == DIR_UP_RIGHT ) && m_bIce == false
+		&& m_bCollision == false)
 	{
-		if(m_bBomb)
-			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, VELOCITY*1.2f);
-		else
+		//if(m_bBomb)
+		//	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, VELOCITY*1.2f);
+		//else
 			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, VELOCITY);
 		Move(m_xmf3Velocity, false);
 	}
 
-	if (m_dwDirection == DIR_BACKWARD && m_bIce == false
-		&& m_bCollided == false)
+	if ((m_dwDirection == DIR_BACKWARD || m_dwDirection == DIR_DOWN_LEFT || m_dwDirection == DIR_DOWN_RIGHT)&& m_bIce == false
+		&& m_bCollision == false)
 	{
-		if(m_bBomb)
-			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -VELOCITY*1.2f);
-		else
+		//if(m_bBomb)
+		//	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -VELOCITY*1.2f);
+		//else
 			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -VELOCITY);
 		Move(m_xmf3Velocity, false);
 	}
 	
+	m_bCollision = false;
 	m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_dwDirection = 0;
 
@@ -273,6 +349,8 @@ void CPlayer::Update(float fTimeElapsed)
 	{
 		DecideAnimationState(m_fVelocityFromServer, fTimeElapsed);
 	}
+
+
 
 	//얼음 쿨타임 텍스트 렌더링 여부 결정
 	if (m_bShowCoolTime)
@@ -964,6 +1042,46 @@ const XMFLOAT2& CPlayer::ConvertIceCoolTimeTextToNDCSpace()
 	return res;
 
 }
+void CPlayer::RotateAxisY(const float& rate)
+{
+	XMFLOAT3& xmf3Look = m_xmf3Look;
+	XMFLOAT3& xmf3Right = m_xmf3Right;
+	XMFLOAT3& xmf3Up = m_xmf3Up;
+	if (m_dwDirection == DIR_RIGHT || m_dwDirection == DIR_UP_RIGHT || m_dwDirection == DIR_DOWN_RIGHT)
+	{
+		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3Right);
+
+		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
+
+
+
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(fAngle*rate));
+
+		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
+		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
+
+
+		
+	}
+	else if (m_dwDirection == DIR_LEFT|| m_dwDirection == DIR_UP_LEFT || m_dwDirection == DIR_DOWN_LEFT)
+	{
+		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3Right);
+
+		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
+
+
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(-(fAngle*rate)));
+
+		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
+		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
+
+		
+	}
+	m_xmf3Look = Vector3::Normalize(m_xmf3Look);
+	m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
+	m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
+
+}
 
 bool CPlayer::AnimationCollision(byte AnimationType)
 {
@@ -1077,42 +1195,6 @@ CTerrainPlayer::~CTerrainPlayer()
 {
 }
 
-void CTerrainPlayer::RotateAxisY(const float& rate)
-{
-	XMFLOAT3& xmf3Look = m_xmf3Look;
-	XMFLOAT3& xmf3Right = m_xmf3Right;
-	XMFLOAT3& xmf3Up = m_xmf3Up;
-	if (m_dwDirection & DIR_RIGHT)
-	{
-		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3Right);
-
-		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
-
-
-
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(fAngle*rate));
-
-		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-
-
-		SetDirection(0x00);
-	}
-	else if (m_dwDirection & DIR_LEFT)
-	{
-		float fDotProduct = Vector3::DotProduct(xmf3Look, xmf3Right);
-
-		float fAngle = ::IsEqual(fDotProduct, 1.0f) ? 0.0f : ((fDotProduct > 1.0f) ? XMConvertToDegrees(acos(fDotProduct)) : 90.0f);
-
-
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(-(fAngle*rate)));
-
-		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-
-		SetDirection(0x00);
-	}
-}
 
 void CTerrainPlayer::Animate(float fTimeElapsed)
 {
