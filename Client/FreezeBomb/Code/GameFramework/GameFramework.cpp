@@ -1884,8 +1884,8 @@ void CGameFramework::ProcessPacket(char* packet)
 
 			static float elapsedTime = 0.0f;
 
-			cout << "서버 위치 : " << pos.x << ", " << pos.y << ", " << pos.z << endl;
-			cout << "클라 위치 : " << m_pPlayer->GetPosition().x << ", " << m_pPlayer->GetPosition().y << ", " << m_pPlayer->GetPosition().z << endl;
+			//cout << "서버 위치 : " << pos.x << ", " << pos.y << ", " << pos.z << endl;
+			//cout << "클라 위치 : " << m_pPlayer->GetPosition().x << ", " << m_pPlayer->GetPosition().y << ", " << m_pPlayer->GetPosition().z << endl;
 
 			if (elapsedTime > 5.0f
 				|| m_pPlayer->GetCollision() == true)

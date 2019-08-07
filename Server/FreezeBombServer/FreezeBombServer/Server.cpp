@@ -313,6 +313,9 @@ void Server::InitRound()
 	{
 		if (clients[i].in_use==false)
 			continue;
+		clients[i].freezeCooltime_l.lock();
+		clients[i].freezeCooltime = 0;
+		clients[i].freezeCooltime_l.unlock();
 		clients[i].isFreeze = false;
 		clients[i].normalItem = ITEM::EMPTY;
 		clients[i].specialItem = ITEM::EMPTY;
@@ -714,7 +717,7 @@ void Server::WorkerThreadFunc()
 		else
 		{
 			delete over_ex;
-			cout << "Unknown Event\n";
+			cout << "Unknown Event" << over_ex->event_t <<"\n";
 			//while (true);
 		}
 	}
