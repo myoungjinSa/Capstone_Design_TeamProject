@@ -1332,6 +1332,28 @@ void CGameFramework::MoveToNextFrame()
 }
 
 #ifdef _WITH_DIRECT2D_
+void CGameFramework::ShowIceCooltime()
+{
+	if(m_pPlayer)
+	{
+		if (m_pPlayer->GetIsShowCoolTime())
+		{
+			const XMFLOAT2& ndcSpace = m_pPlayer->ConvertIceCoolTimeTextToNDCSpace();
+
+			D2D1_RECT_F iceCoolTimeText{ 0.0f,0.0f,0.0f,0.0f };
+			iceCoolTimeText = D2D1::RectF(ndcSpace.x - 200.0f, ndcSpace.y, ndcSpace.x + 200.0f, ndcSpace.y);
+
+			string coolTime = to_string(m_pPlayer->GetIceCoolTime());
+			wchar_t w_coolTime[16];
+
+
+			int nLen = MultiByteToWideChar(CP_ACP, 0, coolTime.c_str(), strlen(coolTime.c_str()), NULL, NULL);
+			MultiByteToWideChar(CP_ACP, 0, coolTime.c_str(), strlen(coolTime.c_str()), w_coolTime, nLen);
+			w_coolTime[nLen] = '\0';
+			CDirect2D::GetInstance()->Render("피오피동글", "하늘색", w_coolTime, iceCoolTimeText);
+		}
+	}
+}
 void CGameFramework::SetNamecard()
 {
 	if (m_pScene)
@@ -1347,9 +1369,9 @@ void CGameFramework::SetNamecard()
 				char id = user.second.id;
 				if (id == m_pPlayer->GetPlayerID())
 					continue;
-				XMFLOAT2& screenSpace = m_pScene->ProcessNameCard(id);
+				XMFLOAT2& ndcSpace = m_pScene->ProcessNameCard(id);
 				D2D1_RECT_F nameCard{ 0.0f,0.0f,0.0f,0.0f };
-				nameCard = D2D1::RectF(screenSpace.x - 200.0f, screenSpace.y, screenSpace.x + 200.0f, screenSpace.y);
+				nameCard = D2D1::RectF(ndcSpace.x - 200.0f, ndcSpace.y, ndcSpace.x + 200.0f, ndcSpace.y);
 
 				wchar_t name[16];
 				int nLen = MultiByteToWideChar(CP_ACP, 0, m_mapClients[id].name, strlen(m_mapClients[id].name), NULL, NULL);
@@ -1361,11 +1383,11 @@ void CGameFramework::SetNamecard()
 
 			for (int i = 0; i < (*iter).second->m_nObjects; ++i)
 			{
-				XMFLOAT2& screenSpace = m_pScene->ProcessNameCard(i);
+				XMFLOAT2& ndcSpace = m_pScene->ProcessNameCard(i);
 				//	
 				D2D1_RECT_F nameCard{ 0.0f,0.0f,0.0f,0.0f };
 			
-				nameCard = D2D1::RectF(screenSpace.x - 60.0f, screenSpace.y - 60.0f, screenSpace.x + 60.0f, screenSpace.y + 60.0f);
+				nameCard = D2D1::RectF(ndcSpace.x - 60.0f, ndcSpace.y - 60.0f, ndcSpace.x + 60.0f, ndcSpace.y + 60.0f);
 
 				CDirect2D::GetInstance()->Render("피오피동글", "빨간색", (*iter).second->m_ppObjects[i]->GetPlayerName(), nameCard);
 			}
@@ -1411,6 +1433,7 @@ void CGameFramework::ProcessDirect2D()
 
 			m_pScene->UIRender(name);
 
+			ShowIceCooltime();
 			SetNamecard();
 			//채팅
 			ChattingSystem::GetInstance()->ShowIngameChatting(m_GameTimer.GetTimeElapsed());
@@ -2526,7 +2549,12 @@ void CGameFramework::ProcessPacket(char* packet)
 	{
 		SC_PACKET_FREEZE_COOLTIME *pFC = reinterpret_cast<SC_PACKET_FREEZE_COOLTIME *>(packet);
 
-		cout << (int)pFC->cooltime << "\n";
+		if (m_pPlayer)
+		{
+			m_pPlayer->SetIsShowCoolTime(true);
+			m_pPlayer->SetIceCoolTime(pFC->cooltime);
+
+		}
 		break;
 	}
 	}

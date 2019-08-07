@@ -112,7 +112,7 @@ void CExplosionParticleShader::ResetParticles()
 		(*particle).SetElapsedTimeZero();
 		(*particle).SetMovingSpeed(Random(100, 500));
 		//(*particle).SetDuration(0.5f);
-		//(*particle).SetBlowingUp(false);
+		(*particle).SetBlowingUp(false);
 		//(*particle).PrepareExplosion();
 	}
 	cout << "ResetParticlesÈ£Ãâ" << endl;

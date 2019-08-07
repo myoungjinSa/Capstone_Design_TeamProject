@@ -53,6 +53,7 @@ public:
 	void Initialize_BitmapImage();
 	void Initialize_GameFont();
 
+	void ShowIceCooltime();
 	void SetNamecard();
 	
 	void ProcessDirect2D();

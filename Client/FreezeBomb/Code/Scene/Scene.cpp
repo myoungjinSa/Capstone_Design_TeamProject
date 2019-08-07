@@ -683,7 +683,6 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 
 		// 플레이어와 정적인 오브젝트 충돌검사
 		map<string, CShader*> m = m_pShaderManager->getShaderMap();
-		bool isCollided{ false };
 		auto iter = m.find("MapObjects");
 		if (iter != m.end())
 		{
@@ -700,7 +699,6 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 				{
 
 #ifdef _WITH_SERVER_
-					isCollided = true;
 					
 					m_pPlayer->SetCollision(true);
 					Network::GetInstance()->SendSurroundingCollision(dynamic_cast<CSurrounding*>(*iter2)->GetIndex());
@@ -734,18 +732,18 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 					// 술래 체인지
 					if (m_pPlayer->GetIsBomb() == true && (*iter).second->m_ppObjects[id]->GetIsICE() == false)
 					{
-						m_pPlayer->SetCollision(true);
+						
 						Network::GetInstance()->SendBomberTouch(id);
 						//CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::CATCH);
 					}				
-					isCollided = true;			
+					m_pPlayer->SetCollision(true);		
 					Network::GetInstance()->SendPlayerCollision(id);
 				}
 				
 				float dist = Vector3::Length(Vector3::SubtractNormalize((*iter).second->m_ppObjects[id]->GetPosition(), m_pPlayer->GetPosition()));
 				(*iter).second->m_ppObjects[id]->SetDistanceToTarget(dist);
 			}
-			if(isCollided == false)
+			if(m_pPlayer->GetCollision() == false)
 			{
 				Network::GetInstance()->SendNotCollision();
 			}
@@ -996,10 +994,9 @@ XMFLOAT2 CScene::ProcessNameCard(const int& objNum)
 			float viewY = pos.x * viewProj._12 + pos.y * viewProj._22 + pos.z * viewProj._32 + viewProj._42;
 			float viewZ = pos.x * viewProj._13 + pos.y * viewProj._23 + pos.z * viewProj._33 + viewProj._43;
 
-			XMFLOAT2 screen;
-			screen.x = (float)(viewX / viewZ + 1.0f) * (m_pPlayer->GetCamera()->GetViewport().Width * 0.5f);
-			screen.y = (float)(-viewY / viewZ + 1.0f) * (m_pPlayer->GetCamera()->GetViewport().Height * 0.5f);
-			res = screen;
+			
+			res.x = (float)(viewX / viewZ + 1.0f) * (m_pPlayer->GetCamera()->GetViewport().Width * 0.5f);
+			res.y = (float)(-viewY / viewZ + 1.0f) * (m_pPlayer->GetCamera()->GetViewport().Height * 0.5f);
 		}
 	}
 	return res;

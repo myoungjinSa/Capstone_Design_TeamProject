@@ -127,6 +127,15 @@ public:
 	void SetUseGoldHammerTimeZero() { m_UseGoldHammerCountTime = 0.0f; }
 	void SetGoldHammerUse(bool bUse) { m_bUseGoldHammer = bUse; }
 
+	const XMFLOAT2& ConvertIceCoolTimeTextToNDCSpace();
+
+
+	void SetIsShowCoolTime(bool isShow) { m_bShowCoolTime = isShow; }
+	bool GetIsShowCoolTime() { return m_bShowCoolTime; }
+
+	void SetIceCoolTime(int coolTime) { m_IceCooltime = coolTime; }
+	const int GetIceCoolTime() const { return m_IceCooltime; }
+
 protected:
 
 	
@@ -164,8 +173,9 @@ protected:
 	list<CItem*>							m_RemovedItemList;
 
 	CShaderManager* m_pShaderManager{ nullptr };
-
-	float				m_Time = 0.f;
+	
+	int				m_IceCooltime;
+	bool			m_bShowCoolTime;
 
 	bool			m_bLocalRotation{ false };
 	bool			m_bSpike{ false };

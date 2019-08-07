@@ -41,6 +41,8 @@ CPlayer::CPlayer()
 
 	m_pPlayerUpdatedContext = nullptr;
 	m_pCameraUpdatedContext = nullptr;
+
+	m_IceCooltime = 0;
 }
 
 CPlayer::~CPlayer()
@@ -234,7 +236,7 @@ void CPlayer::Update(float fTimeElapsed)
 #else
 
 	if (m_dwDirection == DIR_FORWARD && m_bIce == false
-		&& m_bCollision == false)
+		&& m_bCollided == false)
 	{
 		if(m_bBomb)
 			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, VELOCITY*1.2f);
@@ -244,7 +246,7 @@ void CPlayer::Update(float fTimeElapsed)
 	}
 
 	if (m_dwDirection == DIR_BACKWARD && m_bIce == false
-		&& m_bCollision == false)
+		&& m_bCollided == false)
 	{
 		if(m_bBomb)
 			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -VELOCITY*1.2f);
@@ -271,12 +273,20 @@ void CPlayer::Update(float fTimeElapsed)
 	{
 		DecideAnimationState(m_fVelocityFromServer, fTimeElapsed);
 	}
-#endif
-	m_Time += fTimeElapsed;
-	if (m_Time > 1.f)
+
+	//얼음 쿨타임 텍스트 렌더링 여부 결정
+	if (m_bShowCoolTime)
 	{
-		m_Time = 0.f;
+		//0초 가 되면 쿨타임 렌더링을 하지 않도록 한다.
+		if (m_IceCooltime <= 0)
+			m_bShowCoolTime = false;
 	}
+#endif
+	//m_Time += fTimeElapsed;
+	//if (m_Time > 1.f)
+	//{
+	//	m_Time = 0.f;
+	//}
 }
 
 CCamera *CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
@@ -932,6 +942,29 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 //#endif
 }
 
+const XMFLOAT2& CPlayer::ConvertIceCoolTimeTextToNDCSpace()
+{
+	XMFLOAT4X4 viewProj = Matrix4x4::Multiply(m_pCamera->GetViewMatrix(), m_pCamera->GetProjectionMatrix());
+
+
+	XMFLOAT2 res{ NAN,NAN };
+
+	XMFLOAT3 s = XMFLOAT3(m_xmf4x4ToParent._41, m_xmf4x4ToParent._42, m_xmf4x4ToParent._43);
+	XMFLOAT3 pos = Vector3::Add(s, XMFLOAT3(0.0f, 6.0f, 0.0f));
+
+	
+	float viewX = pos.x * viewProj._11 + pos.y * viewProj._21 + pos.z * viewProj._31 + viewProj._41;
+	float viewY = pos.x * viewProj._12 + pos.y * viewProj._22 + pos.z * viewProj._32 + viewProj._42;
+	float viewZ = pos.x * viewProj._13 + pos.y * viewProj._23 + pos.z * viewProj._33 + viewProj._43;
+
+	res.x = (float)(viewX / viewZ + 1.0f) * (m_pCamera->GetViewport().Width * 0.5f);
+	res.y = (float)(-viewY / viewZ + 1.0f) * (m_pCamera->GetViewport().Height * 0.5f);
+
+
+	return res;
+
+}
+
 bool CPlayer::AnimationCollision(byte AnimationType)
 {
 	switch (AnimationType)
@@ -1088,6 +1121,7 @@ void CTerrainPlayer::Animate(float fTimeElapsed)
 #endif
 	CGameObject::Animate(fTimeElapsed);
 }
+
 
 void CPlayer::UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent,bool isLocalFrameRotate)
 {

@@ -383,7 +383,7 @@ void Server::AcceptThreadFunc()
 		CreateIoCompletionPort(reinterpret_cast<HANDLE>(clientSocket), iocp, new_id, 0);
 
 		clients[new_id].in_use = true;
-		clients[new_id].velocity = XMFLOAT3(0.0f, 0.0f, 1.0f);
+		clients[new_id].velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		clients[new_id].gameState = GS_ID_INPUT;
 
 		SendAccessComplete(new_id);
@@ -1315,7 +1315,7 @@ void Server::ProcessPacket(char client, char *packet)
 				freezeCnt_l.unlock();
 				clients[client].isFreeze = false;
 				clients[client].freezeCooltime_l.lock();
-				clients[client].freezeCooltime = 3;
+				clients[client].freezeCooltime = 10;
 				clients[client].freezeCooltime_l.unlock();
 				add_timer(client, EV_FREEZECOOLTIME, high_resolution_clock::now() + 1s);
 			}
@@ -1335,38 +1335,7 @@ void Server::ProcessPacket(char client, char *packet)
 
 		break;
 	}
-	//case CS_RELEASE_FREEZE:
-	//{
-	//	
-	//	if (client == bomberID)		//술래라면 얼음을 할 수 없다.
-	//		break;
-	//	freezeCnt_l.lock();
-	//	freezeCnt_l.unlock();
 
-	//	freezeCnt_l.lock();
-	//	if (freezeCnt > 0)
-	//	{
-	//		--freezeCnt;
-	//		freezeCnt_l.unlock();
-	//	}
-	//	else
-	//	{
-	//		freezeCnt_l.unlock();
-	//		break;
-	//	}
-
-	//	if (clients[client].isFreeze == true) 
-	//	{
-	//		clients[client].isFreeze = false;
-	//		for (int i = 0; i < MAX_USER; ++i)
-	//		{
-	//			if (clients[i].in_use == false)
-	//				continue;
-	//			SendReleaseFreeze(i, client);
-	//		}
-	//	}
-	//	break;
-	//}
 	case CS_BOMB_EXPLOSION:
 	{
 		if (client != bomberID)		//술래가 아닌 다른 클라이언트가 보냈다면 무시한다.
