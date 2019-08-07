@@ -4,8 +4,6 @@ mutex g_lock;
 Server::Server()
 {
 	round = 0;
-	recent_pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	player_pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	roundCurrTime = 0;
 	clientCount = 0;
 	hostId = -1;
@@ -246,7 +244,6 @@ void Server::LoadMapObjectInfo()
 
 void Server::RunServer()
 {
-	gameTimer.Start();
 	iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
 	for (int i = 0; i < MAX_USER; ++i)
 	{
@@ -269,8 +266,6 @@ void Server::RunServer()
 	}
 	heightMap = new CHeightMapImage("../../../Client/FreezeBomb/Resource/Textures/Terrain/Terrain.raw", 256, 256, XMFLOAT3(2.0f, 1.0f, 2.0f));
 	
-	gameTimer.Tick(60.0f);
-	
 	//스레드의 수가 2개인 이유는? - 명진
 	for (int i = 0; i < MAX_WORKER_THREAD; ++i)
 		workerThreads.emplace_back(thread{ WorkerThread, (LPVOID)this });
@@ -291,8 +286,13 @@ void Server::InitGame()
 	round = 0;
 	ResetTimer();
 	readyCount = 0;
+	bomberID_l.lock();
 	bomberID = 0;
+	bomberID_l.unlock();
 	freezeCnt = 0;
+	coolTime_l.lock();
+	bomberTouchCooltime = 0;
+	coolTime_l.unlock();
 	for (int i = 0; i < MAX_USER; ++i)
 	{
 		clients[i].InitPlayer();
@@ -307,8 +307,13 @@ void Server::InitRound()
 	timer_l.unlock();
 
 	ResetTimer();
+	bomberID_l.lock();
 	bomberID = 0;
+	bomberID_l.unlock();
 	freezeCnt = 0;
+	coolTime_l.lock();
+	bomberTouchCooltime = 0;
+	coolTime_l.unlock();
 	for(int i=0;i<MAX_USER;++i)
 	{
 		if (clients[i].in_use==false)
@@ -586,8 +591,14 @@ void Server::WorkerThreadFunc()
 				{
 					if (false == clients[i].in_use)
 						continue;
+					bomberID_l.lock();
 					if (i == bomberID)
+					{
+						bomberID_l.unlock();
 						continue;
+					}
+					else
+						bomberID_l.unlock();
 					++clients[i].score;
 				}
 				if (round >= MAX_ROUND-1)
@@ -625,18 +636,18 @@ void Server::WorkerThreadFunc()
 		}
 		else if(EV_BOMBERTOUCHCOOLTIME == over_ex->event_t)		//cooltime 계산
 		{
-			timer_l.lock();
+			coolTime_l.lock();
 			bomberTouchCooltime--;
-			//printf("쿨타임:%d\n", changeCoolTime);
+			printf("쿨타임:%d\n", bomberTouchCooltime);
 			
 			if(bomberTouchCooltime <= 0)
 			{
 				bomberTouchCooltime = 0;
-				timer_l.unlock();
+				coolTime_l.unlock();
 			}
 			else
 			{
-				timer_l.unlock();
+				coolTime_l.unlock();
 				add_timer(-1, EV_BOMBERTOUCHCOOLTIME, chrono::high_resolution_clock::now() + 1s);
 			}
 		}
@@ -674,10 +685,10 @@ void Server::WorkerThreadFunc()
 			// 새 라운드 시작 시 초기화
 			StartTimer();
 
-			timer_l.lock();
+			coolTime_l.lock();
 			bomberTouchCooltime = 0;		//라운드가 바뀔때 기존에 카운트하던 changeCoolTime을 
 									//바꿔줘야 한다.
-			timer_l.unlock();
+			coolTime_l.unlock();
 
 			roundTime_l.lock();
 			unsigned short time = roundCurrTime;
@@ -727,13 +738,19 @@ void Server::PickBomber()
 {
 	default_random_engine dre;
 	uniform_int_distribution<int> uid(0, clientCount + 1);
+	int tmp = 0;
 	while (true)
 	{
-		bomberID = uid(dre);
-		if (true == clients[bomberID].in_use)
+		tmp = uid(dre);
+		if (true == clients[tmp].in_use)
+		{
+			bomberID_l.lock();
+			bomberID = tmp;
+			bomberID_l.unlock();
 			break;
+		}
 	}
-	cout << "술래 ID:" << bomberID << "\n";
+	//cout << "술래 ID:" << bomberID << "\n";
 }
 
 void Server::ShuffleStartPosIndex()
@@ -976,10 +993,11 @@ void Server::ProcessPacket(char client, char *packet)
 			pow(clients[client].pos.y - objects[round][p->objId].pos.y, 2) +
 			pow(clients[client].pos.z - objects[round][p->objId].pos.z, 2));
 
-		recent_objects = objects[round][p->objId]; //최근에 부딪힌 오브젝트를 저장한다.
-		recent_pos = objects[round][p->objId].pos;
+		if (dist > 10)
+			break;
 
-
+		clients[client].lastCollObjIdx = p->objId; //최근에 부딪힌 오브젝트를 저장한다.
+		clients[client].lastCollPos = objects[round][p->objId].pos;
 
 		clients[client].collision = CL_SURROUNDING;
 
@@ -991,12 +1009,9 @@ void Server::ProcessPacket(char client, char *packet)
 
 
 		//최근 검사한 recent_object와만 거리 검사를 실시
-		float dist = sqrt(pow(clients[client].pos.x - recent_objects.pos.x, 2) +
-			pow(clients[client].pos.y - recent_objects.pos.y, 2) +
-			pow(clients[client].pos.z - recent_objects.pos.z, 2));
-
-
-
+		float dist = sqrt(pow(clients[client].pos.x - clients[clients[client].lastCollObjIdx].pos.x, 2) +
+			pow(clients[client].pos.y - clients[clients[client].lastCollObjIdx].pos.y, 2) +
+			pow(clients[client].pos.z - clients[clients[client].lastCollObjIdx].pos.z, 2));
 
 		clients[client].collision = CL_NONE;
 
@@ -1011,8 +1026,8 @@ void Server::ProcessPacket(char client, char *packet)
 			pow(clients[client].pos.y - clients[p->playerID].pos.y, 2) +
 			pow(clients[client].pos.z - clients[p->playerID].pos.z, 2));
 
-		recent_player = p->playerID;
-		player_pos = clients[recent_player].pos;
+		//clients[client].lastCollPlayer = p->playerID;
+		clients[client].playerCollPos = clients[p->playerID].pos;
 
 		clients[client].collision = CL_PLAYER;
 
@@ -1022,19 +1037,25 @@ void Server::ProcessPacket(char client, char *packet)
 	{
 		CS_PACKET_BOMBER_TOUCH* p = reinterpret_cast<CS_PACKET_BOMBER_TOUCH*>(packet);
 
+		bomberID_l.lock();
 		if (client != bomberID)
+		{
+			bomberID_l.unlock();
 			break;
+		}
+		else
+			bomberID_l.unlock();
 
-		timer_l.lock();
+		coolTime_l.lock();
 		if (bomberTouchCooltime < 0 || bomberTouchCooltime > 0)
 		{//쿨타임이 아직 남아있으면 RoleChange를 하지 않는다.
 			//changeCoolTime = COOLTIME;
-			timer_l.unlock();
+			coolTime_l.unlock();
 			break;
 		}
 		else
 		{
-			timer_l.unlock();
+			coolTime_l.unlock();
 		}
 
 		//printf("CS_BOMBER_TOUCH");
@@ -1046,25 +1067,31 @@ void Server::ProcessPacket(char client, char *packet)
 		if (dist > 10)
 			break;
 
+		bomberID_l.lock();
 		bomberID = p->touchId;
-		
-		timer_l.lock();
+		bomberID_l.unlock();
+
+		coolTime_l.lock();
 		bomberTouchCooltime = COOLTIME;
 		if (bomberTouchCooltime == COOLTIME)
 		{
-			timer_l.unlock();
+			coolTime_l.unlock();
 			add_timer(client, EV_BOMBERTOUCHCOOLTIME, chrono::high_resolution_clock::now() + 1s);
 		}
 		else
 		{
-			timer_l.unlock();
+			coolTime_l.unlock();
 		}
 
+		bomberID_l.lock();
 		for (int i = 0; i < MAX_USER; ++i)
 		{
 			if (true == clients[i].in_use)
+			{
 				SendChangeBomber(i, bomberID, client);
+			}
 		}
+		bomberID_l.unlock();
 
 		break;
 	}
@@ -1207,8 +1234,15 @@ void Server::ProcessPacket(char client, char *packet)
 		case GOLD_HAMMER:
 		{
 			// 보안 상 체크
+			bomberID_l.lock();
 			if (client == bomberID)
+			{
+				bomberID_l.unlock();
 				break;
+			}
+			else
+				bomberID_l.unlock();
+
 			if (ITEM::GOLD_HAMMER != clients[client].specialItem)
 				break;
 			
@@ -1234,8 +1268,14 @@ void Server::ProcessPacket(char client, char *packet)
 		case GOLD_TIMER:
 		{
 			// 보안 상 체크
+			bomberID_l.lock();
 			if (client != bomberID)
+			{
+				bomberID_l.unlock();
 				break;
+			}
+			else
+				bomberID_l.unlock();
 			if (ITEM::GOLD_TIMER != clients[client].specialItem)
 				break;
 
@@ -1271,8 +1311,14 @@ void Server::ProcessPacket(char client, char *packet)
 		// 2. 현재 모든 도망자가 Freeze상태인지를 확인해야함.
 		// 3. 모든 도망자가 Freeze가 아니고 해당 클라가 도망자가 맞다면 SC_FREEZE를 각 클라들에게 알려줌
 		
+		bomberID_l.lock();
 		if (client == bomberID)		//술래라면 얼음을 할 수 없다.
+		{
+			bomberID_l.unlock();
 			break;
+		}
+		else
+			bomberID_l.unlock();
 		clients[client].freezeCooltime_l.lock();
 		if (clients[client].freezeCooltime > 0)
 		{
@@ -1343,16 +1389,30 @@ void Server::ProcessPacket(char client, char *packet)
 
 	case CS_BOMB_EXPLOSION:
 	{
+		bomberID_l.lock();
 		if (client != bomberID)		//술래가 아닌 다른 클라이언트가 보냈다면 무시한다.
+		{
+			bomberID_l.unlock();
 			break;
+		}
+		else
+			bomberID_l.unlock();
 		//Bomber가 아닌 다른 나머지 클라이언트에게 폭탄이 터진것을 알림
-		for(int i=0;i<MAX_USER;++i)
+		for (int i = 0; i < MAX_USER; ++i)
 		{
 			if (clients[i].in_use == false)
 				continue;
+			bomberID_l.lock();
 			if (i == bomberID)
+			{
+				bomberID_l.unlock();
 				continue;
-			SendBombExplosion(i, bomberID);
+			}
+			else
+			{
+				SendBombExplosion(i, bomberID);
+				bomberID_l.unlock();
+			}
 		}
 
 		break;
@@ -1497,7 +1557,9 @@ void Server::SendPutPlayer(char toClient)
 void Server::SendRoundStart(char client,unsigned short& t)
 {
 	SC_PACKET_ROUND_START packet;
+	bomberID_l.lock();
 	packet.bomberID = bomberID;
+	bomberID_l.unlock();
 	packet.startTime = t;
 	packet.round = round;
 	packet.goldTimerCnt = goldTimerCnt[round];
@@ -1571,8 +1633,14 @@ void Server::SendRoundEnd(char client)
 {
 	SC_PACKET_ROUND_END packet;
 	packet.isWinner = true;
+	bomberID_l.lock();
 	if (client == bomberID)
+	{
+		bomberID_l.unlock();
 		packet.isWinner = false;
+	}
+	else
+		bomberID_l.unlock();
 	for (int i = 0; i < MAX_USER; ++i)
 	{
 		if (false == clients[i].in_use)
@@ -1849,15 +1917,18 @@ void Server::ClientDisconnect(char client)
 		//else
 		//	clientCnt_l.unlock();
 
+		bomberID_l.lock();
+		int tmp = bomberID;
 		if (client == bomberID)
 		{
+			bomberID_l.unlock();
 			if(clientCount > 1 )
 				PickBomber();
 			for (int i = 0; i < MAX_USER; ++i)
 			{
 				if (false == clients[i].in_use)
 					continue;
-				SendChangeBomber(i, bomberID, client);
+				SendChangeBomber(i, tmp, client);
 			}
 		}
 		for (int i = 0; i < MAX_USER; ++i)
@@ -2082,18 +2153,31 @@ void Server::UpdateClientPos(char client)
 
    if (clients[client].direction == DIR_FORWARD || clients[client].direction == DIR_FORWARDRIGHT || clients[client].direction == DIR_FORWARDLEFT)
    {
-	   if(bomberID == client)
-			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY * 1.2f);
-		else
-	        clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY);
-
+	   bomberID_l.lock();
+	   if (bomberID == client)
+	   {
+		   bomberID_l.unlock();
+		   clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY * 1.2f);
+	   }
+	   else
+	   {
+		   bomberID_l.unlock();
+		   clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY);
+	   }
    }
    if (clients[client].direction == DIR_BACKWARD || clients[client].direction == DIR_BACKRIGHT || clients[client].direction == DIR_BACKLEFT)
    {
-     if(bomberID == client)
-			clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY * 1.2f);
-		else
-	        clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY);
+	   bomberID_l.lock();
+	   if (bomberID == client)
+	   {
+		   bomberID_l.unlock();
+		   clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY * 1.2f);
+	   }
+	   else
+	   {
+		   bomberID_l.unlock();
+		   clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY);
+	   }
    }
 
 
@@ -2117,7 +2201,7 @@ void Server::UpdateClientPos(char client)
    case CL_SURROUNDING:
    {
    
-      XMFLOAT3 xmf3CollisionDir = Vector3::Subtract(recent_pos, clients[client].pos);
+      XMFLOAT3 xmf3CollisionDir = Vector3::Subtract(clients[client].lastCollPos, clients[client].pos);
       xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, VELOCITY*0.3f );
       clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
       
@@ -2132,14 +2216,14 @@ void Server::UpdateClientPos(char client)
       case DIR_BACKLEFT:
       case DIR_BACKRIGHT:
       {
-         xmf3CollisionDir= Vector3::Add(Vector3::Subtract(player_pos, clients[client].pos), Vector3::ScalarProduct(clients[client].look, -1.0f));
+         xmf3CollisionDir= Vector3::Add(Vector3::Subtract(clients[client].playerCollPos, clients[client].pos), Vector3::ScalarProduct(clients[client].look, -1.0f));
          break;
       }
       case DIR_FORWARD:
       case DIR_FORWARDLEFT:
       case DIR_FORWARDRIGHT:
       {
-         xmf3CollisionDir = Vector3::Add(Vector3::Subtract(player_pos,clients[client].pos),clients[client].look);
+         xmf3CollisionDir = Vector3::Add(Vector3::Subtract(clients[client].playerCollPos,clients[client].pos),clients[client].look);
          break;
       }
 

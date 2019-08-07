@@ -5,8 +5,6 @@
 #include "protocol.h"
 #include "Terrain.h"
 
-#include "GameTimer.h"
-
 #pragma comment(lib, "Ws2_32.lib")
 constexpr int MAX_BUFFER = 1024;
 
@@ -80,6 +78,12 @@ struct OVER_EX {
 	EVENT_TYPE		event_t;
 };
 
+struct MAPOBJECT
+{
+	string name;
+	XMFLOAT3 pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+};
+
 class SOCKETINFO
 {
 public:
@@ -127,8 +131,16 @@ public:
 	GAME_STATE gameState;	
 	
 	short freezeCooltime;
-
 	mutex freezeCooltime_l;
+
+	// 부딪힌 오브젝트 인덱스
+	short lastCollObjIdx;
+	// 부딪힌 오브젝트 위치
+	XMFLOAT3 lastCollPos;
+	// 부딪힌 플레이어 인덱스 -> 안써서 주석처리
+	//unsigned char lastCollPlayer;
+	// 부딪힌 플레이어 위치
+	XMFLOAT3 playerCollPos;
 
 public:
 	SOCKETINFO() {
@@ -140,6 +152,8 @@ public:
 		matID = -1;
 		isReady = false;
 		freezeCooltime = 0;
+		lastCollPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		playerCollPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		ZeroMemory(nickname, sizeof(wchar_t) * 12);
 		ZeroMemory(&over_ex.messageBuffer, sizeof(over_ex.messageBuffer));
 		ZeroMemory(&packet_buffer, sizeof(packet_buffer));
@@ -159,12 +173,6 @@ public:
 	}
 };
 
-struct MAPOBJECT
-{
-	string name;
-	XMFLOAT3 pos = XMFLOAT3(0.0f,0.0f,0.0f);
-};
-
 class Server
 {
 private:
@@ -175,7 +183,6 @@ private:
 	// 배열로 바꾸니 제대로 동작함. 왜? 무슨 차이?
 	SOCKETINFO clients[MAX_USER];
 	vector<thread> workerThreads;
-	CGameTimer gameTimer;
 	CHeightMapImage* heightMap;
 	XMFLOAT3 gravity;
 	unsigned short roundCurrTime;
@@ -201,6 +208,7 @@ private:
 	mutex		freezeCnt_l;
 	mutex		readyCnt_l;
 	mutex		clientCnt_l;
+	mutex		bomberID_l;
 
 private:
 	vector<MAPOBJECT> objects[MAX_ROUND];
@@ -208,10 +216,7 @@ private:
 	vector<MAPOBJECT> goldHammers[MAX_ROUND];
 	vector<MAPOBJECT> NormalHammers[MAX_ROUND];
 	XMFLOAT3 spawn[MAX_ROUND][MAX_USER];
-	MAPOBJECT recent_objects;		//최근에 부딪힌 오브젝트;
-	XMFLOAT3 recent_pos;
-	XMFLOAT3 player_pos;
-	unsigned char recent_player;
+
 public:
 	Server();
 	~Server();

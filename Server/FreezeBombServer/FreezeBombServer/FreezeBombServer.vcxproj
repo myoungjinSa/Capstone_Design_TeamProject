@@ -124,7 +124,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DirectX.h" />
-    <ClInclude Include="GameTimer.h" />
     <ClInclude Include="MyDefine.h" />
     <ClInclude Include="protocol.h" />
     <ClInclude Include="Server.h" />
@@ -132,7 +131,6 @@
     <ClInclude Include="Terrain.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GameTimer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="Terrain.cpp" />
