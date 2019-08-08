@@ -1881,12 +1881,7 @@ void CGameFramework::ProcessPacket(char* packet)
 					m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
 				}
 			}
-			else
-			{
-				m_pPlayer->SetTrackAnimationSet(0, pPA->animation);
-				m_pPlayer->m_pAnimationController->SetAnimationState((CAnimationController::ANIMATIONTYPE)pPA->animation);
 
-			}
 
 			//cout <<"애니메이션 : "<<(int)pPA->animation << "\n";
 			//m_pPlayer->SetMoveRotate(false);

@@ -1,7 +1,7 @@
 #pragma once
 
 //#define SERVER_IP "172.30.1.1"
-#define SERVER_IP "192.168.60.127"
+#define SERVER_IP "192.168.200.130"
 
 using namespace std;
 
@@ -370,11 +370,6 @@ struct SC_PACKET_MOVE_PLAYER
 	float xRight;
 	float yRight;
 	float zRight;
-
-	//모델 자체의 회전 
-	float pitch;
-	float yaw;
-	float roll;	
 
 	//속도
 	float fVelocity;

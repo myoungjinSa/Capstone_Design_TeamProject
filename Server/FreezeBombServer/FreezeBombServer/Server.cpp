@@ -962,11 +962,12 @@ void Server::ProcessPacket(char client, char *packet)
 			if (clients[i].in_use == true)
 			{
 				SendMovePlayer(i, client);
-				//Idle 동작으로 변하게 하려면 
-				//SetVelocityZero(i);
+				
 			}
 		}
-		SetPitchYawRollZero(client);
+		//Idle 동작으로 변하게 하려면 
+		//SetVelocityZero(client);
+	//	SetPitchYawRollZero(client);
 		
 		break;
 	}
@@ -1608,10 +1609,6 @@ void Server::SendMovePlayer(char to,char client)
 	packet.yUp = clients[client].up.y;
 	packet.zUp = clients[client].up.z;
 
-	//플레이어 모델의 실제 회전정보
-	packet.pitch = clients[client].pitch;
-	packet.yaw = clients[client].yaw;
-	packet.roll = clients[client].roll;
 
 	packet.fVelocity = clients[client].fVelocity;
 	packet.isMoveRotate = clients[client].isMoveRotate;
@@ -2015,16 +2012,16 @@ void Server::SetClient_Initialize(char client)
 }
 
 
-void Server::SetPitchYawRollZero(char client)
-{
-	if (clients[client].pitch > 0.0f)
-		clients[client].pitch = 0.0f;
-	if (clients[client].yaw > 0.0f)
-		clients[client].yaw = 0.0f;
-	if (clients[client].roll > 0.0f)
-		clients[client].roll = 0.0f;
-	
-}
+//void Server::SetPitchYawRollZero(char client)
+//{
+//	if (clients[client].pitch > 0.0f)
+//		clients[client].pitch = 0.0f;
+//	if (clients[client].yaw > 0.0f)
+//		clients[client].yaw = 0.0f;
+//	if (clients[client].roll > 0.0f)
+//		clients[client].roll = 0.0f;
+//	
+//}
 //void Server::UpdateClientPos(char client)
 //{
 //	
@@ -2171,12 +2168,12 @@ void Server::UpdateClientPos(char client)
 	   if (bomberID == client)
 	   {
 		   bomberID_l.unlock();
-		   clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY * 1.2f);
+		   clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -VELOCITY * 1.2f);
 	   }
 	   else
 	   {
 		   bomberID_l.unlock();
-		   clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY);
+		   clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -VELOCITY);
 	   }
    }
 
@@ -2285,7 +2282,7 @@ void Server::RotateClientAxisY(char client)
 		float czDelta = xmf3Look.z - clients[client].lastLookVector.z;
 
 
-		RotateModel(client, 0.0f, fAngle * ROTATE_RATE , 0.0f);
+		//RotateModel(client, 0.0f, fAngle * ROTATE_RATE , 0.0f);
 		
 	}
 	if (clients[client].direction == DIR_LEFT || clients[client].direction == DIR_FORWARDLEFT || clients[client].direction == DIR_BACKLEFT)
@@ -2300,7 +2297,7 @@ void Server::RotateClientAxisY(char client)
 
 		float czDelta = xmf3Look.z - clients[client].lastLookVector.z;
 
-		RotateModel(client, 0.0f, -fAngle * ROTATE_RATE, 0.0f);
+		//RotateModel(client, 0.0f, -fAngle * ROTATE_RATE, 0.0f);
 		
 	}
 	if (clients[client].direction == DIR_FORWARDRIGHT )
@@ -2336,27 +2333,27 @@ void Server::RotateClientAxisY(char client)
 	
 }
 
-void Server::RotateModel(char client, float x, float y, float z)
-{
-	if (x != 0.0f)
-	{
-		clients[client].pitch += x;
-		if (clients[client].pitch > +89.0f) { x -= (clients[client].pitch - 89.0f); clients[client].pitch = +89.0f; }
-		if (clients[client].pitch < -89.0f) { x -= (clients[client].pitch + 89.0f); clients[client].pitch = -89.0f; }
-	}
-	if (y != 0.0f)
-	{
-		clients[client].yaw += y;
-		if (clients[client].yaw > 360.0f) clients[client].yaw -= 360.0f;
-		if (clients[client].yaw < 0.0f) clients[client].yaw += 360.0f;
-	}
-	if (z != 0.0f)
-	{
-		clients[client].roll += z;
-		if (clients[client].roll > +20.0f) { z -= (clients[client].roll - 20.0f); clients[client].roll = +20.0f; }
-		if (clients[client].roll < -20.0f) { z -= (clients[client].roll + 20.0f); clients[client].roll = -20.0f; }
-	}
-}
+//void Server::RotateModel(char client, float x, float y, float z)
+//{
+//	if (x != 0.0f)
+//	{
+//		clients[client].pitch += x;
+//		if (clients[client].pitch > +89.0f) { x -= (clients[client].pitch - 89.0f); clients[client].pitch = +89.0f; }
+//		if (clients[client].pitch < -89.0f) { x -= (clients[client].pitch + 89.0f); clients[client].pitch = -89.0f; }
+//	}
+//	if (y != 0.0f)
+//	{
+//		clients[client].yaw += y;
+//		if (clients[client].yaw > 360.0f) clients[client].yaw -= 360.0f;
+//		if (clients[client].yaw < 0.0f) clients[client].yaw += 360.0f;
+//	}
+//	if (z != 0.0f)
+//	{
+//		clients[client].roll += z;
+//		if (clients[client].roll > +20.0f) { z -= (clients[client].roll - 20.0f); clients[client].roll = +20.0f; }
+//		if (clients[client].roll < -20.0f) { z -= (clients[client].roll + 20.0f); clients[client].roll = -20.0f; }
+//	}
+//}
 
 //void Server::ProcessClientHeight(char client)
 //{

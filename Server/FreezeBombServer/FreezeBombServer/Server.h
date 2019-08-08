@@ -103,9 +103,6 @@ public:
 	XMFLOAT3 up;
 	XMFLOAT3 right;
 	XMFLOAT3 velocity;
-	float pitch;
-	float yaw;
-	float roll;
 	DWORD direction;
 	//¼Óµµ
 	float fVelocity;
