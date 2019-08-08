@@ -102,7 +102,7 @@ public:
 	XMFLOAT3 look;
 	XMFLOAT3 up;
 	XMFLOAT3 right;
-	XMFLOAT3 velocity;
+	//XMFLOAT3 velocity;
 	DWORD direction;
 	//¼Óµµ
 	float fVelocity;

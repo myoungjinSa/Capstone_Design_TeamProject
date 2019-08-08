@@ -391,7 +391,7 @@ void Server::AcceptThreadFunc()
 		CreateIoCompletionPort(reinterpret_cast<HANDLE>(clientSocket), iocp, new_id, 0);
 
 		clients[new_id].in_use = true;
-		clients[new_id].velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		//clients[new_id].velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		clients[new_id].gameState = GS_ID_INPUT;
 
 		SendAccessComplete(new_id);
@@ -550,13 +550,13 @@ void Server::WorkerThreadFunc()
 					ptr += required;
 					// 이미 계산됐기 때문에 다음 패킷을 처리할 수 있도록 0
 					packet_size = 0;
-					clients[key].prev_size = 0;
+					//clients[key].prev_size = 0;
 				}
 				else {
 					// 패킷 만들 수 없는 경우
 					memcpy(clients[key].packet_buffer + clients[key].prev_size, ptr, rest);
 					rest = 0;
-					clients[key].prev_size += rest;
+					//clients[key].prev_size += rest;
 				}
 			}
 
@@ -727,8 +727,9 @@ void Server::WorkerThreadFunc()
 		}
 		else
 		{
-			delete over_ex;
+			
 			cout << "Unknown Event" << over_ex->event_t <<"\n";
+			delete over_ex;
 			//while (true);
 		}
 	}
@@ -965,9 +966,6 @@ void Server::ProcessPacket(char client, char *packet)
 				
 			}
 		}
-		//Idle 동작으로 변하게 하려면 
-		//SetVelocityZero(client);
-	//	SetPitchYawRollZero(client);
 		
 		break;
 	}
@@ -1330,7 +1328,7 @@ void Server::ProcessPacket(char client, char *packet)
 			clients[client].freezeCooltime_l.unlock();
 
 		clientCnt_l.lock();
-		int clientCnt = clientCount-2;
+		int clientCnt = clientCount-1;
 		clientCnt_l.unlock();
 
 		if (clients[client].isFreeze == false)
@@ -1397,7 +1395,9 @@ void Server::ProcessPacket(char client, char *packet)
 			break;
 		}
 		else
+		{
 			bomberID_l.unlock();
+		}
 		//Bomber가 아닌 다른 나머지 클라이언트에게 폭탄이 터진것을 알림
 		for (int i = 0; i < MAX_USER; ++i)
 		{
@@ -1951,8 +1951,9 @@ void Server::ClientDisconnect(char client)
 		InitGame();
 	}
 	else
+	{
 		clientCnt_l.unlock();
-
+	}
 	clients[client].InitPlayer();
 	
 	closesocket(clients[client].socket);
@@ -2141,6 +2142,7 @@ void Server::SetClient_Initialize(char client)
 //}
 void Server::UpdateClientPos(char client)
 {
+	XMFLOAT3 velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	if (clients[client].direction == DIR_LEFT 
       || clients[client].direction == DIR_RIGHT
       || clients[client].direction == DIR_FORWARDRIGHT
@@ -2149,20 +2151,20 @@ void Server::UpdateClientPos(char client)
       || clients[client].direction == DIR_BACKLEFT)
    {
       RotateClientAxisY(client);
-   }
-
+   }	
+	
    if (clients[client].direction == DIR_FORWARD || clients[client].direction == DIR_FORWARDRIGHT || clients[client].direction == DIR_FORWARDLEFT)
    {
 	   bomberID_l.lock();
 	   if (bomberID == client)
 	   {
 		   bomberID_l.unlock();
-		   clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY * 1.2f);
+		   velocity = Vector3::Add(velocity, clients[client].look, VELOCITY * 1.2f);
 	   }
 	   else
 	   {
 		   bomberID_l.unlock();
-		   clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, VELOCITY);
+		   velocity = Vector3::Add(velocity, clients[client].look, VELOCITY);
 	   }
    }
    if (clients[client].direction == DIR_BACKWARD || clients[client].direction == DIR_BACKRIGHT || clients[client].direction == DIR_BACKLEFT)
@@ -2171,25 +2173,25 @@ void Server::UpdateClientPos(char client)
 	   if (bomberID == client)
 	   {
 		   bomberID_l.unlock();
-		   clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -VELOCITY * 1.2f);
+		   velocity = Vector3::Add(velocity, clients[client].look, -VELOCITY * 1.2f);
 	   }
 	   else
 	   {
 		   bomberID_l.unlock();
-		   clients[client].velocity = Vector3::Add(clients[client].velocity, clients[client].look, -VELOCITY);
+		   velocity = Vector3::Add(velocity, clients[client].look, -VELOCITY);
 	   }
    }
 
 
    //clients[client].velocity = Vector3::Add(clients[client].velocity, gravity);//gravity가 초기화가 안되서 쓰레기값?
    //   cout << clients[client].velocity.x<<","<<clients[client].velocity.y<<","<<clients[client].velocity.z << "\n";
-   float fLength = sqrtf(clients[client].velocity.x * clients[client].velocity.x + clients[client].velocity.z * clients[client].velocity.z);
+   float fLength = sqrtf(velocity.x * velocity.x + velocity.z * velocity.z);
    
    
    if (fLength > MAX_VELOCITY_XZ)
    {
-      clients[client].velocity.x *= (MAX_VELOCITY_XZ / fLength);
-      clients[client].velocity.z *= (MAX_VELOCITY_XZ / fLength);
+      velocity.x *= (MAX_VELOCITY_XZ / fLength);
+      velocity.z *= (MAX_VELOCITY_XZ / fLength);
    }
 
    switch (clients[client].collision)
@@ -2203,7 +2205,7 @@ void Server::UpdateClientPos(char client)
    
       XMFLOAT3 xmf3CollisionDir = Vector3::Subtract(clients[client].lastCollPos, clients[client].pos);
       xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir, VELOCITY*0.3f );
-      clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
+      velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
       
       break;
    }
@@ -2228,8 +2230,8 @@ void Server::UpdateClientPos(char client)
       }
 
       }
-      xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir,VELOCITY );
-      clients[client].velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
+      xmf3CollisionDir = Vector3::ScalarProduct(xmf3CollisionDir,VELOCITY * 0.3f );
+      velocity = XMFLOAT3(-xmf3CollisionDir.x, -xmf3CollisionDir.y, -xmf3CollisionDir.z);
       //cout << "충돌 속도" << clients[client].velocity.x << "," << clients[client].velocity.y << "," << clients[client].velocity.z << endl;
       break;
    }
@@ -2239,16 +2241,16 @@ void Server::UpdateClientPos(char client)
    }
    
    
-	 clients[client].pos = Vector3::Add(clients[client].pos, clients[client].velocity);
+	 clients[client].pos = Vector3::Add(clients[client].pos, velocity);
 
-	   //ProcessFriction 함수 호출 필요없어 보임 - 여기서밖에 쓰이지 않아서 함수로 만들 필요가 없어보임 (함수 호출이 비효율적이지 않을까)
-	  fLength = Vector3::Length(clients[client].velocity);
+	  //ProcessFriction 함수 호출 필요없어 보임 - 여기서밖에 쓰이지 않아서 함수로 만들 필요가 없어보임 (함수 호출이 비효율적이지 않을까)
+	  fLength = Vector3::Length(velocity);
 	  float fDeclaration = FRICTION;
 
 	  if (fDeclaration > fLength)
 	  {
 	   fDeclaration = fLength;
-	   clients[client].velocity = Vector3::Add(clients[client].velocity, Vector3::ScalarProduct(clients[client].velocity, -fDeclaration, true));
+	   velocity = Vector3::Add(velocity, Vector3::ScalarProduct(velocity, -fDeclaration, true));
 	  }
    
    //ProcessFriction(client, fLength);
