@@ -689,10 +689,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 			int i = 0;
 			auto MapObjectsList = ((CMapObjectsShader*)((*iter).second))->getMapObjectList();
 
-			// 맵 오브젝트의 충돌 된 오브젝트를 초기화해줌
-			for (auto iter2 = MapObjectsList.begin(); iter2 != MapObjectsList.end(); ++iter2)
-				(*iter2)->SetObjectCollided(nullptr);
-
+			
 			for (auto iter2 = MapObjectsList.begin(); iter2 != MapObjectsList.end(); ++iter2)
 			{		
 				if((*iter2)->GetBoundingBox().Intersects(m_pPlayer->GetBoundingBox()))
@@ -700,6 +697,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 
 #ifdef _WITH_SERVER_
 					
+					//cout << "충돌\n";
 					m_pPlayer->SetCollision(true);
 					Network::GetInstance()->SendSurroundingCollision(dynamic_cast<CSurrounding*>(*iter2)->GetIndex());
 #else
@@ -707,7 +705,7 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 					xmf3CollisionDir=Vector3::ScalarProduct(xmf3CollisionDir, m_pPlayer->GetMaxVelocity()*0.3f);
 					m_pPlayer->SetVelocity(-xmf3CollisionDir.x,-xmf3CollisionDir.y,-xmf3CollisionDir.z);
 #endif
-					m_pPlayer->SetObjectCollided((*iter2));
+					//m_pPlayer->SetObjectCollided((*iter2));
 				}
 				++i;
 			}

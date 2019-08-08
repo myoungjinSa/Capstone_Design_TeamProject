@@ -356,6 +356,7 @@ struct SC_PACKET_MOVE_PLAYER
 	char type;
 	char id;
 	char padding;		//4바이트 정렬
+
 	float xPos;
 	float yPos;
 	float zPos;

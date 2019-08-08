@@ -1796,7 +1796,6 @@ void CGameObject::EvilBearInfoClear()
 	m_bGoldHammer = false;
 	m_bGoldTimer = false;
 	m_bIce = false;
-	m_bCollided = false;
 	m_bLightening = false;
 	m_Score = 0;
 

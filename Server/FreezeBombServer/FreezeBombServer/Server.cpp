@@ -994,7 +994,7 @@ void Server::ProcessPacket(char client, char *packet)
 			pow(clients[client].pos.y - objects[round][p->objId].pos.y, 2) +
 			pow(clients[client].pos.z - objects[round][p->objId].pos.z, 2));
 
-		if (dist > 10)
+		if (dist > 50)
 			break;
 
 		clients[client].lastCollObjIdx = p->objId; //최근에 부딪힌 오브젝트를 저장한다.
@@ -1065,7 +1065,7 @@ void Server::ProcessPacket(char client, char *packet)
 			pow(clients[client].pos.y - clients[p->touchId].pos.y, 2) +
 			pow(clients[client].pos.z - clients[p->touchId].pos.z, 2));
 
-		if (dist > 10)
+		if (dist > 50)
 			break;
 
 		bomberID_l.lock();

@@ -476,8 +476,7 @@ protected:
 	short								m_Score = 0;
 
 #ifdef _WITH_SERVER_
-	bool								m_bCollided{ false };
-
+	
 	float						m_fVelocityFromServer = 0.0f;
 
 #endif
@@ -487,10 +486,6 @@ protected:
 	int			m_SoundChannel = -1;
 public:
 
-#ifdef _WITH_SERVER_
-	void SetCollided(bool isCollided) { m_bCollided = isCollided; }
-	bool IsCollided() { return m_bCollided; }
-#endif
 	void setID(const string id) { m_ID = id; }
 	const string getID()	const { return m_ID; }
 
@@ -503,8 +498,8 @@ public:
 	void SetOOBB(XMFLOAT3& xmCenter, XMFLOAT3& xmExtents, XMFLOAT4& xmOrientation)
 	{ m_xmOOBBTransformed = m_xmOOBB = BoundingOrientedBox(xmCenter, xmExtents, xmOrientation); }
 
-	CGameObject* GetObjectCollided() { return m_pObjectCollided; }
-	void SetObjectCollided(CGameObject* value) { m_pObjectCollided = value; }
+	//CGameObject* GetObjectCollided() { return m_pObjectCollided; }
+	//void SetObjectCollided(CGameObject* value) { m_pObjectCollided = value; }
 
 	void CacheFrameMeshObject(CGameObject* pRootFrame);
 	// 해당하는 프레임메쉬를 찾아서 셋해줌
