@@ -365,6 +365,7 @@ void CPlayer::Update(float fTimeElapsed)
 			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, VELOCITY*1.2f);
 		else
 			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, VELOCITY);
+
 		Move(m_xmf3Velocity, false);
 	}
 
@@ -375,6 +376,7 @@ void CPlayer::Update(float fTimeElapsed)
 			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -VELOCITY*1.2f);
 		else
 			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Look, -VELOCITY);
+
 		Move(m_xmf3Velocity, false);
 	}
 	

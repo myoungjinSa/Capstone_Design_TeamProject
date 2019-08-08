@@ -117,7 +117,8 @@ private:
 	int								m_nWndClientWidth;
 	int								m_nWndClientHeight;
 
-	IDXGIFactory4*					m_pdxgiFactory = nullptr;
+	IDXGIFactory6*					m_pdxgiFactory6 = nullptr;
+	//IDXGIFactory4*					m_pdxgiFactory = nullptr;
 	IDXGISwapChain3*				m_pdxgiSwapChain = nullptr;
 	ID3D12Device*					m_pd3dDevice = nullptr;
 

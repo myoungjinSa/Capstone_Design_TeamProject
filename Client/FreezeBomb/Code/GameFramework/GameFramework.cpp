@@ -75,7 +75,8 @@ volatile HWND g_hWnd;
 
 CGameFramework::CGameFramework()
 {
-	m_pdxgiFactory = NULL;
+	m_pdxgiFactory6 = NULL;
+	//m_pdxgiFactory = NULL;
 	m_pdxgiSwapChain = NULL;
 	m_pd3dDevice = NULL;
 
@@ -183,7 +184,7 @@ void CGameFramework::CreateSwapChain()
 	dxgiSwapChainFullScreenDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 	dxgiSwapChainFullScreenDesc.Windowed = true;
 
-	HRESULT hResult = m_pdxgiFactory->CreateSwapChainForHwnd(m_pd3dCommandQueue, m_hWnd, &dxgiSwapChainDesc, &dxgiSwapChainFullScreenDesc, NULL, (IDXGISwapChain1 **)&m_pdxgiSwapChain);
+	HRESULT hResult = m_pdxgiFactory6->CreateSwapChainForHwnd(m_pd3dCommandQueue, m_hWnd, &dxgiSwapChainDesc, &dxgiSwapChainFullScreenDesc, NULL, (IDXGISwapChain1 **)&m_pdxgiSwapChain);
 #else
 	DXGI_SWAP_CHAIN_DESC1 dxgiSwapChainDesc;
 	::ZeroMemory(&dxgiSwapChainDesc, sizeof(DXGI_SWAP_CHAIN_DESC1));
@@ -238,14 +239,45 @@ void CGameFramework::CreateSwapChain()
 	}
 	//전체 모드로 시작
 	hResult = m_pdxgiSwapChain->SetFullscreenState(true, NULL);
-	if (FAILED(hResult)) 
-	{
-		cout << "SetFullScreenState 에러\n";
-		return;
-	}
+
 	if (hResult == DXGI_ERROR_NOT_CURRENTLY_AVAILABLE)
 	{
-		cout << "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE\n";
+		cout << " A resource is not available at the time of the call, but may become available later.\n";
+		return;
+	}
+	if (hResult == DXGI_STATUS_NO_REDIRECTION)
+	{
+		cout << "The driver is requesting that the DXGI runtime not use shared resources to communicate with the Desktop Window Manager\n";
+		return;
+	}
+	if (hResult == DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE)
+	{
+		cout << "The Present operation was not visible because the target monitor was being used for some other purpose.\n";
+		return;
+	}
+	if (hResult == DXGI_STATUS_MODE_CHANGED)
+	{
+		cout << "The Present operation was not visible because the display mode changed. DXGI will have re-attempted the presentation.\n";
+		return;
+	}
+	if (hResult == DXGI_STATUS_MODE_CHANGE_IN_PROGRESS)
+	{
+		cout << "The Present operation was not visible because another Direct3D device was attempting to take fullscreen mode at the time.\n";
+		return;
+	}
+	if (hResult == DXGI_STATUS_NO_DESKTOP_ACCESS)
+	{
+		cout << "The Present operation was not visible because the Windows session has switched to another desktop (for example, ctrl-alt-del).\n";
+		return;
+	}
+	if (hResult == DXGI_STATUS_OCCLUDED)
+	{
+		cout << "The Present operation was invisible to the user\n";
+		return;
+	}
+	if (FAILED(hResult)) 
+	{
+		cout << "SetFullScreenState ERROR\n";
 		return;
 	}
 	if (SUCCEEDED(hResult))
@@ -278,7 +310,7 @@ void CGameFramework::CreateSwapChain()
 	// 스왑체인의 현재 후면버퍼 인덱스를 저장
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
 	// Alt + Enter키로 전체모드 비활성화
-	hResult = m_pdxgiFactory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER);
+	hResult = m_pdxgiFactory6->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER);
 	//DXGI_MWA_NO_WINDOW_CHANGES -> DXGI가 윈도우 메세지큐를 감시하지 않는 옵션
 	if (FAILED(hResult))
 	{
@@ -309,7 +341,7 @@ void CGameFramework::CreateDirect3DDevice()
 	nDXGIFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 #endif
 
-	hResult = ::CreateDXGIFactory2(nDXGIFactoryFlags, __uuidof(IDXGIFactory4), (void **)&m_pdxgiFactory);
+	hResult = ::CreateDXGIFactory2(nDXGIFactoryFlags, __uuidof(IDXGIFactory4), (void **)&m_pdxgiFactory6);
 	if (FAILED(hResult))
 	{
 		printf("CreateDXGIFactory2 Error\n");
@@ -320,7 +352,8 @@ void CGameFramework::CreateDirect3DDevice()
 	IDXGIOutput* pOutput = NULL;
 	UINT nModes = 0;
 	UINT nFlags = DXGI_ENUM_MODES_SCALING;
-	for (UINT i = 0; DXGI_ERROR_NOT_FOUND != m_pdxgiFactory->EnumAdapters1(i, &pd3dAdapter); i++)
+	//DXGIFactory6::EnumAdapterByGpuPreference -> This method allows developers to select which GPU they think is most appropriate for each device their app creates and utilizes.
+	for (UINT i = 0; DXGI_ERROR_NOT_FOUND != m_pdxgiFactory6->EnumAdapterByGpuPreference(i,DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,IID_PPV_ARGS(&pd3dAdapter))/*m_pdxgiFactory->EnumAdapters1(i, &pd3dAdapter)*/; i++)
 	{
 		DXGI_ADAPTER_DESC1 dxgiAdapterDesc;
 		/*pd3dAdapter->EnumOutputs(0, &pOutput);
@@ -338,7 +371,7 @@ void CGameFramework::CreateDirect3DDevice()
 	// DirectX12를 지원하지 않는 경우
 	if (pd3dAdapter == nullptr)
 	{
-		hResult = m_pdxgiFactory->EnumWarpAdapter(_uuidof(IDXGIAdapter1), (void **)&pd3dAdapter);
+		hResult = m_pdxgiFactory6->EnumWarpAdapter(_uuidof(IDXGIAdapter1), (void **)&pd3dAdapter);
 		if (FAILED(hResult))
 			cout << "EnumWarpAdater 에러\n";
 		hResult = D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), (void **)&m_pd3dDevice);
@@ -975,8 +1008,9 @@ void CGameFramework::OnDestroy()
 	m_pdxgiSwapChain->SetFullscreenState(FALSE, NULL);
 	if (m_pdxgiSwapChain) m_pdxgiSwapChain->Release();
 	if (m_pd3dDevice) m_pd3dDevice->Release();
-	if (m_pdxgiFactory) m_pdxgiFactory->Release();
+	//if (m_pdxgiFactory) m_pdxgiFactory->Release();
 
+	if (m_pdxgiFactory6) m_pdxgiFactory6->Release();
 #if defined(_DEBUG)
 	IDXGIDebug1	*pdxgiDebug = NULL;
 	DXGIGetDebugInterface1(0, __uuidof(IDXGIDebug1), (void **)&pdxgiDebug);
@@ -2417,6 +2451,11 @@ void CGameFramework::ProcessPacket(char* packet)
 				m_pPlayer->SetIsBomb(true);
 				(*iter).second->m_ppObjects[runnerID]->SetIsBomb(false);
 
+				m_pPlayer->SetIsShowCoolTime(false);
+				if (m_pPlayer->GetIsLightEffect())
+				{
+					m_pPlayer->SetIsLightEffect(false);
+				}
 			}
 		}
 		else if (pRC->runnerId == m_pPlayer->GetPlayerID())		//자신이 상대방에게  폭탄을 넘겨줬을 경우
