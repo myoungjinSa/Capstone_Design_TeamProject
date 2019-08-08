@@ -1928,6 +1928,9 @@ void Server::ClientDisconnect(char client)
 				SendChangeBomber(i, tmp, client);
 			}
 		}
+		else
+			bomberID_l.unlock();
+
 		for (int i = 0; i < MAX_USER; ++i)
 		{
 			if (false == clients[i].in_use)
