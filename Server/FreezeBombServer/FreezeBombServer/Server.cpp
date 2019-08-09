@@ -285,8 +285,12 @@ void Server::InitGame()
 	timer_l.unlock();
 	round = 0;
 	ResetTimer();
+	readyCnt_l.lock();
 	readyCount = 0;
+	readyCnt_l.unlock();
+	freezeCnt_l.lock();
 	freezeCnt = 0;
+	freezeCnt_l.unlock();
 	coolTime_l.lock();
 	bomberTouchCooltime = 0;
 	coolTime_l.unlock();
@@ -308,7 +312,9 @@ void Server::InitRound()
 	//bomberID_l.lock();
 	//bomberID = 0;
 	//bomberID_l.unlock();
+	freezeCnt_l.lock();
 	freezeCnt = 0;
+	freezeCnt_l.unlock();
 	coolTime_l.lock();
 	bomberTouchCooltime = 0;
 	coolTime_l.unlock();
@@ -409,8 +415,8 @@ void Server::AcceptThreadFunc()
 		}
 		clientCnt_l.lock();
 		++clientCount;
-		clientCnt_l.unlock();
 		printf("%d 클라이언트 접속 완료, 현재 클라이언트 수: %d\n", new_id, clientCount);
+		clientCnt_l.unlock();
 		RecvFunc(new_id);
 	}
 
@@ -576,7 +582,7 @@ void Server::WorkerThreadFunc()
 			for (int i = 0; i < MAX_USER; ++i)
 			{
 				if (true == clients[i].in_use)
-					SendCompareTime(i, roundCurrTime);
+					SendCompareTime(i, time);
 			}
 
 			// 라운드 종료 시
@@ -678,15 +684,15 @@ void Server::WorkerThreadFunc()
 				cout << "라운드 범위 초과" << endl;
 			}
 			cout << "라운드: " << round << endl;
-			ShuffleStartPosIndex();
 
 			// 새 라운드 시작 시 초기화
-			StartTimer();
+			ShuffleStartPosIndex();
 
 			coolTime_l.lock();
-			bomberTouchCooltime = 0;		//라운드가 바뀔때 기존에 카운트하던 changeCoolTime을 
-									//바꿔줘야 한다.
+			bomberTouchCooltime = 0;		
 			coolTime_l.unlock();
+
+			StartTimer();
 
 			roundTime_l.lock();
 			unsigned short time = roundCurrTime;
@@ -726,29 +732,29 @@ void Server::WorkerThreadFunc()
 		else
 		{
 			
-			cout << "Unknown Event" << over_ex->event_t <<"\n";
+			cout << "Unknown Event : " << over_ex->event_t <<"\n";
 			delete over_ex;
 			//while (true);
 		}
 	}
 }
 
-void Server::PickBomber()
+int Server::PickBomber()
 {
 	default_random_engine dre;
+	clientCnt_l.lock();
 	uniform_int_distribution<int> uid(0, clientCount + 1);
+	clientCnt_l.unlock();
 	int tmp = 0;
 	while (true)
 	{
 		tmp = uid(dre);
 		if (true == clients[tmp].in_use)
 		{
-			bomberID_l.lock();
-			bomberID = tmp;
-			bomberID_l.unlock();
 			break;
 		}
 	}
+	return tmp;
 	//cout << "술래 ID:" << bomberID << "\n";
 }
 
@@ -791,8 +797,14 @@ void Server::ProcessPacket(char client, char *packet)
 		
 		clients[client].gameState = GS_LOBBY;
 		// 기존 유저들의 matID 전송
-		if(clientCount > 0)
+		clientCnt_l.lock();
+		if (clientCount > 0)
+		{
+			clientCnt_l.unlock();
 			SendChosenCharacter(client);
+		}
+		else
+			clientCnt_l.unlock();
 
 		for (int i = 0; i < MAX_USER; ++i)
 		{
@@ -847,15 +859,17 @@ void Server::ProcessPacket(char client, char *packet)
 	}
 	case CS_READY:
 	{
-		printf("전체 클라 수: %d\n", clientCount);
 		// 클라가 엔터누르고 F5누를때마다 CS_READY 패킷이 날아온다면 ++readyCount는 clientCount보다 증가하게 되고 
 		// 아래 CS_REQUEST_START안에 if(clientCount<= readyCount) 안으로 들어가지 않는 현상 발생
 		readyCnt_l.lock();
+		clientCnt_l.lock();
+		printf("전체 클라 수: %d\n", clientCount);
 		if(readyCount < clientCount -1)
 			++readyCount;
+		printf("Ready한 클라 수: %d\n", readyCount);
+		clientCnt_l.unlock();
 		readyCnt_l.unlock();
 
-		printf("Ready한 클라 수: %d\n", readyCount);
 
 		clients[client].isReady = true;
 		for (int i = 0; i < MAX_USER; ++i)
@@ -870,10 +884,8 @@ void Server::ProcessPacket(char client, char *packet)
 		readyCnt_l.lock();
 		if(readyCount > 0)
 			--readyCount;
-		readyCnt_l.unlock();
-
-
 		printf("Ready한 클라 수: %d\n", readyCount);
+		readyCnt_l.unlock();
 
 		clients[client].isReady = false;
 
@@ -886,11 +898,18 @@ void Server::ProcessPacket(char client, char *packet)
 	}
 	case CS_REQUEST_START:
 	{
-		// 이 부분 락을 해야할거 같음 - 명진
+		clientCnt_l.lock();
+		readyCnt_l.lock();
 		if (clientCount - 1 == readyCount)
 		{
 			cout << clientCount << ", " << readyCount << "\n";
-			PickBomber();
+			readyCnt_l.unlock();
+			clientCnt_l.unlock();
+
+			bomberID_l.lock();
+			bomberID = PickBomber();
+			bomberID_l.unlock();
+			
 			ShuffleStartPosIndex();
 
 			for (int i = 0; i < MAX_USER; ++i)
@@ -933,6 +952,8 @@ void Server::ProcessPacket(char client, char *packet)
 		}
 		else
 		{
+			readyCnt_l.unlock();
+			clientCnt_l.unlock();
 			//이 부분 READYCOUNT 보다
 			for (int i = 0; i < MAX_USER; ++i)
 			{
@@ -1082,14 +1103,16 @@ void Server::ProcessPacket(char client, char *packet)
 		}
 
 		bomberID_l.lock();
+		short tmp = bomberID;
+		bomberID_l.unlock();
+
 		for (int i = 0; i < MAX_USER; ++i)
 		{
 			if (true == clients[i].in_use)
 			{
-				SendChangeBomber(i, bomberID, client);
+				SendChangeBomber(i, tmp, client);
 			}
 		}
-		bomberID_l.unlock();
 
 		break;
 	}
@@ -1389,21 +1412,23 @@ void Server::ProcessPacket(char client, char *packet)
 	{
 		cout << "CS_BOMB_EXPLOSION CALL\n";
 		//Bomber가 아닌 다른 나머지 클라이언트에게 폭탄이 터진것을 알림
+		bomberID_l.lock();
+		short tmp = bomberID;
+		bomberID_l.unlock();
 		for (int i = 0; i < MAX_USER; ++i)
 		{
 			if (clients[i].in_use == false)
 				continue;
-			bomberID_l.lock();
 			
-			cout << "bomberID :  " << bomberID<<endl;
-			SendBombExplosion(i, bomberID);
-			bomberID_l.unlock();
-			
+			cout << "bomberID :  " << tmp <<endl;
+			SendBombExplosion(i, tmp);
 		}
 		
 		//bomberID_l 초기화를 여기서 해줘야함. -> InitRound가 타이머 0이되면 바로 bomberID를 초기화해주기 때문에 SendBombExplosion패킷 보낼때에는
 		// bomberID_l 은 값이 0이되버리면서 폭탄 파티클이 안보이는 현상이 발생했음
-		PickBomber();
+		bomberID_l.lock();
+		bomberID = PickBomber();
+		bomberID_l.unlock();
 
 		break;
 	}
@@ -1555,7 +1580,9 @@ void Server::SendRoundStart(char client,unsigned short& t)
 	packet.goldTimerCnt = goldTimerCnt[round];
 	packet.goldHammerCnt = goldHammerCnt[round];
 	packet.hammerCnt = normalHammerCnt[round];
+	clientCnt_l.lock();
 	packet.clientCount = clientCount;
+	clientCnt_l.unlock();
 	packet.size = sizeof(packet);
 	packet.type = SC_ROUND_START;
 
@@ -1905,20 +1932,20 @@ void Server::ClientDisconnect(char client)
 
 		bomberID_l.lock();
 		int tmp = bomberID;
-		if (client == bomberID)
+		bomberID_l.unlock();
+		if (client == tmp)
 		{
-			bomberID_l.unlock();
-			if(clientCount > 1 )
-				PickBomber();
+			tmp = PickBomber();
 			for (int i = 0; i < MAX_USER; ++i)
 			{
 				if (false == clients[i].in_use)
 					continue;
 				SendChangeBomber(i, tmp, client);
 			}
-		}
-		else
+			bomberID_l.lock();
+			bomberID = tmp;
 			bomberID_l.unlock();
+		}
 
 		for (int i = 0; i < MAX_USER; ++i)
 		{
@@ -1934,8 +1961,8 @@ void Server::ClientDisconnect(char client)
 	clientCnt_l.lock();
 	if (0 >= clientCount)
 	{
-		clientCnt_l.unlock();
 		clientCount = 0;
+		clientCnt_l.unlock();
 		hostId = 0;
 		InitGame();
 	}
@@ -1947,7 +1974,9 @@ void Server::ClientDisconnect(char client)
 	
 	closesocket(clients[client].socket);
 
+	clientCnt_l.lock();
 	printf("%d 클라이언트 접속 종료, 현재 클라이언트 수: %d\n", (int)client, clientCount);
+	clientCnt_l.unlock();
 }
 
 void Server::SetAnimationState(char client, char animationNum)

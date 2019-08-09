@@ -181,7 +181,6 @@ private:
 	SOCKETINFO clients[MAX_USER];
 	vector<thread> workerThreads;
 	CHeightMapImage* heightMap;
-	XMFLOAT3 gravity;
 	unsigned short roundCurrTime;
 	int clientCount;
 	int readyCount;
@@ -273,7 +272,7 @@ public:
 public:
 	void InitGame();
 	void InitRound();
-	void PickBomber();
+	int PickBomber();
 	void StartTimer();
 	void ResetTimer();
 
