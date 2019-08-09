@@ -286,9 +286,6 @@ void Server::InitGame()
 	round = 0;
 	ResetTimer();
 	readyCount = 0;
-	bomberID_l.lock();
-	bomberID = 0;
-	bomberID_l.unlock();
 	freezeCnt = 0;
 	coolTime_l.lock();
 	bomberTouchCooltime = 0;
@@ -307,9 +304,10 @@ void Server::InitRound()
 	timer_l.unlock();
 
 	ResetTimer();
-	bomberID_l.lock();
-	bomberID = 0;
-	bomberID_l.unlock();
+	
+	//bomberID_l.lock();
+	//bomberID = 0;
+	//bomberID_l.unlock();
 	freezeCnt = 0;
 	coolTime_l.lock();
 	bomberTouchCooltime = 0;
@@ -550,13 +548,13 @@ void Server::WorkerThreadFunc()
 					ptr += required;
 					// 이미 계산됐기 때문에 다음 패킷을 처리할 수 있도록 0
 					packet_size = 0;
-					//clients[key].prev_size = 0;
+					clients[key].prev_size = 0;
 				}
 				else {
 					// 패킷 만들 수 없는 경우
 					memcpy(clients[key].packet_buffer + clients[key].prev_size, ptr, rest);
+					clients[key].prev_size += rest;
 					rest = 0;
-					//clients[key].prev_size += rest;
 				}
 			}
 
@@ -1067,7 +1065,8 @@ void Server::ProcessPacket(char client, char *packet)
 			break;
 
 		bomberID_l.lock();
-		bomberID = p->touchId;
+		bomberID = (int)p->touchId;
+		cout << "술래 바뀜 : bomberID : " << bomberID << endl;
 		bomberID_l.unlock();
 
 		coolTime_l.lock();
@@ -1388,33 +1387,23 @@ void Server::ProcessPacket(char client, char *packet)
 
 	case CS_BOMB_EXPLOSION:
 	{
-		bomberID_l.lock();
-		if (client != bomberID)		//술래가 아닌 다른 클라이언트가 보냈다면 무시한다.
-		{
-			bomberID_l.unlock();
-			break;
-		}
-		else
-		{
-			bomberID_l.unlock();
-		}
+		cout << "CS_BOMB_EXPLOSION CALL\n";
 		//Bomber가 아닌 다른 나머지 클라이언트에게 폭탄이 터진것을 알림
 		for (int i = 0; i < MAX_USER; ++i)
 		{
 			if (clients[i].in_use == false)
 				continue;
 			bomberID_l.lock();
-			if (i == bomberID)
-			{
-				bomberID_l.unlock();
-				continue;
-			}
-			else
-			{
-				SendBombExplosion(i, bomberID);
-				bomberID_l.unlock();
-			}
+			
+			cout << "bomberID :  " << bomberID<<endl;
+			SendBombExplosion(i, bomberID);
+			bomberID_l.unlock();
+			
 		}
+		
+		//bomberID_l 초기화를 여기서 해줘야함. -> InitRound가 타이머 0이되면 바로 bomberID를 초기화해주기 때문에 SendBombExplosion패킷 보낼때에는
+		// bomberID_l 은 값이 0이되버리면서 폭탄 파티클이 안보이는 현상이 발생했음
+		PickBomber();
 
 		break;
 	}

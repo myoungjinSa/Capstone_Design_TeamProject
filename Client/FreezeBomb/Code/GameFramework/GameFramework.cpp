@@ -2426,6 +2426,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 				//	dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetBlowingUp(true);
 
+				cout << "Àû ÅÍÁü" << endl;
 				dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetParticleBlowUp(pBomb->GetPosition());
 			}
 		}
