@@ -1,0 +1,4237 @@
+Objects Count:706
+<Foliage0>
+<Position>: 468 0 241
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 232 0 201
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 28 0 282
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 191 0 48
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 398 0 107
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 239 0 55
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 289 0 223
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 24 0 173
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 59 0 215
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 297 0 295
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 355 0 167
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 216 0 128
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 448 0 268
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 221 0 224
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 165 0 261
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 361 0 198
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 155 0 298
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 165 0 74
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 476 0 278
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 363 0 155
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 143 0 194
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 151 0 16
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 24 0 136
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 221 0 169
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 72 0 104
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 194 0 171
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 113 0 115
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 162 0 282
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 465 0 134
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 499 0 277
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 311 0 205
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 171 0 53
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 17 0 132
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 57 0 293
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 438 0 261
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 251 0 252
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 71 0 165
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 55 0 43
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 361 0 241
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 183 0 212
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 174 0 45
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 149 0 34
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 135 0 256
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 369 0 195
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 492 0 241
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 486 0 66
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 322 0 212
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 381 0 139
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 49 0 120
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 98 0 243
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 203 0 56
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 476 0 248
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 337 0 54
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 110 0 77
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 499 0 166
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 271 0 234
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 401 0 160
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 126 0 166
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 99 0 274
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 291 0 164
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 378 0 233
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 164 0 210
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 370 0 121
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 330 0 246
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 360 0 23
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 233 0 86
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 180 0 16
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 465 0 30
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 213 0 163
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 82 0 235
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 141 0 135
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 56 0 240
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 447 0 106
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 402 0 262
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 499 0 19
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 61 0 116
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 52 0 102
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 449 0 133
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 359 0 35
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 465 0 121
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 49 0 53
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 69 0 139
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 280 0 175
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 435 0 187
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 122 0 281
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 208 0 192
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 103 0 185
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 406 0 53
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 466 0 185
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 309 0 128
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 174 0 167
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 304 0 69
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 349 0 187
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 237 0 59
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 421 0 187
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 33 0 129
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 467 0 270
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 389 0 135
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 360 0 173
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage0>
+<Position>: 316 0 188
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 158 0 105
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 24 0 140
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 365 0 152
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 353 0 118
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 110 0 253
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 344 0 143
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 85 0 198
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 482 0 169
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 84 0 15
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 137 0 90
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 380 0 19
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 108 0 176
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 163 0 23
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 98 0 117
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 384 0 76
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 408 0 267
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 429 0 196
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 361 0 129
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 352 0 252
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 390 0 110
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 442 0 54
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 352 0 16
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 79 0 273
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 127 0 53
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 190 0 147
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 192 0 234
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 275 0 270
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 259 0 244
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 285 0 181
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 423 0 297
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 410 0 145
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 10 0 11
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 496 0 195
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 389 0 48
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 107 0 47
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 52 0 45
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 383 0 281
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 41 0 239
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 286 0 232
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 399 0 187
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 422 0 29
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 468 0 54
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 215 0 286
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 123 0 49
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 145 0 111
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 413 0 203
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 47 0 246
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 148 0 286
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 193 0 138
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 200 0 196
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 47 0 265
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 294 0 39
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 357 0 75
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 56 0 69
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 170 0 264
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 224 0 207
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 112 0 245
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 288 0 282
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 213 0 58
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 149 0 166
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 267 0 244
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 253 0 60
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 454 0 284
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 136 0 136
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 282 0 281
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 486 0 68
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 284 0 282
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 477 0 273
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 395 0 213
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 113 0 204
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 332 0 148
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 401 0 106
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 198 0 10
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 310 0 223
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 345 0 134
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 184 0 220
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 213 0 232
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 382 0 72
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 276 0 106
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 429 0 77
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 113 0 95
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 67 0 133
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 445 0 256
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 181 0 122
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 490 0 42
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 182 0 188
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 156 0 37
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 421 0 252
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 237 0 123
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 30 0 35
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 426 0 251
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 55 0 147
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 255 0 110
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 440 0 177
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 74 0 68
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 346 0 136
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 349 0 22
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 494 0 194
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 365 0 152
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage1>
+<Position>: 311 0 90
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 343 0 109
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 244 0 27
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 98 0 211
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 302 0 22
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 394 0 166
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 174 0 203
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 332 0 181
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 138 0 291
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 296 0 134
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 228 0 213
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 181 0 67
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 264 0 279
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 459 0 133
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 159 0 273
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 116 0 108
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 198 0 118
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 15 0 159
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 237 0 49
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 48 0 165
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 249 0 77
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 206 0 258
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 412 0 65
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 28 0 39
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 188 0 77
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 454 0 19
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 172 0 261
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 132 0 98
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 115 0 140
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 499 0 154
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 200 0 197
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 186 0 77
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 377 0 116
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 334 0 143
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 81 0 67
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 432 0 56
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 371 0 192
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 256 0 240
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 459 0 101
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 47 0 10
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 256 0 295
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 382 0 137
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 231 0 149
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 94 0 206
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 155 0 113
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 176 0 76
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 460 0 159
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 210 0 59
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 108 0 161
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 46 0 136
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 383 0 66
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 240 0 220
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 427 0 270
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 59 0 191
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 222 0 104
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 251 0 157
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 26 0 265
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 130 0 297
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 189 0 245
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 363 0 37
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 139 0 54
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 487 0 284
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 474 0 132
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 314 0 218
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 314 0 102
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 455 0 224
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 282 0 92
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 394 0 232
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 361 0 14
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 13 0 190
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 341 0 53
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 118 0 88
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 485 0 17
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 77 0 176
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 16 0 27
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 64 0 293
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 149 0 236
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 52 0 250
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 157 0 91
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 258 0 220
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 215 0 115
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 397 0 249
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 16 0 79
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 171 0 136
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 30 0 128
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 271 0 37
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 26 0 62
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 250 0 147
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 217 0 148
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 144 0 152
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 472 0 166
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 112 0 179
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 169 0 48
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 145 0 43
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 392 0 47
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 375 0 172
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 320 0 137
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 188 0 66
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 222 0 255
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 154 0 168
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<Foliage2>
+<Position>: 264 0 159
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<GoldTimer>
+<Position>: 213.514 0 87.5195
+<Look>: 0.744079 0 -0.668092
+<Up>: 0 1 0
+<Right>: -0.668092 0 -0.744079
+
+<Hammer>
+<Position>: 84.6692 0 124.814
+<Look>: 0.890184 0 0.4556
+<Up>: 0 1 0
+<Right>: 0.4556 0 -0.890184
+
+<Hammer>
+<Position>: 458.782 0 222.535
+<Look>: 0.420657 0 -0.90722
+<Up>: 0 1 0
+<Right>: -0.90722 0 -0.420657
+
+<Hammer>
+<Position>: 138.462 0 22.1751
+<Look>: -0.834411 0 0.551142
+<Up>: 0 1 0
+<Right>: 0.551142 0 0.834411
+
+<Hammer>
+<Position>: 335.695 0 20.4401
+<Look>: 0.977706 0 0.209977
+<Up>: 0 1 0
+<Right>: 0.209977 0 -0.977706
+
+<Hammer>
+<Position>: 12.9821 0 244.322
+<Look>: 0.529075 0 0.848575
+<Up>: 0 1 0
+<Right>: 0.848575 0 -0.529075
+
+<Hammer>
+<Position>: 473.618 0 102.602
+<Look>: -0.648804 0 -0.760955
+<Up>: 0 1 0
+<Right>: -0.760955 0 0.648804
+
+<Hammer>
+<Position>: 137.713 0 265.57
+<Look>: 0.90477 0 -0.425901
+<Up>: 0 1 0
+<Right>: -0.425901 0 -0.90477
+
+<Hammer>
+<Position>: 247.861 0 212.596
+<Look>: 0.687328 0 0.726347
+<Up>: 0 1 0
+<Right>: 0.726347 0 -0.687328
+
+<LowPolyFence_01>
+<Position>: 176 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 66 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 253 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 88 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 11 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 44 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 143 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 165 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 187 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 220 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 198 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 352 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 374 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 110 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 22 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 264 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 495 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 451 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 473 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 242 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 77 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 55 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 99 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 121 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 132 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 33 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 154 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 231 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 209 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 286 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 297 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 308 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 319 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 330 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 275 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 341 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 363 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 385 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 396 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 418 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 407 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 440 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 429 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 462 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 484 0 2
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 1 0 15
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 37
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 59
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 70
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 81
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 114
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 125
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 136
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 92
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 147
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 158
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 48
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 26
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 103
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 59
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 147
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 70
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 235
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 257
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 114
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 158
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 103
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 191
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 290
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 15
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 268
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 246
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 26
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 81
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 125
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 279
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 180
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 169
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 191
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 213
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 213
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 48
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 136
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 202
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 37
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 224
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 180
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 235
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 202
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 257
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 268
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 92
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 169
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 224
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 246
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 279
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 290
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 11 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 77 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 132 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 187 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 275 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 286 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 176 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 33 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 55 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 121 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 88 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 154 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 220 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 231 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 110 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 143 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 198 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 242 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 253 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 22 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 66 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 44 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 99 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 165 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 209 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 264 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 1 0 15
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 114
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 308 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 462 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 1 0 70
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 169
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 213
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 396 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 429 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 484 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 330 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 385 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 451 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 1 0 37
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 48
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 103
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 81
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 180
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 352 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 407 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 440 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 297 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 1 0 26
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 125
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 473 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 1 0 59
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 319 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 418 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 363 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 341 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 374 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 495 0 305
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<LowPolyFence_01>
+<Position>: 1 0 92
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 191
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 147
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 136
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 158
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 202
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 37
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 70
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 224
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 235
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 257
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 246
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 26
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 103
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 114
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 92
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 125
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 48
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 268
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 279
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 81
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 1 0 290
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 136
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 158
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 59
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 169
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 180
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 15
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 191
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 202
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 147
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 213
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 235
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 268
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 224
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 279
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 257
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 246
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<LowPolyFence_01>
+<Position>: 508 0 290
+<Look>: 1 0 -1.19209e-07
+<Up>: 0 1 0
+<Right>: -1.19209e-07 0 -1
+
+<SM_BigPlainRock_Snow_01>
+<Position>: 7.05472 0 7.12908
+<Look>: -0.785835 0 -0.618437
+<Up>: 0 1 0
+<Right>: -0.618437 0 0.785835
+
+<SM_BigPlainRock_Snow_01>
+<Position>: 160.479 0 149.352
+<Look>: -0.163368 0 0.986565
+<Up>: 0 1 0
+<Right>: 0.986565 0 0.163368
+
+<SM_BigPlainRock_Snow_01>
+<Position>: 37.6407 0 186.129
+<Look>: -0.592183 0 -0.805803
+<Up>: 0 1 0
+<Right>: -0.805803 0 0.592183
+
+<SM_BigPlainRock_Snow_01>
+<Position>: 201.836 0 143.369
+<Look>: 0.311161 0 -0.950357
+<Up>: 0 1 0
+<Right>: -0.950357 0 -0.311161
+
+<SM_BigPlainRock_Snow_01>
+<Position>: 447.22 0 74.7261
+<Look>: -0.931904 0 0.362705
+<Up>: 0 1 0
+<Right>: 0.362705 0 0.931904
+
+<SM_BigPlainRock_Snow_01>
+<Position>: 426.681 0 230.665
+<Look>: 0.794832 0 0.60683
+<Up>: 0 1 0
+<Right>: 0.60683 0 -0.794832
+
+<SM_BigPlainRock_Snow_01>
+<Position>: 487.678 0 175.547
+<Look>: -0.783972 0 0.620796
+<Up>: 0 1 0
+<Right>: 0.620796 0 0.783972
+
+<SM_BigPlainRock_Snow_02>
+<Position>: 212.301 0 280.512
+<Look>: 0.945733 0 0.324944
+<Up>: 0 1 0
+<Right>: 0.324944 0 -0.945733
+
+<SM_BigPlainRock_Snow_02>
+<Position>: 114.453 0 231.488
+<Look>: -0.764957 0 0.644081
+<Up>: 0 1 0
+<Right>: 0.644081 0 0.764957
+
+<SM_BigPlainRock_Snow_02>
+<Position>: 223.262 0 88.0542
+<Look>: 0.456008 0 -0.889976
+<Up>: 0 1 0
+<Right>: -0.889976 0 -0.456008
+
+<SM_BigPlainRock_Snow_02>
+<Position>: 256.874 0 206.071
+<Look>: -0.965466 0 0.26053
+<Up>: 0 1 0
+<Right>: 0.26053 0 0.965466
+
+<SM_BigPlainRock_Snow_02>
+<Position>: 108.774 0 34.2364
+<Look>: 0.788331 0 -0.615251
+<Up>: 0 1 0
+<Right>: -0.615251 0 -0.788331
+
+<SM_BigPlainRock_Snow_03>
+<Position>: 419.6 0 196.661
+<Look>: 0.915585 0 0.402124
+<Up>: 0 1 0
+<Right>: 0.402124 0 -0.915585
+
+<SM_BigPlainRock_Snow_03>
+<Position>: 501.16 0 9.35861
+<Look>: 0.726016 0 -0.687678
+<Up>: 0 1 0
+<Right>: -0.687678 0 -0.726016
+
+<SM_BigPlainRock_Snow_03>
+<Position>: 17.5348 0 251.844
+<Look>: 0.989026 0 -0.147742
+<Up>: 0 1 0
+<Right>: -0.147742 0 -0.989026
+
+<SM_BigPlainRock_Snow_03>
+<Position>: 416.274 0 162.549
+<Look>: -0.781244 0 0.624226
+<Up>: 0 1 0
+<Right>: 0.624226 0 0.781244
+
+<SM_BigPlainRock_Snow_03>
+<Position>: 147.438 0 265.186
+<Look>: -0.216061 0 -0.97638
+<Up>: 0 1 0
+<Right>: -0.97638 0 0.216061
+
+<SM_BigPlainRock_Snow_03>
+<Position>: 473.895 0 259.079
+<Look>: 0.801347 0 -0.5982
+<Up>: 0 1 0
+<Right>: -0.5982 0 -0.801347
+
+<SM_BigPlainRock_Snow_04>
+<Position>: 502.877 0 299.734
+<Look>: 0.692194 0 0.721711
+<Up>: 0 1 0
+<Right>: 0.721711 0 -0.692194
+
+<SM_BigPlainRock_Snow_04>
+<Position>: 140.89 0 26.3068
+<Look>: 0.997396 0 -0.0721206
+<Up>: 0 1 0
+<Right>: -0.0721206 0 -0.997396
+
+<SM_BigPlainRock_Snow_04>
+<Position>: 67.0337 0 215.967
+<Look>: -0.329288 0 -0.94423
+<Up>: 0 1 0
+<Right>: -0.94423 0 0.329288
+
+<SM_BigPlainRock_Snow_04>
+<Position>: 245.651 0 255.194
+<Look>: -0.97185 0 -0.235602
+<Up>: 0 1 0
+<Right>: -0.235602 0 0.97185
+
+<SM_BigPlainRock_Snow_04>
+<Position>: 475.929 0 47.2011
+<Look>: -0.999818 0 -0.0190549
+<Up>: 0 1 0
+<Right>: -0.0190549 0 0.999818
+
+<SM_BigPlainRock_Snow_04>
+<Position>: 313.543 0 268.464
+<Look>: 0.903885 0 0.427775
+<Up>: 0 1 0
+<Right>: 0.427775 0 -0.903885
+
+<SM_BigPlainRock_Snow_04>
+<Position>: 411.035 0 242.17
+<Look>: 0.678128 0 0.734944
+<Up>: 0 1 0
+<Right>: 0.734944 0 -0.678128
+
+<SM_DeadTrunk_01>
+<Position>: 485.551 0 196.365
+<Look>: -0.42989 0 -0.902881
+<Up>: 0 1 0
+<Right>: -0.902881 0 0.42989
+
+<SM_DeadTrunk_01>
+<Position>: 412.286 0 18.8082
+<Look>: -0.999133 0 -0.0416389
+<Up>: 0 1 0
+<Right>: -0.0416389 0 0.999133
+
+<SM_DeadTrunk_01>
+<Position>: 290.324 0 92.259
+<Look>: -0.460221 0 0.887805
+<Up>: 0 1 0
+<Right>: 0.887805 0 0.460221
+
+<SM_DeadTrunk_01>
+<Position>: 40.7864 0 267.501
+<Look>: 0.492403 0 0.870367
+<Up>: 0 1 0
+<Right>: 0.870367 0 -0.492403
+
+<SM_DeadTrunk_01>
+<Position>: 392.856 0 181.455
+<Look>: -0.9676 0 0.252487
+<Up>: 0 1 0
+<Right>: 0.252487 0 0.9676
+
+<SM_DeadTrunk_01>
+<Position>: 135.588 0 49.3303
+<Look>: 0.452631 0 -0.891698
+<Up>: 0 1 0
+<Right>: -0.891698 0 -0.452631
+
+<SM_DeadTrunk_01>
+<Position>: 414.418 0 45.3129
+<Look>: -0.47516 0 0.879899
+<Up>: 0 1 0
+<Right>: 0.879899 0 0.47516
+
+<SM_DeadTrunk_01>
+<Position>: 440.946 0 251.268
+<Look>: 0.345775 0 0.938317
+<Up>: 0 1 0
+<Right>: 0.938317 0 -0.345775
+
+<SM_DeadTrunk_02>
+<Position>: 490.059 0 147.174
+<Look>: -0.258109 0 -0.966116
+<Up>: 0 1 0
+<Right>: -0.966116 0 0.258109
+
+<SM_DeadTrunk_02>
+<Position>: 129.306 0 91.5851
+<Look>: -0.0103173 0 0.999947
+<Up>: 0 1 0
+<Right>: 0.999947 0 0.0103173
+
+<SM_DeadTrunk_02>
+<Position>: 241.054 0 98.7964
+<Look>: -0.976646 0 -0.214854
+<Up>: 0 1 0
+<Right>: -0.214854 0 0.976646
+
+<SM_DeadTrunk_02>
+<Position>: 8.2762 0 54.1599
+<Look>: 0.187496 0 0.982265
+<Up>: 0 1 0
+<Right>: 0.982265 0 -0.187496
+
+<SM_DeadTrunk_02>
+<Position>: 301.202 0 98.4878
+<Look>: 0.231399 0 0.972859
+<Up>: 0 1 0
+<Right>: 0.972859 0 -0.231399
+
+<SM_DeadTrunk_02>
+<Position>: 260.199 0 188.382
+<Look>: -0.999975 0 -0.0071252
+<Up>: 0 1 0
+<Right>: -0.0071252 0 0.999975
+
+<SM_DeadTrunk_02>
+<Position>: 366.515 0 285.334
+<Look>: -0.996684 0 0.0813743
+<Up>: 0 1 0
+<Right>: 0.0813743 0 0.996684
+
+<SM_DeadTrunk_02>
+<Position>: 74.2704 0 244.439
+<Look>: 0.675174 0 0.737659
+<Up>: 0 1 0
+<Right>: 0.737659 0 -0.675174
+
+<SM_DeadTrunk_02>
+<Position>: 204.277 0 44.8649
+<Look>: -0.0493685 0 -0.998781
+<Up>: 0 1 0
+<Right>: -0.998781 0 0.0493685
+
+<SM_DeadTrunk_03>
+<Position>: 472.669 0 120.934
+<Look>: -0.333104 0 -0.94289
+<Up>: 0 1 0
+<Right>: -0.94289 0 0.333104
+
+<SM_DeadTrunk_03>
+<Position>: 226.936 0 35.5584
+<Look>: 0.664371 0 0.747403
+<Up>: 0 1 0
+<Right>: 0.747403 0 -0.664371
+
+<SM_DeadTrunk_03>
+<Position>: 210.353 0 101.772
+<Look>: -0.953225 0 0.302263
+<Up>: 0 1 0
+<Right>: 0.302263 0 0.953225
+
+<SM_DeadTrunk_03>
+<Position>: 25.1836 0 70.2409
+<Look>: 0.653517 0 0.756912
+<Up>: 0 1 0
+<Right>: 0.756912 0 -0.653517
+
+<SM_DeadTrunk_03>
+<Position>: 285.548 0 169.863
+<Look>: 0.0502007 0 0.998739
+<Up>: 0 1 0
+<Right>: 0.998739 0 -0.0502007
+
+<SM_DeadTrunk_03>
+<Position>: 444.739 0 86.6677
+<Look>: 0.931045 0 -0.364905
+<Up>: 0 1 0
+<Right>: -0.364905 0 -0.931045
+
+<SM_DeadTrunk_03>
+<Position>: 342.541 0 285.666
+<Look>: -0.991822 0 -0.127629
+<Up>: 0 1 0
+<Right>: -0.127629 0 0.991822
+
+<SM_DeadTrunk_03>
+<Position>: 115.466 0 277.422
+<Look>: 0.992481 0 0.122397
+<Up>: 0 1 0
+<Right>: 0.122397 0 -0.992481
+
+<SM_DeadTrunk_03>
+<Position>: 298.151 0 28.7344
+<Look>: 0.912305 0 0.409511
+<Up>: 0 1 0
+<Right>: 0.409511 0 -0.912305
+
+<SM_DeadTrunk_04>
+<Position>: 474.689 0 96.1284
+<Look>: 0.629944 0 -0.77664
+<Up>: 0 1 0
+<Right>: -0.77664 0 -0.629944
+
+<SM_DeadTrunk_04>
+<Position>: 370.346 0 177.619
+<Look>: 0.683738 0 0.729728
+<Up>: 0 1 0
+<Right>: 0.729728 0 -0.683738
+
+<SM_DeadTrunk_04>
+<Position>: 179.924 0 111.896
+<Look>: -0.654794 0 0.755807
+<Up>: 0 1 0
+<Right>: 0.755807 0 0.654794
+
+<SM_DeadTrunk_04>
+<Position>: 58.334 0 85.0415
+<Look>: 0.988403 0 0.151856
+<Up>: 0 1 0
+<Right>: 0.151856 0 -0.988403
+
+<SM_DeadTrunk_04>
+<Position>: 207.825 0 125.077
+<Look>: 0.311161 0 -0.950357
+<Up>: 0 1 0
+<Right>: -0.950357 0 -0.311161
+
+<SM_DeadTrunk_04>
+<Position>: 462.012 0 79.7947
+<Look>: 0.772706 0 -0.634764
+<Up>: 0 1 0
+<Right>: -0.634764 0 -0.772706
+
+<SM_DeadTrunk_04>
+<Position>: 80.7521 0 193.98
+<Look>: 0.307409 0 -0.951578
+<Up>: 0 1 0
+<Right>: -0.951578 0 -0.307409
+
+<SM_DeadTrunk_04>
+<Position>: 138.588 0 211.39
+<Look>: 0.247213 0 -0.968961
+<Up>: 0 1 0
+<Right>: -0.968961 0 -0.247213
+
+<SM_DeadTrunk_04>
+<Position>: 310.296 0 286.622
+<Look>: -0.999577 0 0.0291015
+<Up>: 0 1 0
+<Right>: 0.0291015 0 0.999577
+
+<SM_DeadTrunk_04>
+<Position>: 337.468 0 26.9797
+<Look>: 0.971656 0 0.236397
+<Up>: 0 1 0
+<Right>: 0.236397 0 -0.971656
+
+<SM_DeadTrunk_05>
+<Position>: 496.261 0 60.167
+<Look>: -0.283274 0 -0.959039
+<Up>: 0 1 0
+<Right>: -0.959039 0 0.283274
+
+<SM_DeadTrunk_05>
+<Position>: 395.927 0 201.193
+<Look>: 0.539304 0 0.842111
+<Up>: 0 1 0
+<Right>: 0.842111 0 -0.539304
+
+<SM_DeadTrunk_05>
+<Position>: 22.5654 0 237.016
+<Look>: -0.00876578 0 0.999962
+<Up>: 0 1 0
+<Right>: 0.999962 0 0.00876578
+
+<SM_DeadTrunk_05>
+<Position>: 85.6915 0 117.862
+<Look>: -0.221509 0 0.975158
+<Up>: 0 1 0
+<Right>: 0.975158 0 0.221509
+
+<SM_DeadTrunk_05>
+<Position>: 462.27 0 216.649
+<Look>: -0.00256009 0 -0.999997
+<Up>: 0 1 0
+<Right>: -0.999997 0 0.00256009
+
+<SM_DeadTrunk_05>
+<Position>: 330.041 0 160.702
+<Look>: 0.989527 0 0.144346
+<Up>: 0 1 0
+<Right>: 0.144346 0 -0.989527
+
+<SM_Deer>
+<Position>: 10.4243 0 292.241
+<Look>: -0.499989 0 0.866031
+<Up>: 0 1 0
+<Right>: 0.866031 0 0.499989
+
+<SM_Deer>
+<Position>: 157.347 0 180.511
+<Look>: -0.0854555 0 0.996342
+<Up>: 0 1 0
+<Right>: 0.996342 0 0.0854555
+
+<SM_Deer>
+<Position>: 438.145 0 126.507
+<Look>: -0.837453 0 0.546509
+<Up>: 0 1 0
+<Right>: 0.546509 0 0.837453
+
+<SM_Deer>
+<Position>: 215.416 0 245.016
+<Look>: -0.670708 0 0.741722
+<Up>: 0 1 0
+<Right>: 0.741722 0 0.670708
+
+<SM_Deer>
+<Position>: 343.725 0 269.958
+<Look>: 0.998466 0 -0.0553704
+<Up>: 0 1 0
+<Right>: -0.0553704 0 -0.998466
+
+<SM_Deer>
+<Position>: 254.833 0 86.2425
+<Look>: -0.168611 0 -0.985683
+<Up>: 0 1 0
+<Right>: -0.985683 0 0.168611
+
+<SM_Deer>
+<Position>: 346.114 0 211.996
+<Look>: 0.393879 0 0.919162
+<Up>: 0 1 0
+<Right>: 0.919162 0 -0.393879
+
+<SM_Deer>
+<Position>: 346.113 0 62.135
+<Look>: -0.210966 0 0.977493
+<Up>: 0 1 0
+<Right>: 0.977493 0 0.210966
+
+<SM_FirePit>
+<Position>: 250 0 150
+<Look>: 0.773693 0 0.63356
+<Up>: 0 1 0
+<Right>: 0.63356 0 -0.773693
+
+<SM_PineTree_Snow_01>
+<Position>: 223.957 0 228.107
+<Look>: 0.349759 0 -0.93684
+<Up>: 0 1 0
+<Right>: -0.93684 0 -0.349759
+
+<SM_PineTree_Snow_01>
+<Position>: 488.651 0 290.53
+<Look>: 0.363321 0 0.931664
+<Up>: 0 1 0
+<Right>: 0.931664 0 -0.363321
+
+<SM_PineTree_Snow_01>
+<Position>: 24.051 0 84.5935
+<Look>: -0.14614 0 -0.989264
+<Up>: 0 1 0
+<Right>: -0.989264 0 0.14614
+
+<SM_PineTree_Snow_01>
+<Position>: 316.148 0 17.7956
+<Look>: -0.862205 0 -0.50656
+<Up>: 0 1 0
+<Right>: -0.50656 0 0.862205
+
+<SM_PineTree_Snow_01>
+<Position>: 306.58 0 133.537
+<Look>: 0.888099 0 0.459653
+<Up>: 0 1 0
+<Right>: 0.459653 0 -0.888099
+
+<SM_PineTree_Snow_01>
+<Position>: 333.405 0 84.1884
+<Look>: -0.998237 0 -0.0593512
+<Up>: 0 1 0
+<Right>: -0.0593512 0 0.998237
+
+<SM_PineTree_Snow_01>
+<Position>: 78.9645 0 146.916
+<Look>: 0.0384351 0 0.999261
+<Up>: 0 1 0
+<Right>: 0.999261 0 -0.0384351
+
+<SM_PineTree_Snow_01>
+<Position>: 60.9879 0 30.1335
+<Look>: -0.851523 0 -0.524318
+<Up>: 0 1 0
+<Right>: -0.524318 0 0.851523
+
+<SM_PineTree_Snow_01>
+<Position>: 281.17 0 238.747
+<Look>: -0.524346 0 0.851505
+<Up>: 0 1 0
+<Right>: 0.851505 0 0.524346
+
+<SM_PineTree_Snow_01>
+<Position>: 347.927 0 136.779
+<Look>: 0.316081 0 -0.948732
+<Up>: 0 1 0
+<Right>: -0.948732 0 -0.316081
+
+<SM_PineTree_Snow_01>
+<Position>: 314.074 0 81.6747
+<Look>: 0.779433 0 0.626486
+<Up>: 0 1 0
+<Right>: 0.626486 0 -0.779433
+
+<SM_PineTree_Snow_01>
+<Position>: 179.067 0 41.0583
+<Look>: -0.988944 0 -0.14829
+<Up>: 0 1 0
+<Right>: -0.14829 0 0.988944
+
+<SM_PineTree_Snow_01>
+<Position>: 361.786 0 223.014
+<Look>: 0.744128 0 0.668037
+<Up>: 0 1 0
+<Right>: 0.668037 0 -0.744128
+
+<SM_PineTree_Snow_01>
+<Position>: 247.951 0 222.433
+<Look>: 0.670245 0 0.74214
+<Up>: 0 1 0
+<Right>: 0.74214 0 -0.670245
+
+<SM_PineTree_Snow_01>
+<Position>: 430.728 0 255.707
+<Look>: 0.999926 0 -0.0121702
+<Up>: 0 1 0
+<Right>: -0.0121702 0 -0.999926
+
+<SM_PineTree_Snow_01>
+<Position>: 390.171 0 214.869
+<Look>: 0.999911 0 0.0133496
+<Up>: 0 1 0
+<Right>: 0.0133496 0 -0.999911
+
+<SM_PineTree_Snow_02>
+<Position>: 5.46584 0 300.928
+<Look>: 0.980924 0 -0.194393
+<Up>: 0 1 0
+<Right>: -0.194393 0 -0.980924
+
+<SM_PineTree_Snow_02>
+<Position>: 488.603 0 232.464
+<Look>: -0.103846 0 -0.994593
+<Up>: 0 1 0
+<Right>: -0.994593 0 0.103846
+
+<SM_PineTree_Snow_02>
+<Position>: 274.564 0 29.8849
+<Look>: -0.828378 0 0.560169
+<Up>: 0 1 0
+<Right>: 0.560169 0 0.828378
+
+<SM_PineTree_Snow_02>
+<Position>: 25.8693 0 53.1725
+<Look>: 0.553356 0 -0.832945
+<Up>: 0 1 0
+<Right>: -0.832945 0 -0.553356
+
+<SM_PineTree_Snow_02>
+<Position>: 334.511 0 137.156
+<Look>: 0.976808 0 0.214119
+<Up>: 0 1 0
+<Right>: 0.214119 0 -0.976808
+
+<SM_PineTree_Snow_02>
+<Position>: 90.7854 0 235.864
+<Look>: -0.997448 0 0.0713964
+<Up>: 0 1 0
+<Right>: 0.0713964 0 0.997448
+
+<SM_PineTree_Snow_02>
+<Position>: 228.303 0 65.7639
+<Look>: -0.520638 0 -0.853778
+<Up>: 0 1 0
+<Right>: -0.853778 0 0.520638
+
+<SM_PineTree_Snow_02>
+<Position>: 173.535 0 91.7817
+<Look>: 0.860271 0 0.509838
+<Up>: 0 1 0
+<Right>: 0.509838 0 -0.860271
+
+<SM_PineTree_Snow_02>
+<Position>: 373.495 0 130.289
+<Look>: 0.910378 0 0.413778
+<Up>: 0 1 0
+<Right>: 0.413778 0 -0.910378
+
+<SM_PineTree_Snow_02>
+<Position>: 310.793 0 109.402
+<Look>: -0.926651 0 0.375923
+<Up>: 0 1 0
+<Right>: 0.375923 0 0.926651
+
+<SM_PineTree_Snow_02>
+<Position>: 404.071 0 224.352
+<Look>: 0.982803 0 -0.184659
+<Up>: 0 1 0
+<Right>: -0.184659 0 -0.982803
+
+<SM_PineTree_Snow_02>
+<Position>: 290.042 0 257.341
+<Look>: 0.903885 0 0.427775
+<Up>: 0 1 0
+<Right>: 0.427775 0 -0.903885
+
+<SM_PineTree_Snow_02>
+<Position>: 157.519 0 45.4203
+<Look>: -0.887229 0 0.46133
+<Up>: 0 1 0
+<Right>: 0.46133 0 0.887229
+
+<SM_PineTree_Snow_02>
+<Position>: 456.755 0 247.968
+<Look>: -0.512132 0 0.858907
+<Up>: 0 1 0
+<Right>: 0.858907 0 0.512132
+
+<SM_PineTree_Snow_02>
+<Position>: 493.939 0 201.661
+<Look>: 0.24633 0 -0.969186
+<Up>: 0 1 0
+<Right>: -0.969186 0 -0.24633
+
+<SM_PineTree_Snow_02>
+<Position>: 100.751 0 174.745
+<Look>: 0.800946 0 0.598737
+<Up>: 0 1 0
+<Right>: 0.598737 0 -0.800946
+
+<SM_PineTree_Snow_03>
+<Position>: 27.8509 0 292.357
+<Look>: 0.994408 0 -0.105609
+<Up>: 0 1 0
+<Right>: -0.105609 0 -0.994408
+
+<SM_PineTree_Snow_03>
+<Position>: 317.637 0 201.339
+<Look>: 0.988459 0 0.151489
+<Up>: 0 1 0
+<Right>: 0.151489 0 -0.988459
+
+<SM_PineTree_Snow_03>
+<Position>: 355.889 0 155.713
+<Look>: 0.252661 0 0.967555
+<Up>: 0 1 0
+<Right>: 0.967555 0 -0.252661
+
+<SM_PineTree_Snow_03>
+<Position>: 247.29 0 54.5309
+<Look>: -0.548216 0 0.836337
+<Up>: 0 1 0
+<Right>: 0.836337 0 0.548216
+
+<SM_PineTree_Snow_03>
+<Position>: 38.8354 0 29.9644
+<Look>: 0.574973 0 -0.818172
+<Up>: 0 1 0
+<Right>: -0.818172 0 -0.574973
+
+<SM_PineTree_Snow_03>
+<Position>: 45.385 0 228.338
+<Look>: -0.424026 0 -0.90565
+<Up>: 0 1 0
+<Right>: -0.90565 0 0.424026
+
+<SM_PineTree_Snow_03>
+<Position>: 221.039 0 41.7196
+<Look>: -0.475237 0 -0.879858
+<Up>: 0 1 0
+<Right>: -0.879858 0 0.475237
+
+<SM_PineTree_Snow_03>
+<Position>: 493.189 0 158.079
+<Look>: 0.143947 0 -0.989585
+<Up>: 0 1 0
+<Right>: -0.989585 0 -0.143947
+
+<SM_PineTree_Snow_03>
+<Position>: 390.84 0 142.581
+<Look>: -0.414768 0 0.909927
+<Up>: 0 1 0
+<Right>: 0.909927 0 0.414768
+
+<SM_PineTree_Snow_03>
+<Position>: 214.742 0 186.416
+<Look>: -0.999702 0 -0.0244122
+<Up>: 0 1 0
+<Right>: -0.0244122 0 0.999702
+
+<SM_PineTree_Snow_03>
+<Position>: 129.658 0 47.9039
+<Look>: -0.992487 0 -0.122348
+<Up>: 0 1 0
+<Right>: -0.122348 0 0.992487
+
+<SM_PineTree_Snow_03>
+<Position>: 454.984 0 183.189
+<Look>: -0.727151 0 -0.686478
+<Up>: 0 1 0
+<Right>: -0.686478 0 0.727151
+
+<SM_PineTree_Snow_03>
+<Position>: 378.683 0 271.959
+<Look>: 0.998468 0 -0.0553263
+<Up>: 0 1 0
+<Right>: -0.0553263 0 -0.998468
+
+<SM_PineTree_Snow_03>
+<Position>: 454.153 0 165.593
+<Look>: -0.971905 0 -0.235375
+<Up>: 0 1 0
+<Right>: -0.235375 0 0.971905
+
+<SM_PineTree_Snow_03>
+<Position>: 145.294 0 231.412
+<Look>: 0.751539 0 0.659688
+<Up>: 0 1 0
+<Right>: 0.659688 0 -0.751539
+
+<SM_PineTree_Snow_04>
+<Position>: 363.928 0 192.935
+<Look>: 0.999777 0 0.0211051
+<Up>: 0 1 0
+<Right>: 0.0211051 0 -0.999777
+
+<SM_PineTree_Snow_04>
+<Position>: 46.2942 0 278.896
+<Look>: 0.544312 0 -0.838883
+<Up>: 0 1 0
+<Right>: -0.838883 0 -0.544312
+
+<SM_PineTree_Snow_04>
+<Position>: 470.581 0 16.4028
+<Look>: -0.962121 0 0.272622
+<Up>: 0 1 0
+<Right>: 0.272622 0 0.962121
+
+<SM_PineTree_Snow_04>
+<Position>: 202.539 0 59.4589
+<Look>: -0.981299 0 -0.192488
+<Up>: 0 1 0
+<Right>: -0.192488 0 0.981299
+
+<SM_PineTree_Snow_04>
+<Position>: 91.2866 0 19.8756
+<Look>: 0.99604 0 0.0889102
+<Up>: 0 1 0
+<Right>: 0.0889102 0 -0.99604
+
+<SM_PineTree_Snow_04>
+<Position>: 388.825 0 239.453
+<Look>: -0.905413 0 0.424531
+<Up>: 0 1 0
+<Right>: 0.424531 0 0.905413
+
+<SM_PineTree_Snow_04>
+<Position>: 33.209 0 210.378
+<Look>: -0.862425 0 -0.506186
+<Up>: 0 1 0
+<Right>: -0.506186 0 0.862425
+
+<SM_PineTree_Snow_04>
+<Position>: 186.938 0 28.5238
+<Look>: -0.934348 0 0.356363
+<Up>: 0 1 0
+<Right>: 0.356363 0 0.934348
+
+<SM_PineTree_Snow_04>
+<Position>: 276.152 0 71.7435
+<Look>: 0.953038 0 -0.30285
+<Up>: 0 1 0
+<Right>: -0.30285 0 -0.953038
+
+<SM_PineTree_Snow_04>
+<Position>: 398.297 0 111.475
+<Look>: -0.995407 0 0.0957321
+<Up>: 0 1 0
+<Right>: 0.0957321 0 0.995407
+
+<SM_PineTree_Snow_04>
+<Position>: 192.749 0 192.782
+<Look>: -0.965466 0 0.260527
+<Up>: 0 1 0
+<Right>: 0.260527 0 0.965466
+
+<SM_PineTree_Snow_04>
+<Position>: 460.181 0 154.293
+<Look>: 0.912665 0 -0.408709
+<Up>: 0 1 0
+<Right>: -0.408709 0 -0.912665
+
+<SM_PineTree_Snow_04>
+<Position>: 405.21 0 285.121
+<Look>: 0.69032 0 0.723504
+<Up>: 0 1 0
+<Right>: 0.723504 0 -0.69032
+
+<SM_PineTree_Snow_04>
+<Position>: 142.089 0 287.095
+<Look>: 0.906075 0 0.423117
+<Up>: 0 1 0
+<Right>: 0.423117 0 -0.906075
+
+<SM_PineTree_Snow_04>
+<Position>: 220.694 0 27.1317
+<Look>: 0.983803 0 -0.179254
+<Up>: 0 1 0
+<Right>: -0.179254 0 -0.983803
+
+<SM_PineTree_Snow_04>
+<Position>: 193.287 0 241.852
+<Look>: 0.816414 0 0.577467
+<Up>: 0 1 0
+<Right>: 0.577467 0 -0.816414
+
+<SM_PineTree_Snow_05>
+<Position>: 435.307 0 202.008
+<Look>: 0.314024 0 0.949415
+<Up>: 0 1 0
+<Right>: 0.949415 0 -0.314024
+
+<SM_PineTree_Snow_05>
+<Position>: 70.503 0 262.78
+<Look>: 0.822272 0 -0.569094
+<Up>: 0 1 0
+<Right>: -0.569094 0 -0.822272
+
+<SM_PineTree_Snow_05>
+<Position>: 441.814 0 28.694
+<Look>: -0.999875 0 -0.015793
+<Up>: 0 1 0
+<Right>: -0.015793 0 0.999875
+
+<SM_PineTree_Snow_05>
+<Position>: 165.272 0 67.7719
+<Look>: -0.999946 0 -0.0104258
+<Up>: 0 1 0
+<Right>: -0.0104258 0 0.999946
+
+<SM_PineTree_Snow_05>
+<Position>: 168.801 0 27.8265
+<Look>: 0.996398 0 0.0848012
+<Up>: 0 1 0
+<Right>: 0.0848012 0 -0.996398
+
+<SM_PineTree_Snow_05>
+<Position>: 359.465 0 243.804
+<Look>: -0.998955 0 0.0457155
+<Up>: 0 1 0
+<Right>: 0.0457155 0 0.998955
+
+<SM_PineTree_Snow_05>
+<Position>: 26.9191 0 161.532
+<Look>: 0.0991357 0 -0.995074
+<Up>: 0 1 0
+<Right>: -0.995074 0 -0.0991357
+
+<SM_PineTree_Snow_05>
+<Position>: 331.151 0 66.4859
+<Look>: 0.990578 0 0.136951
+<Up>: 0 1 0
+<Right>: 0.136951 0 -0.990578
+
+<SM_PineTree_Snow_05>
+<Position>: 161.166 0 202.53
+<Look>: -0.792268 0 0.610173
+<Up>: 0 1 0
+<Right>: 0.610173 0 0.792268
+
+<SM_PineTree_Snow_05>
+<Position>: 494.947 0 90.5204
+<Look>: -0.989594 0 -0.143888
+<Up>: 0 1 0
+<Right>: -0.143888 0 0.989594
+
+<SM_PineTree_Snow_05>
+<Position>: 154.054 0 56.202
+<Look>: -0.726834 0 0.686813
+<Up>: 0 1 0
+<Right>: 0.686813 0 0.726834
+
+<SM_PineTree_Snow_05>
+<Position>: 434.821 0 103.566
+<Look>: -0.634827 0 -0.772654
+<Up>: 0 1 0
+<Right>: -0.772654 0 0.634827
+
+<SM_PineTree_Snow_05>
+<Position>: 271.398 0 53.8885
+<Look>: 0.784767 0 0.619791
+<Up>: 0 1 0
+<Right>: 0.619791 0 -0.784767
+
+<SM_PineTree_Snow_05>
+<Position>: 431.558 0 293.879
+<Look>: 0.941711 0 -0.336424
+<Up>: 0 1 0
+<Right>: -0.336424 0 -0.941711
+
+<SM_PineTree_Snow_05>
+<Position>: 477.742 0 125.116
+<Look>: 0.0501346 0 -0.998742
+<Up>: 0 1 0
+<Right>: -0.998742 0 -0.0501346
+
+<SM_PineTree_Snow_05>
+<Position>: 257.838 0 20.5563
+<Look>: 0.999995 0 0.0030338
+<Up>: 0 1 0
+<Right>: 0.0030338 0 -0.999995
+
+<SM_PineTree_Snow_05>
+<Position>: 209.311 0 254.708
+<Look>: 0.918645 0 0.395085
+<Up>: 0 1 0
+<Right>: 0.395085 0 -0.918645
+
+<SM_PineTree_Snow_06>
+<Position>: 102.999 0 262.755
+<Look>: 0.718632 0 0.695391
+<Up>: 0 1 0
+<Right>: 0.695391 0 -0.718632
+
+<SM_PineTree_Snow_06>
+<Position>: 387.616 0 29.3209
+<Look>: -0.69911 0 0.715014
+<Up>: 0 1 0
+<Right>: 0.715014 0 0.69911
+
+<SM_PineTree_Snow_06>
+<Position>: 127.568 0 107.41
+<Look>: -0.416154 0 0.909294
+<Up>: 0 1 0
+<Right>: 0.909294 0 0.416154
+
+<SM_PineTree_Snow_06>
+<Position>: 195.961 0 20.3957
+<Look>: 0.992253 0 -0.124231
+<Up>: 0 1 0
+<Right>: -0.124231 0 -0.992253
+
+<SM_PineTree_Snow_06>
+<Position>: 323.507 0 244.986
+<Look>: -0.976747 0 -0.214397
+<Up>: 0 1 0
+<Right>: -0.214397 0 0.976747
+
+<SM_PineTree_Snow_06>
+<Position>: 39.1343 0 120.183
+<Look>: -0.264068 0 -0.964504
+<Up>: 0 1 0
+<Right>: -0.964504 0 0.264068
+
+<SM_PineTree_Snow_06>
+<Position>: 436.634 0 55.1889
+<Look>: -0.775583 0 -0.631246
+<Up>: 0 1 0
+<Right>: -0.631246 0 0.775583
+
+<SM_PineTree_Snow_06>
+<Position>: 134.512 0 71.7795
+<Look>: -0.978589 0 0.205823
+<Up>: 0 1 0
+<Right>: 0.205823 0 0.978589
+
+<SM_PineTree_Snow_06>
+<Position>: 370.72 0 87.5095
+<Look>: 0.982052 0 0.188612
+<Up>: 0 1 0
+<Right>: 0.188612 0 -0.982052
+
+<SM_PineTree_Snow_06>
+<Position>: 396.757 0 65.1703
+<Look>: -0.940914 0 -0.338645
+<Up>: 0 1 0
+<Right>: -0.338645 0 0.940914
+
+<SM_PineTree_Snow_06>
+<Position>: 116.463 0 198.538
+<Look>: -0.891797 0 -0.452436
+<Up>: 0 1 0
+<Right>: -0.452436 0 0.891797
+
+<SM_PineTree_Snow_06>
+<Position>: 413.13 0 64.0205
+<Look>: -0.45197 0 0.892033
+<Up>: 0 1 0
+<Right>: 0.892033 0 0.45197
+
+<SM_PineTree_Snow_06>
+<Position>: 433.447 0 277.412
+<Look>: -0.568772 0 -0.822495
+<Up>: 0 1 0
+<Right>: -0.822495 0 0.568772
+
+<SM_PineTree_Snow_06>
+<Position>: 291.004 0 115.088
+<Look>: -0.0140002 0 0.999902
+<Up>: 0 1 0
+<Right>: 0.999902 0 0.0140002
+
+<SM_PineTree_Snow_06>
+<Position>: 238.116 0 270.952
+<Look>: 0.751579 0 0.659643
+<Up>: 0 1 0
+<Right>: 0.659643 0 -0.751579
+
+<SM_PineTree_Snow_07>
+<Position>: 117.657 0 289.443
+<Look>: 0.636696 0 0.771115
+<Up>: 0 1 0
+<Right>: 0.771115 0 -0.636696
+
+<SM_PineTree_Snow_07>
+<Position>: 455.282 0 278.559
+<Look>: 0.703303 0 -0.71089
+<Up>: 0 1 0
+<Right>: -0.71089 0 -0.703303
+
+<SM_PineTree_Snow_07>
+<Position>: 366.972 0 49.5478
+<Look>: -0.875753 0 0.48276
+<Up>: 0 1 0
+<Right>: 0.48276 0 0.875753
+
+<SM_PineTree_Snow_07>
+<Position>: 253.103 0 75.2912
+<Look>: 0.42473 0 0.90532
+<Up>: 0 1 0
+<Right>: 0.90532 0 -0.42473
+
+<SM_PineTree_Snow_07>
+<Position>: 70.4289 0 133.874
+<Look>: -0.961706 0 0.274083
+<Up>: 0 1 0
+<Right>: 0.274083 0 0.961706
+
+<SM_PineTree_Snow_07>
+<Position>: 387.971 0 157.265
+<Look>: 0.0332755 0 -0.999446
+<Up>: 0 1 0
+<Right>: -0.999446 0 -0.0332755
+
+<SM_PineTree_Snow_07>
+<Position>: 40.2789 0 94.5153
+<Look>: 0.1769 0 -0.984229
+<Up>: 0 1 0
+<Right>: -0.984229 0 -0.1769
+
+<SM_PineTree_Snow_07>
+<Position>: 352.738 0 21.3528
+<Look>: -0.994255 0 -0.107042
+<Up>: 0 1 0
+<Right>: -0.107042 0 0.994255
+
+<SM_PineTree_Snow_07>
+<Position>: 92.7009 0 58.3402
+<Look>: -0.256724 0 -0.966485
+<Up>: 0 1 0
+<Right>: -0.966485 0 0.256724
+
+<SM_PineTree_Snow_07>
+<Position>: 405.707 0 91.7218
+<Look>: 0.986652 0 0.16284
+<Up>: 0 1 0
+<Right>: 0.16284 0 -0.986652
+
+<SM_PineTree_Snow_07>
+<Position>: 380.328 0 74.3679
+<Look>: -0.991611 0 -0.129256
+<Up>: 0 1 0
+<Right>: -0.129256 0 0.991611
+
+<SM_PineTree_Snow_07>
+<Position>: 111.868 0 141.634
+<Look>: 0.972023 0 -0.234884
+<Up>: 0 1 0
+<Right>: -0.234884 0 -0.972023
+
+<SM_PineTree_Snow_07>
+<Position>: 304.672 0 245.506
+<Look>: 0.257341 0 -0.966321
+<Up>: 0 1 0
+<Right>: -0.966321 0 -0.257341
+
+<SM_PineTree_Snow_07>
+<Position>: 280.467 0 40.9677
+<Look>: -0.945359 0 -0.326033
+<Up>: 0 1 0
+<Right>: -0.326033 0 0.945359
+
+<SM_PineTree_Snow_07>
+<Position>: 307.428 0 153.544
+<Look>: 0.896482 0 0.443081
+<Up>: 0 1 0
+<Right>: 0.443081 0 -0.896482
+
+<SM_PineTree_Snow_07>
+<Position>: 276.023 0 279.94
+<Look>: 0.831608 0 -0.555363
+<Up>: 0 1 0
+<Right>: -0.555363 0 -0.831608
+
+<SM_PineTree_Snow_08>
+<Position>: 165.395 0 267.107
+<Look>: 0.930111 0 -0.367278
+<Up>: 0 1 0
+<Right>: -0.367278 0 -0.930111
+
+<SM_PineTree_Snow_08>
+<Position>: 482.79 0 274.769
+<Look>: 0.796584 0 0.604528
+<Up>: 0 1 0
+<Right>: 0.604528 0 -0.796584
+
+<SM_PineTree_Snow_08>
+<Position>: 48.2757 0 137.332
+<Look>: -0.963187 0 -0.268833
+<Up>: 0 1 0
+<Right>: -0.268833 0 0.963187
+
+<SM_PineTree_Snow_08>
+<Position>: 328.916 0 37.6951
+<Look>: -0.399765 0 -0.916618
+<Up>: 0 1 0
+<Right>: -0.916618 0 0.399765
+
+<SM_PineTree_Snow_08>
+<Position>: 281.681 0 108.551
+<Look>: 0.664373 0 0.747401
+<Up>: 0 1 0
+<Right>: 0.747401 0 -0.664373
+
+<SM_PineTree_Snow_08>
+<Position>: 361.923 0 112.763
+<Look>: -0.277201 0 -0.960812
+<Up>: 0 1 0
+<Right>: -0.960812 0 0.277201
+
+<SM_PineTree_Snow_08>
+<Position>: 45.2967 0 74.8335
+<Look>: -0.592179 0 -0.805807
+<Up>: 0 1 0
+<Right>: -0.805807 0 0.592179
+
+<SM_PineTree_Snow_08>
+<Position>: 79.2125 0 36.3173
+<Look>: -0.901663 0 -0.432438
+<Up>: 0 1 0
+<Right>: -0.432438 0 0.901663
+
+<SM_PineTree_Snow_08>
+<Position>: 289.404 0 198.777
+<Look>: -0.0283239 0 0.999599
+<Up>: 0 1 0
+<Right>: 0.999599 0 0.0283239
+
+<SM_PineTree_Snow_08>
+<Position>: 429.268 0 137.409
+<Look>: -0.239789 0 0.970825
+<Up>: 0 1 0
+<Right>: 0.970825 0 0.239789
+
+<SM_PineTree_Snow_08>
+<Position>: 308.173 0 39.9587
+<Look>: -0.308163 0 0.951334
+<Up>: 0 1 0
+<Right>: 0.951334 0 0.308163
+
+<SM_PineTree_Snow_08>
+<Position>: 181.901 0 71.7917
+<Look>: -0.999622 0 0.0275014
+<Up>: 0 1 0
+<Right>: 0.0275014 0 0.999622
+
+<SM_PineTree_Snow_08>
+<Position>: 344.169 0 173.536
+<Look>: -0.347025 0 0.937856
+<Up>: 0 1 0
+<Right>: 0.937856 0 0.347025
+
+<SM_PineTree_Snow_08>
+<Position>: 221.915 0 56.9461
+<Look>: -0.986364 0 0.16458
+<Up>: 0 1 0
+<Right>: 0.16458 0 0.986364
+
+<SM_PineTree_Snow_08>
+<Position>: 330.826 0 221.742
+<Look>: 0.923305 0 -0.384067
+<Up>: 0 1 0
+<Right>: -0.384067 0 -0.923305
+
+<SM_PineTree_Snow_08>
+<Position>: 348.246 0 247.481
+<Look>: 0.734414 0 -0.678701
+<Up>: 0 1 0
+<Right>: -0.678701 0 -0.734414
+

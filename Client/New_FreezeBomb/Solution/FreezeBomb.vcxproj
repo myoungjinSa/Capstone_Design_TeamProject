@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{23CA9C0E-EABB-4942-AEE9-990D6E896DDE}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>FreezeBomb</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>../Excutable/</OutDir>
+    <TargetName>FreezeBomb_Debug</TargetName>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>../Excutable/</OutDir>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <TargetName>FreezeBomb_Debug</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>../Excutable/</OutDir>
+    <TargetName>FreezeBomb_Release</TargetName>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>../Excutable/</OutDir>
+    <TargetName>FreezeBomb_Release</TargetName>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Server\FreezeBombServer\FreezeBombServer\protocol.h" />
+    <ClInclude Include="..\Code\Camera\Camera.h" />
+    <ClInclude Include="..\Code\Chatting\Chatting.h" />
+    <ClInclude Include="..\Code\Cube\Cube.h" />
+    <ClInclude Include="..\Code\Default\Resource.h" />
+    <ClInclude Include="..\Code\Default\targetver.h" />
+    <ClInclude Include="..\Code\Direct2D\Direct2D.h" />
+    <ClInclude Include="..\Code\DirectX12\d3dx12.h" />
+    <ClInclude Include="..\Code\DirectX12\DDSTextureLoader\DDSTextureLoader12.h" />
+    <ClInclude Include="..\Code\DirectX12\WICTextureLoader\WICTextureLoader12.h" />
+    <ClInclude Include="..\Code\FrameTransform\FrameTransform.h" />
+    <ClInclude Include="..\Code\GameFramework\GameFramework.h" />
+    <ClInclude Include="..\Code\GameObject\Billboard\Billboard.h" />
+    <ClInclude Include="..\Code\GameObject\Billboard\Bomb\Bomb.h" />
+    <ClInclude Include="..\Code\GameObject\Billboard\Fire\FireBillboard.h" />
+    <ClInclude Include="..\Code\GameObject\Billboard\LampParticle\LampParticle.h" />
+    <ClInclude Include="..\Code\GameObject\Billboard\Snow\Snow.h" />
+    <ClInclude Include="..\Code\GameObject\Billboard\Thunder\ThunderBillboard.h" />
+    <ClInclude Include="..\Code\GameObject\Billboard\UI\UI.h" />
+    <ClInclude Include="..\Code\GameObject\CubeParticle\CubeParticle.h" />
+    <ClInclude Include="..\Code\GameObject\CubeParticle\ExplosionParticle.h" />
+    <ClInclude Include="..\Code\GameObject\Effect\MagicRing\MagicRing.h" />
+    <ClInclude Include="..\Code\GameObject\EvilBear\EvilBear.h" />
+    <ClInclude Include="..\Code\GameObject\Foliage\Foliage.h" />
+    <ClInclude Include="..\Code\GameObject\GameObject.h" />
+    <ClInclude Include="..\Code\GameObject\Item\Item.h" />
+    <ClInclude Include="..\Code\GameObject\Player\Player.h" />
+    <ClInclude Include="..\Code\GameObject\Shadow\Shadow.h" />
+    <ClInclude Include="..\Code\GameObject\SkyBox\SkyBox.h" />
+    <ClInclude Include="..\Code\GameObject\Surrounding\Surrounding.h" />
+    <ClInclude Include="..\Code\GameObject\Terrain\Terrain.h" />
+    <ClInclude Include="..\Code\GameTimer\GameTimer.h" />
+    <ClInclude Include="..\Code\InputSystem\IDInputSystem\IDInputSystem.h" />
+    <ClInclude Include="..\Code\InputSystem\IPInputSystem.h" />
+    <ClInclude Include="..\Code\Material\Material.h" />
+    <ClInclude Include="..\Code\Mesh\BillboardMesh\BillboardMesh.h" />
+    <ClInclude Include="..\Code\Mesh\LODMesh\LODMesh.h.h" />
+    <ClInclude Include="..\Code\Mesh\Mesh.h" />
+    <ClInclude Include="..\Code\Network\Network.h" />
+    <ClInclude Include="..\Code\Physics\Particle\Particle.h" />
+    <ClInclude Include="..\Code\Physics\Physics.h" />
+    <ClInclude Include="..\Code\Physics\Precision.h" />
+    <ClInclude Include="..\Code\Physics\Random.h" />
+    <ClInclude Include="..\Code\ResourceManager\ResourceManager.h" />
+    <ClInclude Include="..\Code\Scene\LoadingScene\LoadingScene.h" />
+    <ClInclude Include="..\Code\Scene\LobbyScene\LobbyScene.h" />
+    <ClInclude Include="..\Code\Scene\LoginScene\IDScene\LoginScene.h" />
+    <ClInclude Include="..\Code\Scene\LoginScene\IPScene.h" />
+    <ClInclude Include="..\Code\Scene\Scene.h" />
+    <ClInclude Include="..\Code\ShaderManager\ShaderManager.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\BillboardShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\BombParticleShader\BombParticleShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\FireBillboardShader\FireBillboardShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\LampParticleShader\LampParticleShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\SnowShader\SnowShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\ThunderShader\ThunderShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\CharacterSelectUIShader\CharacterSelectUIShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\ItemUIShader\ItemUIShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\LoadingShader\LoadingShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\LobbyShader\LobbyShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\IDShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\IPShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\MenuUIShader\MenuUIShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\ProgressBarUIShader\ProgressBarUIShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.h" />
+    <ClInclude Include="..\Code\Shader\BillboardShader\UIShader\UIShader.h" />
+    <ClInclude Include="..\Code\Shader\CubeParticleShader\CubeParticleShader.h" />
+    <ClInclude Include="..\Code\Shader\CubeParticleShader\ExplosionParticleShader\ExplosionParticleShader.h" />
+    <ClInclude Include="..\Code\Shader\PostProcessShader\CartoonShader\SobelCartoonShader.h" />
+    <ClInclude Include="..\Code\Shader\PostProcessShader\ComputeShader\ComputeShader.h" />
+    <ClInclude Include="..\Code\Shader\Shader.h" />
+    <ClInclude Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.h" />
+    <ClInclude Include="..\Code\Shader\StandardShader\EffectShader\MagicRingEffectShader.h" />
+    <ClInclude Include="..\Code\Shader\StandardShader\FoliageShader\FoliageShader.h" />
+    <ClInclude Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.h" />
+    <ClInclude Include="..\Code\Shader\StandardShader\MapObjectShader\MapObjectShader.h" />
+    <ClInclude Include="..\Code\Shader\StandardShader\MapToolShader\MapToolShader.h" />
+    <ClInclude Include="..\Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationObjectShader\SkinnedAnimationObjectShader.h" />
+    <ClInclude Include="..\Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationShader.h" />
+    <ClInclude Include="..\Code\Shader\StandardShader\StandardShader.h" />
+    <ClInclude Include="..\Code\Shader\TerrainShader\TerrainShader.h" />
+    <ClInclude Include="..\Code\Singleton\Singleton.h" />
+    <ClInclude Include="..\Code\SoundSystem\SoundSystem.h" />
+    <ClInclude Include="..\Code\Stdafx\KeyDefine.h" />
+    <ClInclude Include="..\Code\Stdafx\Stdafx.h" />
+    <ClInclude Include="..\Code\Texture\Texture.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Code\Camera\Camera.cpp" />
+    <ClCompile Include="..\Code\Chatting\Chatting.cpp" />
+    <ClCompile Include="..\Code\Cube\Cube.cpp" />
+    <ClCompile Include="..\Code\Direct2D\Direct2D.cpp" />
+    <ClCompile Include="..\Code\DirectX12\DDSTextureLoader\DDSTextureLoader12.cpp" />
+    <ClCompile Include="..\Code\DirectX12\WICTextureLoader\WICTextureLoader12.cpp" />
+    <ClCompile Include="..\Code\FrameTransform\FrameTransform.cpp" />
+    <ClCompile Include="..\Code\FreezeBomb.cpp" />
+    <ClCompile Include="..\Code\GameFramework\GameFramework.cpp" />
+    <ClCompile Include="..\Code\GameObject\Billboard\Billboard.cpp" />
+    <ClCompile Include="..\Code\GameObject\Billboard\Bomb\Bomb.cpp" />
+    <ClCompile Include="..\Code\GameObject\Billboard\Fire\FireBillboard.cpp" />
+    <ClCompile Include="..\Code\GameObject\Billboard\LampParticle\LampParticle.cpp" />
+    <ClCompile Include="..\Code\GameObject\Billboard\Snow\Snow.cpp" />
+    <ClCompile Include="..\Code\GameObject\Billboard\Thunder\ThunderBillboard.cpp" />
+    <ClCompile Include="..\Code\GameObject\Billboard\UI\UI.cpp" />
+    <ClCompile Include="..\Code\GameObject\CubeParticle\CubeParticle.cpp" />
+    <ClCompile Include="..\Code\GameObject\CubeParticle\ExplosionParticle.cpp" />
+    <ClCompile Include="..\Code\GameObject\Effect\MagicRing\MagicRing.cpp" />
+    <ClCompile Include="..\Code\GameObject\EvilBear\EvilBear.cpp" />
+    <ClCompile Include="..\Code\GameObject\Foliage\Foliage.cpp" />
+    <ClCompile Include="..\Code\GameObject\GameObject.cpp" />
+    <ClCompile Include="..\Code\GameObject\Item\Item.cpp" />
+    <ClCompile Include="..\Code\GameObject\Player\Player.cpp" />
+    <ClCompile Include="..\Code\GameObject\Shadow\Shadow.cpp" />
+    <ClCompile Include="..\Code\GameObject\SkyBox\SkyBox.cpp" />
+    <ClCompile Include="..\Code\GameObject\Surrounding\Surrounding.cpp" />
+    <ClCompile Include="..\Code\GameObject\Terrain\Terrain.cpp" />
+    <ClCompile Include="..\Code\GameTimer\GameTimer.cpp" />
+    <ClCompile Include="..\Code\InputSystem\IDInputSystem\IDInputSystem.cpp" />
+    <ClCompile Include="..\Code\InputSystem\IPInputSystem.cpp" />
+    <ClCompile Include="..\Code\Material\Material.cpp" />
+    <ClCompile Include="..\Code\Mesh\BillboardMesh\BillboardMesh.cpp" />
+    <ClCompile Include="..\Code\Mesh\LODMesh\LODMesh.cpp" />
+    <ClCompile Include="..\Code\Mesh\Mesh.cpp" />
+    <ClCompile Include="..\Code\Network\Network.cpp" />
+    <ClCompile Include="..\Code\Physics\Particle\Fireworks\Firework.cpp" />
+    <ClCompile Include="..\Code\Physics\Particle\Particle.cpp" />
+    <ClCompile Include="..\Code\Physics\Physics.cpp" />
+    <ClCompile Include="..\Code\Physics\Random.cpp" />
+    <ClCompile Include="..\Code\ResourceManager\ResourceManager.cpp" />
+    <ClCompile Include="..\Code\Scene\LoadingScene\LoadingScene.cpp" />
+    <ClCompile Include="..\Code\Scene\LobbyScene\LobbyScene.cpp" />
+    <ClCompile Include="..\Code\Scene\LoginScene\IDScene\LoginScene.cpp" />
+    <ClCompile Include="..\Code\Scene\LoginScene\IPScene.cpp" />
+    <ClCompile Include="..\Code\Scene\Scene.cpp" />
+    <ClCompile Include="..\Code\ShaderManager\ShaderManager.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\BillboardShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\BombParticleShader\BombParticleShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\FireBillboardShader\FireBillboardShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\LampParticleShader\LampParticleShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\SnowShader\SnowShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\ThunderShader\ThunderShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\CharacterSelectUIShader\CharacterSelectUIShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\ItemUIShader\ItemUIShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\LoadingShader\LoadingShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\LobbyShader\LobbyShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\IDShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\LoginShader\IPShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\MenuUIShader\MenuUIShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\ProgressBarUIShader\ProgressBarUIShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\TimerUIShader\TimerUIShader.cpp" />
+    <ClCompile Include="..\Code\Shader\BillboardShader\UIShader\UIShader.cpp" />
+    <ClCompile Include="..\Code\Shader\CubeParticleShader\CubeParticleShader.cpp" />
+    <ClCompile Include="..\Code\Shader\CubeParticleShader\ExplosionParticleShader\ExplosionParticleShader.cpp" />
+    <ClCompile Include="..\Code\Shader\PostProcessShader\CartoonShader\SobelCartoonShader.cpp" />
+    <ClCompile Include="..\Code\Shader\PostProcessShader\ComputeShader\ComputeShader.cpp" />
+    <ClCompile Include="..\Code\Shader\Shader.cpp" />
+    <ClCompile Include="..\Code\Shader\SkyBoxShader\SkyBoxShader.cpp" />
+    <ClCompile Include="..\Code\Shader\StandardShader\EffectShader\MagicRingEffectShader.cpp" />
+    <ClCompile Include="..\Code\Shader\StandardShader\FoliageShader\FoliageShader.cpp" />
+    <ClCompile Include="..\Code\Shader\StandardShader\ItemShader\ItemShader.cpp" />
+    <ClCompile Include="..\Code\Shader\StandardShader\MapObjectShader\MapObjectShader.cpp" />
+    <ClCompile Include="..\Code\Shader\StandardShader\MapToolShader\MapToolShader.cpp" />
+    <ClCompile Include="..\Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationObjectShader\SkinnedAnimationObjectShader.cpp" />
+    <ClCompile Include="..\Code\Shader\StandardShader\SkinnedAnimationShader\SkinnedAnimationShader.cpp" />
+    <ClCompile Include="..\Code\Shader\StandardShader\StandardShader.cpp" />
+    <ClCompile Include="..\Code\Shader\TerrainShader\TerrainShader.cpp" />
+    <ClCompile Include="..\Code\SoundSystem\SoundSystem.cpp" />
+    <ClCompile Include="..\Code\Stdafx\Stdafx.cpp" />
+    <ClCompile Include="..\Code\Texture\Texture.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Code\Shader\HLSL\Cartoon.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Code\Shader\HLSL\Light.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Code\Shader\HLSL\Shaders.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Code\Shader\HLSL\Sobel.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Code\Shader\HLSL\UI.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Code\Default\bear.ico" />
+    <Image Include="..\Code\Default\FreezeBomb.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\Code\Default\FreezeBomb.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
