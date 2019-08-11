@@ -1941,6 +1941,7 @@ void Server::ClientDisconnect(char client)
 		if (client == tmp)
 		{
 			tmp = PickBomber();
+
 			for (int i = 0; i < MAX_USER; ++i)
 			{
 				if (false == clients[i].in_use)
@@ -2270,14 +2271,14 @@ void Server::UpdateClientPos(char client)
 
 	  if (fDeclaration > fLength)
 	  {
-	   fDeclaration = fLength;
-	   velocity = Vector3::Add(velocity, Vector3::ScalarProduct(velocity, -fDeclaration, true));
+			fDeclaration = fLength;
+			velocity = Vector3::Add(velocity, Vector3::ScalarProduct(velocity, -fDeclaration, true));
 	  }
    
    //ProcessFriction(client, fLength);
 
    //속도를 클라에게 보내주어 클라에서 기본적인 rUn,Backward,애니메이션을 결정하게 하기 위해.
-   clients[client].fVelocity = fLength;
+	clients[client].fVelocity = fLength;
 }
 void Server::RotateClientAxisY(char client)
 {

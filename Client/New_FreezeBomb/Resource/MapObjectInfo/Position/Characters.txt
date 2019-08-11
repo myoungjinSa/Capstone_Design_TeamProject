@@ -1,0 +1,37 @@
+Objects Count:6
+<EvilBear>
+<Position>: 125 0 50
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<EvilBear>
+<Position>: 250 0 50
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<EvilBear>
+<Position>: 375 0 50
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<EvilBear>
+<Position>: 125 0 240
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<EvilBear>
+<Position>: 250 0 240
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
+<EvilBear>
+<Position>: 375 0 240
+<Look>: 0 0 1
+<Up>: 0 1 0
+<Right>: 1 0 0
+
