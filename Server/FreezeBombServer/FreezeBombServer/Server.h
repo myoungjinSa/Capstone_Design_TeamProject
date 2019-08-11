@@ -91,7 +91,7 @@ public:
 	// in_use가 true인걸 확인하고 send하려고 하는데 그 이전에 접속 종료해서 false가된다면?
 	// 그리고 send 전에 새 플레이어가 id를 재사용한다면? => 엉뚱한 곳에 send가 됨
 	// mutex access_lock;
-	bool in_use;
+	atomic<bool> in_use;
 	OVER_EX over_ex;
 	SOCKET socket;
 	// 조립불가한 메모리를 다음번에 조립하기 위한 임시저장소
@@ -118,7 +118,7 @@ public:
 	char specialItem;
 	char role;
 	char matID;
-	bool isFreeze;			//얼음 상태인지 여부
+	atomic<bool> isFreeze;			//얼음 상태인지 여부
 	bool isMoveRotate;		//애니메이션이 반복해서 동작하는 문제를 해결하기 위한 변수
 	char nickname[32];
 	//wchar_t nickname[12];
@@ -127,8 +127,8 @@ public:
 	bool isReady;
 	GAME_STATE gameState;	
 	
-	short freezeCooltime;
-	mutex freezeCooltime_l;
+	atomic<short> freezeCooltime;
+	//mutex freezeCooltime_l;
 
 	// 부딪힌 오브젝트 인덱스
 	short lastCollObjIdx;
@@ -181,13 +181,13 @@ private:
 	SOCKETINFO clients[MAX_USER];
 	vector<thread> workerThreads;
 	CHeightMapImage* heightMap;
-	unsigned short roundCurrTime;
-	int clientCount;
-	int readyCount;
+	atomic<short> roundCurrTime;
+	atomic<int> clientCount;
+	atomic<int> readyCount;
 	int hostId;
-	int bomberID;
-	short bomberTouchCooltime;
-	int freezeCnt;			//얼음 상태인 도망자 수  
+	atomic<int> bomberID;
+	atomic<short> bomberTouchCooltime;
+	atomic<int> freezeCnt;			//얼음 상태인 도망자 수  
 	
 	int goldTimerCnt[MAX_ROUND];
 	int goldHammerCnt[MAX_ROUND];
@@ -199,12 +199,6 @@ private:
 
 	priority_queue <EVENT_ST> timer_queue;
 	mutex		timer_l;
-	mutex		roundTime_l;
-	mutex		coolTime_l;
-	mutex		freezeCnt_l;
-	mutex		readyCnt_l;
-	mutex		clientCnt_l;
-	mutex		bomberID_l;
 
 private:
 	vector<MAPOBJECT> objects[MAX_ROUND];

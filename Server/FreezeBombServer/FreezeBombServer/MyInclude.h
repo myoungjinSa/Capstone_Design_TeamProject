@@ -11,6 +11,7 @@
 #include <random>
 #include <queue>
 #include <chrono>
+#include <atomic>
 #include <iostream>
 #include <string>
 
