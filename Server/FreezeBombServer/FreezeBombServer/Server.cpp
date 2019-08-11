@@ -379,7 +379,21 @@ void Server::AcceptThreadFunc()
 			cout << "MAX USER overflow\n";
 			continue;
 		}
-		
+
+		bool isStarted = false;
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (GS_INGAME == clients[i].gameState)
+			{
+				isStarted = true;
+				break;
+			}
+		}
+		if (true == isStarted)
+		{
+			cout << "Players aleady Start!\n";
+			continue;
+		}
 		///////////////////////////////////// 클라이언트 초기화 정보 수정 위치 /////////////////////////////////////
 		clients[new_id].socket = clientSocket;
 		if (-1 == hostId)
