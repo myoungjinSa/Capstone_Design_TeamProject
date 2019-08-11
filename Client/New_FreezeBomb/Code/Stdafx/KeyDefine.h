@@ -1,4 +1,23 @@
 #pragma once
+
+#define KEY_DOWN(VK_CODE) ((GetAsyncKeyState(VK_CODE) & 0x8000 ? 1 : 0))
+#define KEY_UP(VK_CODE) ((GetAsyncKeyState(VK_CODE) & 0x8000 ? 0 : 1))
+
+// 키입력 정의
+enum KEY_TYPE
+{
+	NONE				= 0x0000,
+	UP					= 0x0001,
+	DOWN				= 0x0002,
+	RIGHT				= 0x0004,
+	LEFT					= 0x0008,
+
+	UP_RIGHT			= 0x0005,
+	UP_LEFT			= 0x0009,
+	DOWN_RIGHT	= 0x0006,
+	DOWN_LEFT		= 0x000A
+};
+
 constexpr char VK_A = 0x41;
 constexpr char VK_B = 0x42;
 constexpr char VK_C = 0x43;
@@ -36,6 +55,4 @@ constexpr short DIGIT_6 = 0x36;
 constexpr short DIGIT_7 = 0x37;
 constexpr short DIGIT_8 = 0x38;
 constexpr short DIGIT_9 = 0x39;
-
-
 

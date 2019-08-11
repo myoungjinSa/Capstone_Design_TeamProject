@@ -829,16 +829,16 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 #ifdef _WITH_DIRECT2D_
 		case VK_RETURN:
 		{
-			if (g_State == INGAME)
-			{
-				(ChattingSystem::GetInstance()->IsChattingActive()) ? ChattingSystem::GetInstance()->SetActive(false)
-					: ChattingSystem::GetInstance()->SetActive(true);
-			}
-			if (g_State == LOBBY)
-			{
-				(ChattingSystem::GetInstance()->IsChattingActive()) ? ChattingSystem::GetInstance()->SetActive(false)
-					: ChattingSystem::GetInstance()->SetActive(true);
-			}
+			//if (g_State == INGAME)
+			//{
+			//	(ChattingSystem::GetInstance()->IsChattingActive()) ? ChattingSystem::GetInstance()->SetActive(false)
+			//		: ChattingSystem::GetInstance()->SetActive(true);
+			//}
+			//if (g_State == LOBBY)
+			//{
+			//	(ChattingSystem::GetInstance()->IsChattingActive()) ? ChattingSystem::GetInstance()->SetActive(false)
+			//		: ChattingSystem::GetInstance()->SetActive(true);
+			//}
 			break;
 		}
 		case VK_HANGEUL:
@@ -905,8 +905,7 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 		OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 		break;
 	case WM_KEYDOWN:
-	case WM_KEYUP:
-		
+	case WM_KEYUP:	
 		OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 
 #ifdef _MAPTOOL_MODE_
@@ -1146,7 +1145,11 @@ void CGameFramework::ReleaseObjects()
 
 void CGameFramework::ProcessInput()
 {	
-	if (g_State == INGAME)
+	// 채팅 활성화
+	if(g_State == GAMESTATE::LOBBY)
+		ChattingSystem::GetInstance()->ChattingActive();
+
+	else if (g_State == INGAME)
 	{		
 //서버와 연동되어 있지 않을때만 마우스 회전을 허용한다.
 #ifndef _WITH_SERVER_
@@ -1172,7 +1175,9 @@ void CGameFramework::ProcessInput()
 				}
 				if (dwDirection) m_pPlayer->Move(dwDirection, 12.25f, true);
 			}
-#endif		
+#else
+		ChattingSystem::GetInstance()->ChattingActive();
+#endif
 		m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
 	}
 }
@@ -1222,7 +1227,6 @@ void CGameFramework::MoveToNextFrame()
 }
 
 #ifdef _WITH_DIRECT2D_
-
 void CGameFramework::ShowIceCooltime()
 {
 	if (m_pPlayer)
@@ -1287,7 +1291,6 @@ void CGameFramework::SetNamecard()
 	}
 }
 
-
 void CGameFramework::ProcessDirect2D()
 {
 	//AcquireWrappedResources() D3D11On12 디바이스에서 사용될 수 있는 D3D11 리소스들을 얻게해준다.
@@ -1323,10 +1326,9 @@ void CGameFramework::ProcessDirect2D()
 			name[nLen] = '\0';
 
 			m_pScene->UIRender(name);
-
 			ShowIceCooltime();
 			SetNamecard();
-			//채팅
+			
 			ChattingSystem::GetInstance()->ShowIngameChatting(m_GameTimer.GetTimeElapsed());
 			break;
 		}
@@ -1658,9 +1660,7 @@ void CGameFramework::ProcessPacket(char* packet)
 			default:
 				cout << "미정의 라운드\n";
 				break;
-			}
-				
-			
+			}			
 		}
 
 		clientCount = pRS->clientCount;

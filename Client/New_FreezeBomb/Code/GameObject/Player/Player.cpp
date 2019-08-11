@@ -16,6 +16,7 @@
 #include "../../Shader/CubeParticleShader/ExplosionParticleShader/ExplosionParticleShader.h"
 #include "../../GameFramework/GameFramework.h"
 #include "../../SoundSystem/SoundSystem.h"
+#include "../../Stdafx/KeyDefine.h"
 
 extern byte g_PlayerCharacter;
 extern int g_State;
