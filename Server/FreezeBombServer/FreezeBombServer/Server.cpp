@@ -379,7 +379,21 @@ void Server::AcceptThreadFunc()
 			cout << "MAX USER overflow\n";
 			continue;
 		}
-		
+
+		bool isStarted = false;
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			if (GS_INGAME == clients[i].gameState)
+			{
+				isStarted = true;
+				break;
+			}
+		}
+		if (true == isStarted)
+		{
+			cout << "Players aleady Start!\n";
+			continue;
+		}
 		///////////////////////////////////// 클라이언트 초기화 정보 수정 위치 /////////////////////////////////////
 		clients[new_id].socket = clientSocket;
 		if (-1 == hostId)
@@ -396,7 +410,7 @@ void Server::AcceptThreadFunc()
 
 		clients[new_id].in_use.store(true);
 		//clients[new_id].velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		clients[new_id].gameState = GS_ID_INPUT;
+		clients[new_id].gameState.store(GS_ID_INPUT);
 
 		SendAccessComplete(new_id);
 		// 기존 유저들에게 이후 접속한 유저들 출력
@@ -726,7 +740,7 @@ void Server::WorkerThreadFunc()
 			{
 				if (false == clients[i].in_use)
 					continue;
-				clients[i].gameState = GS_LOBBY;
+				clients[i].gameState.store(GS_LOBBY);
 				SendGoLobby(i);
 			}
 		}
@@ -797,7 +811,7 @@ void Server::ProcessPacket(char client, char *packet)
 
 		strcpy_s(clients[client].nickname, sizeof(p->name), p->name);
 		
-		clients[client].gameState = GS_LOBBY;
+		clients[client].gameState.store(GS_LOBBY);
 		// 기존 유저들의 matID 전송
 		//clientCnt_l.lock();
 		if (clientCount > 0)
@@ -923,7 +937,7 @@ void Server::ProcessPacket(char client, char *packet)
 			{
 				if (clients[i].in_use == true)
 				{
-					clients[i].gameState = GS_INGAME;
+					clients[i].gameState.store(GS_INGAME);
 				}
 			}
 

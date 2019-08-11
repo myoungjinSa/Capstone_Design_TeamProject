@@ -125,7 +125,7 @@ public:
 	char animation;			//애니메이션 index
 	float animationTime;	//애니메이션 시간
 	bool isReady;
-	GAME_STATE gameState;	
+	atomic<int> gameState;	
 	
 	atomic<short> freezeCooltime;
 	//mutex freezeCooltime_l;
