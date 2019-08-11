@@ -399,7 +399,6 @@ void ChattingSystem::ProcessChatting(HWND hWnd, WPARAM wParam, LPARAM lParam, bo
 	}
 	if (GetKeyState(VK_BACK) & 0x8000)
 	{
-
 		if (m_wsChat.size() > 0)
 		{
 			m_wsChat.pop_back();
@@ -425,8 +424,26 @@ void ChattingSystem::Destroy()
 	m_wsChat.clear();
 	m_wsChat.shrink_to_fit();
 }
-#endif
 
+void ChattingSystem::ChattingActive()
+{
+	if (KEY_DOWN(VK_RETURN))
+	{
+		if (m_IsKeyDown == false)
+			m_IsKeyDown = true;
+	}
+
+	if (KEY_UP(VK_RETURN))
+	{
+		if (m_IsKeyDown == true)
+		{
+			m_bActive ? m_bActive = false : m_bActive = true;
+			m_IsKeyDown = false;
+		}
+	}
+}
+
+#endif
 void ChattingSystem::PushText(const string& str)
 {
 	ZeroMemory(m_chat[m_nCurrentText], sizeof(256));
@@ -447,6 +464,7 @@ void ChattingSystem::PushText(const string& str)
 		m_nCurrentText = (++m_nCurrentText) % m_maxChatSentenceCount;
 	}
 }
+
 void ChattingSystem::PushChattingText(const string& user, const char* chat)
 {
 	string s = user + " : ";
@@ -471,7 +489,6 @@ void ChattingSystem::PushChattingText(const string& user, const char* chat)
 	}
 
 }
-
 //프로그램 내에서 한영 전환
 void ChattingSystem::SetIMEMode(HWND hWnd, bool bHanMode)
 {
@@ -509,6 +526,7 @@ void ChattingSystem::ClearChattingBox()
 {
 	m_dequeText.clear();
 }
+
 bool ChattingSystem::ComposeHangeul(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
 	HIMC hImc = ImmGetContext(hWnd);

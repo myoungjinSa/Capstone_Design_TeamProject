@@ -3,10 +3,6 @@
 #include "../GameObject.h"
 #include "../../Camera/Camera.h"
 
-#define KEY_DOWN(VK_CODE) ((GetAsyncKeyState(VK_CODE) & 0x8000 ? 1 : 0))
-#define KEY_UP(VK_CODE) ((GetAsyncKeyState(VK_CODE) & 0x8000 ? 0 : 1))
-#define VK_A 0x41
-
 enum EVENT_TYPE { EV_GOLDTIMER, EV_GOLDHAMMER, EV_QUIT };
 struct Timer_Event
 {
@@ -108,16 +104,6 @@ public:
 	
 	DWORD				m_dwDirection = 0x00;
 
-	enum MUSIC_ENUM
-	{
-		FOOTSTEP=1,
-		USETIMER,
-		DIE,
-		ATTACK,
-		ELECTRIC
-	};
-	std::map<MUSIC_ENUM, std::string> m_mapMusicList;
-
 	void SetMoveRotate(bool mv) { m_isMoveRotate = mv; }
 	bool GetMoveRotate() { return m_isMoveRotate; }
 	bool IsCameraVibe() const { return m_bCameraVibe; }
@@ -218,29 +204,14 @@ protected:
 		ICE										= 0x0080,
 	
 		// 혼합 동작
-		FRONT_RUN_AND_SWING	= 0x0005,
-		BACK_RUN_AND_SWING		= 0x0006,
+		FRONT_RUN_AND_SWING				= 0x0005,
+		BACK_RUN_AND_SWING					= 0x0006,
 
-		FRONT_RUN_AND_GOLDTIMER = 0x0009,
-		BACK_RUN_AND_GOLDTIMER = 0x000A,
+		FRONT_RUN_AND_GOLDTIMER		= 0x0009,
+		BACK_RUN_AND_GOLDTIMER			= 0x000A,
 
-		FRONT_RUN_AND_GOLDHAMMER = 0x0011,
-		BACK_RUN_AND_GOLDHAMMER = 0x0012,
-	};
-
-	// 플레이어의 키입력 정의
-	enum KEY_TYPE
-	{
-		NONE				= 0x0000,
-		UP					= 0x0001,
-		DOWN				= 0x0002,
-		RIGHT				= 0x0004,
-		LEFT					= 0x0008,
-
-		UP_RIGHT			= 0x0005,
-		UP_LEFT			= 0x0009,
-		DOWN_RIGHT	= 0x0006,
-		DOWN_LEFT		= 0x000A
+		FRONT_RUN_AND_GOLDHAMMER	= 0x0011,
+		BACK_RUN_AND_GOLDHAMMER	= 0x0012,
 	};
 
 	int m_PrevAnimation = ANIMATION_TYPE::IDLE;
