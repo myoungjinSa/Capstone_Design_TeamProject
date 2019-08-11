@@ -1243,6 +1243,8 @@ void Server::ProcessPacket(char client, char *packet)
 					//freezeCnt_l.lock();
 					freezeCnt--;
 					//freezeCnt_l.unlock();
+					clients[p->target].freezeCooltime.store(10);
+					add_timer(p->target, EV_FREEZECOOLTIME, high_resolution_clock::now() + 1s);
 					for (int i = 0; i < MAX_USER; ++i)
 					{
 						if (true == clients[i].in_use)
@@ -1279,6 +1281,8 @@ void Server::ProcessPacket(char client, char *packet)
 				if (clients[i].isFreeze == true)
 				{
 					clients[i].isFreeze.store(false);
+					clients[i].freezeCooltime.store(10);
+					add_timer(i, EV_FREEZECOOLTIME, high_resolution_clock::now() + 1s);
 				}
 				if(clients[i].in_use == true)
 				{
@@ -1353,7 +1357,7 @@ void Server::ProcessPacket(char client, char *packet)
 			//clients[client].freezeCooltime_l.unlock();
 
 		//clientCnt_l.lock();
-		int clientCnt = clientCount-1;
+		int clientCnt = clientCount-2;
 		//clientCnt_l.unlock();
 
 		if (clients[client].isFreeze == false)
