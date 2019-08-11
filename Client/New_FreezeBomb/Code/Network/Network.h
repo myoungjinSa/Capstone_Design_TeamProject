@@ -4,7 +4,7 @@
 #pragma comment(lib, "ws2_32.lib")
 #include <WinSock2.h>
 #include "..\Stdafx\Stdafx.h"
-#include "../../../Server/FreezeBombServer/FreezeBombServer/protocol.h"
+#include "../../../../Server/FreezeBombServer/FreezeBombServer/protocol.h"
 #include "../Singleton/Singleton.h"
 #include <string>
 
