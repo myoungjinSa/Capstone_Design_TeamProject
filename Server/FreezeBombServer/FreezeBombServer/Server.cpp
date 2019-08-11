@@ -1237,6 +1237,10 @@ void Server::ProcessPacket(char client, char *packet)
 				if (clients[p->target].isFreeze)
 				{
 					clients[p->target].isFreeze = false;
+					clients[p->target].freezeCooltime_l.lock();
+					clients[p->target].freezeCooltime = 10;
+					clients[p->target].freezeCooltime_l.unlock();
+					add_timer(p->target, EV_FREEZECOOLTIME, high_resolution_clock::now() + 1s);
 					freezeCnt_l.lock();
 					--freezeCnt;
 					freezeCnt_l.unlock();
@@ -1276,6 +1280,10 @@ void Server::ProcessPacket(char client, char *packet)
 				if (clients[i].isFreeze == true)
 				{
 					clients[i].isFreeze = false;
+					clients[i].freezeCooltime_l.lock();
+					clients[i].freezeCooltime = 10;
+					clients[i].freezeCooltime_l.unlock();
+					add_timer(i, EV_FREEZECOOLTIME, high_resolution_clock::now() + 1s);
 				}
 				if(clients[i].in_use == true)
 				{
@@ -1350,7 +1358,7 @@ void Server::ProcessPacket(char client, char *packet)
 			clients[client].freezeCooltime_l.unlock();
 
 		clientCnt_l.lock();
-		int clientCnt = clientCount-1;
+		int clientCnt = clientCount-2;
 		clientCnt_l.unlock();
 
 		if (clients[client].isFreeze == false)
@@ -1929,6 +1937,9 @@ void Server::ClientDisconnect(char client)
 		//}
 		//else
 		//	clientCnt_l.unlock();
+
+		if (clientCount <= 0)
+			break;
 
 		bomberID_l.lock();
 		int tmp = bomberID;
