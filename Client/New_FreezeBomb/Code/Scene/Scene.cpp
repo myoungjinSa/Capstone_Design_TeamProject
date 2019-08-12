@@ -743,7 +743,8 @@ void CScene::CheckObjectByObjectCollisions(float elapsedTime)
 							Network::GetInstance()->SendBomberTouch(id);
 						}
 						else
-							cout << "무적" << endl;
+						{
+						}
 					}				
 					isCollided = true;			
 					Network::GetInstance()->SendPlayerCollision(id);
@@ -1046,7 +1047,7 @@ void CScene::MappingItemStringToItemType(const string& strItem,int& itemType)
 	}
 	else
 	{
-		cout << "비 정상 아이템\n";
+		//cout << "비 정상 아이템\n";
 		itemType = CItem::ItemType::Empty;
 	}
 }

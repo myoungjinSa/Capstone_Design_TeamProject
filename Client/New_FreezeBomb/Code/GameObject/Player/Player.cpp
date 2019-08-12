@@ -722,7 +722,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		&& gameTime < MAX_ROUND_TIME - 5)
 	{	
 #ifdef _WITH_SERVER_
-		cout << "SendFreezeState()\n";
+		//cout << "SendFreezeState()\n";
 		Network::GetInstance()->SendFreezeState();
 #else
 		m_bIce = !m_bIce;
@@ -926,32 +926,29 @@ void CPlayer::ProcessAnimation()
 {
 	int animation = ANIMATION_TYPE::IDLE;
 
-	//if (m_IsICEKeyDown == false)
-	//{
-		if (GetAsyncKeyState(VK_UP) & 0x8000)
-			animation = animation | ANIMATION_TYPE::FRONT_RUN;
+	if (GetAsyncKeyState(VK_UP) & 0x8000)
+		animation = animation | ANIMATION_TYPE::FRONT_RUN;
 
-		else if (GetAsyncKeyState(VK_DOWN) & 0x8000)
-			animation = animation | ANIMATION_TYPE::BACK_RUN;
+	else if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+		animation = animation | ANIMATION_TYPE::BACK_RUN;
 
-		if (GetAsyncKeyState(VK_CONTROL) & 0x8000)
-			animation = animation | ANIMATION_TYPE::SWING;
+	if (GetAsyncKeyState(VK_CONTROL) & 0x8000)
+		animation = animation | ANIMATION_TYPE::SWING;
 
-		else if (GetAsyncKeyState(VK_MENU) & 0x8000)
+	else if (GetAsyncKeyState(VK_MENU) & 0x8000)
+	{
+		int result = CheckSpecialItem();
+		if (result == 1)
 		{
-			int result = CheckSpecialItem();
-			if (result == 1)
-			{
-				animation = animation | ANIMATION_TYPE::GOLDTIMER;
-				cout << "황금시계 애니메이션 보냄" << endl;
-			}
-			else if (result == -1)
-			{
-				animation = animation | ANIMATION_TYPE::GOLDHAMMER;
-				cout << "황금망치 애니메이션 보냄" << endl;
-			}
+			animation = animation | ANIMATION_TYPE::GOLDTIMER;
+			//cout << "황금시계 애니메이션 보냄" << endl;
 		}
-	//}
+		else if (result == -1)
+		{
+			animation = animation | ANIMATION_TYPE::GOLDHAMMER;
+			//cout << "황금망치 애니메이션 보냄" << endl;
+		}
+	}
 
 	// A키
 	if (KEY_DOWN(VK_A))
@@ -959,7 +956,7 @@ void CPlayer::ProcessAnimation()
 		if (m_IsICEKeyDown == false)
 		{
 			m_IsICEKeyDown = true;
-			cout << "얼음 키 처음 누름" << endl;
+			//cout << "얼음 키 처음 누름" << endl;
 		}
 	}
 	else if (KEY_UP(VK_A))
@@ -970,7 +967,7 @@ void CPlayer::ProcessAnimation()
 			{
 				animation = ANIMATION_TYPE::IDLE;
 				Network::GetInstance()->SendFreezeState();
-				cout << "얼음 키 떼고, 얼음 보냄" << endl;
+				//cout << "얼음 키 떼고, 얼음 보냄" << endl;
 			}
 			m_IsICEKeyDown = false;
 		}

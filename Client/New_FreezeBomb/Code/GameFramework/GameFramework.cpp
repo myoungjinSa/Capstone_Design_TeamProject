@@ -1410,16 +1410,16 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		CCharacterSelectUIShader::SetMyID(pAC->myId);
 
-		cout << "0. 접속 완료!! ▶ ";
-		cout << "MyID : " << (int)m_pPlayer->GetPlayerID() << ", HostID : " << m_HostID << endl;
+		//cout << "0. 접속 완료!! ▶ ";
+		//cout << "MyID : " << (int)m_pPlayer->GetPlayerID() << ", HostID : " << m_HostID << endl;
 		break;
 	}
 
 	case SC_ACCESS_PLAYER:
 	{
 		SC_PACKET_ACCESS_PLAYER* pAP = reinterpret_cast<SC_PACKET_ACCESS_PLAYER*>(packet);
-		cout << "1. OtherPlayer 접속!! ▶";
-		cout << "OtherPlayerID : " <<(int) pAP->id << endl;
+		//cout << "1. OtherPlayer 접속!! ▶";
+		//cout << "OtherPlayerID : " <<(int) pAP->id << endl;
 		break;
 	}
 
@@ -1430,7 +1430,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		for (int i = 0; i < MAX_USER; ++i)
 		{
 			CLobbyScene::AddClientsCharacter(i, pCC->matID[i]);
-			cout << "2. Character of OtherPlayer - id: " << i << " : " << (int)pCC->matID[i] << endl;
+			//cout << "2. Character of OtherPlayer - id: " << i << " : " << (int)pCC->matID[i] << endl;
 			
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end()) 
@@ -1457,8 +1457,8 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		ChattingSystem::GetInstance()->PushChattingText(user, s.c_str());
 
-		cout << "3. 로비에 접속" << endl;
-		cout << "m_mapClients 사이즈" << m_mapClients.size() << endl;
+		//cout << "3. 로비에 접속" << endl;
+		//cout << "m_mapClients 사이즈" << m_mapClients.size() << endl;
 		break;
 	}
 
@@ -1514,7 +1514,7 @@ void CGameFramework::ProcessPacket(char* packet)
 				m_mapClients.erase(mapIter);
 			}
 
-			cout << "m_mapClients 사이즈" << m_mapClients.size() << endl;
+			//cout << "m_mapClients 사이즈" << m_mapClients.size() << endl;
 		}
 		break;
 	}
@@ -1543,7 +1543,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		m_mapClients[pReady->id].isReady = true;
 
-		cout << "SC_READY_STATE 호출" << endl;
+		//cout << "SC_READY_STATE 호출" << endl;
 		break;
 	}
 
@@ -1658,7 +1658,7 @@ void CGameFramework::ProcessPacket(char* packet)
 				CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND, 0.5f);
 				break;
 			default:
-				cout << "미정의 라운드\n";
+				//cout << "미정의 라운드\n";
 				break;
 			}			
 		}
@@ -1973,7 +1973,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		{
 			if (m_pPlayer->GetIsICE() == false)
 			{
-				cout << "얼음 됨" << endl;
+				//cout << "얼음 됨" << endl;
 				m_pPlayer->SetIsICE(true);
 			}
 		}
@@ -2005,7 +2005,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		{			
 			if (m_pPlayer->GetIsICE() == true)
 			{
-				cout << "얼음 풀림" << endl;
+				//cout << "얼음 풀림" << endl;
 				m_pPlayer->SetIsICE(false);
 			}
 		}
@@ -2057,7 +2057,7 @@ void CGameFramework::ProcessPacket(char* packet)
 				m_pPlayer->setIsGoldTimer(true);
 				break;
 			case CItem::ItemType::Empty:
-				cout << "비정상적인 아이템\n";
+				//cout << "비정상적인 아이템\n";
 				break;
 			}
 		}
@@ -2094,11 +2094,11 @@ void CGameFramework::ProcessPacket(char* packet)
 					break;
 				}
 				case CItem::ItemType::Empty:
-					cout << "비정상적인 아이템\n";
+					//cout << "비정상적인 아이템\n";
 					break;
 				}
 				CItemShader* pItem = (CItemShader*)(*itemIter).second;
-				cout << "상대방이 먹은 아이템" << sItem << "\n";
+				//cout << "상대방이 먹은 아이템" << sItem << "\n";
 				pItem->ItemDelete(sItem);
 			}
 
@@ -2151,7 +2151,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		}
 		case ITEM::GOLD_HAMMER:
 		{
-			cout << pUI->id << "가 Gold Hammer 아이템 사용\n";
+			//cout << pUI->id << "가 Gold Hammer 아이템 사용\n";
 			if (pUI->id == m_pPlayer->GetPlayerID())
 			{
 				m_pPlayer->Sub_Inventory(CItem::ItemType::GoldHammer);
@@ -2211,7 +2211,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		}
 		case ITEM::NORMALHAMMER:
 		{
-			cout << m_mapClients[pUI->id].id << "가 " << m_mapClients[pUI->target].id << "에게 Normal Hammer 아이템 사용\n";
+			//cout << m_mapClients[pUI->id].id << "가 " << m_mapClients[pUI->target].id << "에게 Normal Hammer 아이템 사용\n";
 			//플레이어가 상대방을 때렸을때
 			if (pUI->id < MAX_USER && pUI->target < MAX_USER)
 			{
@@ -2296,7 +2296,7 @@ void CGameFramework::ProcessPacket(char* packet)
 			break;
 		}
 		default:
-			cout << "미정의 아이템\n";
+			//cout << "미정의 아이템\n";
 			break;
 		}
 
@@ -2373,7 +2373,7 @@ void CGameFramework::ProcessPacket(char* packet)
 			
 			}
 		}
-		cout << "술래 바뀜" << endl;
+		//cout << "술래 바뀜" << endl;
 		CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::CATCH);
 
 		break;
@@ -2390,7 +2390,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 			g_State = LOBBY;
 
-			cout << "Go Lobby" << endl;
+			//cout << "Go Lobby" << endl;
 			break;
 		}
 
