@@ -966,6 +966,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		&& pController->GetAnimationState() != CAnimationController::ICE
 		&& pController->GetAnimationState() != CAnimationController::DIE
 		&& pController->GetAnimationState() != CAnimationController::VICTORY
+		&& pController->GetAnimationState() != CAnimationController::USEGOLDHAMMER
 		&& ChattingSystem::GetInstance()->IsChattingActive() ==false
 		)
 	{
