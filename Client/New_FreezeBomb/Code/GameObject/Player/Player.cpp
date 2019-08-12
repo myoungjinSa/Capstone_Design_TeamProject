@@ -926,8 +926,8 @@ void CPlayer::ProcessAnimation()
 {
 	int animation = ANIMATION_TYPE::IDLE;
 
-	if (m_IsICEKeyDown == false)
-	{
+	//if (m_IsICEKeyDown == false)
+	//{
 		if (GetAsyncKeyState(VK_UP) & 0x8000)
 			animation = animation | ANIMATION_TYPE::FRONT_RUN;
 
@@ -951,7 +951,7 @@ void CPlayer::ProcessAnimation()
 				cout << "황금망치 애니메이션 보냄" << endl;
 			}
 		}
-	}
+	//}
 
 	// A키
 	if (KEY_DOWN(VK_A))
@@ -962,20 +962,23 @@ void CPlayer::ProcessAnimation()
 			cout << "얼음 키 처음 누름" << endl;
 		}
 	}
-
-	if (KEY_UP(VK_A))
+	else if (KEY_UP(VK_A))
 	{
 		if (m_IsICEKeyDown == true)
 		{
 			if (CheckICE() == true)
 			{
-				animation = animation & ANIMATION_TYPE::IDLE;
+				animation = ANIMATION_TYPE::IDLE;
 				Network::GetInstance()->SendFreezeState();
 				cout << "얼음 키 떼고, 얼음 보냄" << endl;
 			}
 			m_IsICEKeyDown = false;
 		}
 	}
+
+	if (m_bIce == true)
+		if (m_PrevAnimation != ANIMATION_TYPE::IDLE)
+			animation = animation & ANIMATION_TYPE::IDLE;
 
 	// &연산을 해서 키가 안눌렸으면, 0x0000이 되므로 IDLE이 됨
 	// 아니면, 나의 동작을 처리함
@@ -1037,7 +1040,7 @@ void CPlayer::SendAnimation(int animation)
 
 bool CPlayer::CheckAnimation(int animation)
 {
-	if (animation == CAnimationController::ANIMATIONTYPE::DIE)
+	if (animation == CAnimationController::ANIMATIONTYPE::DIE || animation == CAnimationController::ANIMATIONTYPE::VICTORY)
 		return true;
 
 	// 라운드가 끝났을 때, 다른 애니메이션이 되는 것을 방지하기 위해
@@ -1046,7 +1049,10 @@ bool CPlayer::CheckAnimation(int animation)
 
 	// 얼음 상태면, 동작을 바꾸면 안댐 
 	if (m_bIce == true)
-		return false;
+	{
+		if (m_PrevAnimation == ANIMATION_TYPE::IDLE)
+			return false;
+	}
 
 	// 현재 셋된 애니메이션이 ONCE일 때, 그 동작이 진행 중이라면,
 	if (m_pAnimationController->m_pAnimationTracks->m_pAnimationSet->m_nType == ANIMATION_TYPE_ONCE)
@@ -1166,9 +1172,6 @@ bool CPlayer::CheckICE()
 bool CPlayer::CheckMove(int key)
 {
 	if (g_IsRoundEnd == true)
-		return false;
-
-	if (m_IsICEKeyDown == true)
 		return false;
 
 	// 얼음 상태일 때,
