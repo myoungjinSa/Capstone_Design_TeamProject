@@ -659,7 +659,7 @@ void Server::WorkerThreadFunc()
 		{
 			//coolTime_l.lock();
 			bomberTouchCooltime--;
-			printf("쿨타임:%d\n", bomberTouchCooltime.load());
+			//printf("쿨타임:%d\n", bomberTouchCooltime);
 			
 			if(bomberTouchCooltime <= 0)
 			{
@@ -846,8 +846,7 @@ void Server::ProcessPacket(char client, char *packet)
 			if (clients[i].gameState == GS_LOBBY)
 				SendClientLobbyIn(client, i, clients[i].nickname, clients[i].isReady);
 		}
-		cout << clients[client].nickname << endl;
-		cout << (int)p->id << endl;
+		cout << "Client " << (int)p->id << " : " << clients[client].nickname << "\n";
 		break;
 	}
 	case CS_CHATTING:
@@ -863,7 +862,7 @@ void Server::ProcessPacket(char client, char *packet)
 					SendChattinPacket(i, client, p->chatting);
 			}
 		}
-		cout << p->chatting << endl;
+		//cout << p->chatting << endl;
 
 
 		break;
@@ -925,7 +924,7 @@ void Server::ProcessPacket(char client, char *packet)
 		//readyCnt_l.lock();
 		if (clientCount - 1 == readyCount)
 		{
-			cout << clientCount << ", " << readyCount << "\n";
+			//cout << clientCount << ", " << readyCount << "\n";
 			//readyCnt_l.unlock();
 			//clientCnt_l.unlock();
 
@@ -1108,7 +1107,7 @@ void Server::ProcessPacket(char client, char *packet)
 
 		//bomberID_l.lock();
 		bomberID.store((int)p->touchId);
-		cout << "술래 바뀜 : bomberID : " << bomberID << endl;
+		cout << "술래 바뀜 bomberID : " << bomberID << endl;
 		//bomberID_l.unlock();
 
 		//coolTime_l.lock();
@@ -1433,7 +1432,7 @@ void Server::ProcessPacket(char client, char *packet)
 
 	case CS_BOMB_EXPLOSION:
 	{
-		cout << "CS_BOMB_EXPLOSION CALL\n";
+		//cout << "CS_BOMB_EXPLOSION CALL\n";
 		//Bomber가 아닌 다른 나머지 클라이언트에게 폭탄이 터진것을 알림
 		//bomberID_l.lock();
 		short tmp = bomberID;
@@ -1783,9 +1782,6 @@ void Server::SendGetItem(char toClient, char fromClient, string& itemIndex)
 	packet.type = SC_GET_ITEM;
 	ZeroMemory(packet.itemIndex, MAX_ITEM_NAME_LENGTH);
 	strncpy(packet.itemIndex, itemIndex.c_str(), itemIndex.length());
-	for (int i = 0; i < MAX_ITEM_NAME_LENGTH; ++i)
-		cout << packet.itemIndex[i];
-	cout << "\n";
 	SendFunc(toClient, &packet);
 }
 
