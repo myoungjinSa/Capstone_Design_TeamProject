@@ -887,7 +887,7 @@ void CPlayer::DecideAnimationState(float fLength,const float& fTimeElapsed)
 		&& CGameFramework::m_IceChangeOk == true)
 	{	
 #ifdef _WITH_SERVER_
-		cout << "SendFreezeState()\n";
+		//cout << "SendFreezeState()\n";
 		Network::GetInstance()->SendFreezeState();
 #else
 		m_bIce = !m_bIce;

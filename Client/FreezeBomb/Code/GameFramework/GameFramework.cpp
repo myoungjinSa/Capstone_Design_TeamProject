@@ -235,49 +235,49 @@ void CGameFramework::CreateSwapChain()
 	hResult = m_pdxgiSwapChain->GetFullscreenState(false, NULL);
 	if (FAILED(hResult))
 	{
-		cout << "GetFullScreenState 에러\n";
+		//cout << "GetFullScreenState 에러\n";
 	}
 	//전체 모드로 시작
 	hResult = m_pdxgiSwapChain->SetFullscreenState(true, NULL);
 
 	if (hResult == DXGI_ERROR_NOT_CURRENTLY_AVAILABLE)
 	{
-		cout << " A resource is not available at the time of the call, but may become available later.\n";
+		//cout << " A resource is not available at the time of the call, but may become available later.\n";
 		return;
 	}
 	if (hResult == DXGI_STATUS_NO_REDIRECTION)
 	{
-		cout << "The driver is requesting that the DXGI runtime not use shared resources to communicate with the Desktop Window Manager\n";
+		//cout << "The driver is requesting that the DXGI runtime not use shared resources to communicate with the Desktop Window Manager\n";
 		return;
 	}
 	if (hResult == DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE)
 	{
-		cout << "The Present operation was not visible because the target monitor was being used for some other purpose.\n";
+		//cout << "The Present operation was not visible because the target monitor was being used for some other purpose.\n";
 		return;
 	}
 	if (hResult == DXGI_STATUS_MODE_CHANGED)
 	{
-		cout << "The Present operation was not visible because the display mode changed. DXGI will have re-attempted the presentation.\n";
+		//cout << "The Present operation was not visible because the display mode changed. DXGI will have re-attempted the presentation.\n";
 		return;
 	}
 	if (hResult == DXGI_STATUS_MODE_CHANGE_IN_PROGRESS)
 	{
-		cout << "The Present operation was not visible because another Direct3D device was attempting to take fullscreen mode at the time.\n";
+		//cout << "The Present operation was not visible because another Direct3D device was attempting to take fullscreen mode at the time.\n";
 		return;
 	}
 	if (hResult == DXGI_STATUS_NO_DESKTOP_ACCESS)
 	{
-		cout << "The Present operation was not visible because the Windows session has switched to another desktop (for example, ctrl-alt-del).\n";
+		//cout << "The Present operation was not visible because the Windows session has switched to another desktop (for example, ctrl-alt-del).\n";
 		return;
 	}
 	if (hResult == DXGI_STATUS_OCCLUDED)
 	{
-		cout << "The Present operation was invisible to the user\n";
+	//	cout << "The Present operation was invisible to the user\n";
 		return;
 	}
 	if (FAILED(hResult)) 
 	{
-		cout << "SetFullScreenState ERROR\n";
+	//	cout << "SetFullScreenState ERROR\n";
 		return;
 	}
 	if (SUCCEEDED(hResult))
@@ -314,7 +314,7 @@ void CGameFramework::CreateSwapChain()
 	//DXGI_MWA_NO_WINDOW_CHANGES -> DXGI가 윈도우 메세지큐를 감시하지 않는 옵션
 	if (FAILED(hResult))
 	{
-		cout << "MakeWindowAssociation 에러\n";
+		//cout << "MakeWindowAssociation 에러\n";
 		return;
 	}
 
@@ -372,11 +372,11 @@ void CGameFramework::CreateDirect3DDevice()
 	if (pd3dAdapter == nullptr)
 	{
 		hResult = m_pdxgiFactory6->EnumWarpAdapter(_uuidof(IDXGIAdapter1), (void **)&pd3dAdapter);
-		if (FAILED(hResult))
-			cout << "EnumWarpAdater 에러\n";
+		//if (FAILED(hResult))
+			//cout << "EnumWarpAdater 에러\n";
 		hResult = D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), (void **)&m_pd3dDevice);
-		if (FAILED(hResult))
-			cout << "CreateWarpDevice 에러\n";
+		//if (FAILED(hResult))
+		//	cout << "CreateWarpDevice 에러\n";
 	}
 
 	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS d3dMsaaQualityLevels;
@@ -389,8 +389,8 @@ void CGameFramework::CreateDirect3DDevice()
 	m_bMsaa4xEnable = (m_nMsaa4xQualityLevels > 1) ? true : false;
 
 	hResult = m_pd3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), (void **)&m_pd3dFence);
-	if (FAILED(hResult))
-		cout << "CreateFence 에러\n";
+	//if (FAILED(hResult))
+	//	cout << "CreateFence 에러\n";
 	for (UINT i = 0; i < m_nSwapChainBuffers; i++) m_nFenceValues[i] = 0;
 
 	m_hFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -410,8 +410,8 @@ void CGameFramework::CreateCommandQueueAndList()
 	d3dCommandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	d3dCommandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	hResult = m_pd3dDevice->CreateCommandQueue(&d3dCommandQueueDesc, _uuidof(ID3D12CommandQueue), (void **)&m_pd3dCommandQueue);
-	if (FAILED(hResult))
-		cout << "CreateCommandQueue 에러\n";
+	//if (FAILED(hResult))
+		//cout << "CreateCommandQueue 에러\n";
 
 	hResult = m_pd3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), (void **)&m_pd3dCommandAllocator);
 	
@@ -653,14 +653,14 @@ void CGameFramework::ChangeSwapChainState()
 	HRESULT hResult = m_pdxgiSwapChain->GetFullscreenState(&bFullScreenState, NULL);
 	if (FAILED(hResult))
 	{
-		cout << "GetFullScreenState 에러\n";
+		//cout << "GetFullScreenState 에러\n";
 		return;
 	}
 		
 	hResult = m_pdxgiSwapChain->SetFullscreenState(!bFullScreenState, NULL);
 	if (FAILED(hResult))
 	{
-		cout << "SetFullScreenState 에러\n";
+		//cout << "SetFullScreenState 에러\n";
 		return;
 	}
 	DXGI_MODE_DESC dxgiTargetParameters;
@@ -1486,16 +1486,16 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		CCharacterSelectUIShader::SetMyID(pAC->myId);
 
-		cout << "0. 접속 완료!! ▶ ";
-		cout << "MyID : " << (int)m_pPlayer->GetPlayerID() << ", HostID : " << m_HostID << endl;
+		//cout << "0. 접속 완료!! ▶ ";
+		//cout << "MyID : " << (int)m_pPlayer->GetPlayerID() << ", HostID : " << m_HostID << endl;
 		break;
 	}
 
 	case SC_ACCESS_PLAYER:
 	{
 		SC_PACKET_ACCESS_PLAYER* pAP = reinterpret_cast<SC_PACKET_ACCESS_PLAYER*>(packet);
-		cout << "1. OtherPlayer 접속!! ▶";
-		cout << "OtherPlayerID : " << (int)pAP->id << endl;
+		//cout << "1. OtherPlayer 접속!! ▶";
+		//cout << "OtherPlayerID : " << (int)pAP->id << endl;
 		break;
 	}
 
@@ -1506,7 +1506,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		for (int i = 0; i < MAX_USER; ++i)
 		{
 			CLobbyScene::AddClientsCharacter(i, pCC->matID[i]);
-			cout << "2. Character of OtherPlayer - id: " << i << " : " << (int)pCC->matID[i] << endl;
+		//	cout << "2. Character of OtherPlayer - id: " << i << " : " << (int)pCC->matID[i] << endl;
 
 			auto iter = m_pScene->getShaderManager()->getShaderMap().find("OtherPlayer");
 			if (iter != m_pScene->getShaderManager()->getShaderMap().end())
@@ -1533,8 +1533,8 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		ChattingSystem::GetInstance()->PushChattingText(user, s.c_str());
 
-		cout << "3. 로비에 접속" << endl;
-		cout << "m_mapClients 사이즈" << m_mapClients.size() << endl;
+		//cout << "3. 로비에 접속" << endl;
+		//cout << "m_mapClients 사이즈" << m_mapClients.size() << endl;
 		break;
 	}
 
@@ -1565,7 +1565,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 	case SC_CLIENT_LOBBY_OUT:
 	{
-		printf("SC_CLIENT_LOBBY_OUT 호출");
+		//printf("SC_CLIENT_LOBBY_OUT 호출");
 		SC_PACKET_LOBBY_OUT *pLO = reinterpret_cast<SC_PACKET_LOBBY_OUT*>(packet);
 
 		if (pLO->id < MAX_USER)
@@ -1590,7 +1590,7 @@ void CGameFramework::ProcessPacket(char* packet)
 				m_mapClients.erase(mapIter);
 			}
 
-			cout << "m_mapClients 사이즈" << m_mapClients.size() << endl;
+			//cout << "m_mapClients 사이즈" << m_mapClients.size() << endl;
 		}
 		break;
 	}
@@ -1619,7 +1619,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		m_mapClients[pReady->id].isReady = true;
 
-		cout << "SC_READY_STATE 호출" << endl;
+		//cout << "SC_READY_STATE 호출" << endl;
 		break;
 	}
 
@@ -1735,7 +1735,7 @@ void CGameFramework::ProcessPacket(char* packet)
 				CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::FIRE_SOUND, 0.5f);
 				break;
 			default:
-				cout << "미정의 라운드\n";
+		//		cout << "미정의 라운드\n";
 				break;
 			}
 
@@ -1768,7 +1768,7 @@ void CGameFramework::ProcessPacket(char* packet)
 			dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->ResetParticles();
 		}
 
-		printf("Round Start! Bomber is %d\n", m_mapClients[pRS->bomberID].id);
+		//printf("Round Start! Bomber is %d\n", m_mapClients[pRS->bomberID].id);
 
 		break;
 	}
@@ -2014,17 +2014,17 @@ void CGameFramework::ProcessPacket(char* packet)
 		}
 
 
-		printf("Player Disconnected ID : %d\n", pRP->id);
+		//printf("Player Disconnected ID : %d\n", pRP->id);
 		break;
 	}
 
 	case SC_ROUND_END:
 	{
 		SC_PACKET_ROUND_END *pRE = reinterpret_cast<SC_PACKET_ROUND_END*>(packet);
-		if (pRE->isWinner)
+		/*if (pRE->isWinner)
 			printf("Win!\n");
 		else
-			printf("Lose..\n");
+			printf("Lose..\n");*/
 
 
 		m_IceChangeOk = false;
@@ -2071,7 +2071,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		{
 			if (m_pPlayer->GetIsICE() == false)
 			{
-				cout << "SetIsIce-true\n";
+				//cout << "SetIsIce-true\n";
 				m_pPlayer->SetIsICE(true);
 				m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
 				m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::ICE);
@@ -2107,9 +2107,9 @@ void CGameFramework::ProcessPacket(char* packet)
 
 			if (m_pPlayer->GetIsICE() == true)
 			{
-				cout << "setIsIce = false\n";
+				//cout << "setIsIce = false\n";
 				m_pPlayer->SetIsICE(false);
-				cout << "SetIsIce-false\n";
+				//cout << "SetIsIce-false\n";
 				m_pPlayer->m_pAnimationController->SetTrackAnimationSet(0, CAnimationController::IDLE);
 				m_pPlayer->m_pAnimationController->SetAnimationState(CAnimationController::IDLE);
 				m_pPlayer->m_pAnimationController->SetTrackPosition(0, 0.0f);
@@ -2163,7 +2163,7 @@ void CGameFramework::ProcessPacket(char* packet)
 				m_pPlayer->setIsGoldTimer(true);
 				break;
 			case CItem::ItemType::Empty:
-				cout << "비정상적인 아이템\n";
+			//	cout << "비정상적인 아이템\n";
 				break;
 			}
 		}
@@ -2200,11 +2200,11 @@ void CGameFramework::ProcessPacket(char* packet)
 					break;
 				}
 				case CItem::ItemType::Empty:
-					cout << "비정상적인 아이템\n";
+				//	cout << "비정상적인 아이템\n";
 					break;
 				}
 				CItemShader* pItem = (CItemShader*)(*itemIter).second;
-				cout << "상대방이 먹은 아이템" << sItem << "\n";
+				//cout << "상대방이 먹은 아이템" << sItem << "\n";
 				pItem->ItemDelete(sItem);
 			}
 
@@ -2254,7 +2254,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		}
 		case ITEM::GOLD_HAMMER:
 		{
-			cout << pUI->id << "가 Gold Hammer 아이템 사용\n";
+			//cout << pUI->id << "가 Gold Hammer 아이템 사용\n";
 			if (pUI->id == m_pPlayer->GetPlayerID())
 			{
 				m_pPlayer->Sub_Inventory(CItem::ItemType::GoldHammer);
@@ -2314,7 +2314,7 @@ void CGameFramework::ProcessPacket(char* packet)
 		}
 		case ITEM::NORMALHAMMER:
 		{
-			cout << m_mapClients[pUI->id].id << "가 " << m_mapClients[pUI->target].id << "에게 Normal Hammer 아이템 사용\n";
+		//	cout << m_mapClients[pUI->id].id << "가 " << m_mapClients[pUI->target].id << "에게 Normal Hammer 아이템 사용\n";
 			//플레이어가 상대방을 때렸을때
 			if (pUI->id < MAX_USER && pUI->target < MAX_USER)
 			{
@@ -2399,7 +2399,7 @@ void CGameFramework::ProcessPacket(char* packet)
 			break;
 		}
 		default:
-			cout << "미정의 아이템\n";
+		//	cout << "미정의 아이템\n";
 			break;
 		}
 
@@ -2426,7 +2426,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 				//	dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetBlowingUp(true);
 
-				cout << "적 터짐" << endl;
+			//	cout << "적 터짐" << endl;
 				dynamic_cast<CExplosionParticleShader*>((*explosionIter).second)->SetParticleBlowUp(pBomb->GetPosition());
 			}
 		}
@@ -2484,7 +2484,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 			}
 		}
-		cout << "술래 바뀜" << endl;
+		//cout << "술래 바뀜" << endl;
 		CSoundSystem::PlayingSound(CSoundSystem::SOUND_TYPE::CATCH);
 
 		break;
@@ -2500,7 +2500,7 @@ void CGameFramework::ProcessPacket(char* packet)
 
 		g_State = LOBBY;
 
-		cout << "Go Lobby" << endl;
+		//cout << "Go Lobby" << endl;
 		break;
 	}
 	case SC_FREEZE_COOLTIME:
