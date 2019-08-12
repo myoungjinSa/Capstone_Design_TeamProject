@@ -383,6 +383,8 @@ void Server::AcceptThreadFunc()
 		bool isStarted = false;
 		for (int i = 0; i < MAX_USER; ++i)
 		{
+			if (false == clients[i].in_use)
+				continue;
 			if (GS_INGAME == clients[i].gameState)
 			{
 				isStarted = true;
