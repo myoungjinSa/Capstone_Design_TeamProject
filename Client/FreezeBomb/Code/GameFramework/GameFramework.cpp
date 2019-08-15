@@ -51,7 +51,7 @@ map<int, clientsInfo> CGameFramework::m_mapClients;
 char CGameFramework::m_HostID = -1;
 #endif
 // 전체모드할경우 주석풀으셈
-//#define FullScreenMode
+#define FullScreenMode
 
 //게임 상태 
 int g_State = GAMESTATE::ID_INPUT;
@@ -341,7 +341,7 @@ void CGameFramework::CreateDirect3DDevice()
 	nDXGIFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 #endif
 
-	hResult = ::CreateDXGIFactory2(nDXGIFactoryFlags, __uuidof(IDXGIFactory4), (void **)&m_pdxgiFactory6);
+	hResult = ::CreateDXGIFactory2(nDXGIFactoryFlags, __uuidof(IDXGIFactory6), (void **)&m_pdxgiFactory6);
 	if (FAILED(hResult))
 	{
 		printf("CreateDXGIFactory2 Error\n");
