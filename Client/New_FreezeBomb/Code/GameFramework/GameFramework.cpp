@@ -543,10 +543,8 @@ void CGameFramework::CreateRenderTargetViews()
 // 뿐만 아니라 Load Assets메소드안 에 있는 렌더 타겟도 가능하다.
 void CGameFramework::CreateDirect2DRenderTargetViews()
 {
-	float fxDPI, fyDPI;
-
-	m_pd2dFactory->GetDesktopDpi(&fxDPI, &fyDPI); // 현재 데스크톱에 dots per inch(DPI)를 검색하고 ,각 변수들에 할당해준다.
-	
+	float fxDPI = (float)GetDpiForWindow(GetDesktopWindow());
+	float fyDPI = fxDPI;
 	//D2D1_BITMAP_PROPERTIES1	 : 
 	//1. D2D1_BITMAP_OPTIONS     : 비트맵의 용도 옵션.  EX> D2D1_BITMAP_OPTIONS_TARGET : the bitmap can be used as a device context target.
 	//												   EX> D2D1_BITMAP_OPTIONS_CANNOT_DRAW : the bitmap cannot be used an input.
